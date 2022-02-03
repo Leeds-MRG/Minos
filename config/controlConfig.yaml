@@ -1,0 +1,51 @@
+randomness:
+    key_columns: ['entrance_time', 'age']
+input_data:
+    location: 'UK'
+time:
+    start: {year: 2011, month: 10, day: 1}
+    end:   {year: 2012, month: 10, day: 1}
+    step_size: 30.4375  # Days
+    num_years: 1
+population:
+    age_start: 0
+    age_end: 100
+
+replenishment_files_source:
+      "/Users/robertclay/Documents/6614stata_471A424C959CCFC9AE423A866B5794B9_V1/UKDA-6614-stata/stata/stata11_se/"
+depression_files:
+    tier0: "bhps_depression_tier0_table.csv"
+    tier1: "bhps_depression_tier1_table.csv"
+    tier2: "bhps_depression_tier2_table.csv"
+
+education_file: 'persistent_data/education_enrollment_rate_table.csv'
+mortality_file: 'nolocation_Mortality2011_LEEDS1_2.csv'
+fertility_file: 'nolocation_Fertility2011_LEEDS1_2.csv'
+total_population_file: 'BHPS_Daedalus_testpop.csv'
+ethnic_lookup: 'bhps_ethnic_lookup.csv'
+input_data_filename: "BHPS_Daedalus_testpop.csv"
+
+# REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
+# The order of these listed components is important. They are initialised last one in first one off.
+# All other components need the replenishment module which loads in real cohort data.
+# The Replenishment component must be listed LAST here no matter what as it is the FIRST module used. (priority 0)
+# Only if Replenishment needs some other module in the future would it be superceded.
+# Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
+# Finally everything else can go in any order (priority 2).
+#components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
+components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
+
+scale_rates:
+    # methods:
+    # constant: all rates regardless of age/sex/... will be multiplied by the specified factor
+    #           if 1, the original rates will be usd
+    # these are essentially used to inflate rates in certain scenarios. E.g. employment decrease.
+    method: "constant"
+    constant:
+        education: 1
+        mortality: 1
+        fertility: 1
+        depression0: 1
+        depression1: 1
+        depression2: 1
+
