@@ -1,7 +1,9 @@
 <div align="center">
-    <h1>Icarus</h1>
+    <h1>Minos</h1>
 </div>
 
-*Icarus* is a dynamic microsimulation used for comparison of transition probability models when predicting UK employment, education, and mental health states. 
+*Minos* is a dynamic microsimulation being developed to investigate (firstly) the pathways in which an improvement to a national living wage could affect mental health outcomes. 
 
-It is being developed as part of Robert Clay's PhD project to be used in the SIPHER consortiums work on design of policy for intervention in 'inclusive economies'. 
+It is based on [**Icarus**](https://github.com/RobertClay/Icarus), which is another dynamic microsimulation model being developed as part of Robert Clay's PhD project, all being part of the SIPHER consortiums work on the design of policy for interventions in 'inclusive economies'.
+
+See the github pages for more information: https://robertclay.github.io/Minos/
