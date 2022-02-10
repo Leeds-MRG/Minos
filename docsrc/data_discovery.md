@@ -308,79 +308,38 @@ Not really an indicator of sorts but we could look at the relationship between t
 
 | **Variable** | **Label** | **Datafile** | **Waves** | **Notes** |
 | --- | --- | --- | --- | --- |
-| [**sclfsat2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclfsat2) | Satisfaction with income | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | This is obviously a subjective measure, but I think it&#39;s reasonable to assume that someone would become more satisfied with income if they were moved onto a living wage. The question specifically asks for satisfaction with household income.
-Might be useful for looking at relationship with mental health or wage etc.
-
- Ordinal, 7 levels. |
-| **Savings Or** | **Investments** |
- |
- |
- |
-| [**save**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/save) | whether saves | indresp | 2, 4, 6, 8, 10, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | This and the following vars are about whether a respondents (or household) has savings. Think we can assume a level of financial security based on the amount / existence of savings.
-
- Would be interesting to see the relationship between extent of savings and mental health before we do anything in anger. |
-| [**saved**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/saved) | monthly amount saved | indresp | 2, 4, 6, 8, 10, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 |
- |
-| [**nvesth**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvesth) | Savings/investments: savings account | indresp | bh10, bh15 |
- |
-| [**matdepf**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/matdepf) | regular savings | hhresp | 1, 2, 4, 6, 8, 10 | Text:_Enough money to make regular savings of £10 a month or more for rainy days or retirement?_
-Ordinal 4 levels. From I/We have this, Can&#39;t afford it, Don&#39;t need it now, Does not apply.
-Weird levels in this one, we&#39;d have to make some assumptions about those who say they don&#39;t need it or it doesn&#39;t apply. |
-| [**fiyrdia**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fiyrdia) | savings and investments | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 |
- |
-| [**svackb3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb3) | Over 10000 in savings | indresp | bh10, bh15 |
- |
-| [**svackb5**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb5) | Over 20000 in savings | indresp | bh15 |
- |
-| [**nvestb**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestb) | Savings/investments: premium bonds | indresp | bh05, bh10, bh15 |
- |
-| [**nvestd**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestd) | Savings/investments: PEP | indresp | bh05, bh10, bh15 |
- |
-| [**nveste**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nveste) | Savings/investments: shares | indresp | bh05, bh10, bh15 |
- |
-| [**nvestg**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestg) | Savings/investments: other | indresp | bh05, bh10, bh15 |
- |
-| [**nvestj**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestj) | Savings/investments: tessa/ISA | indresp | bh05, bh10, bh15 |
- |
-| [**nvestnn**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestnn) | Savings/investments: none | indresp | bh10, bh15 |
- |
-| [**rtfndb**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rtfndb) | Retirement income: savings | indresp | bh16 |
- |
-| [**svack**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svack) | Total value in savings accounts | indresp | bh10, bh15 |
- |
-| [**svackb1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb1) | Over 1000 in savings accounts | indresp | bh10, bh15 |
- |
-| [**svackb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb2) | Over 5000 in savings accounts | indresp | bh10, bh15 |
- |
-| [**svackb4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb4) | Over 500 in savings accounts | indresp | bh10, bh15 |
- |
+| [**sclfsat2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclfsat2) | Satisfaction with income | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | This is obviously a subjective measure, but I think it&#39;s reasonable to assume that someone would become more satisfied with income if they were moved onto a living wage. The question specifically asks for satisfaction with household income. Might be useful for looking at relationship with mental health or wage etc. Ordinal, 7 levels. |
+| **Savings Or** | **Investments** | | | |
+| [**save**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/save) | whether saves | indresp | 2, 4, 6, 8, 10, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | This and the following vars are about whether a respondents (or household) has savings. Think we can assume a level of financial security based on the amount / existence of savings. Would be interesting to see the relationship between extent of savings and mental health before we do anything in anger. |
+| [**saved**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/saved) | monthly amount saved | indresp | 2, 4, 6, 8, 10, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | |
+| [**nvesth**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvesth) | Savings/investments: savings account | indresp | bh10, bh15 | |
+| [**matdepf**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/matdepf) | regular savings | hhresp | 1, 2, 4, 6, 8, 10 | Text:_Enough money to make regular savings of £10 a month or more for rainy days or retirement?_Ordinal 4 levels. From I/We have this, Can&#39;t afford it, Don&#39;t need it now, Does not apply. Weird levels in this one, we&#39;d have to make some assumptions about those who say they don&#39;t need it or it doesn&#39;t apply. |
+| [**fiyrdia**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fiyrdia) | savings and investments | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | |
+| [**svackb3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb3) | Over 10000 in savings | indresp | bh10, bh15 | |
+| [**svackb5**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb5) | Over 20000 in savings | indresp | bh15 | |
+| [**nvestb**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestb) | Savings/investments: premium bonds | indresp | bh05, bh10, bh15 | |
+| [**nvestd**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestd) | Savings/investments: PEP | indresp | bh05, bh10, bh15 | |
+| [**nveste**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nveste) | Savings/investments: shares | indresp | bh05, bh10, bh15 | |
+| [**nvestg**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestg) | Savings/investments: other | indresp | bh05, bh10, bh15 ||
+| [**nvestj**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestj) | Savings/investments: tessa/ISA | indresp | bh05, bh10, bh15 | |
+| [**nvestnn**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestnn) | Savings/investments: none | indresp | bh10, bh15 | |
+| [**rtfndb**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rtfndb) | Retirement income: savings | indresp | bh16 | |
+| [**svack**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svack) | Total value in savings accounts | indresp | bh10, bh15 | |
+| [**svackb1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb1) | Over 1000 in savings accounts | indresp | bh10, bh15 | |
+| [**svackb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb2) | Over 5000 in savings accounts | indresp | bh10, bh15 | |
+| [**svackb4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb4) | Over 500 in savings accounts | indresp | bh10, bh15 | |
 | [**fiyrinvinc\_dv**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fiyrinvinc_dv) | income from savings and investments, annual | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Relates more to income but also falls under financial security. Might be unlikely that someone has income below living wage that is propped up by savings/investments but not impossible. |
-| [**bankk**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankk) | Amount in account(s) - non-reg saving | indresp | bh05 |
- |
-| [**bankkb1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb1) | Savings amount to 1000 or more | indresp | bh05 |
- |
-| [**bankkb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb2) | Savings amount to 5000 or more | indresp | bh05 |
- |
-| [**bankkb3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb3) | Savings amount to 10,000 or more | indresp | bh05 |
- |
-| [**bankkb4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb4) | Savings amount to 500 or more | indresp | bh05 |
- |
-| [**savekb1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb1) | Savings amount to 1000 or more | indresp | bh05 |
- |
-| [**savekb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb2) | Savings amount to 5000 or more | indresp | bh05 |
- |
-| [**savekb3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb3) | Savings amount to 10,000 or more | indresp | bh05 |
- |
-| [**savekb4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb4) | Savings amount to 500 or more | indresp | bh05 |
- |
-|
- |
- |
- |
- | **There are MANY more vars related to savings and investments but I&#39;m stopping here and leaving this note.** |
-| **Credit** | **and** | **Debt** |
- |
- |
+| [**bankk**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankk) | Amount in account(s) - non-reg saving | indresp | bh05 | |
+| [**bankkb1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb1) | Savings amount to 1000 or more | indresp | bh05 | |
+| [**bankkb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb2) | Savings amount to 5000 or more | indresp | bh05 | |
+| [**bankkb3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb3) | Savings amount to 10,000 or more | indresp | bh05 | |
+| [**bankkb4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb4) | Savings amount to 500 or more | indresp | bh05 | |
+| [**savekb1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb1) | Savings amount to 1000 or more | indresp | bh05 | |
+| [**savekb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb2) | Savings amount to 5000 or more | indresp | bh05 | |
+| [**savekb3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb3) | Savings amount to 10,000 or more | indresp | bh05 | |
+| [**savekb4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb4) | Savings amount to 500 or more | indresp | bh05 | |
+| | | | | **There are MANY more vars related to savings and investments but I&#39;m stopping here and leaving this note.** |
+| **Credit** | **and** | **Debt** | | |
 | [**ccamtjt**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ccamtjt) | outstanding balance, cards in joint names | indresp | 4, 8 | Joint account debt |
 | [**ccamtsole**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ccamtsole) | balance outstanding, cards in sole name | indresp | 4, 8 | Sole account debt |
 | [**debt**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debt) | Resp. owe money | indresp | bh05, bh10, bh15 | Debt doesn&#39;t always indicate financial insecurity, could be things like buying a car on finance or personal loan for something reasonable. Think the level of debt is important here, or a combination of debt and income to find respondents who are in more debt than is reasonable. Therefore debt to income ratio might be better indicator.
