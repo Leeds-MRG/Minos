@@ -6,7 +6,7 @@ All variables here are from Understanding Society unless otherwise stated
 
 Although at first glance lots of variables are only asked intermittently, I think we will be able to derive lots of useful information from those that are asked more often. E.g. MRS social class in psychosocial is only included on two non-consecutive waves, however RG Social Class: present job was asked at every wave with good detail, which can be used to derive MRS.
 
-## **Wage/Income**
+**Wage/Income**
 
 [Individual income variables](https://www.understandingsociety.ac.uk/documentation/mainstage/user-guides/main-survey-user-guide/individual-income-variables) - this page details the six components of individual net income, and which variables in BHPS or US that relate to these components.
 
@@ -20,20 +20,28 @@ Only going to list labour income variables, as there are lots of others that are
 
 | **Variable** | **Label** | **Datafile** | **Waves** | **Notes** |
 | --- | --- | --- | --- | --- |
-| **LABOUR** | **INCOME** ||||
-| [fimnlabnet\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fimnlabnet_dv) | amount income component 1: net labour income |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11|Derived variable, sum of the next three variables in this table.<br/>Labour income, component 1 out of 6 of individual income.|
-| [fimnlabgrs\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fimnlabgrs_dv) | Total monthly labour gross income |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Gross monthly pay rather than net.|
-| [fihhmnlabgrs\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fihhmnlabgrs_dv) | Total gross household labour income: month before interview |hhresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11|Gross monthly household income. <br />Calculated from fimnlabgrs\_dv, calculating sum for household.|
-| [paynu\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/paynu_dv) | Usual net pay per month: current job |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Component of labour income.<br />Response of &#39;inapplicable&#39; hovering around 40-50% across every wave. Don&#39;t understand this, not obvious from the variable page. Could this be unemployed, disabled, or retired? Seems a large proportion to be in that group.|
-| [seearnnet\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/seearnnet_dv) | Self employment earnings - net |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11|Component of labour income|
-| [j2pay\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/j2pay_dv) | Pay in second job |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Component of labour income.<br />Not sure if this is net income, the variable mentioned on the page about individual income is _j2paynet\_dv_, but this doesn&#39;t seem to exist in the variable search.|
-| [basrate](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/basrate) | Basic pay hourly rate |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18||
-| [jbhrs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbhrs) | No. of hours normally worked per week |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18||
+| **LABOUR** | **INCOME** |
+ |
+ |
+ |
+| [fimnlabnet\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fimnlabnet_dv) | amount income component 1: net labour income | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Derived variable, sum of the next three variables in this table.
+Labour income, component 1 out of 6 of individual income. |
+| [fimnlabgrs\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fimnlabgrs_dv) | Total monthly labour gross income | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Gross monthly pay rather than net. |
+| [fihhmnlabgrs\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fihhmnlabgrs_dv) | Total gross household labour income: month before interview | hhresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Gross monthly household income.
+Calculated from fimnlabgrs\_dv, calculating sum for household. |
+| [paynu\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/paynu_dv) | Usual net pay per month: current job | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Component of labour income.
+Response of &#39;inapplicable&#39; hovering around 40-50% across every wave. Don&#39;t understand this, not obvious from the variable page. Could this be unemployed, disabled, or retired? Seems a large proportion to be in that group. |
+| [seearnnet\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/seearnnet_dv) | Self employment earnings - net | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Component of labour income |
+| [j2pay\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/j2pay_dv) | Pay in second job | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Component of labour income.
+Not sure if this is net income, the variable mentioned on the page about individual income is _j2paynet\_dv_, but this doesn&#39;t seem to exist in the variable search.
 
+ |
+| [basrate](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/basrate) | Basic pay hourly rate | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 |
+ |
+| [jbhrs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbhrs) | No. of hours normally worked per week | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 |
+ |
 
-
-
-## **Pyschosocial - Improvement in social status/esteem, financial independence**
+**Pyschosocial - Improvement in social status/esteem, financial independence**
 
 (including from benefit stigma etc.)
 
@@ -77,7 +85,7 @@ _Registrar General&#39;s Social Class (SC) of current job. Uses the coding frame
  |
  |
 
-## **Behaviour - Nutrition**
+**Behaviour - Nutrition**
 
 (food security, hunger, better quality food)
 
@@ -113,7 +121,7 @@ Variables related to food and nutrition are somewhat lacking in US. Some variabl
  |
  |
 
-## **Behaviour - Alcohol and Tobacco Consumption**
+**Behaviour - Alcohol and Tobacco Consumption**
 
 (increase/decrease?)
 
@@ -152,7 +160,7 @@ Continuous for wave 2 &amp; 5, unknown for wave BH09. |
 | [ecigs1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ecigs1) | Uses electronic cigarettes | indresp | 9, 10, 11 | Ordinal.
 Captures both whether respondent has or has not used ecigs, as well as the frequency.Frequency: only used once or twice -\&gt; at least once a week with steps in between. |
 
-## **Housing Quality**
+**Housing Quality**
 
 (decent homes = less damp, warmer, housing security)
 
@@ -176,7 +184,7 @@ Binary, applies to both rented and mortgaged accommodation. |
 | [**pdepi2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepi2) | home kept warm: no, no money for this | hhresp | 4, 6, 8, 10 | Pensioner |
 | [**hheat**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hheat) | keep accommodation warm enough | hhresp | 1, 2, 4, 6, 8, 9, 10, 11 | Asked of everyone, specifically about keeping the house warm enough in winter. |
 
-## **Moving Home**
+**Moving Home**
 
 (could mean less overcrowding, better neighbourhood with more green space, different cultural norms, better recreational and health care facilities, better food outlets, less tobacco and alcohol outlets, less crime and anti-social behaviours)
 
@@ -305,7 +313,7 @@ Not useful on its own but could relate to other vars. |
  |
  |
 
-## **More Social Inclusion**
+**More Social Inclusion**
 
 (e.g. more ability to participate in leisure activities e.g. sports, cinema, or pub)
 
@@ -322,7 +330,7 @@ Variable note:_The questions used to output levels of loneliness in Understandin
 Not really an indicator of sorts but we could look at the relationship between this and other social isolation vars. |
 | [**pdepb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepb2) | go out socially: no, no money for this | hhresp | 4, 6, 8, 10 | Household question, specifically asked about pensioners and only if there is a pensioner in the house. |
 
-## **Psychosocial - Financial Security**
+**Psychosocial - Financial Security**
 
 (less chronic stress/worry)
 
