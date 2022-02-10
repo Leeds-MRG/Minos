@@ -33,7 +33,7 @@ Only going to list labour income variables, as there are lots of others that are
 
 
 
-## **Pyschosocial - Improvement in social status/esteem, financial independence**
+## **Psychosocial - Improvement in social status/esteem, financial independence**
 
 (including from benefit stigma etc.)
 
@@ -43,39 +43,19 @@ Financial independence is a persons ability to support themselves financially. T
 
 | **Variable** | **Label** | **Datafile** | **Waves** | **Notes** |
 | --- | --- | --- | --- | --- |
-| **Social** | **Status/Esteem** |
- |
- |
- |
-| [opcls2](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/opcls2) | Subjective social class membership | indresp | bh01, bh06, bh10, bh15 | Ordinal variable, outcomes in the form &#39;lower working class&#39;, &#39; upper middle class&#39; etc. |
-| [jbmrs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbmrs) | MRS social class | indresp | bh08, bh15 | Approximated social grade with 6 categories, produced by ONS by applying an algorithm developed by MRS Census &amp; Geodemographics group. See [link](https://ukgeographics.co.uk/blog/social-grade-a-b-c1-c2-d-e) for more info.Based on occupation. |
-| [mrssci](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrssci) | MRS Social Class Individual | indresp | bh05 | Similar to jbmrs above, distinction from household MRS |
-| [mrssch](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrssch) | MRS Social Class Household | indresp | bh05 | See above |
-| [jbgold](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbgold) | Goldthorpe Social Class: present job | indresp | bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | 11 level occupational classification. Think this has been superceded by NS-SEC, also doesn&#39;t seem to have all the job types in NS-SEC (missing managerial unless I&#39;m being daft). |
-| [jbrgsc\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbrgsc_dv) | RG Social Class: present job | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Runs for every wave of BHPS and US.
+| **Social** | **Status/Esteem** ||||
+| [opcls2](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/opcls2) | Subjective social class membership |indresp|bh01, bh06, bh10, bh15|Ordinal variable, outcomes in the form &#39;lower working class&#39;, &#39; upper middle class&#39; etc.|
+| [jbmrs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbmrs) | MRS social class |indresp|bh08, bh15|Approximated social grade with 6 categories, produced by ONS by applying an algorithm developed by MRS Census &amp; Geodemographics group. See [link](https://ukgeographics.co.uk/blog/social-grade-a-b-c1-c2-d-e) for more info.Based on occupation.|
+| [mrssci](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrssci) | MRS Social Class Individual |indresp|bh05|Similar to jbmrs above, distinction from household MRS|
+| [mrssch](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrssch) | MRS Social Class Household |indresp|bh05|See above|
+| [jbgold](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbgold) | Goldthorpe Social Class: present job |indresp|bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|11 level occupational classification. Think this has been superceded by NS-SEC, also doesn&#39;t seem to have all the job types in NS-SEC (missing managerial unless I&#39;m being daft).|
+| [jbrgsc\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbrgsc_dv) | RG Social Class: present job |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Runs for every wave of BHPS and US.<br />Note about derived variable:<br/>_Registrar General&#39;s Social Class (SC) of current job. Uses the coding frame from the BHPS. Current job refers to being in paid employment during the last week, even if respondent was away from work in that week. This standard classification has been replaced by the NS-SEC. Derived from look-up file SOC2000 to RGSC provided on the CAMSIS project website. From Wave 2 onwards this is includes RGSC codes fed forward from the previous interview._|
+| [mrjnssec8\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrjnssec8_dv) | Occupation of most recent job: NSSEC 8 categories |indresp|bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Full length of BHPS 8 category NSSEC.|
+| [j1nssec8\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/j1nssec8_dv) | Own first job: NSSEC 8 classes |indresp|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Complete NSSEC of first job, most of BHPS &amp; all of US. Also a 2nd job NSSEC var if necessary.Derived variable note:_National Statistics Socio-economic Classification (NS-SEC) of respondent&#39;s first job: Condensed 8-category version. Note that this indicator is constructed on the basis of less information than the respondent&#39;s current or last job NSSEC: Information on establishment size and managerial duties is not considered. For a detailed look-up file between SOC 2000 and the 5-category NSSEC see_[_bit.ly/1RzyUfR_](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bit.ly/1RzyUfR)|
+| [**f132**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/f132) | Income: income support (IS) |indresp|bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18|Whether someone receives income support, if they were to come off it then might have an impact on financial esteem.|
+| [**benbase1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/benbase1) | Income Support |indresp|6, 7, 8, 9, 10, 11|Income support as above but in US instead of BHPS|
+| **Financial** | **Independence** ||||
 
-Note about derived variable:
-_Registrar General&#39;s Social Class (SC) of current job. Uses the coding frame from the BHPS. Current job refers to being in paid employment during the last week, even if respondent was away from work in that week. This standard classification has been replaced by the NS-SEC. Derived from look-up file SOC2000 to RGSC provided on the CAMSIS project website. From Wave 2 onwards this is includes RGSC codes fed forward from the previous interview._ |
-| [mrjnssec8\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrjnssec8_dv) | Occupation of most recent job: NSSEC 8 categories | indresp | bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Full length of BHPS 8 category NSSEC. |
-| [j1nssec8\_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/j1nssec8_dv) | Own first job: NSSEC 8 classes | indresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Complete NSSEC of first job, most of BHPS &amp; all of US. Also a 2nd job NSSEC var if necessary.Derived variable note:_National Statistics Socio-economic Classification (NS-SEC) of respondent&#39;s first job: Condensed 8-category version. Note that this indicator is constructed on the basis of less information than the respondent&#39;s current or last job NSSEC: Information on establishment size and managerial duties is not considered. For a detailed look-up file between SOC 2000 and the 5-category NSSEC see_[_bit.ly/1RzyUfR_](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bit.ly/1RzyUfR) |
-| [**f132**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/f132) | Income: income support (IS) | indresp | bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Whether someone receives income support, if they were to come off it then might have an impact on financial esteem. |
-| [**benbase1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/benbase1) | Income Support | indresp | 6, 7, 8, 9, 10, 11 | Income support as above but in US instead of BHPS |
-| **Financial** | **Independence** |
- |
- |
- |
-|
- |
- |
- |
- |
- |
-|
- |
- |
- |
- |
- |
 
 ## **Behaviour - Nutrition**
 
