@@ -10,6 +10,8 @@ Welcome to Minos's documentation!
    :maxdepth: 2
 
    test.rst
+   summary.md
+   data_discovery.md
    housing_module.md
 
 Indices and tables
