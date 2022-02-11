@@ -111,8 +111,7 @@ Variables related to food and nutrition are somewhat lacking in US. Some variabl
 | [fivealcdr](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fivealcdr) | Frequency of 5 plus alcoholic drinks | indresp | 3, 4, 6, 8, 10 | Again only asked for young adults aged 16-21. One drink is defined as one pint/bottle/can of beer or cider, 2 alcopops, one small glass of wine, a single measure of spirits. |
 | [hlprbj](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hlprbj) | Health problems: Alcohol or drugs | indresp | bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary, positive response indicates problem with either alcohol or drugs.Very low relative frequency of positive response but could still be useful. |
 | [xpaltob\_g3](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xpaltob_g3) | Total amount spent on alcohol | hhresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Household spending in past 4 weeks. Includes all alcohol (supermarkets/shops, pubs, restaurants, other venues). |
-| [dklm](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/dklm) | Past month: how many alcoholic drinks? | indresp | 3, 4, 6, 8, 10 | Ordinal, question specifies how many **times** in the past month, not how many drinks.
- Answers range; most days, once or twice a week, 2 or 3 times, once only, never.Also youth version of this question asked. |
+| [dklm](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/dklm) | Past month: how many alcoholic drinks? | indresp | 3, 4, 6, 8, 10 | Ordinal, question specifies how many **times** in the past month, not how many drinks. Answers range; most days, once or twice a week, 2 or 3 times, once only, never. Also youth version of this question asked. |
 | [scfalcdrnk](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scfalcdrnk) | How often have you had an alcoholic drink during the last 12 months? | indresp | 2, 5 | Ordinal variable with 8 categories. Almost every day, …, once or twice a week, …, once or twice a year, not at all in last 12 months. |
 | **Tobacco** |
  |
@@ -122,15 +121,10 @@ Variables related to food and nutrition are somewhat lacking in US. Some variabl
 | [smoker](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smoker) | Smoker | indresp | 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Simple binary, &#39;_do you smoke cigarettes?_&#39; |
 | [smever](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smever) | Ever smoked cigarettes? | indresp | 2, 5, bh09 | Cigarette, cigar, or pipe. |
 | [smnow](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smnow) | Smoke nowadays | indresp | 2, 5, bh09 | Asked if smever == 1 |
-| [smcigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smcigs) | Smoking history | indresp | 2, 5, bh09, bh12 | **Text:** _Have you ever smoked cigarettes regularly, that is at least one cigarette a day, or did you smoke them only occasionally?_If smever == 1 (yes) &amp;&amp; smnow == 2 (does no smoke nowadays).
-Find it a bit weird that this question relies on answers to 2 other questions that were not asked in BH12. |
-| [ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs) | Usual no. of cigarettes smoked per day | indresp | 2, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Asked if smoker == 1
-Continuous outcome.
-Bit weird before wave BH09. Doesn&#39;t seem to be a continuous variable however that could just be an error in the way it&#39;s reported in the variable search. |
-| [smncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smncigs) | Number of cigarettes smoked in past | indresp | 2, 5, bh09 | If smever == 1 (ever smoked)&amp;&amp; smnow == 2 (does not smoke now)&amp;&amp; smcigs == 1 (used to smoke regularly)
-Continuous for wave 2 &amp; 5, unknown for wave BH09. |
-| [ecigs1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ecigs1) | Uses electronic cigarettes | indresp | 9, 10, 11 | Ordinal.
-Captures both whether respondent has or has not used ecigs, as well as the frequency.Frequency: only used once or twice -\&gt; at least once a week with steps in between. |
+| [smcigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smcigs) | Smoking history | indresp | 2, 5, bh09, bh12 | **Text:** _Have you ever smoked cigarettes regularly, that is at least one cigarette a day, or did you smoke them only occasionally?_If smever == 1 (yes) &amp;&amp; smnow == 2 (does no smoke nowadays). Find it a bit weird that this question relies on answers to 2 other questions that were not asked in BH12. |
+| [ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs) | Usual no. of cigarettes smoked per day | indresp | 2, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Asked if smoker == 1 Continuous outcome. Bit weird before wave BH09. Doesn&#39;t seem to be a continuous variable however that could just be an error in the way it&#39;s reported in the variable search. |
+| [smncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smncigs) | Number of cigarettes smoked in past | indresp | 2, 5, bh09 | If smever == 1 (ever smoked)&amp;&amp; smnow == 2 (does not smoke now)&amp;&amp; smcigs == 1 (used to smoke regularly). Continuous for wave 2 &amp; 5, unknown for wave BH09. |
+| [ecigs1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ecigs1) | Uses electronic cigarettes | indresp | 9, 10, 11 | Ordinal. Captures both whether respondent has or has not used ecigs, as well as the frequency.Frequency: only used once or twice -\&gt; at least once a week with steps in between. |
 
 ## **Housing Quality**
 
@@ -141,13 +135,11 @@ Still to do: Look for more vars related to housing security.
 | **Variable** | **Label** | **Datafile** | **Waves** | **Notes** |
 | --- | --- | --- | --- | --- |
 | [lfsat3](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/lfsat3) | Satisfaction with: house/flat | indresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Ordinal, 7 categories from:Not satisfied at all -\&gt; Completely satisfied |
-| [matdepd](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/matdepd) | Material deprivation: house | hhresp | 1, 2, 4, 6, 8, 10 | Question Text:_Enough money to keep your house in a decent state of repair?_
-Ordinal, 4 levels including: Yes, Can&#39;t afford it, Don&#39;t need it now, Does not apply |
-| [xphsdb](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdb) | Problems paying for housing | hhresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | _Many people find it hard to keep up with their housing payments. In the last twelve months, have you ever found yourself behind with your rent/mortgage?_
-Binary, applies to both rented and mortgaged accommodation. |
+| [matdepd](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/matdepd) | Material deprivation: house | hhresp | 1, 2, 4, 6, 8, 10 | Question Text:_Enough money to keep your house in a decent state of repair?_ Ordinal, 4 levels including: Yes, Can&#39;t afford it, Don&#39;t need it now, Does not apply |
+| [xphsdb](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdb) | Problems paying for housing | hhresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | _Many people find it hard to keep up with their housing payments. In the last twelve months, have you ever found yourself behind with your rent/mortgage?_ Binary, applies to both rented and mortgaged accommodation. |
 | [hsprbj](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbj) | Accom: not enough light | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
 | [hsprbk](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbk) | Accom: lack of adequate heating | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
-| [hsprb](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbl)i | Accom: condensation | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
+| [hsprb](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbli) | Accom: condensation | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
 | [hsprbm](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbm) | Accom: leaky roof | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
 | [hsprbn](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbn) | Accom: damp walls, floors etc. | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
 | [hsprbo](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbo) | Accom: rot in windows, floors | hhresp | bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Binary |
@@ -179,21 +171,18 @@ Binary, applies to both rented and mortgaged accommodation. |
  |
  |
 | [**rescond**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rescond) | conditions of residential properties | hhsamp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Ordinal, 4 levels |
-| [vicini1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini1) | Boarded houses: abandoned buildings: demolished houses or demolished buildings | hhsamp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Thought this would relate to the neighbourhood quality.
-Binary but in the form &#39;Yes mentioned&#39; or &#39;Not mentioned&#39;. Not sure therefore how complete/reliable. |
+| [vicini1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini1) | Boarded houses: abandoned buildings: demolished houses or demolished buildings | hhsamp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 | Thought this would relate to the neighbourhood quality. Binary but in the form &#39;Yes mentioned&#39; or &#39;Not mentioned&#39;. Not sure therefore how complete/reliable. |
 | [**vicini2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini2) | trash: litter or junk in street/road | hhsamp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 |
  |
 | [**vicini3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini3) | heavy traffic on street/road | hhsamp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 |
  |
 | [**nbrcoh\_dv**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nbrcoh_dv) | Neighbourhood Social Cohesion,(Î±= .8) | indresp | 3, 6 | Summary of 4 variables on neighbourhood social cohesion. Ordinal var with range from 4 (no cohesion) to 20 (strong cohesion). |
-| [**scopngbhg**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scopngbhg) | Am similar to others in neighbourhood | indresp | 1, 3, 6, 9 | _I think of myself as similar to the people that live in this neighbourhood._
-Could mean many different things, like ethnicity, religion, life stage, etc. But could be useful in this context. Relates to the idea of belonging and &#39;fitting in&#39;.There is also a separate var for this in BHPS. |
+| [**scopngbhg**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scopngbhg) | Am similar to others in neighbourhood | indresp | 1, 3, 6, 9 | _I think of myself as similar to the people that live in this neighbourhood._ Could mean many different things, like ethnicity, religion, life stage, etc. But could be useful in this context. Relates to the idea of belonging and &#39;fitting in&#39;.There is also a separate var for this in BHPS. |
 | [**nbrcoh3**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nbrcoh3) | people in this neighbourhood can be trusted | indresp | 3, 6 |
  |
 | [**nbrsnci\_dv**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nbrsnci_dv) | Buckner&#39;s Neighbourhood Cohesion Instrument, short (alpha ±= .88) | indresp | 1, 3, 6, 9 |
  |
-| [**crburg**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crburg) | extent of: homes broken into | hhresp, indresp | 3, 6, 9, bh07, bh12, bh17 | This and the following 8 vars (labels all start with &#39;extent of: &#39; are more objective measures of the quality of a neighbourhood (still measured subjectively, but asking about specific things).
- All are ordinal with 4 levels, ranging from Very common to Not at all common. We could use these potentially to create a summary variable, ranging from the worst (9/36) to the best (36/36). |
+| [**crburg**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crburg) | extent of: homes broken into | hhresp, indresp | 3, 6, 9, bh07, bh12, bh17 | This and the following 8 vars (labels all start with &#39;extent of: &#39; are more objective measures of the quality of a neighbourhood (still measured subjectively, but asking about specific things). All are ordinal with 4 levels, ranging from Very common to Not at all common. We could use these potentially to create a summary variable, ranging from the worst (9/36) to the best (36/36). |
 | [**crcar**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crcar) | extent of: cars stolen/broken into | indresp, hhresp | 3, 6, 9, bh07, bh12, bh17 |
  |
 | [**crdrnk**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crdrnk) | extent of: drunks/tramps on street | hhresp, indresp | 3, 6, 9, bh07, bh12, bh17 |
@@ -215,8 +204,7 @@ Could mean many different things, like ethnicity, religion, life stage, etc. But
 | [**locchd**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locchd) | Suitability of area for raising children | indresp | bh08, bh13, bh18 |
  |
 | [**hsctax**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsctax) | Council tax band of accommodation | hhresp | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18 | Don&#39;t know if this is important or not but must have some relationship to neighbourhood? |
-| [unsafe1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe1) | At school | indresp | 3, 5, 7, 9, 11 | This and the following 12 variables all relate to feeling safe in specific places.
-All binary although in the form &#39;Mentioned/Not Mentioned&#39; so may not be complete. |
+| [unsafe1](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe1) | At school | indresp | 3, 5, 7, 9, 11 | This and the following 12 variables all relate to feeling safe in specific places. All binary although in the form &#39;Mentioned/Not Mentioned&#39; so may not be complete. |
 | [unsafe2](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe2) | At college/university | indresp | 3, 5, 7, 9, 11 |
  |
 | [unsafe3](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe3) | At work | indresp | 3, 5, 7, 9, 11 |
@@ -250,8 +238,7 @@ All binary although in the form &#39;Mentioned/Not Mentioned&#39; so may not be 
 | [**servacc**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/servacc) | able to access services when need to | indresp | 3, 6 | Bit crap that it only runs for 2 waves, might be able to find a better var for this. |
 | [**locchd**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locchd) | Suitability of area for raising children | indresp | bh08, bh13, bh18 |
  |
-| [**locsera**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locsera) | Standard of local services: Schools | indresp | bh08, bh13, bh18 | This and the following are much better variables related to services but still don&#39;t run for very long. Could use them to create a summary variable that relates to the quality of services and access to them in the neighbourhood. This maybe wouldn&#39;t be too useful in longitudinal models but could be interesting to see what relationship it has with mental health. OR on the other hand, we could investigate the relationship between all of these things individually and mental health and try to determine which if any are important.
-Ordinal, subjective, 4 levels, Poor to Excellent. |
+| [**locsera**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locsera) | Standard of local services: Schools | indresp | bh08, bh13, bh18 | This and the following are much better variables related to services but still don&#39;t run for very long. Could use them to create a summary variable that relates to the quality of services and access to them in the neighbourhood. This maybe wouldn&#39;t be too useful in longitudinal models but could be interesting to see what relationship it has with mental health. OR on the other hand, we could investigate the relationship between all of these things individually and mental health and try to determine which if any are important. Ordinal, subjective, 4 levels, Poor to Excellent. |
 | [**locserap**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locserap) | standard of local services: primary schools | indresp | 3, 6 |
  |
 | [**locseras**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locseras) | standard of local services: secondary schools | indresp | 3, 6 |
@@ -264,8 +251,7 @@ Ordinal, subjective, 4 levels, Poor to Excellent. |
  |
 | [**locsere**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locsere) | standard of local services: leisure | indresp | 3, 6, bh08, bh13, bh18 |
  |
-| [**servaccy4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/servaccy4) | financial reasons | indresp | 3, 6 | **Text:** _What stops you from accessing services such as healthcare, food shops and learning facilities when you need to?_
-Not useful on its own but could relate to other vars. |
+| [**servaccy4**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/servaccy4) | financial reasons | indresp | 3, 6 | **Text:** _What stops you from accessing services such as healthcare, food shops and learning facilities when you need to?_ Not useful on its own but could relate to other vars. |
 |
  |
  |
@@ -291,15 +277,13 @@ Not useful on its own but could relate to other vars. |
 
 | **Variable** | **Label** | **Datafile** | **Waves** | **Notes** |
 | --- | --- | --- | --- | --- |
-| [sclonely](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely) | How often feels lonely | indresp | 9, 10, 11 | Ordinal, 3 levels.
-Variable note:_The questions used to output levels of loneliness in Understanding Society come from the Government Statistical Service (GSS) harmonised principle of loneliness. This means the outputs are comparable with other surveys that use this principle. The GSS has a guidance page which may be useful to understand what other data can and cannot be compared with this output._ |
+| [sclonely](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely) | How often feels lonely | indresp | 9, 10, 11 | Ordinal, 3 levels. Variable note:_The questions used to output levels of loneliness in Understanding Society come from the Government Statistical Service (GSS) harmonised principle of loneliness. This means the outputs are comparable with other surveys that use this principle. The GSS has a guidance page which may be useful to understand what other data can and cannot be compared with this output._ |
 | [scisolate](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scisolate) | How often feels isolated from others | indresp | 9, 10, 11 | See above |
 | [sclackcom](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclackcom) | How often feels lack of companionship | indresp | 9, 10, 11 |
  |
 | [scleftout](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scleftout) | How often feels left out | indresp | 9, 10, 11 |
  |
-| [**visfrndsy2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/visfrndsy2) | Financial reasons | indresp | 3, 6, 9 | Text:_What stops you from going out socially or visiting friends when you want to?_
-Not really an indicator of sorts but we could look at the relationship between this and other social isolation vars. |
+| [**visfrndsy2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/visfrndsy2) | Financial reasons | indresp | 3, 6, 9 | Text:_What stops you from going out socially or visiting friends when you want to?_ Not really an indicator of sorts but we could look at the relationship between this and other social isolation vars. |
 | [**pdepb2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepb2) | go out socially: no, no money for this | hhresp | 4, 6, 8, 10 | Household question, specifically asked about pensioners and only if there is a pensioner in the house. |
 
 ## **Psychosocial - Financial Security**
@@ -368,8 +352,7 @@ Not really an indicator of sorts but we could look at the relationship between t
 | **Credit** | **and** | **Debt** | | |
 | [**ccamtjt**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ccamtjt) | outstanding balance, cards in joint names | indresp | 4, 8 | Joint account debt |
 | [**ccamtsole**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ccamtsole) | balance outstanding, cards in sole name | indresp | 4, 8 | Sole account debt |
-| [**debt**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debt) | Resp. owe money | indresp | bh05, bh10, bh15 | Debt doesn&#39;t always indicate financial insecurity, could be things like buying a car on finance or personal loan for something reasonable. Think the level of debt is important here, or a combination of debt and income to find respondents who are in more debt than is reasonable. Therefore debt to income ratio might be better indicator.
-See next 5 vars for levels of debt |
+| [**debt**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debt) | Resp. owe money | indresp | bh05, bh10, bh15 | Debt doesn&#39;t always indicate financial insecurity, could be things like buying a car on finance or personal loan for something reasonable. Think the level of debt is important here, or a combination of debt and income to find respondents who are in more debt than is reasonable. Therefore debt to income ratio might be better indicator. See next 5 vars for levels of debt |
 | [**debtc1**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc1) | owe 500 or more | indresp | 4, 8, bh05, bh10, bh15 |
  |
 | [**debtc2**](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc2) | owe 1,500 or more | indresp | 4, 8, bh05, bh10, bh15 |
