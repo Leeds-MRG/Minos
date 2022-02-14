@@ -1,12 +1,12 @@
 """Main file for running missing data correction on Understanding Societies in Python. """
 import pandas as pd
+import numpy as np
+import os
 
 import US_missing_description
 import US_missing_deterministic as USmd
 import US_missing_LOCF
 import US_utils
-
-import numpy as np
 
 
 def add_nobs_column(data):
@@ -33,10 +33,10 @@ def add_nobs_column(data):
     return data
 
 
-def main():
+def main(output_dir):
     # Load in data.
     # Process data by year and pidp.
-    years = np.arange(1990, 2017)
+    years = np.arange(1990, 2019)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = add_nobs_column(data)
@@ -71,10 +71,16 @@ def main():
     data = data.replace([-1, -2, -7, -8, -9, "-1", "-2", "-7", "-8", "-9"], np.nan)
     data = data.dropna()
 
-    US_utils.save_multiple_files(data, years, "data/corrected_US/", "")
+    US_utils.save_multiple_files(data, years, output_dir, "")
 
     return data, before, after
 
 
 if __name__ == "__main__":
-    data, before, after = main()
+
+    output = 'data/corrected_US/'
+    # check if output dir exists and create if not
+    if not os.path.isdir(output):
+        os.mkdir(output)
+
+    data, before, after = main(output)

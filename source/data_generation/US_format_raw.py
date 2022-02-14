@@ -5,7 +5,7 @@ It DOES NOT handle missing data. see US_missing.py.
 """
 import pandas as pd  # You know.
 import numpy as np  # You know.
-import data.US_utils as US_utils  # Utility functions for US. loading/saving data etc.
+import data_generation.US_utils as US_utils  # Utility functions for US. loading/saving data etc.
 import os
 
 # TODO there is an issue with the connection between the BHPS and UKLHS waves. (see format_time)
@@ -599,5 +599,9 @@ if __name__ == "__main__":
     source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
     output = "data/raw_US/"
     section = "indresp"
-    os.mkdir(output)
+
+    # check if output dir exists and create if not
+    if not os.path.isdir(output):
+        os.mkdir(output)
+
     main(years, source, output, section)

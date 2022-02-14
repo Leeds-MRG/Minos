@@ -2,6 +2,18 @@
 
 # Cython stuff (pycache)
 data/__pycache__/
+source/__pycache__/
+modules/__pycache__/
+source/*/__pycache__/
+*.pyc
+*/*.pyc
+*/*/*.pyc
 
-# Raw data folder generate in code
+# OSX files
+.DS_Store
+source/*/.DS_Store
+
+# data folders generated in code
 data/raw_US/
+data/corrected_US/
+
