@@ -43,9 +43,9 @@ def main(output_dir):
     data = US_utils.restrict_chains(data, 2) #grab people with two or more obs.
 
     # Plots for distribution of missingness before correction. May be better in a separate file/notebook.
-    US_missing_description.missingness_hist(data, "education_state", "age")
-    US_missing_description.missingness_hist(data, "labour_state", "age")
-    US_missing_description.missingness_bars(data, "education_state", "ethnicity")
+    #US_missing_description.missingness_hist(data, "education_state", "age")
+    #US_missing_description.missingness_hist(data, "labour_state", "age")
+    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
     before = US_missing_description.missingness_table(data)
 
     # Correct deterministically missing data due to unemployment.
@@ -64,9 +64,9 @@ def main(output_dir):
     # TODO MICE goes here to deal with remaining ~100k missing obs.
 
     after = US_missing_description.missingness_table(data)
-    US_missing_description.missingness_hist(data, "education_state", "age")
-    US_missing_description.missingness_hist(data, "labour_state", "age")
-    US_missing_description.missingness_bars(data, "education_state", "ethnicity")
+    #US_missing_description.missingness_hist(data, "education_state", "age")
+    #US_missing_description.missingness_hist(data, "labour_state", "age")
+    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
 
     data = data.replace([-1, -2, -7, -8, -9, "-1", "-2", "-7", "-8", "-9"], np.nan)
     data = data.dropna()
