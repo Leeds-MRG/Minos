@@ -12,7 +12,7 @@ RSCRIPT = Rscript
 
 
 
-
+## Data Generation
 
 data: $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
 
