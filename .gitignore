@@ -2,4 +2,6 @@
 
 # Cython stuff (pycache)
 data/__pycache__/
-data/__pycache__/*
+
+# Raw data folder generate in code
+data/raw_US/
