@@ -5,8 +5,9 @@ It DOES NOT handle missing data. see US_missing.py.
 """
 import pandas as pd  # You know.
 import numpy as np  # You know.
-import data_generation.US_utils as US_utils  # Utility functions for US. loading/saving data etc.
 import os
+
+import US_utils
 
 # TODO there is an issue with the connection between the BHPS and UKLHS waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
