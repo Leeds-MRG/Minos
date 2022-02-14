@@ -6,6 +6,7 @@ It DOES NOT handle missing data. see US_missing.py.
 import pandas as pd  # You know.
 import numpy as np  # You know.
 import data.US_utils as US_utils  # Utility functions for US. loading/saving data etc.
+import os
 
 # TODO there is an issue with the connection between the BHPS and UKLHS waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
@@ -192,7 +193,7 @@ def format_bhps_columns(year):
     # consistent column names accross all waves
     attribute_columns = ["pidp",  # Cross wave identifier
                          "sex",  # Sex.
-                         "age_dv",  # Age.
+                         "age",  # Age.
                          "doby",  # Birth Year.
                          "qfachi",  # Highest education
                          # "hiqual_dv",  # Highest education
@@ -594,8 +595,9 @@ def main(wave_years: list, file_source: str, file_output: str, file_section: str
 
 
 if __name__ == "__main__":
-    years = np.arange(1990, 2017)
-    source = "/Users/robertclay/6614stata_471A424C959CCFC9AE423A866B5794B9_V1/UKDA-6614-stata/stata/stata11_se/"
+    years = np.arange(1990, 2019)
+    source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
     output = "data/raw_US/"
     section = "indresp"
+    os.mkdir(output)
     main(years, source, output, section)

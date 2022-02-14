@@ -76,13 +76,13 @@ def US_file_name(year, source, section):
         # Wave for 1990 begins with ba_, 1991 is bb_, bc,...
         wave_number = year - 1990
         wave_letter = alphabet[wave_number]
-        file_name = f"bhps_w{wave_number + 1}/b{wave_letter}_{section}.dta"
+        file_name = f"bhps/b{wave_letter}_{section}.dta"
     else:
         # UKHLS naming convention.
         # Wave for 2009 begins with a_, b_, c_,...
         wave_number = year - 2008
         wave_letter = alphabet[wave_number]
-        file_name = f"ukhls_w{wave_number + 1}/{wave_letter}_{section}.dta"
+        file_name = f"ukhls/{wave_letter}_{section}.dta"
     file_name = source + file_name  # add directory onto front.
     return file_name
 
