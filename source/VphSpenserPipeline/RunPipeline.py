@@ -11,12 +11,12 @@ from vivarium import InteractiveContext
 
 import utils as utils
 
-from modules.mortality import Mortality
-from modules.replenishment import Replenishment
-from modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-from modules.depression import Depression
-from modules.employment import empiricalEmployment, Employment
-from modules.education import Education
+from source.modules.mortality import Mortality
+from source.modules.replenishment import Replenishment
+from source.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
+from source.modules import Depression
+from source.modules import Employment
+
 
 def RunPipeline(config, start_population_size):
     """ Run the daedalus Microsimulation pipeline
