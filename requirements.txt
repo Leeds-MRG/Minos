@@ -1,7 +1,7 @@
 vivarium~=0.9.3
 pyyaml~=5.3.1
 pytest~=6.0.1
-daedalus~=0.0.1
+minos~=0.0.1
 pandas~=0.24.2
 numpy~=1.19.1
 #humanleague~=2.1.1
@@ -12,4 +12,3 @@ setuptools~=49.2.0
 matplotlib~=3.2.2
 vivarium_population_spenser @ git+https://github.com/alan-turing-institute/vivarium_population_spenser@v1.0#egg=vivarium_population_spenser
 distutils_pytest
-
