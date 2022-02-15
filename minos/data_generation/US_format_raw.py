@@ -580,7 +580,7 @@ def main(wave_years: list, file_source: str, file_output: str, file_section: str
     wave_years: list
         What years to process data for. Data goes from 1990-2021 currently.
     file_source, file_output, file_section: str
-        Where is source of the raw US data.
+        Where is minos of the raw US data.
         Where should processed data be output to.
         Which section of US data is being used. Usually independent response (indresp).
     """

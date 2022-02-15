@@ -99,7 +99,7 @@ class Employment:
         # register value rate producers.
         # one for redeployment and role change.
         #self.labour_change_rate_producer = builder.value.register_rate_producer('labour_change_rate',
-        #                                                                     source=self.calculate_labour_change_rate)
+        #                                                                     minos=self.calculate_labour_change_rate)
         self.job_change_rate_producer = builder.value.register_rate_producer('job_change_rate',
                                                                              source=self.calculate_job_change_rate)
         self.role_change_rate_producer = builder.value.register_rate_producer('role_change_rate',
@@ -305,7 +305,7 @@ class Employment:
 
             the previous `values` output by the mortality_rate value producer.
             More generally the producer defined in the register_value_modifier
-            method with this as its source.
+            method with this as its minos.
 
         Returns
         -------

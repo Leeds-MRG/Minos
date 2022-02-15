@@ -62,7 +62,7 @@ class FertilityAgeSpecificRates:
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
-        # produce rate table from source file path in config and save it to the simulation.
+        # produce rate table from minos file path in config and save it to the simulation.
         asfr_fertility = FertilityRateTable(configuration=config)
         asfr_fertility.set_rate_table()
         simulation._data.write("covariate.age_specific_fertility_rate.estimate",

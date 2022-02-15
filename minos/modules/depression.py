@@ -39,7 +39,7 @@ class Depression:
         #         "tier0": "{}/{}".format(config.persistent_data_dir, config.depression_files.tier0),
         #     },
         # },
-        #    source=str(Path(__file__).resolve()))
+        #    minos=str(Path(__file__).resolve()))
         return config
 
     def pre_setup(self, config, simulation):
@@ -73,7 +73,7 @@ class Depression:
         # self.calculate_depression_transitions.
         # Name depre
         #self.depression_tier0_rate_producer = builder.value.register_rate_producer('depression_transitions',
-        #                                                                     source=self.calculate_depression_transitions,
+        #                                                                     minos=self.calculate_depression_transitions,
         #                                                                   requires_columns=['sex', 'ethnicity'])
 
         # CRN stream for depression states. maybe need one per state?
@@ -213,7 +213,7 @@ class Depression:
 
             the previous `values` output by the mortality_rate value producer.
             More generally the producer defined in the register_value_modifier
-            method with this as its source.
+            method with this as its minos.
 
         Returns
         -------

@@ -34,7 +34,7 @@ def all_wave_directories(source, suffix):
     Parameters
     ----------
     source : str
-        `source` where are directories.
+        `minos` where are directories.
 
     Returns
     -------

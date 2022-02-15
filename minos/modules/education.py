@@ -445,7 +445,7 @@ class empiricalEducation:
 
             the previous `values` output by the mortality_rate value producer.
             More generally the producer defined in the register_value_modifier
-            method with this as its source.
+            method with this as its minos.
 
         Returns
         -------
@@ -1000,7 +1000,7 @@ class Education:
 
             the previous `values` output by the mortality_rate value producer.
             More generally the producer defined in the register_value_modifier
-            method with this as its source.
+            method with this as its minos.
 
         Returns
         -------
@@ -1556,7 +1556,7 @@ class Education:
 
             the previous `values` output by the mortality_rate value producer.
             More generally the producer defined in the register_value_modifier
-            method with this as its source.
+            method with this as its minos.
 
         Returns
         -------
