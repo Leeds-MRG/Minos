@@ -3,6 +3,8 @@ export ROOT=$(CURDIR)
 DATADIR = $(CURDIR)/data
 RAWDATA = $(DATADIR)/raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
+PERSISTDATA = $(CURDIR)/persistent_data
+PERSISTJSON = $(PERSISTDATA)/JSON
 SOURCEDIR = $(CURDIR)/source
 DATAGEN = $(SOURCEDIR)/data_generation
 
@@ -10,13 +12,17 @@ DATAGEN = $(SOURCEDIR)/data_generation
 PYTHON = python
 RSCRIPT = Rscript
 
+## Help
 
+help:
+	@echo "Tasks in \033[1;32mMinos\033[0m:"
+	@cat Makefile
 
 ## Data Generation
 
 data: $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
 
-$(RAWDATA)/2018_US_cohort.csv: $(DATAGEN)/US_format_raw.py
+$(RAWDATA)/2018_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(PERSISTJSON)/depression.json $(PERSISTJSON)/sexes.json $(PERSISTJSON)/education*.json $(PERSISTJSON)/ethnicity*.json $(PERSISTJSON)/labour_status*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py
 
 $(CORRECTDATA)/2018_US_cohort.csv: $(DATAGEN)/US_missing_main.py
