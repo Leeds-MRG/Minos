@@ -170,7 +170,7 @@ def format_time(data, year):
     # Following 2 lines are a stupid work around.
     # if self.year <= 2008:
     #    self.year += 1
-    data["time"] = year
+    data.loc["time"] = year
     return data
 
 
@@ -193,6 +193,7 @@ def format_bhps_columns(year):
     """
     # consistent column names accross all waves
     attribute_columns = ["pidp",  # Cross wave identifier
+                         "hidp",    # Cross wave household identified
                          "sex",  # Sex.
                          "age",  # Age.
                          "doby",  # Birth Year.
@@ -204,6 +205,7 @@ def format_bhps_columns(year):
                          ]
 
     column_names = ["pidp",
+                    "hidp",
                     "sex",
                     "age",
                     "birth_year",
@@ -297,7 +299,7 @@ def format_bhps_education(data, year):
     """
     education_dict = education_bhps
     # Map education codes to readable strings.
-    data["education_state"] = data["education_state"].astype(str).map(education_dict)
+    data.loc["education_state"] = data["education_state"].astype(str).map(education_dict)
     return data
 
 
@@ -357,7 +359,7 @@ def format_bhps_employment(data, year):
 
     # Remap job status ints to strings.
     labour_state_dict = labour_status_bhps
-    data["labour_state"] = data["labour_state"].astype(str).map(labour_state_dict)
+    data.loc["labour_state"] = data["labour_state"].astype(str).map(labour_state_dict)
     return data
 
 
@@ -381,7 +383,8 @@ def format_uklhs_columns(year):
         The simplified column_names that are used in the microsim.
     """
 
-    attribute_columns = ["pidp",  # Cross wave identifier.
+    attribute_columns = ["pidp",  # Cross wave personal identifier.
+                         "hidp",    # Cross wave household identified
                          "sex",  # Sex.
                          "dvage",  # Age.
                          "doby_dv",  # Birth Year.
@@ -395,6 +398,7 @@ def format_uklhs_columns(year):
                          ]
     # New names for the above columns.
     column_names = ["pidp",
+                    "hidp",
                     "sex",
                     "age",
                     "birth_year",
@@ -532,7 +536,39 @@ def format_uklhs_employment(data, year):
     return data
 
 
-def format_data(year, file_name):
+def combine_indresp_hhresp(year, indresp_name, hhresp_name):
+    """ Function to collect and merge the indresp and hhresp files for a specific year.
+
+    Parameters
+    ----------
+    year : int
+        The `year` of the wave being processed.
+    indresp_name : str
+        The name of the indresp file for specific year
+    hhresp_name : str
+        Name of the hhresp file for specific year
+    Returns
+    -------
+    indresp_hhresp: Pd.DataFrame
+        Dataframe containing indresp and hhresp data combined on hid
+    """
+    # load both indresp and hhresp files
+    indresp = US_utils.load_file(indresp_name)
+    hhresp = US_utils.load_file(hhresp_name)
+
+    # calculate wave letter based on year, and generate hidp variable name for use as merge key
+    wave_letter = US_utils.get_wave_letter(year)
+    if year < 2008:
+        merge_key = f"b{wave_letter}_hidp"
+    else:
+        merge_key = f"{wave_letter}_hidp"
+
+    # merge the data on the hipd variable and return
+    combined = indresp.merge(right = hhresp, on=merge_key)
+    return combined
+
+
+def format_data(year, data):
     """ Main function for formatting US data. Loads formats and saves each wave sequentially.
 
     Parameters
@@ -546,7 +582,7 @@ def format_data(year, file_name):
     None
     """
     # Load file and take desired subset of columns.
-    data = US_utils.load_file(file_name)
+    #data = US_utils.load_file(file_name)
     if year <= 2007:
         attribute_columns, column_names = format_bhps_columns(year)
     else:
@@ -572,7 +608,7 @@ def format_data(year, file_name):
     return data
 
 
-def main(wave_years: list, file_source: str, file_output: str, file_section: str) -> None:
+def main(wave_years: list, file_source: str, file_output: str) -> None:
     """ Main file for processing raw US data.
 
     Parameters
@@ -589,8 +625,14 @@ def main(wave_years: list, file_source: str, file_output: str, file_section: str
     for year in wave_years:
         # Two types of wave with different naming conventions and variables.
         # The BHPS waves circa 2008 and UKLHS waves post 2009 have different classes for processing.
-        file_name = US_utils.US_file_name(year, file_source, file_section)
-        data = format_data(year, file_name)
+
+        # Merge the indresp and hhresp files for a particular year then format
+        indresp_name = US_utils.US_file_name(year, file_source, "indresp")
+        hhresp_name = US_utils.US_file_name(year, file_source, "hhresp")
+
+        indresp_hhresp = combine_indresp_hhresp(year, indresp_name, hhresp_name)
+
+        data = format_data(year, indresp_hhresp)
         # Save formatted data
         US_utils.save_file(data, file_output, "", year)
 
@@ -599,10 +641,10 @@ if __name__ == "__main__":
     years = np.arange(1990, 2019)
     source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
     output = "data/raw_US/"
-    section = "indresp"
+    #section = "indresp"
 
     # check if output dir exists and create if not
     if not os.path.isdir(output):
         os.mkdir(output)
 
-    main(years, source, output, section)
+    main(years, source, output)

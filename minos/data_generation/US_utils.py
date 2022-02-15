@@ -29,7 +29,7 @@ def save_file(data, destination, prefix, year):
 
 
 def load_file(file_name):
-    """ Given a file directory load a csv as a pandas DataFrame.
+    """ Given a file directory load a dta as a pandas DataFrame.
 
     Parameters
     --------
@@ -39,7 +39,7 @@ def load_file(file_name):
     Returns
     ------
     data : pandas.DataFrame
-        Data read from the csv with name file_name.
+        Data read from the dta with name file_name.
     """
     data = pd.read_stata(file_name, convert_categoricals=False)
     return data
@@ -51,6 +51,36 @@ def load_json(file_source, file_name):
     f.close()
     return data
 
+
+def get_wave_letter(year):
+    """ Get wave letter based on year
+
+    Examples
+    --------
+    For wave year 1992 this will return string
+    "c"
+
+    Parameters
+    ----------
+    year : int
+        What year is it?
+    Returns
+    -------
+    wave_letter : str
+        Letter that corresponds to wave
+    """
+    if year < 2008:
+        # BHPS naming convention.
+        # Wave for 1990 begins with ba_, 1991 is bb_, bc,...
+        wave_number = year - 1990
+        wave_letter = alphabet[wave_number]
+    else:
+        # UKHLS naming convention.
+        # Wave for 2009 begins with a_, b_, c_,...
+        wave_number = year - 2008
+        wave_letter = alphabet[wave_number]
+
+    return wave_letter
 
 def US_file_name(year, source, section):
     """ Get file name for given year of US data
@@ -68,20 +98,18 @@ def US_file_name(year, source, section):
         Where is the data and what part of it is being loaded
     Returns
     -------
-
-
+    file_name : str
+        Returns the file_name
     """
     if year < 2008:
         # BHPS naming convention.
         # Wave for 1990 begins with ba_, 1991 is bb_, bc,...
-        wave_number = year - 1990
-        wave_letter = alphabet[wave_number]
+        wave_letter = get_wave_letter(year)
         file_name = f"bhps/b{wave_letter}_{section}.dta"
     else:
         # UKHLS naming convention.
         # Wave for 2009 begins with a_, b_, c_,...
-        wave_number = year - 2008
-        wave_letter = alphabet[wave_number]
+        wave_letter = get_wave_letter(year)
         file_name = f"ukhls/{wave_letter}_{section}.dta"
     file_name = source + file_name  # add directory onto front.
     return file_name
@@ -103,7 +131,8 @@ def bhps_wave_prefix(columns, year):
         Column names with wave prefixes added.
     """
     # Which letter to add.
-    wave_letter = alphabet[year - 1990]
+    #wave_letter = alphabet[year - 1990]
+    wave_letter = get_wave_letter(year)
     # Which variables dont have wave prefixes. Cross wave identifiers pidp hidp do this.
     # May need to add more as necessary.
     exclude = ["pidp"]
@@ -131,7 +160,8 @@ def uklhs_wave_prefix(columns, year):
     columns : list
         Column names with wave prefixes added.
     """
-    wave_letter = alphabet[year - 2008]
+    #wave_letter = alphabet[year - 2008]
+    wave_letter = get_wave_letter(year)
     exclude = ["pidp"]
     for i, item in enumerate(columns):
         if item not in exclude:
