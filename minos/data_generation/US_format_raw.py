@@ -53,15 +53,13 @@ education_uklhs = US_utils.load_json(json_source, "education_uklhs_simple.json")
 # depression
 depression_dict = US_utils.load_json(json_source, "depression.json")
 
-def format_sex(data, year):
+def format_sex(data):
     """ Format sex data.
 
     Parameters
     ----------
     data : pd.DataFrame
         Data to process genders of.
-    year : int
-        The year of the wave being processed.
     Returns
     -------
     data : pd.DataFrame
@@ -73,15 +71,13 @@ def format_sex(data, year):
     return data
 
 
-def format_location(data, year):
+def format_location(data):
     """ Format any spatial data. Does nothing yet.
 
     Parameters
     ----------
     data : pd.DataFrame
         Data before location formatting.
-    year : int
-        The year of the wave being processed.
     Returns
     -------
     data : pd.DataFrame
@@ -94,15 +90,13 @@ def format_location(data, year):
     return data
 
 
-def format_mental_state(data, year):
+def format_mental_state(data):
     """ Format mental health data.
 
     Parameters
     ----------
     data : pd.DataFrame
         US data with raw depression columns.
-    year : int
-        The year of the wave being processed.
 
     Returns
     -------
@@ -114,15 +108,13 @@ def format_mental_state(data, year):
     return data
 
 
-def format_academic_year(data, year):
+def format_academic_year(data):
     """ Format academic year variables.
 
     Parameters
     ----------
     data : pd.DataFrame
         US data with raw academic year columns.
-    year : int
-        The `year` of the wave being processed.
 
     Returns
     -------
@@ -282,15 +274,13 @@ def format_bhps_ethnicity(data, year):
     return data
 
 
-def format_bhps_education(data, year):
+def format_bhps_education(data):
     """ Format US education data.
 
     Parameters
     ----------
     data : pd.DataFrame
         Data frame before formatting educations.
-    year : int
-        The `year` of the wave being processed.
 
     Returns
     -------
@@ -303,15 +293,13 @@ def format_bhps_education(data, year):
     return data
 
 
-def format_bhps_employment(data, year):
+def format_bhps_employment(data):
     """ Format employment variables.
 
     Parameters
     ----------
     data : pd.DataFrame
         Data frame to format employment for.
-    year : int
-        The year of the wave being processed.
 
     Returns
     -------
@@ -441,7 +429,7 @@ def format_uklhs_columns(year):
     return attribute_columns, column_names
 
 
-def format_uklhs_ethnicity(data, year):
+def format_uklhs_ethnicity(data):
     """ Format ethnicity variables.
 
 
@@ -449,8 +437,7 @@ def format_uklhs_ethnicity(data, year):
     ----------
     data : pd.DataFrame
         Raw data to format ethnicities of.
-    year : int
-        The year of the wave being processed.
+
 
     Returns
     -------
@@ -462,15 +449,13 @@ def format_uklhs_ethnicity(data, year):
     return data
 
 
-def format_uklhs_education(data, year):
+def format_uklhs_education(data):
     """ Format US education data.
 
     Parameters
     ----------
     data : pd.DataFrame
         Data frame before formatting educations.
-    year : int
-        The year of the wave being processed.
     Returns
     -------
     data : pd.DataFrame
@@ -481,15 +466,13 @@ def format_uklhs_education(data, year):
     return data
 
 
-def format_uklhs_employment(data, year):
+def format_uklhs_employment(data):
     """ Format employment columns for data.
 
     Parameters
     ----------
     data : pd.DataFrame
         Data frame to format employment for.
-    year : int
-        The year of the wave being processed.
 
     Returns
     -------
@@ -575,11 +558,12 @@ def format_data(year, data):
     ----------
     year : int
         The `year` of the wave being processed.
-    file_name : str
-        What is the path of the raw US data file to be processed. e.g. "path/ba_indresp.dta")
+    data : Pd.DataFrame
+        Pandas DataFrame containing both indresp and hhresp data merged on hidp
     Returns
     -------
-    None
+    data : Pd.DataFrame
+        Returns a formatted dataframe to be saved as csv
     """
     # Load file and take desired subset of columns.
     #data = US_utils.load_file(file_name)
@@ -591,20 +575,20 @@ def format_data(year, data):
 
     # Format columns by categories.
     # Categories that are formatted the same regardless of wave.
-    data = format_sex(data, year)
-    data = format_academic_year(data, year)
-    data = format_mental_state(data, year)
+    data = format_sex(data)
+    data = format_academic_year(data)
+    data = format_mental_state(data)
     data = format_time(data, year)
 
     # Categories that vary for bhps/uklhs waves.
     if year <= 2007:
         data = format_bhps_ethnicity(data, year)
-        data = format_bhps_employment(data, year)
-        data = format_bhps_education(data, year)
+        data = format_bhps_education(data)
     elif year > 2007:
-        data = format_uklhs_ethnicity(data, year)
-        data = format_uklhs_employment(data, year)
-        data = format_uklhs_education(data, year)
+        data = format_uklhs_ethnicity(data)
+        data = format_uklhs_employment(data)
+        data = format_uklhs_education(data)
+
     return data
 
 
@@ -615,7 +599,7 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
     ----------
     wave_years: list
         What years to process data for. Data goes from 1990-2021 currently.
-    file_source, file_output, file_section: str
+    file_source, file_output : str
         Where is minos of the raw US data.
         Where should processed data be output to.
         Which section of US data is being used. Usually independent response (indresp).
