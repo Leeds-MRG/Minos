@@ -5,7 +5,7 @@ RAWDATA = $(DATADIR)/raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
 PERSISTDATA = $(CURDIR)/persistent_data
 PERSISTJSON = $(PERSISTDATA)/JSON
-SOURCEDIR = $(CURDIR)/source
+SOURCEDIR = $(CURDIR)/minos
 DATAGEN = $(SOURCEDIR)/data_generation
 
 # Executables
@@ -20,10 +20,12 @@ help:
 
 ## Data Generation
 
-data: $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
+raw_data: $(RAWDATA)/2018_US_cohort.csv
 
-$(RAWDATA)/2018_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(PERSISTJSON)/depression.json $(PERSISTJSON)/sexes.json $(PERSISTJSON)/education*.json $(PERSISTJSON)/ethnicity*.json $(PERSISTJSON)/labour_status*.json
+corrected_data: $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
+
+$(RAWDATA)/2018_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/depression.json $(PERSISTJSON)/sexes.json $(PERSISTJSON)/education*.json $(PERSISTJSON)/ethnicity*.json $(PERSISTJSON)/labour_status*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py
 
-$(CORRECTDATA)/2018_US_cohort.csv: $(DATAGEN)/US_missing_main.py
+$(CORRECTDATA)/2018_US_cohort.csv: $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py
 	$(PYTHON) $(DATAGEN)/US_missing_main.py
