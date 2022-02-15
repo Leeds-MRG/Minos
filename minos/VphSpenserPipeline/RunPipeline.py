@@ -11,11 +11,11 @@ from vivarium import InteractiveContext
 
 import utils as utils
 
-from source.modules.mortality import Mortality
-from source.modules.replenishment import Replenishment
-from source.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-from source.modules import Depression
-from source.modules import Employment
+from minos.modules.mortality import Mortality
+from minos.modules.replenishment import Replenishment
+from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
+from minos.modules import Depression
+from minos.modules import Employment
 
 
 def RunPipeline(config, start_population_size):

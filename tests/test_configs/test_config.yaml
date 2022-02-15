@@ -1,0 +1,55 @@
+randomness:
+    key_columns: ['entrance_time', 'age']
+input_data:
+    location: "UK"
+time:
+    start:
+        year: 2011
+        month: 1
+        day: 1
+    end:
+        year: 2012
+        month: 1
+        day: 1
+    step_size: 30.4375
+    num_years: 1
+population:
+    age_start: 0
+    age_end: 100
+mortality_file: "Mortality2011_LEEDS1_2.csv"
+fertility_file: "Fertility2011_LEEDS1_2.csv"
+emigration_file: "Emig_2011_2012_LEEDS2.csv"
+immigration_file: "Immig_2011_2012_LEEDS2.csv"
+total_population_file: "MY2011AGEN.csv"
+msoa_to_lad: "Middle_Layer_Super_Output_Area__2011__to_Ward__2016__Lookup_in_England_and_Wales.csv"
+OD_matrix_dir: "od_matrices"
+OD_matrix_index_file: "MSOA_to_OD_index.csv"
+internal_outmigration_file: "InternalOutmig2011_LEEDS2.csv"
+immigration_MSOA: "Immigration_MSOA_M_F.csv"
+ethnic_lookup: "ethnic_lookup.csv"
+#components: ['TestPopulation()', 'InternalMigration()', 'Mortality()', 'Emigration()', 'FertilityAgeSpecificRates()', 'Immigration()']
+components: ['TestPopulation()']
+scale_rates:
+    method: "constant"
+    constant:
+        mortality: 1
+        fertility: 1
+        emigration: 1
+        immigration: 1
+        internal_migration: 1
+location: "E08000032"
+input_data_dir: "data"
+persistent_data_dir: "persistent_data"
+output_dir: "output_rates_test_2"
+path_to_raw_pop_file: "data/1000rows_ssm_E08000032_MSOA11_ppp_2011.csv"
+path_to_pop_file: "output_rates_test_2/E08000032/1000ssm_E08000032_MSOA11_ppp_2011_processed.csv"
+path_to_mortality_file: "persistent_data/Mortality2011_LEEDS1_2.csv"
+path_to_fertility_file: "persistent_data/Fertility2011_LEEDS1_2.csv"
+path_to_emigration_file: "persistent_data/Emig_2011_2012_LEEDS2.csv"
+path_to_immigration_file: "persistent_data/Immig_2011_2012_LEEDS2.csv"
+path_to_total_population_file: "persistent_data/MY2011AGEN.csv"
+path_msoa_to_lad: "persistent_data/Middle_Layer_Super_Output_Area__2011__to_Ward__2016__Lookup_in_England_and_Wales.csv"
+path_to_OD_matrices: "persistent_data/od_matrices"
+path_to_OD_matrix_index_file: "persistent_data/od_matrices/MSOA_to_OD_index.csv"
+path_to_internal_outmigration_file: "persistent_data/InternalOutmig2011_LEEDS2.csv"
+path_to_immigration_MSOA: "persistent_data/Immigration_MSOA_M_F.csv"
