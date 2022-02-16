@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from vivarium_population_spenser import utilities
 
-from RateTables.FertilityRateTable import FertilityRateTable
+from minos.RateTables.FertilityRateTable import FertilityRateTable
 
 PREGNANCY_DURATION = pd.Timedelta(days=9 * utilities.DAYS_PER_MONTH)
 

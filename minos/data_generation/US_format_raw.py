@@ -3,20 +3,20 @@
 """ This file formats Understanding Society variables for using in a microsimulation.
 It DOES NOT handle missing data. see US_missing.py.
 """
-import pandas as pd  # You know.
-import numpy as np  # You know.
+import pandas as pd
+import numpy as np
 import os
 
 import US_utils
 
-# TODO there is an issue with the connection between the BHPS and UKLHS waves. (see format_time)
+# TODO there is an issue with the connection between the BHPS and ukhls waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
 study do not transfer to the new one until next year. Need to find out why this is.
 
 This is most likely me missing some variable in the data which would better serve
 as a time variable. (e.g. interview year/month).
 
-For now just assume the end of BHPS and start of UKLHS occur in the same year.
+For now just assume the end of BHPS and start of ukhls occur in the same year.
 Record years by the END date. The first wave is SEP 90 - SEP 91 so is recorded as 
 1991_US_Cohort.csv. 
 """
@@ -35,24 +35,25 @@ dataset (2008 for BHPS).
 """
 
 # Where are all persistent files for US data. E.g. int to string variable encodings.
-json_source = "persistent_data/JSON/"
-# Sex dict.
+json_source = "../../persistent_data/JSON/"
+# Sex.
 sex_dict = US_utils.load_json(json_source, "sexes.json")
-# Ethnicity dicts.
+# Ethnicity.
 ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
 ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
-ethnicity_uklhs = US_utils.load_json(json_source, "ethnicity_uklhs.json")
+ethnicity_ukhls = US_utils.load_json(json_source, "ethnicity_ukhls.json")
 # Employment.
-labour_status_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
-labour_status_uklhs = US_utils.load_json(json_source, "labour_status_uklhs.json")
+labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
+labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
 # Education.
 education_bhps = US_utils.load_json(json_source, "education_bhps.json")
-# Use simplified one for uklhs currently.
-# education_uklhs = US_utils.load_json(json_source, "education_uklhs.json")
-education_uklhs = US_utils.load_json(json_source, "education_uklhs_simple.json")
-# depression
-depression_dict = US_utils.load_json(json_source, "depression.json")
-# heating
+# Use simplified one for ukhls currently.
+# education_ukhls = US_utils.load_json(json_source, "education_ukhls.json")
+education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
+# Depression.
+depression = US_utils.load_json(json_source, "depression.json")
+depression_change = US_utils.load_json(json_source, "depression_change.json")
+# Heating.
 heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 
@@ -107,7 +108,8 @@ def format_mental_state(data):
         US data with formatted depression columns.
     """
     # TODO Only using binary values for now. Makes it easier to show off traditional binary models.
-    data["ethnicity"].astype(str).map(depression_dict)
+    data["depression"] = data["depression"].astype(str).map(depression)
+    data["depression_change"] = data["depression_change"].astype(str).map(depression_change)
     return data
 
 
@@ -194,7 +196,8 @@ def format_bhps_columns(year):
                          "doby",  # Birth Year.
                          "qfachi",  # Highest education
                          # "hiqual_dv",  # Highest education
-                         "scghqi",  # Depression.
+                         "scghqi",  # GHQ Depression.
+                         "hlprbi", # Clinical Depression.
                          "jbstat",  # Labour status.
                          "jbnssec8_dv",  # NSSEC code.
                          "cduse6",  # washing machine
@@ -208,7 +211,8 @@ def format_bhps_columns(year):
                     "age",
                     "birth_year",
                     "education_state",
-                    "depression_state",
+                    "depression_change",
+                    "depression",
                     "labour_state",
                     "job_sec",
                     "washing_machine",  # cduse6
@@ -306,9 +310,8 @@ def format_bhps_education(data):
     data : pd.DataFrame
         Data after formatting educations.
     """
-    education_dict = education_bhps
     # Map education codes to readable strings.
-    data.loc["education_state"] = data["education_state"].astype(str).map(education_dict)
+    data["education_state"] = data["education_state"].astype(str).map(education_bhps)
     return data
 
 
@@ -325,48 +328,8 @@ def format_bhps_employment(data):
     data : Pd.DataFrame
         Data with formatted education column.
     """
-    # TODO this is a mess.
-    """Correct some incorrectly missing data here.
-    Some people are registered as unemployed but are missing job codes.
-    Makes them impossible to differentiate with those who are missing for other reasons.
-    Hence will assign anyone who is unemployed SIC/SOC/NSSEC code 0.
-    0 is undefined in all 3 sets.
-    """
-    # Calculate people who are unemployed (labour state 2) but registered as missing in SIC codes.
-    # Assign these people 0 value SIC/SOC/NSSEC codes. Also set their job duration to 0.
-    #na_soc_index = data["job_industry"].isin([-1, -2, -7, -8, -9])
-    #unemployed_index = ~data["labour_state"].isin([2])
-    #missing_because_unemployed = na_soc_index & unemployed_index
-    #mbe_index = missing_because_unemployed.loc[missing_because_unemployed is True].index
-    #job_columns = ["job_industry", "job_occupation", "job_sec",
-    #               "job_duration_m", "job_duration_y"]
-    #data.loc[mbe_index, job_columns] = 0
-
-    # TODO Format not missing at random (NMAR) job rows. I.E. missing for a specific reason.
-    # TODO move this to missing data correction.
-    """
-    There are a lot of potential reasons for this.
-    People who transition job status mid year and arent properly recorded.
-`       E.g. check pid 274047 this person retires in April 2008.
-    They are incorrectly recorded as still employed by Sept. 2008 but have no company data at all.
-    They are incorrectly employed and have -8 for SOC/SIC/NSSEC values because they have no company.
-
-    Seems to be a clash between behaviour for the majority of the year and
-    current behaviour.
-    For now just assume they are unemployed and assign their industries to 0."""
-
-    # Whos job data is totally NA. Assign them unemployed and no job industry.
-    #who_falsely_employed = data.loc[np.sum(data[job_columns] == np.nan, 1) == 3].index
-    #data.loc[who_falsely_employed, job_columns] = 0
-    #data.loc[who_falsely_employed, "labour_state"] = 3
-
-    """There are other nmar states that could be correct such as 
-    students with part time jobs incorrectly registering as FT employed.
-    Also have the disabled/retired to consider."""
-
     # Remap job status ints to strings.
-    labour_state_dict = labour_status_bhps
-    data.loc["labour_state"] = data["labour_state"].astype(str).map(labour_state_dict)
+    data.loc["labour_state"] = data["labour_state"].astype(str).map(labour_bhps)
     return data
 
 
@@ -390,12 +353,12 @@ def format_bhps_heating(data):
 
 
 ######################
-# UKLHS Wave Functions
+# ukhls Wave Functions
 ######################
 
 
-def format_uklhs_columns(year):
-    """ Specify subset of UKLHS columns to be used in microsim.
+def format_ukhls_columns(year):
+    """ Specify subset of ukhls columns to be used in microsim.
 
     Parameters
     ----------
@@ -435,7 +398,7 @@ def format_uklhs_columns(year):
                     "birth_year",
                     "ethnicity",
                     "education_state",
-                    "depression_state",
+                    "depression_change",
                     "labour_state",
                     "job_industry",
                     "job_sec",
@@ -446,7 +409,7 @@ def format_uklhs_columns(year):
                     "microwave",  # cduse9
                     ]
 
-    # Variables that change names for UKLHS data.
+    # Variables that change names for ukhls data.
     # Attributes for job duration.
     # First wave of employment attribute names are different.
     # 7th wave also changes names.
@@ -467,7 +430,15 @@ def format_uklhs_columns(year):
     else:
         attribute_columns += ["jbsoc10_cc"]
         column_names += ["job_occupation"]
+    # clinical depression changes in wave 10.
+    if year < 2017:
+        attribute_columns += ["hcond17"]  # Clinical depression.
+        column_names += ["depression"]
+    else:
+        attribute_columns += ["hcondcode38"] # Clinical depression.
+        column_names += ["depression"]
 
+    #TODO @Luke move this to subset_data function in us_utils?
     # heating var missing some waves
     skip_years = [2010, 2012, 2014]
     if year not in skip_years:
@@ -476,14 +447,14 @@ def format_uklhs_columns(year):
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.
-    # E.g age -> a_age, age -> b_age ... for waves of UKLHS.
+    # E.g age -> a_age, age -> b_age ... for waves of ukhls.
 
-    attribute_columns = US_utils.uklhs_wave_prefix(attribute_columns, year)
+    attribute_columns = US_utils.ukhls_wave_prefix(attribute_columns, year)
 
     return attribute_columns, column_names
 
 
-def format_uklhs_ethnicity(data):
+def format_ukhls_ethnicity(data):
     """ Format ethnicity variables.
 
 
@@ -499,11 +470,11 @@ def format_uklhs_ethnicity(data):
         Data with ethnicities formatted.
     """
     # Map ethnicity integers to strings.
-    data["ethnicity"] = data["ethnicity"].astype(str).map(ethnicity_uklhs)
+    data["ethnicity"] = data["ethnicity"].astype(str).map(ethnicity_ukhls)
     return data
 
 
-def format_uklhs_education(data):
+def format_ukhls_education(data):
     """ Format US education data.
 
     Parameters
@@ -516,11 +487,11 @@ def format_uklhs_education(data):
         Data after formatting educations.
     """
     # Map education ints to strings.
-    data["education_state"] = data["education_state"].astype(str).map(education_uklhs)
+    data["education_state"] = data["education_state"].astype(str).map(education_ukhls)
     return data
 
 
-def format_uklhs_employment(data):
+def format_ukhls_employment(data):
     """ Format employment columns for data.
 
     Parameters
@@ -533,9 +504,7 @@ def format_uklhs_employment(data):
     data : Pd.DataFrame
         Which wave of data is being saved.
     """
-    # TODO this is a mess.
-    # TODO Format not missing at random (NMAR) job rows. I.E. missing for a specific reason. Move to missing data.
-
+    # TODO Code moved to US_missing_deterministic. move problem description somewhere too.
     """Correct some incorrectly missing data here.
     Some people are registered as unemployed but are missing job codes.
     Makes them impossible to differentiate with those who are missing for other reasons.
@@ -543,15 +512,7 @@ def format_uklhs_employment(data):
     0 is undefined in all 3 sets.
     Calculate people who are unemployed (labour state 2) but registered as missing in SIC codes.
     Assign these people 0 value SIC/SOC/NSSEC codes. Also set their job duration to 0.
-    """
-    #na_soc_index = data["job_industry"].isin([-1, -2, -7, -8, -9])
-    #unemployed_index = ~data["labour_state"].isin([2])
-    #missing_because_unemployed = na_soc_index & unemployed_index
-    #mbe_index = missing_because_unemployed.loc[missing_because_unemployed is True].index
-    #job_columns = ["job_industry", "job_occupation", "job_sec", "job_duration_m", "job_duration_y"]
-    #data.loc[mbe_index, job_columns] = 0
 
-    """
     There are a lot of potential reasons for this.
     People who transition job status mid year and arent properly recorded.
 `       E.g. check pid 274047 this person retires in April 2008.
@@ -562,14 +523,8 @@ def format_uklhs_employment(data):
     current behaviour.
     For now just assume they are unemployed and assign their industries to 0."""
 
-    # Whos job data is totally NA. Assign them unemployed and no job industry.
-    #who_falsely_employed = data.loc[np.sum(data[job_columns] == np.nan, 1) == 3].index
-    #data.loc[who_falsely_employed, job_columns] = 0
-    #data.loc[who_falsely_employed, "labour_state"] = 3
-
     # Remap job statuses.
-    labour_state_dict = labour_status_uklhs
-    data["labour_state"] = data["labour_state"].astype(str).map(labour_state_dict)
+    data["labour_state"] = data["labour_state"].astype(str).map(labour_ukhls)
     return data
 
 
@@ -642,7 +597,7 @@ def format_data(year, data):
     if year <= 2007:
         attribute_columns, column_names = format_bhps_columns(year)
     else:
-        attribute_columns, column_names = format_uklhs_columns(year)
+        attribute_columns, column_names = format_ukhls_columns(year)
     data = US_utils.subset_data(data, attribute_columns, column_names)
 
     # Format columns by categories.
@@ -654,16 +609,17 @@ def format_data(year, data):
 
     ukhls_heat_skipyrs = [2010, 2012, 2014]
 
-    # Categories that vary for bhps/uklhs waves.
+    # Categories that vary for bhps/ukhls waves.
     if year <= 2007:
         data = format_bhps_ethnicity(data, year)
         data = format_bhps_education(data)
+        data = format_bhps_employment(data)
         if year >= 1996: # heating var not in bhps until 1996
             data = format_bhps_heating(data)
     elif year > 2007:
-        data = format_uklhs_ethnicity(data)
-        data = format_uklhs_employment(data)
-        data = format_uklhs_education(data)
+        data = format_ukhls_ethnicity(data)
+        data = format_ukhls_employment(data)
+        data = format_ukhls_education(data)
         if year not in ukhls_heat_skipyrs:
             data = format_ukhls_heating(data)
 
@@ -686,7 +642,7 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
     # Loop over wave years and format data.
     for year in wave_years:
         # Two types of wave with different naming conventions and variables.
-        # The BHPS waves circa 2008 and UKLHS waves post 2009 have different classes for processing.
+        # The BHPS waves circa 2008 and ukhls waves post 2009 have different classes for processing.
 
         # Merge the indresp and hhresp files for a particular year then format
         indresp_name = US_utils.US_file_name(year, file_source, "indresp")
@@ -701,12 +657,12 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 
 if __name__ == "__main__":
     years = np.arange(1990, 2019)
-    source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
-    output = "data/raw_US/"
-    #section = "indresp"
 
-    # check if output dir exists and create if not
-    if not os.path.isdir(output):
-        os.mkdir(output)
+    source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
+    if os.environ.get("USER") == 'robertclay':
+        source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/" # different data source depending on user.
+
+    output = "../../data/raw_US/"
+    #section = "indresp"
 
     main(years, source, output)

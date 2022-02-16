@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Required rate conversion and rate table creation functions.
 from vivarium.framework.utilities import rate_to_probability
-from RateTables.MortalityRateTable import MortalityRateTable
+from minos.RateTables.MortalityRateTable import MortalityRateTable
 
 
 class Mortality:

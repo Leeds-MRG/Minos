@@ -1,14 +1,22 @@
 """ Utilities for handling Understanding Societies data in preprocessing, missing data handling, and in Icarus.
 
 """
+import os
 import pandas as pd
 import json
-from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_uklhs_columns.
+from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 
 
 ########################
 # Single wave functions.
 ########################
+
+# Check if output dir exists and create if not.
+def check_output_dir(output):
+    if not os.path.isdir(output):
+        os.mkdir(output)
+        print(f"Output directory not found. Creating directory to save data at {output}")
+
 
 def save_file(data, destination, prefix, year):
     """Save formatted US data to a new file.
@@ -23,6 +31,7 @@ def save_file(data, destination, prefix, year):
     -------
     None
     """
+    check_output_dir(destination)
     output_file_name = destination + prefix + f"{year}_US_cohort.csv"
     data.to_csv(output_file_name, index=False)
     print(f"wave for {year} saved to {output_file_name}")
@@ -145,7 +154,7 @@ def bhps_wave_prefix(columns, year):
     return new_columns
 
 
-def uklhs_wave_prefix(columns, year):
+def ukhls_wave_prefix(columns, year):
     """
 
     Parameters
@@ -169,7 +178,7 @@ def uklhs_wave_prefix(columns, year):
     return columns
 
 
-def subset_data(data, required_columns, column_names):
+def subset_data(data, required_columns, column_names, substitute = True):
     """ Take desired columns from US data and rename them.
 
     Parameters
@@ -180,6 +189,12 @@ def subset_data(data, required_columns, column_names):
         Which subset of columns is being taken.
     column_names : list
         New names for dataframe columns. Makes it clearer for use in microsim.
+    substitute : bool
+        If specified variables arent present in a specific wave of US data then substitute
+        it with an empty column for that wave. For example depression (hcond17) is not available in wave 2 of UKHLS but
+        is available in all other waves. Setting substitute = True replaces the variable in wave 2 with an empty column.
+        Is entirely empty data but preserves consistent data across all waves for later imputation. Otherwise will
+        raise a key error.
 
     Returns
     -------
@@ -187,6 +202,12 @@ def subset_data(data, required_columns, column_names):
         Subset of initial data with desired columns.
     """
     # Take subset of data for required columns and rename them.
+    if substitute:
+        for item in required_columns:
+            if item not in data.columns:
+                data[item] = -9
+                print(f"Warning! {item} not found in wave {alphabet.find(item[0])+1}. Substituting a dummy column. "
+                      + "Set substitute = False in the subset_data function to suppress this behaviour.")
     data = data[required_columns]
     data.columns = column_names
     return data
@@ -237,6 +258,7 @@ def save_multiple_files(data, years, destination, prefix):
     None.
 
     """
+    check_output_dir(destination)
     for year in years:
         wave_data = data.loc[data["time"] == year]
         file_name = f"{destination}{prefix}{year}_US_cohort.csv"

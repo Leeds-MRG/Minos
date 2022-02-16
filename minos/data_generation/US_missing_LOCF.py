@@ -9,7 +9,7 @@ import US_utils
 import US_missing_description
 
 
-def loc(data, columns, type='f'):
+def locf(data, f_columns = None, b_columns = None, fb_columns = None):
     """ Last observation carrying for correcting missing data.
 
     Data is often only recorded when someone either enters the study for
@@ -29,13 +29,14 @@ def loc(data, columns, type='f'):
         Type of observation carrying to do. Either forwards 'f' backwards 'b' or forwards then backwards 'fb'.
         Defaults to forward as last observation carried forwards (locf) is the only one you should really do unless
         the attributes are immutable. Even then its tenuous.
+
     Returns
     -------
     data : pd. DataFrame
         The data frame with missing data correction done by observation carrying.
 
     """
-    print("starting loc. Grab a coffee..")
+    print("Starting locf. Grab a coffee..")
     # sort values by pidp and time. Need chronological order for carrying to make sense.
     # Also allows for easy replacing of filled data later.
     data = data.sort_values(by=["pidp", "time"])
@@ -48,16 +49,18 @@ def loc(data, columns, type='f'):
 
     # Fill missing data by individual for given carrying type. Forwards, backwards, or forward then backwards.
     # See pandas ffill and bfill functions for more details.
-    if type == 'f':
+    if f_columns:
         # Forward fill.
-        fill = pid_groupby[columns].apply(lambda x: x.replace(missing_types, method="ffill"))
-    elif type == 'b':
+        fill = pid_groupby[f_columns].apply(lambda x: x.replace(missing_types, method="ffill"))
+        data[f_columns] = fill
+    if b_columns:
         # backward fill. only use this on IMMUTABLE attributes.
-        fill = pid_groupby[columns].apply(lambda x: x.replace(missing_types, method="bfill"))
-    else:
+        fill = pid_groupby[b_columns].apply(lambda x: x.replace(missing_types, method="bfill"))
+        data[b_columns] = fill
+    if fb_columns:
         # forwards and backwards fill. again immutables only.
-        fill = pid_groupby[columns].apply(lambda x: x.replace(missing_types, method="ffill").replace(missing_types, method="bfill"))
-    data[columns] = fill[columns]
+        fill = pid_groupby[fb_columns].apply(lambda x: x.replace(missing_types, method="ffill").replace(missing_types, method="bfill"))
+        data[fb_columns] = fill
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data
 
@@ -66,19 +69,23 @@ def main():
     # Process data by year and pidp.
     # perform LOCF using lambda forward fill functions.
     years = np.arange(1990, 2017)
-    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"../../data/deterministic_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-    US_missing_description.missingness_hist(data, "education_state", "age")
-    US_missing_description.missingness_hist(data, "labour_state", "age")
-    US_missing_description.missingness_bars(data, "education_state", "ethnicity")
+    #US_missing_description.missingness_hist(data, "education_state", "age")
+    #US_missing_description.missingness_hist(data, "labour_state", "age")
+    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
 
     before = US_missing_description.missingness_table(data)
-    columns = ["sex", "age", "ethnicity", "birth_year", "education_state", "depression_state", "labour_state"]
-    data = loc(data, columns, "f")
+    f_columns = ["age", "education_state", "depression", "depression_change",
+                 "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
+                 "job_industry", "job_sec"] #add more variables here.
+    fb_columns = ["sex", "ethnicity", "birth_year"] # or here if they're immutable.
+    data = locf(data, f_columns=f_columns, fb_columns=fb_columns)
     after = US_missing_description.missingness_table(data)
-    US_missing_description.missingness_hist(data, "education_state", "age")
-    US_missing_description.missingness_hist(data, "labour_state", "age")
-    US_missing_description.missingness_bars(data, "education_state", "ethnicity")
+    #US_missing_description.missingness_hist(data, "education_state", "age")
+    #US_missing_description.missingness_hist(data, "labour_state", "age")
+    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
+    US_utils.save_multiple_files(data, years, '../../data/locf_US/', "")
     return data, before, after
 
 if __name__ == "__main__":

@@ -47,5 +47,5 @@ labour_status_uklhs = {
 
 with open("metadata/labour_status_bhps.json", "w") as outfile:
     json.dump(labour_status_bhps, outfile)
-with open("metadata/labour_status_uklhs.json", "w") as outfile:
+with open("metadata/labour_status_ukhls.json", "w") as outfile:
     json.dump(labour_status_uklhs, outfile)

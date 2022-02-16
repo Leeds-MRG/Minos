@@ -26,7 +26,7 @@ def add_nobs_column(data):
     counts = pd.DataFrame(data["pidp"].value_counts())
     counts.columns = ["nobs"]
     counts["pidp"] = counts.index
-    counts = counts.reset_index()
+    counts = counts.reset_index(drop = True)
     # Inner merge counts dataframe into main dataframe. Results in one column of nobs added to data.
     data = data.merge(counts, how="inner", on="pidp")
     data["index"] = None
@@ -37,7 +37,7 @@ def main(output_dir):
     # Load in data.
     # Process data by year and pidp.
     years = np.arange(1990, 2019)
-    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"../../data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = add_nobs_column(data)
     data = US_utils.restrict_chains(data, 2) #grab people with two or more obs.
@@ -54,20 +54,20 @@ def main(output_dir):
                "job_duration_y",
                "job_sec",
                "job_occupation"]
-    data = USmd.det_missing(data, columns, USmd.is_employed, USmd.force_zero)
+    data = USmd.det_missing(data, columns, USmd.is_unemployed, USmd.force_zero)
     middle = US_missing_description.missingness_table(data)
 
-    columns = ["sex", "age", "ethnicity", "birth_year", "education_state", "depression_state", "labour_state",
-               "job_duration_m", "job_duration_y", "job_occupation", "job_industry", "job_sec"]
-    data = US_missing_LOCF.loc(data, columns, "f")
+    f_columns = ["age", "education_state", "depression", "depression_change",
+                 "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
+                 "job_industry", "job_sec"]  # add more variables here.
+    fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
+    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns)
 
-    # TODO MICE goes here to deal with remaining ~100k missing obs.
+    # TODO MICE goes here to deal with remaining missing obs.
 
     after = US_missing_description.missingness_table(data)
-    #US_missing_description.missingness_hist(data, "education_state", "age")
-    #US_missing_description.missingness_hist(data, "labour_state", "age")
-    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
 
+    # complete case analysis instead of MICE for now.
     data = data.replace([-1, -2, -7, -8, -9, "-1", "-2", "-7", "-8", "-9"], np.nan)
     data = data.dropna()
 
@@ -78,9 +78,5 @@ def main(output_dir):
 
 if __name__ == "__main__":
 
-    output = 'data/corrected_US/'
-    # check if output dir exists and create if not
-    if not os.path.isdir(output):
-        os.mkdir(output)
-
+    output = '../../data/corrected_US/'
     data, before, after = main(output)

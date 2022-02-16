@@ -1,6 +1,6 @@
 import pandas as pd
 
-from daedalus.RateTables.BaseHandler import BaseHandler
+from minos.RateTables.BaseHandler import BaseHandler
 from os.path import exists
 from os import remove
 

@@ -33,8 +33,8 @@ class Employment:
             Config yaml tree for AngryMob with added items needed for this module to run.
         """
         # load in all possible job sectors to config
-        job_sectors = pd.read_csv("modules/job_sector_levels.csv")
-        job_roles = pd.read_csv("modules/job_role_levels.csv")
+        job_sectors = pd.read_csv("metadata/job_sector_levels.csv")
+        job_roles = pd.read_csv("metadata/job_role_levels.csv")
         config.update({
             "job_sectors": job_sectors,
             "job_roles": job_roles

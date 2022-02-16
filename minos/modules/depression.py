@@ -10,7 +10,7 @@ from pathlib import Path
 
 from vivarium.framework.utilities import rate_to_probability
 
-from RateTables.DepressionRateTable import DepressionRateTable
+#from minos.RateTables.DepressionRateTable import DepressionRateTable
 
 class Depression:
     """ Main class for application of depression data to BHPS."""

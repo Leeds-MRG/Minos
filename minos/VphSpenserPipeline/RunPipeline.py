@@ -9,13 +9,13 @@ import pandas as pd
 
 from vivarium import InteractiveContext
 
-import utils as utils
+import minos.utils as utils
 
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-from minos.modules import Depression
-from minos.modules import Employment
+from minos.modules.depression import Depression
+from minos.modules.employment import Employment
 
 
 def RunPipeline(config, start_population_size):

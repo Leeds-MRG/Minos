@@ -42,18 +42,20 @@ def missingness_table(data):
     -------
 
     """
-    missing_types = ['-1', '-2', '-7', '-8', '-9', -1, -2, -7, -8, -9]
-    missing_types_str = ['-1', '-2', '-7', '-8', '-9']
+    missing_types = ['-1', '-2', '-7', '-8', '-9',
+                     -1., -2., -7., -8., -9.,
+                     -1, -2, -7, -8, -9,
+                     '-1.0', '-2.0', '-7.0', '-8.0', '-9.0']
 
-    output = pd.DataFrame(index=missing_types_str, columns=data.columns)
+    output = pd.DataFrame(0, index= [-1, -2, -7, -8, -9], columns=data.columns)
     for v in data.columns:
-        sub_data = data.loc[data[v].isin(missing_types)][v].astype(str).value_counts()
-        output[v] = sub_data
+        output[v] = data.loc[data[v].isin(missing_types)][v].astype(int).value_counts()
     output = output.replace(np.nan, 0)
+
     col_sums = np.sum(output)
     col_sums.name = "Col Sums"
     output = output.append(col_sums)
-    row_sums = np.sum(output, 1)
+    row_sums = np.nansum(output, 1)
     output["Row Sums"] = row_sums
 
     percent_missing = round((100*row_sums[-1])/(data.shape[0]*data.shape[1]), 3)
