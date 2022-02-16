@@ -162,7 +162,7 @@ def format_time(data, year):
     # Following 2 lines are a stupid work around.
     # if self.year <= 2008:
     #    self.year += 1
-    data.loc["time"] = year
+    data["time"] = year
     return data
 
 

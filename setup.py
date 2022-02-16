@@ -23,4 +23,4 @@ setup(name='minos',
       install_requires=REQUIRED_PACKAGES,
       test_suite='nose.collector',
       tests_require=['nose'],
-      )
+)

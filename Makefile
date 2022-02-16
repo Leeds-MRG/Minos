@@ -20,6 +20,8 @@ help:
 
 ## Data Generation
 
+data: raw_data corrected_data
+
 raw_data: $(RAWDATA)/2018_US_cohort.csv
 
 corrected_data: $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
