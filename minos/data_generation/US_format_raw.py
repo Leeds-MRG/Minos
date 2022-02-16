@@ -52,6 +52,9 @@ education_bhps = US_utils.load_json(json_source, "education_bhps.json")
 education_uklhs = US_utils.load_json(json_source, "education_uklhs_simple.json")
 # depression
 depression_dict = US_utils.load_json(json_source, "depression.json")
+# heating
+heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
+heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 
 def format_sex(data):
     """ Format sex data.
@@ -194,6 +197,9 @@ def format_bhps_columns(year):
                          "scghqi",  # Depression.
                          "jbstat",  # Labour status.
                          "jbnssec8_dv",  # NSSEC code.
+                         "cduse6",  # washing machine
+                         "cduse8",  # dishwasher
+                         "cduse9"  # microwave oven
                          ]
 
     column_names = ["pidp",
@@ -205,6 +211,9 @@ def format_bhps_columns(year):
                     "depression_state",
                     "labour_state",
                     "job_sec",
+                    "washing_machine",  # cduse6
+                    "dishwasher",       # cduse8
+                    "microwave"         # cduse9
                     ]
 
     # Variables that change names over dataset.
@@ -239,6 +248,16 @@ def format_bhps_columns(year):
     else:
         attribute_columns += ["jbsoc00_cc"]
         column_names += ["job_occupation"]  # Occupation code.
+
+    # cduse5 & cduse7 missing in bhps wave 6 (1995)
+    if year != 1995:
+        attribute_columns += ["cduse5", "cduse7"]
+        column_names += ["fridge_freezer", "tumble_dryer"]
+
+    # heating var hsprbk starts in 1996
+    if year >= 1996:
+        attribute_columns += ["hsprbk"]     # Accom: lack of adequate heating
+        column_names += ["heating"]
 
     # Add wave specific letters of BHPS variable names.
     # Do not add letters to cross wave variables (IDs).
@@ -351,6 +370,25 @@ def format_bhps_employment(data):
     return data
 
 
+def format_bhps_heating(data):
+    """ Format heating variable.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Data frame to format heating for.
+
+        Returns
+        -------
+        data : Pd.DataFrame
+            Data with formatted heating column.
+    """
+    ## Need to reverse the binary heating variable as it is in the opposite orientation to the corresponding ukhls var
+    data["heating"] = data["heating"].fillna(-9) # have to replace a single NA value before mapping
+    data["heating"] = data["heating"].astype(int).astype(str).map(heating_bhps) # convert to int then string then map
+    return data
+
+
 ######################
 # UKLHS Wave Functions
 ######################
@@ -382,7 +420,12 @@ def format_uklhs_columns(year):
                          "scghqi",  # GHQ depression.
                          "jbstat",  # job status
                          "jbsic07_cc",  # SIC code for job (if any).
-                         "jbnssec8_dv"  # NSSEC socioeconomic code.
+                         "jbnssec8_dv",  # NSSEC socioeconomic code.
+                         "cduse5",  # deep freeze or fridge freezer
+                         "cduse6",  # washing machine
+                         "cduse7",  # tumble dryer
+                         "cduse8",  # dishwasher
+                         "cduse9"  # microwave oven
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -395,7 +438,12 @@ def format_uklhs_columns(year):
                     "depression_state",
                     "labour_state",
                     "job_industry",
-                    "job_sec"
+                    "job_sec",
+                    "fridge_freezer",  # cduse5
+                    "washing_machine",  # cduse6
+                    "tumble_dryer",  # cduse7
+                    "dishwasher",  # cduse8
+                    "microwave",  # cduse9
                     ]
 
     # Variables that change names for UKLHS data.
@@ -419,6 +467,12 @@ def format_uklhs_columns(year):
     else:
         attribute_columns += ["jbsoc10_cc"]
         column_names += ["job_occupation"]
+
+    # heating var missing some waves
+    skip_years = [2010, 2012, 2014]
+    if year not in skip_years:
+        attribute_columns += ["hheat"]  # household heating adequate
+        column_names += ["heating"]
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.
@@ -519,6 +573,24 @@ def format_uklhs_employment(data):
     return data
 
 
+def format_ukhls_heating(data):
+    """ Format heating variable.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Data frame to format heating for.
+
+        Returns
+        -------
+        data : Pd.DataFrame
+            Data with formatted heating column.
+    """
+    ## Need to reverse the binary heating variable as it is in the opposite orientation to the corresponding ukhls var
+    data["heating"] = data["heating"].astype(str).map(heating_ukhls)
+    return data
+
+
 def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     """ Function to collect and merge the indresp and hhresp files for a specific year.
 
@@ -580,14 +652,20 @@ def format_data(year, data):
     data = format_mental_state(data)
     data = format_time(data, year)
 
+    ukhls_heat_skipyrs = [2010, 2012, 2014]
+
     # Categories that vary for bhps/uklhs waves.
     if year <= 2007:
         data = format_bhps_ethnicity(data, year)
         data = format_bhps_education(data)
+        if year >= 1996: # heating var not in bhps until 1996
+            data = format_bhps_heating(data)
     elif year > 2007:
         data = format_uklhs_ethnicity(data)
         data = format_uklhs_employment(data)
         data = format_uklhs_education(data)
+        if year not in ukhls_heat_skipyrs:
+            data = format_ukhls_heating(data)
 
     return data
 
