@@ -116,5 +116,5 @@ with open("metadata/education_bhps.json", "w") as outfile:
     json.dump(education_bhps, outfile)
 with open("metadata/education_uklhs.json", "w") as outfile:
     json.dump(education_uklhs, outfile)
-with open("metadata/education_uklhs_simple.json", "w") as outfile:
+with open("metadata/education_ukhls_simple.json", "w") as outfile:
     json.dump(education_uklhs_simple, outfile)

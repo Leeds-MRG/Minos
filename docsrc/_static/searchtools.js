@@ -290,7 +290,7 @@ var Search = {
                     }, 5);
                   }});
         } else {
-          // no source available, just display title
+          // no minos available, just display title
           Search.output.append(listItem);
           setTimeout(function() {
             displayNextItem();

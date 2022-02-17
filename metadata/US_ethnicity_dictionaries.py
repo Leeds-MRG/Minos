@@ -116,5 +116,5 @@ with open("metadata/ethnicity_bhps_2002.json", "w") as outfile:
     json.dump(ethnicity_bhps_2002, outfile)
 with open("metadata/ethnicity_bhps_2008.json", "w") as outfile:
     json.dump(ethnicity_bhps_2008, outfile)
-with open("metadata/ethnicity_uklhs.json", "w") as outfile:
+with open("metadata/ethnicity_ukhls.json", "w") as outfile:
     json.dump(ethnicity_ukhls, outfile)

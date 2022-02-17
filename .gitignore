@@ -1,1 +1,31 @@
 *.csv
+
+# idea stuff
+.idea/
+
+# Cython stuff (pycache)
+data/__pycache__/
+minos/__pycache__/
+modules/__pycache__/
+minos/*/__pycache__/
+*.pyc
+*/*.pyc
+*/*/*.pyc
+
+# OSX files
+.DS_Store
+minos/*/.DS_Store
+
+# data folders generated in code
+data/raw_US/
+data/corrected_US/
+
+# build stuff
+build/
+dist/
+minos.egg-info/
+
+
+
+
+
