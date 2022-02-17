@@ -36,7 +36,6 @@ def main(output_dir):
     # Load in data.
     # Process data by year and pidp.
     years = np.arange(1990, 2019)
-    years = np.arange(1990, 1993)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = add_nobs_column(data)
@@ -76,6 +75,5 @@ def main(output_dir):
 
 
 if __name__ == "__main__":
-    os.chdir("../..")
     output = 'data/corrected_US/'
     data = main(output)
