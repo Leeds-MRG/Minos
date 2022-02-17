@@ -88,7 +88,7 @@ def force_zero(data, index, column):
 def main():
     # Load in data.
     years = np.arange(1990, 2019)
-    file_names = [f"../../data/raw_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
     # TODO @luke 24 rows of data are totally empty for some reason. Artefact from merge with hhid maybe? not sure why.
@@ -106,7 +106,7 @@ def main():
     data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
     # table of missing values by row/column after correction.
     after = US_missing_description.missingness_table(data)
-    US_utils.save_multiple_files(data, years, '../../data/deterministic_US/', "")
+    US_utils.save_multiple_files(data, years, 'data/deterministic_US/', "")
     return data, before, after
 
 if __name__ == "__main__":
