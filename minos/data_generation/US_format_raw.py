@@ -200,7 +200,9 @@ def format_bhps_columns(year):
                          "hlprbi", # Clinical Depression.
                          "jbstat",  # Labour status.
                          "jbnssec8_dv",  # NSSEC code.
+                         "cduse5",  # fridge/freezer
                          "cduse6",  # washing machine
+                         "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9"  # microwave oven
                          ]
@@ -215,7 +217,9 @@ def format_bhps_columns(year):
                     "depression",
                     "labour_state",
                     "job_sec",
+                    "fridge_freezer",   # cduse5
                     "washing_machine",  # cduse6
+                    "tumble_dryer",     # cduse7
                     "dishwasher",       # cduse8
                     "microwave"         # cduse9
                     ]
@@ -252,11 +256,6 @@ def format_bhps_columns(year):
     else:
         attribute_columns += ["jbsoc00_cc"]
         column_names += ["job_occupation"]  # Occupation code.
-
-    # cduse5 & cduse7 missing in bhps wave 6 (1995)
-    if year != 1995:
-        attribute_columns += ["cduse5", "cduse7"]
-        column_names += ["fridge_freezer", "tumble_dryer"]
 
     # heating var hsprbk starts in 1996
     if year >= 1996:
@@ -388,7 +387,8 @@ def format_ukhls_columns(year):
                          "cduse6",  # washing machine
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
-                         "cduse9"  # microwave oven
+                         "cduse9",  # microwave oven
+                         "hheat"
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -407,6 +407,7 @@ def format_ukhls_columns(year):
                     "tumble_dryer",  # cduse7
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
+                    "heating"       # hheat
                     ]
 
     # Variables that change names for ukhls data.
@@ -437,13 +438,6 @@ def format_ukhls_columns(year):
     else:
         attribute_columns += ["hcondcode38"] # Clinical depression.
         column_names += ["depression"]
-
-    #TODO @Luke move this to subset_data function in us_utils?
-    # heating var missing some waves
-    skip_years = [2010, 2012, 2014]
-    if year not in skip_years:
-        attribute_columns += ["hheat"]  # household heating adequate
-        column_names += ["heating"]
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.
