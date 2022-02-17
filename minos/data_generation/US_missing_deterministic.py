@@ -91,10 +91,6 @@ def main():
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    # TODO @luke 24 rows of data are totally empty for some reason. Artefact from merge with hhid maybe? not sure why.
-    # TODO line of code below  removes these rows and deterministic missingness runs.
-    data = data.loc[~data["job_industry"].isnull()]
-
     # Table of missing values by row/column after correction.
     before = US_missing_description.missingness_table(data)
     unemployed_columns = ["job_industry",

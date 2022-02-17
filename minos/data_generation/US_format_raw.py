@@ -641,10 +641,13 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
         # Merge the indresp and hhresp files for a particular year then format
         indresp_name = US_utils.US_file_name(year, file_source, "indresp")
         hhresp_name = US_utils.US_file_name(year, file_source, "hhresp")
-
         indresp_hhresp = combine_indresp_hhresp(year, indresp_name, hhresp_name)
 
         data = format_data(year, indresp_hhresp)
+
+        # check for and remove any null rows (1 created in bhps due to merge)
+        data = data.loc[~data["pidp"].isnull()]
+
         # Save formatted data
         US_utils.save_file(data, file_output, "", year)
 
