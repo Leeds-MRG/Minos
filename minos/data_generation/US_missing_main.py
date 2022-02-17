@@ -78,5 +78,5 @@ def main(output_dir):
 
 if __name__ == "__main__":
 
-    output = '../../data/corrected_US/'
+    output = 'data/corrected_US/'
     data, before, after = main(output)

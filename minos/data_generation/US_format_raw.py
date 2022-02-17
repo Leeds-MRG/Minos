@@ -35,7 +35,7 @@ dataset (2008 for BHPS).
 """
 
 # Where are all persistent files for US data. E.g. int to string variable encodings.
-json_source = "../../persistent_data/JSON/"
+json_source = "persistent_data/JSON/"
 # Sex.
 sex_dict = US_utils.load_json(json_source, "sexes.json")
 # Ethnicity.
@@ -662,7 +662,7 @@ if __name__ == "__main__":
     if os.environ.get("USER") == 'robertclay':
         source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/" # different data source depending on user.
 
-    output = "../../data/raw_US/"
+    output = "data/raw_US/"
     #section = "indresp"
 
     main(years, source, output)
