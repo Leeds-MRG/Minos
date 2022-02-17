@@ -1,9 +1,9 @@
 vivarium~=0.9.3
-pyyaml~=5.3.1
+pyyaml>=5.4
 pytest~=6.0.1
 minos~=0.0.1
 pandas~=0.24.2
-numpy~=1.19.1
+numpy>=1.21
 #humanleague~=2.1.1
 #ukcensusapi~=1.1.6
 #microsimulation~=0.0.1
