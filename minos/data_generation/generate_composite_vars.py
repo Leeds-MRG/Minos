@@ -8,32 +8,38 @@ import numpy as np
 import US_utils
 
 
-"""
-Lets just take a minute and figure out what this script will actually do.
-
-Starting with the housing quality variables, we are going to generate a housing_quality var.
-This variable will be built from 6 others taken straight from Understanding Society:
-- fridge_freezer    (cduse5)
-- washing_machine   (cduse6)
-- tumble_dryer      (cduse7)
-- dishwasher        (cduse8)
-- microwave         (cduse9)
-- heating           (BHPS - hsprbk & UKHLS - hheat)
-
-The composite variable (called housing_quality) will have 3 levels: 
-- Yes to all    == 1
-- Yes to some   == 2
-- No to all     == 3
-
-Special cases are specific years when not all 6 vars are included, and so something will have to be done about that.
-"""
-
-
 def generate_composite_housing_quality(data):
+    """
+    Generate a composite housing quality variable from 6 variables found in Understanding Society (technically 7 as
+    the heating variable is generated from a different variables in both BHPS and UKHLS that essentially measures
+    the same thing).
+
+    Information on the variables involved:
+    - fridge_freezer    (cduse5)
+    - washing_machine   (cduse6)
+    - tumble_dryer      (cduse7)
+    - dishwasher        (cduse8)
+    - microwave         (cduse9)
+    - heating           (BHPS - hsprbk & UKHLS - hheat)
+
+    The composite variable (called housing_quality) will have 3 levels:
+    - Yes to all    == 1
+    - Yes to some   == 2
+    - No to all     == 3
+
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data from all years of Understanding Society (1990-2019)
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a composite housing quality variable
+    """
     # first make list of the columns we're interested in
     sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
     # now create a boolean var that equals True only if all the values for each of these vars are non-negative (i.e. not missing)
-    data["housing_complete"] =
+    data["housing_complete"] = data[(data[[sum_list]] >= 0).all(1)]
     # sum up all non-negative values in sum_list vars
     data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
 
