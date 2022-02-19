@@ -385,7 +385,8 @@ def format_ukhls_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "hheat"
+                         "hheat",   # Able to heat home adequately
+                         "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -399,12 +400,13 @@ def format_ukhls_columns(year):
                     "labour_state",
                     "job_industry",
                     "job_sec",
-                    "fridge_freezer",  # cduse5
+                    "fridge_freezer",   # cduse5
                     "washing_machine",  # cduse6
-                    "tumble_dryer",  # cduse7
-                    "dishwasher",  # cduse8
-                    "microwave",  # cduse9
-                    "heating"       # hheat
+                    "tumble_dryer",     # cduse7
+                    "dishwasher",       # cduse8
+                    "microwave",        # cduse9
+                    "heating",          # hheat
+                    "SF-12"             # sf12mcs_dv
                     ]
 
     # Variables that change names for ukhls data.
