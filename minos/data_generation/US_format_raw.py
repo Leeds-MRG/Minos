@@ -204,7 +204,8 @@ def format_bhps_columns(year):
                          "cduse6",  # washing machine
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
-                         "cduse9"  # microwave oven
+                         "cduse9",  # microwave oven
+                         "hsprbk"   # accom: lack of adequate heating
                          ]
 
     column_names = ["pidp",
@@ -221,7 +222,8 @@ def format_bhps_columns(year):
                     "washing_machine",  # cduse6
                     "tumble_dryer",     # cduse7
                     "dishwasher",       # cduse8
-                    "microwave"         # cduse9
+                    "microwave",        # cduse9
+                    "heating"           # hsprbk
                     ]
 
     # Variables that change names over dataset.
@@ -256,11 +258,6 @@ def format_bhps_columns(year):
     else:
         attribute_columns += ["jbsoc00_cc"]
         column_names += ["job_occupation"]  # Occupation code.
-
-    # heating var hsprbk starts in 1996
-    if year >= 1996:
-        attribute_columns += ["hsprbk"]     # Accom: lack of adequate heating
-        column_names += ["heating"]
 
     # Add wave specific letters of BHPS variable names.
     # Do not add letters to cross wave variables (IDs).
@@ -608,14 +605,13 @@ def format_data(year, data):
         data = format_bhps_ethnicity(data, year)
         data = format_bhps_education(data)
         data = format_bhps_employment(data)
-        if year >= 1996: # heating var not in bhps until 1996
-            data = format_bhps_heating(data)
+        data = format_bhps_heating(data)
     elif year > 2007:
         data = format_ukhls_ethnicity(data)
         data = format_ukhls_employment(data)
         data = format_ukhls_education(data)
-        if year not in ukhls_heat_skipyrs:
-            data = format_ukhls_heating(data)
+        #if year not in ukhls_heat_skipyrs:
+        data = format_ukhls_heating(data)
 
     return data
 
