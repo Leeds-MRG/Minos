@@ -38,8 +38,9 @@ def generate_composite_housing_quality(data):
     """
     # first make list of the columns we're interested in
     sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
+    # TODO: Improve this boolean definition. Can't for the life of me find a way to do this properly using the list
     # now create a boolean var that equals True only if all the values for each of these vars are non-negative (i.e. not missing)
-    data["housing_complete"] = data[(data[[sum_list]] >= 0).all(1)]
+    data["housing_complete"] = (data.loc[:, sum_list] >= 0).all(1)
     # sum up all non-negative values in sum_list vars
     data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
 
@@ -69,6 +70,9 @@ def main():
     print(len(data))
     print(data["housing_sum"].value_counts())
     print(data["housing_quality"].value_counts())
+    print(data["housing_complete"].value_counts())
+
+    US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 
 
 if __name__ == "__main__":
