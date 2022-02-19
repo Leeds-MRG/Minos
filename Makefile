@@ -22,7 +22,7 @@ help:
 ## Data Generation
 # Combined Rules
 
-data: raw_data corrected_data
+data: raw_data corrected_data composite_data
 
 raw_data: $(RAWDATA)/2018_US_cohort.csv
 
