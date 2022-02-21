@@ -26,7 +26,7 @@ def add_nobs_column(data):
     counts = pd.DataFrame(data["pidp"].value_counts())
     counts.columns = ["nobs"]
     counts["pidp"] = counts.index
-    counts = counts.reset_index(drop = True)
+    counts = counts.reset_index(drop=True)
     # Inner merge counts dataframe into main dataframe. Results in one column of nobs added to data.
     data = data.merge(counts, how="inner", on="pidp")
     return data

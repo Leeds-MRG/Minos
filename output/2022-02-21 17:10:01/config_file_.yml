@@ -1,0 +1,47 @@
+components:
+- Mortality()
+- Replenishment()
+depression_files:
+  tier0: bhps_depression_tier0_table.csv
+  tier1: bhps_depression_tier1_table.csv
+  tier2: bhps_depression_tier2_table.csv
+education_file: persistent_data/education_enrollment_rate_table.csv
+ethnic_lookup: bhps_ethnic_lookup.csv
+fertility_file: regional_Fertility2011_LEEDS1_2.csv
+input_data:
+  location: UK
+input_data_dir: data
+input_data_filename: BHPS_Daedalus_testpop.csv
+mortality_file: regional_Mortality2011_LEEDS1_2.csv
+output_dir: output
+persistent_data_dir: persistent_data
+population:
+  age_end: 100
+  age_start: 0
+randomness:
+  key_columns:
+  - entrance_time
+  - age
+replenishment_files_source: /Users/robertclay/Documents/6614stata_471A424C959CCFC9AE423A866B5794B9_V1/UKDA-6614-stata/stata/stata11_se/
+run_output_dir: output/2022-02-21 17:10:01
+scale_rates:
+  constant:
+    depression0: 1
+    depression1: 1
+    depression2: 1
+    education: 1
+    fertility: 1
+    mortality: 1
+  method: constant
+time:
+  end:
+    day: 1
+    month: 10
+    year: 2012
+  num_years: 1
+  start:
+    day: 1
+    month: 10
+    year: 2011
+  step_size: 30.4375
+total_population_file: BHPS_Daedalus_testpop.csv

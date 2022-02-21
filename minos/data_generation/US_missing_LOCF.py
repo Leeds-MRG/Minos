@@ -40,7 +40,7 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None):
     # sort values by pidp and time. Need chronological order for carrying to make sense.
     # Also allows for easy replacing of filled data later.
     data = data.sort_values(by=["pidp", "time"])
-    missing_types = ['-1', '-2', '-7', '-8', '-9', -1, -2, -7, -8, -9]
+    missing_types = ['-1', '-2', '-7', '-8', '-9', -1, -2, -7, -8, -9, '-1.0', '-2.0', '-7.0', '-8.0', '-9.0']
 
     # Group data into individuals to fill in separately.
     # Acts as a for loop to fill items by each individual. If you dont this it will try and fill the whole dataframe

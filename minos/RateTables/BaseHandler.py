@@ -62,14 +62,14 @@ class BaseHandler:
         # get the unique values observed on the rate data
         if unique_sex is None:
             unique_sex = [1, 2]
-        unique_locations = np.unique(df['LAD.code'])
+        unique_locations = np.unique(df['REGION.name'])
         unique_ethnicity = np.unique(df['ETH.group'])
 
         # loop over the observed values to fill the ne dataframe
         list_dic = []
         for loc in unique_locations:
 
-            sub_loc_df = df[df['LAD.code'] == loc]
+            sub_loc_df = df[df['REGION.name'] == loc]
 
             for eth in unique_ethnicity:
 

@@ -11,8 +11,17 @@ from string import ascii_lowercase as alphabet  # For creating wave specific att
 # Single wave functions.
 ########################
 
-# Check if output dir exists and create if not.
 def check_output_dir(output):
+    """Check an output data directory exists and create it if it does not.
+
+    Parameters
+    ----------
+    output : str
+        Where is data being output?
+    Returns
+    -------
+    None
+    """
     if not os.path.isdir(output):
         os.mkdir(output)
         print(f"Output directory not found. Creating directory to save data at {output}")
@@ -53,8 +62,35 @@ def load_file(file_name):
     data = pd.read_stata(file_name, convert_categoricals=False)
     return data
 
+def save_json(data, destination):
+    """Save python dictionaries to JSON.
+
+    Parameters
+    ----------
+    data : dict
+        What dictionary is being saved?
+    destination : str
+        Where is it being saved?
+    Returns
+    -------
+    None
+    """
+    with open(destination, 'w') as fp:
+        json.dump(data, fp)
 
 def load_json(file_source, file_name):
+    """ Load a JSON data dictionary.
+
+    Parameters
+    ----------
+    file_source, file_name : str
+        Where is the file stored and what is its name.
+
+    Returns
+    -------
+    data : dict
+        Loaded json dictionary.
+    """
     f = open(file_source + file_name)
     data = json.load(f)
     f.close()
@@ -62,12 +98,13 @@ def load_json(file_source, file_name):
 
 
 def get_wave_letter(year):
-    """ Get wave letter based on year
+    """ Get wave letter based on year for US data.
+
+    Waves 1990-2008 are waves A-R of BHPS. 2009-2020 are waves 1-11 of UKHLS.
 
     Examples
     --------
-    For wave year 1992 this will return string
-    "c"
+    For year 1992 this will return wave string "c".
 
     Parameters
     ----------
@@ -76,7 +113,7 @@ def get_wave_letter(year):
     Returns
     -------
     wave_letter : str
-        Letter that corresponds to wave
+        Letter that corresponds to wave.
     """
     if year < 2008:
         # BHPS naming convention.
@@ -92,12 +129,15 @@ def get_wave_letter(year):
     return wave_letter
 
 def US_file_name(year, source, section):
-    """ Get file name for given year of US data
+    """ Get file name for given year of US data.
+
+    Note this has changed recently. Used to be each wave has a separate file but now all waves are in a
+    single directory. Removes one level of pathing.
 
     Examples
     --------
     For wave year 1992 this will return string
-    "bhps_w3/bc_indresp.dta".
+    "bhps/bc_indresp.dta".
 
     Parameters
     ----------
@@ -112,7 +152,7 @@ def US_file_name(year, source, section):
     """
     if year < 2008:
         # BHPS naming convention.
-        # Wave for 1990 begins with ba_, 1991 is bb_, bc,...
+        # Wave for 1990 begins with ba_, 1991 is bb_, ...
         wave_letter = get_wave_letter(year)
         file_name = f"bhps/b{wave_letter}_{section}.dta"
     else:
@@ -125,7 +165,7 @@ def US_file_name(year, source, section):
 
 
 def bhps_wave_prefix(columns, year):
-    """
+    """ Determine prefix for files from BHPS data.
 
     Parameters
     ----------
@@ -155,7 +195,7 @@ def bhps_wave_prefix(columns, year):
 
 
 def ukhls_wave_prefix(columns, year):
-    """
+    """ Determine wave prefix for ukhls wave data.
 
     Parameters
     ----------
@@ -201,13 +241,15 @@ def subset_data(data, required_columns, column_names, substitute = True):
     data : pd.DataFrame
         Subset of initial data with desired columns.
     """
-    # Take subset of data for required columns and rename them.
+    # If a column is missing substitute in a dummy column of missings (-9). Keeps data consistent when variables are
+    # are missing from certain waves. Don't go nuts though.
     if substitute:
         for item in required_columns:
             if item not in data.columns:
                 data[item] = -9
                 print(f"Warning! {item} not found in wave {alphabet.find(item[0])+1}. Substituting a dummy column. "
                       + "Set substitute = False in the subset_data function to suppress this behaviour.")
+    # Take subset of data for required columns and rename them.
     data = data[required_columns]
     data.columns = column_names
     return data
@@ -216,6 +258,7 @@ def subset_data(data, required_columns, column_names, substitute = True):
 def restrict_variable(data, variable, lower, upper):
     """ Restrict a variable to within two bounds
 
+    E.g. get all individuals between ages 20 and 30.
 
     Parameters
     ----------
@@ -267,7 +310,7 @@ def save_multiple_files(data, years, destination, prefix):
 
 
 def load_multiple_data(file_names):
-    """Load in the waves of data.
+    """Load in many waves of data.
 
     Parameters
     ----------
