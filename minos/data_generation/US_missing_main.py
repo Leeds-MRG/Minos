@@ -66,8 +66,8 @@ def main(output_dir):
     # TODO MICE goes here to deal with remaining missing obs.
 
     # complete case analysis instead of MICE for now.
-    data = complete_case(data)
-    after_complete_case = US_missing_description.missingness_table(data)
+    #data = complete_case(data)
+    #after_complete_case = US_missing_description.missingness_table(data)
 
     US_utils.save_multiple_files(data, years, output_dir, "")
 
