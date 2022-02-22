@@ -51,7 +51,7 @@ def generate_composite_housing_quality(data):
         (data["housing_sum"] > 0) & (data["housing_sum"] < 6),
         (data["housing_sum"] == 6),
     ]
-    values = [3, 2, 1]
+    values = [1, 2, 3]
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
 
