@@ -2,6 +2,7 @@
 
 # idea stuff
 .idea/
+.idea/*
 
 # Cython stuff (pycache)
 data/__pycache__/
