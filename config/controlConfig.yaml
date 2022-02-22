@@ -19,8 +19,8 @@ depression_files:
     tier2: "bhps_depression_tier2_table.csv"
 
 education_file: 'persistent_data/education_enrollment_rate_table.csv'
-mortality_file: 'nolocation_Mortality2011_LEEDS1_2.csv'
-fertility_file: 'nolocation_Fertility2011_LEEDS1_2.csv'
+mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
+fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
 total_population_file: 'BHPS_Daedalus_testpop.csv'
 ethnic_lookup: 'bhps_ethnic_lookup.csv'
 input_data_filename: "BHPS_Daedalus_testpop.csv"
@@ -33,7 +33,8 @@ input_data_filename: "BHPS_Daedalus_testpop.csv"
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
-components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
+#components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
+components : [Mortality(), Replenishment()]
 
 scale_rates:
     # methods:

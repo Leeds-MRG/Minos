@@ -12,3 +12,4 @@ setuptools~=49.2.0
 matplotlib~=3.2.2
 vivarium_population_spenser @ git+https://github.com/alan-turing-institute/vivarium_population_spenser@v1.0#egg=vivarium_population_spenser
 distutils_pytest
+striprtf

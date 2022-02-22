@@ -56,6 +56,9 @@ depression_change = US_utils.load_json(json_source, "depression_change.json")
 # Heating.
 heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
+# Location
+region_dict = US_utils.load_json(json_source, "region.json")
+
 
 def format_sex(data):
     """ Format sex data.
@@ -75,7 +78,7 @@ def format_sex(data):
     return data
 
 
-def format_location(data):
+def format_location(data, year):
     """ Format any spatial data. Does nothing yet.
 
     Parameters
@@ -91,6 +94,7 @@ def format_location(data):
     # No spatial data yet so does nothing.
     data["MSOA"] = "no_location"
     data["location"] = "no_location"
+    data["region"] = data["region"].astype(str).map(region_dict)
     return data
 
 
@@ -188,16 +192,17 @@ def format_bhps_columns(year):
         The literal attribute_columns names used from BHPS data. (ba_age, ba_qfachi...)
         Corresponding cleaner column_names for use in a microsim. (age, education_state...)
     """
+
     # consistent column names accross all waves
     attribute_columns = ["pidp",  # Cross wave identifier
-                         "hidp",    # Cross wave household identified
+                         "hidp",  # Cross wave household identified
                          "sex",  # Sex.
                          "age",  # Age.
                          "doby",  # Birth Year.
                          "qfachi",  # Highest education
                          # "hiqual_dv",  # Highest education
                          "scghqi",  # GHQ Depression.
-                         "hlprbi", # Clinical Depression.
+                         "hlprbi",  # Clinical Depression.
                          "jbstat",  # Labour status.
                          "jbnssec8_dv",  # NSSEC code.
                          "cduse5",  # fridge/freezer
@@ -205,24 +210,26 @@ def format_bhps_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
+                         "gor_dv"  # Government Region Derived.
                          "hsprbk"   # accom: lack of adequate heating
                          ]
 
-    column_names = ["pidp",
-                    "hidp",
-                    "sex",
-                    "age",
-                    "birth_year",
-                    "education_state",
-                    "depression_change",
-                    "depression",
-                    "labour_state",
-                    "job_sec",
-                    "fridge_freezer",   # cduse5
+    column_names = ["pidp",  # pidp
+                    "hidp",  # hidp
+                    "sex",  # sex
+                    "age",  # age
+                    "birth_year",  # doby
+                    "education_state",  # qfachi. Was hiqual_dv but too much missing.
+                    "depression_change",  # scghqi
+                    "depression",  # hlprbi
+                    "labour_state",  # jbstat
+                    "job_sec",  # jbnssec8_dv
+                    "fridge_freezer",  # cduse5
                     "washing_machine",  # cduse6
-                    "tumble_dryer",     # cduse7
-                    "dishwasher",       # cduse8
-                    "microwave",        # cduse9
+                    "tumble_dryer",  # cduse7
+                    "dishwasher",  # cduse8
+                    "microwave",  # cduse9
+                    "region",  # gor_dv
                     "heating"           # hsprbk
                     ]
 
@@ -343,8 +350,8 @@ def format_bhps_heating(data):
             Data with formatted heating column.
     """
     ## Need to reverse the binary heating variable as it is in the opposite orientation to the corresponding ukhls var
-    data["heating"] = data["heating"].fillna(-9) # have to replace a single NA value before mapping
-    data["heating"] = data["heating"].astype(int).astype(str).map(heating_bhps) # convert to int then string then map
+    data["heating"] = data["heating"].fillna(-9)  # have to replace a single NA value before mapping
+    data["heating"] = data["heating"].astype(int).astype(str).map(heating_bhps)  # convert to int then string then map
     return data
 
 
@@ -369,7 +376,7 @@ def format_ukhls_columns(year):
     """
 
     attribute_columns = ["pidp",  # Cross wave personal identifier.
-                         "hidp",    # Cross wave household identified
+                         "hidp",  # Cross wave household identified
                          "sex",  # Sex.
                          "dvage",  # Age.
                          "doby_dv",  # Birth Year.
@@ -385,7 +392,8 @@ def format_ukhls_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "hheat",   # Able to heat home adequately
+                         "hheat",
+                         "gor_dv"  # Government Region Derived.
                          "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
                          ]
     # New names for the above columns.
@@ -402,10 +410,11 @@ def format_ukhls_columns(year):
                     "job_sec",
                     "fridge_freezer",   # cduse5
                     "washing_machine",  # cduse6
-                    "tumble_dryer",     # cduse7
-                    "dishwasher",       # cduse8
-                    "microwave",        # cduse9
-                    "heating",          # hheat
+                    "tumble_dryer",  # cduse7
+                    "dishwasher",  # cduse8
+                    "microwave",  # cduse9
+                    "heating",  # hheat
+                    "region",  # region
                     "SF-12"             # sf12mcs_dv
                     ]
 
@@ -435,7 +444,7 @@ def format_ukhls_columns(year):
         attribute_columns += ["hcond17"]  # Clinical depression.
         column_names += ["depression"]
     else:
-        attribute_columns += ["hcondcode38"] # Clinical depression.
+        attribute_columns += ["hcondcode38"]  # Clinical depression.
         column_names += ["depression"]
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
@@ -567,7 +576,8 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
         merge_key = f"{wave_letter}_hidp"
 
     # merge the data on the hipd variable and return
-    combined = indresp.merge(right = hhresp, on=merge_key)
+    combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
+    combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
 
 
@@ -586,7 +596,7 @@ def format_data(year, data):
         Returns a formatted dataframe to be saved as csv
     """
     # Load file and take desired subset of columns.
-    #data = US_utils.load_file(file_name)
+    # data = US_utils.load_file(file_name)
     if year <= 2007:
         attribute_columns, column_names = format_bhps_columns(year)
     else:
@@ -599,7 +609,7 @@ def format_data(year, data):
     data = format_academic_year(data)
     data = format_mental_state(data)
     data = format_time(data, year)
-
+    data = format_location(data, year)
     ukhls_heat_skipyrs = [2010, 2012, 2014]
 
     # Categories that vary for bhps/ukhls waves.
@@ -607,7 +617,7 @@ def format_data(year, data):
         data = format_bhps_ethnicity(data, year)
         data = format_bhps_education(data)
         data = format_bhps_employment(data)
-        data = format_bhps_heating(data)
+        data = format_bhps_heating(data) # no data before 1996.
     elif year > 2007:
         data = format_ukhls_ethnicity(data)
         data = format_ukhls_employment(data)
@@ -655,9 +665,9 @@ if __name__ == "__main__":
 
     source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
     if os.environ.get("USER") == 'robertclay':
-        source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/" # different data source depending on user.
+        source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/"  # different data source depending on user.
 
     output = "data/raw_US/"
-    #section = "indresp"
+    # section = "indresp"
 
     main(years, source, output)

@@ -63,13 +63,25 @@ class Replenishment:
                         'entrance_time',
                         'time',
                         'exit_time',
-                        'depression_state',
                         'labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',
                         'job_duration_m',
-                        'job_duration_y'
+                        'job_duration_y',
+                        'heating',
+                        'depression',
+                        'tumble_dryer',
+                        'academic_year',
+                        'depression_change',
+                        'microwave',
+                        'hidp',
+                        'birth_month',
+                        'birth_year',
+                        'fridge_freezer',
+                        'dishwasher',
+                        'washing_machine',
+                        'nobs',
                         ]
 
         # Shorthand methods for readability.
