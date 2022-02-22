@@ -211,6 +211,7 @@ def format_bhps_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "gor_dv"  # Government Region Derived.
+                         "hsprbk"   # accom: lack of adequate heating
                          ]
 
     column_names = ["pidp",  # pidp
@@ -229,6 +230,7 @@ def format_bhps_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "region",  # gor_dv
+                    "heating"           # hsprbk
                     ]
 
     # Variables that change names over dataset.
@@ -263,11 +265,6 @@ def format_bhps_columns(year):
     else:
         attribute_columns += ["jbsoc00_cc"]
         column_names += ["job_occupation"]  # Occupation code.
-
-    # heating var hsprbk starts in 1996
-    if year >= 1996:
-        attribute_columns += ["hsprbk"]  # Accom: lack of adequate heating
-        column_names += ["heating"]
 
     # Add wave specific letters of BHPS variable names.
     # Do not add letters to cross wave variables (IDs).
@@ -397,6 +394,7 @@ def format_ukhls_columns(year):
                          "cduse9",  # microwave oven
                          "hheat",
                          "gor_dv"  # Government Region Derived.
+                         "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -410,13 +408,14 @@ def format_ukhls_columns(year):
                     "labour_state",
                     "job_industry",
                     "job_sec",
-                    "fridge_freezer",  # cduse5
+                    "fridge_freezer",   # cduse5
                     "washing_machine",  # cduse6
                     "tumble_dryer",  # cduse7
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "heating",  # hheat
                     "region",  # region
+                    "SF-12"             # sf12mcs_dv
                     ]
 
     # Variables that change names for ukhls data.
@@ -618,14 +617,13 @@ def format_data(year, data):
         data = format_bhps_ethnicity(data, year)
         data = format_bhps_education(data)
         data = format_bhps_employment(data)
-        if year >= 1996:  # heating var not in bhps until 1996
-            data = format_bhps_heating(data)
+        data = format_bhps_heating(data) # no data before 1996.
     elif year > 2007:
         data = format_ukhls_ethnicity(data)
         data = format_ukhls_employment(data)
         data = format_ukhls_education(data)
-        if year not in ukhls_heat_skipyrs:
-            data = format_ukhls_heating(data)
+        #if year not in ukhls_heat_skipyrs:
+        data = format_ukhls_heating(data)
 
     return data
 

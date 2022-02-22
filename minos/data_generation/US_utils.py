@@ -247,7 +247,7 @@ def subset_data(data, required_columns, column_names, substitute = True):
         for item in required_columns:
             if item not in data.columns:
                 data[item] = -9
-                print(f"Warning! {item} not found in wave {alphabet.find(item[0])+1}. Substituting a dummy column. "
+                print(f"Warning! {item} not found in current wave. Substituting a dummy column. "
                       + "Set substitute = False in the subset_data function to suppress this behaviour.")
     # Take subset of data for required columns and rename them.
     data = data[required_columns]
