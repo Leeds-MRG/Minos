@@ -58,19 +58,47 @@ def generate_composite_housing_quality(data):
     return data
 
 
+def calculate_hourly_wage(data):
+    """
+
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data from all years of Understanding Society (1990-2019)
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a calculated hourly wage variable
+    """
+    # create the column and deal with known missings
+    data["hourly_wage"] = -9
+    data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1
+    data["hourly_wage"][data["labour_state"] == "Retired"] = -2
+    data["hourly_wage"][data["labour_state"] == "Self-employed"] = -3
+    data["hourly_wage"][data["labour_state"] == "Sick/Disabled"] = -4
+    data["hourly_wage"][data["labour_state"].isin(["Government Training",
+                                                   "Maternity Leave",
+                                                   "Family Care",
+                                                   "Other"])] = -5
+
+    # apply basrate if present and non-negative (first make float)
+    data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
+
+    # calculate hourly wage from monthly pay and weekly hours worked
+    data["hourly_wage"] = data["gross_paypm"] / (data["job_hours"] * 4)
+
+    return data
+
+
 def main():
     # first collect and load the datafiles for every year
     years = np.arange(1990, 2019)
     file_names = [f"data/corrected_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    # generate composite housing var
-    data = generate_composite_housing_quality(data)
-
-    print(len(data))
-    print(data["housing_sum"].value_counts())
-    print(data["housing_quality"].value_counts())
-    print(data["housing_complete"].value_counts())
+    # generate composite variables
+    data = calculate_hourly_wage(data)                  # hourly_wage
+    data = generate_composite_housing_quality(data)     # housing_quality
 
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

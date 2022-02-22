@@ -210,8 +210,11 @@ def format_bhps_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "gor_dv"  # Government Region Derived.
-                         "hsprbk"   # accom: lack of adequate heating
+                         "gor_dv",  # Government Region Derived.
+                         "hsprbk",  # accom: lack of adequate heating
+                         "basrate", # basic pay hourly rate
+                         "paygu_dv", # usual gross pay per month: current job
+                         "jbhrs"    # no. of hours normally worked in a week
                          ]
 
     column_names = ["pidp",  # pidp
@@ -230,7 +233,10 @@ def format_bhps_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "region",  # gor_dv
-                    "heating"           # hsprbk
+                    "heating",  # hsprbk
+                    "hourly_rate",  # basrate
+                    "gross_paypm",  # paygu_dv
+                    "job_hours"     # jbhrs
                     ]
 
     # Variables that change names over dataset.
@@ -332,7 +338,7 @@ def format_bhps_employment(data):
         Data with formatted education column.
     """
     # Remap job status ints to strings.
-    data.loc["labour_state"] = data["labour_state"].astype(str).map(labour_bhps)
+    data["labour_state"] = data["labour_state"].astype(str).map(labour_bhps)
     return data
 
 
@@ -393,8 +399,11 @@ def format_ukhls_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "hheat",
-                         "gor_dv"  # Government Region Derived.
-                         "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
+                         "gor_dv",  # Government Region Derived.
+                         "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
+                         "basrate",  # basic pay hourly rate
+                         "paygu_dv",  # usual gross pay per month: current job
+                         "jbhrs"  # no. of hours normally worked in a week
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -415,7 +424,10 @@ def format_ukhls_columns(year):
                     "microwave",  # cduse9
                     "heating",  # hheat
                     "region",  # region
-                    "SF-12"             # sf12mcs_dv
+                    "SF-12",   # sf12mcs_dv
+                    "hourly_rate",  # basrate
+                    "gross_paypm",  # paygu_dv
+                    "job_hours"     # jbhrs
                     ]
 
     # Variables that change names for ukhls data.
