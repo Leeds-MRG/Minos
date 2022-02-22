@@ -25,7 +25,8 @@ build/
 dist/
 minos.egg-info/
 
-
+# outputs
+output/*
 
 
 
