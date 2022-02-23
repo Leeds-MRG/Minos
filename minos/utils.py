@@ -1,5 +1,5 @@
 """
-utility functions
+utility functions. A lot  borrowed from vivarium population spenser to avoid importing that package.
 """
 
 import argparse
@@ -14,6 +14,8 @@ import scipy
 
 from vivarium.config_tree import ConfigTree
 
+DAYS_PER_YEAR = 365.25
+DAYS_PER_MONTH = DAYS_PER_YEAR / 12
 
 def get_config(config):
 
@@ -26,7 +28,7 @@ def get_config(config):
 def base_plugins():
     config = {'required': {
                   'data': {
-                      'controller': 'vivarium_population_spenser.testing.mock_artifact.MockArtifactManager',
+                      'controller': 'minos.testing.mock_artifact.MockArtifactManager',
                       'builder_interface': 'vivarium.framework.artifact.ArtifactInterface'
                   }
              }
@@ -223,3 +225,7 @@ def get_age_bucket(simulation_data):
     simulation_data.loc[:, "age_bucket"] = pd.cut(simulation_data['age'], bins=cut_bins, labels=cut_labels)
 
     return simulation_data
+
+def to_years(time: pd.Timedelta) -> float:
+    """Converts a time delta to a float for years."""
+    return time / pd.Timedelta(days=DAYS_PER_YEAR)

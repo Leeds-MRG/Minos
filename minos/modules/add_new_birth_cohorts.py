@@ -9,7 +9,7 @@ This module contains several different models of fertility.
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from vivarium_population_spenser import utilities
+import minos.utils as utilities
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
 

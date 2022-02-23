@@ -13,8 +13,8 @@ module for applying pre-existing population data.
 import pandas as pd
 import numpy as np
 
-from vivarium_population_spenser import utilities
-from vivarium_population_spenser.population.data_transformations import (assign_demographic_proportions,
+import minos.utils as utilities
+from minos.data_generation.VPS_data_transformations import (assign_demographic_proportions,
                                                                          rescale_binned_proportions,
                                                                          smooth_ages, load_population_structure)
 

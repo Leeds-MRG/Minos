@@ -96,7 +96,7 @@ class Mortality:
         columns_created = ['cause_of_death', 'years_of_life_lost']
         # Which columns are shown from the population frame when self.population_view is called.
         # I.E. which columns are required to calculate transition probabilities or to be updated at each on_time_step.
-        view_columns = columns_created + ['alive', 'exit_time', 'age', 'sex']
+        view_columns = columns_created + ['alive', 'exit_time', 'age', 'sex', 'region']
         self.population_view = builder.population.get_view(view_columns)
         # When any new agents are added the columns_created for this module are initiated using this function.
         builder.population.initializes_simulants(self.on_initialize_simulants,
