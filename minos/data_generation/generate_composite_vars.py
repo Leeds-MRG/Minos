@@ -70,22 +70,24 @@ def calculate_hourly_wage(data):
     data : Pd.DataFrame
         The same DataFrame now containing a calculated hourly wage variable
     """
-    # create the column and deal with known missings
-    data["hourly_wage"] = -9
+    # apply basrate if present and non-negative (first make float)
+    data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
+    # Now calculate for salaried employees
+    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4)
+
+    # add in missing codes for known missings
+    #data["hourly_wage"] = -9
     data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1
     data["hourly_wage"][data["labour_state"] == "Retired"] = -2
     data["hourly_wage"][data["labour_state"] == "Self-employed"] = -3
     data["hourly_wage"][data["labour_state"] == "Sick/Disabled"] = -4
+    data["hourly_wage"][data["labour_state"] == "Student"] = -5
     data["hourly_wage"][data["labour_state"].isin(["Government Training",
                                                    "Maternity Leave",
                                                    "Family Care",
-                                                   "Other"])] = -5
-
-    # apply basrate if present and non-negative (first make float)
-    data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
-
-    # calculate hourly wage from monthly pay and weekly hours worked
-    data["hourly_wage"] = data["gross_paypm"] / (data["job_hours"] * 4)
+                                                   "Other"])] = -6
+    # now replace all still nan with -9
+    data["hourly_wage"].fillna(-9, inplace=True)
 
     return data
 

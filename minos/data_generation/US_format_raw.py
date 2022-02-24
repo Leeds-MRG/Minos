@@ -214,7 +214,11 @@ def format_bhps_columns(year):
                          "hsprbk",  # accom: lack of adequate heating
                          "basrate", # basic pay hourly rate
                          "paygu_dv", # usual gross pay per month: current job
-                         "jbhrs"    # no. of hours normally worked in a week
+                         "jbhrs",    # no. of hours normally worked in a week
+                         "paytyp",  # salaried or paid by the hour
+                         "paygl",   # gross pay last payment
+                         "payg_dv",  # gross pay per month in current job : last payment
+                         "paygwc"   # pay period: gross pay
                          ]
 
     column_names = ["pidp",  # pidp
@@ -236,7 +240,11 @@ def format_bhps_columns(year):
                     "heating",  # hsprbk
                     "hourly_rate",  # basrate
                     "gross_paypm",  # paygu_dv
-                    "job_hours"     # jbhrs
+                    "job_hours",     # jbhrs
+                    "pay_type",      # paytyp
+                    "gross_paylp",  # paygl
+                    "gross_ppmlp",   #payg_dv
+                    "gross_period"  # paygwc
                     ]
 
     # Variables that change names over dataset.
@@ -403,7 +411,11 @@ def format_ukhls_columns(year):
                          "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
                          "basrate",  # basic pay hourly rate
                          "paygu_dv",  # usual gross pay per month: current job
-                         "jbhrs"  # no. of hours normally worked in a week
+                         "jbhrs",  # no. of hours normally worked in a week
+                         "paytyp",  # salaried or paid by the hour
+                         "paygl",   # gross pay last payment
+                         "payg_dv",  # gross pay per month in current job : last payment
+                         "paygwc"   # pay period: gross pay
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -427,7 +439,11 @@ def format_ukhls_columns(year):
                     "SF-12",   # sf12mcs_dv
                     "hourly_rate",  # basrate
                     "gross_paypm",  # paygu_dv
-                    "job_hours"     # jbhrs
+                    "job_hours",     # jbhrs
+                    "pay_type",      # paytyp
+                    "gross_paylp",  # paygl
+                    "gross_ppmlp",   #payg_dv
+                    "gross_period"  # paygwc
                     ]
 
     # Variables that change names for ukhls data.
