@@ -214,7 +214,9 @@ def format_bhps_columns(year):
                          "hsprbk",  # accom: lack of adequate heating
                          "basrate", # basic pay hourly rate
                          "paygu_dv", # usual gross pay per month: current job
+                         "jspayg",  # Monthly self employed gross pay
                          "jbhrs",    # no. of hours normally worked in a week
+                         "jshrs",   # s/emp: hours normally working per week
                          "paytyp",  # salaried or paid by the hour
                          "paygl",   # gross pay last payment
                          "payg_dv",  # gross pay per month in current job : last payment
@@ -240,7 +242,9 @@ def format_bhps_columns(year):
                     "heating",  # hsprbk
                     "hourly_rate",  # basrate
                     "gross_paypm",  # paygu_dv
+                    "gross_pay_se", # jspayg
                     "job_hours",     # jbhrs
+                    "job_hours_se",     # jshrs
                     "pay_type",      # paytyp
                     "gross_paylp",  # paygl
                     "gross_ppmlp",   #payg_dv
@@ -411,7 +415,9 @@ def format_ukhls_columns(year):
                          "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
                          "basrate",  # basic pay hourly rate
                          "paygu_dv",  # usual gross pay per month: current job
+                         "seearngrs_dv",  # self employment earnings - gross
                          "jbhrs",  # no. of hours normally worked in a week
+                         "jshrs",  # s/emp: hours normally working per week
                          "paytyp",  # salaried or paid by the hour
                          "paygl",   # gross pay last payment
                          "payg_dv",  # gross pay per month in current job : last payment
@@ -439,7 +445,9 @@ def format_ukhls_columns(year):
                     "SF-12",   # sf12mcs_dv
                     "hourly_rate",  # basrate
                     "gross_paypm",  # paygu_dv
+                    "gross_pay_se",  # seearngrs_dv
                     "job_hours",     # jbhrs
+                    "job_hours_se",  # jshrs
                     "pay_type",      # paytyp
                     "gross_paylp",  # paygl
                     "gross_ppmlp",   #payg_dv
