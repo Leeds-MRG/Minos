@@ -220,7 +220,9 @@ def format_bhps_columns(year):
                          "paytyp",  # salaried or paid by the hour
                          "paygl",   # gross pay last payment
                          "payg_dv",  # gross pay per month in current job : last payment
-                         "paygwc"   # pay period: gross pay
+                         "paygwc",   # pay period: gross pay
+                         "jspayu",  # average income from job/business
+                         "jspayw"   # job/business income: pay period (weeks)
                          ]
 
     column_names = ["pidp",  # pidp
@@ -248,7 +250,9 @@ def format_bhps_columns(year):
                     "pay_type",      # paytyp
                     "gross_paylp",  # paygl
                     "gross_ppmlp",   #payg_dv
-                    "gross_period"  # paygwc
+                    "gross_period",  # paygwc
+                    "jb_inc",       # jspayu
+                    "jb_inc_per"    #jspayw
                     ]
 
     # Variables that change names over dataset.
@@ -421,7 +425,9 @@ def format_ukhls_columns(year):
                          "paytyp",  # salaried or paid by the hour
                          "paygl",   # gross pay last payment
                          "payg_dv",  # gross pay per month in current job : last payment
-                         "paygwc"   # pay period: gross pay
+                         "paygwc",   # pay period: gross pay
+                         "jspayu",  # average income from job/business
+                         "jspayw"   # job/business income: pay period (weeks)
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -451,7 +457,9 @@ def format_ukhls_columns(year):
                     "pay_type",      # paytyp
                     "gross_paylp",  # paygl
                     "gross_ppmlp",   #payg_dv
-                    "gross_period"  # paygwc
+                    "gross_period",  # paygwc
+                    "jb_inc",       # jspayu
+                    "jb_inc_per"    #jspayw
                     ]
 
     # Variables that change names for ukhls data.
