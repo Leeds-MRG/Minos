@@ -71,11 +71,11 @@ def calculate_hourly_wage(data):
         The same DataFrame now containing a calculated hourly wage variable
     """
     # apply basrate (hourly_rate) if present and non-negative
-    data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
+    #data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
     # Now calculate for salaried employees
-    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4)
+    #data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4)
     # Now calculate for self-employed (make sure s/emp pay not missing and hours worked over 0)
-    data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
+    #data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
 
     # Try a different one where we combine gross pay and business income as well as job and business hours
     # first calculate a monthly income from the business
@@ -87,16 +87,17 @@ def calculate_hourly_wage(data):
     data["total_income"][data["jb_inc_monthly"] >= 0] += data["jb_inc_monthly"]
     data["total_income"][data["gross_paypm"] >= 0] += data["gross_paypm"]
     data["total_income"][data["gross_pay_se"] >= 0] += data["gross_pay_se"]
-    data["total_income"][(data["jb_inc_monthly"] >= 0) & (data["gross_paypm"] >= 0) & (data["gross_pay_se"] >= 0)] = -9
+    data["total_income"][(data["jb_inc_monthly"] < 0) & (data["gross_paypm"] < 0) & (data["gross_pay_se"] < 0)] = -9
     #data["total_income"][(data["jb_inc_monthly"] >= 0) or (data["gross_paypm"] >= 0) or (data["gross_pay_se"] >= 0)] = data["jb_inc_monthly"] + data["gross_paypm"]
     # Add up the working hours
     data["total_hours"] = 0
     data["total_hours"][data["job_hours"] > 0] += data["job_hours"]
     data["total_hours"][data["job_hours_se"] > 0] += data["job_hours_se"]
-    data["total_hours"][(data["job_hours"] >= 0) & (data["job_hours_se"] >= 0)] = -9
+    data["total_hours"][(data["job_hours"] < 0) & (data["job_hours_se"] < 0)] = -9
     # now calculate hourly wage again
-    data["hourly_wage2"] = 0
-    data["hourly_wage2"][(data["total_income"] >= 0) & (data["total_hours"] >= 0)] = data["total_income"] / (data["total_hours"] * 4)
+    data["hourly_wage"] = 0
+    data["hourly_wage"][(data["total_income"] >= 0) & (data["total_hours"] >= 0)] = data["total_income"] / (data["total_hours"] * 4)
+    data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
 
     # add in missing codes for known missings
     data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1

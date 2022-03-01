@@ -217,10 +217,6 @@ def format_bhps_columns(year):
                          "jspayg",  # Monthly self employed gross pay
                          "jbhrs",    # no. of hours normally worked in a week
                          "jshrs",   # s/emp: hours normally working per week
-                         "paytyp",  # salaried or paid by the hour
-                         "paygl",   # gross pay last payment
-                         "payg_dv",  # gross pay per month in current job : last payment
-                         "paygwc",   # pay period: gross pay
                          "jspayu",  # average income from job/business
                          "jspayw"   # job/business income: pay period (weeks)
                          ]
@@ -247,10 +243,6 @@ def format_bhps_columns(year):
                     "gross_pay_se", # jspayg
                     "job_hours",     # jbhrs
                     "job_hours_se",     # jshrs
-                    "pay_type",      # paytyp
-                    "gross_paylp",  # paygl
-                    "gross_ppmlp",   #payg_dv
-                    "gross_period",  # paygwc
                     "jb_inc",       # jspayu
                     "jb_inc_per"    #jspayw
                     ]
@@ -422,10 +414,6 @@ def format_ukhls_columns(year):
                          "seearngrs_dv",  # self employment earnings - gross
                          "jbhrs",  # no. of hours normally worked in a week
                          "jshrs",  # s/emp: hours normally working per week
-                         "paytyp",  # salaried or paid by the hour
-                         "paygl",   # gross pay last payment
-                         "payg_dv",  # gross pay per month in current job : last payment
-                         "paygwc",   # pay period: gross pay
                          "jspayu",  # average income from job/business
                          "jspayw"   # job/business income: pay period (weeks)
                          ]
@@ -454,10 +442,6 @@ def format_ukhls_columns(year):
                     "gross_pay_se",  # seearngrs_dv
                     "job_hours",     # jbhrs
                     "job_hours_se",  # jshrs
-                    "pay_type",      # paytyp
-                    "gross_paylp",  # paygl
-                    "gross_ppmlp",   #payg_dv
-                    "gross_period",  # paygwc
                     "jb_inc",       # jspayu
                     "jb_inc_per"    #jspayw
                     ]
