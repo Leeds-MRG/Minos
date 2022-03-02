@@ -15,7 +15,9 @@ minos/*/__pycache__/
 
 # OSX files
 .DS_Store
-minos/*/.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+*/*/*/.DS_Store
 
 # data folders generated in code
 data/raw_US/
