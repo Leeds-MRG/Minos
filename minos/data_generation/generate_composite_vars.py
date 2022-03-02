@@ -114,6 +114,40 @@ def calculate_hourly_wage(data):
     return data
 
 
+def generate_hh_income(data):
+    """
+
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a calculated household income variable
+    """
+    ## Calculation of household income:
+    # hh_intermediate = ((net hh income) - (rent + mortgage + council tax)) * hh_size
+    # hh_income = hh_intermediate adjusted for inflation using CPI
+
+    # first calculate outgoings (set to 0 if missing (i.e. if negative))
+    data["hh_rent"][data["hh_rent"] < 0] = 0
+    data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+    #data["hh_ctax"][data["hh_ctax"] < 0] = 0  # add this in when possible
+    data["outgoings"] = -9
+    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] # + data["hh_ctax"]
+
+
+    # Now calculate hh income before adjusting for inflation
+    data["hh_income"] = -9
+    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) * data["oecd_equiv"]
+
+    # Inflation adjustment using CPI
+
+    return data
+
+
+
 def main():
     # first collect and load the datafiles for every year
     years = np.arange(1990, 2019)

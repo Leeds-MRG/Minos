@@ -415,7 +415,14 @@ def format_ukhls_columns(year):
                          "jbhrs",  # no. of hours normally worked in a week
                          "jshrs",  # s/emp: hours normally working per week
                          "jspayu",  # average income from job/business
-                         "jspayw"   # job/business income: pay period (weeks)
+                         "jspayw",   # job/business income: pay period (weeks)
+                         "fihhmnnet1_dv", # total household net income - no deductions
+                         "rentgrs_dv",  # monthly gross rent, including housing benefit
+                         "xpmg_dv", # monthly mortgage payment including imputations
+                         "ficountax_dv",    # amount deduction component 9: (net) council tax
+                         "ieqmoecd_dv", # Modified OECD equivalence scale
+                         "intdatey",    # household interview year
+                         "intdatem"     # household interview month
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -443,7 +450,14 @@ def format_ukhls_columns(year):
                     "job_hours",     # jbhrs
                     "job_hours_se",  # jshrs
                     "jb_inc",       # jspayu
-                    "jb_inc_per"    #jspayw
+                    "jb_inc_per",    # jspayw
+                    "hh_netinc",    # fihhmnnet1_dv
+                    "hh_rent",      # rentgrs_dv
+                    "hh_mortgage",  # xpmg_dv
+                    "hh_ctax",      # ficountax_dv
+                    "oecd_equiv",   # ieqmoecd_dv
+                    "hh_int_y",     # intdatey
+                    "hh_int_m"     # intdatem
                     ]
 
     # Variables that change names for ukhls data.
