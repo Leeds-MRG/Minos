@@ -136,9 +136,9 @@ def generate_hh_income(data):
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
-    #data["hh_ctax"][data["hh_ctax"] < 0] = 0  # add this in when possible
+    data["council_tax"][data["council_tax"] < 0] = 0
     data["outgoings"] = -9
-    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] # + data["hh_ctax"]
+    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
 
     # Now calculate hh income before adjusting for inflation

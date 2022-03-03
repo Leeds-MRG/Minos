@@ -421,7 +421,6 @@ def format_ukhls_columns(year):
                          "fihhmnnet1_dv", # total household net income - no deductions
                          "rentgrs_dv",  # monthly gross rent, including housing benefit
                          "xpmg_dv", # monthly mortgage payment including imputations
-                         "ficountax_dv",    # amount deduction component 9: (net) council tax
                          "ieqmoecd_dv", # Modified OECD equivalence scale
                          "intdatey",    # household interview year
                          "intdatem",     # household interview month
@@ -445,7 +444,7 @@ def format_ukhls_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "heating",  # hheat
-                    "region",  # region
+                    "region",  # gor_dv
                     "SF-12",   # sf12mcs_dv
                     "hourly_rate",  # basrate
                     "gross_paypm",  # paygu_dv
@@ -457,11 +456,10 @@ def format_ukhls_columns(year):
                     "hh_netinc",    # fihhmnnet1_dv
                     "hh_rent",      # rentgrs_dv
                     "hh_mortgage",  # xpmg_dv
-                    "hh_ctax",      # ficountax_dv
                     "oecd_equiv",   # ieqmoecd_dv
                     "hh_int_y",     # intdatey
-                    "hh_int_m"     # intdatem
-                    "council_tax"
+                    "hh_int_m",     # intdatem
+                    "council_tax"   # ctband_dv
                     ]
 
     # Variables that change names for ukhls data.
