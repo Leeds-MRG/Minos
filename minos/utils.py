@@ -14,6 +14,7 @@ import scipy
 
 from vivarium.config_tree import ConfigTree
 
+# All of this is borrowed from VPS.
 DAYS_PER_YEAR = 365.25
 DAYS_PER_MONTH = DAYS_PER_YEAR / 12
 
@@ -217,7 +218,7 @@ def get_age_bucket(simulation_data):
     A dataframe with a new column with the age bucket.
 
     """
-    # Age buckets based on the file names 
+    # Age buckets based on the file names
 
 
     cut_bins = [-1, 16, 20, 25, 30, 45, 60, 75, 200]

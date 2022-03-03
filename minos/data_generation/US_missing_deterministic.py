@@ -84,6 +84,21 @@ def force_zero(data, index, column):
     data.loc[index, column] = "0"
     return data
 
+def force_nine(data, index, column):
+    """
+
+    Parameters
+    ----------
+    data
+    index
+    column
+
+    Returns
+    -------
+
+    """
+    data.loc[index, column] = "-10.0"
+    return data
 
 def main():
     # Load in data.

@@ -352,3 +352,8 @@ def restrict_chains(data, k):
     trajectories_ids = list(id_counts.loc[id_counts >= k].index)
     data = data.loc[data["pidp"].isin(trajectories_ids)]
     return data
+
+missing_types = ['-1', '-2', '-7', '-8', '-9',
+                 -1, -2, -7, -8, -9,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
+                 "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]

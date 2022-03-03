@@ -8,6 +8,7 @@ import numpy as np
 import os
 
 import US_utils
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 # TODO there is an issue with the connection between the BHPS and ukhls waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
@@ -92,8 +93,8 @@ def format_location(data, year):
 
     """
     # No spatial data yet so does nothing.
-    data["MSOA"] = "no_location"
-    data["location"] = "no_location"
+    # data["MSOA"] = "no_location"
+    # data["location"] = "no_location"
     data["region"] = data["region"].astype(str).map(region_dict)
     return data
 
@@ -210,8 +211,8 @@ def format_bhps_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "gor_dv"  # Government Region Derived.
-                         "hsprbk"   # accom: lack of adequate heating
+                         "gor_dv",  # Government Region Derived.
+                         "hsprbk",  # accom: lack of adequate heating
                          ]
 
     column_names = ["pidp",  # pidp
@@ -230,7 +231,7 @@ def format_bhps_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "region",  # gor_dv
-                    "heating"           # hsprbk
+                    "heating",           # hsprbk
                     ]
 
     # Variables that change names over dataset.
@@ -393,8 +394,8 @@ def format_ukhls_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "hheat",
-                         "gor_dv"  # Government Region Derived.
-                         "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
+                         "gor_dv",  # Government Region Derived.
+                         "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -415,7 +416,7 @@ def format_ukhls_columns(year):
                     "microwave",  # cduse9
                     "heating",  # hheat
                     "region",  # region
-                    "SF-12"             # sf12mcs_dv
+                    "SF-12",             # sf12mcs_dv
                     ]
 
     # Variables that change names for ukhls data.
