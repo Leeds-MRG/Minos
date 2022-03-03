@@ -101,7 +101,7 @@ class BaseHandler:
                             print('Problem, more or less than one value in this category')
 
                         # create the rate row.
-                        dict = {'location': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                        dict = {'region': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
                                 'year_start': year_start, 'year_end': year_end, 'mean_value': value}
                         list_dic.append(dict)
 

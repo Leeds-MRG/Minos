@@ -82,6 +82,7 @@ class Replenishment:
                         'dishwasher',
                         'washing_machine',
                         'nobs',
+                        'region'
                         ]
 
         # Shorthand methods for readability.

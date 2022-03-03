@@ -218,7 +218,8 @@ def format_bhps_columns(year):
                          "jbhrs",    # no. of hours normally worked in a week
                          "jshrs",   # s/emp: hours normally working per week
                          "jspayu",  # average income from job/business
-                         "jspayw"   # job/business income: pay period (weeks)
+                         "jspayw",   # job/business income: pay period (weeks)
+                         "ctband_dv" # council tax bands
                          ]
 
     column_names = ["pidp",  # pidp
@@ -244,7 +245,8 @@ def format_bhps_columns(year):
                     "job_hours",     # jbhrs
                     "job_hours_se",     # jshrs
                     "jb_inc",       # jspayu
-                    "jb_inc_per"    #jspayw
+                    "jb_inc_per",    #jspayw
+                    "council_tax"
                     ]
 
     # Variables that change names over dataset.
@@ -422,7 +424,8 @@ def format_ukhls_columns(year):
                          "ficountax_dv",    # amount deduction component 9: (net) council tax
                          "ieqmoecd_dv", # Modified OECD equivalence scale
                          "intdatey",    # household interview year
-                         "intdatem"     # household interview month
+                         "intdatem",     # household interview month
+                         "ctband_dv" # council_tax
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -458,6 +461,7 @@ def format_ukhls_columns(year):
                     "oecd_equiv",   # ieqmoecd_dv
                     "hh_int_y",     # intdatey
                     "hh_int_m"     # intdatem
+                    "council_tax"
                     ]
 
     # Variables that change names for ukhls data.
@@ -497,6 +501,8 @@ def format_ukhls_columns(year):
 
     return attribute_columns, column_names
 
+def format_council_tax(data):
+    """Format any council tax data for calculation of monthly overheads."""
 
 def format_ukhls_ethnicity(data):
     """ Format ethnicity variables.
@@ -617,7 +623,8 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     else:
         merge_key = f"{wave_letter}_hidp"
 
-    # merge the data on the hipd variable and return
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
     combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
