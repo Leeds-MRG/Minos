@@ -55,6 +55,9 @@ def generate_composite_housing_quality(data):
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
 
+    # drop cols we don't need
+    data.drop(labels=['housing_sum', 'housing_complete'], axis=1, inplace=True)
+
     return data
 
 
@@ -142,7 +145,8 @@ def generate_hh_income(data):
     data["hh_income"] = -9
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) * data["oecd_equiv"]
 
-    # Inflation adjustment using CPI
+    # Adjust hh income for inflation
+    data = US_utils.inflation_adjustment(data, "hh_income")
 
     return data
 
@@ -155,8 +159,9 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
-    data = calculate_hourly_wage(data)                  # hourly_wage
+    #data = calculate_hourly_wage(data)                  # hourly_wage
     data = generate_composite_housing_quality(data)     # housing_quality
+    data = generate_hh_income(data)                     # hh_income
 
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 
