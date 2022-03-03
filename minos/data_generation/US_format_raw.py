@@ -210,8 +210,9 @@ def format_bhps_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "gor_dv"  # Government Region Derived.
-                         "hsprbk"   # accom: lack of adequate heating
+                         "gor_dv",  # Government Region Derived.
+                         "hsprbk",   # accom: lack of adequate heating
+                         "ctband_dv" # council tax bands
                          ]
 
     column_names = ["pidp",  # pidp
@@ -230,7 +231,8 @@ def format_bhps_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "region",  # gor_dv
-                    "heating"           # hsprbk
+                    "heating",           # hsprbk
+                    "council_tax"
                     ]
 
     # Variables that change names over dataset.
@@ -393,8 +395,9 @@ def format_ukhls_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "hheat",
-                         "gor_dv"  # Government Region Derived.
-                         "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
+                         "gor_dv",  # Government Region Derived.
+                         "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
+                         "ctband_dv" # council_tax
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -415,7 +418,8 @@ def format_ukhls_columns(year):
                     "microwave",  # cduse9
                     "heating",  # hheat
                     "region",  # region
-                    "SF-12"             # sf12mcs_dv
+                    "SF-12",             # sf12mcs_dv
+                    "council_tax"
                     ]
 
     # Variables that change names for ukhls data.
@@ -455,6 +459,8 @@ def format_ukhls_columns(year):
 
     return attribute_columns, column_names
 
+def format_council_tax(data):
+    """Format any council tax data for calculation of monthly overheads."""
 
 def format_ukhls_ethnicity(data):
     """ Format ethnicity variables.
@@ -575,7 +581,8 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     else:
         merge_key = f"{wave_letter}_hidp"
 
-    # merge the data on the hipd variable and return
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
     combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
