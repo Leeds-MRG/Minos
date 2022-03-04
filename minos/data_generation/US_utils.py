@@ -373,12 +373,14 @@ def inflation_adjustment(data, var):
     # Format date to 2 sigfigs so we keep the form '08' instead of just '8'
     data["hh_int_y"] = data["hh_int_y"].fillna(0).astype(int).astype(str)
     data["hh_int_m"] = data["hh_int_m"].fillna(0).astype(int).astype(str).str.zfill(2)
-    # now concatenate the date strings and handle very few cases of missings (-9, -8). Also replace 0 with -9
+    # now concatenate the date strings and handle cases of missings (-9, -8). Also replace 0 with -9
     data["Date"] = data["hh_int_y"] + data["hh_int_m"]
     data["Date"][data["Date"] == '0'] = '-9'
     data["Date"][data["Date"] == '-9-9'] = '-9'
+    data["Date"][data["hh_int_y"] == -9] = '-9'
+    data["Date"][data["hh_int_m"] == -9] = '-9'
     data["Date"][data["Date"] == '-8-8'] = '-8'
-    data["Date"] = data["Date"].astype(int) # need it as an int to finish as that what CPI dataset uses
+    data["Date"] = data["Date"].astype(int) # need it as an int as that what CPI dataset uses
 
     ## Inflation adjustment using CPI
     # read in CPI dataset
