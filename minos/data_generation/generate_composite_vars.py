@@ -6,6 +6,7 @@ This file generates composite variables for use in the SIPHER project investigat
 import pandas as pd
 import numpy as np
 import US_utils
+import US_missing_description as USmd
 
 
 def generate_composite_housing_quality(data):
@@ -118,7 +119,10 @@ def calculate_hourly_wage(data):
 
 
 def generate_hh_income(data):
-    """
+    """ Generate household income based on the following formulas:
+
+    hh_income_intermediate = ((net hh income) - (rent + mortgage + council tax)) / hh_size
+    hh_income = hh_income_intermediate adjusted for inflation using CPI
 
     Parameters
     ----------
@@ -129,10 +133,6 @@ def generate_hh_income(data):
     data : Pd.DataFrame
         The same DataFrame now containing a calculated household income variable
     """
-    ## Calculation of household income:
-    # hh_intermediate = ((net hh income) - (rent + mortgage + council tax)) * hh_size
-    # hh_income = hh_intermediate adjusted for inflation using CPI
-
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
@@ -140,16 +140,14 @@ def generate_hh_income(data):
     data["outgoings"] = -9
     data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
-
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
-    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) * data["oecd_equiv"]
+    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
 
     return data
-
 
 
 def main():
