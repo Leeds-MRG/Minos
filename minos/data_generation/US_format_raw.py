@@ -663,9 +663,10 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 if __name__ == "__main__":
     years = np.arange(1990, 2019)
 
-    source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
-    if os.environ.get("USER") == 'robertclay':
-        source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/"  # different data source depending on user.
+    source = "/home/docker/UKDA-6614-stata/stata/stata13_se"
+    #source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
+    #if os.environ.get("USER") == 'robertclay':
+    #    source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/"  # different data source depending on user.
 
     output = "data/raw_US/"
     # section = "indresp"
