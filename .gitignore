@@ -18,8 +18,8 @@ minos/*/__pycache__/
 */*/*/.DS_Store
 
 # data folders generated in code
-data/raw_US/
-data/corrected_US/
+data/*/*.csv
+data/*.csv
 
 # build stuff
 build/
