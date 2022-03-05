@@ -13,11 +13,20 @@ DATAGEN = $(SOURCEDIR)/data_generation
 PYTHON = python
 RSCRIPT = Rscript
 
+# Mark phony targets
+.PHONY: help install clean clean_out
+
 ## Help
 
 help:
 	@echo "Tasks in \033[1;32mMinos\033[0m:"
 	@cat Makefile
+
+## Install
+
+install:
+	@echo "Installing requirements via pip"
+	pip install -v -e .
 
 ## Data Generation
 # Combined Rules
@@ -40,3 +49,10 @@ $(CORRECTDATA)/2018_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_mis
 
 $(COMPOSITEDATA)/2018_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
+
+## Cleaning
+
+clean: clean_out
+
+clean_out:
+	rm -rf output/*
