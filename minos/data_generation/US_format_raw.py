@@ -210,7 +210,7 @@ def format_bhps_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "gor_dv"  # Government Region Derived.
+                         "gor_dv",  # Government Region Derived.
                          "hsprbk"   # accom: lack of adequate heating
                          ]
 
@@ -393,7 +393,7 @@ def format_ukhls_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "hheat",
-                         "gor_dv"  # Government Region Derived.
+                         "gor_dv",  # Government Region Derived.
                          "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
                          ]
     # New names for the above columns.
@@ -663,8 +663,8 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 if __name__ == "__main__":
     years = np.arange(1990, 2019)
 
-    source = "/home/docker/UKDA-6614-stata/stata/stata13_se/"
-    #source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
+    #source = "/home/docker/UKDA-6614-stata/stata/stata13_se/"
+    source = "/home/luke/Documents/MINOS/UKDA-6614-stata/stata/stata13_se/"
     #if os.environ.get("USER") == 'robertclay':
     #    source = "/Users/robertclay/data/UKDA-6614-stata/stata/stata13_se/"  # different data source depending on user.
 
