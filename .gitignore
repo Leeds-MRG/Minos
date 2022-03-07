@@ -1,8 +1,7 @@
-*.csv
-
 # idea stuff
 .idea/*
 .idea/
+.idea/*
 
 # Cython stuff (pycache)
 data/__pycache__/
@@ -15,11 +14,13 @@ minos/*/__pycache__/
 
 # OSX files
 .DS_Store
-minos/*/.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+*/*/*/.DS_Store
 
 # data folders generated in code
-data/raw_US/
-data/corrected_US/
+data/*/*.csv
+data/*.csv
 
 # build stuff
 build/
@@ -29,5 +30,12 @@ minos.egg-info/
 # outputs
 output/*
 
+# logs
+test.log
 
+# testing
+testing/
+testing/*
+# just for time being remove the tests (not in use currently)
+tests/
 

@@ -96,7 +96,7 @@ def main():
     unemployed_columns = ["job_industry",
                "job_duration_m",
                "job_duration_y",
-               "job_sec",
+               #"job_sec",
                "job_occupation"]
     # force unemployed people to have value 0 in unemployed_columns.
     data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
