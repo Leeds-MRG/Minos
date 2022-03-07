@@ -12,7 +12,7 @@ population:
     age_end: 100
 
 replenishment_files_source:
-      "/Users/robertclay/Documents/6614stata_471A424C959CCFC9AE423A866B5794B9_V1/UKDA-6614-stata/stata/stata11_se/"
+      "/home/docker/MINOS/UKDA-6614-stata/stata/stata13_se/"
 depression_files:
     tier0: "bhps_depression_tier0_table.csv"
     tier1: "bhps_depression_tier1_table.csv"

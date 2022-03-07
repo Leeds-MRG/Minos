@@ -115,7 +115,7 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
 # This __main__ function is used to run this script in a console. See daedalus github for examples.
 if __name__ == "__main__":
 
-    logging.basicConfig(filename = "test.log", encoding = "utf-8", level = logging.INFO)
+    logging.basicConfig(filename="test.log", encoding="utf-8", level=logging.INFO)
     logging.info("pipeline start.")
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
 
