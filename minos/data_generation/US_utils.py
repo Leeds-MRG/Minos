@@ -354,8 +354,40 @@ def restrict_chains(data, k):
     return data
 
 
+def generate_interview_date_var(data):
+    """ Generate an interview date variable in the form YYYYMM
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        The `data` containing interview year and month (hh_int_y, hh_int_m)
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with interview date variable added
+    """
+    # skip if already done
+    if "Date" in data.columns:
+        return data
+
+    # Replace na with 0 (na is technically a float so messes up when converting to int) and convert to int then string
+    # Format date to 2 sigfigs so we keep the form '08' instead of just '8'
+    data["hh_int_y"] = data["hh_int_y"].fillna(0).astype(int).astype(str)
+    data["hh_int_m"] = data["hh_int_m"].fillna(0).astype(int).astype(str).str.zfill(2)
+    # now concatenate the date strings and handle cases of missings (-9, -8). Also replace 0 with -9
+    data["Date"] = data["hh_int_y"] + data["hh_int_m"]
+    data["Date"][data["Date"] == '0'] = '-9'
+    data["Date"][data["Date"] == '-9-9'] = '-9'
+    data["Date"][data["hh_int_y"] == -9] = '-9'
+    data["Date"][data["hh_int_m"] == -9] = '-9'
+    data["Date"][data["Date"] == '-8-8'] = '-8'
+    data["Date"] = data["Date"].astype(int)  # need it as an int as that what CPI dataset uses
+
+    return data
+
+
 def inflation_adjustment(data, var):
-    """Adjust financial values for inflation using the Consumer Price Index (CPI)
+    """ Adjust financial values for inflation using the Consumer Price Index (CPI)
 
     Parameters
     ----------
@@ -368,21 +400,9 @@ def inflation_adjustment(data, var):
     data : pandas.DataFrame
         Dataframe with adjusted financial values.
     """
-    # First create a 'Date' variable from interview year and month
-    # Replace na with 0 (na is technically a float so messes up when converting to int) and convert to int then string
-    # Format date to 2 sigfigs so we keep the form '08' instead of just '8'
-    data["hh_int_y"] = data["hh_int_y"].fillna(0).astype(int).astype(str)
-    data["hh_int_m"] = data["hh_int_m"].fillna(0).astype(int).astype(str).str.zfill(2)
-    # now concatenate the date strings and handle cases of missings (-9, -8). Also replace 0 with -9
-    data["Date"] = data["hh_int_y"] + data["hh_int_m"]
-    data["Date"][data["Date"] == '0'] = '-9'
-    data["Date"][data["Date"] == '-9-9'] = '-9'
-    data["Date"][data["hh_int_y"] == -9] = '-9'
-    data["Date"][data["hh_int_m"] == -9] = '-9'
-    data["Date"][data["Date"] == '-8-8'] = '-8'
-    data["Date"] = data["Date"].astype(int) # need it as an int as that what CPI dataset uses
-
-    ## Inflation adjustment using CPI
+    # need interview date for adjustment
+    data = generate_interview_date_var(data)
+    # Inflation adjustment using CPI
     # read in CPI dataset
     cpi = pd.read_csv('persistent_data/CPI_201807.csv')
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
