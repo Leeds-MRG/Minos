@@ -1,6 +1,7 @@
 *.csv
 
 # idea stuff
+.idea/*
 .idea/
 
 # Cython stuff (pycache)
