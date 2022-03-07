@@ -6,6 +6,7 @@ This file generates composite variables for use in the SIPHER project investigat
 import pandas as pd
 import numpy as np
 import US_utils
+import US_missing_description as USmd
 
 
 def generate_composite_housing_quality(data):
@@ -51,9 +52,100 @@ def generate_composite_housing_quality(data):
         (data["housing_sum"] > 0) & (data["housing_sum"] < 6),
         (data["housing_sum"] == 6),
     ]
-    values = [3, 2, 1]
+    values = [1, 2, 3]
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
+
+    # drop cols we don't need
+    data.drop(labels=['housing_sum', 'housing_complete'], axis=1, inplace=True)
+
+    return data
+
+
+def calculate_hourly_wage(data):
+    """
+
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data from all years of Understanding Society (1990-2019)
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a calculated hourly wage variable
+    """
+    # apply basrate (hourly_rate) if present and non-negative
+    #data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
+    # Now calculate for salaried employees
+    #data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4)
+    # Now calculate for self-employed (make sure s/emp pay not missing and hours worked over 0)
+    #data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
+
+    # Try a different one where we combine gross pay and business income as well as job and business hours
+    # first calculate a monthly income from the business
+    data["jb_inc_monthly"] = -9
+    data["jb_inc_monthly"][(data["jb_inc"] >= 0) & (data["jb_inc_per"] == 1)] = data["jb_inc"] * 4
+    data["jb_inc_monthly"][(data["jb_inc"] >= 0) & (data["jb_inc_per"] == 2)] = data["jb_inc"]
+    # Add up the incomes
+    data["total_income"] = 0
+    data["total_income"][data["jb_inc_monthly"] >= 0] += data["jb_inc_monthly"]
+    data["total_income"][data["gross_paypm"] >= 0] += data["gross_paypm"]
+    data["total_income"][data["gross_pay_se"] >= 0] += data["gross_pay_se"]
+    data["total_income"][(data["jb_inc_monthly"] < 0) & (data["gross_paypm"] < 0) & (data["gross_pay_se"] < 0)] = -9
+    #data["total_income"][(data["jb_inc_monthly"] >= 0) or (data["gross_paypm"] >= 0) or (data["gross_pay_se"] >= 0)] = data["jb_inc_monthly"] + data["gross_paypm"]
+    # Add up the working hours
+    data["total_hours"] = 0
+    data["total_hours"][data["job_hours"] > 0] += data["job_hours"]
+    data["total_hours"][data["job_hours_se"] > 0] += data["job_hours_se"]
+    data["total_hours"][(data["job_hours"] < 0) & (data["job_hours_se"] < 0)] = -9
+    # now calculate hourly wage again
+    data["hourly_wage"] = 0
+    data["hourly_wage"][(data["total_income"] >= 0) & (data["total_hours"] >= 0)] = data["total_income"] / (data["total_hours"] * 4)
+    data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
+
+    # add in missing codes for known missings
+    data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1
+    data["hourly_wage"][data["labour_state"] == "Retired"] = -2
+    data["hourly_wage"][data["labour_state"] == "Sick/Disabled"] = -3
+    data["hourly_wage"][data["labour_state"] == "Student"] = -4
+    data["hourly_wage"][data["labour_state"].isin(["Government Training",
+                                                   "Maternity Leave",
+                                                   "Family Care",
+                                                   "Other"])] = -5
+    # now replace all still nan with -9
+    data["hourly_wage"].fillna(-9, inplace=True)
+
+    return data
+
+
+def generate_hh_income(data):
+    """ Generate household income based on the following formulas:
+
+    hh_income_intermediate = ((net hh income) - (rent + mortgage + council tax)) / hh_size
+    hh_income = hh_income_intermediate adjusted for inflation using CPI
+
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a calculated household income variable
+    """
+    # first calculate outgoings (set to 0 if missing (i.e. if negative))
+    data["hh_rent"][data["hh_rent"] < 0] = 0
+    data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+    data["council_tax"][data["council_tax"] < 0] = 0
+    data["outgoings"] = -9
+    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
+
+    # Now calculate hh income before adjusting for inflation
+    data["hh_income"] = -9
+    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
+
+    # Adjust hh income for inflation
+    data = US_utils.inflation_adjustment(data, "hh_income")
 
     return data
 
@@ -64,13 +156,10 @@ def main():
     file_names = [f"data/corrected_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    # generate composite housing var
-    data = generate_composite_housing_quality(data)
-
-    print(len(data))
-    print(data["housing_sum"].value_counts())
-    print(data["housing_quality"].value_counts())
-    print(data["housing_complete"].value_counts())
+    # generate composite variables
+    #data = calculate_hourly_wage(data)                  # hourly_wage
+    data = generate_composite_housing_quality(data)     # housing_quality
+    data = generate_hh_income(data)                     # hh_income
 
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

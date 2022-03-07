@@ -210,8 +210,16 @@ def format_bhps_columns(year):
                          "cduse7",  # tumble dryer
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
-                         "gor_dv"  # Government Region Derived.
-                         "hsprbk"   # accom: lack of adequate heating
+                         "gor_dv",  # Government Region Derived.
+                         "hsprbk",  # accom: lack of adequate heating
+                         "basrate", # basic pay hourly rate
+                         "paygu_dv", # usual gross pay per month: current job
+                         "jspayg",  # Monthly self employed gross pay
+                         "jbhrs",    # no. of hours normally worked in a week
+                         "jshrs",   # s/emp: hours normally working per week
+                         "jspayu",  # average income from job/business
+                         "jspayw",   # job/business income: pay period (weeks)
+                         "ctband_dv" # council tax bands
                          ]
 
     column_names = ["pidp",  # pidp
@@ -230,7 +238,15 @@ def format_bhps_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "region",  # gor_dv
-                    "heating"           # hsprbk
+                    "heating",  # hsprbk
+                    "hourly_rate",  # basrate
+                    "gross_paypm",  # paygu_dv
+                    "gross_pay_se", # jspayg
+                    "job_hours",     # jbhrs
+                    "job_hours_se",     # jshrs
+                    "jb_inc",       # jspayu
+                    "jb_inc_per",    #jspayw
+                    "council_tax"
                     ]
 
     # Variables that change names over dataset.
@@ -332,7 +348,7 @@ def format_bhps_employment(data):
         Data with formatted education column.
     """
     # Remap job status ints to strings.
-    data.loc["labour_state"] = data["labour_state"].astype(str).map(labour_bhps)
+    data["labour_state"] = data["labour_state"].astype(str).map(labour_bhps)
     return data
 
 
@@ -393,8 +409,22 @@ def format_ukhls_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "hheat",
-                         "gor_dv"  # Government Region Derived.
-                         "sf12mcs_dv"   # SF-12 Mental Component Summary (PCS)
+                         "gor_dv",  # Government Region Derived.
+                         "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
+                         "basrate",  # basic pay hourly rate
+                         "paygu_dv",  # usual gross pay per month: current job
+                         "seearngrs_dv",  # self employment earnings - gross
+                         "jbhrs",  # no. of hours normally worked in a week
+                         "jshrs",  # s/emp: hours normally working per week
+                         "jspayu",  # average income from job/business
+                         "jspayw",   # job/business income: pay period (weeks)
+                         "fihhmnnet1_dv", # total household net income - no deductions
+                         "rentgrs_dv",  # monthly gross rent, including housing benefit
+                         "xpmg_dv", # monthly mortgage payment including imputations
+                         "ieqmoecd_dv", # Modified OECD equivalence scale
+                         "intdatey",    # household interview year
+                         "intdatem",     # household interview month
+                         "ctband_dv" # council_tax
                          ]
     # New names for the above columns.
     column_names = ["pidp",
@@ -414,8 +444,22 @@ def format_ukhls_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "heating",  # hheat
-                    "region",  # region
-                    "SF-12"             # sf12mcs_dv
+                    "region",  # gor_dv
+                    "SF-12",   # sf12mcs_dv
+                    "hourly_rate",  # basrate
+                    "gross_paypm",  # paygu_dv
+                    "gross_pay_se",  # seearngrs_dv
+                    "job_hours",     # jbhrs
+                    "job_hours_se",  # jshrs
+                    "jb_inc",       # jspayu
+                    "jb_inc_per",    # jspayw
+                    "hh_netinc",    # fihhmnnet1_dv
+                    "hh_rent",      # rentgrs_dv
+                    "hh_mortgage",  # xpmg_dv
+                    "oecd_equiv",   # ieqmoecd_dv
+                    "hh_int_y",     # intdatey
+                    "hh_int_m",     # intdatem
+                    "council_tax"   # ctband_dv
                     ]
 
     # Variables that change names for ukhls data.
@@ -455,6 +499,8 @@ def format_ukhls_columns(year):
 
     return attribute_columns, column_names
 
+def format_council_tax(data):
+    """Format any council tax data for calculation of monthly overheads."""
 
 def format_ukhls_ethnicity(data):
     """ Format ethnicity variables.
@@ -575,7 +621,8 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     else:
         merge_key = f"{wave_letter}_hidp"
 
-    # merge the data on the hipd variable and return
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
     combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
