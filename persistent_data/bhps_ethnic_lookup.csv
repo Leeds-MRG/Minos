@@ -1,0 +1,19 @@
+﻿eth_int_code,eth_str_code,full_name
+1,WBI ,British
+2,WBI ,Irish
+3,WBI ,Gypsy/Traveller
+4,WHO,other white
+5,MIX,white and black carribean
+6,MIX,white and black african
+7,MIX,white and asian
+8,MIX,other mixed
+9,IND,indian
+10,BAN,pakistani
+11,PAK,bangladeshi
+12,CHI,chinese
+13,OAS,other asian
+14,BLC,caribbean
+15,BLA,african
+16,OBL,other black
+17,OAS,arab
+97,OTH,other ethnicity
