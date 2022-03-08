@@ -80,8 +80,10 @@ class BaseHandler:
                     # columns are separated for male and female rates
                     if sex == 1:
                         column_suffix = 'M'
+                        sex = "Male" # TODO robs a moron. Either force numerics in rate tables or strings.
                     else:
                         column_suffix = 'F'
+                        sex = "Female"
 
                     for age in range(age_start, age_end):
 

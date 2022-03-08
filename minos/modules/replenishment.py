@@ -83,6 +83,7 @@ class Replenishment:
                         'washing_machine',
                         'nobs',
                         'region',
+                        'SF-12',
                         ]
 
         # Shorthand methods for readability.

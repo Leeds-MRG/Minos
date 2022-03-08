@@ -72,6 +72,11 @@ def main(output_dir):
     #data = complete_case(data)
     #after_complete_case = US_missing_description.missingness_table(data)
 
+    # TODO. complete case for just critical columns. merge with Luke's func.
+    data[["sex", "ethnicity", "region"]] = data[["sex", "ethnicity", "region"]].replace(US_utils.missing_types, np.nan)
+    i = data[["sex", "ethnicity", "region"]].dropna().index
+    data = data.loc[i,:]
+
     US_utils.save_multiple_files(data, years, output_dir, "")
 
     return data
