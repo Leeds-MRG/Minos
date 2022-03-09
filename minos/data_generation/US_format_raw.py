@@ -211,15 +211,7 @@ def format_bhps_columns(year):
                          "cduse8",  # dishwasher
                          "cduse9",  # microwave oven
                          "gor_dv",  # Government Region Derived.
-                         "hsprbk",  # accom: lack of adequate heating
-                         "basrate", # basic pay hourly rate
-                         "paygu_dv", # usual gross pay per month: current job
-                         "jspayg",  # Monthly self employed gross pay
-                         "jbhrs",    # no. of hours normally worked in a week
-                         "jshrs",   # s/emp: hours normally working per week
-                         "jspayu",  # average income from job/business
-                         "jspayw",   # job/business income: pay period (weeks)
-                         "ctband_dv" # council tax bands
+                         "hsprbk"  # accom: lack of adequate heating
                          ]
 
     column_names = ["pidp",  # pidp
@@ -238,15 +230,7 @@ def format_bhps_columns(year):
                     "dishwasher",  # cduse8
                     "microwave",  # cduse9
                     "region",  # gor_dv
-                    "heating",  # hsprbk
-                    "hourly_rate",  # basrate
-                    "gross_paypm",  # paygu_dv
-                    "gross_pay_se", # jspayg
-                    "job_hours",     # jbhrs
-                    "job_hours_se",     # jshrs
-                    "jb_inc",       # jspayu
-                    "jb_inc_per",    #jspayw
-                    "council_tax"
+                    "heating"  # hsprbk
                     ]
 
     # Variables that change names over dataset.
@@ -411,13 +395,6 @@ def format_ukhls_columns(year):
                          "hheat",
                          "gor_dv",  # Government Region Derived.
                          "sf12mcs_dv",   # SF-12 Mental Component Summary (PCS)
-                         "basrate",  # basic pay hourly rate
-                         "paygu_dv",  # usual gross pay per month: current job
-                         "seearngrs_dv",  # self employment earnings - gross
-                         "jbhrs",  # no. of hours normally worked in a week
-                         "jshrs",  # s/emp: hours normally working per week
-                         "jspayu",  # average income from job/business
-                         "jspayw",   # job/business income: pay period (weeks)
                          "fihhmnnet1_dv", # total household net income - no deductions
                          "rentgrs_dv",  # monthly gross rent, including housing benefit
                          "xpmg_dv", # monthly mortgage payment including imputations
@@ -446,13 +423,6 @@ def format_ukhls_columns(year):
                     "heating",  # hheat
                     "region",  # gor_dv
                     "SF-12",   # sf12mcs_dv
-                    "hourly_rate",  # basrate
-                    "gross_paypm",  # paygu_dv
-                    "gross_pay_se",  # seearngrs_dv
-                    "job_hours",     # jbhrs
-                    "job_hours_se",  # jshrs
-                    "jb_inc",       # jspayu
-                    "jb_inc_per",    # jspayw
                     "hh_netinc",    # fihhmnnet1_dv
                     "hh_rent",      # rentgrs_dv
                     "hh_mortgage",  # xpmg_dv
