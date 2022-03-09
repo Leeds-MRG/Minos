@@ -7,7 +7,7 @@ import US_missing_description
 import US_missing_deterministic as USmd
 import US_missing_LOCF
 import US_utils
-from US_complete_case import complete_case
+import US_complete_case as UScc
 
 def add_nobs_column(data):
     """ Add column for number of observations (nobs) per individual to data frame
@@ -66,7 +66,9 @@ def main(output_dir):
     # TODO MICE goes here to deal with remaining missing obs.
 
     # complete case analysis instead of MICE for now.
-    #data = complete_case(data)
+    #data = UScc.complete_case(data)
+    complete_case_vars = ['sex', 'ethnicity', 'region']
+    data = UScc.complete_case_varlist(data, complete_case_vars)
     #after_complete_case = US_missing_description.missingness_table(data)
 
     US_utils.save_multiple_files(data, years, output_dir, "")
