@@ -144,7 +144,8 @@ class Mortality:
         # If they draw 0.3 then they live.
         # The "cause_of_death" notation allows for more descriptive deaths.
         # Useful later when dying naturally vs due to mental health issues.
-        prob_df['cause_of_death'] = self.random.choice(prob_df.index, prob_df.columns, prob_df)
+        prob_df['cause_of_death'] = self.random.choice(prob_df.index, list(prob_df.columns), prob_df)
+        # prob_df['cause_of_death'] = self.random.choice(prob_df.index, prob_df.columns, prob_df)
         dead_pop = prob_df.query('cause_of_death != "no_death"').copy()
 
         if not dead_pop.empty:

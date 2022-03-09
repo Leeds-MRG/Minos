@@ -1,8 +1,8 @@
 pyyaml>=5.4
 pytest~=6.0.1
 minos~=0.0.1
-pandas
-numpy
+pandas~=1.4.1
+numpy~=1.22.3
 setuptools
 matplotlib
 vivarium~=0.10.12
