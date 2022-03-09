@@ -29,7 +29,7 @@ install:
 	@echo "Installing requirements via pip"
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
-	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' /opt/conda/envs/minos/lib/python3.7/site-packages/vivarium/framework/randomness.py
+	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' /opt/conda/envs/minos/lib/python3.8/site-packages/vivarium/framework/randomness.py
 
 
 ## Test
