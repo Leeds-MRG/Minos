@@ -83,6 +83,16 @@ class Replenishment:
                         'washing_machine',
                         'nobs',
                         'region',
+                        'SF-12',
+                        'hh_int_y',
+                        'oecd_equiv',
+                        'hh_int_m',
+                        'council_tax',
+                        'location',
+                        'hh_rent',
+                        'hh_mortgage',
+                        'MSOA',
+                        'hh_netinc'
                         ]
 
         # Shorthand methods for readability.
