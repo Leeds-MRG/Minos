@@ -8,6 +8,8 @@ PERSISTDATA = $(CURDIR)/persistent_data
 PERSISTJSON = $(PERSISTDATA)/JSON
 SOURCEDIR = $(CURDIR)/minos
 DATAGEN = $(SOURCEDIR)/data_generation
+DATAOUT = $(CURDIR)/output
+CONFIG = $(CURDIR)/config
 
 # Executables
 PYTHON = python
@@ -26,6 +28,15 @@ help:
 install:
 	@echo "Installing requirements via pip"
 	pip install -v -e .
+	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
+	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)' /opt/conda/envs/minos/lib/python3.7/site-packages/vivarium/framework/randomness.py
+
+
+## Test
+
+testRun:
+	$(PYTHON) scripts/run_in_console.py -c $(CONFIG)/controlConfig.yaml --location E08000032 --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
 
 ## Data Generation
 # Combined Rules
