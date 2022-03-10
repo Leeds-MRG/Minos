@@ -8,6 +8,7 @@ import numpy as np
 import argparse
 
 import US_utils
+pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 # TODO there is an issue with the connection between the BHPS and ukhls waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
@@ -92,8 +93,8 @@ def format_location(data, year):
 
     """
     # No spatial data yet so does nothing.
-    data["MSOA"] = "no_location"
-    data["location"] = "no_location"
+    # data["MSOA"] = "no_location"
+    # data["location"] = "no_location"
     data["region"] = data["region"].astype(str).map(region_dict)
     return data
 

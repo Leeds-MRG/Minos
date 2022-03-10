@@ -7,6 +7,22 @@ import pandas as pd
 import numpy as np
 import US_utils
 import US_missing_description
+from multiprocessing import Pool, cpu_count
+
+
+def applyParallelLOCF(dfGrouped, func):
+    with Pool(cpu_count()) as p:
+        ret_list = p.map(func, [group for name, group in dfGrouped])
+    return pd.concat(ret_list)
+
+def ffill_groupby(pid_groupby):
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
+
+def bfill_groupby(pid_groupby):
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
+
+def fbfill_groupby(pid_groupby):
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
 
 
 def locf(data, f_columns = None, b_columns = None, fb_columns = None):
@@ -51,15 +67,15 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None):
     # See pandas ffill and bfill functions for more details.
     if f_columns:
         # Forward fill.
-        fill = pid_groupby[f_columns].apply(lambda x: x.replace(missing_types, method="ffill"))
+        fill = applyParallelLOCF(pid_groupby[f_columns], ffill_groupby)
         data[f_columns] = fill
     if b_columns:
         # backward fill. only use this on IMMUTABLE attributes.
-        fill = pid_groupby[b_columns].apply(lambda x: x.replace(missing_types, method="bfill"))
+        fill = applyParallelLOCF(pid_groupby[b_columns], bfill_groupby)
         data[b_columns] = fill
     if fb_columns:
         # forwards and backwards fill. again immutables only.
-        fill = pid_groupby[fb_columns].apply(lambda x: x.replace(missing_types, method="ffill").replace(missing_types, method="bfill"))
+        fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
         data[fb_columns] = fill
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data

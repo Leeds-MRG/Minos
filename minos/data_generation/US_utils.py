@@ -411,3 +411,9 @@ def inflation_adjustment(data, var):
     data.drop(labels=['CPI'], axis=1, inplace=True)
 
     return data
+
+
+missing_types = ['-1', '-2', '-7', '-8', '-9',
+                 -1, -2, -7, -8, -9,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
+                 "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]

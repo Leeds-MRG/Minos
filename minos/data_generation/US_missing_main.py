@@ -45,6 +45,7 @@ def main(output_dir):
     #US_missing_description.missingness_hist(data, "education_state", "age")
     #US_missing_description.missingness_hist(data, "labour_state", "age")
     #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
+    print("Raw data before correction")
     before = US_missing_description.missingness_table(data)
 
     # Correct deterministically missing data due to unemployment.
@@ -53,7 +54,8 @@ def main(output_dir):
                "job_duration_y",
                "job_sec",
                "job_occupation"]
-    data = USmd.det_missing(data, columns, USmd.is_unemployed, USmd.force_zero)
+    data = USmd.det_missing(data, columns, USmd.is_unemployed, USmd.force_nine)
+    print("After removing deterministically missing values.")
     after_det = US_missing_description.missingness_table(data)
 
     f_columns = ["age", "education_state", "depression", "depression_change",
@@ -61,6 +63,7 @@ def main(output_dir):
                  "job_industry", "job_sec"]  # add more variables here.
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    print("After LOCF correction.")
     after_locf = US_missing_description.missingness_table(data)
 
     # TODO MICE goes here to deal with remaining missing obs.

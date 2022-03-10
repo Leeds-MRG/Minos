@@ -47,6 +47,7 @@ def det_missing(data, columns, conditioner, replacer):
         data = replacer(data, mbc_index, column)
     return data
 
+
 def is_unemployed(data):
     """Check who has reason to be unemployed. Students etc. may be employed but if not missing SIC code for example it
         doesn't matter.
@@ -68,6 +69,7 @@ def is_unemployed(data):
     who = data["labour_state"].isin(["Unemployed", "Family Care", "Student", "Sick/Disabled", "Retired"])
     return who
 
+
 def force_zero(data, index, column):
     """
 
@@ -82,6 +84,20 @@ def force_zero(data, index, column):
 
     """
     data.loc[index, column] = "0"
+    return data
+
+
+def force_nine(data, index, column):
+    """
+    Parameters
+    ----------
+    data
+    index
+    column
+    Returns
+    -------
+    """
+    data.loc[index, column] = "-10.0"
     return data
 
 
