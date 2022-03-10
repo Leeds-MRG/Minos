@@ -12,6 +12,9 @@ DATAGEN = $(SOURCEDIR)/data_generation
 DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 
+# This path points to the python site-packages directory in the conda environment
+SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
+
 # Executables
 PYTHON = python
 RSCRIPT = Rscript
@@ -30,7 +33,8 @@ install:
 	@echo "Installing requirements via pip"
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
-	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' /opt/conda/envs/minos/lib/python3.8/site-packages/vivarium/framework/randomness.py
+	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
+	@echo "\nInstall complete!\n"
 
 
 ## Test
