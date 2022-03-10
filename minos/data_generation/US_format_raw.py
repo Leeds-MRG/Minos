@@ -5,7 +5,7 @@ It DOES NOT handle missing data. see US_missing.py.
 """
 import pandas as pd
 import numpy as np
-import os
+import argparse
 
 import US_utils
 
@@ -680,7 +680,14 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 if __name__ == "__main__":
     years = np.arange(1990, 2019)
 
-    source = "/home/docker/UKDA-6614-stata/stata/stata13_se/"
+    # Take source from command line args (or most likely from Makefile variable)
+    parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
+    parser.add_argument("-s", "--source_dir", required=True, type=str,
+                        help="The source directory for Understanding Society data.")
+    args = parser.parse_args()
+
+    # Get source from args
+    source = args.source_dir
     output = "data/raw_US/"
 
     main(years, source, output)
