@@ -33,8 +33,9 @@ install:
 
 
 ## Test
+.PHONY: testRun
 
-testRun:
+testRun: data
 	$(PYTHON) scripts/run_in_console.py -c $(CONFIG)/controlConfig.yaml --location E08000032 --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
 
