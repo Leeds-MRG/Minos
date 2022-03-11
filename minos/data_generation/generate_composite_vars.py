@@ -5,8 +5,12 @@ This file generates composite variables for use in the SIPHER project investigat
 """
 import pandas as pd
 import numpy as np
+
 import US_utils
 import US_missing_description as USmd
+
+# suppressing a warning that isn't a problem
+pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
 def generate_composite_housing_quality(data):

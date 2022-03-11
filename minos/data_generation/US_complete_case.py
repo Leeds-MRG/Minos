@@ -37,6 +37,6 @@ def complete_case_varlist(data, varlist):
     """
     for var in varlist:
         data[var] = data[var].replace(US_utils.missing_types, np.nan)
-        data[var] = data[var].dropna(0)
+        data[var] = data[var].dropna(axis=0)
 
     return data

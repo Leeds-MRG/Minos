@@ -54,7 +54,8 @@ def missingness_table(data):
 
     col_sums = np.sum(output)
     col_sums.name = "Col Sums"
-    output = output.append(col_sums)
+    #output = output.append(col_sums)
+    output = pd.concat(output, col_sums)
     row_sums = np.nansum(output, 1)
     output["Row Sums"] = row_sums
 

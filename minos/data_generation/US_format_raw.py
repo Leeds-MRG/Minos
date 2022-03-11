@@ -8,6 +8,8 @@ import numpy as np
 import argparse
 
 import US_utils
+
+# suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 # TODO there is an issue with the connection between the BHPS and ukhls waves. (see format_time)
