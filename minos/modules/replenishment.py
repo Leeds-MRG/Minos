@@ -88,10 +88,8 @@ class Replenishment:
                         'oecd_equiv',
                         'hh_int_m',
                         'council_tax',
-                        'location',
                         'hh_rent',
                         'hh_mortgage',
-                        'MSOA',
                         'hh_netinc'
                         ]
 
