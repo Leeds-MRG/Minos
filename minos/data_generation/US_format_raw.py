@@ -42,14 +42,14 @@ json_source = "persistent_data/JSON/"
 # Sex.
 sex_dict = US_utils.load_json(json_source, "sexes.json")
 # Ethnicity.
-ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
-ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
+#ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
+#ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
 ethnicity_ukhls = US_utils.load_json(json_source, "ethnicity_ukhls.json")
 # Employment.
-labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
+#labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
 labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
 # Education.
-education_bhps = US_utils.load_json(json_source, "education_bhps.json")
+#education_bhps = US_utils.load_json(json_source, "education_bhps.json")
 # Use simplified one for ukhls currently.
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls.json")
 education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
@@ -57,7 +57,7 @@ education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
 depression = US_utils.load_json(json_source, "depression.json")
 depression_change = US_utils.load_json(json_source, "depression_change.json")
 # Heating.
-heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
+#heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 # Location
 region_dict = US_utils.load_json(json_source, "region.json")
@@ -168,193 +168,7 @@ def format_time(data, year):
     data : pd.DataFrame
         Data with time formatting.
     """
-    # See to do messages at the top of the file.
-    # Theres some wierd overlap in the pidp data. Theres essentially a gap in September 2008 with noone in it from
-    # BHPS which makes transition models fail.
-    # Following 2 lines are a stupid work around.
-    # if self.year <= 2008:
-    #    self.year += 1
     data["time"] = year
-    return data
-
-
-##########################
-# BHPS specific functions.
-##########################
-
-def format_bhps_columns(year):
-    """ Get BHPS literal and formatted column names.
-
-    Parameters
-    ----------
-    year : int
-        The year of the wave being processed.
-    Returns
-    -------
-    attribute_columns, column_names : str
-        The literal attribute_columns names used from BHPS data. (ba_age, ba_qfachi...)
-        Corresponding cleaner column_names for use in a microsim. (age, education_state...)
-    """
-
-    # consistent column names accross all waves
-    attribute_columns = ["pidp",  # Cross wave identifier
-                         "hidp",  # Cross wave household identified
-                         "sex",  # Sex.
-                         "age",  # Age.
-                         "doby",  # Birth Year.
-                         "qfachi",  # Highest education
-                         # "hiqual_dv",  # Highest education
-                         "scghqi",  # GHQ Depression.
-                         "hlprbi",  # Clinical Depression.
-                         "jbstat",  # Labour status.
-                         "jbnssec8_dv",  # NSSEC code.
-                         "cduse5",  # fridge/freezer
-                         "cduse6",  # washing machine
-                         "cduse7",  # tumble dryer
-                         "cduse8",  # dishwasher
-                         "cduse9",  # microwave oven
-                         "gor_dv",  # Government Region Derived.
-                         "hsprbk"  # accom: lack of adequate heating
-                         ]
-
-    column_names = ["pidp",  # pidp
-                    "hidp",  # hidp
-                    "sex",  # sex
-                    "age",  # age
-                    "birth_year",  # doby
-                    "education_state",  # qfachi. Was hiqual_dv but too much missing.
-                    "depression_change",  # scghqi
-                    "depression",  # hlprbi
-                    "labour_state",  # jbstat
-                    "job_sec",  # jbnssec8_dv
-                    "fridge_freezer",  # cduse5
-                    "washing_machine",  # cduse6
-                    "tumble_dryer",  # cduse7
-                    "dishwasher",  # cduse8
-                    "microwave",  # cduse9
-                    "region",  # gor_dv
-                    "heating"  # hsprbk
-                    ]
-
-    # Variables that change names over dataset.
-    # First up is job duration. Changes names in wave 6,
-    if year < 1996:
-        attribute_columns += ["cjsbgm", "cjsbgy"]  # Month and year when current employment started.
-        column_names += ["job_duration_m", "job_duration_y"]
-    else:
-        attribute_columns += ["cjsbgm", "cjsbgy4"]  # Month and year when current employment started.
-        column_names += ["job_duration_m", "job_duration_y"]
-
-    # Name of SIC code variable changes for some reason half way through.
-    if year >= 2001:
-        attribute_columns += ["jbsic92"]  # SIC 92 codes
-        column_names += ["job_industry"]
-    else:
-        attribute_columns += ["jbsic"]  # SIC 92 codes.
-        column_names += ["job_industry"]
-
-    # Name change for race as well.
-    if year <= 2001:
-        attribute_columns += ["race"]
-        column_names += ["ethnicity"]  # Ethnicity.
-    elif year > 2001:
-        attribute_columns += ["racel_bh"]
-        column_names += ["ethnicity"]  # Ethnicity.
-
-    # SOC codes updated every decade.
-    if year < 2000:
-        attribute_columns += ["jbsoc90_cc"]
-        column_names += ["job_occupation"]  # Occupation code.
-    else:
-        attribute_columns += ["jbsoc00_cc"]
-        column_names += ["job_occupation"]  # Occupation code.
-
-    # Add wave specific letters of BHPS variable names.
-    # Do not add letters to cross wave variables (IDs).
-    # The format here is ba_sex for wave 1, bb_sex for wave 2 and so on..
-    # pidp stays the same for all waves.
-    attribute_columns = US_utils.bhps_wave_prefix(attribute_columns, year)
-
-    return attribute_columns, column_names
-
-
-def format_bhps_ethnicity(data, year):
-    """ Format ethnicities for BHPS data.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Raw data to format ethnicities of.
-    year : int
-        The year of the wave being processed.
-    Returns
-    -------
-    data : pd.DataFrame
-        Data with ethnicities formatted.
-    """
-
-    # Mapping changes in 2002 as categories expanded.
-    if year > 2001:
-        eth_dict = ethnicity_bhps_2008
-    else:
-        eth_dict = ethnicity_bhps_2002
-    # Map ethnicity int codes to strings.
-    data["ethnicity"] = data["ethnicity"].astype(str).map(eth_dict)
-    return data
-
-
-def format_bhps_education(data):
-    """ Format US education data.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Data frame before formatting educations.
-
-    Returns
-    -------
-    data : pd.DataFrame
-        Data after formatting educations.
-    """
-    # Map education codes to readable strings.
-    data["education_state"] = data["education_state"].astype(str).map(education_bhps)
-    return data
-
-
-def format_bhps_employment(data):
-    """ Format employment variables.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Data frame to format employment for.
-
-    Returns
-    -------
-    data : Pd.DataFrame
-        Data with formatted education column.
-    """
-    # Remap job status ints to strings.
-    data["labour_state"] = data["labour_state"].astype(str).map(labour_bhps)
-    return data
-
-
-def format_bhps_heating(data):
-    """ Format heating variable.
-
-        Parameters
-        ----------
-        data : pd.DataFrame
-            Data frame to format heating for.
-
-        Returns
-        -------
-        data : Pd.DataFrame
-            Data with formatted heating column.
-    """
-    ## Need to reverse the binary heating variable as it is in the opposite orientation to the corresponding ukhls var
-    data["heating"] = data["heating"].fillna(-9)  # have to replace a single NA value before mapping
-    data["heating"] = data["heating"].astype(int).astype(str).map(heating_bhps)  # convert to int then string then map
     return data
 
 
@@ -616,11 +430,7 @@ def format_data(year, data):
         Returns a formatted dataframe to be saved as csv
     """
     # Load file and take desired subset of columns.
-    # data = US_utils.load_file(file_name)
-    if year <= 2007:
-        attribute_columns, column_names = format_bhps_columns(year)
-    else:
-        attribute_columns, column_names = format_ukhls_columns(year)
+    attribute_columns, column_names = format_ukhls_columns(year)
     data = US_utils.subset_data(data, attribute_columns, column_names)
 
     # Format columns by categories.
@@ -630,20 +440,11 @@ def format_data(year, data):
     data = format_mental_state(data)
     data = format_time(data, year)
     data = format_location(data, year)
-    ukhls_heat_skipyrs = [2010, 2012, 2014]
 
-    # Categories that vary for bhps/ukhls waves.
-    if year <= 2007:
-        data = format_bhps_ethnicity(data, year)
-        data = format_bhps_education(data)
-        data = format_bhps_employment(data)
-        data = format_bhps_heating(data) # no data before 1996.
-    elif year > 2007:
-        data = format_ukhls_ethnicity(data)
-        data = format_ukhls_employment(data)
-        data = format_ukhls_education(data)
-        #if year not in ukhls_heat_skipyrs:
-        data = format_ukhls_heating(data)
+    data = format_ukhls_ethnicity(data)
+    data = format_ukhls_employment(data)
+    data = format_ukhls_education(data)
+    data = format_ukhls_heating(data)
 
     return data
 
@@ -681,7 +482,7 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 
 
 if __name__ == "__main__":
-    years = np.arange(1990, 2019)
+    years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")

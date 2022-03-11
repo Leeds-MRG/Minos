@@ -194,8 +194,8 @@ def longitudinal_hist(data):
     """
 
     # Stacked histogram for three types of people.
-    both = data.loc[data["time"]>=2008]["pidp"] # UKLHS and BHPS IDs
-    bhps = data.loc[data["time"]<2008]["pidp"] #BHPS only.
+    both = data.loc[data["time"]>=2009]["pidp"] # UKLHS and BHPS IDs
+    bhps = data.loc[data["time"]<2009]["pidp"] #BHPS only.
     uklhs = set(both)-set(bhps)
 
     data1 = data.loc[data["pidp"].isin(bhps)]["pidp"].value_counts() #BHPS only.
@@ -225,7 +225,7 @@ def longitudinal_hist(data):
 
 def main():
     # Load in data.
-    wave_years = np.arange(1990, 2017)
+    wave_years = np.arange(2009, 2020)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in wave_years]
     full_US_data = US_utils.load_multiple_data(file_names)
     # Summary table of missing values by variable.

@@ -43,8 +43,6 @@ def generate_composite_housing_quality(data):
     """
     # first make list of the columns we're interested in
     sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
-    # TODO: Improve this boolean definition. Can't for the life of me find a way to do this properly using the list
-    # now create a boolean var that equals True only if all the values for each of these vars are non-negative (i.e. not missing)
     data["housing_complete"] = (data.loc[:, sum_list] >= 0).all(1)
     # sum up all non-negative values in sum_list vars
     data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
@@ -100,7 +98,7 @@ def generate_hh_income(data):
 
 def main():
     # first collect and load the datafiles for every year
-    years = np.arange(1990, 2019)
+    years = np.arange(2009, 2020)
     file_names = [f"data/corrected_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 

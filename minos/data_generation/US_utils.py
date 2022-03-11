@@ -115,16 +115,10 @@ def get_wave_letter(year):
     wave_letter : str
         Letter that corresponds to wave.
     """
-    if year < 2008:
-        # BHPS naming convention.
-        # Wave for 1990 begins with ba_, 1991 is bb_, bc,...
-        wave_number = year - 1990
-        wave_letter = alphabet[wave_number]
-    else:
-        # UKHLS naming convention.
-        # Wave for 2009 begins with a_, b_, c_,...
-        wave_number = year - 2008
-        wave_letter = alphabet[wave_number]
+    # UKHLS naming convention.
+    # Wave for 2009 begins with a_, b_, c_,...
+    wave_number = year - 2009
+    wave_letter = alphabet[wave_number]
 
     return wave_letter
 
@@ -150,16 +144,10 @@ def US_file_name(year, source, section):
     file_name : str
         Returns the file_name
     """
-    if year < 2008:
-        # BHPS naming convention.
-        # Wave for 1990 begins with ba_, 1991 is bb_, ...
-        wave_letter = get_wave_letter(year)
-        file_name = f"bhps/b{wave_letter}_{section}.dta"
-    else:
-        # UKHLS naming convention.
-        # Wave for 2009 begins with a_, b_, c_,...
-        wave_letter = get_wave_letter(year)
-        file_name = f"ukhls/{wave_letter}_{section}.dta"
+    # UKHLS naming convention.
+    # Wave for 2009 begins with a_, b_, c_,...
+    wave_letter = get_wave_letter(year)
+    file_name = f"ukhls/{wave_letter}_{section}.dta"
     file_name = source + file_name  # add directory onto front.
     return file_name
 
