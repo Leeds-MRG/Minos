@@ -40,7 +40,7 @@ class Housing:
         - Add listener event to check if people die on each time step.
         - Update other required items such as randomness stream.
 
-        Parameters
+        Parameter
         ----------
         builder : vivarium.engine.Builder
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
