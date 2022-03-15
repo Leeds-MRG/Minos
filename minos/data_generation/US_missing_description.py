@@ -42,14 +42,10 @@ def missingness_table(data):
     -------
 
     """
-    missing_types = ['-1', '-2', '-7', '-8', '-9',
-                     -1., -2., -7., -8., -9.,
-                     -1, -2, -7, -8, -9,
-                     '-1.0', '-2.0', '-7.0', '-8.0', '-9.0']
 
     output = pd.DataFrame(0, index= [-1, -2, -7, -8, -9], columns=data.columns)
     for v in data.columns:
-        output[v] = data.loc[data[v].isin(missing_types)][v].astype(int).value_counts()
+        output[v] = data.loc[data[v].isin(US_utils.missing_types)][v].astype(int).value_counts()
     output = output.replace(np.nan, 0)
 
     col_sums = np.sum(output)

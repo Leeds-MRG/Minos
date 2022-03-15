@@ -4,25 +4,9 @@ import pandas as pd
 
 
 class Replenishment:
-
-    @staticmethod
-    def write_config(config):
-        """ Update config file with what this module needs to run.
-
-        Parameters
-        ----------
-            config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob.
-        Returns
-        -------
-           config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob with added items needed for this module to run.
-        """
-        return config
-
-    @staticmethod
-    def pre_setup(config, simulation):
-        """ Load in anything required for the module to run.
+    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
+    def pre_setup(self, config, simulation):
+        """ Load in anything required for the module to run into the config and simulation object.
 
         Parameters
         ----------
@@ -38,7 +22,7 @@ class Replenishment:
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
-        # Does nothing here.
+        # load in the starting year. This is the first cohort that is loaded.
         return simulation
 
     def setup(self, builder):
@@ -49,7 +33,6 @@ class Replenishment:
         builder : vivarium.builder
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
-        # load in the starting year. This is the first cohort that is loaded.
         self.current_year = builder.configuration.time.start.year
 
         # Define which columns are seen in builder.population.get_view calls.

@@ -26,25 +26,6 @@ class FertilityAgeSpecificRates:
         return 'age_specific_fertility'
 
     @staticmethod
-    def write_config(config):
-        """ Update config file with what this module needs to run.
-
-        Parameters
-        ----------
-            config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob.
-        Returns
-        -------
-           config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob with added items needed for this module to run.
-        """
-        # add items to config here.
-        config.update({
-            'path_to_fertility_file': "{}/{}".format(config.persistent_data_dir, config.fertility_file)
-        }, source=str(Path(__file__).resolve()))
-        return config
-
-    @staticmethod
     def pre_setup(config, simulation):
         """ Load in anything required for the module to run.
 
@@ -63,6 +44,9 @@ class FertilityAgeSpecificRates:
                 E.g. rate tables.
         """
         # produce rate table from minos file path in config and save it to the simulation.
+        config.update({
+            'path_to_fertility_file': "{}/{}".format(config.persistent_data_dir, config.fertility_file)
+        }, source=str(Path(__file__).resolve()))
         asfr_fertility = FertilityRateTable(configuration=config)
         asfr_fertility.set_rate_table()
         simulation._data.write("covariate.age_specific_fertility_rate.estimate",

@@ -1,4 +1,4 @@
-""" Utilities for handling Understanding Societies data in preprocessing, missing data handling, and in Icarus.
+""" Utilities for handling Understanding Societies data in preprocessing, missing data handling, and in Minos.
 
 """
 import os
