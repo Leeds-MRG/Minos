@@ -69,10 +69,13 @@ $(COMPOSITEDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_m
 ## Cleaning
 .PHONY: clean clean_out
 
-clean: clean_out clean_data
+clean: clean_out clean_data clean_logs
 
 clean_data:
 	rm -f data/*/*.csv
 
 clean_out:
 	rm -rf output/*
+
+clean_logs:
+	rm -rf test.log
