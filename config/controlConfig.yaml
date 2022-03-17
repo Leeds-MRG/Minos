@@ -34,7 +34,7 @@ input_data_filename: "BHPS_Daedalus_testpop.csv"
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [Mortality(), Replenishment()]
+components : [Fertility(), Mortality(),  Replenishment()]
 
 scale_rates:
     # methods:
