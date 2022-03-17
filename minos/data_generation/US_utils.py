@@ -152,36 +152,6 @@ def US_file_name(year, source, section):
     return file_name
 
 
-def bhps_wave_prefix(columns, year):
-    """ Determine prefix for files from BHPS data.
-
-    Parameters
-    ----------
-    columns : list
-        A list of column names to add wave prefixes to.
-    year : int
-        Which wave year is being processed.
-
-    Returns
-    -------
-    columns : list
-        Column names with wave prefixes added.
-    """
-    # Which letter to add.
-    #wave_letter = alphabet[year - 1990]
-    wave_letter = get_wave_letter(year)
-    # Which variables dont have wave prefixes. Cross wave identifiers pidp hidp do this.
-    # May need to add more as necessary.
-    exclude = ["pidp"]
-    # Loop over columns. Add wave suffix ba_, bb_, ...
-    new_columns = []
-    for i, item in enumerate(columns):
-        if item not in exclude:
-            item = "b" + wave_letter + "_" + item
-        new_columns.append(item)
-    return new_columns
-
-
 def ukhls_wave_prefix(columns, year):
     """ Determine wave prefix for ukhls wave data.
 
