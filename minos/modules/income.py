@@ -7,7 +7,11 @@ Possible extension to interaction with employment/education and any spatial/inte
 import pandas as pd
 from pathlib import Path
 
-class income:
+class Income:
+
+    @property
+    def name(self):
+        return 'income'
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
