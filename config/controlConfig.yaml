@@ -13,17 +13,11 @@ population:
 
 replenishment_files_source:
       "/home/docker/MINOS/UKDA-6614-stata/stata/stata13_se/"
-depression_files:
-    tier0: "bhps_depression_tier0_table.csv"
-    tier1: "bhps_depression_tier1_table.csv"
-    tier2: "bhps_depression_tier2_table.csv"
 
 education_file: 'persistent_data/education_enrollment_rate_table.csv'
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-total_population_file: 'BHPS_Daedalus_testpop.csv'
 ethnic_lookup: 'bhps_ethnic_lookup.csv'
-input_data_filename: "BHPS_Daedalus_testpop.csv"
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
@@ -46,7 +40,4 @@ scale_rates:
         education: 1
         mortality: 1
         fertility: 1
-        depression0: 1
-        depression1: 1
-        depression2: 1
 
