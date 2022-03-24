@@ -65,7 +65,7 @@ def fix_leading_entries(data):
         
 def main(save):
     # Load data.
-    wave_numbers = np.arange(1990, 2017)
+    wave_numbers = np.arange(2008, 2019)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in wave_numbers]
     #wave_numbers = np.arange(2007, 2009)
     k = 3 # minimum number of data entries per individual.

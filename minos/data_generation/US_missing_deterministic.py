@@ -103,7 +103,7 @@ def force_nine(data, index, column):
 
 def main():
     # Load in data.
-    years = np.arange(1990, 2019)
+    years = np.arange(2008, 2019)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 

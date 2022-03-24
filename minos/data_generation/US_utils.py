@@ -115,16 +115,10 @@ def get_wave_letter(year):
     wave_letter : str
         Letter that corresponds to wave.
     """
-    if year < 2008:
-        # BHPS naming convention.
-        # Wave for 1990 begins with ba_, 1991 is bb_, bc,...
-        wave_number = year - 1990
-        wave_letter = alphabet[wave_number]
-    else:
-        # UKHLS naming convention.
-        # Wave for 2009 begins with a_, b_, c_,...
-        wave_number = year - 2008
-        wave_letter = alphabet[wave_number]
+    # UKHLS naming convention.
+    # Wave for 2009 begins with a_, b_, c_,...
+    wave_number = year - 2009
+    wave_letter = alphabet[wave_number]
 
     return wave_letter
 
@@ -150,48 +144,12 @@ def US_file_name(year, source, section):
     file_name : str
         Returns the file_name
     """
-    if year < 2008:
-        # BHPS naming convention.
-        # Wave for 1990 begins with ba_, 1991 is bb_, ...
-        wave_letter = get_wave_letter(year)
-        file_name = f"bhps/b{wave_letter}_{section}.dta"
-    else:
-        # UKHLS naming convention.
-        # Wave for 2009 begins with a_, b_, c_,...
-        wave_letter = get_wave_letter(year)
-        file_name = f"ukhls/{wave_letter}_{section}.dta"
+    # UKHLS naming convention.
+    # Wave for 2009 begins with a_, b_, c_,...
+    wave_letter = get_wave_letter(year)
+    file_name = f"ukhls/{wave_letter}_{section}.dta"
     file_name = source + file_name  # add directory onto front.
     return file_name
-
-
-def bhps_wave_prefix(columns, year):
-    """ Determine prefix for files from BHPS data.
-
-    Parameters
-    ----------
-    columns : list
-        A list of column names to add wave prefixes to.
-    year : int
-        Which wave year is being processed.
-
-    Returns
-    -------
-    columns : list
-        Column names with wave prefixes added.
-    """
-    # Which letter to add.
-    #wave_letter = alphabet[year - 1990]
-    wave_letter = get_wave_letter(year)
-    # Which variables dont have wave prefixes. Cross wave identifiers pidp hidp do this.
-    # May need to add more as necessary.
-    exclude = ["pidp"]
-    # Loop over columns. Add wave suffix ba_, bb_, ...
-    new_columns = []
-    for i, item in enumerate(columns):
-        if item not in exclude:
-            item = "b" + wave_letter + "_" + item
-        new_columns.append(item)
-    return new_columns
 
 
 def ukhls_wave_prefix(columns, year):
