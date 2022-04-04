@@ -69,28 +69,20 @@ class Replenishment:
                         'job_sec',
                         'job_duration_m',
                         'job_duration_y',
-                        'heating',
                         'depression',
-                        'tumble_dryer',
                         'academic_year',
                         'depression_change',
-                        'microwave',
                         'hidp',
                         'birth_month',
                         'birth_year',
-                        'fridge_freezer',
-                        'dishwasher',
-                        'washing_machine',
                         'nobs',
                         'region',
                         'SF-12',
                         'hh_int_y',
-                        'oecd_equiv',
                         'hh_int_m',
-                        'council_tax',
-                        'hh_rent',
-                        'hh_mortgage',
-                        'hh_netinc'
+                        'hh_income',
+                        'Date',
+                        'housing_quality'
                         ]
 
         # Shorthand methods for readability.
@@ -127,7 +119,7 @@ class Replenishment:
         if pop_data.user_data["sim_state"] == "setup":
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
-            new_population = pd.read_csv(f"data/corrected_US/{self.current_year}_US_cohort.csv")
+            new_population = pd.read_csv(f"data/composite_US/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
         elif pop_data.user_data["cohort_type"] == "replenishment":
