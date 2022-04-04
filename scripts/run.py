@@ -99,7 +99,7 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
     pop = simulation.get_population()
     print('Finished running the full simulation')
     # Save the output file to a csv.
-    simulant_data_filename = 'output_BHPS_simulation.csv'
+    simulant_data_filename = 'output_US_simulation.csv'
     pop.to_csv(os.path.join(run_output_dir, simulant_data_filename))
 
     # Print summary metrics on the simulation.

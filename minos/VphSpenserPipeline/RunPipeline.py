@@ -16,6 +16,8 @@ from minos.modules.replenishment import Replenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
 from minos.modules.depression import Depression
 from minos.modules.employment import Employment
+from minos.modules.housing import Housing
+from minos.modules.income import Income
 
 
 def RunPipeline(config, start_population_size):
@@ -56,6 +58,11 @@ def RunPipeline(config, start_population_size):
         components.append(Mortality())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
+    if "Housing()" in config.components:
+        components.append(Housing())
+    if "Income()" in config.components:
+        components.append(Income())
+
 
     # Run write_config method for each class loading required attributes to the yaml.
     for component in components:
@@ -80,7 +87,7 @@ def RunPipeline(config, start_population_size):
     # lines 55-101 are much more modular/flexible than before.
     # Its done this way in Daedalus because the vivarium_public_health modules are from a separate package.
     # Even then these classes could be appended with pre_setup functions.
-    # This isn't the case with AngryMob as each module is bespoke and can be given a pre_setup method.
+    # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
 
     # Run pre-setup method for each module.
