@@ -70,7 +70,7 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
 
     # Print initial pop size.
     year_start = config.time.start.year
-    start_population_size = pd.read_csv(f"data/corrected_US/{year_start}_US_cohort.csv").shape[0]
+    start_population_size = pd.read_csv(f"data/composite_US/{year_start}_US_cohort.csv").shape[0]
     print('Start Population Size: {}'.format(start_population_size))
 
     # Output directory where all files from the run will be saved.
@@ -115,13 +115,13 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
 # This __main__ function is used to run this script in a console. See daedalus github for examples.
 if __name__ == "__main__":
 
-    logging.basicConfig(filename="test.log", encoding="utf-8", level=logging.INFO)
+    logging.basicConfig(filename="test.log", level=logging.INFO)
     logging.info("pipeline start.")
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
 
     parser.add_argument("-c", "--config", required=True, type=str, metavar="config-file",
                         help="the model config file (YAML)")
-    parser.add_argument('--location', help='LAD code', default=None)
+    #parser.add_argument('--location', help='LAD code', default=None)
     parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
     parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
     parser.add_argument('--output_dir', type=str, help='directory where the output data is saved', default=None)
@@ -130,4 +130,4 @@ if __name__ == "__main__":
     configuration_file = args.config
     #python scripts/short_run.py -c config/default_short_config.yaml --location E08000032 --input_data_dir data --persistent_data_dir persistent_data --output_dir output
 
-    simulation = RunPipeline(configuration_file, args.location, args.input_data_dir, args.persistent_data_dir, args.output_dir)
+    simulation = run_pipeline(configuration_file, args.input_data_dir, args.persistent_data_dir, args.output_dir)

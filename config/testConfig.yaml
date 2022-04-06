@@ -1,0 +1,43 @@
+randomness:
+    key_columns: ['entrance_time', 'age']
+input_data:
+    location: 'UK'
+time:
+    start: {year: 2011, month: 10, day: 1}
+    end:   {year: 2016, month: 10, day: 1}
+    step_size: 365.25  # Days
+    num_years: 5
+population:
+    age_start: 0
+    age_end: 100
+
+replenishment_files_source:
+      "/home/docker/MINOS/UKDA-6614-stata/stata/stata13_se/"
+
+education_file: 'persistent_data/education_enrollment_rate_table.csv'
+mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
+fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
+ethnic_lookup: 'bhps_ethnic_lookup.csv'
+
+# REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
+# The order of these listed components is important. They are initialised last one in first one off.
+# All other components need the replenishment module which loads in real cohort data.
+# The Replenishment component must be listed LAST here no matter what as it is the FIRST module used. (priority 0)
+# Only if Replenishment needs some other module in the future would it be superceded.
+# Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
+# Finally everything else can go in any order (priority 2).
+#components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
+#components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
+components : [Income(), Housing(), Fertility(), Mortality(), Replenishment()]
+
+scale_rates:
+    # methods:
+    # constant: all rates regardless of age/sex/... will be multiplied by the specified factor
+    #           if 1, the original rates will be usd
+    # these are essentially used to inflate rates in certain scenarios. E.g. employment decrease.
+    method: "constant"
+    constant:
+        education: 1
+        mortality: 1
+        fertility: 1
+
