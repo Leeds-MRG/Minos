@@ -55,7 +55,7 @@ class Income:
         """
 
         # Load in transition model
-        transition_model = r_utils.load_transitions('income')
+        transition_model = r_utils.load_transitions('hh_income')
 
         simulation._data.write('income_transition',
                                transition_model)
