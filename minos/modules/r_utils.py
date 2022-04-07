@@ -53,23 +53,14 @@ def predict_next_timestep(model, current, independant):
     base = importr('base')
     stats = importr('stats')
 
-    # drop the independant variable as we don't need this to predict
-    #current = current.drop(labels=independant, axis=1, inplace=True)
-
-    # TODO: Generalise the vector formation. Check type of python object and use to influence IntVector/Str.../Float etc.
-    # TODO: Use converter instead for this
-    x_pidp = IntVector(current.pidp)
-    x_age = IntVector(current.age)
-    x_sex = StrVector(current.sex).factor()
-
-    rdf_dict = {'pidp' : x_pidp, 'age' : x_age, 'sex' : x_sex}
-    dataf = ro.DataFrame(rdf_dict)
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
-    prediction = stats.predict(model, dataf)
-
-    newRPopDF = base.cbind(dataf, hh_income = prediction)
-
+    prediction = stats.predict(model, currentRDF)
+    newRPopDF = base.cbind(currentRDF, hh_income = prediction)
+    # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
 
