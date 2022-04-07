@@ -101,6 +101,7 @@ class Income:
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
@@ -120,7 +121,6 @@ class Income:
         -------
         None
         """
-        # Initiate any columns created by this module and add them to the main population.
 
 
     def on_time_step(self, event):
@@ -132,13 +132,12 @@ class Income:
             The event time_step that called this function.
         """
         # Get living people to update their income
-        pop = self.population_view.get(event.index, query="alive =='alive' and sex != 'nan'")
-
-        pIndex = pop.index # save index for re-indexing after prediction
+        pop = self.population_view.get(event.index, query="alive =='alive'")
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
-        newWaveIncome = pd.DataFrame(newWaveIncome, index=pIndex)
+        # Set index type to int (instead of object as previous)
+        newWaveIncome.index = newWaveIncome.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
