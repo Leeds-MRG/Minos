@@ -94,7 +94,7 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
     logging.info("Minimum YAML config file written.")
 
     # Run the microsimulation via runPipeline.
-    simulation = RunPipeline(config, start_population_size)
+    simulation = RunPipeline(config, start_population_size, run_output_dir)
     # Grab the final simulant population.
     pop = simulation.get_population()
     print('Finished running the full simulation')
