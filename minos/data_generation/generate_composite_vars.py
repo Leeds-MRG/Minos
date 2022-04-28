@@ -59,7 +59,10 @@ def generate_composite_housing_quality(data):
     data["housing_quality"] = np.select(conditions, values)
 
     # drop cols we don't need
-    data.drop(labels=['housing_sum', 'housing_complete'], axis=1, inplace=True)
+    data.drop(labels=['housing_sum', 'housing_complete', 'fridge_freezer', 'washing_machine', 'tumble_dryer',
+                      'dishwasher', 'microwave', 'heating'],
+              axis=1,
+              inplace=True)
 
     return data
 
@@ -92,6 +95,11 @@ def generate_hh_income(data):
 
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
+
+    # now drop the intermediates
+    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+              axis=1,
+              inplace=True)
 
     return data
 

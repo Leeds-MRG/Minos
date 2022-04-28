@@ -3,7 +3,11 @@
 import pandas as pd
 
 
+# suppressing a warning that isn't a problem
+pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+
 class Replenishment:
+
 
     @staticmethod
     def write_config(config):
@@ -19,6 +23,7 @@ class Replenishment:
             Config yaml tree for AngryMob with added items needed for this module to run.
         """
         return config
+
 
     @staticmethod
     def pre_setup(config, simulation):
@@ -40,6 +45,7 @@ class Replenishment:
         """
         # Does nothing here.
         return simulation
+
 
     def setup(self, builder):
         """ Method for initialising the depression module.
@@ -69,28 +75,20 @@ class Replenishment:
                         'job_sec',
                         'job_duration_m',
                         'job_duration_y',
-                        'heating',
                         'depression',
-                        'tumble_dryer',
                         'academic_year',
                         'depression_change',
-                        'microwave',
                         'hidp',
                         'birth_month',
                         'birth_year',
-                        'fridge_freezer',
-                        'dishwasher',
-                        'washing_machine',
                         'nobs',
                         'region',
                         'SF-12',
                         'hh_int_y',
-                        'oecd_equiv',
                         'hh_int_m',
-                        'council_tax',
-                        'hh_rent',
-                        'hh_mortgage',
-                        'hh_netinc'
+                        'Date',
+                        'housing_quality',
+                        'hh_income'
                         ]
 
         # Shorthand methods for readability.
@@ -101,9 +99,11 @@ class Replenishment:
         # Defines how this module initialises simulants when self.simulant_creater is called.
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
-        # Register ageing and replenishment events on time_step.
+        # Register ageing, updating time and replenishment events on time_step.
         builder.event.register_listener('time_step', self.age_simulants)
+        #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
+
 
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
@@ -127,7 +127,7 @@ class Replenishment:
         if pop_data.user_data["sim_state"] == "setup":
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
-            new_population = pd.read_csv(f"data/corrected_US/{self.current_year}_US_cohort.csv")
+            new_population = pd.read_csv(f"data/composite_US/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
         elif pop_data.user_data["cohort_type"] == "replenishment":
@@ -154,6 +154,7 @@ class Replenishment:
         self.register(new_population[["entrance_time", "age"]])
         self.population_view.update(new_population)
 
+
     def on_time_step(self, event):
         """ On time step add new simulants to the module.
 
@@ -164,9 +165,13 @@ class Replenishment:
         """
         # Only add new cohorts on the october of each year when the data is taken.
         # If its october update the current year and load in new cohort data.
+        # Also update the time variable with the new year for everyone (dead people also)
+        pop = self.population_view.get(event.index, query='pidp > 0')
         if event.time.month == 10 and event.time.year == self.current_year + 1:
             self.current_year += 1
-            new_wave = pd.read_csv(f"data/corrected_US/{self.current_year}_US_cohort.csv")
+            pop['time'] += 1
+            self.population_view.update(pop)
+            new_wave = pd.read_csv(f"data/composite_US/{self.current_year}_US_cohort.csv")
         else:
             # otherwise dont load anyone in.
             new_wave = pd.DataFrame()
@@ -192,6 +197,7 @@ class Replenishment:
             # The method used can be changed in setup via builder.population.initializes_simulants.
             self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
 
+
     def age_simulants(self, event):
         """ Age everyone by the length of the simulation time step in days
 
@@ -204,6 +210,21 @@ class Replenishment:
         population = self.population_view.get(event.index, query="alive == 'alive'")
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
+
+
+    def update_time(self, event):
+        """ Update time variable by the length of the simulation time step in days
+
+        Parameters
+        ----------
+        event : builder.event
+            some time point at which to run the method.
+        """
+        # get alive people and add time in years to their age.
+        population = self.population_view.get(event.index, query="alive == 'alive'")
+        population['time'] += event.step_size / pd.Timedelta(days=365.25)
+        self.population_view.update(population)
+
 
     # Special methods for vivarium.
     @property
