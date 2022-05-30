@@ -10,6 +10,7 @@ NOTE this is for generating a synthetic population (seeded using CRN) only. Use 
 module for applying pre-existing population data.
 
 """
+# TODO for minos this isnt needed. Its synthpop generation.
 import pandas as pd
 import numpy as np
 

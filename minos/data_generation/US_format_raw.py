@@ -8,6 +8,7 @@ import numpy as np
 import argparse
 
 import US_utils
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning

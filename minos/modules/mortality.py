@@ -16,27 +16,9 @@ from minos.RateTables.MortalityRateTable import MortalityRateTable
 
 class Mortality:
 
-    @staticmethod
-    def write_config(config):
-        """ Update config file with what this module needs to run.
-
-        Parameters
-        ----------
-            config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob.
-        Returns
-        -------
-           config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob with added items needed for this module to run.
-        """
-        config.update({
-            'path_to_mortality_file': "{}/{}".format(config.persistent_data_dir, config.mortality_file)
-        }, source=str(Path(__file__).resolve()))
-        return config
-
-    @staticmethod
-    def pre_setup(config, simulation):
-        """ Load in anything required for the module to run.
+    # vivarium does allow for use of __init__ so use pre_setup instead.
+    def pre_setup(self, config, simulation):
+        """ Load in anything required for the module to run into the config and simulation object.
 
         Parameters
         ----------
@@ -52,6 +34,11 @@ class Mortality:
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
+        # Define path to mortality rate data.
+        config.update({
+            'path_to_mortality_file': "{}/{}".format(config.persistent_data_dir, config.mortality_file)
+        }, source=str(Path(__file__).resolve()))
+
         # Load in mortality rate table data and append it to the simulation object.
         asfr_mortality = MortalityRateTable(configuration=config)
         asfr_mortality.set_rate_table()
@@ -76,6 +63,7 @@ class Mortality:
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
 
         """
+
         # Load in rate table data from pre-setup.
         all_cause_mortality_data = builder.data.load("cause.all_causes.cause_specific_mortality_rate")
         self.all_cause_mortality_rate = builder.lookup.build_table(all_cause_mortality_data,

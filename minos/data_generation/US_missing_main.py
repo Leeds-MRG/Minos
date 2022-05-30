@@ -58,11 +58,12 @@ def main(output_dir):
     print("After removing deterministically missing values.")
     after_det = US_missing_description.missingness_table(data)
 
-    f_columns = ["age", "education_state", "depression", "depression_change",
+    f_columns = ["education_state", "depression", "depression_change",
                  "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
-                 "job_industry", "job_sec"]  # add more variables here.
+                 "job_industry", "job_sec", "heating"]  # add more variables here.
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
-    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    li_columns = ["age"]
+    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns, li_columns=li_columns)
     print("After LOCF correction.")
     after_locf = US_missing_description.missingness_table(data)
 
@@ -73,6 +74,11 @@ def main(output_dir):
     complete_case_vars = ['sex', 'ethnicity', 'region']
     data = UScc.complete_case_varlist(data, complete_case_vars)
     #after_complete_case = US_missing_description.missingness_table(data)
+
+    # TODO. complete case for just critical columns. merge with Luke's func.
+    data[["sex", "ethnicity", "region"]] = data[["sex", "ethnicity", "region"]].replace(US_utils.missing_types, np.nan)
+    i = data[["sex", "ethnicity", "region"]].dropna().index
+    data = data.loc[i,:]
 
     US_utils.save_multiple_files(data, years, output_dir, "")
 
