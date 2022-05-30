@@ -1,5 +1,6 @@
 """ File for plots describing proportion of missing data in US dataset.
 """
+import os
 
 import pandas as pd
 import numpy as np
@@ -225,8 +226,8 @@ def longitudinal_hist(data):
 
 def main():
     # Load in data.
-    wave_years = np.arange(1990, 2017)
-    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in wave_years]
+    wave_years = np.arange(2009, 2018)
+    file_names = [f"../../data/corrected_US/{item}_US_cohort.csv" for item in wave_years]
     full_US_data = US_utils.load_multiple_data(file_names)
     # Summary table of missing values by variable.
     missingness_table(full_US_data)
@@ -234,11 +235,11 @@ def main():
     missingness_hist(full_US_data, "education_state", "age")
     missingness_bars(full_US_data, "labour_state", "sex")
     missingness_bars(full_US_data, "education_state", "ethnicity")
-    full_US_data["depression_state"] = full_US_data["depression_state"].astype(str)
-    longitudinal_hist(full_US_data)
+    full_US_data["depression"] = full_US_data["depression"].astype(str)
+    #longitudinal_hist(full_US_data)
     complete_missing_hists(full_US_data, "education_state", "A-Level", "age")
-    complete_missing_hists(full_US_data, "ethnicity", "WBI", "age", True)
-    complete_missing_hists(full_US_data, "depression_state", "1", "age", True)
+    complete_missing_hists(full_US_data, "ethnicity", "WBI", "age", False)
+    #complete_missing_hists(full_US_data, "depression", "1", "age", False)
 
     return full_US_data
 

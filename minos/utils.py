@@ -8,6 +8,8 @@ import yaml
 import numpy as np
 import os
 import pandas as pd
+import datetime
+
 #import humanleague as hl
 from scipy.sparse import coo_matrix
 import scipy
@@ -230,3 +232,6 @@ def get_age_bucket(simulation_data):
 def to_years(time: pd.Timedelta) -> float:
     """Converts a time delta to a float for years."""
     return time / pd.Timedelta(days=DAYS_PER_YEAR)
+
+def get_time():
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))

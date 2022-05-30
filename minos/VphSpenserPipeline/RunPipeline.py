@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Script for initiating and running an Minos microsimulation."""
-import datetime
 import logging
 import os
 from pathlib import Path
@@ -14,7 +13,8 @@ import minos.utils as utils
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-
+from minos.modules.income import Income
+from minos.modules.housing import Housing
 
 def RunPipeline(config, start_population_size):
     """ Run the daedalus Microsimulation pipeline
@@ -48,7 +48,10 @@ def RunPipeline(config, start_population_size):
         components.append(Mortality())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
-
+    if "Housing()" in config.components:
+        components.append(Housing())
+    if "Income()" in config.components:
+        components.append(Income())
     logging.info("Succesfully loaded all modules.")
 
     # Initiate vivarium simulation object but DO NOT setup yet.
@@ -77,14 +80,18 @@ def RunPipeline(config, start_population_size):
 
     # Print start time for entire simulation.
     print('Start simulation setup')
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    utils.get_time()
+    logging.info('Start simulation setup')
+    logging.info(utils.get_time())
 
     # Run setup method for each module.
     simulation.setup()
 
     # Print time when modules are setup and the simulation starts.
     print('Start running simulation')
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    utils.get_time()
+    logging.info(print('Start running simulation'))
+    logging.info(utils.get_time())
 
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
     for year in range(1, config.time.num_years + 1):
@@ -93,8 +100,12 @@ def RunPipeline(config, start_population_size):
         simulation.run_for(duration=pd.Timedelta(days=365.25))
 
         # Print time when year finished running.
-        print('Finished running simulation for year:', year)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        print(f'Finished running simulation for year: {year}')
+        utils.get_time()
+        logging.info(print(f'Finished running simulation for year: {year}'))
+        logging.info(utils.get_time())
+
+        # get population dataframe.
         pop = simulation.get_population()
 
         # Assign age brackets to the individuals.

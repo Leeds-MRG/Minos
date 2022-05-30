@@ -35,7 +35,8 @@ def add_nobs_column(data):
 def main(output_dir):
     # Load in data.
     # Process data by year and pidp.
-    years = np.arange(1990, 2019)
+    # years = np.arange(1990, 2019)
+    years = np.arange(2009, 2019)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = add_nobs_column(data)
@@ -58,11 +59,12 @@ def main(output_dir):
     print("After removing deterministically missing values.")
     after_det = US_missing_description.missingness_table(data)
 
-    f_columns = ["age", "education_state", "depression", "depression_change",
+    f_columns = ["education_state", "depression", "depression_change",
                  "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
-                 "job_industry", "job_sec"]  # add more variables here.
+                 "job_industry", "job_sec", "heating"]  # add more variables here.
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
-    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    li_columns = ["age"]
+    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns, li_columns=li_columns)
     print("After LOCF correction.")
     after_locf = US_missing_description.missingness_table(data)
 
