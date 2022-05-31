@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This file generates composite variables for use in the SIPHER project investigating pathways to change in mental health
+This file generates composite variables for use in the SIPHER project investigating pathways to change in mental health.
+
+Currently does not handle missing data for composites. This is done in R using the mice package. May be worth moving
+these functions entirely into R. Some variables are imputed then combined and vice versa which makes this tricky.
 """
 import pandas as pd
 import numpy as np
@@ -104,6 +107,55 @@ def generate_hh_income(data):
     return data
 
 
+def generate_composite_neighbourhood_safety(data):
+    """ Generate a composite neighbourhood safety value from 7 crime frequency variables found in Understanding Society.
+
+    'crburg' neighbourhood burglaries
+    'crcar' neighbourhood car crime
+    'crdrnk' neighbourhood drunks
+    'crmugg' neighbourhood muggings
+    'crrace' neighbourhood racial abuse
+    'crteen' neighbourhood teenager issues
+    'crvand' neighbourhood vandalism issues
+
+    The composite variable (called housing_quality) will have 3 levels:
+    - Yes to all    == 1
+    - Yes to some   == 2
+    - No to all     == 3
+
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data from all years of Understanding Society (1990-2019)
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a composite housing quality variable
+    """
+    # first make list of the columns we're interested in
+
+    sum_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
+    # sum up all non-negative values in sum_list vars
+    data["safety_sum"] = data[sum_list].gt(0).sum(axis=1)
+
+    # conditionally assign housing_quality var based on housing_sum
+    # first set conditions and values for 3 level var
+    conditions = [
+        (data["safety_sum"] == 0),
+        (data["safety_sum"] > 0) & (data["safety_sum"] < 7),
+        (data["safety_sum"] == 7),
+    ]
+    values = [1, 2, 3]
+    # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
+    data["neighbourhood_safety"] = np.select(conditions, values)
+
+    # drop cols we don't need
+    data.drop(labels=['safety_sum'] + sum_list,
+              axis=1,
+              inplace=True)
+
+    return data
+
 def main():
     # first collect and load the datafiles for every year
     years = np.arange(2009, 2020)
@@ -113,6 +165,7 @@ def main():
     # generate composite variables
     data = generate_composite_housing_quality(data)     # housing_quality
     data = generate_hh_income(data)                     # hh_income
+    data = generate_composite_neighbourhood_safety(data) # safety
 
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

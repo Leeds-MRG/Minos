@@ -38,3 +38,4 @@ testing/*
 # just for time being remove the tests (not in use currently)
 tests/
 
+.Rproj.user
