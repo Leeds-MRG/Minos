@@ -28,9 +28,8 @@ if __name__ == "__main__":
                     'E06000048': "E12000001",  # Northhumberland (UA) in North East.
                     'E09000001+E09000033': "E12000007",  # City of London and Westminister in London.
                     'E06000052+E06000053': "E12000009",  # Cornwall and Isles of Scilly in the South West.
-                    'E07000100': "E12000006",  # St. Albans in East of England (borderline? North of
-                                               # Watford which is not London).
-                    'E08000020': "E12000001", #  Gateshead in North West.
+                    'E07000100': "E12000006",  # St. Albans in East of England.
+                    'E08000020': "E12000001", # Gateshead in North West.
                     'S12000036': "S92000003", # Edinburgh scotland
                     'S12000035': "S92000003", # Argyll and Bute Scotland
                     'N09000011': "N92000002", # Ards and North Down NI

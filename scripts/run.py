@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""This is the main script for running the AngryMob pipeline. It loads in directory names and handles the
+"""This is the main script for running the Minos pipeline. It loads in directory names and handles the
 overall initiation from a yaml file for the microsimulaton."""
 from pathlib import Path
 import os

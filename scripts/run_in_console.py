@@ -1,5 +1,3 @@
-import os
-#os.chdir("..")
 from scripts.run import run_pipeline
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Script for initiating and running an AngryMob microsimulation."""
-import datetime
+"""Script for initiating and running an Minos microsimulation."""
 import logging
 import os
 from pathlib import Path
@@ -14,9 +13,8 @@ import minos.utils as utils
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-from minos.modules.depression import Depression
-from minos.modules.employment import Employment
-
+from minos.modules.income import Income
+from minos.modules.housing import Housing
 
 def RunPipeline(config, start_population_size):
     """ Run the daedalus Microsimulation pipeline
@@ -44,25 +42,17 @@ def RunPipeline(config, start_population_size):
     #components = [eval(x) for x in config.components]
 
     # last one in first one off. any module that requires another should be BELOW IT in this order.
-    if "Depression()" in config.components:
-        components.append(Depression())
-    if "Employment()" in config.components:
-        components.append(Employment())
-   #if "Education()" in config.components:
-   #     components.append(Education())
     if "FertilityAgeSpecificRates()" in config.components:
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config.components:
         components.append(Mortality())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
-
-    # Run write_config method for each class loading required attributes to the yaml.
-    for component in components:
-        print(f"Written Config for: {component}")
-        config = component.write_config(config)
-
-    logging.info("Final YAML config file written.")
+    if "Housing()" in config.components:
+        components.append(Housing())
+    if "Income()" in config.components:
+        components.append(Income())
+    logging.info("Succesfully loaded all modules.")
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -80,7 +70,7 @@ def RunPipeline(config, start_population_size):
     # lines 55-101 are much more modular/flexible than before.
     # Its done this way in Daedalus because the vivarium_public_health modules are from a separate package.
     # Even then these classes could be appended with pre_setup functions.
-    # This isn't the case with AngryMob as each module is bespoke and can be given a pre_setup method.
+    # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
 
     # Run pre-setup method for each module.
@@ -90,14 +80,18 @@ def RunPipeline(config, start_population_size):
 
     # Print start time for entire simulation.
     print('Start simulation setup')
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    utils.get_time()
+    logging.info('Start simulation setup')
+    logging.info(utils.get_time())
 
     # Run setup method for each module.
     simulation.setup()
 
     # Print time when modules are setup and the simulation starts.
     print('Start running simulation')
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    utils.get_time()
+    logging.info(print('Start running simulation'))
+    logging.info(utils.get_time())
 
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
     for year in range(1, config.time.num_years + 1):
@@ -106,8 +100,12 @@ def RunPipeline(config, start_population_size):
         simulation.run_for(duration=pd.Timedelta(days=365.25))
 
         # Print time when year finished running.
-        print('Finished running simulation for year:', year)
-        print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        print(f'Finished running simulation for year: {year}')
+        utils.get_time()
+        logging.info(print(f'Finished running simulation for year: {year}'))
+        logging.info(utils.get_time())
+
+        # get population dataframe.
         pop = simulation.get_population()
 
         # Assign age brackets to the individuals.
