@@ -59,9 +59,13 @@ def predict_next_timestep(model, current, independant):
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     prediction = stats.predict(model, currentRDF)
-    newRPopDF = base.cbind(currentRDF, hh_income = prediction)
+    newRPopDF = base.cbind(currentRDF, predicted = prediction)
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    newPandasPopDF[[independant]] = newPandasPopDF[['predicted']]
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     return newPandasPopDF
