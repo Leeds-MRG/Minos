@@ -2,7 +2,7 @@ from scripts.run import run_pipeline
 
 if __name__ == "__main__":
 
-    configuration_file = "config/controlConfig.yaml"
+    configuration_file = "config/testConfig.yaml"
     input_data_dir = "data"
     persistent_data_dir = "persistent_data"
     output_dir = "output"
