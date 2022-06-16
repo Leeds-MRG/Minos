@@ -16,23 +16,6 @@ from minos.RateTables.MortalityRateTable import MortalityRateTable
 
 class Mortality:
 
-    @staticmethod
-    def write_config(config):
-        """ Update config file with what this module needs to run.
-        Parameters
-        ----------
-            config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob.
-        Returns
-        -------
-           config : vivarium.config_tree.ConfigTree
-            Config yaml tree for AngryMob with added items needed for this module to run.
-        """
-        config.update({
-            'path_to_mortality_file': "{}/{}".format(config.persistent_data_dir, config.mortality_file)
-        }, source=str(Path(__file__).resolve()))
-        return config
-
 
     # vivarium does allow for use of __init__ so use pre_setup instead.
     def pre_setup(self, config, simulation):

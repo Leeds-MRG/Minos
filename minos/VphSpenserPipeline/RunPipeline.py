@@ -45,22 +45,17 @@ def RunPipeline(config, start_population_size, run_output_dir):
     #components = [eval(x) for x in config.components]
 
     # last one in first one off. any module that requires another should be BELOW IT in this order.
+    if "Housing()" in config.components:
+        components.append(Housing())
+    if "Income()" in config.components:
+        components.append(Income())
     if "FertilityAgeSpecificRates()" in config.components:
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config.components:
         components.append(Mortality())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
-    if "Housing()" in config.components:
-        components.append(Housing())
-    if "Income()" in config.components:
-        components.append(Income())
 
-
-    # Run write_config method for each class loading required attributes to the yaml.
-    for component in components:
-        print(f"Written Config for: {component}")
-        config = component.write_config(config)
 
     logging.info("Final YAML config file written.")
 
