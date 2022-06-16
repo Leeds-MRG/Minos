@@ -11,6 +11,9 @@ minos/*/__pycache__/
 */*.pyc
 */*/*.pyc
 
+# R Stuff
+.Rhistory
+
 # OSX files
 .DS_Store
 */.DS_Store
