@@ -64,8 +64,9 @@ markers[which(markers==1)] <- 1
 markers[which(markers==0)] <- 15
 
 preds <- sapply(predict(m1.logit, X2), invlogit)
+pdf("plots/employment_retirement.pdf")
 plot(preds, col = cols, pch = markers)
-
+dev.off()
 
 # Now do studet vs employed.
 
@@ -96,4 +97,6 @@ markers[which(markers==1)] <- 1
 markers[which(markers==0)] <- 15
 
 preds <- sapply(predict(m2.logit, X2), invlogit)
+pdf("plots/student_employed_separation.pdf")
 plot(preds, col = cols, pch = markers)
+dev.off()
