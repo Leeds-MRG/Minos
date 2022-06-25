@@ -23,23 +23,35 @@ invlogit <- function(x){
   return (out)
 }
 
-replace_missing <- function(data){
-  data <- na_if(data, "-1")
-  data <- na_if(data, "-2")
-  data <- na_if(data, "-7")
-  data <- na_if(data, "-8")
-  data <- na_if(data, "-9")
-  data <- na_if(data, -1)
-  data <- na_if(data, -2)
-  data <- na_if(data, -7)
-  data <- na_if(data, -8)
-  data <- na_if(data, -9)
-  data <- na_if(data, -1.)
-  data <- na_if(data, -2.)
-  data <- na_if(data, -7.)
-  data <- na_if(data, -8.)
-  data <- na_if(data, -9.)
-  return(data)
+#replace_missing <- function(data){
+#  data <- na_if(data, "-1")
+#  data <- na_if(data, "-2")
+#  data <- na_if(data, "-7")
+#  data <- na_if(data, "-8")
+#  data <- na_if(data, "-9")
+#  data <- na_if(data, -1)
+#  data <- na_if(data, -7)
+#  data <- na_if(data, -2)
+#  data <- na_if(data, -8)
+#  data <- na_if(data, -9)
+#  data <- na_if(data, -1.)
+#  data <- na_if(data, -2.)
+#  data <- na_if(data, -7.)
+#  data <- na_if(data, -8.)
+#  data <- na_if(data, -9.)
+#  return(data)
+#}
+
+missing.str <- c("-1", "-2", "-7", "-8", "-9")
+missing.int <- c(-1, -2, -7, -8, -9)
+missing.float <- c(-1., -2., -7., -8., -9.)
+# replacement of missing values with NA that R can read. 
+# May be a better way of doing this...
+replace.missing <- function(data){
+  data <- lapply(data, function(x) replace(x, x %in% missing.str, NA))
+  data <- lapply(data, function(x) replace(x, x %in% missing.int, NA))
+  data <- lapply(data, function(x) replace(x, x %in% missing.float, NA))
+  return(as.data.frame(data))
 }
 
 # standard python style two tone colours to use. 
@@ -63,7 +75,7 @@ get_US_file_names <- function(source, years){
 get_US_data <- function(file_names){
   first_time <- T
   for(file in file_names){
-    new_data <- read.csv(file_name)
+    new_data <- read.csv(file)
     if (first_time==T){
       first_time <- F
       data <- new_data
@@ -92,7 +104,8 @@ format_US_housing_data <- function(data){
                "tumble_dryer", 
                "dishwasher", 
                "microwave", 
-               "heating")
+               "heating",
+               "hh_netinc")
   data<- data[, columns]
   
   # Remove anyone with fewer than 2 entries
