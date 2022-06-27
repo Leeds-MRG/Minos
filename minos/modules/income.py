@@ -6,8 +6,34 @@ Possible extension to interaction with employment/education and any spatial/inte
 
 import pandas as pd
 from pathlib import Path
+import minos.modules.r_utils as r_utils
 
-class income:
+
+class Income:
+
+    @property
+    def name(self):
+        return 'income'
+
+
+    def __repr__(self):
+        return 'Income()'
+
+    @staticmethod
+    def write_config(config):
+        """ Update config file with what this module needs to run.
+
+        Parameters
+        ----------
+        config : vivarium.config_tree.ConfigTree
+            Config yaml tree for Minos.
+        Returns
+        -------
+        config : vivarium.config_tree.ConfigTree
+            Config yaml tree for Minos with added items needed for this module to run.
+        """
+        return config
+
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -27,7 +53,15 @@ class income:
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
+
+        # Load in transition model
+        transition_model = r_utils.load_transitions('hh_income')
+
+        simulation._data.write('income_transition',
+                               transition_model)
+
         return simulation
+
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -35,9 +69,8 @@ class income:
         Notes
         -----
         - Load in data from pre_setup
-        - Register any value producers/modifiers for death rate
+        - Register any value producers/modifiers for income
         - Add required columns to population data frame
-        - Add listener event to check if people die on each time step.
         - Update other required items such as randomness stream.
 
         Parameters
@@ -48,22 +81,32 @@ class income:
         """
 
         # Load in inputs from pre-setup.
+        self.transition_model = builder.data.load("income_transition")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream("income")
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ['pidp']
+        view_columns += self.transition_model.rx2('model').names
+        self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=1)
+
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added.
@@ -78,7 +121,7 @@ class income:
         -------
         None
         """
-        # Initiate any columns created by this module and add them to the main population.
+
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -88,11 +131,20 @@ class income:
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-        # Construct transition probability distributions.
-        # Draw individuals next states randomly from this distribution.
-        # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
 
-    def calculate_income(self, index):
+        ## Predict next income value
+        newWaveIncome = self.calculate_income(pop)
+        # Set index type to int (instead of object as previous)
+        newWaveIncome.index = newWaveIncome.index.astype(int)
+
+        # Draw individuals next states randomly from this distribution.
+        # Update population with new income
+        self.population_view.update(newWaveIncome['hh_income'])
+
+
+    def calculate_income(self, pop):
         """Calculate income transition distribution based on provided people/indices
 
         Parameters
@@ -102,3 +154,7 @@ class income:
         Returns
         -------
         """
+        # The calculation relies on the R predict method and the model that has already been specified
+        nextWaveIncome = r_utils.predict_next_timestep(self.transition_model, pop, independant='hh_income')
+
+        return nextWaveIncome

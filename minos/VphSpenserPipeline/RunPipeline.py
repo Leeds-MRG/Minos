@@ -13,10 +13,13 @@ import minos.utils as utils
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-from minos.modules.income import Income
+#from minos.modules.depression import Depression
+#from minos.modules.employment import Employment
 from minos.modules.housing import Housing
+from minos.modules.income import Income
 
-def RunPipeline(config, start_population_size):
+
+def RunPipeline(config, start_population_size, run_output_dir):
     """ Run the daedalus Microsimulation pipeline
 
    Parameters
@@ -42,17 +45,19 @@ def RunPipeline(config, start_population_size):
     #components = [eval(x) for x in config.components]
 
     # last one in first one off. any module that requires another should be BELOW IT in this order.
+    if "Housing()" in config.components:
+        components.append(Housing())
+    if "Income()" in config.components:
+        components.append(Income())
     if "FertilityAgeSpecificRates()" in config.components:
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config.components:
         components.append(Mortality())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
-    if "Housing()" in config.components:
-        components.append(Housing())
-    if "Income()" in config.components:
-        components.append(Income())
-    logging.info("Succesfully loaded all modules.")
+
+
+    logging.info("Final YAML config file written.")
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -93,6 +98,10 @@ def RunPipeline(config, start_population_size):
     logging.info(print('Start running simulation'))
     logging.info(utils.get_time())
 
+    # output files path
+    file_out_dir = os.path.join(config.output_dir, run_output_dir, 'AM_simulation')
+    os.makedirs(file_out_dir)
+
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
     for year in range(1, config.time.num_years + 1):
 
@@ -111,13 +120,9 @@ def RunPipeline(config, start_population_size):
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
 
-        # Save the output file to csv. Give data its own subdirectory for the given year.
-        year_output_dir = os.path.join(os.path.join(config.output_dir, 'year_' + str(year)))
-        os.makedirs(year_output_dir, exist_ok=True)
-
         # File name and save.
         output_data_filename = 'AM_simulation_year_' + str(year) + '.csv'
-        pop.to_csv(os.path.join(year_output_dir, output_data_filename))
+        pop.to_csv(os.path.join(file_out_dir, output_data_filename))
 
         print('In year: ', config.time.start.year + year)
         # Print some summary stats on the simulation.

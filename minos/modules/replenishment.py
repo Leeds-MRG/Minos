@@ -7,6 +7,8 @@ import pandas as pd
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 class Replenishment:
+
+
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run into the config and simulation object.
@@ -211,6 +213,7 @@ class Replenishment:
     @property
     def name(self):
         return "replenishment"
+
 
     def __repr__(self):
         return "Replenishment()"
