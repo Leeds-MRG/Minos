@@ -10,6 +10,28 @@ from minos.modules.r_utils import *
 
 class Housing:
 
+    @property
+    def name(self):
+        return "housing"
+
+    def __repr__(self):
+        return "Housing()"
+
+    @staticmethod
+    def write_config(config):
+        """ Update config file with what this module needs to run.
+
+        Parameters
+        ----------
+        config : vivarium.config_tree.ConfigTree
+            Config yaml tree for Minos.
+        Returns
+        -------
+        config : vivarium.config_tree.ConfigTree
+            Config yaml tree for Minos with added items needed for this module to run.
+        """
+        return config
+
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run into the config and simulation object.
