@@ -4,6 +4,7 @@ args = commandArgs()
 dataDir <- paste0(args[7], '/composite_US/')
 transitionDir <- args[8]
 
+print(getwd())
 # Load required packages
 require(stringr)
 require(readr)

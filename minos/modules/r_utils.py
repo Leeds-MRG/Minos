@@ -1,12 +1,14 @@
 """
 R utility functions. These are currently all related to the use of transition models.
 """
+import os
+os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources" # path to R depends on user.
 
 import rpy2.robjects as ro
 from rpy2.robjects import IntVector, StrVector, pandas2ri
 from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
-
+import pandas as pd
 
 def load_transitions(component, path = 'data/transitions/'):
     """
@@ -65,12 +67,12 @@ def predict_next_timestep(model, current, independant):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
 
     # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[independant]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    #newPandasPopDF[[independant]] = newPandasPopDF[['predicted']]
+    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
-    return newPandasPopDF
+    return newPandasPopDF[["hh_income"]]
 
-def predict_next_timestep_clm(model):
+def predict_next_timestep_clm(model, current):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -85,6 +87,7 @@ def predict_next_timestep_clm(model):
     # import R packages
     base = importr('base')
     stats = importr('stats')
+    ordinal = importr('ordinal')
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -100,7 +103,7 @@ def predict_next_timestep_clm(model):
 
     # Convert prob matrix back to pandas.
     with localconverter(ro.default_converter + pandas2ri.converter):
-        predictionDF = ro.conversion.rpy2py(prediction)
-
+        prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
+    predictionDF = pd.DataFrame(prediction_matrix_list)
     return predictionDF
   

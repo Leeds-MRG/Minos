@@ -107,7 +107,23 @@ format_US_housing_data <- function(data){
                "heating",
                "hh_netinc")
   data<- data[, columns]
-  
+  colnames(data) <- c("pidp", 
+                      "hidp", 
+                      "education_state", 
+                      "sex", 
+                      "age",
+                      "SF-12",
+                      "ethnicity",
+                      "depression_change",
+                      "labour_state",
+                      "job_sec",
+                      "fridge_freezer", 
+                      "washing_machine", 
+                      "tumble_dryer", 
+                      "dishwasher", 
+                      "microwave", 
+                      "heating",
+                      "hh_income")
   # Remove anyone with fewer than 2 entries
   complete_pidps<- strtoi(rownames(data.frame(which(table(data$pidp)>=2))))
   data<- data[which(data$pidp%in%complete_pidps),]

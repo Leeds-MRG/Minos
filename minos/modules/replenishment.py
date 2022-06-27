@@ -66,12 +66,18 @@ class Replenishment:
                         'birth_year',
                         'nobs',
                         'region',
-                        'SF-12',
+                        'SF_12',
                         'hh_int_y',
                         'hh_int_m',
                         'Date',
                         'housing_quality',
-                        'hh_income'
+                        'hh_income',
+                        'neighbourhood_safety',
+                        'ncigs',
+                        'alcohol_spending',
+                        'smoker',
+                        'loneliness',
+                        'emp_type'
                         ]
 
         # Shorthand methods for readability.
@@ -110,7 +116,7 @@ class Replenishment:
         if pop_data.user_data["sim_state"] == "setup":
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
-            new_population = pd.read_csv(f"data/composite_US/{self.current_year}_US_cohort.csv")
+            new_population = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
         elif pop_data.user_data["cohort_type"] == "replenishment":
@@ -154,7 +160,7 @@ class Replenishment:
             self.current_year += 1
             pop['time'] += 1
             self.population_view.update(pop)
-            new_wave = pd.read_csv(f"data/composite_US/{self.current_year}_US_cohort.csv")
+            new_wave = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
         else:
             # otherwise dont load anyone in.
             new_wave = pd.DataFrame()

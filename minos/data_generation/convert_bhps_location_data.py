@@ -23,16 +23,16 @@ text = text[172 : 516]
 id_to_LAD_name = {}
 
 for item in text:
-    # find the intiger value of the LAD using regex
+    # find the intiger value code and name of each LAD using regex. Store them in a dictionary.
     LAD_value = re.search("\tValue = (.+?).0\t", item).group(1)
     LAD_value = int(LAD_value)
-    
     LAD_name = re.search("\tLabel = (.*)", item).group(1)
     
     #LAD_name_to_id[LAD_name] = LAD_value
     id_to_LAD_name[LAD_value] = LAD_name
     
-# Bunch of corrections for names that are different in two datsets
+# Bunch of corrections for names that are different between BHPS LAD codes and NOMIS 2019 Mortality LAD codes.
+# Mostly due to administrative changes to counties over time. E.g. bath and north somerset split.
 
 id_to_LAD_name[1] = 'Westminster'
 id_to_LAD_name[4] = 'Hammersmith and Fulham'

@@ -34,10 +34,7 @@ class Income:
         """
         return config
 
-<<<<<<< HEAD
 class Income:
-=======
->>>>>>> 6e7b53fdc63121dbc32c8d5760ffe9325bdc5c66
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -140,6 +137,7 @@ class Income:
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
+        newWaveIncome = pd.DataFrame(newWaveIncome, columns=["hh_income"])
         # Set index type to int (instead of object as previous)
         newWaveIncome.index = newWaveIncome.index.astype(int)
 
@@ -160,5 +158,13 @@ class Income:
         """
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveIncome = r_utils.predict_next_timestep(self.transition_model, pop, independant='hh_income')
-
         return nextWaveIncome
+
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'income'
+
+
+    def __repr__(self):
+        return "Income()"
