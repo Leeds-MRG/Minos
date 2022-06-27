@@ -167,18 +167,18 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None, li_columns
     print("groupby done. interpolating..")
     # Fill missing data by individual for given carrying type. Forwards, backwards, or forward then backwards.
     # See pandas ffill and bfill functions for more details.
-    # if f_columns:
-    #    # Forward fill.
-    #    fill = applyParallelLOCF(pid_groupby[f_columns], ffill_groupby)
-    #    data[f_columns] = fill[f_columns]
-    # if b_columns:
-    #    # backward fill. only use this on IMMUTABLE attributes.
-    #    fill = applyParallelLOCF(pid_groupby[b_columns], bfill_groupby)
-    #    data[b_columns] = fill[b_columns]
-    # if fb_columns:
-    #    # forwards and backwards fill. again immutables only.
-    #    fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
-    #    data[fb_columns] = fill[fb_columns]
+    if f_columns:
+        # Forward fill.
+        fill = applyParallelLOCF(pid_groupby[f_columns], ffill_groupby)
+        data[f_columns] = fill[f_columns]
+    if b_columns:
+        # backward fill. only use this on IMMUTABLE attributes.
+        fill = applyParallelLOCF(pid_groupby[b_columns], bfill_groupby)
+        data[b_columns] = fill[b_columns]
+    if fb_columns:
+        # forwards and backwards fill. again immutables only.
+        fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
+        data[fb_columns] = fill[fb_columns]
     if li_columns:
         # linear interpolation.
         fill = applyParallelLOCF(pid_groupby[li_columns], linear_interpolator_groupby, type="both")
