@@ -9,7 +9,7 @@
 ########################
 
 require(ordinal)
-source("../utils.R")
+source("transitions/utils.R")
 
 get.housing.files <- function(source, year1, year2){
   # get files for year 1 and year 2 respectively.
@@ -32,10 +32,10 @@ format.housing.composite <- function(data){
   # overwhelming majority (>90%) have at least 4 of the 6 housing values.
   # things like dishwasher and heating are more scarce.
   data$housing <- rowSums(data[, c("five_household", "heating")])
-  data[which(data$housing <= 0), ""] <- 0
-  data[which(data$housing <= 5 & data$housing > 0), ""] <- 1
-  data[which(data$housing >= 5), ""] <- 2
-  data$housing <- as.factor(data$housing)
+  data[which(data$housing <= 0), "housing"] <- 0
+  data[which(data$housing <= 5 & data$housing > 0), "housing"] <- 1
+  data[which(data$housing >= 5), "housing"] <- 2
+  data$housing <- factor(data$housing, levels = c(0, 1, 2))
   return(data)
 }
 
@@ -44,7 +44,7 @@ get.clm.file.name <- function(destination, year1, year2){
   file_name <- paste0(destination, str(year1))
   file_name <- paste0(file_name, "_")
   file_name <- paste0(file_name, year2)
-  file_name <- paste0(file_name, "_housing_clm.Rda")
+  file_name <- paste0(file_name, "_housing_clm.rds")
   return(file_name)
 }
 
@@ -72,7 +72,7 @@ clm.housing.main <- function(years){
     data <- format.housing.composite(data)
     data2 <- format.housing.composite(data2)
     
-    data2 <- data2[, c("pidp", "")]
+    data2 <- data2[, c("pidp", "housing")]
     colnames(data2) <- c("pidp", "y")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
