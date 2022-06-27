@@ -34,6 +34,10 @@ class Income:
         """
         return config
 
+<<<<<<< HEAD
+class Income:
+=======
+>>>>>>> 6e7b53fdc63121dbc32c8d5760ffe9325bdc5c66
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
