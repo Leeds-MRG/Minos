@@ -70,7 +70,7 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
 
     # Print initial pop size.
     year_start = config.time.start.year
-    start_population_size = pd.read_csv(f"data/composite_US/{year_start}_US_cohort.csv").shape[0]
+    start_population_size = pd.read_csv(f"data/final_US/{year_start}_US_cohort.csv").shape[0]
     print('Start Population Size: {}'.format(start_population_size))
 
     # Output directory where all files from the run will be saved.

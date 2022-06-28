@@ -234,7 +234,7 @@ def format_ukhls_columns(year):
                        'sclonely': 'loneliness',  # is lonely.
                        # Only available in waves 9-11. scsf7 may be a good substitute.
                        'sex': 'sex',  # biological sex.
-                       'sf12mcs_dv': 'SF-12',  # SF12 mental component summary
+                       'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
                        'smoker': 'smoker', # Currently smokes.
                        #TODO waves present roughly matches ncigs. no data for waves 1-5.
                        # for waves 2 and 5 similar variable 'smnow' could be used.
@@ -457,7 +457,7 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 
 
 if __name__ == "__main__":
-    years = np.arange(2019, 2020)
+    years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)
     #parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")

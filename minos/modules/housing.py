@@ -6,7 +6,7 @@ Possible future work for moving households and changing household composition (e
 
 import pandas as pd
 from pathlib import Path
-from minos.modules.r_utils import *
+from minos.modules import r_utils
 
 class Housing:
 
@@ -84,11 +84,11 @@ class Housing:
         # transition models and any outputs.
         view_columns = ["sex",
                         "labour_state",
-                        "SF.12",
+                        "SF_12",
                         "job_sec",
                         "ethnicity",
                         "age",
-                        "housing",] # TODO make sure housing composite is added to data input.
+                        "housing_quality",] # TODO make sure housing composite is added to data input.
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -98,7 +98,7 @@ class Housing:
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.regiser_listener("time_step", self.on_time_step, priority=1)
+        builder.event.register_listener("time_step", self.on_time_step, priority=1)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added.
@@ -134,10 +134,10 @@ class Housing:
 
         housing_prob_df = self.calculate_housing(pop)
 
-        housing_prob_df["housing"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns), housing_prob_df)
+        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns), housing_prob_df)+1
         housing_prob_df.index = housing_prob_df.index.astype(int)
 
-        self.population_view.update(housing_prob_df["housing"])
+        self.population_view.update(housing_prob_df["housing_quality"])
 
     def calculate_housing(self, pop):
         """Calculate housing transition distribution based on provided people/indices.
@@ -150,7 +150,17 @@ class Housing:
         -------
         """
         # load transition model based on year.
-        transition_model = r_utils.load_transitions(f"housing/clm_output/{self.year}_{self.year+1}_housing_clm.rds")
+        year = min(self.year, 2018)
+        transition_model = r_utils.load_transitions(f"transitions/housing/clm_output/{year}_{year+1}_housing_clm", "")
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, )
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
         return prob_df
+
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'housing'
+
+
+    def __repr__(self):
+        return "Housing()"

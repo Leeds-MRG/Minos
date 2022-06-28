@@ -92,7 +92,7 @@ clm.housing.main <- function(years){
     prs<- 1 - logLik(clm.housing)/logLik(clm(y ~ 1, data=data))
     print(prs)
     clm.file.name <- get.clm.file.name("transitions/housing/clm_output/", year, year+1)
-    save(clm.housing, file=clm.file.name)
+    saveRDS(clm.housing, file=clm.file.name)
     print("Saved to:")
     print(clm.file.name)
   }

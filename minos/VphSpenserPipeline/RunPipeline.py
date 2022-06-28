@@ -40,10 +40,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
 
     components = []
     # Check each of the modules is present.
-    # TODO: python 3.10 will have case switching which makes this much prettier in terms of module initiation.
-
-    #components = [eval(x) for x in config.components]
-
+    #components = [eval(x) for x in config.components] # more adapative way but security issues.
     # last one in first one off. any module that requires another should be BELOW IT in this order.
     if "Housing()" in config.components:
         components.append(Housing())

@@ -73,7 +73,7 @@ class Mortality:
                                                                    parameter_columns=['age', 'year'])
         # Build mortality rate producer. When called it will give a rate of death for each alive individual.
         self.mortality_rate = builder.value.register_rate_producer('mortality_rate',
-                                                                   source=self.rtality_rate,
+                                                                   source=self.calculate_mortality_rate,
                                                                    requires_columns=['sex', 'region', 'ethnicity'])
         # Uniform life expectancy for all simulants. Used to calculate expected years of life lost when dead.
         life_expectancy_data = 81.16  # based on data
