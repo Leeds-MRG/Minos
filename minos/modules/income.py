@@ -11,14 +11,6 @@ import minos.modules.r_utils as r_utils
 
 class Income:
 
-    @property
-    def name(self):
-        return 'income'
-
-
-    def __repr__(self):
-        return 'Income()'
-
     @staticmethod
     def write_config(config):
         """ Update config file with what this module needs to run.
@@ -56,7 +48,7 @@ class Income:
         """
 
         # Load in transition model
-        transition_model = r_utils.load_transitions('hh_income')
+        transition_model = r_utils.load_transitions('income/hh_income')
 
         simulation._data.write('income_transition',
                                transition_model)

@@ -151,7 +151,7 @@ class Housing:
         """
         # load transition model based on year.
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"transitions/housing/clm_output/{year}_{year+1}_housing_clm", "")
+        transition_model = r_utils.load_transitions(f"data/transitions/housing/clm/{year}_{year+1}_housing_clm", "")
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
         return prob_df
@@ -160,7 +160,6 @@ class Housing:
     @property
     def name(self):
         return 'housing'
-
 
     def __repr__(self):
         return "Housing()"
