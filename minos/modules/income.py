@@ -8,32 +8,6 @@ import pandas as pd
 from pathlib import Path
 import minos.modules.r_utils as r_utils
 
-
-class Income:
-
-    @property
-    def name(self):
-        return 'income'
-
-
-    def __repr__(self):
-        return 'Income()'
-
-    @staticmethod
-    def write_config(config):
-        """ Update config file with what this module needs to run.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for Minos.
-        Returns
-        -------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for Minos with added items needed for this module to run.
-        """
-        return config
-
 class Income:
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
@@ -56,7 +30,7 @@ class Income:
         """
 
         # Load in transition model
-        transition_model = r_utils.load_transitions('hh_income')
+        transition_model = r_utils.load_transitions('income/hh_income')
 
         simulation._data.write('income_transition',
                                transition_model)
