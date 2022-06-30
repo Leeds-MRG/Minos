@@ -17,7 +17,7 @@ from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
 #from minos.modules.employment import Employment
 from minos.modules.housing import Housing
 from minos.modules.income import Income
-
+from minos.modules.mental_wellbeing import MWB
 
 def RunPipeline(config, start_population_size, run_output_dir):
     """ Run the daedalus Microsimulation pipeline
@@ -42,6 +42,8 @@ def RunPipeline(config, start_population_size, run_output_dir):
     # Check each of the modules is present.
     #components = [eval(x) for x in config.components] # more adapative way but security issues.
     # last one in first one off. any module that requires another should be BELOW IT in this order.
+    if "MWB()" in config.components:
+        components.append(MWB())
     if "Housing()" in config.components:
         components.append(Housing())
     if "Income()" in config.components:

@@ -52,9 +52,16 @@ def generate_composite_housing_quality(data):
 
     # conditionally assign housing_quality var based on housing_sum
     # first set conditions and values for 3 level var
+    # TODO virtually noone in the bottom tier. need to experiment with critical/luxury items.
+    # Switch to 2 or more for now.
+    #conditions = [
+    #    (data["housing_sum"] == 0),
+    #    (data["housing_sum"] > 0) & (data["housing_sum"] < 6),
+    #    (data["housing_sum"] == 6),
+    #]
     conditions = [
-        (data["housing_sum"] == 0),
-        (data["housing_sum"] > 0) & (data["housing_sum"] < 6),
+        (data["housing_sum"] <= 2),
+        (data["housing_sum"] > 2) & (data["housing_sum"] < 6),
         (data["housing_sum"] == 6),
     ]
     values = [1, 2, 3]

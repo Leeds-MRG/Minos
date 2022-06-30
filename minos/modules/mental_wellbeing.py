@@ -11,23 +11,13 @@ import minos.modules.r_utils as r_utils
 
 class MWB:
     """Mental Well-Being Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'mwb'
 
-    @staticmethod
-    def write_config(config):
-        """ Update config file with what this module needs to run.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for Minos.
-        Returns
-        -------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for Minos with added items needed for this module to run.
-        """
-        return config
-
-class Income:
+    def __repr__(self):
+        return "MWB()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -83,7 +73,15 @@ class Income:
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp']
+        view_columns = ['pidp',
+                        'sex',
+                        'ethnicity',
+                        'age',
+                        'education_state',
+                        'labour_state',
+                        'job_sec',
+                        'hh_income',
+                        'SF_12']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -119,12 +117,15 @@ class Income:
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        self.year = event.time.year
+
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveIncome, columns=["SF_12"])
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 
@@ -143,12 +144,6 @@ class Income:
         Returns
         -------
         """
-
-    # Special methods used by vivarium.
-    @property
-    def name(self):
-        return 'mwb'
-
-
-    def __repr__(self):
-        return "MWB()"
+        year = min(self.year, 2018)
+        transition_model = r_utils.load_transitions(f"data/transitions/mwb/ols/sf12_ols_{year}_{year+1}", "")
+        return r_utils.predict_next_timestep_SF12(transition_model, pop)
