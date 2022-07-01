@@ -50,7 +50,7 @@ get.clm.file.name <- function(destination, year1, year2){
 clm.housing.main <- function(years){
   # loop over specified years and fit clm models. 
   for (year in years){
-    print("Wrinting CLM model for years")
+    print("Writing CLM model for years")
     print(year)
     print(year+1)
     data_source<- "data/final_US/"

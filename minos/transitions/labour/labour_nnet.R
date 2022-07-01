@@ -22,7 +22,7 @@ get.nnet.file.name <- function(destination, year1, year2){
 
 labour.nnet.main <- function(years){
   for (year in years){
-    print("Wrinting NNET model for years")
+    print("Writing NNET model for years")
     print(year)
     print(year+1)
     data_source<- "data/final_US/"
@@ -41,12 +41,15 @@ labour.nnet.main <- function(years){
     data <- data[complete.cases(data),]
     m1 <- multinom(factor(y) ~ 
                      (factor(sex) +
-                        factor(ethnicity) + 
-                        age + 
-                        factor(education_state) + 
-                        factor(depression_change) +
-                        factor(labour_state) +
-                        + factor(job_sec) + hh_income + alcohol_spending)#**2 # higher
+                      factor(ethnicity) + 
+                      age + 
+                      factor(education_state) + 
+                      SF_12 +
+                      factor(housing_quality) +
+                      factor(labour_state) +
+                      factor(job_sec) + 
+                      hh_income + 
+                        alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                    ,data = data, MaxNWts = 10000, maxit=10000)
     m1
     nnet.file.name <- get.nnet.file.name("data/transitions/labour/nnet/", year, year+1)
