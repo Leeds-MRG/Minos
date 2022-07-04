@@ -18,6 +18,9 @@ from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
 from minos.modules.labour import Labour
 
+# for viz.
+from plots.minos_distribution_visualisation import *
+
 def RunPipeline(config, start_population_size, run_output_dir):
     """ Run the daedalus Microsimulation pipeline
 
