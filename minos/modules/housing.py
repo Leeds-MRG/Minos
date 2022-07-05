@@ -84,7 +84,7 @@ class Housing:
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=1)
+        builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added.
@@ -137,7 +137,7 @@ class Housing:
         """
         # load transition model based on year.
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"data/transitions/housing/clm/housing_clm_{year}_{year+1}", "")
+        transition_model = r_utils.load_transitions(f"housing/clm/housing_clm_{year}_{year+1}")
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
         return prob_df

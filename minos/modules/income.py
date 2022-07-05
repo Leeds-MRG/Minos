@@ -30,10 +30,10 @@ class Income:
         """
 
         # Load in transition model
-        transition_model = r_utils.load_transitions('income/hh_income')
+        #transition_model = r_utils.load_transitions('hh_income')
 
-        simulation._data.write('income_transition',
-                               transition_model)
+        #simulation._data.write('income_transition',
+        #                       transition_model)
 
         return simulation
 
@@ -56,7 +56,7 @@ class Income:
         """
 
         # Load in inputs from pre-setup.
-        self.transition_model = builder.data.load("income_transition")
+        #self.transition_model = builder.data.load("income_transition")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -69,8 +69,13 @@ class Income:
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp']
-        view_columns += self.transition_model.rx2('model').names
+        view_columns = ['pidp',
+                        'age',
+                        'sex',
+                        'ethnicity',
+                        'region',
+                        'hh_income']
+        #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -80,7 +85,7 @@ class Income:
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=1)
+        builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
 
     def on_initialize_simulants(self, pop_data):
@@ -108,6 +113,7 @@ class Income:
         """
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        self.year = event.time.year
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
@@ -130,8 +136,11 @@ class Income:
         Returns
         -------
         """
+        # load transition model based on year.
+        year = min(self.year, 2018)
+        transition_model = r_utils.load_transitions(f"hh_income/hh_income_{year}_{year + 1}")
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveIncome = r_utils.predict_next_timestep(self.transition_model, pop, independant='hh_income')
+        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model, pop, independant='hh_income')
         return nextWaveIncome
 
     # Special methods used by vivarium.

@@ -91,7 +91,7 @@ class MWB:
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=1)
+        builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
 
     def on_initialize_simulants(self, pop_data):
@@ -145,5 +145,5 @@ class MWB:
         -------
         """
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"data/transitions/mwb/ols/sf12_ols_{year}_{year+1}", "")
-        return r_utils.predict_next_timestep_SF12(transition_model, pop)
+        transition_model = r_utils.load_transitions(f"mwb/ols/sf12_ols_{year}_{year+1}")
+        return r_utils.predict_next_timestep_ols(transition_model, pop, 'SF_12')

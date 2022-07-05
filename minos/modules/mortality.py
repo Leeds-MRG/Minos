@@ -94,7 +94,7 @@ class Mortality:
         # Add an event every simulation time_step increment to see if anyone dies.
         # Priority 0/10 so simulants make this transition first.
         # No point becoming depressed if you're dead.
-        builder.event.register_listener('time_step', self.on_time_step, priority=0)
+        builder.event.register_listener('time_step', self.on_time_step, priority=1)
 
 
     def on_initialize_simulants(self, pop_data):
