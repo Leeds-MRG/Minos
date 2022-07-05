@@ -26,6 +26,9 @@ data/*.csv
 # R transitions objects and coefficient files
 data/transitions/*coefficients.txt
 data/transitions/*.rds
+data/transitions/*/*/*.rds
+data/transitions/*/*.rds
+data/transitions/*/*coefficients.txt
 
 # build stuff
 build/
@@ -43,9 +46,6 @@ testing/
 testing/*
 # just for time being remove the tests (not in use currently)
 tests/
-
-# transition model objects have test data in them. need ignoring..
-/transitions/housing_clm/*.Rda
 
 # R project files have US data in them. need removing.
 .Rproj.user
