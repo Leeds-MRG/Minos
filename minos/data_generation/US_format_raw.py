@@ -460,14 +460,14 @@ if __name__ == "__main__":
     years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)
-    #parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
-    #parser.add_argument("-s", "--source_dir", required=True, type=str,
-    #                    help="The source directory for Understanding Society data.")
-    #args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
+    parser.add_argument("-s", "--source_dir", required=True, type=str,
+                        help="The source directory for Understanding Society data.")
+    args = parser.parse_args()
 
     # Get source from args
-    #source = args.source_dir
-    source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/"
+    source = args.source_dir
+    #source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/"
     output = "data/raw_US/"
 
     main(years, source, output)
