@@ -10,29 +10,9 @@ import yaml
 import logging
 import datetime
 
-from minos.VphSpenserPipeline.RunPipeline import RunPipeline
+from minos.minosPipeline.RunPipeline import RunPipeline
 
-
-def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=None, output_dir=None):
-    """
-    Given an basic input config file and data directory information configure the
-     vivarium public health spenser pipeline and run it.
-
-    Parameters
-    ----------
-    configuration_file : ConfigTree
-        Config yaml file of variables needed to run the pipeline.
-    input_data_dir: str
-        Path to the directory with input data.
-    persistent_data_dir: str
-        Path to the directory where the files persistently needed over the whole microsimulation run
-        such as rate/probability/demographic tables.
-    output_dir: str
-        Path to the directory where the output data should be saved.
-    """
-    
-    config = utils.get_config(configuration_file)
-
+def validate_directories(config, input_data_dir, persistent_data_dir, output_dir):
     # Check for input directory and add it the console.
     if input_data_dir:
         config.update({
@@ -67,7 +47,30 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
         except:
             raise RuntimeError('There is no output_dir information in the default '
                   'config file, please provide one with the --output_dir flag')
+    return input_data_dir, persistent_data_dir, output_dir
 
+def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=None, output_dir=None):
+    """
+    Given an basic input config file and data directory information configure the minos pipeline and run it.
+
+    Parameters
+    ----------
+    configuration_file : ConfigTree
+        Config yaml file of variables needed to run the pipeline.
+    input_data_dir: str
+        Path to the directory with input data.
+    persistent_data_dir: str
+        Path to the directory where the files persistently needed over the whole microsimulation run
+        such as rate/probability/demographic tables.
+    output_dir: str
+        Path to the directory where the output data should be saved.
+    """
+    
+    config = utils.get_config(configuration_file)
+    # Validate if data directories are supplied in args or in yaml config.
+    # TODO seems overly complicated. Could probably just put them in config.
+    input_data_dir, persistent_data_dir, output_dir = validate_directories(config, input_data_dir,
+                                                                           persistent_data_dir, output_dir)
     # Print initial pop size.
     year_start = config.time.start.year
     start_population_size = pd.read_csv(f"data/final_US/{year_start}_US_cohort.csv").shape[0]
@@ -75,7 +78,7 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
 
     # Output directory where all files from the run will be saved.
     # Join file name with the time to prevent overwriting.
-    run_output_dir = os.path.join(output_dir, str(datetime.datetime.now())[:19])
+    run_output_dir = os.path.join(output_dir, str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
     #run_output_dir = output_dir
 
     config.update({
@@ -96,19 +99,9 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
     # Run the microsimulation via runPipeline.
     simulation = RunPipeline(config, start_population_size, run_output_dir)
     # Grab the final simulant population.
-    pop = simulation.get_population()
+    #pop = simulation.get_population()
     print('Finished running the full simulation')
     # Save the output file to a csv.
-    simulant_data_filename = 'output_US_simulation.csv'
-    pop.to_csv(os.path.join(run_output_dir, simulant_data_filename))
-
-    # Print summary metrics on the simulation.
-    print('alive', len(pop[pop['alive'] == 'alive']))
-
-    if 'Mortality()' in config.components:
-        print('dead', len(pop[pop['alive'] == 'dead']))
-    if 'FertilityAgeSpecificRates()' in config.components:
-        print('New children', len(pop[pop['parent_id'] != -1]))
 
     return simulation
 
