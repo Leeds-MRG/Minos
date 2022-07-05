@@ -25,6 +25,7 @@ sheff_polys_tb <- as_tibble(sheff_polys_sf)
 print("data cleaned. plotting..")
 
 SF12.map <- ggplot(data = sheff_polys_tb, aes(geometry = geometry, fill=SF_12)) + 
-            geom_sf() +
-            scale_fill_viridis_c(alpha = .8) 
+  geom_sf() +
+  scale_fill_viridis_c(alpha = .8) + 
+  theme(aspect.ratio=9/16)
 SF12.map
