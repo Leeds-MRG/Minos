@@ -1,12 +1,14 @@
 # Collect command line args from Makefile
 args = commandArgs()
 # first 2 args are in positions 7 and 8 weirdly but still work
-dataDir <- paste0(args[7], '/composite_US/')
+dataDir <- paste0(args[7], '/final_US/')
 transitionDir <- args[8]
+transSourceDir <- args[9]
 
 # Load required packages
-require(stringr)
-require(readr)
+suppressPackageStartupMessages(require(stringr))
+suppressPackageStartupMessages(require(readr))
+suppressPackageStartupMessages(require(tidyverse))
 
 # Load input data (composite_US/)
 filelist <- list.files(dataDir)
@@ -22,9 +24,9 @@ estimate_transition_model <- function(data, formula) {
   return(model)
 }
 
-run_models <- function(transitionDir_path) {
+run_models <- function(transitionDir_path, transitionSourceDir_path) {
 
-  modDef_path = paste0(transitionDir_path, '/model_definitions.txt')
+  modDef_path = paste0(transitionSourceDir_path, '/model_definitions.txt')
 
   # Model Definitions
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
@@ -57,4 +59,72 @@ run_models <- function(transitionDir_path) {
   rm(modDefs)
 }
 
-run_models(transitionDir)
+#run_models(transitionDir, transSourceDir)
+
+
+estimate_yearly_ols_model <- function(data, formula) {
+
+  # Now fit the model
+  model <- lm(formula, data = data)
+
+  return(model)
+}
+
+
+run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data) {
+
+  #modDef_path = paste0(transitionDir, '/model_definitions.txt')
+  modDef_path = paste0(transitionSourceDir_path, '/model_definitions.txt')
+
+  # Model Definitions
+  modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
+
+  repeat{
+    def = readLines(modDefs, n = 1) # Read one line from the connection.
+    if(identical(def, character(0))){break} # If the line is empty, exit.
+
+    # Work out the dependent and independents from the formula from txt file
+    split <- str_split(def, pattern = " ~ ")[[1]]
+    dependent <- split[1]
+    independents <- split[2]
+
+    # formula
+    form <- as.formula(def)
+    # yearly model estimation
+    ## Need to construct dataframes for each year that have independents from time T and dependents from time T+1
+    year.range <- min(data$time):(max(data$time) - 1)
+    # set up list
+    model.list <- list()
+    # set up output directory
+    out.path <- paste0(transitionDir_path, '/', dependent)
+    if(!file.exists(out.path)) {
+        dir.create(path = out.path)
+    }
+    for(year in year.range) {
+      # independents from time T (current) with dependent removed
+      indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])
+      # dependent from T+1
+      depen.df <- data %>% filter(time == year + 1) %>% select(pidp, .data[[dependent]])
+      # smash them together
+      merged <- merge(depen.df, indep.df, by='pidp')
+      # Estimate model using this data
+      model <- estimate_yearly_ols_model(data = merged, formula = form)
+
+      # getting coefficients for checking and debugging
+      coefs <- as.data.frame(model$coefficients)
+      coefs <- data.frame(Variables=row.names(coefs), coefs)
+      rownames(coefs) <- NULL
+
+      # save model & coefficients to file (in their own folder)
+      write_csv(coefs, path = paste0(out.path, '/', dependent, '_', year, '_', year+1, '_coefficients.txt'))
+      saveRDS(model, file=paste0(out.path, '/', dependent, '_', year, '_', year+1, '.rds'))
+    }
+  }
+  # close and remove connection object from memory
+  close(modDefs)
+  rm(modDefs)
+}
+
+run_yearly_models(transitionDir, transSourceDir, data = data)
+
+print("Income models estimated and saved")
