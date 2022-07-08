@@ -143,3 +143,38 @@ def predict_next_timestep_SF12(model, current):
     #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     return newPandasPopDF[["SF_12"]]
+
+def predict_next_timestep_labour_nnet(model, current):
+    """Function for predicting next state using labour nnet models.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+    # import R packages
+    base = importr('base')
+    stats = importr('stats')
+    nnet = importr("nnet")
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+
+
+    prediction = stats.predict(model, currentRDF, type="probs")
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(prediction)
+
+    return pd.DataFrame(newPandasPopDF, columns = ["Employed",
+                                                   "Family Care",
+                                                   "Maternity Leave",
+                                                   "PT Employed",
+                                                   "Retired",
+                                                   "Self-employed",
+                                                   "Sick/Disabled",
+                                                   "Student",
+                                                   "Unemployed"])

@@ -163,6 +163,37 @@ def generate_composite_neighbourhood_safety(data):
 
     return data
 
+def generate_labour_composite(data):
+    """ Combine part/full time employment (emp_type) with labour state (labour_state)
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Before employment composite processing.
+    Returns
+    -------
+    data : pandas.DataFrame
+        Data with final labour_state and emp_type removed.
+    """
+
+    # grab anyone whop is Employed.
+
+    who_employed = data.loc[data["labour_state"]=="Employed"]
+    # there are around 14k missing values per year in emp_type.
+    # Most of these can probably be removed with LOCF imputation.
+    # Just ignoring anyone with missing emp_type value for now. Assume they're FT employed.
+
+    # Grab anyone with emp_type 2 (part time employed) and reassign their labour state.
+    who_parttime_employed = who_employed.loc[data["emp_type"] == 2].index
+    data.loc[who_parttime_employed, "labour_state"] = "PT Employed"
+    # Other and gov training are tiny classes (<50 per year) so just bin them into employed.
+    data["labour_state"] = data["labour_state"].replace(["Government Training", "Other"], "Employed")
+    # remove no longer needed variables.
+    data.drop(labels=['emp_type'],
+              axis=1,
+              inplace=True)
+    return data
+
 def main():
     # first collect and load the datafiles for every year
     years = np.arange(2009, 2020)
@@ -173,6 +204,7 @@ def main():
     data = generate_composite_housing_quality(data)     # housing_quality
     data = generate_hh_income(data)                     # hh_income
     data = generate_composite_neighbourhood_safety(data) # safety
+    data = generate_labour_composite(data)               # labour state
 
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

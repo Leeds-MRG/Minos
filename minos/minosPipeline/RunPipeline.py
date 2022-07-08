@@ -4,8 +4,6 @@ import logging
 import os
 from pathlib import Path
 
-import pandas as pd
-
 from vivarium import InteractiveContext
 
 import minos.utils as utils
@@ -13,11 +11,14 @@ import minos.utils as utils
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
-#from minos.modules.depression import Depression
-#from minos.modules.employment import Employment
 from minos.modules.housing import Housing
 from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
+from minos.modules.labour import Labour
+from minos.modules.intervention import hhIncomeIntervention
+
+# for viz.
+from minos.validation.minos_distribution_visualisation import *
 
 def RunPipeline(config, start_population_size, run_output_dir):
     """ Run the daedalus Microsimulation pipeline
@@ -42,6 +43,8 @@ def RunPipeline(config, start_population_size, run_output_dir):
     # Check each of the modules is present.
     #components = [eval(x) for x in config.components] # more adapative way but security issues.
     # last one in first one off. any module that requires another should be BELOW IT in this order.
+    if "Labour()" in config.components:
+        components.append(Labour())
     if "MWB()" in config.components:
         components.append(MWB())
     if "Housing()" in config.components:
@@ -52,6 +55,8 @@ def RunPipeline(config, start_population_size, run_output_dir):
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config.components:
         components.append(Mortality())
+    if "hhIncomeIntervention()" in config.components:
+        components.append(hhIncomeIntervention())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
 
@@ -84,21 +89,22 @@ def RunPipeline(config, start_population_size, run_output_dir):
 
     # Print start time for entire simulation.
     print('Start simulation setup')
-    utils.get_time()
+    start_time = utils.get_time()
+    print(start_time)
     logging.info('Start simulation setup')
-    logging.info(utils.get_time())
+    logging.info(start_time)
 
     # Run setup method for each module.
     simulation.setup()
 
     # Print time when modules are setup and the simulation starts.
     print('Start running simulation')
-    utils.get_time()
+    config_time = utils.get_time()
     logging.info(print('Start running simulation'))
-    logging.info(utils.get_time())
+    logging.info(config_time)
 
     # output files path
-    file_out_dir = os.path.join(config.output_dir, run_output_dir, 'AM_simulation')
+    file_out_dir = os.path.join(run_output_dir, 'simulation_data')
     os.makedirs(file_out_dir)
 
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
@@ -109,9 +115,9 @@ def RunPipeline(config, start_population_size, run_output_dir):
 
         # Print time when year finished running.
         print(f'Finished running simulation for year: {year}')
-        utils.get_time()
+        wave_time = utils.get_time()
         logging.info(print(f'Finished running simulation for year: {year}'))
-        logging.info(utils.get_time())
+        logging.info(wave_time)
 
         # get population dataframe.
         pop = simulation.get_population()
@@ -120,7 +126,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
         pop = utils.get_age_bucket(pop)
 
         # File name and save.
-        output_data_filename = 'AM_simulation_year_' + str(year) + '.csv'
+        output_data_filename = f'{config.time.start.year + year}.csv'
         pop.to_csv(os.path.join(file_out_dir, output_data_filename))
 
         print('In year: ', config.time.start.year + year)

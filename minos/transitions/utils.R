@@ -61,12 +61,12 @@ blue<- rgb(56/256,180/256,251/256,1.0)
 t_orange <- rgb(255/256, 91/256, 0, 0.25)
 orange <-rgb(255/256, 91/256, 0, 1.0)
 
-get_US_file_names <- function(source, years){
-  file_names = ls()
+get_US_file_names <- function(source, years, extension){
+  file_names = c()
   for(year in years){
     # loop over years and load in files.
     file_name <- concat(source, str(year))
-    file_name <- paste0(concat(file_name, "_US_cohort.csv"))
+    file_name <- paste0(concat(file_name, extension))
     file_names <- append(file_names, file_name)
   }
   return(file_names)

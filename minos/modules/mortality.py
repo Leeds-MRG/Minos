@@ -37,7 +37,7 @@ class Mortality:
         """
         # Define path to mortality rate data.
         config.update({
-            'path_to_mortality_file': "{}/{}".format(config.persistent_data_dir, config.mortality_file)
+            'path_to_mortality_file': f"{config.persistent_data_dir}/{config.mortality_file}"
         }, source=str(Path(__file__).resolve()))
 
         # Load in mortality rate table data and append it to the simulation object.
