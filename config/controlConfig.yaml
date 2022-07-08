@@ -28,7 +28,7 @@ ethnic_lookup: 'bhps_ethnic_lookup.csv'
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [Labour(), MWB(), Income(), Housing(), Fertility(), Mortality(), Replenishment()]
+components : [Labour(), MWB(), Income(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
 
 scale_rates:
     # methods:

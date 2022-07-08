@@ -4,8 +4,6 @@ import logging
 import os
 from pathlib import Path
 
-import pandas as pd
-
 from vivarium import InteractiveContext
 
 import minos.utils as utils
@@ -17,9 +15,10 @@ from minos.modules.housing import Housing
 from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
 from minos.modules.labour import Labour
+from minos.modules.intervention import hhIncomeIntervention
 
 # for viz.
-from plots.minos_distribution_visualisation import *
+from minos.validation.minos_distribution_visualisation import *
 
 def RunPipeline(config, start_population_size, run_output_dir):
     """ Run the daedalus Microsimulation pipeline
@@ -56,6 +55,8 @@ def RunPipeline(config, start_population_size, run_output_dir):
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config.components:
         components.append(Mortality())
+    if "hhIncomeIntervention()" in config.components:
+        components.append(hhIncomeIntervention())
     if "Replenishment()" in config.components:
         components.append(Replenishment())
 
@@ -125,7 +126,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
         pop = utils.get_age_bucket(pop)
 
         # File name and save.
-        output_data_filename = f'{year}.csv'
+        output_data_filename = f'{config.time.start.year + year}.csv'
         pop.to_csv(os.path.join(file_out_dir, output_data_filename))
 
         print('In year: ', config.time.start.year + year)
