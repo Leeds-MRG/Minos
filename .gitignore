@@ -26,6 +26,7 @@ data/*.csv
 # R transitions objects and coefficient files
 data/transitions/*coefficients.txt
 data/transitions/*.rds
+data/transitions/*/*/*.rds
 
 # build stuff
 build/
