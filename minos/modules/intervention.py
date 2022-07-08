@@ -77,11 +77,11 @@ class hhIncomeIntervention():
     def on_time_step(self, event):
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
-
+        # TODO probably a faster way to do this than resetting the whole column.
+        pop['hh_income'] -= (20 * pop["income_boosted"]) # reset boost if people move out of bottom decile.
         pop['income_deciles'] = pd.qcut(pop["hh_income"], 10, labels=False)
         pop['income_boosted'] = pop['income_deciles'] == 0
         pop['hh_income'] += (20 * pop["income_boosted"])
 
-        # TODO remove boost if people no longer in bottom decile. stops acceleration.
-        # TODO some kind of heterogeneity for people in the same household.
+        # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted']])
