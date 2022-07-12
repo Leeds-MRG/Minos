@@ -30,7 +30,10 @@ class hhIncomeIntervention():
                 E.g. rate tables.
         """
         # nothing done here yet. transition models specified by year later.
-        return simulation
+        self.uplift = config.uplift
+        self.prop = config.prop
+
+        return config, simulation
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -78,10 +81,10 @@ class hhIncomeIntervention():
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= (20 * pop["income_boosted"]) # reset boost if people move out of bottom decile.
-        pop['income_deciles'] = pd.qcut(pop["hh_income"], 10, labels=False)
+        pop['hh_income'] -= (self.uplift * pop["income_boosted"]) # reset boost if people move out of bottom decile.
+        pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         pop['income_boosted'] = pop['income_deciles'] == 0
-        pop['hh_income'] += (20 * pop["income_boosted"])
+        pop['hh_income'] += (self.uplift * pop["income_boosted"])
 
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted']])

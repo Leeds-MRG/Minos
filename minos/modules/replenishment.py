@@ -28,7 +28,7 @@ class Replenishment:
                 E.g. rate tables.
         """
         # load in the starting year. This is the first cohort that is loaded.
-        return simulation
+        return config, simulation
 
 
     def setup(self, builder):

@@ -35,7 +35,7 @@ class Income:
         #simulation._data.write('income_transition',
         #                       transition_model)
 
-        return simulation
+        return config, simulation
 
 
     def setup(self, builder):

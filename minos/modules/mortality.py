@@ -45,7 +45,7 @@ class Mortality:
         asfr_mortality.set_rate_table()
         simulation._data.write("cause.all_causes.cause_specific_mortality_rate",
                                asfr_mortality.rate_table)
-        return simulation
+        return config, simulation
 
 
     def setup(self, builder):

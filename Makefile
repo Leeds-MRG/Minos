@@ -20,7 +20,7 @@ SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_li
 
 # Executables
 PYTHON = python
-RSCRIPT = /usr/bin/Rscript
+RSCRIPT = Rscript
 
 # COLORS
 GREEN  := $(shell tput -Txterm setaf 2)

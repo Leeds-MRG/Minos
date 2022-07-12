@@ -1,0 +1,46 @@
+components:
+- Labour()
+- MWB()
+- Income()
+- Housing()
+- Fertility()
+- Mortality()
+- hhIncomeIntervention()
+- Replenishment()
+education_file: persistent_data/education_enrollment_rate_table.csv
+ethnic_lookup: bhps_ethnic_lookup.csv
+fertility_file: regional_Fertility2011_LEEDS1_2.csv
+input_data:
+  location: UK
+input_data_dir: b
+mortality_file: regional_Mortality2011_LEEDS1_2.csv
+output_data_dir: d
+persistent_data_dir: c
+population:
+  age_end: 100
+  age_start: 0
+  population_size: 39222
+randomness:
+  key_columns:
+  - entrance_time
+  - age
+replenishment_files_source: /home/docker/MINOS/UKDA-6614-stata/stata/stata13_se/
+run_output_dir: d/2022_07_11_19_13_49
+scale_rates:
+  constant:
+    education: 1
+    fertility: 1
+    mortality: 1
+  method: constant
+source: /Users/robertclay/minos/scripts/minos_parallel_run.py
+time:
+  end:
+    day: 15
+    month: 10
+    year: 2016
+  num_years: 5
+  start:
+    day: 15
+    month: 10
+    year: 2011
+  step_size: 365.25

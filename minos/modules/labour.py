@@ -36,7 +36,7 @@ class Labour:
                 E.g. rate tables.
         """
         # nothing done here yet. transition models specified by year later.
-        return simulation
+        return config, simulation
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
