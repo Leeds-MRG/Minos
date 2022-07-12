@@ -11,6 +11,7 @@ import datetime
 import sys
 import numpy as np
 import subprocess
+import itertools
 
 from vivarium import InteractiveContext
 
@@ -31,17 +32,21 @@ class Minos():
     def __init__(self, **kwargs):
         # specify yaml config and update with some list of required kwargs.
 
-        config_dir = kwargs["config_file"]
+        #config_dir = kwargs["config_file"]
+        print(sys.argv)
+        config_dir = sys.argv[1]
         with open(config_dir) as config_file:
             config = yaml.full_load(config_file)
 
-        config = self.validate_directories(config, "input_data_dir", kwargs["input_data_dir"])
-        config = self.validate_directories(config, "persistent_data_dir", kwargs["persistent_data_dir"])
-        config = self.validate_directories(config, "output_data_dir", kwargs["output_data_dir"])
+        config = self.validate_directories(config, "input_data_dir")
+        config = self.validate_directories(config, "persistent_data_dir")
+        config = self.validate_directories(config, "output_data_dir")
 
-        config['uplift'] = parameter_lists[int(sys.argv[2])-1][0]
-        config['prop'] = parameter_lists[int(sys.argv[2])-1][1]
-        config['run_id'] = parameter_lists[int(sys.argv[2])-1][2]
+        print(sys.argv)
+        parameter_lists = kwargs["parameter_lists"]
+        config['uplift'] = float(parameter_lists[int(sys.argv[2])-1][0])
+        config['prop'] = float(parameter_lists[int(sys.argv[2])-1][1])
+        config['run_id'] = int(parameter_lists[int(sys.argv[2])-1][2])
 
         # Print initial pop size.
         year_start = config['time']['start']['year']
@@ -53,23 +58,31 @@ class Minos():
         # Output directory where all files from the run will be saved.
         # Join file name with the time to prevent overwriting.
         run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
+
+        # Make output directory if it does not exist.
+        if not os.path.exists(run_output_dir):
+            os.makedirs(config['output_data_dir'], exist_ok=True)
+        os.makedirs(run_output_dir, exist_ok=True)
+
+
+        # Start logging. Really helpful in arc4 with limited traceback available.
+        logging.basicConfig(filename= os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
+        logging.info("pipeline start.")
         # run_output_dir = output_dir
 
         config['run_output_dir'] = run_output_dir
 
-        # Make output directory if it does not exist.
-        if not os.path.exists(config['run_output_dir']):
-            os.makedirs(config['output_data_dir'], exist_ok=True)
-        os.makedirs(config['run_output_dir'], exist_ok=True)
-
+        print("Printing config: ")
+        print(config)
         # Save the yaml file with the minimal amount of information needed to reproduce results in the output folder.
-        output_config_dir = os.path.join(run_output_dir, 'config_file_.yml')
+        output_config_dir = os.path.join(run_output_dir, 'config_file.yml')
         with open(output_config_dir, 'w') as config_file:
             yaml.dump(config, config_file)
             print("Write config file successful")
         logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
         components = self.initComponents(config)
+        print(config)
         config = utils.get_config(output_config_dir)
         print(config)
         simulation = InteractiveContext(components=components,
@@ -215,47 +228,31 @@ class Minos():
         return components
 
 if __name__ == "__main__":
-    test=False
-    if not test:
-        #    subprocess.run(['python3',
-        #                    'scripts/minos_parallel_run.py',
-        #                    'config/controlConfig.yaml',
-        #                    'data/final_US',
-        #                    'persistent_data',
-        #                    'output'])
-        #python3 scripts/minos_parallel_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
+    #python3 scripts/minos_parallel_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
+    # Parse arguments if running this file from a terminal.
+    #parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
 
-        # Start logging. Really helpful in arc4 with limited traceback available.
-        logging.basicConfig(filename="test.log", level=logging.INFO)
-        logging.info("pipeline start.")
+    #parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
+    #                    help="the model config file (YAML)")
+    #parser.add_argument('--location', help='LAD code', default=None)
+    #parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
+    #parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
+    #parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
+    #parser.add_argument("--task_id", type=int, metavar="config-file",
+    #                    help="the model config file (YAML)")
 
-        # Parse arguments if running this file from a terminal.
-        parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
-
-        parser.add_argument("-c", "--config_file", required=True, type=str, metavar="config-file",
-                            help="the model config file (YAML)")
-        #parser.add_argument('--location', help='LAD code', default=None)
-        parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
-        parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
-        parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
-
-
-        #TODO can this just be cast as a dict?
-        args = parser.parse_args()
-        input_kwargs = vars(args)
-    else:
-        input_kwargs = {'config_file': 'config/controlConfig.yaml',
-                        'input_data_dir': 'data/final_US',
-                        'persistent_data_dir': 'persistent_data',
-                        'output_data_dir': 'output'}
+    #TODO can this just be cast as a dict?
+    #args = parser.parse_args()
+    #input_kwargs = vars(args)
 
     uplift = [20]  # assimilation rates
     percentage_uplift = [10] #gaussian observation noise standard deviation
-    run_id = np.arange(0, 5, 1)  # 30 repeats for each combination of the above parameters
+    run_id = np.arange(1, 5+1, 1)  # 30 repeats for each combination of the above parameters
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
-    parameter_lists = zip([uplift, percentage_uplift, run_id])
+    input_kwargs = {}
+    parameter_lists = [item for item in itertools.product(*[uplift, percentage_uplift, run_id])]
     input_kwargs['parameter_lists'] = parameter_lists
 
     minos_run = Minos(**input_kwargs)

@@ -18,7 +18,9 @@ education_file: 'persistent_data/education_enrollment_rate_table.csv'
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
 ethnic_lookup: 'bhps_ethnic_lookup.csv'
-
+input_data_dir: 'data/final_US'
+persistent_data_dir: 'persistent_data'
+output_data_dir: 'output'
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.
@@ -40,7 +42,3 @@ scale_rates:
         education: 1
         mortality: 1
         fertility: 1
-
-input_data_dir: 'data/final_US',
-persistent_data_dir: 'persistent_data',
-output_data_dir: 'output'

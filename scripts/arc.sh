@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 # Set current working directory
 #$ -cwd
 # Use current environment variables and modules
