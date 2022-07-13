@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import seaborn as sns
+#import seaborn as sns
 
 def minos_hist(df, names, destination):
     """ Histogram of distribution of single variable at single point in time.
