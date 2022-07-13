@@ -42,10 +42,10 @@ output/*
 test.log
 
 # testing
-testing/
-testing/*
+#testing/
+#testing/*
 # just for time being remove the tests (not in use currently)
-tests/
+#tests/
 
 # R project files have US data in them. need removing.
 .Rproj.user
