@@ -55,7 +55,7 @@ SF12.map
 
 
 five_largest <- tail(sort(sheff_polys_minos_tb$SF12_diff), 5)
-five_largest_lsoas <- sheff_polys_minos_tb[which(sheff_polys_minos_tb$SF12_diff%in%five_largest)
+five_largest_lsoas <- sheff_polys_minos_tb[which(sheff_polys_minos_tb$SF12_diff%in%five_largest),]
 # most over estimated areas.
 # broomhill student area, greystones posh, northern general hospital ,woodhouse badger estate rough, direct city centre. 
                                            

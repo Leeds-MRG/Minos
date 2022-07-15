@@ -51,12 +51,10 @@ scp -r minos/data/transitions arc4.leeds.ac.uk:/nobackup/gyrc/minos/data/transit
 scp -r minos/data/final_US/ arc4.leeds.ac.uk:/nobackup/gyrc/minos/data/final_US/
 python setup.py install
 make install.
-conda install -c r r-essentials
-conda install -c r r-base
-conda install -c r r-stats
+
 conda install -c r r-ordinal
 conda install -c r r-nnet
-conda install -c r r-lme4
+conda install -c conda-forge r-base=4.0.5
 ```
 
 ## Running an Example Experiment in ARC4

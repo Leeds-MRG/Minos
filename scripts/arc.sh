@@ -18,4 +18,4 @@
 # args $1 and $2 are for script name and config path respectively.
 # example bash arc.sh scripts/minos_parallel_run.py config/arcConfig.yaml
 # no final ID here as its provided by the scheduler.
-python3 $1 $2 $SGE_TASK_ID
+python3 $1 $2 $3 $SGE_TASK_ID
