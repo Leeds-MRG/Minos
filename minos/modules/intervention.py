@@ -32,7 +32,7 @@ class hhIncomeIntervention():
         # nothing done here yet. transition models specified by year later.
         self.uplift = config.uplift
         self.prop = config.prop
-
+        print(self.uplift)
         return config, simulation
 
     def setup(self, builder):

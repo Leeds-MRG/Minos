@@ -58,12 +58,11 @@ class Minos():
         # Output directory where all files from the run will be saved.
         # Join file name with the time to prevent overwriting.
         #run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
-        run_output_dir =  os.path.join(config['output_data_dir'], "ex1")
-        i = 1
-
-        while os.path.isdir(run_output_dir + '_' + str(i) + f"/{config['uplift']}_{config['prop']}"):
-            i += 1
-        run_output_dir += '_' + str(i) + f"/{config['uplift']}_{config['prop']}"
+        run_output_dir = os.path.join(config['output_data_dir'], "ex1")
+        #i = 1
+        #while os.path.isdir(run_output_dir + '_' + str(i) + f"/{config['uplift']}_{config['prop']}_{config['run_id']}"):
+        #    i += 1
+        #run_output_dir += '_' + str(i) + f"/{config['uplift']}_{config['prop']}_{config['run_id']}"
         print(run_output_dir)
         # Make output directory if it does not exist.
         if not os.path.exists(run_output_dir):
@@ -156,8 +155,9 @@ class Minos():
             pop = utils.get_age_bucket(pop)
 
             # File name and save.
-            output_data_filename = f'{config.run_id}_{config.time.start.year + year}.csv'
+            output_data_filename = f"{config.uplift}_{config.prop}_{config.run_id}_{config.time.start.year + year}.csv"
             output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+            print(output_file_path, config.run_output_dir, output_data_filename)
             pop.to_csv(output_file_path)
             print("Saved data to: ", output_file_path)
             print('In year: ', config.time.start.year + year)
