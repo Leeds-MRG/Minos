@@ -30,7 +30,7 @@ output_data_dir: 'output'
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [Labour(), MWB(), Income(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
+components : [Labour(), MWB(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
 
 scale_rates:
     # methods:

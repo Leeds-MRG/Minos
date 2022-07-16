@@ -40,15 +40,15 @@ print("data cleaned. plotting..")
 
 c.min <- min(sheff_polys_minos_tb$SF12_diff)
 c.max <- max(sheff_polys_minos_tb$SF12_diff)
-  
+
 SF12.map <- ggplot(data = sheff_polys_minos_tb, aes(geometry = geometry, fill=SF12_diff)) + 
   geom_sf() +
   #scale_fill_viridis_c(alpha = .8) + 
   scale_fill_distiller(palette = "PuOr", limits=c(-c.max,c.max)) + 
   #scale_fill_stepsn(colors=c('#0000FF','#FFFFFF','#ff0000'), 
   #                  n.breaks=20, limits=c(-c.max, c.max),) + 
-  theme(aspect.ratio=9/16) +
-  ggtitle("Difference in SF12 spatial distribution for real US data and minos in Sheffield.") +
+  labs(fill='NEW LEGEND TITLE')   theme(aspect.ratio=9/16) +
+  ggtitle("Difference in SF12 spatial distribution for minos vs real US data in Sheffield.") +
   xlab("Longitude") +
   ylab("Latitude")
 SF12.map

@@ -1,6 +1,7 @@
 """Module for applying any interventions to the base population from replenishment."""
 
 import pandas as pd
+import numpy as np
 
 class hhIncomeIntervention():
 
@@ -80,11 +81,13 @@ class hhIncomeIntervention():
     def on_time_step(self, event):
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        print(np.mean(pop['hh_income']))
         # TODO probably a faster way to do this than resetting the whole column.
         pop['hh_income'] -= (self.uplift * pop["income_boosted"]) # reset boost if people move out of bottom decile.
-        pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
-        pop['income_boosted'] = pop['income_deciles'] == 0
+        #pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
+        who_uplifted = pop['hh_income'] <= pop['hh_income'].quantile(self.prop/100)
+        pop['income_boosted'] = who_uplifted
         pop['hh_income'] += (self.uplift * pop["income_boosted"])
-
+        print(np.mean(pop['hh_income']))
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted']])

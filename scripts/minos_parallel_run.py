@@ -29,24 +29,34 @@ from minos.modules.intervention import hhIncomeIntervention
 
 class Minos():
 
-    def __init__(self, **kwargs):
+    def __init__(self, test=False, **kwargs):
         # specify yaml config and update with some list of required kwargs.
 
         #config_dir = kwargs["config_file"]
         print(sys.argv)
-        config_dir = sys.argv[1]
-        with open(config_dir) as config_file:
-            config = yaml.full_load(config_file)
+        if not test:
+            # if running on hpc use argv arguments to get parameters.
+            # if debugging/testing use a preset list of simple parameters.
+            config_dir = sys.argv[1]
+            with open(config_dir) as config_file:
+                config = yaml.full_load(config_file)
 
-        config = self.validate_directories(config, "input_data_dir")
-        config = self.validate_directories(config, "persistent_data_dir")
-        config = self.validate_directories(config, "output_data_dir")
+            config = self.validate_directories(config, "input_data_dir")
+            config = self.validate_directories(config, "persistent_data_dir")
+            config = self.validate_directories(config, "output_data_dir")
 
-        print(sys.argv)
-        parameter_lists = kwargs["parameter_lists"]
-        config['uplift'] = float(parameter_lists[int(sys.argv[2])-1][0])
-        config['prop'] = float(parameter_lists[int(sys.argv[2])-1][1])
-        config['run_id'] = int(parameter_lists[int(sys.argv[2])-1][2])
+            print(sys.argv)
+            parameter_lists = kwargs["parameter_lists"]
+            config['uplift'] = float(parameter_lists[int(sys.argv[2])-1][0])
+            config['prop'] = float(parameter_lists[int(sys.argv[2])-1][1])
+            config['run_id'] = int(parameter_lists[int(sys.argv[2])-1][2])
+        else:
+            config_dir = 'config/arcConfig.yaml'
+            with open(config_dir) as config_file:
+                config = yaml.full_load(config_file)
+            config['uplift'] = 100
+            config['prop'] = 25
+            config['run_id'] = 1
 
         # Print initial pop size.
         year_start = config['time']['start']['year']
@@ -252,9 +262,9 @@ if __name__ == "__main__":
     #args = parser.parse_args()
     #input_kwargs = vars(args)
 
-    uplift = [0, 100, 200]  # assimilation rates
-    percentage_uplift = [10, 25] #gaussian observation noise standard deviation
-    run_id = np.arange(1, 5+1, 1)  # 30 repeats for each combination of the above parameters
+    uplift = [0, 1000, 10000]  # assimilation rates
+    percentage_uplift = [10, 25, 75] #gaussian observation noise standard deviation
+    run_id = np.arange(1, 50+1, 1)  # 30 repeats for each combination of the above parameters
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
