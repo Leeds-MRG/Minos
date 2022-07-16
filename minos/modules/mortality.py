@@ -45,6 +45,9 @@ class Mortality:
         asfr_mortality.set_rate_table()
         simulation._data.write("cause.all_causes.cause_specific_mortality_rate",
                                asfr_mortality.rate_table)
+        self.uplift = config.uplift
+        self.prop = config.prop
+        self.run_id = config.run_id
         return config, simulation
 
 
@@ -80,7 +83,7 @@ class Mortality:
         self.life_expectancy = builder.lookup.build_table(life_expectancy_data, parameter_columns=['age'])
 
         # Assign mortality a common random number stream.
-        self.random = builder.randomness.get_stream('mortality_handler')
+        self.random = builder.randomness.get_stream(f'mortality_handler_{self.uplift}_{self.prop}_{self.run_id}')
 
         # Which columns are created by this module in on_initialize_simulants.
         columns_created = ['cause_of_death', 'years_of_life_lost']

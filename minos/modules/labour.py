@@ -36,6 +36,9 @@ class Labour:
                 E.g. rate tables.
         """
         # nothing done here yet. transition models specified by year later.
+        self.uplift = config.uplift
+        self.prop = config.prop
+        self.run_id = config.run_id
         return config, simulation
 
     def setup(self, builder):
@@ -62,7 +65,7 @@ class Labour:
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("labour")
+        self.random = builder.randomness.get_stream(f"labour_{self.uplift}_{self.prop}_{self.run_id}")
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for

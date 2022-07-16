@@ -41,7 +41,7 @@ sf12.main <- function(years){
                     factor(education_state) + 
                     factor(labour_state) + 
                     factor(job_sec) +
-                    scale(hh_income) + SF_12"
+                    scale(hh_income) + SF_12 + factor(housing_quality)"
     sf12.lm <- lm(formula, 
                   data= data)
     sf12.file.name <- get.sf12.file.name("data/transitions/mwb/ols/", year, year+1)

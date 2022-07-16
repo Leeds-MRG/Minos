@@ -49,6 +49,8 @@ pip install imageio-ffmpeg
 ```
 scp -r minos/data/transitions arc4.leeds.ac.uk:/nobackup/gyrc/minos/data/transitions
 scp -r minos/data/final_US/ arc4.leeds.ac.uk:/nobackup/gyrc/minos/data/final_US/
+scp -r minos/data/transitions arc4.leeds.ac.uk:/nobackup/gyrc/minos/data/transitions
+scp -r arc4.leeds.ac.uk:/nobackup/gyrc/minos/output/ex1/ minos/output/ex1/
 python setup.py install
 make install.
 
