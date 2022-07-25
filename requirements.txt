@@ -10,3 +10,4 @@ matplotlib
 vivarium~=0.10.12
 distutils_pytest
 striprtf
+geojson

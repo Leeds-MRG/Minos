@@ -32,7 +32,7 @@ def get_SF12_mean(file_names, year, *params):
 
 def main(year, test=False):
     uplift = [0.0, 1000.0, 10000.0]  # assimilation rates
-    percentage_uplift = [25.0, 25.0, 75.0] #gaussian observation noise standard deviation
+    percentage_uplift = [25.0, 50.0, 75.0] #gaussian observation noise standard deviation
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.

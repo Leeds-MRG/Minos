@@ -46,6 +46,31 @@ help: ### Show this help
 	@echo
 	@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
 
+# ARC4 install instructions
+# https://arcdocs.leeds.ac.uk/getting_started/logon.html
+# When logged in to arc4. need to create user directory
+# mkdir /nobackup/<USERNAME>
+# Move to this directory
+# cd /nobackup/<USERNAME>
+# Clone minos git in. (contains this makefile)
+# git clone https://github.com/Leeds-MRG/Minos
+# Should be able to run conda and install commands if needed.
+
+## Conda install (if needed)
+###
+.PHONY: conda
+
+conda:
+	＠echo "Loading arc4 python module to use conda commands."
+	module load python anaconda
+	@echo "Initiating conda environment. "
+	conda create -p conda_minos python=3.8
+	@ "Minimal R 4.0.5 install in conda environment."
+	conda install -c conda-forge r-base=4.0.5
+	@echo "Activating conda environment"
+	source activate conda_minos
+	@echo "conda install complete!"
+
 ## Install
 ###
 .PHONY: install
@@ -55,6 +80,9 @@ install: ### Install all Minos requirements via pip
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
 	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
+	@echo "python install complete."
+	@echo "installing R requirements"
+	Rscript install.R # install any R packages. Annoying to do in conda.
 	@echo "\nInstall complete!\n"
 
 
