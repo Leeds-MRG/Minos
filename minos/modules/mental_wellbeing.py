@@ -39,7 +39,7 @@ class MWB:
         """
 
         # Nothing here yet..
-        return config, simulation
+        return simulation
 
 
     def setup(self, builder):

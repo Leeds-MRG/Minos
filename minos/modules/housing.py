@@ -36,7 +36,7 @@ class Housing:
                 E.g. rate tables.
         """
         # nothing done here yet. transition models specified by year later.
-        return config, simulation
+        return simulation
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

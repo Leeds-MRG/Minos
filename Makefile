@@ -79,6 +79,7 @@ install: ### Install all Minos requirements via pip
 	@echo "Installing requirements via pip"
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
+	# New pandas version no longer needs to raise a key error.
 	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
 	@echo "python install complete."
 	@echo "installing R requirements"
@@ -90,7 +91,7 @@ install: ### Install all Minos requirements via pip
 ###
 .PHONY: testRun
 
-testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
+#testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
 testRun: data transitions
 	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 

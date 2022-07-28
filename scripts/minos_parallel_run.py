@@ -29,36 +29,20 @@ from minos.modules.intervention import hhIncomeIntervention
 
 class Minos():
 
-    def __init__(self, test=False, **kwargs):
+    def __init__(self, config_dir, **kwargs):
         # specify yaml config and update with some list of required kwargs.
 
         #config_dir = kwargs["config_file"]
-        print(sys.argv)
-        if not test:
             # if running on hpc use argv arguments to get parameters.
             # if debugging/testing use a preset list of simple parameters.
-            config_dir = sys.argv[1]
-            with open(config_dir) as config_file:
-                config = yaml.full_load(config_file)
+        with open(config_dir) as config_file:
+            config = yaml.full_load(config_file)
 
-            config = self.validate_directories(config, "input_data_dir")
-            config = self.validate_directories(config, "persistent_data_dir")
-            config = self.validate_directories(config, "output_data_dir")
+        config = self.validate_directories(config, "input_data_dir")
+        config = self.validate_directories(config, "persistent_data_dir")
+        config = self.validate_directories(config, "output_data_dir")
 
-            print(sys.argv)
-            parameter_lists = kwargs["parameter_lists"]
-            config['uplift'] = float(parameter_lists[int(sys.argv[2])-1][0])
-            config['prop'] = float(parameter_lists[int(sys.argv[2])-1][1])
-            config['run_id'] = int(parameter_lists[int(sys.argv[2])-1][2])
-        else:
-            config_dir = 'config/arcConfig.yaml'
-            with open(config_dir) as config_file:
-                config = yaml.full_load(config_file)
-            config['uplift'] = 100
-            config['prop'] = 25
-            config['run_id'] = 1
-
-        # Print initial pop size.
+        # Vivarium needs an initial population size. Define it as the first cohort of US data.
         year_start = config['time']['start']['year']
         start_population_size = pd.read_csv(f"data/final_US/{year_start}_US_cohort.csv").shape[0]
         # Start population size added to config.
@@ -66,16 +50,14 @@ class Minos():
         print(f'Start Population Size: {start_population_size}')
 
         # Output directory where all files from the run will be saved.
-        # Join file name with the time to prevent overwriting.
+        # Add date and time to output file name to make it unique. Prevents overwriting repeat model runs.
         #run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
-        run_output_dir = os.path.join(config['output_data_dir'], "ex1")
-        #i = 1
-        #while os.path.isdir(run_output_dir + '_' + str(i) + f"/{config['uplift']}_{config['prop']}_{config['run_id']}"):
-        #    i += 1
-        #run_output_dir += '_' + str(i) + f"/{config['uplift']}_{config['prop']}_{config['run_id']}"
-        print(run_output_dir)
+        # Or just assign them to some experiment folder.
+        run_output_dir = os.path.join(config['output_data_dir'], config['output_destination'])
+
         # Make output directory if it does not exist.
         if not os.path.exists(run_output_dir):
+            print("Specified ")
             os.makedirs(config['output_data_dir'], exist_ok=True)
         os.makedirs(run_output_dir, exist_ok=True)
 
@@ -121,7 +103,7 @@ class Minos():
         # Adds in any required data and config items.
         for component in components:
             print(f"Presetup done for: {component}")
-            config, simulation = component.pre_setup(config, simulation)
+            simulation = component.pre_setup(config, simulation)
 
         # save final config
         with open(os.path.join(run_output_dir, 'final_config_file_.yml'), 'w') as final_config_file:
@@ -262,9 +244,9 @@ if __name__ == "__main__":
     #args = parser.parse_args()
     #input_kwargs = vars(args)
 
-    uplift = [0, 1000, 10000]  # assimilation rates
-    percentage_uplift = [10, 25, 75] #gaussian observation noise standard deviation
-    run_id = np.arange(1, 50+1, 1)  # 30 repeats for each combination of the above parameters
+    uplift = [0, 1000, 10000]  # uplift amount
+    percentage_uplift = [10, 25, 75] # uplift proportion.
+    run_id = np.arange(1, 50+1, 1)  # 50 repeats for each combination of the above parameters
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
