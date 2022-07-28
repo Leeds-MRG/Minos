@@ -44,7 +44,7 @@ class Mortality:
         # Load in mortality rate table data and append it to the simulation object.
         asfr_mortality = MortalityRateTable(configuration=config)
         asfr_mortality.set_rate_table()
-        print(simulation)
+
         simulation._data.write("cause.all_causes.cause_specific_mortality_rate",
                                asfr_mortality.rate_table)
         return simulation
