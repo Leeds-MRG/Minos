@@ -15,7 +15,6 @@ import itertools
 
 from vivarium import InteractiveContext
 
-from minos.minosPipeline.RunPipeline import RunPipeline
 from minos import utils
 
 from minos.modules.mortality import Mortality
@@ -29,7 +28,7 @@ from minos.modules.intervention import hhIncomeIntervention
 
 class Minos():
 
-    def __init__(self, config_dir, **kwargs):
+    def __init__(self, config_dir):
         # specify yaml config and update with some list of required kwargs.
 
         #config_dir = kwargs["config_file"]
@@ -54,7 +53,6 @@ class Minos():
         #run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
         # Or just assign them to some experiment folder.
         run_output_dir = os.path.join(config['output_data_dir'], config['output_destination'])
-
         # Make output directory if it does not exist.
         if not os.path.exists(run_output_dir):
             print("Specified ")
@@ -105,8 +103,12 @@ class Minos():
             print(f"Presetup done for: {component}")
             simulation = component.pre_setup(config, simulation)
 
-        # save final config
-        with open(os.path.join(run_output_dir, 'final_config_file_.yml'), 'w') as final_config_file:
+        # Save final config. If there are multiple runs save multiple configs each with a run id.
+        config_output_dir = os.path.join(run_output_dir, 'final_config_file.yml')
+        if 'run_id' in config.keys():
+            config_output_dir += "_" + str(config['task_id'])
+
+        with open(config_output_dir, 'w') as final_config_file:
             yaml.dump(config.to_dict(), final_config_file)
             print("Write final config file successful")
         logging.info("Final YAML config file written before vivarium simulation object is declared.")
@@ -147,9 +149,15 @@ class Minos():
             pop = utils.get_age_bucket(pop)
 
             # File name and save.
-            output_data_filename = f"{config.uplift}_{config.prop}_{config.run_id}_{config.time.start.year + year}.csv"
+            print(config.experiment_parameters)
+            params = config.experiment_parameters
+            names = config.experiment_parameters_names
+            output_data_filename = ""
+            for i in range(len(params)):
+                output_data_filename += names[i] + "_"
+                output_data_filename += str(params[i]) + "_"
+            output_data_filename += f"{config.time.start.year + year}.csv"
             output_file_path = os.path.join(config.run_output_dir, output_data_filename)
-            print(output_file_path, config.run_output_dir, output_data_filename)
             pop.to_csv(output_file_path)
             print("Saved data to: ", output_file_path)
             print('In year: ', config.time.start.year + year)
@@ -189,6 +197,7 @@ class Minos():
         -------
 
         """
+
         """Check if file name is already in the config dictionary keys.
         If its not in the keys try adding it in.
         If no dir specified to add in return an error. The user has specified no dir value."""
@@ -229,32 +238,27 @@ class Minos():
 if __name__ == "__main__":
     #python3 scripts/minos_parallel_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
     # Parse arguments if running this file from a terminal.
-    #parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
 
-    #parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
-    #                    help="the model config file (YAML)")
+    parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
+                        help="the model config file (YAML)")
     #parser.add_argument('--location', help='LAD code', default=None)
     #parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
     #parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
     #parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
-    #parser.add_argument("--task_id", type=int, metavar="config-file",
-    #                    help="the model config file (YAML)")
+    parser.add_argument("--run_id", type=int, metavar="config-file",
+                        help="the model config file (YAML)")
 
-    #TODO can this just be cast as a dict?
-    #args = parser.parse_args()
-    #input_kwargs = vars(args)
+    args = vars(parser.parse_args())
+    #input_kwargs = vars(args) # cast args as a dict.
 
-    uplift = [0, 1000, 10000]  # uplift amount
-    percentage_uplift = [10, 25, 75] # uplift proportion.
-    run_id = np.arange(1, 50+1, 1)  # 50 repeats for each combination of the above parameters
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
-    input_kwargs = {}
-    parameter_lists = [item for item in itertools.product(*[uplift, percentage_uplift, run_id])]
-    input_kwargs['parameter_lists'] = parameter_lists
-
-    minos_run = Minos(**input_kwargs)
+    #input_kwargs['parameter_lists'] = parameter_lists
+    print(args)
+    config_file = args['config_file']
+    minos_run = Minos(config_file)
     minos_run.main()
 
 
