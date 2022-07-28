@@ -1,6 +1,10 @@
 """Module for applying any interventions to the base population from replenishment."""
+import itertools
+import sys
 
 import pandas as pd
+import numpy as np
+from pathlib import Path
 
 class hhIncomeIntervention():
 
@@ -30,6 +34,25 @@ class hhIncomeIntervention():
                 E.g. rate tables.
         """
         # nothing done here yet. transition models specified by year later.
+        print("print sys argv")
+        print(sys.argv)
+        uplift = [0, 1000, 10000]  # uplift amount
+        percentage_uplift = [10, 25, 75] # uplift proportion.
+        run_id = np.arange(1, 50+1, 1)  # 50 repeats for each combination of the above parameters
+        parameter_lists = list(itertools.product(*[uplift, percentage_uplift, run_id]))
+        if 'run_id' in config.keys():
+            # Pick a set of parameters according to task_id arg from minos_parallel_run.py.
+            run_id = int(sys.argv[4])-1
+        else:
+            # If no task id specified (you should) choose the first task as a test.
+            run_id = 0
+        parameters = parameter_lists[run_id]
+        config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
+        config.update({'experiment_parameters_names': ['uplift', 'prop', 'id']}, source=str(Path(__file__).resolve()))
+
+        self.uplift = parameters[0]
+        self.prop = parameters[1]
+
         return simulation
 
     def setup(self, builder):
@@ -76,12 +99,15 @@ class hhIncomeIntervention():
 
     def on_time_step(self, event):
 
-        pop = self.population_view.get(event.index, query="alive =='alive'")
-        # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= (20 * pop["income_boosted"]) # reset boost if people move out of bottom decile.
-        pop['income_deciles'] = pd.qcut(pop["hh_income"], 10, labels=False)
-        pop['income_boosted'] = pop['income_deciles'] == 0
-        pop['hh_income'] += (20 * pop["income_boosted"])
 
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        print(np.mean(pop['hh_income']))
+        # TODO probably a faster way to do this than resetting the whole column.
+        pop['hh_income'] -= (self.uplift * pop["income_boosted"]) # reset boost if people move out of bottom decile.
+        #pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
+        who_uplifted = pop['hh_income'] <= pop['hh_income'].quantile(self.prop/100)
+        pop['income_boosted'] = who_uplifted
+        pop['hh_income'] += (self.uplift * pop["income_boosted"])
+        print(np.mean(pop['hh_income']))
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted']])

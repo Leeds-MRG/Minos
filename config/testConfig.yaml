@@ -14,10 +14,12 @@ population:
 replenishment_files_source:
       "/home/docker/MINOS/UKDA-6614-stata/stata/stata13_se/"
 
-education_file: 'persistent_data/education_enrollment_rate_table.csv'
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-ethnic_lookup: 'bhps_ethnic_lookup.csv'
+#input_data_dir: "data"
+#persistent_data_dir: "persistent_data"
+#output_data_dir: "output"
+output_destination: 'test' # Further specify the output data is saved to. E.g. running multiple models may need separate folders to prevent overwriting.
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.

@@ -3,9 +3,9 @@ require(nnet)
 
 get.labour.files <- function(source, year1, year2){
   # get files for year 1 and year 2 respectively.
-  file_name <- get_US_file_names(source, year1)[3]
+  file_name <- get_US_file_names(source, year1, "_US_Cohort.csv")
   data <- get_US_data(file_name)
-  file_name2 <- get_US_file_names(source, year2)[3]
+  file_name2 <- get_US_file_names(source, year2, "_US_cohort.csv")
   data2 <- get_US_data(file_name2)
   data_files <- list("data1" = data, "data2" = data2)
   return(data_files)

@@ -20,7 +20,7 @@ SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_li
 
 # Executables
 PYTHON = python
-RSCRIPT = /usr/bin/Rscript
+RSCRIPT = Rscript
 
 # COLORS
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -46,6 +46,31 @@ help: ### Show this help
 	@echo
 	@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
 
+# ARC4 install instructions
+# https://arcdocs.leeds.ac.uk/getting_started/logon.html
+# When logged in to arc4. need to create user directory
+# mkdir /nobackup/<USERNAME>
+# Move to this directory
+# cd /nobackup/<USERNAME>
+# Clone minos git in. (contains this makefile)
+# git clone https://github.com/Leeds-MRG/Minos
+# Should be able to run conda and install commands if needed.
+
+## Conda install (if needed)
+###
+.PHONY: conda
+
+conda:
+	＠echo "Loading arc4 python module to use conda commands."
+	module load python anaconda
+	@echo "Initiating conda environment. "
+	conda create -p conda_minos python=3.8
+	@ "Minimal R 4.0.5 install in conda environment."
+	conda install -c conda-forge r-base=4.0.5
+	@echo "Activating conda environment"
+	source activate conda_minos
+	@echo "conda install complete!"
+
 ## Install
 ###
 .PHONY: install
@@ -54,7 +79,11 @@ install: ### Install all Minos requirements via pip
 	@echo "Installing requirements via pip"
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
+	# New pandas version no longer needs to raise a key error.
 	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
+	@echo "python install complete."
+	@echo "installing R requirements"
+	Rscript install.R # install any R packages. Annoying to do in conda.
 	@echo "\nInstall complete!\n"
 
 
@@ -62,7 +91,7 @@ install: ### Install all Minos requirements via pip
 ###
 .PHONY: testRun
 
-testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
+#testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
 testRun: data transitions
 	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 

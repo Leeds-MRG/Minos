@@ -8,6 +8,7 @@ This module contains tools modeling all cause mortality.
 """
 import pandas as pd
 from pathlib import Path
+import random
 
 # Required rate conversion and rate table creation functions.
 from vivarium.framework.utilities import rate_to_probability
@@ -43,6 +44,7 @@ class Mortality:
         # Load in mortality rate table data and append it to the simulation object.
         asfr_mortality = MortalityRateTable(configuration=config)
         asfr_mortality.set_rate_table()
+
         simulation._data.write("cause.all_causes.cause_specific_mortality_rate",
                                asfr_mortality.rate_table)
         return simulation
@@ -79,8 +81,10 @@ class Mortality:
         life_expectancy_data = 81.16  # based on data
         self.life_expectancy = builder.lookup.build_table(life_expectancy_data, parameter_columns=['age'])
 
-        # Assign mortality a common random number stream.
-        self.random = builder.randomness.get_stream('mortality_handler')
+        # Assign mortality a common random number stream (seeded).
+        #self.random = builder.randomness.get_stream(f'mortality_handler')
+        # Assign a random mortality CRN stream (unseeded).
+        self.random = builder.randomness.get_stream(f'mortality_handler_{random.randint(0, 2**32-1)}')
 
         # Which columns are created by this module in on_initialize_simulants.
         columns_created = ['cause_of_death', 'years_of_life_lost']
