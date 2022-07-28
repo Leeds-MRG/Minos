@@ -55,3 +55,7 @@ Minos.Rproj
 
 # Plots and stuff
 plots/
+
+
+# Chris' data
+persistent_data/ADULT*.csv
