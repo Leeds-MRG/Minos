@@ -119,7 +119,7 @@ final_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(CO
 ###
 
 transitions: ### Run R scripts to generate transition models for each module
-transitions: final_data $(TRANSITIONS)/hh_income/hh_income_2018_2019.rds $(TRANSITIONS)/housing/clm/housing_clm_2018_2019.rds $(TRANSITIONS)/mwb/ols/sf12_2018_2019.rds
+transitions: final_data $(TRANSITIONS)/hh_income/hh_income_2018_2019.rds $(TRANSITIONS)/housing/clm/housing_clm_2018_2019.rds $(TRANSITIONS)/mwb/ols/sf12_2018_2019.rds $(TRANSITIONS)/labour/nnet/labour_nnet_2018_2019.rds
 
 # Input Populations
 
@@ -138,7 +138,7 @@ $(FINALDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missi
 # Transitions
 
 $(TRANSITIONS)/hh_income/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/estimate_transition_models.r
-	# Script needs 3 arguments (which are set as Makefile variables above, change there not here):
+	# Script needs 3 arguments (which are set as Makefile variables, change there not here):
 	# 1 - Minos root directory (i.e. $(ROOT))
 	# 2 - Input data directory (i.e. data/composite or $(DATADIR))
 	# 3 - Transition model directory (data/transitions or $(TRANSITIONS))
@@ -150,15 +150,18 @@ $(TRANSITIONS)/housing/clm/housing_clm_2018_2019.rds: $(FINALDATA)/2019_US_cohor
 $(TRANSITIONS)/mwb/ols/sf12_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/mwb/SF12_OLS.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/mwb/SF12_OLS.R
 
+$(TRANSITIONS)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/labour/labour_nnet.R
+	$(RSCRIPT) $(SOURCEDIR)/transitions/labour/labour_nnet.R
+
 ###
 ## Cleaning
 .PHONY: clean clean_out clean_logs clean_data clean_all
 
-clean: ### Remove output and log files
-clean: clean_out clean_logs
-
 clean_all: ### Remove output, log files, generated data files and transition models
 clean_all: clean clean_data clean_transitions
+
+clean: ### Remove output and log files
+clean: clean_out clean_logs
 
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
