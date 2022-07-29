@@ -44,7 +44,12 @@ sf12.main <- function(years){
                     scale(hh_income) + SF_12 + factor(housing_quality)"
     sf12.lm <- lm(formula, 
                   data= data)
-    sf12.file.name <- get.sf12.file.name("data/transitions/mwb/ols/", year, year+1)
+
+    out.path <- "data/transitions/mwb/ols/"
+    create.if.not.exists("data/transitions/mwb/")
+    create.if.not.exists(out.path)
+
+    sf12.file.name <- get.sf12.file.name(out.path, year, year+1)
     saveRDS(sf12.lm, file=sf12.file.name)
     print("Saved to:")
     print(sf12.file.name)

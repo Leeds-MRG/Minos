@@ -91,7 +91,12 @@ clm.housing.main <- function(years){
                        Hess=T)
     prs<- 1 - logLik(clm.housing)/logLik(clm(y ~ 1, data=data))
     print(prs)
-    clm.file.name <- get.clm.file.name("data/transitions/housing/clm/", year, year+1)
+
+    out.path <- "data/transitions/housing/clm/"
+    create.if.not.exists("data/transitions/housing/")
+    create.if.not.exists(out.path)
+
+    clm.file.name <- get.clm.file.name(out.path, year, year+1)
     saveRDS(clm.housing, file=clm.file.name)
     print("Saved to:")
     print(clm.file.name)

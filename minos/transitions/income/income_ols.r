@@ -1,3 +1,5 @@
+source("minos/transitions/utils.R")
+
 # Collect command line args from Makefile
 args = commandArgs()
 # first 2 args are in positions 7 and 8 weirdly but still work
@@ -97,9 +99,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     model.list <- list()
     # set up output directory
     out.path <- paste0(transitionDir_path, '/', dependent)
-    if(!file.exists(out.path)) {
-        dir.create(path = out.path)
-    }
+    create.if.not.exists(out.path)
     for(year in year.range) {
       # independents from time T (current) with dependent removed
       indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])

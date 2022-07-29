@@ -52,7 +52,12 @@ labour.nnet.main <- function(years){
                         alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                    ,data = data, MaxNWts = 10000, maxit=10000)
     m1
-    nnet.file.name <- get.nnet.file.name("data/transitions/labour/nnet/", year, year+1)
+
+    out.path <- "data/transitions/labour/nnet/"
+    create.if.not.exists("data/transitions/labour/")
+    create.if.not.exists(out.path)
+
+    nnet.file.name <- get.nnet.file.name(out.path, year, year+1)
     saveRDS(m1, file=nnet.file.name)
     print("Saved to:")
     print(nnet.file.name)

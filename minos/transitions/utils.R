@@ -61,6 +61,12 @@ blue<- rgb(56/256,180/256,251/256,1.0)
 t_orange <- rgb(255/256, 91/256, 0, 0.25)
 orange <-rgb(255/256, 91/256, 0, 1.0)
 
+create.if.not.exists <- function(path) {
+    if(!file.exists(path)) {
+        dir.create(path = path)
+    }
+}
+
 get_US_file_names <- function(source, years, extension){
   file_names = c()
   for(year in years){
