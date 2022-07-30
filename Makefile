@@ -160,13 +160,10 @@ $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_c
 
 ###
 ## Cleaning
-.PHONY: clean clean_out clean_logs clean_data clean_all
+.PHONY: clean_out clean_logs clean_data clean_all
 
 clean_all: ### Remove output, log files, generated data files and transition models
 clean_all: clean clean_data clean_transitions
-
-clean: ### Remove output and log files
-clean: clean_out clean_logs
 
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
