@@ -22,3 +22,6 @@ help:
 github:
 	@make html
 	@cp -af _build/html/. ../docs/
+
+website_compile:
+	sphinx-build -b html ../docsrc ../docs
