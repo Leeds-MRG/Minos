@@ -6,7 +6,7 @@
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
-BUILDDIR      = ../docs
+BUILDDIR      = ../docs/
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -19,6 +19,7 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+
 github:
-	@make html
-	@cp -af _build/html/. ../docs/
+	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # force output directory or it defaults to /html.
+	@cp -af _build/html/. "$(BUILDIR)"
