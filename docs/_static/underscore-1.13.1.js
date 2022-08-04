@@ -890,7 +890,7 @@
       (settings.evaluate || noMatch).source
     ].join('|') + '|$', 'g');
 
-    // Compile the template minos, escaping string literals appropriately.
+    // Compile the template source, escaping string literals appropriately.
     var index = 0;
     var source = "__p+='";
     text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
@@ -938,7 +938,7 @@
       return render.call(this, data, _$1);
     };
 
-    // Provide the compiled minos as a convenience for precompilation.
+    // Provide the compiled source as a convenience for precompilation.
     template.source = 'function(' + argument + '){\n' + source + '}';
 
     return template;

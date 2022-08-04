@@ -1,6 +1,0 @@
-Title
-=====
-
-Section
--------
-hello world
