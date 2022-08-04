@@ -240,8 +240,6 @@ def format_ukhls_columns(year):
                        # for waves 2 and 5 similar variable 'smnow' could be used.
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                        'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                       'indscus_lw': "lw", # TESTING: Longitudinal analysis weight
-                       'indscus_xw': "scus_xw", # TESTING: Cross-sectional analysis weight (GPS, EMB; waves 1-2)
                        'indscub_xw': "scub_xw", # TESTING: Cross-sectional analysis weight (waves 2-11)
                        }
     # Some variables change names halfway through UKHLS.
