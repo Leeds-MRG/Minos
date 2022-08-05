@@ -3,10 +3,11 @@
 Welcome to Minos' API documentation!
 ====================================
 
-.. module:: minos.modules.housing
 
-API section describing functions for housing module.
+API introduction.
 
-.. autoclass:: Housing
-    :members:
+.. toctree::
+
+    housing.rst
+    income.rst
 
