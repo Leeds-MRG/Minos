@@ -30,6 +30,8 @@ author = 'Robert Clay and Friends'
 extensions = ['myst_parser',
               'sphinx.ext.autodoc', # autodoc functionality for docs.
               'sphinx.ext.napoleon', # convert numpy style docstrings to reST.
+              'sphinx.ext.githubpages', # Auto adds .nojekyll file to docs source. If using make clean its deleted so auto add it back on compile.
+              'sphinx.ext.viewcode', # should allow "view source" buttons in api to work.
 ]
 
 source_suffix = {
