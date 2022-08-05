@@ -39,18 +39,36 @@ labour.nnet.main <- function(years){
     colnames(data2) <- c("pidp", "y")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
-    m1 <- multinom(factor(y) ~ 
-                     (factor(sex) +
-                      factor(ethnicity) + 
-                      age + 
-                      factor(education_state) + 
-                      SF_12 +
-                      factor(housing_quality) +
-                      factor(labour_state) +
-                      factor(job_sec) + 
-                      hh_income + 
-                        alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
-                   ,data = data, MaxNWts = 10000, maxit=10000)
+
+    if(year == 2009) {
+        # no weight data in 2009
+        m1 <- multinom(factor(y) ~
+                 (factor(sex) +
+                  factor(ethnicity) +
+                  age +
+                  factor(education_state) +
+                  SF_12 +
+                  factor(housing_quality) +
+                  factor(labour_state) +
+                  factor(job_sec) +
+                  hh_income +
+                    alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+               ,data = data, MaxNWts = 10000, maxit=10000)
+    } else {
+        # weight data available 2010 onwards
+        m1 <- multinom(factor(y) ~
+                 (factor(sex) +
+                  factor(ethnicity) +
+                  age +
+                  factor(education_state) +
+                  SF_12 +
+                  factor(housing_quality) +
+                  factor(labour_state) +
+                  factor(job_sec) +
+                  hh_income +
+                    alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+               ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
+    }
     m1
 
     out.path <- "data/transitions/labour/nnet/"

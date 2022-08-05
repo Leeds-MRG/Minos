@@ -64,10 +64,18 @@ run_models <- function(transitionDir_path, transitionSourceDir_path) {
 #run_models(transitionDir, transSourceDir)
 
 
-estimate_yearly_ols_model <- function(data, formula) {
+estimate_yearly_ols_model <- function(data, formula, include_weights = FALSE) {
 
-  # Now fit the model
-  model <- lm(formula, data = data)
+    if(include_weights) {
+      # fit the model including weights (after 2009)
+      model <- lm(formula,
+                    data = data,
+                    weights = weight)
+    } else {
+      # fit the model WITHOUT weights (2009)
+      model <- lm(formula,
+                    data = data)
+    }
 
   return(model)
 }
@@ -107,8 +115,16 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       depen.df <- data %>% filter(time == year + 1) %>% select(pidp, .data[[dependent]])
       # smash them together
       merged <- merge(depen.df, indep.df, by='pidp')
+
+      # no weight var in 2009 (wave 1)
+      if(year == 2009) {
+        use.weights <- FALSE
+      } else {
+        use.weights <- TRUE
+      }
+
       # Estimate model using this data
-      model <- estimate_yearly_ols_model(data = merged, formula = form)
+      model <- estimate_yearly_ols_model(data = merged, formula = form, include_weights = use.weights)
 
       # getting coefficients for checking and debugging
       coefs <- as.data.frame(model$coefficients)
