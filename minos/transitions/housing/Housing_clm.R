@@ -84,11 +84,25 @@ clm.housing.main <- function(years){
                     factor(job_sec) +
                     factor(ethnicity) +
                     scale(hh_income)"
-    clm.housing <- clm(formula,
-                       data = data,
-                       link = "logit",
-                       threshold = "flexible",
-                       Hess=T)
+
+    # Handle the fact that first wave (2009) has no weight data
+    if (year == 2009) {
+        # No weight info for 2009 so run model without weights
+        clm.housing <- clm(formula,
+                   data = data,
+                   link = "logit",
+                   threshold = "flexible",
+                   Hess=T)
+    } else {
+        # Now weight info so run with weights
+        clm.housing <- clm(formula,
+                   data = data,
+                   link = "logit",
+                   threshold = "flexible",
+                   Hess=T,
+                   weights = weight)
+    }
+
     prs<- 1 - logLik(clm.housing)/logLik(clm(y ~ 1, data=data))
     print(prs)
 

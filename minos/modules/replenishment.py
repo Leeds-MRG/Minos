@@ -76,7 +76,8 @@ class Replenishment:
                         'ncigs',
                         'alcohol_spending',
                         'smoker',
-                        'loneliness',]
+                        'loneliness',
+                        'weight',]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

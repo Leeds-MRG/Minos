@@ -42,8 +42,17 @@ sf12.main <- function(years){
                     factor(labour_state) + 
                     factor(job_sec) +
                     scale(hh_income) + SF_12 + factor(housing_quality)"
-    sf12.lm <- lm(formula, 
-                  data= data)
+
+    if(year == 2009) {
+        # no weight data in 2009
+        sf12.lm <- lm(formula,
+                      data = data)
+    } else {
+        # weight data available 2010 onwards
+        sf12.lm <- lm(formula,
+                      data = data,
+                      weights = weight)
+    }
 
     out.path <- "data/transitions/mwb/ols/"
     create.if.not.exists("data/transitions/mwb/")

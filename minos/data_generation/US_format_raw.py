@@ -240,6 +240,7 @@ def format_ukhls_columns(year):
                        # for waves 2 and 5 similar variable 'smnow' could be used.
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                        'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
+                       'indscub_xw': "weight", # TESTING: Cross-sectional analysis weight (waves 2-11)
                        }
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.
@@ -356,6 +357,22 @@ def format_ukhls_heating(data):
     return data
 
 
+def format_analysis_weight(data):
+    """ Add and format analysis weight variable.
+
+            Parameters
+            ----------
+            data : pd.DataFrame
+                Data frame to add weight to.
+
+            Returns
+            -------
+            data : Pd.DataFrame
+                Data with formatted weight column.
+    """
+    return data
+
+
 def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     """ Function to collect and merge the indresp and hhresp files for a specific year.
 
@@ -420,6 +437,8 @@ def format_data(year, data):
     data = format_ukhls_employment(data)
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
+
+    data = format_analysis_weight(data)
 
     return data
 
