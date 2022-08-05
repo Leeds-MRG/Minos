@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>minos.modules.income &mdash; Minos  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/index.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../housing_module.html">Housing Module Plan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>minos.modules.income</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for minos.modules.income</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for income in Minos.</span>
+<span class="sd">Calculation of monthly household income</span>
+<span class="sd">Possible extension to interaction with employment/education and any spatial/interaction effects.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">minos.modules.r_utils</span> <span class="k">as</span> <span class="nn">r_utils</span>
+
+<div class="viewcode-block" id="Income"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income">[docs]</a><span class="k">class</span> <span class="nc">Income</span><span class="p">:</span>
+
+    <span class="c1"># In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.</span>
+<div class="viewcode-block" id="Income.pre_setup"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.pre_setup">[docs]</a>    <span class="k">def</span> <span class="nf">pre_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load in anything required for the module to run into the config and simulation object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : vivarium.config_tree.ConfigTree</span>
+<span class="sd">            Config yaml tree for vivarium with the items needed for this module to run.</span>
+
+<span class="sd">        simulation : vivarium.interface.interactive.InteractiveContext</span>
+<span class="sd">            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            simulation : vivarium.interface.interactive.InteractiveContext</span>
+<span class="sd">                The initiated vivarium simulation object with anything needed to run the module.</span>
+<span class="sd">                E.g. rate tables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load in transition model</span>
+        <span class="c1">#transition_model = r_utils.load_transitions(&#39;hh_income&#39;)</span>
+
+        <span class="c1">#simulation._data.write(&#39;income_transition&#39;,</span>
+        <span class="c1">#                       transition_model)</span>
+
+        <span class="k">return</span> <span class="n">simulation</span></div>
+
+
+<div class="viewcode-block" id="Income.setup"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Load in data from pre_setup</span>
+<span class="sd">        - Register any value producers/modifiers for income</span>
+<span class="sd">        - Add required columns to population data frame</span>
+<span class="sd">        - Update other required items such as randomness stream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        builder : vivarium.engine.Builder</span>
+<span class="sd">            Vivarium&#39;s control object. Stores all simulation metadata and allows modules to use it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load in inputs from pre-setup.</span>
+        <span class="c1">#self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+
+        <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
+        <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
+        <span class="c1">#self.transition_coefficients = builder.</span>
+
+        <span class="c1"># Assign randomness streams if necessary.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="s2">&quot;income&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Determine which subset of the main population is used in this module.</span>
+        <span class="c1"># columns_created is the columns created by this module.</span>
+        <span class="c1"># view_columns is the columns from the main population used in this module.</span>
+        <span class="c1"># In this case, view_columns are taken straight from the transition model</span>
+        <span class="n">view_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pidp&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;age&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;sex&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;ethnicity&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;region&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;hh_income&#39;</span><span class="p">]</span>
+        <span class="c1">#view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">view_columns</span><span class="p">)</span>
+
+        <span class="c1"># Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
+        <span class="c1"># module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
+        <span class="c1"># created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">initializes_simulants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_initialize_simulants</span><span class="p">)</span>
+
+        <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
+        <span class="c1"># individual graduate in an education module.</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">register_listener</span><span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_time_step</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Income.on_initialize_simulants"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_initialize_simulants">[docs]</a>    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;  Initiate columns for mortality when new simulants are added.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pop_data: vivarium.framework.population.SimulantData</span>
+<span class="sd">            Custom vivarium class for interacting with the population data frame.</span>
+<span class="sd">            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
+<span class="sd">            creation_window, and current simulation state (setup/running/etc.).</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Income.on_time_step"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Produces new children and updates parent status on time steps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : vivarium.population.PopulationEvent</span>
+<span class="sd">            The event time_step that called this function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get living people to update their income</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;alive ==&#39;alive&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">year</span>
+
+        <span class="c1">## Predict next income value</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">])</span>
+        <span class="c1"># Set index type to int (instead of object as previous)</span>
+        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Draw individuals next states randomly from this distribution.</span>
+        <span class="c1"># Update population with new income</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Income.calculate_income"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.calculate_income">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            index : pd.Index</span>
+<span class="sd">                Which individuals to calculate transitions for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="mi">2018</span><span class="p">)</span>
+        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/hh_income_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># The calculation relies on the R predict method and the model that has already been specified</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_ols</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">independant</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nextWaveIncome</span></div>
+
+    <span class="c1"># Special methods used by vivarium.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;income&#39;</span>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Income()&quot;</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Robert Clay and Friends.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

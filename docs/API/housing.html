@@ -17,7 +17,9 @@
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Income API" href="income.html" />
+    <link rel="prev" title="Welcome to Minos’ API documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -35,13 +37,17 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../housing_module.html">Housing Module Plan</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Welcome to Minos’ API documentation!</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Housing API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="income.html">Income API</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -58,9 +64,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Welcome to Minos’ API documentation!</a> &raquo;</li>
       <li>Housing API</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/API/housing.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -72,10 +78,10 @@
 <span id="housing-api"></span><h1>Housing API<a class="headerlink" href="#module-minos.modules.housing" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minos.modules.housing.</span></span><span class="sig-name descname"><span class="pre">Housing</span></span><a class="headerlink" href="#minos.modules.housing.Housing" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minos.modules.housing.</span></span><span class="sig-name descname"><span class="pre">Housing</span></span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing.calculate_housing">
-<span class="sig-name descname"><span class="pre">calculate_housing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minos.modules.housing.Housing.calculate_housing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_housing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.calculate_housing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.calculate_housing" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate housing transition distribution based on provided people/indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -86,7 +92,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing.on_initialize_simulants">
-<span class="sig-name descname"><span class="pre">on_initialize_simulants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minos.modules.housing.Housing.on_initialize_simulants" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">on_initialize_simulants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.on_initialize_simulants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.on_initialize_simulants" title="Permalink to this definition"></a></dt>
 <dd><p>Initiate columns for mortality when new simulants are added.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -102,7 +108,7 @@ creation_window, and current simulation state (setup/running/etc.).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing.on_time_step">
-<span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minos.modules.housing.Housing.on_time_step" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.on_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Produces new children and updates parent status on time steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -113,7 +119,7 @@ creation_window, and current simulation state (setup/running/etc.).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing.pre_setup">
-<span class="sig-name descname"><span class="pre">pre_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minos.modules.housing.Housing.pre_setup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pre_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.pre_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.pre_setup" title="Permalink to this definition"></a></dt>
 <dd><p>Load in anything required for the module to run into the config and simulation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -134,7 +140,7 @@ E.g. rate tables.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minos.modules.housing.Housing.setup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.setup" title="Permalink to this definition"></a></dt>
 <dd><p>Initialise the module during simulation.setup().</p>
 <p class="rubric">Notes</p>
 <ul class="simple">
@@ -157,7 +163,10 @@ E.g. rate tables.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Minos’ API documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="income.html" class="btn btn-neutral float-right" title="Income API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
