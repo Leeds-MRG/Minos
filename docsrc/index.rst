@@ -7,12 +7,14 @@ Welcome to Minos's documentation!
 =================================
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 3
 
-   test.rst
-   summary.md
-   data_discovery.md
-   housing_module.md
+    summary
+    documentation/index
+    data_discovery
+    housing_module
+    data_tables
+    API/index
 
 Indices and tables
 ==================

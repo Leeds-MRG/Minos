@@ -5,8 +5,9 @@
 # from the environment for the first two.
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
+SPHINXAPIBUILD   ?= sphinx-apidoc
 SOURCEDIR     = .
-BUILDDIR      = _build
+BUILDDIR      = ../docs
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -19,6 +20,8 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+
 github:
-	@make html
-	@cp -af _build/html/. ../docs/
+	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # force output directory or it defaults to /html.
+	@$(SPHINXAPIBUILD) -f -o $(SOURCEDIR) $(BUILDDIR)
+	#@cp -af _build/html/. "$(BUILDIR)"
