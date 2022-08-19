@@ -145,7 +145,7 @@ class Neighbourhood:
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'income'
+        return 'neighbourhood'
 
 
     def __repr__(self):
