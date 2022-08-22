@@ -192,6 +192,7 @@ def format_ukhls_columns(year):
         The attribute_columns names directly from US data. Which columns will be extracted.
         The simplified column_names that are used in the microsim.
     """
+    #TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
     # Converted these into one dict because its annoying to edit two data frames.
     attribute_dict =  {'birthy': "birth_year",  # birth year.
                        'cduse5': 'fridge_freezer', # has fridge
@@ -241,6 +242,8 @@ def format_ukhls_columns(year):
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                        'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
                        'indscub_xw': "weight", # TESTING: Cross-sectional analysis weight (waves 2-11)
+                       'nkids_dv': 'nchildren', # number of children
+                       'ypdklm': 'ndrinks', # number of drinks in last month.
                        }
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.
