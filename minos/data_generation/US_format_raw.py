@@ -232,7 +232,7 @@ def format_ukhls_columns(year):
                        'rentgrs_dv': 'hh_rent',  # household monthly rent.
                        'scghqi': 'depression_change',  # depression change GHQ.
                        'sclonely': 'loneliness',  # is lonely.
-                       # Only available in waves 9-11. scsf7 may be a good substitute.
+                       # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                        'sex': 'sex',  # biological sex.
                        'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
                        'smoker': 'smoker', # Currently smokes.

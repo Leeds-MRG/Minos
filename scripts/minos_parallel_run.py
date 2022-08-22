@@ -24,6 +24,8 @@ from minos.modules.housing import Housing
 from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
 from minos.modules.labour import Labour
+from minos.modules.neighbourhood import Neighbourhood
+
 from minos.modules.intervention import hhIncomeIntervention
 
 class Minos():
@@ -217,6 +219,8 @@ class Minos():
         # Check each of the modules is present.
         # components = [eval(x) for x in config.components] # more adapative way but security issues.
         # last one in first one off. any module that requires another should be BELOW IT in this order.
+        if "Neighbourhood()" in config['components']:
+            components.append(Neighbourhood())
         if "Labour()" in config['components']:
             components.append(Labour())
         if "MWB()" in config['components']:

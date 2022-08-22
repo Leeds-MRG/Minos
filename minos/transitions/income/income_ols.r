@@ -1,4 +1,5 @@
 source("minos/transitions/utils.R")
+library(texreg)
 
 # Collect command line args from Makefile
 args = commandArgs()
@@ -135,6 +136,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       write_csv(coefs, path = paste0(out.path, '/', dependent, '_', year, '_', year+1, '_coefficients.txt'))
       saveRDS(model, file=paste0(out.path, '/', dependent, '_', year, '_', year+1, '.rds'))
     }
+    # Test texreg conversion of regression coefficient outputs to html.
+    # Only doing one year of transitions for now..
+    # Assume file is run in root directory (../../..). 
+    htmlreg(model, file='docsrc/Coefficients/test_income_OLS_coefficients.html')
   }
   # close and remove connection object from memory
   close(modDefs)

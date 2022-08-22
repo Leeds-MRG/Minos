@@ -158,6 +158,9 @@ $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds: $(FINALDATA)/2019_US_cohort.c
 $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/labour/labour_nnet.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/labour/labour_nnet.R
 
+$(TRANSITION_DATA)/housing/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
+	$(RSCRIPT) $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
+
 ###
 ## Cleaning
 .PHONY: clean_out clean_logs clean_data clean_all
