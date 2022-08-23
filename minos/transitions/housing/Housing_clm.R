@@ -117,3 +117,7 @@ clm.housing.main <- function(years){
   }
 }
 # apply clm model
+
+
+years <- seq(2009, 2018)
+clm.housing.main(years)
