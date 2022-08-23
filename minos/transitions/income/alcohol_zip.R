@@ -68,7 +68,6 @@ main <- function(years){
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
     data$alcohol_spending <- data$alcohol_spending %/% 50
-    data$ethnicity <- relevel(factor(data$ethnicity), ref='WBI')
     data$y <- data$y %/% 50
     
     # baseline model just zeroing based on ethnicity
@@ -85,8 +84,11 @@ main <- function(years){
                      SF_12 +
                      factor(labour_state) +
                      factor(job_sec) +
-                     factor(ethnicity) +
-                     hh_income | ethnicity + labour_state + age + SF_12,
+                      relevel(factor(ethnicity), ref='WBI') +
+                     scale(hh_income) | relevel(factor(ethnicity), ref='WBI') + 
+                       factor(labour_state) + 
+                       age + 
+                       SF_12,
                    data = data, dist='pois')  
 
   print(summary(alcohol.zip))

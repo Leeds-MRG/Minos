@@ -225,7 +225,7 @@ def format_ukhls_columns(year):
                        'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
                        'jbstat': 'labour_state',  # labour state
                        'ncigs': 'ncigs', # typical daily cigarettes smoked.
-                       # TODO no data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
+                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
                        #  not really applicable without random generation.
                        'pidp': 'pidp',  # personal identifier
                        'qfhigh_dv': 'education_state',  # highest education state
@@ -236,14 +236,14 @@ def format_ukhls_columns(year):
                        # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                        'sex': 'sex',  # biological sex.
                        'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                       'smoker': 'smoker', # Currently smokes.
+                       'smoker': 'smoker',  # Currently smokes.
                        #TODO waves present roughly matches ncigs. no data for waves 1-5.
                        # for waves 2 and 5 similar variable 'smnow' could be used.
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                        'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                       'indscub_xw': "weight", # TESTING: Cross-sectional analysis weight (waves 2-11)
-                       'nkids_dv': 'nchildren', # number of children
-                       'ypdklm': 'ndrinks', # number of drinks in last month.
+                       'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
+                       'nkids_dv': 'nkids',  # number of children
+                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                        }
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.

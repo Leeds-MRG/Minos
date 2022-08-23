@@ -41,7 +41,9 @@ sf12.main <- function(years){
                     factor(education_state) + 
                     factor(labour_state) + 
                     factor(job_sec) +
-                    scale(hh_income) + SF_12 + factor(housing_quality)"
+                    scale(hh_income) + I(scale(hh_income)**2) + scale(SF_12) + 
+                    factor(housing_quality) + 
+                    factor(neighbourhood_safety)"
 
     if(year == 2009) {
         # no weight data in 2009
