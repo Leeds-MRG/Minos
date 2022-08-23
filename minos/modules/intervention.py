@@ -77,7 +77,7 @@ class hhIncomeIntervention():
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income"]
+        view_columns = ["hh_income", 'nkids']
         columns_created = ["income_boosted"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
