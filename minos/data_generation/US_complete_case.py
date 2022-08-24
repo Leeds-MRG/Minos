@@ -51,5 +51,5 @@ if __name__ == "__main__":
 
     complete_case_vars = ["job_sec", "labour_state", "education_state", "housing_quality", "age", "housing_quality"]
     data = complete_case_varlist(data, complete_case_vars)
-    US_utils.save_multiple_files(data, years, "data/final_US/", "")
+    US_utils.save_multiple_files(data, years, "data/complete_US/", "")
 
