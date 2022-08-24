@@ -5,6 +5,7 @@ DATADIR = $(CURDIR)/data
 RAWDATA = $(DATADIR)/raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
 COMPOSITEDATA = $(DATADIR)/composite_US
+COMPLETEDATA = $(DATADIR)/complete_US
 FINALDATA = $(DATADIR)/final_US
 PERSISTDATA = $(CURDIR)/persistent_data
 PERSISTJSON = $(PERSISTDATA)/JSON
@@ -113,8 +114,11 @@ corrected_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv
 composite_data: ### Generate composite variables
 composite_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv
 
-final_data: ### Produce the final version of the data, after running complete case correction
-final_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv
+complete_data: ### Generate a complete version of the data, after running complete case correction
+complete_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv
+
+final_data: ### Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
+final_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv
 
 ###
 
@@ -133,8 +137,11 @@ $(CORRECTDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_mis
 $(COMPOSITEDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/generate_composite_vars.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
-$(FINALDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
+$(COMPLETEDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
+
+$(FINALDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/reweight_populations.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/reweight_populations.py
 
 # Transitions
 
