@@ -221,3 +221,43 @@ def predict_next_timestep_alcohol_zip(model, current):
     preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
     # round up to nearest integer and times by 50 to get actual expenditure back.
     return np.ceil(preds) * 50
+
+def predict_next_timestep_tobacco_zip(model, current):
+    """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
+
+    Parameters
+    ----------
+    model: ??? what type is this?
+    current: pd.DataFrame
+        current population dataframe.
+
+    Returns
+    -------
+
+    """
+    base = importr('base')
+    stats = importr('stats')
+    zeroinfl = importr("pscl")
+
+    # grab transition model
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # grab count and zero prediction types
+    # count determines values if they actually drink
+    # zero determine probability of them not drinking
+    counts = stats.predict(model, currentRDF, type="count")
+    zeros = stats.predict(model, currentRDF, type="zero")
+
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        counts = ro.conversion.rpy2py(counts)
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        zeros = ro.conversion.rpy2py(zeros)
+
+    # draw randomly if a person drinks
+    # if they drink assign them their predicted value from count.
+    # otherwise assign 0 (no spending).
+    preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
+    # round up to nearest integer and times by 50 to get actual expenditure back.
+    return np.ceil(preds) * 5 #rescale back up to ncigs.

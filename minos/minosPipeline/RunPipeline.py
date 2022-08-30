@@ -17,8 +17,11 @@ from minos.modules.mental_wellbeing import MWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
+from minos.modules.tobacco import Tobacco
 
 from minos.modules.intervention import hhIncomeIntervention
+from minos.modules.intervention import hhIncomeChildUplift
+from minos.modules.intervention import hhIncomePovertyLineChildUplift
 
 # for viz.
 from minos.validation.minos_distribution_visualisation import *
@@ -46,27 +49,32 @@ def RunPipeline(config, start_population_size, run_output_dir):
     # Check each of the modules is present.
     #components = [eval(x) for x in config.components] # more adapative way but security issues.
     # last one in first one off. any module that requires another should be BELOW IT in this order.
+    if "Tobacco()" in config['components']:
+        components.append(Tobacco())
     if "Alcohol()" in config['components']:
         components.append(Alcohol())
     if "Neighbourhood()" in config['components']:
         components.append(Neighbourhood())
-    if "Labour()" in config.components:
+    if "Labour()" in config['components']:
         components.append(Labour())
-    if "MWB()" in config.components:
+    if "MWB()" in config['components']:
         components.append(MWB())
-    if "Housing()" in config.components:
+    if "Housing()" in config['components']:
         components.append(Housing())
-    if "Income()" in config.components:
+    if "Income()" in config['components']:
         components.append(Income())
-    if "FertilityAgeSpecificRates()" in config.components:
+    if "FertilityAgeSpecificRates()" in config['components']:
         components.append(FertilityAgeSpecificRates())
-    if "Mortality()" in config.components:
+    if "Mortality()" in config['components']:
         components.append(Mortality())
-    if "hhIncomeIntervention()" in config.components:
+    if "hhIncomeIntervention()" in config['components']:
         components.append(hhIncomeIntervention())
-    if "Replenishment()" in config.components:
+    if "hhIncomeChildUplift" in config['components']:
+        components.append(hhIncomeChildUplift())
+    if "hhIncomePovertyLineChildUplift" in config['components']:
+        components.append(hhIncomePovertyLineChildUplift())
+    if "Replenishment()" in config['components']:
         components.append(Replenishment())
-
 
     logging.info("Final YAML config file written.")
 

@@ -26,8 +26,11 @@ from minos.modules.mental_wellbeing import MWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
+from minos.modules.tobacco import Tobacco
 
 from minos.modules.intervention import hhIncomeIntervention
+from minos.modules.intervention import hhIncomeChildUplift
+from minos.modules.intervention import hhIncomePovertyLineChildUplift
 
 class Minos():
 
@@ -220,6 +223,8 @@ class Minos():
         # Check each of the modules is present.
         # components = [eval(x) for x in config.components] # more adapative way but security issues.
         # last one in first one off. any module that requires another should be BELOW IT in this order.
+        if "Tobacco()" in config['components']:
+            components.append(Tobacco())
         if "Alcohol()" in config['components']:
             components.append(Alcohol())
         if "Neighbourhood()" in config['components']:
@@ -238,6 +243,10 @@ class Minos():
             components.append(Mortality())
         if "hhIncomeIntervention()" in config['components']:
             components.append(hhIncomeIntervention())
+        if "hhIncomeChildUplift" in config['components']:
+            components.append(hhIncomeChildUplift())
+        if "hhIncomePovertyLineChildUplift" in config['components']:
+            components.append(hhIncomePovertyLineChildUplift())
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
         return components
