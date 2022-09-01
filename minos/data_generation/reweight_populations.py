@@ -114,13 +114,15 @@ def reweight_stock(data, projections):
     # now reweight new population file
     reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
 
+    return reweighted_data
+
 
 def generate_stock(projections):
     years = np.arange(2009, 2020)
     file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    reweight_stock(data, projections)
+    data = reweight_stock(data, projections)
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
