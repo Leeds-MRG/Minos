@@ -21,8 +21,8 @@
 # This number is determined by the length of the param_list list. some way to automate this?
 #$ -t 1-2
 
-#Run the executable minos_parallel_run.py
+#Run the executable minos_batch_run.py
 # no final ID here as its provided by the scheduler.
 # $SGE_TASK_ID is provided by qsub. It is an integer that corresponds to some combination of minos parameters
 # (income uplift amounds and run_id)
-python3 'scripts/minos_parallel_run.py' 'config/arcConfig.yaml' $SGE_TASK_ID
+python3 'scripts/minos_batch_run.py' 'config/arcConfig.yaml' $SGE_TASK_ID
