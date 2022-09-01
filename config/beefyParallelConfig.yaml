@@ -1,3 +1,4 @@
+# config file for parallel runs on beefy. Run as one big job with multiprocessing rather than batches through slurm.
 randomness: # Columns used in generation of CRN. need to find out what this actually does.
     key_columns: ['entrance_time', 'age']
 input_data:
@@ -30,7 +31,9 @@ output_destination: 'ex1' # Further specify the output data is saved to. E.g. ru
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
+#components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
+#components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeChildUplift(), Replenishment()]
+#components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomePovertyLineChildUplift(), Replenishment()]
 
 scale_rates:
     # methods:

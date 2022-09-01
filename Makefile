@@ -1,11 +1,13 @@
 # Directories and paths
 export ROOT=$(CURDIR)
 USSOURCEDIR = $(CURDIR)/../UKDA-6614-stata/stata/stata13_se/
+SPATIALSOURCEDIR = $(CURDIR)/../US_spatial_lookup/
 DATADIR = $(CURDIR)/data
 RAWDATA = $(DATADIR)/raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
 COMPOSITEDATA = $(DATADIR)/composite_US
 FINALDATA = $(DATADIR)/final_US
+SPATIALDATA = $(DATADIR)/spatial_US
 PERSISTDATA = $(CURDIR)/persistent_data
 PERSISTJSON = $(PERSISTDATA)/JSON
 SOURCEDIR = $(CURDIR)/minos
@@ -91,11 +93,37 @@ install: ### Install all Minos requirements via pip
 ###
 .PHONY: testRun
 
-#testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
+testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
 testRun: data transitions
 	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
+###
+## Experiment Runs
+###
 
+baseline: ### Baseline run of MINOS, using configuration defined in beefyBaseline.yaml
+baseline: data transitions
+	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyBaseline.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
+incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
+### flexible framework for running income interventions, and adjustments to the size and scale of the intervention can be
+### made by editing the parameters in minos.modules.intervention.hhIncomeIntervention.pre_setup(). Eventually we might
+### make these parameters available in the config file itself, but this will have to do for now.
+incomeIntervention: data transitions
+	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyIncomeIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
+childUplift: ### Run the child uplift intervention using config defined in beefyChildUplift.yaml. This intervention
+### gives all adults with children an extra £20 to their household income per week per child.
+childUplift: data transitions
+	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyChildUplift.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
+povertyUplift: ### Run the poverty uplift intervention using config defined in beefyPovertyUplift.yaml. This intervention
+### gives all adults in poverty with children an extra £20 to their household income per week per child. Anyone with a
+### household income below 60% of the median household income is defined as being in poverty.
+povertyUplift: data transitions
+	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyPovertyUplift.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
+###
 ## Data Generation
 # Combined Rules
 ###
@@ -116,11 +144,15 @@ composite_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv 
 final_data: ### Produce the final version of the data, after running complete case correction
 final_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv
 
+spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
+### version of the final data to be used in spatial analyses (of Sheffield only)
+spatial_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(SPATIALDATA)/2019_US_cohort.csv
+
 ###
 
 transitions: ### Run R scripts to generate transition models for each module
 transitions: | $(TRANSITION_DATA)
-transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds $(TRANSITION_DATA)/mwb/ols/sf12_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
+transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
 
 # Input Populations
 
@@ -133,8 +165,11 @@ $(CORRECTDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_mis
 $(COMPOSITEDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/generate_composite_vars.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
-$(FINALDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv
+$(FINALDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_complete_case.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv $(COMPOSITEDATA)/2018_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
+
+$(SPATIALDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_complete_case.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(RAWDATA)/2018_US_cohort.csv $(CORRECTDATA)/2018_US_cohort.csv $(COMPOSITEDATA)/2018_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
+	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
 # Transitions
 

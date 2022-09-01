@@ -6,4 +6,5 @@ install.packages('stringr')
 install.packages('readr')
 install.packages('pscl')
 install.packages('ggplot2')
+install.packages('texreg')
 #

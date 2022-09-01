@@ -1,5 +1,5 @@
 source("minos/transitions/utils.R")
-library(texreg)
+#library(texreg)
 
 # Collect command line args from Makefile
 args = commandArgs()
