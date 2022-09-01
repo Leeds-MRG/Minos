@@ -53,7 +53,8 @@ labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
 #education_bhps = US_utils.load_json(json_source, "education_bhps.json")
 # Use simplified one for ukhls currently.
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls.json")
-education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
+#education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
+education = US_utils.load_json(json_source, "education_gov.json")
 # Depression.
 depression = US_utils.load_json(json_source, "depression.json")
 depression_change = US_utils.load_json(json_source, "depression_change.json")
@@ -288,6 +289,25 @@ def format_ukhls_ethnicity(data):
 def format_ukhls_education(data):
     """ Format US education data.
 
+    See following for the levels and associated numeric codes:
+    - None of the above : 0
+    - Other School Certification : 1
+    - GCSE/O level : 2
+    - Standard/o/lower : 2
+    - CSE : 2
+    - AS level : 3
+    - A level : 3
+    - International Baccalaureate : 3
+    - Welsh Baccalaureate : 3
+    - Scottish Highers : 3
+    - Cert 6th year studies : 3
+    - Nursing/other med qual : 5
+    - Diploma in HE : 5
+    - Teaching qual not PGCE : 6
+    - 1st Degree or equivalent : 6
+    - Higher degree : 7
+    - Other higher degree : 7
+
     Parameters
     ----------
     data : pd.DataFrame
@@ -298,7 +318,7 @@ def format_ukhls_education(data):
         Data after formatting educations.
     """
     # Map education ints to strings.
-    data["education_state"] = data["education_state"].astype(str).map(education_ukhls)
+    data["education_state"] = data["education_state"].astype(str).map(education)
     return data
 
 
