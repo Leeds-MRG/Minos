@@ -1,4 +1,4 @@
-"""File for mashing many minos runs into one grand mean SF12 distribution over spatial microdata."""
+"""File for aggregating many minos runs into one grand mean SF12 distribution over spatial microdata."""
 
 import glob
 import pandas as pd
@@ -8,32 +8,56 @@ from collections import defaultdict
 import numpy as np
 import sys
 
-def get_files(year, *params):
+def get_files(source, year, params, param_names):
+    """
 
-    search_string = 'output/ex1/'
-    for item in params:
-        search_string += str(item) + '_'
+    Parameters
+    ----------
+    source: str
+        Where are experiment data stored . Usually in /output for minos.
+    year: int
+        What year is it?
+    params: list
+        List of experiment parameter names. used to construct glob search string. e.g. using run_id will return all
+        files with the form source/run_id_*.csv. I.E. every experiment with a run_id in source for the given year.
+
+    Returns
+    -------
+    files : list
+        List of file names to pull csvs from.
+    """
+
+    search_string = source
+    for p, n in zip(params, param_names):
+        search_string += n + "_" + str(p) + '_'
     search_string += f'*{year}.csv'
     print(search_string)
-    return glob.glob(search_string)
+    files = glob.glob(search_string)
+    return files
 
-def main(year, params):
+def main(source, spatial_source, year, params, param_names):
+    """ Main file for aggregating minos experiments into geojson data.
+
+    source: str
+        Where are experiment data stored . Usually in /output for minos.
+    year: int
+        What year is it?
+    params: list
+        List of experiment parameter names. used to construct glob search string. e.g. using run_id will return all
+        files with the form source/run_id_*.csv. I.E. every experiment with a run_id in source for the given year.
+
+    Returns
+    -------
+    None
+    """
     # chris' spatially weighted data.
-    spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018.csv")
-    p = params[int(sys.argv[1])-1]]
-    #p = params[0]
-    #for p in params:
-    file_names = get_files(year, *p)
+    spatial_data = pd.read_csv(spatial_source)
+
+    file_names = get_files(source, year, params, param_names)
     print(file_names)
-    first = True
-    while file_names:
-        file = file_names.pop()
-        if first:
-            US_data = pd.read_csv(file)
-            first = False
-        else:
-            new_data = pd.read_csv(file)
-            US_data = pd.concat([US_data, new_data], ignore_index=True)
+    US_data = pd.DataFrame()
+    for file in file_names:
+        US_data = pd.concat([US_data, pd.read_csv(file)], ignore_index=True)
 
     print(US_data.shape)
     # subset US data. grab common pidps to prevent NA errors.
@@ -72,29 +96,29 @@ def main(year, params):
 
     # save updated geojson for use in map plots.
     print(sum(spatial_dict.values()))
-    print(f"Merger done for {p} params for year {year}.")
-    fname = "output/ex1/"
-    for text in p:
-        fname += str(text) + '_'
+    print(f"Merger done for {params} params for year {year}.")
+    fname = source
+    for p, n in zip(params, param_names):
+        fname += n + '_' + str(p) + '_'
     fname += f"{year}.geojson"
-    print(f"Saved to {fname}.")
 
     with open(fname, 'w') as outfile:
         geojson.dump(map_geojson, outfile)
-
-    print("done")
+    print(f"Saved to {fname}.")
 
 if __name__ == '__main__':
     test = False
-    uplift = [0.0, 1000.0, 10000.0]  # assimilation rates
-    percentage_uplift = [25.0, 50.0, 75.0] #gaussian observation noise standard deviation
+    #uplift = [0.0, 1000.0, 10000.0]  # assimilation rates
+    #percentage_uplift = [25.0, 50.0, 75.0] #gaussian observation noise standard deviation
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
-    if test:
-        parameter_lists = [[1000.0, 75.0]]
-    else:
-        parameter_lists = [item for item in itertools.product(*[uplift, percentage_uplift])]
-    main(2016, parameter_lists)
+    #if test:
+    #    parameter_lists = [[1000.0, 75.0]]
+    #else:
+    #    parameter_lists = [item for item in itertools.product(*[uplift, percentage_uplift])]
+    parameters = [0, 10]
+    parameter_names = ['uplift', 'prop']
+    main('output/ex1/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
 
 

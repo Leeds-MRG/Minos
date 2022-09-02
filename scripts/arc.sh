@@ -14,15 +14,17 @@
 # Select memory
 #$ -l h_vmem=15G # was 15 for big runs
 
-# Choose cores
+# Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 5
 
 # Tell computer this is an array job with tasks from 1 to N
-# This number is determined by the length of the param_list list. some way to automate this?
+# This number is determined by the length of the param_list list. some way to automate this? don't think so.
 #$ -t 1-2
 
 #Run the executable minos_batch_run.py
 # no final ID here as its provided by the scheduler.
 # $SGE_TASK_ID is provided by qsub. It is an integer that corresponds to some combination of minos parameters
 # (income uplift amounds and run_id)
-python3 'scripts/minos_batch_run.py' 'config/arcConfig.yaml' $SGE_TASK_ID
+# $1 is config file e.g. config/beefyBaseline.yaml
+# $SGE_TASK_ID is son of grid engine task id. run id for this minos run.
+python3 'scripts/minos_batch_run.py' $1 $SGE_TASK_ID

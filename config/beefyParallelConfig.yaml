@@ -31,6 +31,7 @@ output_destination: 'ex1' # Further specify the output data is saved to. E.g. ru
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
+#components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), Replenishment()]
 #components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
 #components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeChildUplift(), Replenishment()]
 #components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomePovertyLineChildUplift(), Replenishment()]
