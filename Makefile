@@ -124,7 +124,7 @@ final_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(CO
 
 transitions: ### Run R scripts to generate transition models for each module
 transitions: | $(TRANSITION_DATA)
-transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
+transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds $(TRANSITION_DATA)/education/nnet/education_nnet_2018_2019.rds
 
 # Input Populations
 
@@ -164,6 +164,9 @@ $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds: $(FINALDATA)/2019_US_cohort.c
 
 $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/labour/labour_nnet.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/labour/labour_nnet.R
+
+$(TRANSITION_DATA)/education/nnet/education_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/education/education_nnet.r
+	$(RSCRIPT) $(SOURCEDIR)/transitions/education/education_nnet.r
 
 ###
 ## Cleaning

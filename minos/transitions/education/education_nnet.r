@@ -1,5 +1,6 @@
 source("minos/transitions/utils.R")
 require(nnet)
+require(tidyverse)
 
 
 get.educ.file <- function(source, year1, year2){
@@ -31,11 +32,11 @@ educ.nnet.main <- function(year){
   data_files <- get.educ.file(data_source, year, year+1)
   data <- data_files$data1
   data2 <- data_files$data2
-
+  
   # limit to over 30
-  data <- filter(data, age > 30)
-  data2 <- filter(data2, age > 30)
-
+  data <- filter(data, age >= 30)
+  data2 <- filter(data2, age >= 30)
+  
   # only look at individuals with data in both waves.
   common <- intersect(data$pidp, data2$pidp)
   data <- data[which(data$pidp %in% common), ]
