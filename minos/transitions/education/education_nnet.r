@@ -59,7 +59,7 @@ educ.nnet.main <- function(year){
   create.if.not.exists(out.path)
   create.if.not.exists(paste0(out.path, 'nnet/'))
 
-  nnet.file.name <- get.nnet.file.name(out.path, year, year+1)
+  nnet.file.name <- get.nnet.file.name(paste0(out.path, 'nnet/'), year, year+1)
   saveRDS(m1, file=nnet.file.name)
   print("Saved to:")
   print(nnet.file.name)
