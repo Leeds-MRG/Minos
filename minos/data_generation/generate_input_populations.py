@@ -10,13 +10,14 @@ want to model that far into the future, ~50 years seems like a reasonable maximu
 
 Currently we take the 16 year olds from the final data file for 2018 (start date of the simulations), generate identical
 copies of this population for every year of the simulation to 2070, then adjust the analysis weights (`weight` var) by
-sex to ensure
+sex and ethnicity to ensure representative populations into the future.
 """
 
 import pandas as pd
 import numpy as np
 
 import US_utils
+from minos.modules import r_utils
 
 
 # suppressing a warning that isn't a problem
@@ -74,6 +75,24 @@ def expand_and_reweight_repl(US_2018, projections):
     return expanded_repl
 
 
+def predict_education(repl):
+    #return(repl)
+
+    transition_model = r_utils.load_transitions(f"data/transitions/education/nnet/educ_nnet_2018_2019", "")
+
+    prob_df = r_utils.predict_highest_educ_nnet(transition_model, repl)
+
+    #new_educ =
+
+    #random_state = np.random.RandomState(seed=get_hash(key))
+    #draw = random(key, index, index_map)
+    #p_bins = np.cumsum(p, axis=1)
+    ## Use the random draw to make a choice for every row in index.
+    #choice_index = (draw.values[np.newaxis].T > p_bins).sum(axis=1)
+    #return pd.Series(np.array(choices)[choice_index], index=index)
+    return(repl)
+
+
 def generate_replenishing(projections):
     # first collect and load the datafile for 2018
     file_name = "data/complete_US/2018_US_cohort.csv"
@@ -81,9 +100,12 @@ def generate_replenishing(projections):
 
     repl = expand_and_reweight_repl(data, projections)
 
+    # finally predict highest level of educ
+    final_repl = predict_education(repl)
+
     output_dir = 'data/replenishing/'
     US_utils.check_output_dir(output_dir)
-    repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv')
+    final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv')
 
 
 def reweight_stock(data, projections):

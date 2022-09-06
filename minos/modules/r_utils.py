@@ -10,6 +10,8 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
 import pandas as pd
 
+
+#TODO: Rewrite all these functions to generalise more. Lots of duplicated code
 def load_transitions(component, path = 'data/transitions/'):
     """
     This function will load transition models that have been generated in R and saved as .rds files.
@@ -178,3 +180,31 @@ def predict_next_timestep_labour_nnet(model, current):
                                                    "Sick/Disabled",
                                                    "Student",
                                                    "Unemployed"])
+
+    def predict_highest_educ_nnet(model, current):
+        """Function for predicting highest level of education for the future replenishing populations using nnet model.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
+        """
+        # import R packages
+        base = importr('base')
+        stats = importr('stats')
+        nnet = importr("nnet")
+        # Convert from pandas to R using package converter
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            currentRDF = ro.conversion.py2rpy(current)
+
+        prediction = stats.predict(model, currentRDF, type="probs")
+
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            newPandasPopDF = ro.conversion.rpy2py(prediction)
+
+        return pd.DataFrame(newPandasPopDF, columns=['sex',
+                                                     'region',
+                                                     'ethnicity',
+                                                     'max_educ'])
