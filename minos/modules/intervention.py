@@ -249,10 +249,10 @@ class hhIncomePovertyLineChildUplift():
             run_id = config['run_id']
         else:
             # If no task id specified (you should) choose the first task as a test.
-            run_id = 0
+            run_id = sys.argv[4] - 1
         parameters = [run_id]
         config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
-        config.update({'experiment_parameters_names': ['id']}, source=str(Path(__file__).resolve()))
+        config.update({'experiment_parameters_names': ['run_id']}, source=str(Path(__file__).resolve()))
 
         return simulation
 
@@ -347,10 +347,10 @@ class energyDownlift:
             run_id = config['run_id']
         else:
             # If no task id specified (you should) choose the first task as a test.
-            run_id = 0
+            run_id = sys.argv[4] - 1
         parameters = [run_id]
         config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
-        config.update({'experiment_parameters_names': ['id']}, source=str(Path(__file__).resolve()))
+        config.update({'experiment_parameters_names': ['run_id']}, source=str(Path(__file__).resolve()))
 
         return simulation
     def setup(self, builder):

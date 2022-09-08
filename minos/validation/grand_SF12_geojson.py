@@ -121,6 +121,9 @@ if __name__ == '__main__':
     parameter_names = []
     #main('output/baseline/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
     #main('output/childUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
-    main('output/povertyUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
+    #main('output/povertyUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
+    years = np.arange(2010, 2018)
+    for year in years:
+        main('output/energyDownlift/', "persistent_data/ADULT_population_GB_2018.csv", year, parameters, parameter_names)
 
 
