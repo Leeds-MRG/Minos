@@ -254,6 +254,7 @@ def format_ukhls_columns(year):
                        'fuelhave3': 'has_oil',
                        'fuelhave4': 'has_other',
                        'fuelhave5': 'has_none',
+                       'rentinc2': 'energy_in_rent',
 
     }
     # Some variables change names halfway through UKHLS.
