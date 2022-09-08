@@ -71,7 +71,7 @@ def main(output_dir):
 
     # complete case analysis instead of MICE for now.
     #data = UScc.complete_case(data)
-    complete_case_vars = ['sex', 'ethnicity', 'region']
+    complete_case_vars = ['sex', 'ethnicity', 'region', "energy_gas_electric"]
     data = UScc.complete_case_varlist(data, complete_case_vars)
     #after_complete_case = US_missing_description.missingness_table(data)
 

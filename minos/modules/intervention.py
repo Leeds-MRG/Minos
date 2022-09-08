@@ -315,3 +315,41 @@ class hhIncomePovertyLineChildUplift():
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+class energyDownlift:
+    @property
+    def name(self):
+        return "hh_income_poverty_live_20_uplift"
+
+    def __repr__(self):
+        return "hhIncomePovertyLineChildUplift()"
+
+    def pre_setup(self, config, simulation):
+        """ Load in anything required for the module to run into the config and simulation object.
+
+        Parameters
+        ----------
+        config : vivarium.config_tree.ConfigTree
+            Config yaml tree for vivarium with the items needed for this module to run.
+
+        simulation : vivarium.interface.interactive.InteractiveContext
+            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
+
+        Returns
+        -------
+            simulation : vivarium.interface.interactive.InteractiveContext
+                The initiated vivarium simulation object with anything needed to run the module.
+                E.g. rate tables.
+        """
+        # nothing done here yet. transition models specified by year later.
+        if 'run_id' in config.keys():
+            # Pick a set of parameters according to task_id arg from minos_batch_run.py.
+            run_id = config['run_id']
+        else:
+            # If no task id specified (you should) choose the first task as a test.
+            run_id = 0
+        parameters = [run_id]
+        config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
+        config.update({'experiment_parameters_names': ['id']}, source=str(Path(__file__).resolve()))
+
+        return simulation

@@ -67,10 +67,11 @@ conda:
 	module load python anaconda
 	@echo "Initiating conda environment. "
 	conda create -p conda_minos python=3.8
-	@ "Minimal R 4.0.5 install in conda environment."
-	conda install -c conda-forge r-base=4.0.5
 	@echo "Activating conda environment"
 	source activate conda_minos
+	@ "Minimal R 4.0.5 install in conda environment."
+	#conda install -c conda-forge r-base=4.0.5
+	conda install -c conda-forge r-essentials=4.0.5
 	@echo "conda install complete!"
 
 ## Install

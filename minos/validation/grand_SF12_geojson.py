@@ -117,8 +117,10 @@ if __name__ == '__main__':
     #    parameter_lists = [[1000.0, 75.0]]
     #else:
     #    parameter_lists = [item for item in itertools.product(*[uplift, percentage_uplift])]
-    parameters = [0, 10]
-    parameter_names = ['uplift', 'prop']
-    main('output/ex1/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
+    parameters = []
+    parameter_names = []
+    #main('output/baseline/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
+    #main('output/childUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
+    main('output/povertyUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
 
 

@@ -115,7 +115,8 @@ class parallelMinos():
             print(f"Presetup done for: {component}")
             simulation = component.pre_setup(config, simulation)
 
-        config_output_dir = os.path.join(run_output_dir, 'final_config_file.yml')
+        # TODO better way of saving configs for many minos reps. better to not have basically the same info 100 times.
+        config_output_dir = os.path.join(run_output_dir, f'{run_id}_final_config_file.yml')
         with open(config_output_dir, 'w') as final_config_file:
             yaml.dump(config.to_dict(), final_config_file)
             print("Write final config file successful")
@@ -275,7 +276,8 @@ if __name__ == "__main__":
     # Each experiment will use one item of this list.
     #input_kwargs['parameter_lists'] = parameter_lists
     print(args)
-    minos_runs = [parallelMinos(args['config_file'], run_id).main() for run_id in range(args['reps'])]
+    for i in range(args['reps']):
+        parallelMinos(args['config_file'], i+1).main()
     # doesn't work without being able to pickle vivarium objects.
     #with Pool() as pool:
     #    pool.map(parallelMinos.main, minos_runs)

@@ -76,17 +76,20 @@ test_title <- "Projected vs Real SF_12 distribution for 2016 UK Population."
 
 main <- function(year){
   real_source <- 'data/final_US/'
-  minos_source <- 'output/ex1_old/0.0_75.0_1'
-  datasets <- get.sf12.data(real_source, minos_source, year)
-  d2 <- datasets$d2
-  d1 <- datasets$d1
+  minos_source <- 'output/baseline/'
+  #datasets <- get.sf12.data(real_source, minos_source, year)
+  #d2 <- datasets$d2
+  #d1 <- datasets$d1
+  d1 <- read.csv('data/final_US/2016_US_Cohort.csv')
+  d2 <- read.csv('output/baseline/run_id_0_2016.csv')
+
   minos.t.test(d1, d2, "SF_12")
   minos.split.hist2(d1, d2, "SF_12", c("Real", "Minos"), c(c1, c2), "Minos SF12 Prediction VS Real Data.")
   
   
-  minos0<-get.sf12.data(real_source, 'output/ex1_old/0.0_75.0_1', year)$d2
-  minos20<-get.sf12.data(real_source, 'output/ex1_old/1000.0_75.0_1', year)$d2
-  minos100<-get.sf12.data(real_source, 'output/ex1_old/10000.0_75.0_1', year)$d2
+  minos_baseline<-get.sf12.data(real_source, 'output/baseline', year)$d2
+  minos_poverty<-get.sf12.data(real_source, 'output/povertyUplift', year)$d2
+  minos_all<-get.sf12.data(real_source, 'output/childUplift', year)$d2
     
   minos.t.test(minos0, minos20, "SF_12")
   minos.t.test(minos20, minos100, "SF_12")

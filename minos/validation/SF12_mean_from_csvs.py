@@ -3,51 +3,35 @@ import pandas as pd
 import numpy as np
 import itertools
 
-def get_files(year, *params):
-    search_string = 'output/ex1/'
-    for item in params:
-        search_string += str(item) + '_'
-    search_string += f'*{year}.csv'
-    print(search_string)
-    return glob.glob(search_string)
 
-
-def get_SF12_mean(file_names, year, *params):
+def get_SF12_mean(file_names, year, source):
 
     means = []
     for file in file_names:
-        print(file)
+        #print(file)
         data = pd.read_csv(file)
-        mean = np.nanmean(data.loc[data['SF_12']>0, 'SF_12'])
-        print(mean)
+        mean = np.nanmean(data['SF_12'])
+        #print(mean)
         means.append(mean)
 
     means = pd.DataFrame(means, columns=["SF_12"])
-    print(means)
-    out_filename = "output/ex1/means_"
-    for item in params:
-        out_filename += str(item) + '_'
-    out_filename += f'{year}.csv'
+    print(year, means)
+    out_filename = source + f"means_{year}.csv"
     means.to_csv(out_filename)
 
-def main(years, test=False):
-    uplift = [0.0, 1000.0, 10000.0]  # assimilation rates
-    percentage_uplift = [25.0, 50.0, 75.0] #gaussian observation noise standard deviation
-
+def main(sources, years):
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
-    if test:
-        parameter_lists = [[1000.0, 75.0]]
-        years = [2016]
-    else:
-        parameter_lists = [item for item in itertools.product(*[uplift, percentage_uplift])]
-    for year in years:
-        for params in parameter_lists:
-            file_names = get_files(year, *params)
+
+    for source in sources:
+        for year in years:
+            file_names = glob.glob(f"{source}/*{year}.csv")
             print(file_names)
-            get_SF12_mean(file_names, year, *params)
+            get_SF12_mean(file_names, year, source)
 
 if __name__ == '__main__':
-    years = np.arange(2012, 2017)
-    main(years)
+    #sources = ['output/baseline/', 'output/povertyUplift/', 'output/childUplift/']
+    sources = ['output/povertyUplift/']
+    years = np.arange(2009, 2019)
+    main(sources, years)
 
