@@ -1,7 +1,7 @@
 """
 R utility functions. These are currently all related to the use of transition models.
 """
-import os
+#import os
 #os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources" # path to R depends on user.
 
 import rpy2.robjects as ro
