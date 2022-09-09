@@ -5,7 +5,7 @@ import os
 #os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources" # path to R depends on user.
 
 import rpy2.robjects as ro
-from rpy2.robjects import IntVector, StrVector, pandas2ri
+from rpy2.robjects import pandas2ri
 from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
 import pandas as pd
