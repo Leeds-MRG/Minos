@@ -15,6 +15,8 @@ sex and ethnicity to ensure representative populations into the future.
 
 import pandas as pd
 import numpy as np
+from numpy.random import choice
+import random
 
 import US_utils
 from minos.modules import r_utils
@@ -76,24 +78,47 @@ def expand_and_reweight_repl(US_2018, projections):
 
 
 def predict_education(repl):
-    #return(repl)
+    """
+    This function predicts the highest level of education that will be attained by simulants in the model.
+
+    There are 2 steps to this process:
+        1. First the highest education will be predicted for all 16 year olds in the replenishing population, which
+            will then be used in the simulation to decide who and when to change their education.
+        2. Predict education for all 16-25 year olds, as they may not have finished education and can still improve.
+
+    Parameters
+    ----------
+    repl
+
+    Returns
+    -------
+
+    """
+    print("Predicting max education level for replenishing populations...")
 
     transition_model = r_utils.load_transitions(f"data/transitions/education/nnet/educ_nnet_2018_2019", "")
 
     prob_df = r_utils.predict_highest_educ_nnet(transition_model, repl)
 
-    #new_educ =
+    #repl['new_educ'] = choice(a = prob_df.columns, p = prob_df[repl.index])
 
-    #random_state = np.random.RandomState(seed=get_hash(key))
-    #draw = random(key, index, index_map)
-    #p_bins = np.cumsum(p, axis=1)
-    ## Use the random draw to make a choice for every row in index.
-    #choice_index = (draw.values[np.newaxis].T > p_bins).sum(axis=1)
-    #return pd.Series(np.array(choices)[choice_index], index=index)
-    return(repl)
+    repl['max_educ'] = np.nan
+
+    for i, distribution in enumerate(prob_df.iterrows()):
+        #repl.loc[i, 'max_educ']
+        # choice(a=prob_df.columns, p=distribution)
+        #print(distribution[1])
+        repl.loc[i, 'max_educ'] = choice(a=prob_df.columns, size=1, p=distribution[1])[0]
+        #print(test)
+
+    #new_educ = random.choices(population=prob_df.columns,
+    #                          weights=)
+
+    return repl
 
 
 def generate_replenishing(projections):
+    print('Generating replenishing population...')
     # first collect and load the datafile for 2018
     file_name = "data/complete_US/2018_US_cohort.csv"
     data = pd.read_csv(file_name)
@@ -106,6 +131,7 @@ def generate_replenishing(projections):
     output_dir = 'data/replenishing/'
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv')
+    print('Replenishing population generated for 2019 - 2070')
 
 
 def reweight_stock(data, projections):
@@ -140,6 +166,7 @@ def reweight_stock(data, projections):
 
 
 def generate_stock(projections):
+    print('Generating stock population...')
     years = np.arange(2009, 2020)
     file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
@@ -147,6 +174,7 @@ def generate_stock(projections):
     data = reweight_stock(data, projections)
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
+
 
 def main():
     # read in projected population counts from 2008-2070

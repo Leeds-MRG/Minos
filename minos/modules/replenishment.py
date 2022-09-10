@@ -6,6 +6,7 @@ import pandas as pd
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
+
 class Replenishment:
 
 
@@ -81,7 +82,17 @@ class Replenishment:
                         'alcohol_spending',
                         'smoker',
                         'loneliness',
-                        'weight',]
+                        'weight',
+                        'ndrinks',
+                        'job_hours',
+                        'jb_inc_per',
+                        'hourly_rate',
+                        'gross_paypm',
+                        'job_hours_se',
+                        'job_inc',
+                        'nkids',
+                        'gross_pay_se',
+                        'hourly_wage',]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -222,7 +233,8 @@ class Replenishment:
 
 
     def age_simulants(self, event):
-        """ Age everyone by the length of the simulation time step in days
+        """
+        Age everyone by the length of the simulation time step in days
 
         Parameters
         ----------
@@ -236,7 +248,8 @@ class Replenishment:
 
 
     def update_time(self, event):
-        """ Update time variable by the length of the simulation time step in days
+        """
+        Update time variable by the length of the simulation time step in days
 
         Parameters
         ----------

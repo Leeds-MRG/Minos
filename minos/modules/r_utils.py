@@ -74,6 +74,7 @@ def predict_next_timestep_ols(model, current, independant):
 
     return newPandasPopDF[[independant]]
 
+
 def predict_next_timestep_clm(model, current):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
@@ -108,7 +109,8 @@ def predict_next_timestep_clm(model, current):
         prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
     predictionDF = pd.DataFrame(prediction_matrix_list)
     return predictionDF
-  
+
+
 def predict_next_timestep_SF12(model, current):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
@@ -146,6 +148,7 @@ def predict_next_timestep_SF12(model, current):
 
     return newPandasPopDF[["SF_12"]]
 
+
 def predict_next_timestep_labour_nnet(model, current):
     """Function for predicting next state using labour nnet models.
 
@@ -181,30 +184,34 @@ def predict_next_timestep_labour_nnet(model, current):
                                                    "Student",
                                                    "Unemployed"])
 
-    def predict_highest_educ_nnet(model, current):
-        """Function for predicting highest level of education for the future replenishing populations using nnet model.
 
-        Parameters
-        ----------
+def predict_highest_educ_nnet(model, current):
+    """Function for predicting highest level of education for the future replenishing populations using nnet model.
 
-        Returns
-        -------
+    Parameters
+    ----------
 
-        """
-        # import R packages
-        base = importr('base')
-        stats = importr('stats')
-        nnet = importr("nnet")
-        # Convert from pandas to R using package converter
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            currentRDF = ro.conversion.py2rpy(current)
+    Returns
+    -------
 
-        prediction = stats.predict(model, currentRDF, type="probs")
+    """
+    # import R packages
+    base = importr('base')
+    stats = importr('stats')
+    nnet = importr("nnet")
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
 
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            newPandasPopDF = ro.conversion.rpy2py(prediction)
+    prediction = stats.predict(model, currentRDF, type="probs")
 
-        return pd.DataFrame(newPandasPopDF, columns=['sex',
-                                                     'region',
-                                                     'ethnicity',
-                                                     'max_educ'])
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(prediction)
+
+    return pd.DataFrame(newPandasPopDF, columns=['0',
+                                                 '1',
+                                                 '2',
+                                                 '3',
+                                                 '5',
+                                                 '6',
+                                                 '7'])
