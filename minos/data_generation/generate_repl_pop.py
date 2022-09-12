@@ -74,6 +74,10 @@ def expand_and_reweight_repl(US_2018, projections):
     # now reweight new population file
     expanded_repl['weight'] = (expanded_repl['weight'] * expanded_repl['count']) / expanded_repl['sum_weight']
 
+    expanded_repl.drop(labels=['count', 'sum_weight'],
+                         inplace=True,
+                         axis=1)
+
     return expanded_repl
 
 
@@ -125,55 +129,13 @@ def generate_replenishing(projections):
 
     repl = expand_and_reweight_repl(data, projections)
 
-    # finally predict highest level of educ
+    # finally, predict the highest level of educ
     final_repl = predict_education(repl)
 
     output_dir = 'data/replenishing/'
     US_utils.check_output_dir(output_dir)
-    final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv')
+    final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv', index=False)
     print('Replenishing population generated for 2019 - 2070')
-
-
-def reweight_stock(data, projections):
-    """
-
-    Parameters
-    ----------
-    US_2018 : pandas.DataFrame
-        Datafile derived from Understanding Society 2018 including all ages
-    projections : pandas.DataFrame
-        Datafile containing counts by age and sex from 2008 - 2070 (2008-2020 from midyear estimates, 2021 - 2070 from
-        principal population projections.
-    Returns
-    -------
-    expanded_repl : pandas.DataFrame
-        Expanded dataset (copy of original 16 year olds for each year from 2018 - 2070) reweighted by sex
-    """
-    # first group_by sex and year and sum weight for totals, then rename before merge
-    summed_weights = data.groupby(['sex', 'time', 'age'])['weight'].sum().reset_index()
-    summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
-
-    # merge the projection data and summed weights for reweighting
-    data = data.merge(projections, on=['time', 'sex', 'age'])
-    data = data.merge(summed_weights, on=['time', 'sex', 'age'])
-
-    reweighted_data = data
-
-    # now reweight new population file
-    reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
-
-    return reweighted_data
-
-
-def generate_stock(projections):
-    print('Generating stock population...')
-    years = np.arange(2009, 2020)
-    file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
-    data = US_utils.load_multiple_data(file_names)
-
-    data = reweight_stock(data, projections)
-
-    US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
 
 def main():
@@ -186,8 +148,7 @@ def main():
 
     generate_replenishing(projections)
 
-    generate_stock(projections)
-
+    #generate_stock(projections)
 
 
 if __name__ == "__main__":

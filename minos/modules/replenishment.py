@@ -84,15 +84,8 @@ class Replenishment:
                         'loneliness',
                         'weight',
                         'ndrinks',
-                        'job_hours',
-                        'jb_inc_per',
-                        'hourly_rate',
-                        'gross_paypm',
-                        'job_hours_se',
-                        'job_inc',
                         'nkids',
-                        'gross_pay_se',
-                        'hourly_wage',]
+                        'max_educ',]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -210,10 +203,10 @@ class Replenishment:
             # new wave of simulants need a unique pidp value
             # can achieve this by adding the year and month to each pidp plus 1,000,000 (pidps are 8 digit numbers)
             # I've checked this and made sure that we'll never get a duplicate pidp
-            new_wave['pidp'] = new_wave['pidp'] + event.time.year + event.time.month + 1000000
+            #new_wave['pidp'] = new_wave['pidp'] + event.time.year + event.time.month + 1000000
 
             # re-weight incoming population (currently just by sex)
-            new_wave = self.reweight_repl_input(new_wave)
+            #new_wave = self.reweight_repl_input(new_wave)
 
             # How many agents to add.
             cohort_size = new_wave.shape[0]

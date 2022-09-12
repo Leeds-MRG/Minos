@@ -121,6 +121,10 @@ class Labour:
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
+        #TODO: Handle students properly now that max education is predicted.
+        # Separate the population into current students and everyone else. Then see if students max_educ is larger than
+        # current education_state, if yes maintain student, if no predict new labour_state
+
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 

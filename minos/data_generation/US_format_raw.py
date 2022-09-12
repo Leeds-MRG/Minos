@@ -242,6 +242,8 @@ def format_ukhls_columns(year):
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                        'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
                        'indscub_xw': "weight", # TESTING: Cross-sectional analysis weight (waves 2-11)
+                       'nkids_dv': 'nkids',  # number of children
+                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                        }
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.

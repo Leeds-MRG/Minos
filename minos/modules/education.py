@@ -52,7 +52,9 @@ class Education:
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income']
+                        'hh_income',
+                        'education_state',
+                        'max_educ']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -85,8 +87,8 @@ class Education:
         """ On time step check handle various education changes for people aged 16-30.
 
         Justification for certain age changes:
-        - All children must now complete GCSE, so before age 17 must have attained GCSE
-        - A-levels finish at 18, so anyone who achieves this level will have it applied before age 19
+        - All children must now complete GCSE, so before age 17 must have attained GCSE (level 2)
+        - A-levels and equivalent finish at 18, so anyone who achieves this will have it applied before age 19 (level 3)
         -
 
         Parameters
@@ -94,6 +96,37 @@ class Education:
         event : vivarium.population.PopulationEvent
             The `event` that triggered the function call.
         """
+        self.year = event.time.year
+
+        # Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17
+        # No need to test max_educ for this one, everyone stays in education to 16 now minimum
+        level2 = self.population_view.get(event.index, query="alive=='alive' and age == 17 and labour_state=='Student'")
+        # Update education state and apply back to population view
+        level2['education_state'][level2['education_state'] < 2] = 2
+        self.population_view.update(level2['education_state'])
+
+        # Level 3 is equivalent to A-level, so make this change by age 19 if max_educ is 3 or larger
+        level3 = self.population_view.get(event.index, query="alive=='alive' and age == 19 and labour_state=='Student' and max_educ >= 3")
+        level3['education_state'][level3['education_state'] < 3] = 3
+        self.population_view.update(level3['education_state'])
+
+        # Level 5 is nursing/medical and HE diploma, so make this change by age 22 if max_educ is 5
+        level5 = self.population_view.get(event.index,
+                                          query="alive=='alive' and age == 22 and labour_state=='Student' and max_educ == 5")
+        level5['education_state'][level5['education_state'] < 5] = 5
+        self.population_view.update(level5['education_state'])
+
+        # Level 6 is 1st degree or teaching qual (not PGCE), so make this change by age 22 if max_educ is 6 or larger
+        level6 = self.population_view.get(event.index,
+                                          query="alive=='alive' and age == 22 and labour_state=='Student' and max_educ >= 6")
+        level6['education_state'][level6['education_state'] < 6] = 6
+        self.population_view.update(level6['education_state'])
+
+        # Level 6 is higher degree (masters/PhD), so make this change by age 25 if max_educ is 7
+        level7 = self.population_view.get(event.index,
+                                          query="alive=='alive' and age == 26 and labour_state=='Student' and max_educ == 7")
+        level7['education_state'][level7['education_state'] < 7] = 7
+        self.population_view.update(level7['education_state'])
 
 
     # Special methods for vivarium.
