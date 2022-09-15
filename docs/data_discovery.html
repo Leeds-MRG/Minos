@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -54,6 +55,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="housing_module.html">Housing Module Plan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API/index.html">Welcome to Minos’ API documentation!</a></li>
 </ul>
@@ -81,13 +84,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="data-discovery">
-<h1>Data Discovery<a class="headerlink" href="#data-discovery" title="Permalink to this headline"></a></h1>
+  <section id="data-discovery">
+<h1>Data Discovery<a class="headerlink" href="#data-discovery" title="Permalink to this heading"></a></h1>
 <p>All variables here are from Understanding Society unless otherwise stated</p>
 <p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation">Link to variable search</a></p>
 <p>Although at first glance lots of variables are only asked intermittently, I think we will be able to derive lots of useful information from those that are asked more often. E.g. MRS social class in psychosocial is only included on two non-consecutive waves, however RG Social Class: present job was asked at every wave with good detail, which can be used to derive MRS.</p>
 <section id="wage-income">
-<h2><strong>Wage/Income</strong><a class="headerlink" href="#wage-income" title="Permalink to this headline"></a></h2>
+<h2><strong>Wage/Income</strong><a class="headerlink" href="#wage-income" title="Permalink to this heading"></a></h2>
 <p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/user-guides/main-survey-user-guide/individual-income-variables">Individual income variables</a> - this page details the six components of individual net income, and which variables in BHPS or US that relate to these components.</p>
 <p>Only going to list labour income variables, as there are lots of others that are unrelated to this work. A living wage will only affect labour income.</p>
 <p><strong>N.B.</strong> The top variable here (fimnlabnet_dv) is a derived variable, which is the sum of three earnings components:</p>
@@ -164,7 +167,7 @@
 </table>
 </section>
 <section id="psychosocial-improvement-in-social-status-esteem-financial-independence">
-<h2><strong>Psychosocial - Improvement in social status/esteem, financial independence</strong><a class="headerlink" href="#psychosocial-improvement-in-social-status-esteem-financial-independence" title="Permalink to this headline"></a></h2>
+<h2><strong>Psychosocial - Improvement in social status/esteem, financial independence</strong><a class="headerlink" href="#psychosocial-improvement-in-social-status-esteem-financial-independence" title="Permalink to this heading"></a></h2>
 <p>(including from benefit stigma etc.)</p>
 <p>Come back to this, unfinished. Mostly collected variables that refer to social status/esteem (social class, NSSEC etc.). Financial independence is more complex as there are LOTS of variables related to benefits.</p>
 <p>Financial independence is a persons ability to support themselves financially. This relates to welfare/benefits, as well as extra support from family members (i.e. childcare from family members) as well as dependence for other reasons (i.e. victims of abuse).</p>
@@ -254,7 +257,7 @@
 </table>
 </section>
 <section id="behaviour-nutrition">
-<h2><strong>Behaviour - Nutrition</strong><a class="headerlink" href="#behaviour-nutrition" title="Permalink to this headline"></a></h2>
+<h2><strong>Behaviour - Nutrition</strong><a class="headerlink" href="#behaviour-nutrition" title="Permalink to this heading"></a></h2>
 <p>(food security, hunger, better quality food)</p>
 <p>Variables related to food and nutrition are somewhat lacking in US. Some variables included here are not very strongly related or at best incomplete in capturing the topic.</p>
 <table class="colwidths-auto docutils align-default">
@@ -337,7 +340,7 @@
 </table>
 </section>
 <section id="behaviour-alcohol-and-tobacco-consumption">
-<h2><strong>Behaviour - Alcohol and Tobacco Consumption</strong><a class="headerlink" href="#behaviour-alcohol-and-tobacco-consumption" title="Permalink to this headline"></a></h2>
+<h2><strong>Behaviour - Alcohol and Tobacco Consumption</strong><a class="headerlink" href="#behaviour-alcohol-and-tobacco-consumption" title="Permalink to this heading"></a></h2>
 <p>(increase/decrease?)</p>
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -461,7 +464,7 @@
 </table>
 </section>
 <section id="housing-quality">
-<h2><strong>Housing Quality</strong><a class="headerlink" href="#housing-quality" title="Permalink to this headline"></a></h2>
+<h2><strong>Housing Quality</strong><a class="headerlink" href="#housing-quality" title="Permalink to this heading"></a></h2>
 <p>(decent homes = less damp, warmer, housing security)</p>
 <p>Still to do: Look for more vars related to housing security.</p>
 <table class="colwidths-auto docutils align-default">
@@ -556,7 +559,7 @@
 </table>
 </section>
 <section id="moving-home">
-<h2><strong>Moving Home</strong><a class="headerlink" href="#moving-home" title="Permalink to this headline"></a></h2>
+<h2><strong>Moving Home</strong><a class="headerlink" href="#moving-home" title="Permalink to this heading"></a></h2>
 <p>(could mean less overcrowding, better neighbourhood with more green space, different cultural norms, better recreational and health care facilities, better food outlets, less tobacco and alcohol outlets, less crime and anti-social behaviours)</p>
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -902,7 +905,7 @@
 </table>
 </section>
 <section id="more-social-inclusion">
-<h2><strong>More Social Inclusion</strong><a class="headerlink" href="#more-social-inclusion" title="Permalink to this headline"></a></h2>
+<h2><strong>More Social Inclusion</strong><a class="headerlink" href="#more-social-inclusion" title="Permalink to this heading"></a></h2>
 <p>(e.g. more ability to participate in leisure activities e.g. sports, cinema, or pub)</p>
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -954,7 +957,7 @@
 </table>
 </section>
 <section id="psychosocial-financial-security">
-<h2><strong>Psychosocial - Financial Security</strong><a class="headerlink" href="#psychosocial-financial-security" title="Permalink to this headline"></a></h2>
+<h2><strong>Psychosocial - Financial Security</strong><a class="headerlink" href="#psychosocial-financial-security" title="Permalink to this heading"></a></h2>
 <p>(less chronic stress/worry)</p>
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -1282,7 +1285,7 @@
 </table>
 </section>
 <section id="physical-well-being">
-<h2><strong>Physical Well-Being</strong><a class="headerlink" href="#physical-well-being" title="Permalink to this headline"></a></h2>
+<h2><strong>Physical Well-Being</strong><a class="headerlink" href="#physical-well-being" title="Permalink to this heading"></a></h2>
 <p>(e.g. do you have certain physical ailments? Does your physical well-being effect your ability to be social or work?)</p>
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -1334,7 +1337,7 @@
 </table>
 </section>
 <section id="mental-well-being">
-<h2><strong>Mental Well-Being</strong><a class="headerlink" href="#mental-well-being" title="Permalink to this headline"></a></h2>
+<h2><strong>Mental Well-Being</strong><a class="headerlink" href="#mental-well-being" title="Permalink to this heading"></a></h2>
 <p>(e.g. do you have certain mental ailments? Does your mental well-being effect your ability to be social or work?)</p>
 <table class="colwidths-auto docutils align-default">
 <thead>

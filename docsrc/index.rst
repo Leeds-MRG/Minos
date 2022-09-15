@@ -13,6 +13,8 @@ Welcome to Minos's documentation!
     documentation/index
     data_discovery
     housing_module
+    replenishment
+    education
     data_tables
     API/index
 
