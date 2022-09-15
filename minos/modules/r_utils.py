@@ -1,17 +1,17 @@
 """
 R utility functions. These are currently all related to the use of transition models.
 """
-#import os
-#os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources" # path to R depends on user.
+# TODO figure out scaling of variables in Rpy2. makes models more stable.
+# TODO: Rewrite all these functions to generalise more. Lots of duplicated code
 
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
 import pandas as pd
+import numpy as np
 
 
-#TODO: Rewrite all these functions to generalise more. Lots of duplicated code
 def load_transitions(component, path = 'data/transitions/'):
     """
     This function will load transition models that have been generated in R and saved as .rds files.
@@ -185,6 +185,7 @@ def predict_next_timestep_labour_nnet(model, current):
                                                    "Unemployed"])
 
 
+
 def predict_highest_educ_nnet(model, current):
     """Function for predicting highest level of education for the future replenishing populations using nnet model.
 
@@ -215,3 +216,85 @@ def predict_highest_educ_nnet(model, current):
                                                  '5',
                                                  '6',
                                                  '7'])
+
+
+def predict_next_timestep_alcohol_zip(model, current):
+    """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
+
+    Parameters
+    ----------
+    model: ??? what type is this?
+    current: pd.DataFrame
+        current population dataframe.
+
+    Returns
+    -------
+
+    """
+    current['alcohol_spending'] //= 50
+    base = importr('base')
+    stats = importr('stats')
+    zeroinfl = importr("pscl")
+
+    # grab transition model
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # grab count and zero prediction types
+    # count determines values if they actually drink
+    # zero determine probability of them not drinking
+    counts = stats.predict(model, currentRDF, type="count")
+    zeros = stats.predict(model, currentRDF, type="zero")
+
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        counts = ro.conversion.rpy2py(counts)
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        zeros = ro.conversion.rpy2py(zeros)
+
+    # draw randomly if a person drinks
+    # if they drink assign them their predicted value from count.
+    # otherwise assign 0 (no spending).
+    preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
+    # round up to nearest integer and times by 50 to get actual expenditure back.
+    return np.ceil(preds) * 50
+
+
+def predict_next_timestep_tobacco_zip(model, current):
+    """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
+
+    Parameters
+    ----------
+    model: ??? what type is this?
+    current: pd.DataFrame
+        current population dataframe.
+    Returns
+    -------
+
+    """
+    base = importr('base')
+    stats = importr('stats')
+    zeroinfl = importr("pscl")
+
+    # grab transition model
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # grab count and zero prediction types
+    # count determines values if they actually drink
+    # zero determine probability of them not drinking
+    counts = stats.predict(model, currentRDF, type="count")
+    zeros = stats.predict(model, currentRDF, type="zero")
+
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        counts = ro.conversion.rpy2py(counts)
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        zeros = ro.conversion.rpy2py(zeros)
+
+    # draw randomly if a person drinks
+    # if they drink assign them their predicted value from count.
+    # otherwise assign 0 (no spending).
+    preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
+    # round up to nearest integer and times by 50 to get actual expenditure back.
+    return np.ceil(preds) * 5 #rescale back up to ncigs.

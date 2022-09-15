@@ -1,3 +1,4 @@
+# config file for parallel runs on beefy. Run as one big job with multiprocessing rather than batches through slurm.
 randomness: # Columns used in generation of CRN. need to find out what this actually does.
     key_columns: ['entrance_time', 'age']
 input_data:
@@ -19,7 +20,7 @@ fertility_file: 'regional_Fertility2011_LEEDS1_2.csv' # nomis fertility rate tab
 input_data_dir: 'data/final_US' # Where is cohort data saved after preprocessing.
 persistent_data_dir: 'persistent_data' # Where is any persistent data saved.
 output_data_dir: 'output' # Where is output data saved to.
-output_destination: 'ex1' # Further specify the output data is saved to. E.g. running multiple models may need separate folders to prevent overwriting.
+output_destination: 'childUplift' # Further specify the output data is saved to. E.g. running multiple models may need separate folders to prevent overwriting.
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
@@ -28,9 +29,8 @@ output_destination: 'ex1' # Further specify the output data is saved to. E.g. ru
 # Only if Replenishment needs some other module in the future would it be superceded.
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. Not much use changing jobs if you're dead.(priority 1)
 # Finally everything else can go in any order (priority 2).
-#components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
-#components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeIntervention(), Replenishment()]
+components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomeChildUplift(), Replenishment()]
+#components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomePovertyLineChildUplift(), Replenishment()]
 
 scale_rates:
     # methods:

@@ -4,4 +4,7 @@ install.packages('nnet')
 install.packages('tidyverse')
 install.packages('stringr')
 install.packages('readr')
+install.packages('pscl')
+install.packages('ggplot2')
+install.packages('texreg')
 #

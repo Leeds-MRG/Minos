@@ -26,7 +26,7 @@ sf12.main <- function(years){
     data_files <- get.sf12.files(data_source, year, year+1)
     data <- data_files$data1
     data2 <- data_files$data2
-    
+
     # only look at individuals with data in both waves.
     common <- intersect(data$pidp, data2$pidp)
     data <- data[which(data$pidp %in% common), ]
@@ -35,13 +35,14 @@ sf12.main <- function(years){
     colnames(data2) <- c("pidp", "y")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
-    formula <- "y ~ factor(sex) + 
-                    factor(ethnicity) + 
-                    age + 
-                    factor(education_state) + 
-                    factor(labour_state) + 
+    formula <- "y ~ factor(sex) +
+                    factor(ethnicity) +
+                    age +
+                    factor(education_state) +
+                    factor(labour_state) +
                     factor(job_sec) +
-                    scale(hh_income) + SF_12 + factor(housing_quality)"
+                    scale(hh_income) + I(scale(hh_income)**2) + scale(SF_12) +
+                    factor(housing_quality)"
 
     if(year == 2009) {
         # no weight data in 2009

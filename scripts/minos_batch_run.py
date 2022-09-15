@@ -12,7 +12,6 @@ import sys
 import numpy as np
 import subprocess
 import itertools
-from multiprocessing import Pool
 
 from vivarium import InteractiveContext
 
@@ -33,9 +32,9 @@ from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 
-class parallelMinos():
+class Minos():
 
-    def __init__(self, config_dir, run_id):
+    def __init__(self, config_dir):
         # specify yaml config and update with some list of required kwargs.
 
         #config_dir = kwargs["config_file"]
@@ -62,7 +61,7 @@ class parallelMinos():
         run_output_dir = os.path.join(config['output_data_dir'], config['output_destination'])
         # Make output directory if it does not exist.
         if not os.path.exists(run_output_dir):
-            print("Specified run outpu directory does not exist. Creating.. at " + run_output_dir)
+            print("Specified ")
             os.makedirs(config['output_data_dir'], exist_ok=True)
         os.makedirs(run_output_dir, exist_ok=True)
 
@@ -74,24 +73,19 @@ class parallelMinos():
 
         config['run_output_dir'] = run_output_dir
 
-        # Save final config. If there are multiple runs save multiple configs each with a run id.
-        config['run_id'] = run_id
-
         print("Printing config: ")
         print(config)
-
-        # Save the yaml file with the minimal amount of information needed to reproduce results in the output folder.
+        # Save the config to a yaml file with the minimal amount of information needed to reproduce results in the output folder.
         output_config_dir = os.path.join(run_output_dir, 'config_file.yml')
         with open(output_config_dir, 'w') as config_file:
             yaml.dump(config, config_file)
             print("Write config file successful")
         logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
-        components = self.initComponents(config)
-        #print(config)
-        config = utils.get_config(output_config_dir)  # convert config yaml to vivarium custom config structure tree.
-        #print(config)
-        # init simulation object
+        components = self.initComponents(config) #validate and initialise list of config components to be used in simulation.
+        #
+        config = utils.get_config(output_config_dir)
+        print(config)
         simulation = InteractiveContext(components=components,
                                         configuration=config,
                                         plugin_configuration=utils.base_plugins(),
@@ -115,7 +109,11 @@ class parallelMinos():
             print(f"Presetup done for: {component}")
             simulation = component.pre_setup(config, simulation)
 
+        # Save final config. If there are multiple runs save multiple configs each with a run id.
         config_output_dir = os.path.join(run_output_dir, 'final_config_file.yml')
+        if 'run_id' in config.keys():
+            config_output_dir += "_" + str(config['task_id'])
+
         with open(config_output_dir, 'w') as final_config_file:
             yaml.dump(config.to_dict(), final_config_file)
             print("Write final config file successful")
@@ -130,6 +128,7 @@ class parallelMinos():
 
         # Run setup method for each module.
         simulation.setup()
+
         self.config = config
         self.simulation = simulation
 
@@ -173,17 +172,16 @@ class parallelMinos():
 
             # Print metrics for desired module.
             # TODO: this can be extended towards a generalised metrics method for each module.
-            if "hhIncomeIntervention()" in config['components']:
-                print("cost", sum(pop['boost_amount']))
             if 'Mortality()' in config.components:
                 print('dead', len(pop[pop['alive'] == 'dead']))
             if 'FertilityAgeSpecificRates()' in config.components:
                 print('New children', len(pop[pop['parent_id'] != -1]))
 
+        return config, simulation
+
     def save(self, save_method, destination, file_name):
         """After a full minos model run. There will be a large amount of save data to format for use on local machines or in plots."""
 
-        # dummy function for now
         # uses some generic save function, destination path, and file name.
         data = save_method(some_args)
         data.to_csv(os.join(destination, file_name))
@@ -245,9 +243,9 @@ class parallelMinos():
             components.append(Mortality())
         if "hhIncomeIntervention()" in config['components']:
             components.append(hhIncomeIntervention())
-        if "hhIncomeChildUplift()" in config['components']:
+        if "hhIncomeChildUplift" in config['components']:
             components.append(hhIncomeChildUplift())
-        if "hhIncomePovertyLineChildUplift()" in config['components']:
+        if "hhIncomePovertyLineChildUplift" in config['components']:
             components.append(hhIncomePovertyLineChildUplift())
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
@@ -256,27 +254,28 @@ class parallelMinos():
 if __name__ == "__main__":
     #python3 scripts/minos_batch_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
     # Parse arguments if running this file from a terminal.
-    #parser = argparse.ArgumentParser(description="Minos Dynamic Microsimulation")
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
 
-    #parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
-    #                    help="the model config file (YAML)")
+    parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
+                        help="the model config file (YAML)")
     #parser.add_argument('--location', help='LAD code', default=None)
     #parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
     #parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
     #parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
-    #parser.add_argument("--reps", type=int, metavar="config-file",
-    #                    help="How many repitions to run in parallel. E.g. 10 runs 10 models with the same config.")
+    parser.add_argument("--run_id", type=int, metavar="config-file",
+                        help="the model config file (YAML)")
 
-    #args = vars(parser.parse_args())
+    args = vars(parser.parse_args())
     #input_kwargs = vars(args) # cast args as a dict.
-    args = {'config_file': 'config/beefyParallelConfig.yaml', 'reps': 2}
+
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
     #input_kwargs['parameter_lists'] = parameter_lists
     print(args)
-    minos_runs = [parallelMinos(args['config_file'], run_id).main() for run_id in range(args['reps'])]
-    # doesn't work without being able to pickle vivarium objects.
-    #with Pool() as pool:
-    #    pool.map(parallelMinos.main, minos_runs)
-# TODO. add in args for variance in uplift value, percentage pop, and
+    config_file = args['config_file']
+    minos_run = Minos(config_file)
+    minos_run.main()
+
+
+# TODO. add in args for variance in uplift value, percentage pop, and number of repetitions.

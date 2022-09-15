@@ -1,5 +1,5 @@
 from scripts.run import run_pipeline
-from scripts.minos_parallel_run import Minos
+from scripts.minos_batch_run import Minos
 import itertools
 import numpy as np
 

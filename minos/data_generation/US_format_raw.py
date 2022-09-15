@@ -8,7 +8,6 @@ import numpy as np
 import argparse
 
 import US_utils
-pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
@@ -40,28 +39,28 @@ dataset (2008 for BHPS).
 
 # Where are all persistent files for US data. E.g. int to string variable encodings.
 json_source = "persistent_data/JSON/"
-# Sex.
+## Sex.
 sex_dict = US_utils.load_json(json_source, "sexes.json")
-# Ethnicity.
+## Ethnicity.
 #ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
 #ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
 ethnicity_ukhls = US_utils.load_json(json_source, "ethnicity_ukhls.json")
-# Employment.
+## Employment.
 #labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
 labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
-# Education.
+## Education.
 #education_bhps = US_utils.load_json(json_source, "education_bhps.json")
 # Use simplified one for ukhls currently.
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls.json")
-#education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
+# education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
 education = US_utils.load_json(json_source, "education_gov.json")
-# Depression.
+## Depression.
 depression = US_utils.load_json(json_source, "depression.json")
 depression_change = US_utils.load_json(json_source, "depression_change.json")
-# Heating.
+## Heating.
 #heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
-# Location
+## Location
 region_dict = US_utils.load_json(json_source, "region.json")
 
 
@@ -193,6 +192,7 @@ def format_ukhls_columns(year):
         The attribute_columns names directly from US data. Which columns will be extracted.
         The simplified column_names that are used in the microsim.
     """
+    #TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
     # Converted these into one dict because its annoying to edit two data frames.
     attribute_dict =  {'birthy': "birth_year",  # birth year.
                        'cduse5': 'fridge_freezer', # has fridge
@@ -225,7 +225,7 @@ def format_ukhls_columns(year):
                        'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
                        'jbstat': 'labour_state',  # labour state
                        'ncigs': 'ncigs', # typical daily cigarettes smoked.
-                       # TODO no data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
+                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
                        #  not really applicable without random generation.
                        'pidp': 'pidp',  # personal identifier
                        'qfhigh_dv': 'education_state',  # highest education state
@@ -233,10 +233,10 @@ def format_ukhls_columns(year):
                        'rentgrs_dv': 'hh_rent',  # household monthly rent.
                        'scghqi': 'depression_change',  # depression change GHQ.
                        'sclonely': 'loneliness',  # is lonely.
-                       # Only available in waves 9-11. scsf7 may be a good substitute.
+                       # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                        'sex': 'sex',  # biological sex.
                        'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                       'smoker': 'smoker', # Currently smokes.
+                       'smoker': 'smoker',  # Currently smokes.
                        #TODO waves present roughly matches ncigs. no data for waves 1-5.
                        # for waves 2 and 5 similar variable 'smnow' could be used.
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
