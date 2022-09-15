@@ -23,7 +23,7 @@ import US_utils
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-def reweight_stock(data, projections):
+def reweight_stock(data, projections, ethpop):
     """
 
     Parameters
@@ -33,11 +33,14 @@ def reweight_stock(data, projections):
     projections : pandas.DataFrame
         Datafile containing counts by age and sex from 2008 - 2070 (2008-2020 from midyear estimates, 2021 - 2070 from
         principal population projections.
+    ethpop : pandas.DataFrame
+        Datafile containing counts by ethnic group and age for 2011. Would be good to get these projected into the future.
     Returns
     -------
     expanded_repl : pandas.DataFrame
         Expanded dataset (copy of original 16 year olds for each year from 2018 - 2070) reweighted by sex
     """
+    print('Reweighting by age and sex...')
     # first group_by sex and year and sum weight for totals, then rename before merge
     summed_weights = data.groupby(['sex', 'time', 'age'])['weight'].sum().reset_index()
     summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
@@ -55,16 +58,35 @@ def reweight_stock(data, projections):
                          inplace=True,
                          axis=1)
 
+    print('Reweighting by ethnicity...')
+    # first group_by sex and ethnicity and sum weight for totals, then rename before merge
+    summed_weights = data.groupby(['sex', 'ethnicity', 'age'])['weight'].sum().reset_index()
+    summed_weights = summed_weights.rename(columns={'weight': 'sum_weight'})
+
+    # merge the projection data and summed weights for reweighting
+    reweighted_data = reweighted_data.merge(ethpop, on=['sex', 'ethnicity', 'age'])
+    reweighted_data = reweighted_data.merge(summed_weights, on=['sex', 'ethnicity', 'age'])
+
+    # now reweight new population file
+    reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
+    # drop extra columns
+    reweighted_data.drop(labels=['count', 'sum_weight'],
+                         inplace=True,
+                         axis=1)
+
     return reweighted_data
 
 
-def generate_stock(projections):
+def generate_stock(projections, ethpop):
     print('Generating stock population...')
     years = np.arange(2009, 2020)
     file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    data = reweight_stock(data, projections)
+    # TODO: We reweight the stock population only because reweighting the repl generates very different values to those
+    #   we started with (started with mean ~1, ended with mean in the thousands). We could however trust the analysis
+    #   weight from the survey and just transform the replenishing population weights to bring the mean back to ~1.
+    data = reweight_stock(data, projections, ethpop)
 
     # Needs a max_educ column despite it not being important for the majority of people
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
@@ -81,9 +103,15 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
+    # read in ethpop for 2011
+    ethpop_file = 'persistent_data/ethpop_2011.csv'
+    ethpop = pd.read_csv(ethpop_file)
+    ethpop = ethpop.drop(labels='Unnamed: 0', axis=1)
+
+
     #generate_replenishing(projections)
 
-    generate_stock(projections)
+    generate_stock(projections, ethpop)
 
 
 

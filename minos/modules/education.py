@@ -122,7 +122,7 @@ class Education:
         level6['education_state'][level6['education_state'] < 6] = 6
         self.population_view.update(level6['education_state'])
 
-        # Level 6 is higher degree (masters/PhD), so make this change by age 25 if max_educ is 7
+        # Level 7 is higher degree (masters/PhD), so make this change by age 25 if max_educ is 7
         level7 = self.population_view.get(event.index,
                                           query="alive=='alive' and age == 26 and labour_state=='Student' and max_educ == 7")
         level7['education_state'][level7['education_state'] < 7] = 7
