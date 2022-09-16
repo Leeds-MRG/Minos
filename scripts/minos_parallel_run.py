@@ -32,6 +32,7 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
+from minos.modules.intervention import energyDownlift
 
 class parallelMinos():
 
@@ -115,7 +116,8 @@ class parallelMinos():
             print(f"Presetup done for: {component}")
             simulation = component.pre_setup(config, simulation)
 
-        config_output_dir = os.path.join(run_output_dir, 'final_config_file.yml')
+        # TODO better way of saving configs for many minos reps. better to not have basically the same info 100 times.
+        config_output_dir = os.path.join(run_output_dir, f'{run_id}_final_config_file.yml')
         with open(config_output_dir, 'w') as final_config_file:
             yaml.dump(config.to_dict(), final_config_file)
             print("Write final config file successful")
@@ -249,6 +251,8 @@ class parallelMinos():
             components.append(hhIncomeChildUplift())
         if "hhIncomePovertyLineChildUplift()" in config['components']:
             components.append(hhIncomePovertyLineChildUplift())
+        if 'energyDownlift()' in config['components']:
+            components.append(energyDownlift())
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
         return components
@@ -256,26 +260,27 @@ class parallelMinos():
 if __name__ == "__main__":
     #python3 scripts/minos_batch_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
     # Parse arguments if running this file from a terminal.
-    #parser = argparse.ArgumentParser(description="Minos Dynamic Microsimulation")
+    parser = argparse.ArgumentParser(description="Minos Dynamic Microsimulation")
 
-    #parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
-    #                    help="the model config file (YAML)")
+    parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
+                        help="the model config file (YAML)")
     #parser.add_argument('--location', help='LAD code', default=None)
     #parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
     #parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
     #parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
-    #parser.add_argument("--reps", type=int, metavar="config-file",
-    #                    help="How many repitions to run in parallel. E.g. 10 runs 10 models with the same config.")
+    parser.add_argument("--reps", type=int, metavar="config-file",
+                        help="How many repitions to run in parallel. E.g. 10 runs 10 models with the same config.")
 
-    #args = vars(parser.parse_args())
-    #input_kwargs = vars(args) # cast args as a dict.
-    args = {'config_file': 'config/beefyParallelConfig.yaml', 'reps': 2}
+    args = vars(parser.parse_args())
+    input_kwargs = vars(args) # cast args as a dict.
+    #args = {'config_file': 'config/beefyParallelConfig.yaml', 'reps': 2}
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
     #input_kwargs['parameter_lists'] = parameter_lists
     print(args)
-    minos_runs = [parallelMinos(args['config_file'], run_id).main() for run_id in range(args['reps'])]
+    for i in range(args['reps']):
+        parallelMinos(args['config_file'], i+1).main()
     # doesn't work without being able to pickle vivarium objects.
     #with Pool() as pool:
     #    pool.map(parallelMinos.main, minos_runs)

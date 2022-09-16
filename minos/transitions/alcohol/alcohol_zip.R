@@ -2,10 +2,10 @@ library(pscl)
 source("minos/transitions/utils.R")
 
 
-eth_alcohol_plot<- ggplot(data, aes(x=ethnicity, y=alcohol_spending)) + 
-  geom_boxplot(outlier.colour="red", outlier.shape=8,
-               outlier.size=4)
-eth_alcohol_plot
+#eth_alcohol_plot<- ggplot(data, aes(x=ethnicity, y=alcohol_spending)) + 
+#  geom_boxplot(outlier.colour="red", outlier.shape=8,
+#               outlier.size=4)
+#eth_alcohol_plot
 
 # ndrinks vs expenditure. very strong positive correlation predictably..
 #plot(data$ndrinks, data$alcohol_spending)
@@ -114,6 +114,6 @@ main <- function(years){
   }
 }
 
-years <- seq(2009, 2018, 1)
+years <- seq(2009, 2019, 1)
 
 main(years)

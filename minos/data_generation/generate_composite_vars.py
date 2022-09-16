@@ -194,6 +194,91 @@ def generate_labour_composite(data):
               inplace=True)
     return data
 
+def generate_energy_composite(data):
+    """Merge energy consumption for gas and or electric into one column.
+
+    Energy bills are sum of gas and electricity bills together.
+    Some people pay bills seperately and some pay them together. This results in three variables.
+    This function compresses them into one gas and or electricity bill expenditure.
+
+    1. gather those who pay both together and ignore them
+    2. gather those who pay sole gas bill. If duel value is -8 set it to this. create gas added flag value.
+    3. gather those who pay sole electricity bill. if duel value is -8 or has true gas added flag add this.
+    4. oil consumption ??
+    5. add new composite to data frame and remove anything else.
+
+    Parameters
+    ----------
+
+    data : pd.DataFrame
+        US data with  'xpelecy' yearly electricty expenditure, 'xpgasy' yearly gas expenditure
+        and 'xpduely' duel bill expenditure.
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with 'electricity_bill' composite column.
+    """
+
+    data['yearly_energy'] = data['yearly_gas_electric']
+    # force people without certain energy sources to 0.
+    # if they dont have elec/oil/gas/other set to 0. if they have none set gas_electric to none
+    data.loc[data['has_electric'] == 0, 'yearly_electric'] = 0
+    data.loc[data['has_gas'] == 0, 'yearly_gas'] = 0
+    data.loc[data['has_oil'] == 0, 'yearly_oil'] = 0
+    data.loc[data['has_other'] == 0, 'yearly_other_fuel'] = 0
+    data.loc[data['has_none'] == 1, 'yearly_energy'] = 0
+    data.loc[data['energy_in_rent'] == 1, 'yearly_energy'] = 0
+
+    # indicators for who is missing yearly gas and electricity bills but has some other energy bill.
+    # gas electric oil and other only.
+    who_just_gas = (data['yearly_energy'].isin(US_utils.missing_types)) & ~(data['yearly_gas'].isin(US_utils.missing_types))
+    who_just_elec = (data['yearly_energy'].isin(US_utils.missing_types)) & ~(data['yearly_electric'].isin(US_utils.missing_types))
+    who_just_oily = (data['yearly_energy'].isin(US_utils.missing_types)) & ~(data['yearly_oil'].isin(US_utils.missing_types))
+    who_just_other = (data['yearly_energy'].isin(US_utils.missing_types)) & ~(data['yearly_other_fuel'].isin(US_utils.missing_types))
+
+    #imputation_index = who_just_gas
+    # update everyone who is missing a gas and electric bill with their gas bill.
+    data.loc[who_just_gas, 'yearly_energy'] = data.loc[who_just_gas, 'yearly_gas']
+
+    # TODO combined imputation rather than just adding to everyone who has missing in each category?
+    # helps to preserve missing values.
+    # e.g. everyone who has gas but not duel just has missing values replaced.
+    # however for electric some people will have already imputed gas values, some actually missing and some duel values.
+    # need a way to work out who is being set a new value from missing and who is adding to a non-zero value.
+    # probably loc functions conditioning on positive bills.
+    # for now just naively adding things together. will be add differences between -9 and -1 but shouldnt matter too much.
+
+
+    # determine who was missing but has had gas values added.
+    # determine who is still missing values
+    # set electric to those missing. add electric to those not missing.
+    who_no_longer_missing = who_just_elec & data['yearly_energy'] > 0
+    data.loc[who_no_longer_missing, 'yearly_energy'] += data.loc[who_no_longer_missing, 'yearly_electric']
+    who_still_missing = who_just_elec & data['yearly_energy'].isin(US_utils.missing_types)
+    data.loc[who_still_missing, 'yearly_energy'] = data.loc[who_still_missing, 'yearly_electric']
+
+    who_no_longer_missing = who_just_oily & data['yearly_energy'] > 0
+    data.loc[who_no_longer_missing, 'yearly_energy'] += data.loc[who_no_longer_missing, 'yearly_oil']
+    who_still_missing = who_just_oily & (data['yearly_energy'].isin(US_utils.missing_types))
+    data.loc[who_still_missing, 'yearly_energy'] = data.loc[who_still_missing, 'yearly_oil']
+
+    who_no_longer_missing = who_just_other & data['yearly_energy'] > 0
+    data.loc[who_no_longer_missing, 'yearly_energy'] += data.loc[who_no_longer_missing, 'yearly_other_fuel']
+    who_still_missing = who_just_other & (data['yearly_energy'].isin(US_utils.missing_types))
+    data.loc[who_still_missing, 'yearly_energy'] = data.loc[who_still_missing, 'yearly_other_fuel']
+
+
+
+    print(sum(data['yearly_energy'] == -8))
+    print(sum(data['yearly_energy'].isin(US_utils.missing_types)))
+
+    # remove all but yearly_energy variable left.
+    data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel'
+                      , 'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none', 'energy_in_rent'],
+              axis=1,
+              inplace=True)
+    # everyone else in this composite doesn't know or refuses to answer so are omitted.
+    return data
 def main():
     # first collect and load the datafiles for every year
     years = np.arange(2009, 2020)
@@ -201,10 +286,11 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
-    data = generate_composite_housing_quality(data)     # housing_quality
-    data = generate_hh_income(data)                     # hh_income
-    data = generate_composite_neighbourhood_safety(data) # safety
-    data = generate_labour_composite(data)               # labour state
+    data = generate_composite_housing_quality(data)       # housing_quality.
+    data = generate_hh_income(data)                       # hh_income.
+    data = generate_composite_neighbourhood_safety(data)  # safety.
+    data = generate_labour_composite(data)                # labour state.
+    data = generate_energy_composite(data)                # energy consumption.
 
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

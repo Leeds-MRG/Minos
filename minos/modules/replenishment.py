@@ -85,7 +85,8 @@ class Replenishment:
                         'weight',
                         'ndrinks',
                         'nkids',
-                        'max_educ',]
+                        'max_educ',
+                        'yearly_energy']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

@@ -36,7 +36,7 @@ class Minos():
 
     def __init__(self, config_dir):
         # specify yaml config and update with some list of required kwargs.
-
+        # print(sys.argv)
         #config_dir = kwargs["config_file"]
             # if running on hpc use argv arguments to get parameters.
             # if debugging/testing use a preset list of simple parameters.
@@ -49,7 +49,7 @@ class Minos():
 
         # Vivarium needs an initial population size. Define it as the first cohort of US data.
         year_start = config['time']['start']['year']
-        start_population_size = pd.read_csv(f"data/final_US/{year_start}_US_cohort.csv").shape[0]
+        start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
         # Start population size added to config.
         config['population']['population_size'] = start_population_size
         print(f'Start Population Size: {start_population_size}')
@@ -114,6 +114,12 @@ class Minos():
         if 'run_id' in config.keys():
             config_output_dir += "_" + str(config['task_id'])
 
+        # Define unique parameter combinations for intervention. Used to generate unique save files later.
+        # If no experiment parameters are defined by an intervention module this is the default for batch runs.
+        if 'experiment_parameters' not in config:
+            config.update({'experiment_parameters': [int(sys.argv[4]) - 1]}, source=str(Path(__file__).resolve()))
+            config.update({'experiment_parameters_names': ['run_id']}, source=str(Path(__file__).resolve()))
+
         with open(config_output_dir, 'w') as final_config_file:
             yaml.dump(config.to_dict(), final_config_file)
             print("Write final config file successful")
@@ -128,6 +134,7 @@ class Minos():
 
         # Run setup method for each module.
         simulation.setup()
+
 
         self.config = config
         self.simulation = simulation
@@ -243,9 +250,9 @@ class Minos():
             components.append(Mortality())
         if "hhIncomeIntervention()" in config['components']:
             components.append(hhIncomeIntervention())
-        if "hhIncomeChildUplift" in config['components']:
+        if "hhIncomeChildUplift()" in config['components']:
             components.append(hhIncomeChildUplift())
-        if "hhIncomePovertyLineChildUplift" in config['components']:
+        if "hhIncomePovertyLineChildUplift()" in config['components']:
             components.append(hhIncomePovertyLineChildUplift())
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
