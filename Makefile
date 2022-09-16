@@ -166,8 +166,8 @@ transitions: ### Run R scripts to generate transition models for each module
 transitions: | $(TRANSITION_DATA)
 transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds
 transitions: $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
-transitions: $(TRANSITION_DATA)/housing/clm/neighbourhood_clm_2014_2017.rds $(TRANSITION_DATA)/housing/clm/tobacco_zip_2018_2019.rds
-transitions: $(TRANSITION_DATA)/housing/clm/alcohol_zip_2018_2019.rds
+transitions: $(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds $(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds
+transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds
 
 # Input Populations
 
@@ -217,13 +217,13 @@ $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_c
 $(TRANSITION_DATA)/education/nnet/educ_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/education/education_nnet.r
 	$(RSCRIPT) $(SOURCEDIR)/transitions/education/education_nnet.r
 
-$(TRANSITION_DATA)/housing/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
+$(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
 
-$(TRANSITION_DATA)/housing/clm/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
+$(TRANSITION_DATA)/tobacoo/zip/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
 
-$(TRANSITION_DATA)/housing/clm/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
+$(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 
 
