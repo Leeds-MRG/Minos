@@ -89,7 +89,7 @@ class Income:
 
 
     def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for mortality when new simulants are added.
+        """  Initiate columns for income when new simulants are added.
 
         Parameters
         ----------
@@ -104,7 +104,7 @@ class Income:
 
 
     def on_time_step(self, event):
-        """Produces new children and updates parent status on time steps.
+        """ Predicts the hh_income for the next timestep.
 
         Parameters
         ----------

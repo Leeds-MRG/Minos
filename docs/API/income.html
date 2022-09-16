@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -41,6 +42,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../housing_module.html">Housing Module Plan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../education.html">Education</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../replenishment.html">Replenishment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Welcome to Minos’ API documentation!</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="housing.html">Housing API</a></li>
@@ -74,7 +77,7 @@
            <div itemprop="articleBody">
              
   <section id="module-minos.modules.income">
-<span id="income-api"></span><h1>Income API<a class="headerlink" href="#module-minos.modules.income" title="Permalink to this headline"></a></h1>
+<span id="income-api"></span><h1>Income API<a class="headerlink" href="#module-minos.modules.income" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minos.modules.income.Income">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minos.modules.income.</span></span><span class="sig-name descname"><span class="pre">Income</span></span><a class="reference internal" href="../_modules/minos/modules/income.html#Income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income" title="Permalink to this definition"></a></dt>
@@ -92,7 +95,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.income.Income.on_initialize_simulants">
 <span class="sig-name descname"><span class="pre">on_initialize_simulants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.on_initialize_simulants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.on_initialize_simulants" title="Permalink to this definition"></a></dt>
-<dd><p>Initiate columns for mortality when new simulants are added.</p>
+<dd><p>Initiate columns for income when new simulants are added.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>pop_data</strong> (<em>vivarium.framework.population.SimulantData</em>) – Custom vivarium class for interacting with the population data frame.
@@ -108,7 +111,7 @@ creation_window, and current simulation state (setup/running/etc.).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.income.Income.on_time_step">
 <span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.on_time_step" title="Permalink to this definition"></a></dt>
-<dd><p>Produces new children and updates parent status on time steps.</p>
+<dd><p>Predicts the hh_income for the next timestep.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>event</strong> (<em>vivarium.population.PopulationEvent</em>) – The event time_step that called this function.</p>
