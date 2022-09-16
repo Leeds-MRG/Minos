@@ -48,7 +48,8 @@ if __name__ == "__main__":
     file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    complete_case_vars = ["job_sec", "labour_state", "education_state", "housing_quality", "age", "housing_quality"]
+    complete_case_vars = ["job_sec", "labour_state", "education_state", "housing_quality", "age", "housing_quality",
+                          'yearly_energy']
     data = complete_case_varlist(data, complete_case_vars)
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 

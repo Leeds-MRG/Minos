@@ -244,7 +244,19 @@ def format_ukhls_columns(year):
                        'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
                        'nkids_dv': 'nkids',  # number of children
                        'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
-                       }
+                       'xpelecy': 'yearly_electric', # yearly electricty expenditure
+                       'xpgasy': 'yearly_gas', # yearly gas expenditure
+                       'xpduely': 'yearly_gas_electric', # yearly both expenditure.
+                       'xpoily': 'yearly_oil',  # yearly oil expenditure.
+                       'xpsfly': 'yearly_other_fuel', # yearly other fuel (wood?)
+                       'fuelhave1': 'has_electric',
+                       'fuelhave2': 'has_gas',
+                       'fuelhave3': 'has_oil',
+                       'fuelhave4': 'has_other',
+                       'fuelhave5': 'has_none',
+                       'rentinc2': 'energy_in_rent',
+
+    }
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.
 

@@ -67,10 +67,11 @@ conda:
 	module load python anaconda
 	@echo "Initiating conda environment. "
 	conda create -p conda_minos python=3.8
-	@ "Minimal R 4.0.5 install in conda environment."
-	conda install -c conda-forge r-base=4.0.5
 	@echo "Activating conda environment"
 	source activate conda_minos
+	@ "Minimal R 4.0.5 install in conda environment."
+	#conda install -c conda-forge r-base=4.0.5
+	conda install -c conda-forge r-essentials=4.0.5
 	@echo "conda install complete!"
 
 ## Install
@@ -193,8 +194,11 @@ $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds: $(FINALDATA)/2019_US_cohort.c
 $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/labour/labour_nnet.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/labour/labour_nnet.R
 
-$(TRANSITION_DATA)/housing/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
-	$(RSCRIPT) $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
+$(TRANSITION_DATA)/housing/clm/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
+	$(RSCRIPT) $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
+
+$(TRANSITION_DATA)/housing/clm/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
+	$(RSCRIPT) $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 
 ###
 ## Cleaning

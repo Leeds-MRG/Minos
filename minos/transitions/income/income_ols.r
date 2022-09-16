@@ -139,7 +139,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     # Test texreg conversion of regression coefficient outputs to html.
     # Only doing one year of transitions for now..
     # Assume file is run in root directory (../../..). 
-    htmlreg(model, file='docsrc/Coefficients/test_income_OLS_coefficients.html')
+    #htmlreg(model, file='docsrc/Coefficients/test_income_OLS_coefficients.html')
   }
   # close and remove connection object from memory
   close(modDefs)

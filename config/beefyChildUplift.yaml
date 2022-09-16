@@ -4,10 +4,10 @@ randomness: # Columns used in generation of CRN. need to find out what this actu
 input_data:
     location: 'UK' # again not sure why this is needed.
 time: # how long does the simulation run for. Has the start/end times. How long is a step and how many years does the model run.
-    start: {year: 2011, month: 10, day: 15} # Can probably derive these from start and n_steps instead.
-    end:   {year: 2016, month: 10, day: 15}
+    start: {year: 2009, month: 10, day: 15} # Can probably derive these from start and n_steps instead.
+    end:   {year: 2018, month: 10, day: 15}
     step_size: 365.25  # Days
-    num_years: 5
+    num_years: 9
 population:
     age_start: 0 # used to randomly generate ages for synthetic pop. Can probably remove.
     age_end: 100

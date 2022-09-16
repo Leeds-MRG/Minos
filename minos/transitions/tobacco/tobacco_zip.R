@@ -115,6 +115,6 @@ main <- function(years){
 }
 # no data until wave 5 because ????????????????. Changes to a likert scale for waves 3,4. no data at all for wave 1.
 # I'n just going to do 5 years of transitions..
-years <- seq(2014, 2018, 1)
+years <- seq(2014, 2019, 1)
 
 main(years)

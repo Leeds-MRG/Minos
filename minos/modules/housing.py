@@ -141,11 +141,3 @@ class Housing:
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
         return prob_df
-
-    # Special methods used by vivarium.
-    @property
-    def name(self):
-        return 'housing'
-
-    def __repr__(self):
-        return "Housing()"
