@@ -45,6 +45,8 @@ clm.neighbourhood.main <- function(years){
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
     data$y <- factor(data$y, levels=c(1, 2, 3))
+
+    #print(str(data))
     
     formula <- "y ~ factor(sex) +
                         age +
@@ -55,7 +57,7 @@ clm.neighbourhood.main <- function(years){
                         hh_income +
                         factor(housing_quality) +
                         region +
-                        education_state
+                        factor(education_state)
                         "
     clm.neighbourhood <- clm(formula,
         data = data,

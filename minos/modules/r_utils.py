@@ -8,6 +8,7 @@ import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
+from rpy2.robjects.vectors import FactorVector
 import pandas as pd
 import numpy as np
 
@@ -95,6 +96,7 @@ def predict_next_timestep_clm(model, current):
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
+
 
     # NOTE clm package predict function is a bit wierdly written. The predict type "prob" gives the probability of an
     # individual belonging to each possible next state. If there are 4 states this is a 4xn matrix.

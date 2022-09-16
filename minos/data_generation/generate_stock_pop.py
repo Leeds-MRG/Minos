@@ -78,6 +78,7 @@ def reweight_stock(data, projections, ethpop):
 
 
 def generate_stock(projections, ethpop):
+
     print('Generating stock population...')
     years = np.arange(2009, 2020)
     file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]

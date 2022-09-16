@@ -96,7 +96,7 @@ class Education:
         event : vivarium.population.PopulationEvent
             The `event` that triggered the function call.
         """
-        self.year = event.time.year
+        #self.year = event.time.year
 
         # Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17
         # No need to test max_educ for this one, everyone stays in education to 16 now minimum
