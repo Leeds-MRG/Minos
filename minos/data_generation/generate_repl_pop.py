@@ -26,7 +26,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_and_reweight_repl(US_2018, projections, ethpop):
+def expand_and_reweight_repl(US_2018, projections):
     """ Expand and reweight replenishing populations (16 year olds) from 2019 - 2070
 
     Parameters
@@ -64,14 +64,14 @@ def expand_and_reweight_repl(US_2018, projections, ethpop):
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
 
     ## Now reweight by sex and year
-    print('Reweighting by sex and year...')
+    print('Reweighting by sex, ethnic group, and year...')
     # first group_by sex and year and sum weight for totals, then rename before merge
-    summed_weights = expanded_repl.groupby(['sex', 'time'])['weight'].sum().reset_index()
+    summed_weights = expanded_repl.groupby(['sex', 'time', 'ethnicity'])['weight'].sum().reset_index()
     summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
 
     # merge the projection data and summed weights for reweighting
-    expanded_repl = expanded_repl.merge(projections, on=['time', 'sex', 'age'])
-    expanded_repl = expanded_repl.merge(summed_weights, on=['time', 'sex'])
+    expanded_repl = expanded_repl.merge(projections, on=['time', 'sex', 'age', 'ethnicity'])
+    expanded_repl = expanded_repl.merge(summed_weights, on=['time', 'sex', 'ethnicity'])
 
     # now reweight new population file
     expanded_repl['weight'] = (expanded_repl['weight'] * expanded_repl['count']) / expanded_repl['sum_weight']
@@ -79,23 +79,6 @@ def expand_and_reweight_repl(US_2018, projections, ethpop):
     expanded_repl.drop(labels=['count', 'sum_weight'],
                          inplace=True,
                          axis=1)
-
-    ## Now do the same but reweight by ethnicity
-    print('Reweighting by ethnicity...')
-    # first group_by sex and ethnicity and sum weight for totals, then rename before merge
-    summed_weights = expanded_repl.groupby(['sex', 'ethnicity'])['weight'].sum().reset_index()
-    summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
-
-    # merge the projection data and summed weights for reweighting
-    expanded_repl = expanded_repl.merge(ethpop, on=['ethnicity', 'sex', 'age'])
-    expanded_repl = expanded_repl.merge(summed_weights, on=['ethnicity', 'sex'])
-
-    # now reweight new population file
-    expanded_repl['weight'] = (expanded_repl['weight'] * expanded_repl['count']) / expanded_repl['sum_weight']
-
-    expanded_repl.drop(labels=['count', 'sum_weight'],
-                       inplace=True,
-                       axis=1)
 
     return expanded_repl
 
@@ -140,13 +123,13 @@ def predict_education(repl):
     return repl
 
 
-def generate_replenishing(projections, ethpop):
+def generate_replenishing(projections):
     print('Generating replenishing population...')
     # first collect and load the datafile for 2018
     file_name = "data/complete_US/2018_US_cohort.csv"
     data = pd.read_csv(file_name)
 
-    repl = expand_and_reweight_repl(data, projections, ethpop)
+    repl = expand_and_reweight_repl(data, projections)
 
     # finally, predict the highest level of educ
     final_repl = predict_education(repl)
@@ -159,20 +142,13 @@ def generate_replenishing(projections, ethpop):
 
 def main():
     # read in projected population counts from 2008-2070
-    proj_file = "persistent_data/pop_projections_2008-2070.csv"
+    proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
     projections = pd.read_csv(proj_file)
     # rename and drop some columns to prepare
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    # read in ethpop for 2011
-    ethpop_file = 'persistent_data/ethpop_2011.csv'
-    ethpop = pd.read_csv(ethpop_file)
-    ethpop = ethpop.drop(labels='Unnamed: 0', axis=1)
-
-    generate_replenishing(projections, ethpop)
-
-    #generate_stock(projections)
+    generate_replenishing(projections)
 
 
 if __name__ == "__main__":
