@@ -220,7 +220,7 @@ $(TRANSITION_DATA)/education/nnet/educ_nnet_2018_2019.rds: $(FINALDATA)/2019_US_
 $(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
 
-$(TRANSITION_DATA)/tobacoo/zip/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
+$(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
 
 $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
