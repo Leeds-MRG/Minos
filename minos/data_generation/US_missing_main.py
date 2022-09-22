@@ -35,7 +35,9 @@ def add_nobs_column(data):
 def main(output_dir):
     # Load in data.
     # Process data by year and pidp.
-    years = np.arange(2009, 2020)
+    years = np.arange(1991, 2020) # need the full range of US data for locf imputation.
+    save_years = np.arange(2009, 2020) # only saving UKHLS data after 2009.
+
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = add_nobs_column(data)
@@ -58,15 +60,18 @@ def main(output_dir):
     print("After removing deterministically missing values.")
     after_det = US_missing_description.missingness_table(data)
 
-    f_columns = ["education_state", "depression", "depression_change",
-                 "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
-                 "job_industry", "job_sec", "heating"]  # add more variables here.
+    #f_columns = ["education_state", "depression", "depression_change",
+    #             "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
+    #             "job_industry", "job_sec", "heating"]  # add more variables here.
+    f_columns = ['education_state', 'labour_state', 'job_sec', 'heating']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     li_columns = ["age"]
-    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns, li_columns=li_columns)
+    data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns)
     print("After LOCF correction.")
     after_locf = US_missing_description.missingness_table(data)
 
+    # cut back to just save data. don't want to complete case rows that aren't used.
+    data = data.loc[data["time"].isin(save_years)]
     # TODO MICE goes here to deal with remaining missing obs.
 
     # complete case analysis instead of MICE for now.
@@ -80,11 +85,11 @@ def main(output_dir):
     i = data[["sex", "ethnicity", "region"]].dropna().index
     data = data.loc[i,:]
 
-    US_utils.save_multiple_files(data, years, output_dir, "")
+    US_utils.save_multiple_files(data, save_years, output_dir, "")
 
     return data
 
 
 if __name__ == "__main__":
-    output = 'data/corrected_US/'
+    output = 'data/final_US/'
     data = main(output)

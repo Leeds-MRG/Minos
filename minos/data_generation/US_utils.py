@@ -117,9 +117,11 @@ def get_wave_letter(year):
     """
     # UKHLS naming convention.
     # Wave for 2009 begins with a_, b_, c_,...
-    wave_number = year - 2009
+    if year < 2009:
+        wave_number = year - 1991
+    else:
+        wave_number = year - 2009
     wave_letter = alphabet[wave_number]
-
     return wave_letter
 
 def US_file_name(year, source, section):
@@ -144,15 +146,20 @@ def US_file_name(year, source, section):
     file_name : str
         Returns the file_name
     """
+    # BHPS naming convention
+    # ba, bb, bc, ...
     # UKHLS naming convention.
     # Wave for 2009 begins with a_, b_, c_,...
     wave_letter = get_wave_letter(year)
-    file_name = f"ukhls/{wave_letter}_{section}.dta"
+    if year < 2009:  # bhps
+        file_name = f"bhps/b{wave_letter}_{section}.dta"
+    else:  # ukhls
+        file_name = f"ukhls/{wave_letter}_{section}.dta"
     file_name = source + file_name  # add directory onto front.
     return file_name
 
 
-def ukhls_wave_prefix(columns, year):
+def wave_prefix(columns, year):
     """ Determine wave prefix for ukhls wave data.
 
     Parameters
@@ -169,6 +176,12 @@ def ukhls_wave_prefix(columns, year):
     """
     #wave_letter = alphabet[year - 2008]
     wave_letter = get_wave_letter(year)
+    if year < 2009:
+        wave_letter = 'b' + wave_letter
+
+    if year == 2008:
+        print('hi')
+
     exclude = ["pidp"]
     for i, item in enumerate(columns):
         if item not in exclude:
