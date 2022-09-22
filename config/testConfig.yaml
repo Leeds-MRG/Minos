@@ -30,7 +30,7 @@ output_destination: 'test' # Further specify the output data is saved to. E.g. r
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Mortality(), Replenishment()]
+components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Mortality(), Replenishment()]
 
 scale_rates:
     # methods:

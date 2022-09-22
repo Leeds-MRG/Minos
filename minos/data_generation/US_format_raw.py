@@ -236,6 +236,7 @@ def format_ukhls_columns(year):
                        # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                        'sex': 'sex',  # biological sex.
                        'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
+                       'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
                        'smoker': 'smoker',  # Currently smokes.
                        #TODO waves present roughly matches ncigs. no data for waves 1-5.
                        # for waves 2 and 5 similar variable 'smnow' could be used.
@@ -270,7 +271,7 @@ def format_ukhls_columns(year):
     # Adjust attribute_columns as necessary.
     # E.g age -> a_age, age -> b_age ... for waves of ukhls.
     attribute_columns = list(attribute_dict.keys())
-    attribute_columns = US_utils.ukhls_wave_prefix(attribute_columns, year)
+    attribute_columns = US_utils.wave_prefix(attribute_columns, year)
 
     # Attribute names are consistent over all waves.
     # Future work may give these prefixes as well for flat (opposed to tall) data structure.
@@ -410,7 +411,7 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
 
     # calculate wave letter based on year, and generate hidp variable name for use as merge key
     wave_letter = US_utils.get_wave_letter(year)
-    if year < 2008:
+    if year < 2009:
         merge_key = f"b{wave_letter}_hidp"
     else:
         merge_key = f"{wave_letter}_hidp"
@@ -491,7 +492,8 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 
 
 if __name__ == "__main__":
-    years = np.arange(2009, 2020)
+    years = np.arange(1991, 2020) # need bhps for locf imputation. only keep years 2009-2020.
+    #years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
@@ -501,7 +503,7 @@ if __name__ == "__main__":
 
     # Get source from args
     source = args.source_dir
-    #source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/"
+    #source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
     output = "data/raw_US/"
 
     main(years, source, output)

@@ -31,7 +31,7 @@ def main(sources, years):
 
 if __name__ == '__main__':
     #sources = ['output/baseline/', 'output/povertyUplift/', 'output/childUplift/']
-    sources = ['output/povertyUplift/']
-    years = np.arange(2009, 2019)
+    sources = ['output/twentyFivePovertyUplift/']
+    years = np.arange(2010, 2019)
     main(sources, years)
 

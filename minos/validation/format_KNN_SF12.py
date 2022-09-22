@@ -26,7 +26,10 @@ def main(year, params, param_names, source):
 
     # generate new SF_12 column that is living wage if in cluster 5 and baseline otherwise.
     spatial_data["SF_12"] = spatial_data["baseline"]
-    spatial_data.loc[spatial_data['Cluster'] == 5, "SF_12"] = spatial_data.loc[spatial_data['Cluster'] == 5, "lwage"]
+    spatial_data["SF_12"] = spatial_data["lwage"]
+    # TODO make this clearer as a function.
+    # OMIT ME IF NO INCLUSION OF CLUSTER DIFFERENCE.
+    #spatial_data.loc[spatial_data['Cluster'] == 5, "SF_12"] = spatial_data.loc[spatial_data['Cluster'] == 5, "lwage"]
     spatial_data.drop(labels=['baseline', 'lwage'],
               axis=1,
               inplace=True)
@@ -69,4 +72,5 @@ if __name__ == '__main__':
     params = []
     param_names = []
     source = 'output/livingWage/'
+    #source = 'output/knnClusterLivingWage/'
     main(year, params, param_names, source)
