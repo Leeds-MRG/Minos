@@ -19,6 +19,8 @@ from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
+from minos.modules.education import Education
+
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -68,6 +70,8 @@ def RunPipeline(config, start_population_size, run_output_dir):
         components.append(Income())
     if "FertilityAgeSpecificRates()" in config['components']:
         components.append(FertilityAgeSpecificRates())
+    if "Education()" in config['components']:
+        components.append(Education())
     if "Mortality()" in config['components']:
         components.append(Mortality())
     if "hhIncomeIntervention()" in config['components']:

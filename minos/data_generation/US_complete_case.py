@@ -37,10 +37,12 @@ def complete_case_varlist(data, varlist):
     """
     for var in varlist:
         data[var] = data[var].replace(US_utils.missing_types, np.nan)
-        #data[var] = data[var].dropna(axis=0)
+        data[var] = data[var].dropna(axis=0)
+
     data = data.dropna(axis=0)
     data = data.reset_index(drop=True)
     return data
+
 
 if __name__ == "__main__":
 
@@ -51,5 +53,5 @@ if __name__ == "__main__":
     complete_case_vars = ["job_sec", "labour_state", "education_state", "housing_quality", "age", "housing_quality",
                           'yearly_energy']
     data = complete_case_varlist(data, complete_case_vars)
-    US_utils.save_multiple_files(data, years, "data/final_US/", "")
+    US_utils.save_multiple_files(data, years, "data/complete_US/", "")
 

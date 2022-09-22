@@ -2,16 +2,17 @@
 R utility functions. These are currently all related to the use of transition models.
 """
 # TODO figure out scaling of variables in Rpy2. makes models more stable.
-
-import os
-#os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources" # path to R depends on user.
+# TODO: Rewrite all these functions to generalise more. Lots of duplicated code
 
 import rpy2.robjects as ro
-from rpy2.robjects import IntVector, StrVector, pandas2ri
+from rpy2.robjects import pandas2ri
 from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
+from rpy2.robjects.vectors import FactorVector
 import pandas as pd
 import numpy as np
+
+
 def load_transitions(component, path = 'data/transitions/'):
     """
     This function will load transition models that have been generated in R and saved as .rds files.
@@ -74,6 +75,7 @@ def predict_next_timestep_ols(model, current, independant):
 
     return newPandasPopDF[[independant]]
 
+
 def predict_next_timestep_clm(model, current):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
@@ -95,6 +97,7 @@ def predict_next_timestep_clm(model, current):
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
+
     # NOTE clm package predict function is a bit wierdly written. The predict type "prob" gives the probability of an
     # individual belonging to each possible next state. If there are 4 states this is a 4xn matrix.
     # If the response variable (y in this case/ next housing state) is specific it ONLY gives the probability of being
@@ -108,7 +111,8 @@ def predict_next_timestep_clm(model, current):
         prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
     predictionDF = pd.DataFrame(prediction_matrix_list)
     return predictionDF
-  
+
+
 def predict_next_timestep_SF12(model, current):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
@@ -146,6 +150,7 @@ def predict_next_timestep_SF12(model, current):
 
     return newPandasPopDF[["SF_12"]]
 
+
 def predict_next_timestep_labour_nnet(model, current):
     """Function for predicting next state using labour nnet models.
 
@@ -180,6 +185,40 @@ def predict_next_timestep_labour_nnet(model, current):
                                                    "Sick/Disabled",
                                                    "Student",
                                                    "Unemployed"])
+
+
+
+def predict_highest_educ_nnet(model, current):
+    """Function for predicting highest level of education for the future replenishing populations using nnet model.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+    # import R packages
+    base = importr('base')
+    stats = importr('stats')
+    nnet = importr("nnet")
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    prediction = stats.predict(model, currentRDF, type="probs")
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(prediction)
+
+    return pd.DataFrame(newPandasPopDF, columns=['0',
+                                                 '1',
+                                                 '2',
+                                                 '3',
+                                                 '5',
+                                                 '6',
+                                                 '7'])
+
 
 def predict_next_timestep_alcohol_zip(model, current):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
@@ -222,6 +261,7 @@ def predict_next_timestep_alcohol_zip(model, current):
     # round up to nearest integer and times by 50 to get actual expenditure back.
     return np.ceil(preds) * 50
 
+
 def predict_next_timestep_tobacco_zip(model, current):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
@@ -230,7 +270,6 @@ def predict_next_timestep_tobacco_zip(model, current):
     model: ??? what type is this?
     current: pd.DataFrame
         current population dataframe.
-
     Returns
     -------
 

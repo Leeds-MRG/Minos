@@ -337,10 +337,6 @@ def generate_interview_date_var(data):
     data : pandas.DataFrame
         Dataframe with interview date variable added
     """
-    # skip if already done
-    if "Date" in data.columns:
-        return data
-
     # Replace na with 0 (na is technically a float so messes up when converting to int) and convert to int then string
     # Format date to 2 sigfigs so we keep the form '08' instead of just '8'
     data["hh_int_y"] = data["hh_int_y"].fillna(0).astype(int).astype(str)

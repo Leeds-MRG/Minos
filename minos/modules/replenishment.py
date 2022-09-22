@@ -6,6 +6,7 @@ import pandas as pd
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
+
 class Replenishment:
 
 
@@ -27,6 +28,10 @@ class Replenishment:
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
+        # load in pop_projections for reweighting
+        #projections = pd.read_csv('pop_projections_2008-2070.csv')
+        # write pop_projections into simulation object as they are used every wave
+        #simulation._data.write('pop_projections_2008-2070')
         # load in the starting year. This is the first cohort that is loaded.
         return simulation
 
@@ -78,14 +83,23 @@ class Replenishment:
                         'smoker',
                         'loneliness',
                         'weight',
-                        'nkids',
                         'ndrinks',
+                        'nkids',
+                        'max_educ',
                         'yearly_energy']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
         self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
         self.register = builder.randomness.register_simulants  # register new simulants to CRN streams (seed them).
+
+        # load in population projection data for reweighting and generate a lookup table
+        #pop_projections = builder.data.load('pop_projections_2008-2070')
+        #self.pop_projections = builder.lookup.build_table(pop_projections,
+        #                                                  key_columns=['sex'],
+        #                                                  parameter_columns=['year', 'age'],
+        #                                                  value_columns=['count'])
+
 
         # Defines how this module initialises simulants when self.simulant_creater is called.
         builder.population.initializes_simulants(self.on_initialize_simulants,
@@ -122,6 +136,10 @@ class Replenishment:
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
         elif pop_data.user_data["cohort_type"] == "replenishment":
+            # After setup only load in 16 year old agents from the 2018 datafile at each wave
+            #new_population = pd.read_csv(f"data/final_US/2018_US_cohort.csv")
+            #new_population = new_population[(new_population['age'] == 16)]
+
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
@@ -148,12 +166,15 @@ class Replenishment:
 
     def on_time_step(self, event):
         """ On time step add new simulants to the module.
+        New simulants to be added must be 16 years old, and will be reweighted to fit some constraints defined
+        from census key statistics (principal population projections).
 
         Parameters
         ----------
         event : vivarium.population.PopulationEvent
             The `event` that triggered the function call.
         """
+
         # Only add new cohorts on the october of each year when the data is taken.
         # If its october update the current year and load in new cohort data.
         # Also update the time variable with the new year for everyone (dead people also)
@@ -162,25 +183,41 @@ class Replenishment:
             self.current_year += 1
             pop['time'] += 1
             self.population_view.update(pop)
-            new_wave = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
+            # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
+            new_wave = pd.read_csv(f"data/replenishing/replenishing_pop_2019-2070.csv")
+            # Now select the population for the current year
+            new_wave = new_wave[(new_wave['time'] == event.time.year)]
+            # TODO: Check how the population size changes over time now that we're only adding in 16 year olds
+            # It might mean that the pop shrinks over time, as the counts within age groups is generally between 250-500
+            # respondents (16-~80 year olds, older ages can have far less)
         else:
             # otherwise dont load anyone in.
             new_wave = pd.DataFrame()
+
+
         # Get alive population.
-        pop = self.population_view.get(event.index, query='pidp > 0 and alive == "alive"')
+        #pop = self.population_view.get(event.index, query='pidp > 0 and alive == "alive"')
         # Check new data has any simulants in it before adding to frame.
         if new_wave.shape[0] > 0:
-            new_cohort = new_wave.loc[~new_wave["pidp"].isin(pop["pidp"])]
+            #new_cohort = new_wave.loc[~new_wave["pidp"].isin(pop["pidp"])]
+
+            # new wave of simulants need a unique pidp value
+            # can achieve this by adding the year and month to each pidp plus 1,000,000 (pidps are 8 digit numbers)
+            # I've checked this and made sure that we'll never get a duplicate pidp
+            #new_wave['pidp'] = new_wave['pidp'] + event.time.year + event.time.month + 1000000
+
+            # re-weight incoming population (currently just by sex)
+            #new_wave = self.reweight_repl_input(new_wave)
 
             # How many agents to add.
-            cohort_size = new_cohort.shape[0]
+            cohort_size = new_wave.shape[0]
             # This dictionary appears again in generate_initial_population later.
             # It is the user_data attribute of pop_data. It can be empty if you want but anything needed to initalise
             # simulants is required here. For now, its only the creation time.
             # This is a remnant from daedalus that needs simplifying.
             new_cohort_config = {'sim_state': 'time_step',
                                  'creation_time': event.time,
-                                 'new_cohort': new_cohort,
+                                 'new_cohort': new_wave,
                                  'cohort_type': "replenishment",
                                  'cohort_size': cohort_size}
 
@@ -190,7 +227,8 @@ class Replenishment:
 
 
     def age_simulants(self, event):
-        """ Age everyone by the length of the simulation time step in days
+        """
+        Age everyone by the length of the simulation time step in days
 
         Parameters
         ----------
@@ -204,7 +242,8 @@ class Replenishment:
 
 
     def update_time(self, event):
-        """ Update time variable by the length of the simulation time step in days
+        """
+        Update time variable by the length of the simulation time step in days
 
         Parameters
         ----------

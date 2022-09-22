@@ -8,7 +8,6 @@ import numpy as np
 import argparse
 
 import US_utils
-pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
@@ -40,27 +39,28 @@ dataset (2008 for BHPS).
 
 # Where are all persistent files for US data. E.g. int to string variable encodings.
 json_source = "persistent_data/JSON/"
-# Sex.
+## Sex.
 sex_dict = US_utils.load_json(json_source, "sexes.json")
-# Ethnicity.
+## Ethnicity.
 #ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
 #ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
 ethnicity_ukhls = US_utils.load_json(json_source, "ethnicity_ukhls.json")
-# Employment.
+## Employment.
 #labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
 labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
-# Education.
+## Education.
 #education_bhps = US_utils.load_json(json_source, "education_bhps.json")
 # Use simplified one for ukhls currently.
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls.json")
-education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
-# Depression.
+# education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
+education = US_utils.load_json(json_source, "education_gov.json")
+## Depression.
 depression = US_utils.load_json(json_source, "depression.json")
 depression_change = US_utils.load_json(json_source, "depression_change.json")
-# Heating.
+## Heating.
 #heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
-# Location
+## Location
 region_dict = US_utils.load_json(json_source, "region.json")
 
 
@@ -242,7 +242,7 @@ def format_ukhls_columns(year):
                        # for waves 2 and 5 similar variable 'smnow' could be used.
                        'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                        'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                       'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
+                       'indscub_xw': "weight", # TESTING: Cross-sectional analysis weight (waves 2-11)
                        'nkids_dv': 'nkids',  # number of children
                        'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                        'xpelecy': 'yearly_electric', # yearly electricty expenditure
@@ -304,6 +304,25 @@ def format_ukhls_ethnicity(data):
 def format_ukhls_education(data):
     """ Format US education data.
 
+    See following for the levels and associated numeric codes:
+    - None of the above : 0
+    - Other School Certification : 1
+    - GCSE/O level : 2
+    - Standard/o/lower : 2
+    - CSE : 2
+    - AS level : 3
+    - A level : 3
+    - International Baccalaureate : 3
+    - Welsh Baccalaureate : 3
+    - Scottish Highers : 3
+    - Cert 6th year studies : 3
+    - Nursing/other med qual : 5
+    - Diploma in HE : 5
+    - Teaching qual not PGCE : 6
+    - 1st Degree or equivalent : 6
+    - Higher degree : 7
+    - Other higher degree : 7
+
     Parameters
     ----------
     data : pd.DataFrame
@@ -314,7 +333,7 @@ def format_ukhls_education(data):
         Data after formatting educations.
     """
     # Map education ints to strings.
-    data["education_state"] = data["education_state"].astype(str).map(education_ukhls)
+    data["education_state"] = data["education_state"].astype(str).map(education)
     return data
 
 

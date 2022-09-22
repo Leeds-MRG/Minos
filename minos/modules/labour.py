@@ -9,14 +9,9 @@ from pathlib import Path
 from minos.modules import r_utils
 import random
 
+
 class Labour:
 
-    @property
-    def name(self):
-        return "labour"
-
-    def __repr__(self):
-        return "Labour()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -38,6 +33,7 @@ class Labour:
         """
         # nothing done here yet. transition models specified by year later.
         return simulation
+
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -92,7 +88,8 @@ class Labour:
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=1)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for labour when new simulants are added.
@@ -111,6 +108,7 @@ class Labour:
         # No synthetic columns for labour currently. Maybe labour history variables added here.
         return pop_data
 
+
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -123,6 +121,10 @@ class Labour:
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
+        #TODO: Handle students properly now that max education is predicted.
+        # Separate the population into current students and everyone else. Then see if students max_educ is larger than
+        # current education_state, if yes maintain student, if no predict new labour_state
+
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
@@ -132,6 +134,7 @@ class Labour:
         labour_prob_df.index = labour_prob_df.index.astype(int)
 
         self.population_view.update(labour_prob_df["labour_state"])
+
 
     def calculate_labour(self, pop):
         """Calculate labour transition distribution based on provided people/indices.
@@ -150,10 +153,13 @@ class Labour:
         prob_df = r_utils.predict_next_timestep_labour_nnet(transition_model, pop)
         return prob_df
 
+
     # Special methods used by vivarium.
     @property
     def name(self):
         return 'labour'
 
+
     def __repr__(self):
         return "Labour()"
+
