@@ -7,7 +7,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-class Replenishment_nowcast:
+class replenishmentNowcast:
 
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
@@ -76,7 +76,9 @@ class Replenishment_nowcast:
                         'loneliness',
                         'weight',
                         'nkids',
-                        'ndrinks']
+                        'ndrinks',
+                        'max_educ',
+                        'yearly_energy']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

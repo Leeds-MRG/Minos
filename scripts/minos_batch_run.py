@@ -19,6 +19,7 @@ from minos import utils
 
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
+from minos.modules.replenishment_nowcast import replenishmentNowcast
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income
@@ -256,6 +257,8 @@ class Minos():
             components.append(hhIncomePovertyLineChildUplift())
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
+        if "replenishmentNowcast()" in config['components']:
+            components.append(replenishmentNowcast())
         return components
 
 if __name__ == "__main__":
