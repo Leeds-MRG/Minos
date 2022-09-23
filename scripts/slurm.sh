@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=4            # Number of CPU cores per task
 #SBATCH --mem=1gb                     # Job memory request
 #SBATCH --time=00:15:00               # Time limit hrs:min:sec
-#SBATCH --output=logs/job_%j_$SLURM_ARRAY_TASK_ID.out   # Standard output and error log
+#SBATCH --output=logs/minos_batch-%A-%a.out   # Standard output and error log
 
 pwd; hostname; date
 
