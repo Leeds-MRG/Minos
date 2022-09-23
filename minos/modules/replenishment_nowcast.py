@@ -217,4 +217,4 @@ class replenishmentNowcast:
 
 
     def __repr__(self):
-        return "Replenishment_nowcast()"
+        return "replenishmentNowcast()"

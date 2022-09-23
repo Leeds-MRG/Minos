@@ -35,7 +35,7 @@ from minos.modules.intervention import hhIncomePovertyLineChildUplift
 
 class Minos():
 
-    def __init__(self, config_dir):
+    def __init__(self, config_dir, run_id):
         # specify yaml config and update with some list of required kwargs.
         # print(sys.argv)
         #config_dir = kwargs["config_file"]
@@ -110,21 +110,20 @@ class Minos():
             print(f"Presetup done for: {component}")
             simulation = component.pre_setup(config, simulation)
 
-        # Save final config. If there are multiple runs save multiple configs each with a run id.
-        config_output_dir = os.path.join(run_output_dir, 'final_config_file.yml')
-        if 'run_id' in config.keys():
-            config_output_dir += "_" + str(config['task_id'])
-
         # Define unique parameter combinations for intervention. Used to generate unique save files later.
         # If no experiment parameters are defined by an intervention module this is the default for batch runs.
         if 'experiment_parameters' not in config:
-            config.update({'experiment_parameters': [int(sys.argv[4]) - 1]}, source=str(Path(__file__).resolve()))
+            config.update({'experiment_parameters': run_id}, source=str(Path(__file__).resolve()))
             config.update({'experiment_parameters_names': ['run_id']}, source=str(Path(__file__).resolve()))
 
-        with open(config_output_dir, 'w') as final_config_file:
-            yaml.dump(config.to_dict(), final_config_file)
-            print("Write final config file successful")
-        logging.info("Final YAML config file written before vivarium simulation object is declared.")
+        # Save final config. If there are multiple runs save multiple configs each with a run id.
+        config_output_dir = os.path.join(run_output_dir, f'final_config_file.yml')
+        # file exists
+        if run_id == 1: # only write config file once on first run.
+            with open(config_output_dir, 'w') as final_config_file:
+                yaml.dump(config.to_dict(), final_config_file)
+                print("Write final config file successful")
+            logging.info("Final YAML config file written before vivarium simulation object is declared.")
 
         # Print start time for entire simulation.
         print('Start simulation setup')
@@ -284,7 +283,8 @@ if __name__ == "__main__":
     #input_kwargs['parameter_lists'] = parameter_lists
     print(args)
     config_file = args['config_file']
-    minos_run = Minos(config_file)
+    run_id = args['run_id']
+    minos_run = Minos(config_file, run_id)
     minos_run.main()
 
 
