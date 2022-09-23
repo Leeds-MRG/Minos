@@ -113,7 +113,7 @@ class Minos():
         # Define unique parameter combinations for intervention. Used to generate unique save files later.
         # If no experiment parameters are defined by an intervention module this is the default for batch runs.
         if 'experiment_parameters' not in config:
-            config.update({'experiment_parameters': run_id}, source=str(Path(__file__).resolve()))
+            config.update({'experiment_parameters': [run_id]}, source=str(Path(__file__).resolve()))
             config.update({'experiment_parameters_names': ['run_id']}, source=str(Path(__file__).resolve()))
 
         # Save final config. If there are multiple runs save multiple configs each with a run id.
