@@ -7,7 +7,9 @@ Possible extension to interaction with employment/education and any spatial/inte
 import pandas as pd
 import minos.modules.r_utils as r_utils
 
+
 class Tobacco:
+
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -144,6 +146,7 @@ class Tobacco:
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_tobacco_zip(transition_model, pop)
         return nextWaveTobacco
+
 
     # Special methods used by vivarium.
     @property
