@@ -31,7 +31,7 @@ get.clm.file.name <- function(destination, year1, year2){
   return(file_name)
 }
 
-clm.housing.main <- function(year){
+clm.nutrition.main <- function(year){
   # loop over specified years and fit clm models.
   print("Writing CLM model for years")
   print(year)
@@ -66,7 +66,9 @@ clm.housing.main <- function(year){
                   factor(education_state) +
                   factor(labour_state) +
                   factor(ethnicity) +
-                  scale(hh_income)"
+                  scale(hh_income) +
+                  scale(ncigs) +
+                  scale(alcohol_spending)"
 
   # Handle the fact that first wave (2009) has no weight data
   if (year == 2009) {
