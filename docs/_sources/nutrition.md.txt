@@ -25,3 +25,13 @@ eaten per week. Unfortunately because the `days_eating_<>_per_week` variables ar
 (levels = [Never, 1-3 days, 4-6 days, Everyday]) and not just the number of days, we can't calculate an actual value 
 for `amount_per_week`.
 
+## Transition Model
+
+Predictor variables:
+- Sex
+- Age
+- Education
+- SF-12
+- Labour state
+- Ethnicity
+- Household Income
