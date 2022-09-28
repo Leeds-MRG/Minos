@@ -255,6 +255,10 @@ def format_ukhls_columns(year):
                        'fuelhave4': 'has_other',
                        'fuelhave5': 'has_none',
                        'rentinc2': 'energy_in_rent',
+                       'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
+                       'fruitamt':'fruit_per_day', # amount of fruit eaten on days when eating fruit
+                       'wkvege': 'veg_days', # no. days respondent eats veg per week
+                       'vegeamt': 'veg_per_day', # amt. veg eaten on veg eating days
 
     }
     # Some variables change names halfway through UKHLS.
