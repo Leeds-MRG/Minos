@@ -15,6 +15,7 @@ Welcome to Minos's documentation!
     housing_module
     replenishment
     education
+    nutrition
     data_tables
     API/index
 
