@@ -8,14 +8,20 @@ import matplotlib.pyplot as plt
 
 def main(sources, years, labels):
     df = pd.DataFrame(columns=['SF_12', 'label', 'year'])
-    for i, source in enumerate(sources):
-        for year in years:
+    for year in years:
+        for i, source in enumerate(sources):
             file = glob.glob(f'{source}means*{year}.csv')[0]
             new = pd.DataFrame(pd.read_csv(file)["SF_12"])
+            if labels[i] == 'Baseline': # for normalising for relative difference against baseline
+                baseline_mean = np.nanmean(new)
+            new /= baseline_mean
             new['label'] = labels[i]
             new['year'] = year
             df = pd.concat([df, new])
     df.reset_index(inplace=True, drop=True)
+    baseline_mean = np.nanmean(df.loc[df['label']=="Baseline"]["SF_12"])
+    df["SF_12"] /= baseline_mean
+    #df = df.groupby(['label', 'year'])["SF_12"].mean()
     f = plt.figure()
     sns.lineplot(data=df, x='year', y="SF_12", hue = 'label', style='label', markers=True, palette='Set2')
     plt.savefig("plots/test_means.pdf")

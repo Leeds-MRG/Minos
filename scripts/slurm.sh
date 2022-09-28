@@ -1,20 +1,30 @@
 #!/bin/bash
-# File for running slurm jobs. If you use this please make sure to change parameters.
-# Particularly the email address, number of tasks, and number of nodes.
-# Needs fine tuning according to machine. This script will be tuned to Nik's UoL HPC machine (AKA beefy).
-#SBATCH --job-name=parallel_job      # Job name
-#SBATCH --mail-type=FAIL         # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user= gyrc@leeds.ac.uk    # Where to send mail
-#SBATCH --nodes=16                    # Run all processes on a single node
-#SBATCH --ntasks=2                  # Run a single task
+#SBATCH --job-name=parallel_minos_job      # Job name
+#SBATCH --mail-type=FAIL             # Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=gyrc@leeds.ac.uk # Where to send mail
+#SBATCH --nodes=1                    # Run all processes on a single node       
+#SBATCH --ntasks=1                   # Run a single task                
 #SBATCH --cpus-per-task=4            # Number of CPU cores per task
-#SBATCH --mem=1gb                    # Job memory request
-#SBATCH --time=01:00:00              # Time limit hrs:min:sec
-#SBATCH --output=parallel_%j.log     # Standard output and error log
+#SBATCH --mem=1gb                     # Job memory request
+#SBATCH --time=00:15:00               # Time limit hrs:min:sec
+#SBATCH --output=logs/minos_batch-%A-%a.out   # Standard output and error log
+
 pwd; hostname; date
 
 echo "Running Minos task $SLURM_JOBID on $SLURM_CPUS_ON_NODE CPU cores"
+echo "Running task $SLURM_ARRAY_TASK_ID of $SLURM_ARRAY_TASK_MAX"
 
-python3 scripts/minos_parallel_run.py --c config/slurmConfig.yaml $SLURM_JOBID # run minos paralell run with job_id j
+python3 scripts/minos_batch_run.py -c $1 --run_id $SLURM_ARRAY_TASK_ID  # run minos parallel run with job_id j
 
-date
+# no errors
+exit 0
+
+
+
+
+
+
+
+
+
+

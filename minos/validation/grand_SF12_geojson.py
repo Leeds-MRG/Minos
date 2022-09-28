@@ -62,7 +62,7 @@ def main(source, spatial_source, year, params, param_names):
     print(US_data.shape)
     # subset US data. grab common pidps to prevent NA errors.
     spatial_data2 = spatial_data.loc[spatial_data["pidp"].isin(US_data["pidp"]),]
-    US_data2 = US_data.loc[US_data["pidp"].isin(spatial_data2["pidp"]),["pidp", "SF_12"]]
+    US_data2 = US_data.loc[US_data["pidp"].isin(spatial_data2["pidp"]),["pidp", "SF_12", 'hidp', "boost_amount"]]
     US_data2 = US_data2.groupby("pidp", as_index=False).mean()
 
     # left merge US data into spatial data.
@@ -122,8 +122,10 @@ if __name__ == '__main__':
     #main('output/baseline/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
     #main('output/childUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
     #main('output/povertyUplift/', "persistent_data/ADULT_population_GB_2018.csv", 2016, parameters, parameter_names)
-    years = np.arange(2010, 2018)
-    for year in years:
-        main('output/energyDownlift/', "persistent_data/ADULT_population_GB_2018.csv", year, parameters, parameter_names)
-
+    #years = np.arange(2010, 2018)
+    #for year in years:
+    #    main('output/energyDownlift/', "persistent_data/ADULT_population_GB_2018.csv", year, parameters, parameter_names)
+    year = 2016
+    main('output/povertyUplift/', "persistent_data/ADULT_population_GB_2018.csv", year, parameters, parameter_names)
+    #main('output/livingWage/', "persistent_data/ADULT_population_GB_2018.csv", year, parameters, parameter_names)
 

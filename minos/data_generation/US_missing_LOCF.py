@@ -58,18 +58,41 @@ def bfill_groupby(pid_groupby):
 
 def fbfill_groupby(pid_groupby):
     """ forward and back fill groupby object
-
     Parameters
     ----------
     pid_groupby : pandas.groupby
         Pandas groupby object with data sorted by some set of variables. pidp and interview year (time) usually.
-
     Returns
     -------
     pid_groupby : Object with forward-back filled variables.
     """
     return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
 
+def interpolate(data, interpolate_columns, type='linear'):
+    """ Interpolate column based on year time index.
+
+    groupby on pidp
+    sort by time year
+    set index to time year.
+    interpolate linearly using time index.
+    reset index.
+    return column.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+
+    type : str
+        Type of interpolation specified by pandas.interpolate. Defaults to linear but others are available and may be useful.
+    """
+    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
+    data = data.sort_values(by=["pidp", "time"])
+    data[interpolate_columns] = data[interpolate_columns].replace(US_utils.missing_types, np.nan)
+    data.index = data['time']
+    data_groupby = data.groupby('pidp', sort=False, as_index=False)
+    data[interpolate_columns] = data_groupby[interpolate_columns].apply(lambda x: x.interpolate(method=type, limit_direction='both', axis=0))
+    data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+    return data
 
 def linear_interpolator_groupby(pid_groupby, type="forward"):
     """ Linear interpolation for deterministic increases like age.
@@ -128,7 +151,7 @@ def locf_sort(data, sort_vars, group_vars):
     pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
     return pid_groupby
 
-def locf(data, f_columns = None, b_columns = None, fb_columns = None, li_columns = None):
+def locf(data, f_columns = None, b_columns = None, fb_columns = None):
     """ Last observation carrying for correcting missing data.
 
     Data is often only recorded when someone either enters the study for
@@ -179,11 +202,6 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None, li_columns
         # forwards and backwards fill. again immutables only.
         fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
         data[fb_columns] = fill[fb_columns]
-    if li_columns:
-        # linear interpolation.
-        fill = applyParallelLOCF(pid_groupby[li_columns], linear_interpolator_groupby, type="both")
-        data[li_columns] = fill[li_columns]
-
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data
 
@@ -204,8 +222,13 @@ def main():
                  "job_industry", "job_sec", "heating"] #add more variables here.
     fb_columns = ["sex", "ethnicity", "birth_year"] # or here if they're immutable.
     li_columns = ["age"] # linear interpolation columns.
-    data = locf(data, f_columns=f_columns, fb_columns=fb_columns, li_columns=li_columns)
-    after = US_missing_description.missingness_table(data)
+    print('performing linear interpolation')
+    data = interpolate(data, li_columns)
+    print('done')
+    after_interp = US_missing_description.missingness_table(data)
+    data = locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    after_locf = US_missing_description.missingness_table(data)
+    # marginal density plots.
     #US_missing_description.missingness_hist(data, "education_state", "age")
     #US_missing_description.missingness_hist(data, "labour_state", "age")
     #US_missing_description.missingness_bars(data, "education_state", "ethnicity")

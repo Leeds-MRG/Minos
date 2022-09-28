@@ -59,3 +59,9 @@ plots/
 
 # Chris' data
 persistent_data/ADULT*.csv
+
+# conda env.
+conda_minos
+
+# slurm logs
+logs/*

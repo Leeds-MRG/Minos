@@ -76,6 +76,13 @@ conda:
 	conda install -c conda-forge r-essentials=4.0.5
 	@echo "conda install complete!"
 
+.PHONY: beefy_conda
+
+beefy_conda:
+	conda create -p conda_minos python=3.9 # create conda environment. 
+	conda activate ../conda_minos # activate conda environment.
+	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0. 
+
 ## Install
 ###
 .PHONY: install
@@ -165,7 +172,7 @@ spatial_data: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(
 transitions: ### Run R scripts to generate transition models for each module
 transitions: | $(TRANSITION_DATA)
 transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds
-transitions: $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
+#transitions: $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
 transitions: $(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds $(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds
 transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds
 
@@ -232,7 +239,7 @@ $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_c
 .PHONY: clean_out clean_logs clean_data clean_all
 
 clean_all: ### Remove output, log files, generated data files and transition models
-clean_all: clean_data clean_transitions
+clean_all: clean_data clean_transitions clean_logs
 
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
@@ -252,3 +259,7 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+
+clean_logs: # remove all slurm minos logs.
+clean_logs: rm -rf logs/*
+clean_logs: #TODO add one for arc4 logs too. 

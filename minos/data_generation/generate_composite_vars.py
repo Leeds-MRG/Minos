@@ -328,6 +328,7 @@ def generate_nutrition_composite(data):
 
 def main():
     # first collect and load the datafiles for every year
+    print("Starting composite generation.")
     years = np.arange(2009, 2020)
     file_names = [f"data/corrected_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
@@ -340,6 +341,7 @@ def main():
     data = generate_energy_composite(data)                # energy consumption.
     data = generate_nutrition_composite(data)             # nutrition
 
+    print('Finished composite generation.')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 
 

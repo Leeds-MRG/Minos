@@ -27,6 +27,17 @@ sheffield_subset_function <- function(data){
   return(subset(data, LSOA11CD %in% sheffield_lsoas$ONS))
 }
 
+manchester_subset_function <- function(data){
+  yorkshire_lsoas <- read_csv("/Users/robertclay/persistent_data/KNN_LSOA_clusters.csv")$
+  yorkshire_lsoas <- data.frame(yorkshire_lsoas)[-c(1:11),c(5,4)]
+  colnames(yorkshire_lsoas) <- c("ONS", "metro_area")
+  unique_lsoas <- unique(yorkshire_lsoas$ONS)
+  yorkshire_lsoas <- yorkshire_lsoas[which(yorkshire_lsoas$ONS%in%unique_lsoas),]
+  sheffield_lsoas <- yorkshire_lsoas[which(yorkshire_lsoas$metro_area=="Sheffield"),]
+  return(subset(data, LSOA11CD %in% sheffield_lsoas$ONS))
+}
+
+
 calculate_diff <-function(d1, d2){
   d1$SF12_diff <- d1$SF_12 - d2$SF_12
   return(d1)
@@ -42,9 +53,9 @@ sf12_map <- function(data, f_name){
     #geom_sf(colour = data$worst_highlighted_col, lwd=data$worst_highlighted) +
     scale_fill_viridis_c(alpha = 1.0, direction=-1) +
     # if you want political ward names by area..
-    geom_text_repel(data=sheff_wards, aes(geometry=geometry, label=WD13NM)
-                     , stat='sf_coordinates', inherit.aes = F, min.segment.length = 0,
-                    bg.color='white',alpha=0.3) +
+    #geom_text_repel(data=sheff_wards, aes(geometry=geometry, label=WD13NM)
+    #                 , stat='sf_coordinates', inherit.aes = F, min.segment.length = 0,
+    #                bg.color='white',alpha=0.3) +
     # Symmetric colourmap to highlight positive/negative values. 
     # Has limited colour schemes relative to matplotlib. Purple orange (puor) seems
     # like best avaiable. 
@@ -58,7 +69,7 @@ sf12_map <- function(data, f_name){
     ylab("Latitude")
   
   if(plot == T){
-    pdf(paste(f_name, '.pdf'))
+    pdf(paste(f_name, '.pdf')) # need to do this or R won't save pdf from variable.
     print(SF12.map)
     dev.off()
   }else{
@@ -127,39 +138,41 @@ main <- function(real_data_file, minos_data_file, diff, f_name){
 #five_largest_lsoas <- sheff_polys_minos_tb[which(sheff_polys_minos_tb$SF12_diff%in%five_largest),]
 # most over estimated areas.
 # broomhill student area, greystones posh, northern general hospital ,woodhouse badger estate rough, direct city centre. 
+run_all <- function(){
+  sheff_wards <- st_as_sf(geojson_read('/Users/robertclay/data/sheffield_wards.geojson', what='sp'))
+  sheff_wards <- as_tibble(st_centroid(sheff_wards, byid=T))
+  
+  real_data <- "/Users/robertclay/data/real_LSOA_with_SF12_2016.geojson"
+  baseline_data <- "/Users/robertclay/minos/output/baseline/2016.geojson"
+  poverty_data <- "/Users/robertclay/minos/output/povertyUplift/2016.geojson"
+  all_data <- "/Users/robertclay/minos/output/childUplift/2016.geojson"
+  twentyfive_data <- "/Users/robertclay/minos/output/twentyFivePovertyUplift/2016.geojson"
+  living_wage_data <- "/Users/robertclay/minos/output/childUplift/2016.geojson"
+  
+  main(real_data, baseline_data, F, 'plots/SF12_map')
+  #main(baseline_data, poverty_data, T, 'plots/povertyUpliftmap')
+  #main(baseline_data, all_data, T, 'plots/allUpliftmap')
+  #main(baseline_data, twentyfive_data, T, 'plots/twentyfivemap')
 
-sheff_wards <- st_as_sf(geojson_read('/Users/robertclay/data/sheffield_wards.geojson', what='sp'))
-sheff_wards <- as_tibble(st_centroid(sheff_wards, byid=T))
-
-real_data <- "/Users/robertclay/data/real_LSOA_with_SF12_2016.geojson"
-baseline_data <- "/Users/robertclay/minos/output/baseline/2016.geojson"
-poverty_data <- "/Users/robertclay/minos/output/povertyUplift/2016.geojson"
-all_data <- "/Users/robertclay/minos/output/childUplift/2016.geojson"
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2014.geojson"
-
-#main(real_data, baseline_data, F, 'plots/SF12_map.pdf')
-#main(baseline_data, poverty_data, T, 'plots/povertyUpliftmap.pdf')
-#main(baseline_data, all_data, T, 'plots/allUpliftmap.pdf')
-
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2010.geojson"
-main(baseline_data, energy_data, T, 'plots/2010energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2011.geojson"
-main(baseline_data, energy_data, T, 'plots/2011energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2012.geojson"
-main(baseline_data, energy_data, T, 'plots/2012energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2013.geojson"
-main(baseline_data, energy_data, T, 'plots/2013energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2014.geojson"
-main(baseline_data, energy_data, T, 'plots/2014energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2015.geojson"
-main(baseline_data, energy_data, T, 'plots/2015energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2016.geojson"
-main(baseline_data, energy_data, T, 'plots/2016energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2017.geojson"
-main(baseline_data, energy_data, T, 'plots/2017energyDownliftmap')
-energy_data <- "/Users/robertclay/minos/output/energyDownlift/2018.geojson"
-main(baseline_data, energy_data, T, 'plots/2018energyDownliftmap')
-
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2010.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2010energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2011.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2011energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2012.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2012energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2013.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2013energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2014.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2014energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2015.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2015energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2016.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2016energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2017.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2017energyDownliftmap')
+  #energy_data <- "/Users/robertclay/minos/output/energyDownlift/2018.geojson"
+  #main(baseline_data, energy_data, T, 'plots/2018energyDownliftmap')
+}
 
 #box <- matrix(c(-1.6, -1.4, 53.35, 53.45),ncol=2, nrow=2, byrow=T)
 #q <- opq(bbox = 'sheffield') %>%
