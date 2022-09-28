@@ -1,0 +1,105 @@
+# script for application of cumulative link model (clm) nutrition transitions in MINOS.
+# This file fits clm models to mice imputed datasets.
+########################
+# todolist
+# get data in. two waves with desired household prediction and imputation variables.
+# may be easier to just impute household datasets seperately..
+
+# fit clm on estimation of next nutrition state.
+########################
+
+require(ordinal)
+source("minos/transitions/utils.R")
+
+
+get.nutrition.files <- function(source, year1, year2){
+  # get files for year 1 and year 2 respectively.
+  file_name <- get_US_file_names(source, year1, "_US_cohort.csv")
+  data <- get_US_data(file_name)
+  file_name2 <- get_US_file_names(source, year2, "_US_cohort.csv")
+  data2 <- get_US_data(file_name2)
+  data_files <- list("data1" = data, "data2" = data2)
+  return(data_files)
+}
+
+get.clm.file.name <- function(destination, year1, year2){
+  file_name <- paste0(destination, "nutrition_clm_")
+  file_name <- paste0(file_name, str(year1))
+  file_name <- paste0(file_name, "_")
+  file_name <- paste0(file_name, str(year2))
+  file_name <- paste0(file_name, ".rds")
+  return(file_name)
+}
+
+clm.housing.main <- function(year){
+  # loop over specified years and fit clm models.
+  print("Writing CLM model for years")
+  print(year)
+  print(year+1)
+  data_source<- "data/final_US/"
+  data_files <- get.nutrition.files(data_source, year, year+1)
+  data <- data_files$data1
+  data2 <- data_files$data2
+
+  # only look at individuals with data in both waves.
+  common <- intersect(data$pidp, data2$pidp)
+  data <- data[which(data$pidp %in% common), ]
+  data2 <- data2[which(data2$pidp %in% common), ]
+
+  # TODO no MICE imputation here yet..
+  # not 100% sure how to impute across years.
+  # simplest may be to impute years separately and edit mids objects for final
+  # pool of clms. see also longitudinal mice (looks slow and painful).
+  # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
+  #data <- format.housing.composite(data)
+  #data2 <- format.housing.composite(data2)
+
+  data2 <- data2[, c("pidp", "nutrition_quality")]
+  colnames(data2) <- c("pidp", "y")
+  data <- merge(data, data2,"pidp")
+  data <- data[complete.cases(data),]
+
+  data$y <- factor(data$y, levels=c(1, 2, 3))
+  formula <- "y ~ factor(sex) +
+                  age +
+                  scale(SF_12) +
+                  factor(education_state) +
+                  factor(labour_state) +
+                  factor(ethnicity) +
+                  scale(hh_income)"
+
+  # Handle the fact that first wave (2009) has no weight data
+  if (year == 2009) {
+      # No weight info for 2009 so run model without weights
+      clm.nutrition <- clm(formula,
+                 data = data,
+                 link = "logit",
+                 threshold = "flexible",
+                 Hess=T)
+  } else {
+      # Now weight info so run with weights
+      clm.nutrition <- clm(formula,
+                 data = data,
+                 link = "logit",
+                 threshold = "flexible",
+                 Hess=T,
+                 weights = weight)
+  }
+
+  prs<- 1 - logLik(clm.nutrition)/logLik(clm(y ~ 1, data=data))
+  print(prs)
+
+  out.path <- "data/transitions/nutrition/clm/"
+  create.if.not.exists("data/transitions/nutrition/")
+  create.if.not.exists(out.path)
+
+  clm.file.name <- get.clm.file.name(out.path, year, year+1)
+  saveRDS(clm.nutrition, file=clm.file.name)
+  print("Saved to:")
+  print(clm.file.name)
+}
+# apply clm model
+
+
+year <- 2018
+clm.nutrition.main(year)

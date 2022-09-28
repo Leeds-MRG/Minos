@@ -316,7 +316,7 @@ def generate_nutrition_composite(data):
     data['veg_comp'] = data['veg_days'] * data['veg_per_day']
 
     # Now add them together and remove intermediate vars
-    data['nutrition'] = data['fruit_comp'] + data['veg_comp']
+    data['nutrition_quality'] = data['fruit_comp'] + data['veg_comp']
 
     data.drop(labels = ['fruit_comp', 'fruit_days', 'fruit_per_day',
                         'veg_comp', 'veg_days', 'veg_per_day'],
