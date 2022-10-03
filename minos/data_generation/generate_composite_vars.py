@@ -6,6 +6,7 @@ This file generates composite variables for use in the SIPHER project investigat
 Currently does not handle missing data for composites. This is done in R using the mice package. May be worth moving
 these functions entirely into R. Some variables are imputed then combined and vice versa which makes this tricky.
 """
+
 import pandas as pd
 import numpy as np
 
@@ -163,6 +164,7 @@ def generate_composite_neighbourhood_safety(data):
 
     return data
 
+
 def generate_labour_composite(data):
     """ Combine part/full time employment (emp_type) with labour state (labour_state)
 
@@ -193,6 +195,7 @@ def generate_labour_composite(data):
               axis=1,
               inplace=True)
     return data
+
 
 def generate_energy_composite(data):
     """Merge energy consumption for gas and or electric into one column.
@@ -279,6 +282,57 @@ def generate_energy_composite(data):
               inplace=True)
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
     return data
+
+
+def generate_nutrition_composite(data):
+    """
+    Generate a composite for nutrition based on the frequency and amount of fruit and vegetable consumption.
+
+    Consumption frequency variables are ordinal with 4 levels:
+    1 : Never
+    2 : 1-3 days
+    3 : 4-6 days
+    4: Every day
+
+    Amount variables are continuous.
+
+    To generate a composite, we will multiply the amount per day by the consumption frequency number. We won't get
+    the actual consumption per week because we do not have the exact number of days, but we will get a proxy for it.
+    I think then we can simply add the proxy variables for fruit and vegetables together, to get a composite of
+    fruit and vegetable consumption.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with fruit and vegetable consumption variables.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with composite fruit and veg consumption variable, without the component vars.
+    """
+    # First calculate intermediate composites (amount * no. days)
+    data['fruit_comp'] = data['fruit_days'] * data['fruit_per_day']
+    data['veg_comp'] = data['veg_days'] * data['veg_per_day']
+
+    # Now add them together and remove intermediate vars
+    data['nutrition_quality'] = data['fruit_comp'] + data['veg_comp']
+
+    # if any of the intermediates have missing codes (less than 0) then nutrition_quality should also have that code
+    data['nutrition_quality'][data['fruit_days'] < 0] = data['fruit_days']
+    data['nutrition_quality'][data['fruit_per_day'] < 0] = data['fruit_per_day']
+    data['nutrition_quality'][data['veg_days'] < 0] = data['veg_days']
+    data['nutrition_quality'][data['veg_per_day'] < 0] = data['veg_per_day']
+
+
+    data.drop(labels = ['fruit_comp', 'fruit_days', 'fruit_per_day',
+                        'veg_comp', 'veg_days', 'veg_per_day'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def main():
     # first collect and load the datafiles for every year
     print("Starting composite generation.")
@@ -292,6 +346,8 @@ def main():
     data = generate_composite_neighbourhood_safety(data)  # safety.
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
+    data = generate_nutrition_composite(data)             # nutrition
+
     print('Finished composite generation.')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

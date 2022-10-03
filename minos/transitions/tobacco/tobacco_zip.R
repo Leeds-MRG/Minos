@@ -85,7 +85,8 @@ main <- function(years){
                               factor(labour_state) +
                               factor(job_sec) +
                               relevel(factor(ethnicity), ref='WBI') +
-                              scale(hh_income) | relevel(factor(ethnicity), ref='WBI') + 
+                              scale(hh_income) |
+                              relevel(factor(ethnicity), ref='WBI') +
                               factor(labour_state) + 
                               age + 
                               SF_12,

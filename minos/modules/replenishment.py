@@ -72,6 +72,7 @@ class Replenishment:
                         'nobs',
                         'region',
                         'SF_12',
+                        'SF_12p',
                         'hh_int_y',
                         'hh_int_m',
                         'Date',
@@ -86,7 +87,8 @@ class Replenishment:
                         'ndrinks',
                         'nkids',
                         'max_educ',
-                        'yearly_energy']
+                        'yearly_energy',
+                        'nutrition_quality']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

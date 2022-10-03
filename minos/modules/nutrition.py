@@ -1,14 +1,13 @@
 """
-Module for tobacco in Minos.
-Calculation of monthly household tobacco
-Possible extension to interaction with employment/education and any spatial/interaction effects.
+Module for nutrition in Minos.
+Calculation of weekly consumption of fruit and veg.
 """
 
 import pandas as pd
 import minos.modules.r_utils as r_utils
 
 
-class Tobacco:
+class Nutrition:
 
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
@@ -59,7 +58,7 @@ class Tobacco:
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("tobacco")
+        self.random = builder.randomness.get_stream("nutrition")
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -77,7 +76,8 @@ class Tobacco:
                         'job_sec',
                         'hh_income',
                         'alcohol_spending',
-                        'ncigs']
+                        'ncigs',
+                        'nutrition_quality']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -114,45 +114,41 @@ class Tobacco:
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-        # Get living people to update their tobacco
-        pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
-        ## Predict next tobacco value
-        newWaveTobacco = self.calculate_tobacco(pop)
-        newWaveTobacco = pd.DataFrame(newWaveTobacco, columns=["ncigs"])
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        ## Predict next income value
+        newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
+        newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
         # Set index type to int (instead of object as previous)
-        newWaveTobacco.index = newWaveTobacco.index.astype(int)
+        newWaveNutrition.index = newWaveNutrition.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
-        # Update population with new tobacco
-        self.population_view.update(newWaveTobacco['ncigs'].astype(int))
+        # Update population with new income
+        self.population_view.update(newWaveNutrition['nutrition_quality'])
 
-
-    def calculate_tobacco(self, pop):
-        """Calculate tobacco transition distribution based on provided people/indices
+    def calculate_nutrition(self, pop):
+        """Calculate loneliness transition distribution based on provided people/indices.
 
         Parameters
         ----------
-            index : pd.Index
-                Which individuals to calculate transitions for.
+            pop : pd.DataFrame
+                The population dataframe.
         Returns
         -------
         """
-        # load transition model based on year.
-        year = max(self.year, 2014)
-        year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"tobacco/zip/tobacco_zip_{year}_{year + 1}")
-        # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveTobacco = r_utils.predict_next_timestep_tobacco_zip(transition_model, pop)
-        return nextWaveTobacco
+        #year = min(self.year, 2018)
+        transition_model = r_utils.load_transitions(f"nutrition/ols/nutrition_ols_2018_2019")
+        return r_utils.predict_next_timestep_ols(transition_model, pop, 'nutrition_quality')
 
 
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'tobacco'
+        return 'nutrition'
 
 
     def __repr__(self):
-        return "Tobacco()"
+        return "Nutrition()"
