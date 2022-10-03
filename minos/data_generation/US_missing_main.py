@@ -91,5 +91,5 @@ def main(output_dir):
 
 
 if __name__ == "__main__":
-    output = 'data/final_US/'
+    output = 'data/corrected_US/'
     data = main(output)

@@ -318,6 +318,13 @@ def generate_nutrition_composite(data):
     # Now add them together and remove intermediate vars
     data['nutrition_quality'] = data['fruit_comp'] + data['veg_comp']
 
+    # if any of the intermediates have missing codes (less than 0) then nutrition_quality should also have that code
+    data['nutrition_quality'][data['fruit_days'] < 0] = data['fruit_days']
+    data['nutrition_quality'][data['fruit_per_day'] < 0] = data['fruit_per_day']
+    data['nutrition_quality'][data['veg_days'] < 0] = data['veg_days']
+    data['nutrition_quality'][data['veg_per_day'] < 0] = data['veg_per_day']
+
+
     data.drop(labels = ['fruit_comp', 'fruit_days', 'fruit_per_day',
                         'veg_comp', 'veg_days', 'veg_per_day'],
               axis=1,
