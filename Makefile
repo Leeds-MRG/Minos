@@ -79,8 +79,8 @@ conda:
 .PHONY: beefy_conda
 
 beefy_conda:
-	conda create -p conda_minos python=3.9 # create conda environment. 
-	conda activate ../conda_minos # activate conda environment.
+	conda create -n conda_minos python=3.9 # create conda environment. 
+	conda activate conda_minos # activate conda environment.
 	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0. 
 
 ## Install
@@ -225,13 +225,13 @@ $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds: $(FINALDATA)/2019_US_c
 $(TRANSITION_DATA)/education/nnet/educ_nnet_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/education/education_nnet.r
 	$(RSCRIPT) $(SOURCEDIR)/transitions/education/education_nnet.r
 
-$(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
+$(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/neighbourhood/neighbourhood_clm.R
 
-$(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
+$(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/tobacco/tobacco_zip.R
 
-$(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
+$(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 
 $(TRANSITION_DATA)/nutrition/clm/nutrition_ols_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/nutrition/nutrition_ols.R
