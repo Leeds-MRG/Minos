@@ -4,8 +4,8 @@
 #SBATCH --mail-user=gyrc@leeds.ac.uk # Where to send mail
 #SBATCH --nodes=1                    # Run all processes on a single node       
 #SBATCH --ntasks=1                   # Run a single task                
-#SBATCH --cpus-per-task=4            # Number of CPU cores per task
-#SBATCH --mem=1gb                     # Job memory request
+#SBATCH --cpus-per-task=2            # Number of CPU cores per task
+#SBATCH --mem=2gb                     # Job memory request
 #SBATCH --time=00:15:00               # Time limit hrs:min:sec
 #SBATCH --output=logs/minos_batch-%A-%a.out   # Standard output and error log
 

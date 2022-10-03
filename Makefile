@@ -79,8 +79,8 @@ conda:
 .PHONY: beefy_conda
 
 beefy_conda:
-	conda create -p conda_minos python=3.9 # create conda environment. 
-	conda activate ../conda_minos # activate conda environment.
+	conda create -n conda_minos python=3.9 # create conda environment. 
+	conda activate conda_minos # activate conda environment.
 	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0. 
 
 ## Install
