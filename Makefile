@@ -233,6 +233,10 @@ $(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds: $(FINALDATA)/2017_US_c
 $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/alcohol/alcohol_zip.R
 
+$(TRANSITION_DATA)/alcohol/zip/loneliness_clm_2018_2019.rds: $(FINALDATA)/2017_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
+        $(RSCRIPT) $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
+
+
 
 ###
 ## Cleaning
