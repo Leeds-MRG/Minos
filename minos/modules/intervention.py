@@ -412,25 +412,20 @@ class livingWageIntervention():
         Returns
         -------
         """
-        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == '2'")
         # TODO probably a faster way to do this than resetting the whole column.
         pop['hh_income'] -= pop['boost_amount']
-        # Subset everyone who earns below the minimum wage, which is different for London vs non London
-        #pop['who_uplifted'] = ((pop['hourly_wage'][pop['region'] != 'London'] < 9.90) | + \
-        #    (pop['hourly_wage'][pop['region'] == 'London'] < 11.05)) & (pop['hourly_wage'][pop['hourly_wage'] > 0])
         # Now get who gets uplift (different for London/notLondon)
         who_uplifted_London = pop['hourly_wage'] > 0
         who_uplifted_London *= pop['region'] == 'London'
-        who_uplifted_London *= pop['hourly_wage'] < 11.05
+        who_uplifted_London *= pop['hourly_wage'] < 11.95
         who_uplifted_notLondon = pop['hourly_wage'] > 0
         who_uplifted_notLondon *= pop['region'] != 'London'
-        who_uplifted_notLondon *= pop['hourly_wage'] < 9.90
+        who_uplifted_notLondon *= pop['hourly_wage'] < 10.90
         # Calculate boost amount (difference between hourly wage and living wage multiplied by hours worked in a week (extended to month))
         # boost_amount = hourly_wage_diff * hours_worked_monthly
-        #pop['boost_amount'] = (9.90 - pop['hourly_wage'][pop['region'] != 'London']) * (pop['job_hours'] * 4.2) * pop['who_uplifted'] | + \
-        #    (11.05 - pop['hourly_wage'][pop['region'] == 'London']) * (pop['job_hours'] * 4.2) * pop['who_uplifted']
-        pop['boost_amount'] = (11.05 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_London
-        pop['boost_amount'] += (9.90 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
+        pop['boost_amount'] = (11.95 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_London
+        pop['boost_amount'] += (10.90 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
 
 
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)

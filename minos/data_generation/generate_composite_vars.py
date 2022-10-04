@@ -410,6 +410,7 @@ def main():
     # generate composite variables
     data = generate_composite_housing_quality(data)       # housing_quality.
     data = generate_hh_income(data)                       # hh_income.
+    data = calculate_hourly_wage(data)                    # hourly_wage
     data = generate_composite_neighbourhood_safety(data)  # safety.
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
