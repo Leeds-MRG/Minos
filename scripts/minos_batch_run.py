@@ -33,14 +33,15 @@ from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 
+
 class Minos():
 
     def __init__(self, config_dir, run_id):
         # specify yaml config and update with some list of required kwargs.
         # print(sys.argv)
-        #config_dir = kwargs["config_file"]
-            # if running on hpc use argv arguments to get parameters.
-            # if debugging/testing use a preset list of simple parameters.
+        # config_dir = kwargs["config_file"]
+        # if running on hpc use argv arguments to get parameters.
+        # if debugging/testing use a preset list of simple parameters.
         with open(config_dir) as config_file:
             config = yaml.full_load(config_file)
 
@@ -57,18 +58,29 @@ class Minos():
 
         # Output directory where all files from the run will be saved.
         # Add date and time to output file name to make it unique. Prevents overwriting repeat model runs.
-        #run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
+        # run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
         # Or just assign them to some experiment folder.
         run_output_dir = os.path.join(config['output_data_dir'], config['output_destination'])
+        run_output_plots_dir = os.path.join(config['output_data_dir'], 'plots')
+
+        if not os.path.exists(config['run_output_dir']):
+            print("Specified output directory does not exist. creating..")
+            os.makedirs(config['output_data_dir'], exist_ok=True)
+
         # Make output directory if it does not exist.
         if not os.path.exists(run_output_dir):
-            print("Specified ")
-            os.makedirs(config['output_data_dir'], exist_ok=True)
-        os.makedirs(run_output_dir, exist_ok=True)
+            print("Specified output destination does not exist. creating..")
+            os.makedirs(run_output_dir, exist_ok=True)
+            config['run_output_dir'] = run_output_dir
 
+
+        if not os.path.exists(run_output_plots_dir):
+            print("Specified plots file for output does not exist. creating..")
+            os.makedirs(run_output_plots_dir, exist_ok=True)
+            config['run_output_plots_dir'] = run_output_plots_dir
 
         # Start logging. Really helpful in arc4 with limited traceback available.
-        logging.basicConfig(filename= os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
+        logging.basicConfig(filename=os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
         logging.info("pipeline start.")
         # run_output_dir = output_dir
 
@@ -83,7 +95,8 @@ class Minos():
             print("Write config file successful")
         logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
-        components = self.initComponents(config) #validate and initialise list of config components to be used in simulation.
+        components = self.initComponents(
+            config)  # validate and initialise list of config components to be used in simulation.
         #
         config = utils.get_config(output_config_dir)
         print(config)
@@ -118,8 +131,9 @@ class Minos():
 
         # Save final config. If there are multiple runs save multiple configs each with a run id.
         config_output_dir = os.path.join(run_output_dir, f'final_config_file.yml')
-        # file exists
-        if run_id == 1: # only write config file once on first run.
+
+        # file exists # TODO doesn't work..
+        if run_id == 1:  # only write config file once on first run.
             with open(config_output_dir, 'w') as final_config_file:
                 yaml.dump(config.to_dict(), final_config_file)
                 print("Write final config file successful")
@@ -135,9 +149,9 @@ class Minos():
         # Run setup method for each module.
         simulation.setup()
 
-
         self.config = config
         self.simulation = simulation
+        self.components = components
 
     def main(self):
         simulation = self.simulation
@@ -184,6 +198,8 @@ class Minos():
             if 'FertilityAgeSpecificRates()' in config.components:
                 print('New children', len(pop[pop['parent_id'] != -1]))
 
+            for component in self.components:
+                component.plot(pop, config)
         return config, simulation
 
     def save(self, save_method, destination, file_name):
@@ -260,32 +276,31 @@ class Minos():
             components.append(replenishmentNowcast())
         return components
 
+
 if __name__ == "__main__":
-    #python3 scripts/minos_batch_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
+    # python3 scripts/minos_batch_run.py --config_file "config/controlConfig.yaml" --input_data_dir "data/final_US/" --persistent_data_dir "persistent_data" --output_data_dir "output"
     # Parse arguments if running this file from a terminal.
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
 
     parser.add_argument("-c", "--config_file", type=str, metavar="config-file",
                         help="the model config file (YAML)")
-    #parser.add_argument('--location', help='LAD code', default=None)
-    #parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
-    #parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
-    #parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
+    # parser.add_argument('--location', help='LAD code', default=None)
+    # parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
+    # parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
+    # parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
     parser.add_argument("--run_id", type=int, metavar="config-file",
                         help="the model config file (YAML)")
 
     args = vars(parser.parse_args())
-    #input_kwargs = vars(args) # cast args as a dict.
-
+    # input_kwargs = vars(args) # cast args as a dict.
 
     # Assemble lists into grand list of all combinations.
     # Each experiment will use one item of this list.
-    #input_kwargs['parameter_lists'] = parameter_lists
+    # input_kwargs['parameter_lists'] = parameter_lists
     print(args)
     config_file = args['config_file']
     run_id = args['run_id']
     minos_run = Minos(config_file, run_id)
     minos_run.main()
-
 
 # TODO. add in args for variance in uplift value, percentage pop, and number of repetitions.

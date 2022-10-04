@@ -63,12 +63,19 @@ def main(output_dir):
     #f_columns = ["education_state", "depression", "depression_change",
     #             "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
     #             "job_industry", "job_sec", "heating"]  # add more variables here.
-    f_columns = ['education_state', 'labour_state', 'job_sec', 'heating']
+    # define columns to be forward filled, back filled, and linearly interpolated.
+    # note columns can be forward and back filled for immutables like ethnicity.
+    f_columns = ['education_state', 'labour_state', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     li_columns = ["age"]
     data = US_missing_LOCF.locf(data, f_columns=f_columns, fb_columns=fb_columns)
     print("After LOCF correction.")
     after_locf = US_missing_description.missingness_table(data)
+    data = US_missing_LOCF.interpolate(data, li_columns)
+    print("After interpolation of linear variables.")
+    after_interp = US_missing_description.missingness_table(data)
+
+
 
     # cut back to just save data. don't want to complete case rows that aren't used.
     data = data.loc[data["time"].isin(save_years)]
@@ -76,14 +83,14 @@ def main(output_dir):
 
     # complete case analysis instead of MICE for now.
     #data = UScc.complete_case(data)
-    complete_case_vars = ['sex', 'ethnicity', 'region']
-    data = UScc.complete_case_varlist(data, complete_case_vars)
+    #complete_case_vars = ['sex', 'ethnicity', 'region']
+    #data = UScc.complete_case_varlist(data, complete_case_vars)
     #after_complete_case = US_missing_description.missingness_table(data)
 
     # TODO. complete case for just critical columns. merge with Luke's func.
-    data[["sex", "ethnicity", "region"]] = data[["sex", "ethnicity", "region"]].replace(US_utils.missing_types, np.nan)
-    i = data[["sex", "ethnicity", "region"]].dropna().index
-    data = data.loc[i,:]
+    #data[["sex", "ethnicity", "region"]] = data[["sex", "ethnicity", "region"]].replace(US_utils.missing_types, np.nan)
+    #i = data[["sex", "ethnicity", "region"]].dropna().index
+    #data = data.loc[i,:]
 
     US_utils.save_multiple_files(data, save_years, output_dir, "")
 
@@ -91,5 +98,5 @@ def main(output_dir):
 
 
 if __name__ == "__main__":
-    output = 'data/final_US/'
+    output = 'data/corrected_US/'
     data = main(output)

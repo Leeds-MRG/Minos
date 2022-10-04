@@ -7,9 +7,11 @@ Possible extension to interaction with employment/education and any spatial/inte
 import pandas as pd
 from pathlib import Path
 import minos.modules.r_utils as r_utils
+from minos.modules.base_module import Base
+from seaborn import histplot
+import matplotlib.pyplot as plt
 
-
-class MWB:
+class MWB(Base):
     """Mental Well-Being Module"""
     # Special methods used by vivarium.
     @property
@@ -18,29 +20,6 @@ class MWB:
 
     def __repr__(self):
         return "MWB()"
-
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-
-        # Nothing here yet..
-        return simulation
-
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -83,6 +62,7 @@ class MWB:
                         'hh_income',
                         'SF_12',
                         'housing_quality']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -93,22 +73,6 @@ class MWB:
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
-
-
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for mortality when new simulants are added.
-
-        Parameters
-        ----------
-        pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        Returns
-        -------
-        None
-        """
-
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -148,3 +112,10 @@ class MWB:
         year = min(self.year, 2018)
         transition_model = r_utils.load_transitions(f"mwb/ols/sf12_ols_{year}_{year+1}")
         return r_utils.predict_next_timestep_ols(transition_model, pop, 'SF_12')
+
+    def plot(self, pop, config):
+
+        file_name = config.run_output_plots_dir + f"mwb_hist_{self.year}.pdf"
+        f = plt.figure()
+        histplot(pop, x = "SF_12", stat='density')
+        plt.savefig(file_name)

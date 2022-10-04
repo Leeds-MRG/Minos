@@ -28,7 +28,7 @@ educ.nnet.main <- function(year){
   print("Writing NNET model for years")
   print(year)
   print(year+1)
-  data_source<- "/home/luke/Documents/MINOS/Minos/data/final_US/"
+  data_source<- "data/final_US/"
   data_files <- get.educ.file(data_source, year, year+1)
   data <- data_files$data1
   data2 <- data_files$data2
@@ -55,7 +55,7 @@ educ.nnet.main <- function(year){
         ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
   m1
 
-  out.path <- "/home/luke/Documents/MINOS/Minos/data/transitions/education/"
+  out.path <- "data/transitions/education/"
   create.if.not.exists(out.path)
   create.if.not.exists(paste0(out.path, 'nnet/'))
 

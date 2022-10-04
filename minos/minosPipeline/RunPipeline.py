@@ -162,4 +162,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
         if 'FertilityAgeSpecificRates()' in config.components:
             print('New children', len(pop[pop['parent_id'] != -1]))
 
+        for component in components:
+            component.plot(pop, config)
+
     return simulation

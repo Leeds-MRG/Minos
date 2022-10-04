@@ -7,8 +7,9 @@ Possible future work for moving households and changing household composition (e
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
+from minos.modules.base_module import Base
 
-class Housing:
+class Housing(Base):
 
     @property
     def name(self):
@@ -18,25 +19,6 @@ class Housing:
         return "Housing()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-        # nothing done here yet. transition models specified by year later.
-        return simulation
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -85,23 +67,6 @@ class Housing:
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
-
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for mortality when new simulants are added.
-
-        Parameters
-        ----------
-        pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        Returns
-        -------
-        None
-        """
-        # Initiate any columns created by this module and add them to the main population.
-        # No synthetic columns for housing currently. Maybe housing history variables added here.
-        return pop_data
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.

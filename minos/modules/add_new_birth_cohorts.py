@@ -12,11 +12,12 @@ import pandas as pd
 import minos.utils as utilities
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
+from minos.modules.base_module import Base
 
 PREGNANCY_DURATION = pd.Timedelta(days=9 * utilities.DAYS_PER_MONTH)
 
 
-class FertilityAgeSpecificRates:
+class FertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
     """

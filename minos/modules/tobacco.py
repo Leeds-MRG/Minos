@@ -6,32 +6,17 @@ Possible extension to interaction with employment/education and any spatial/inte
 
 import pandas as pd
 import minos.modules.r_utils as r_utils
+from minos.modules.base_module import Base
 
-class Tobacco:
+class Tobacco(Base):
 
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'tobacco'
 
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-
-        # Load in transition model
-
-        return simulation
-
+    def __repr__(self):
+        return "Tobacco()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -88,22 +73,6 @@ class Tobacco:
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
-
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for mortality when new simulants are added.
-
-        Parameters
-        ----------
-        pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        Returns
-        -------
-        None
-        """
-
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -126,7 +95,6 @@ class Tobacco:
         # Update population with new tobacco
         self.population_view.update(newWaveTobacco['ncigs'].astype(int))
 
-
     def calculate_tobacco(self, pop):
         """Calculate tobacco transition distribution based on provided people/indices
 
@@ -144,12 +112,3 @@ class Tobacco:
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_tobacco_zip(transition_model, pop)
         return nextWaveTobacco
-
-    # Special methods used by vivarium.
-    @property
-    def name(self):
-        return 'tobacco'
-
-
-    def __repr__(self):
-        return "Tobacco()"

@@ -13,9 +13,9 @@ import random
 # Required rate conversion and rate table creation functions.
 from vivarium.framework.utilities import rate_to_probability
 from minos.RateTables.MortalityRateTable import MortalityRateTable
+from minos.modules.base_module import Base
 
-
-class Mortality:
+class Mortality(Base):
 
 
     # vivarium does allow for use of __init__ so use pre_setup instead.
