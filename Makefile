@@ -107,6 +107,9 @@ install: ### Install all Minos requirements via pip
 testRun: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
+testRun_Intervention: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyLivingWageIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
 ###
 ## Experiment Runs
 ###
