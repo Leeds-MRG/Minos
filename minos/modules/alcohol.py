@@ -7,6 +7,8 @@ Possible extension to interaction with employment/education and any spatial/inte
 import pandas as pd
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
+import matplotlib.pyplot as plt
+from seaborn import histplot
 
 class Alcohol(Base):
 
@@ -111,3 +113,11 @@ class Alcohol(Base):
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveAlcohol = r_utils.predict_next_timestep_alcohol_zip(transition_model, pop)
         return nextWaveAlcohol
+
+    def plot(self, pop, config):
+
+        file_name = config.run_output_plots_dir + f"alcohol_hist_{self.year}.pdf"
+        f = plt.figure()
+        histplot(pop, x="alcohol_spending", stat='density')
+        plt.savefig(file_name)
+        plt.close()

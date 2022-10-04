@@ -8,6 +8,8 @@ import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
 from minos.modules.base_module import Base
+import matplotlib.pyplot as plt
+from seaborn import catplot
 
 class Housing(Base):
 
@@ -106,3 +108,14 @@ class Housing(Base):
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
         return prob_df
+
+    def plot(self, pop, config):
+
+        file_name = config.run_output_plots_dir + f"housing_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['housing_quality'].value_counts(normalize=True))
+        densities.columns = ['densities']
+        densities['housing_quality'] = densities.index
+        f = plt.figure()
+        cat = catplot(data=densities, y='housing_quality', x='densities', kind='bar', orient='h')
+        plt.savefig(file_name)
+        plt.close()

@@ -4,14 +4,19 @@ import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
 from minos.modules.base_module import Base
+import matplotlib.pyplot as plt
+from seaborn import catplot
+
 
 class Loneliness(Base):
     # Special methods used by vivarium.
     @property
     def name(self):
         return 'loneliness'
+
     def __repr__(self):
         return "Loneliness()"
+
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
 
@@ -63,7 +68,6 @@ class Loneliness(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -81,12 +85,12 @@ class Loneliness(Base):
 
         loneliness_prob_df = self.calculate_loneliness(pop)
 
-        loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index, list(loneliness_prob_df.columns),
-                                                                loneliness_prob_df) + 1
+        loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
+                                                              list(loneliness_prob_df.columns),
+                                                              loneliness_prob_df) + 1
         loneliness_prob_df.index = loneliness_prob_df.index.astype(int)
 
         self.population_view.update(loneliness_prob_df["loneliness"])
-
 
     def calculate_loneliness(self, pop):
         """Calculate loneliness transition distribution based on provided people/indices.
@@ -109,3 +113,13 @@ class Loneliness(Base):
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
         return prob_df
 
+    def plot(self, pop, config):
+
+        file_name = config.run_output_plots_dir + f"loneliness_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['loneliness'].value_counts(normalize=True))
+        densities.columns = ['densities']
+        densities['loneliness'] = densities.index
+        f = plt.figure()
+        cat = catplot(data=densities, y='loneliness', x='densities', kind='bar', orient='h')
+        plt.savefig(file_name)
+        plt.close()

@@ -7,6 +7,8 @@ import pandas as pd
 from pathlib import Path
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
+import matplotlib.pyplot as plt
+from seaborn import catplot
 
 class Neighbourhood(Base):
 
@@ -124,3 +126,14 @@ class Neighbourhood(Base):
 
     def __repr__(self):
         return "Neighbourhood()"
+
+    def plot(self, pop, config):
+
+        file_name = config.run_output_plots_dir + f"neighbourhood_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['neighbourhood_safety'].value_counts(normalize=True))
+        densities.columns = ['densities']
+        densities['neighbourhood_safety'] = densities.index
+        f = plt.figure()
+        cat = catplot(data=densities, y='neighbourhood_safety', x='densities', kind='bar', orient='h')
+        plt.savefig(file_name)
+        plt.close()

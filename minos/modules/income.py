@@ -7,6 +7,8 @@ Possible extension to interaction with employment/education and any spatial/inte
 import pandas as pd
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
+import matplotlib.pyplot as plt
+from seaborn import histplot
 
 class Income(Base):
 
@@ -108,3 +110,11 @@ class Income(Base):
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model, pop, independant='hh_income')
         return nextWaveIncome
+
+    def plot(self, pop, config):
+
+        file_name = config.run_output_plots_dir + f"income_hist_{self.year}.pdf"
+        f = plt.figure()
+        histplot(pop, x="hh_income", stat='density')
+        plt.savefig(file_name)
+        plt.close()

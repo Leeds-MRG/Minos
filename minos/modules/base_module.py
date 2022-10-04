@@ -47,14 +47,20 @@ class Base():
         return pop_data
 
 
-    def plot(self, pop_data):
+    def plot(self, pop_data, config):
         """ Default plot method for modules. Does nothing.
+
+        Modules can specify another plot object that saves distributions of state.
 
         Parameters
         ----------
         pop_data: population data from vivarium. Whatever columns needs plotting.
 
+        config: vivarium.configTree
+
+            Config yaml for any needed plot parameters.
+
         Returns
         -------
-
+        None
         """
