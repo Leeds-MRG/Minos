@@ -26,6 +26,8 @@ from minos.modules.nutrition import Nutrition
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
+from minos.modules.intervention import livingWageIntervention
+from minos.modules.intervention import energyDownlift
 
 # for viz.
 from minos.validation.minos_distribution_visualisation import *
@@ -79,10 +81,14 @@ def RunPipeline(config, start_population_size, run_output_dir):
         components.append(Mortality())
     if "hhIncomeIntervention()" in config['components']:
         components.append(hhIncomeIntervention())
-    if "hhIncomeChildUplift" in config['components']:
+    if "hhIncomeChildUplift()" in config['components']:
         components.append(hhIncomeChildUplift())
-    if "hhIncomePovertyLineChildUplift" in config['components']:
+    if "hhIncomePovertyLineChildUplift()" in config['components']:
         components.append(hhIncomePovertyLineChildUplift())
+    if "livingWageIntervention()" in config['components']:
+        components.append(livingWageIntervention())
+    if "energyDownlift()" in config['components']:
+        components.append(energyDownlift())
     if "Replenishment()" in config['components']:
         components.append(Replenishment())
 

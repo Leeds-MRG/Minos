@@ -88,7 +88,17 @@ class Replenishment:
                         'nkids',
                         'max_educ',
                         'yearly_energy',
-                        'nutrition_quality']
+                        'nutrition_quality',
+                        'hourly_wage',
+                        'hourly_rate',
+                        'gross_paypm',
+                        'gross_pay_se',
+                        'job_hours',
+                        'job_hours_se',
+                        'job_inc',
+                        'jb_inc_per',
+                        'job_sector',
+                        ]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

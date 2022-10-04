@@ -78,6 +78,73 @@ def generate_composite_housing_quality(data):
     return data
 
 
+def calculate_hourly_wage(data):
+    """
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data from all years of Understanding Society (1990-2019)
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a calculated hourly wage variable
+    """
+    # apply basrate (hourly_rate) if present and non-negative
+    data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
+    # Now calculate for salaried employees (monthly wage applied to weekly hours worked, so multiply hours by 4.2)
+    # (4.2 because thats the average number of weeks in a month)
+    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4.2)
+    # Now calculate for self-employed (make sure s/emp pay not missing and hours worked over 0)
+    #data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
+
+    """
+    KEEPING THIS BECAUSE IT MIGHT BE USEFUL ONE DAY!!!
+    The code below in line comments is another attempt at calculating hourly wage, but trying to take into account and 
+    be a bit clever with self employed people and small business owners. It uses variables for the hours normally
+    worked in a week for self employed people, as well as average income taken from job/business and the pay period.
+    The results of this were a decent chunk of self employed people and small business owners that were below the 
+    living wage (and often the minimum wage) where they were obviously being propped up with income from different 
+    sources (like business dividends), but it wasn't exactly obvious where to find how much they were taking in addition
+    to what we knew. I'm leaving it in though because we might be able to do that with a bit more time and some more 
+    variables from US that I didn't find.
+    """
+    # # Try a different one where we combine gross pay and business income as well as job and business hours
+    # # first calculate a monthly income from the business
+    # data["jb_inc_monthly"] = -9
+    # data["jb_inc_monthly"][(data["jb_inc"] >= 0) & (data["jb_inc_per"] == 1)] = data["jb_inc"] * 4
+    # data["jb_inc_monthly"][(data["jb_inc"] >= 0) & (data["jb_inc_per"] == 2)] = data["jb_inc"]
+    # # Add up the incomes
+    # data["total_income"] = 0
+    # data["total_income"][data["jb_inc_monthly"] >= 0] += data["jb_inc_monthly"]
+    # data["total_income"][data["gross_paypm"] >= 0] += data["gross_paypm"]
+    # data["total_income"][data["gross_pay_se"] >= 0] += data["gross_pay_se"]
+    # data["total_income"][(data["jb_inc_monthly"] < 0) & (data["gross_paypm"] < 0) & (data["gross_pay_se"] < 0)] = -9
+    # #data["total_income"][(data["jb_inc_monthly"] >= 0) or (data["gross_paypm"] >= 0) or (data["gross_pay_se"] >= 0)] = data["jb_inc_monthly"] + data["gross_paypm"]
+    # # Add up the working hours
+    # data["total_hours"] = 0
+    # data["total_hours"][data["job_hours"] > 0] += data["job_hours"]
+    # data["total_hours"][data["job_hours_se"] > 0] += data["job_hours_se"]
+    # data["total_hours"][(data["job_hours"] < 0) & (data["job_hours_se"] < 0)] = -9
+    # # now calculate hourly wage again
+    # data["hourly_wage"] = 0
+    # data["hourly_wage"][(data["total_income"] >= 0) & (data["total_hours"] >= 0)] = data["total_income"] / (data["total_hours"] * 4)
+    # data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
+
+    # add in missing codes for known missings
+    data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1
+    data["hourly_wage"][data["labour_state"] == "Retired"] = -2
+    data["hourly_wage"][data["labour_state"] == "Sick/Disabled"] = -3
+    data["hourly_wage"][data["labour_state"] == "Student"] = -4
+    data["hourly_wage"][data["labour_state"].isin(["Government Training",
+                                                   "Maternity Leave",
+                                                   "Family Care",
+                                                   "Other"])] = -5
+    # now replace all still nan with -9
+    data["hourly_wage"].fillna(-9, inplace=True)
+
+    return data
+
+
 def generate_hh_income(data):
     """ Generate household income based on the following formulas:
 
@@ -343,6 +410,7 @@ def main():
     # generate composite variables
     data = generate_composite_housing_quality(data)       # housing_quality.
     data = generate_hh_income(data)                       # hh_income.
+    data = calculate_hourly_wage(data)                    # hourly_wage
     data = generate_composite_neighbourhood_safety(data)  # safety.
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
