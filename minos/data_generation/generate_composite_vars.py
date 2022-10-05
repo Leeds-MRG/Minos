@@ -6,6 +6,7 @@ This file generates composite variables for use in the SIPHER project investigat
 Currently does not handle missing data for composites. This is done in R using the mice package. May be worth moving
 these functions entirely into R. Some variables are imputed then combined and vice versa which makes this tricky.
 """
+
 import pandas as pd
 import numpy as np
 
@@ -73,6 +74,73 @@ def generate_composite_housing_quality(data):
                       'dishwasher', 'microwave', 'heating'],
               axis=1,
               inplace=True)
+
+    return data
+
+
+def calculate_hourly_wage(data):
+    """
+    Parameters
+    ----------
+    data : Pd.DataFrame
+        A DataFrame containing corrected data from all years of Understanding Society (1990-2019)
+    Returns
+    -------
+    data : Pd.DataFrame
+        The same DataFrame now containing a calculated hourly wage variable
+    """
+    # apply basrate (hourly_rate) if present and non-negative
+    data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
+    # Now calculate for salaried employees (monthly wage applied to weekly hours worked, so multiply hours by 4.2)
+    # (4.2 because thats the average number of weeks in a month)
+    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4.2)
+    # Now calculate for self-employed (make sure s/emp pay not missing and hours worked over 0)
+    #data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
+
+    """
+    KEEPING THIS BECAUSE IT MIGHT BE USEFUL ONE DAY!!!
+    The code below in line comments is another attempt at calculating hourly wage, but trying to take into account and 
+    be a bit clever with self employed people and small business owners. It uses variables for the hours normally
+    worked in a week for self employed people, as well as average income taken from job/business and the pay period.
+    The results of this were a decent chunk of self employed people and small business owners that were below the 
+    living wage (and often the minimum wage) where they were obviously being propped up with income from different 
+    sources (like business dividends), but it wasn't exactly obvious where to find how much they were taking in addition
+    to what we knew. I'm leaving it in though because we might be able to do that with a bit more time and some more 
+    variables from US that I didn't find.
+    """
+    # # Try a different one where we combine gross pay and business income as well as job and business hours
+    # # first calculate a monthly income from the business
+    # data["jb_inc_monthly"] = -9
+    # data["jb_inc_monthly"][(data["jb_inc"] >= 0) & (data["jb_inc_per"] == 1)] = data["jb_inc"] * 4
+    # data["jb_inc_monthly"][(data["jb_inc"] >= 0) & (data["jb_inc_per"] == 2)] = data["jb_inc"]
+    # # Add up the incomes
+    # data["total_income"] = 0
+    # data["total_income"][data["jb_inc_monthly"] >= 0] += data["jb_inc_monthly"]
+    # data["total_income"][data["gross_paypm"] >= 0] += data["gross_paypm"]
+    # data["total_income"][data["gross_pay_se"] >= 0] += data["gross_pay_se"]
+    # data["total_income"][(data["jb_inc_monthly"] < 0) & (data["gross_paypm"] < 0) & (data["gross_pay_se"] < 0)] = -9
+    # #data["total_income"][(data["jb_inc_monthly"] >= 0) or (data["gross_paypm"] >= 0) or (data["gross_pay_se"] >= 0)] = data["jb_inc_monthly"] + data["gross_paypm"]
+    # # Add up the working hours
+    # data["total_hours"] = 0
+    # data["total_hours"][data["job_hours"] > 0] += data["job_hours"]
+    # data["total_hours"][data["job_hours_se"] > 0] += data["job_hours_se"]
+    # data["total_hours"][(data["job_hours"] < 0) & (data["job_hours_se"] < 0)] = -9
+    # # now calculate hourly wage again
+    # data["hourly_wage"] = 0
+    # data["hourly_wage"][(data["total_income"] >= 0) & (data["total_hours"] >= 0)] = data["total_income"] / (data["total_hours"] * 4)
+    # data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
+
+    # add in missing codes for known missings
+    data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1
+    data["hourly_wage"][data["labour_state"] == "Retired"] = -2
+    data["hourly_wage"][data["labour_state"] == "Sick/Disabled"] = -3
+    data["hourly_wage"][data["labour_state"] == "Student"] = -4
+    data["hourly_wage"][data["labour_state"].isin(["Government Training",
+                                                   "Maternity Leave",
+                                                   "Family Care",
+                                                   "Other"])] = -5
+    # now replace all still nan with -9
+    data["hourly_wage"].fillna(-9, inplace=True)
 
     return data
 
@@ -163,6 +231,7 @@ def generate_composite_neighbourhood_safety(data):
 
     return data
 
+
 def generate_labour_composite(data):
     """ Combine part/full time employment (emp_type) with labour state (labour_state)
 
@@ -193,6 +262,7 @@ def generate_labour_composite(data):
               axis=1,
               inplace=True)
     return data
+
 
 def generate_energy_composite(data):
     """Merge energy consumption for gas and or electric into one column.
@@ -279,6 +349,57 @@ def generate_energy_composite(data):
               inplace=True)
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
     return data
+
+
+def generate_nutrition_composite(data):
+    """
+    Generate a composite for nutrition based on the frequency and amount of fruit and vegetable consumption.
+
+    Consumption frequency variables are ordinal with 4 levels:
+    1 : Never
+    2 : 1-3 days
+    3 : 4-6 days
+    4: Every day
+
+    Amount variables are continuous.
+
+    To generate a composite, we will multiply the amount per day by the consumption frequency number. We won't get
+    the actual consumption per week because we do not have the exact number of days, but we will get a proxy for it.
+    I think then we can simply add the proxy variables for fruit and vegetables together, to get a composite of
+    fruit and vegetable consumption.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with fruit and vegetable consumption variables.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with composite fruit and veg consumption variable, without the component vars.
+    """
+    # First calculate intermediate composites (amount * no. days)
+    data['fruit_comp'] = data['fruit_days'] * data['fruit_per_day']
+    data['veg_comp'] = data['veg_days'] * data['veg_per_day']
+
+    # Now add them together and remove intermediate vars
+    data['nutrition_quality'] = data['fruit_comp'] + data['veg_comp']
+
+    # if any of the intermediates have missing codes (less than 0) then nutrition_quality should also have that code
+    data['nutrition_quality'][data['fruit_days'] < 0] = data['fruit_days']
+    data['nutrition_quality'][data['fruit_per_day'] < 0] = data['fruit_per_day']
+    data['nutrition_quality'][data['veg_days'] < 0] = data['veg_days']
+    data['nutrition_quality'][data['veg_per_day'] < 0] = data['veg_per_day']
+
+
+    data.drop(labels = ['fruit_comp', 'fruit_days', 'fruit_per_day',
+                        'veg_comp', 'veg_days', 'veg_per_day'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def main():
     # first collect and load the datafiles for every year
     print("Starting composite generation.")
@@ -289,9 +410,12 @@ def main():
     # generate composite variables
     data = generate_composite_housing_quality(data)       # housing_quality.
     data = generate_hh_income(data)                       # hh_income.
+    data = calculate_hourly_wage(data)                    # hourly_wage
     data = generate_composite_neighbourhood_safety(data)  # safety.
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
+    data = generate_nutrition_composite(data)             # nutrition
+
     print('Finished composite generation.')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

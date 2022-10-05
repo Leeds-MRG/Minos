@@ -13,6 +13,7 @@
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -39,6 +40,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data_discovery.html">Data Discovery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../housing_module.html">Housing Module Plan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../replenishment.html">Replenishment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../education.html">Education</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
 </ul>
@@ -159,7 +162,7 @@
 
 
 <div class="viewcode-block" id="Income.on_initialize_simulants"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_initialize_simulants">[docs]</a>    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;  Initiate columns for mortality when new simulants are added.</span>
+        <span class="sd">&quot;&quot;&quot;  Initiate columns for income when new simulants are added.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -174,7 +177,7 @@
 
 
 <div class="viewcode-block" id="Income.on_time_step"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Produces new children and updates parent status on time steps.</span>
+        <span class="sd">&quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>

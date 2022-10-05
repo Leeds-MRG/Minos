@@ -256,6 +256,21 @@ def format_ukhls_columns(year):
                        'fuelhave4': 'has_other',
                        'fuelhave5': 'has_none',
                        'rentinc2': 'energy_in_rent',
+                       # Nutrition vars
+                       'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
+                       'fruitamt':'fruit_per_day', # amount of fruit eaten on days when eating fruit
+                       'wkvege': 'veg_days', # no. days respondent eats veg per week
+                       'vegeamt': 'veg_per_day', # amt. veg eaten on veg eating days
+                       # hourly wage stuff (Keeping self-employed and small business vars just in case)
+                       'basrate': 'hourly_rate',  # basic pay hourly rate
+                       'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
+                       'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
+                       'jbhrs': 'job_hours',  # no. of hours normally worked in a week
+                       'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
+                       'jspayu': 'job_inc',  # average income from job/business
+                       'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
+                       # Private/Public sector var for living wage intervention
+                       'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
 
     }
     # Some variables change names halfway through UKHLS.
