@@ -1,13 +1,13 @@
 """ File for adding new cohorts from Understanding Society data to the population"""
 
 import pandas as pd
-
+from minos.modules.base_module import Base
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-class Replenishment:
+class Replenishment(Base):
 
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.

@@ -79,16 +79,19 @@ def run_pipeline(configuration_file, input_data_dir=None, persistent_data_dir=No
     # Output directory where all files from the run will be saved.
     # Join file name with the time to prevent overwriting.
     run_output_dir = os.path.join(output_dir, str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
+    run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
     #run_output_dir = output_dir
 
     config.update({
         'run_output_dir': run_output_dir,
+        'run_output_plots_dir': run_output_plots_dir,
     }, source=str(Path(__file__).resolve()))
 
     # Make output directory if it does not exist.
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
     os.makedirs(run_output_dir, exist_ok=True)
+    os.makedirs(run_output_plots_dir, exist_ok=True)
 
     # Save the yaml file with the minimal amount of information needed to reproduce results in the output folder.
     with open(os.path.join(run_output_dir, 'config_file_.yml'), 'w') as config_file:

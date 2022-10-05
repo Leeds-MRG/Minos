@@ -5,38 +5,20 @@ Possible extension to interaction with employment/education and any spatial/inte
 """
 
 import pandas as pd
-from pathlib import Path
 import minos.modules.r_utils as r_utils
+from minos.modules.base_module import Base
+import matplotlib.pyplot as plt
+from seaborn import histplot
 
-class Income:
+class Income(Base):
 
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'income'
 
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-
-        # Load in transition model
-        #transition_model = r_utils.load_transitions('hh_income')
-
-        #simulation._data.write('income_transition',
-        #                       transition_model)
-
-        return simulation
-
+    def __repr__(self):
+        return "Income()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -56,11 +38,11 @@ class Income:
         """
 
         # Load in inputs from pre-setup.
-        #self.transition_model = builder.data.load("income_transition")
+        # self.transition_model = builder.data.load("income_transition")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
-        #self.transition_coefficients = builder.
+        # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
         self.random = builder.randomness.get_stream("income")
@@ -86,22 +68,6 @@ class Income:
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=2)
-
-
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for income when new simulants are added.
-
-        Parameters
-        ----------
-        pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        Returns
-        -------
-        None
-        """
-
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -131,10 +97,12 @@ class Income:
 
         Parameters
         ----------
-            index : pd.Index
-                Which individuals to calculate transitions for.
+            pop: PopulationView
+                Population from MINOS to calculate next income for.
         Returns
         -------
+        nextWaveIncome: pd.Series
+            Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
         year = min(self.year, 2018)
@@ -143,11 +111,10 @@ class Income:
         nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model, pop, independant='hh_income')
         return nextWaveIncome
 
-    # Special methods used by vivarium.
-    @property
-    def name(self):
-        return 'income'
+    def plot(self, pop, config):
 
-
-    def __repr__(self):
-        return "Income()"
+        file_name = config.run_output_plots_dir + f"income_hist_{self.year}.pdf"
+        f = plt.figure()
+        histplot(pop, x="hh_income", stat='density')
+        plt.savefig(file_name)
+        plt.close()

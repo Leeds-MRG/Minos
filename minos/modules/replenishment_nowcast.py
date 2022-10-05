@@ -5,10 +5,16 @@ import pandas as pd
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+from minos.modules.base_module import Base
 
+class replenishmentNowcast(Base):
+    # Special methods for vivarium.
+    @property
+    def name(self):
+        return "replenishment_nowcast"
 
-class replenishmentNowcast:
-
+    def __repr__(self):
+        return "replenishmentNowcast()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -27,7 +33,6 @@ class replenishmentNowcast:
         """
         # load in the starting year. This is the first cohort that is loaded.
         return simulation
-
 
     def setup(self, builder):
         """ Method for initialising the depression module.
@@ -93,7 +98,6 @@ class replenishmentNowcast:
         #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
-
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
         Parameters
@@ -141,7 +145,6 @@ class replenishmentNowcast:
         self.register(new_population[["entrance_time", "age"]])
         self.population_view.update(new_population)
 
-
     def on_time_step(self, event):
         """ On time step add new simulants to the module.
         Parameters
@@ -183,7 +186,6 @@ class replenishmentNowcast:
             # The method used can be changed in setup via builder.population.initializes_simulants.
             self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
 
-
     def age_simulants(self, event):
         """ Age everyone by the length of the simulation time step in days
         Parameters
@@ -196,7 +198,6 @@ class replenishmentNowcast:
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
 
-
     def update_time(self, event):
         """ Update time variable by the length of the simulation time step in days
         Parameters
@@ -208,13 +209,3 @@ class replenishmentNowcast:
         population = self.population_view.get(event.index, query="alive == 'alive'")
         population['time'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
-
-
-    # Special methods for vivarium.
-    @property
-    def name(self):
-        return "replenishment_nowcast"
-
-
-    def __repr__(self):
-        return "replenishmentNowcast()"

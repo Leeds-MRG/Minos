@@ -90,8 +90,12 @@ def interpolate(data, interpolate_columns, type='linear'):
     data[interpolate_columns] = data[interpolate_columns].replace(US_utils.missing_types, np.nan)
     data.index = data['time']
     data_groupby = data.groupby('pidp', sort=False, as_index=False)
-    data[interpolate_columns] = data_groupby[interpolate_columns].apply(lambda x: x.interpolate(method=type, limit_direction='both', axis=0))
+    new_columns = data_groupby[interpolate_columns].apply(lambda x: x.interpolate(method=type, limit_direction='both', axis=0))
+    new_columns = new_columns.reset_index(drop=True)
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+
+    new_columns.columns = interpolate_columns
+    data[interpolate_columns] = new_columns
     return data
 
 def linear_interpolator_groupby(pid_groupby, type="forward"):
@@ -219,7 +223,7 @@ def main():
     before = US_missing_description.missingness_table(data)
     f_columns = ["education_state", "depression", "depression_change",
                  "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
-                 "job_industry", "job_sec", "heating"] #add more variables here.
+                 "job_industry", "job_sec", "heating", 'region'] #add more variables here.
     fb_columns = ["sex", "ethnicity", "birth_year"] # or here if they're immutable.
     li_columns = ["age"] # linear interpolation columns.
     print('performing linear interpolation')
