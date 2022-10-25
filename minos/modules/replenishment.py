@@ -65,7 +65,6 @@ class Replenishment(Base):
                         'job_duration_y',
                         'depression',
                         'academic_year',
-                        'depression_change',
                         'hidp',
                         'birth_month',
                         'birth_year',
