@@ -1,0 +1,30 @@
+baseline
+
+fit baseline regression to data with no missingness correction. 
+table of coefficients
+goodness of fit measures (rsquared)
+
+presentation
+
+forest plots
+diagnostics for ols.
+fitted-residual plot
+residuals density
+
+missingness
+
+missingness structure aggr
+spinograph for SF-12
+mice ols diagnostics.
+comparison between imputed and normal dataset SF12.
+
+
+extrapolation
+
+weighted regressions
+lasso
+
+heterogeneity
+
+grand density graph.
+fitted-residual diagnostics
