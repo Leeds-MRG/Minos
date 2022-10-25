@@ -28,6 +28,9 @@ from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
+from minos.modules.loneliness import Loneliness
+from minos.modules.nutrition import Nutrition
+from minos.modules.education import Education
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -260,6 +263,10 @@ class Minos():
             components.append(Housing())
         if "Income()" in config['components']:
             components.append(Income())
+        if "Loneliness()" in config['components']:
+            components.append(Loneliness())
+        if "Nutrition()" in config['components']:
+            components.append(Nutrition())
         if "FertilityAgeSpecificRates()" in config['components']:
             components.append(FertilityAgeSpecificRates())
         if "Mortality()" in config['components']:
@@ -272,6 +279,8 @@ class Minos():
             components.append(hhIncomePovertyLineChildUplift())
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
+        if "Education()" in config['components']:
+            components.append(Education())
         if "replenishmentNowcast()" in config['components']:
             components.append(replenishmentNowcast())
         return components
