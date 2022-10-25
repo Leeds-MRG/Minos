@@ -53,5 +53,23 @@ if __name__ == "__main__":
     complete_case_vars = ["job_sec", "labour_state", "education_state", "housing_quality", "age",
                           'yearly_energy', 'region'] # many of these
     data = complete_case_varlist(data, complete_case_vars)
+
+    drop_columns = ['financial_situation', # these are just SF12 MICE columns for now. see US_format_raw.py
+                    'ghq_depression',
+                    'scsf1',
+                    'clinical_depression',
+                    'ghq_happiness',
+                    'phealth_limits_work',
+                    'likely_move',
+                    'newest_education_state',
+                    'health_limits_social',
+                    'future_financial_situation',
+                    'behind_on_bills',
+                    'mhealth_limits_work'] # some columns are used in analyses elsewhere such as MICE and not featured in the final model.
+    # remove them here or as late as needed.
+    data = data.drop(labels=drop_columns, axis=1)
+
+
+
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")
 

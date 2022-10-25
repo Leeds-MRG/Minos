@@ -10,7 +10,7 @@ import argparse
 import US_utils
 
 # suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 # TODO there is an issue with the connection between the BHPS and ukhls waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
@@ -42,14 +42,14 @@ json_source = "persistent_data/JSON/"
 ## Sex.
 sex_dict = US_utils.load_json(json_source, "sexes.json")
 ## Ethnicity.
-#ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
-#ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
+# ethnicity_bhps_2002 = US_utils.load_json(json_source, "ethnicity_bhps_2002.json")
+# ethnicity_bhps_2008 = US_utils.load_json(json_source, "ethnicity_bhps_2008.json")
 ethnicity_ukhls = US_utils.load_json(json_source, "ethnicity_ukhls.json")
 ## Employment.
-#labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
+# labour_bhps = US_utils.load_json(json_source, "labour_status_bhps.json")
 labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
 ## Education.
-#education_bhps = US_utils.load_json(json_source, "education_bhps.json")
+# education_bhps = US_utils.load_json(json_source, "education_bhps.json")
 # Use simplified one for ukhls currently.
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls.json")
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
@@ -58,7 +58,7 @@ education = US_utils.load_json(json_source, "education_gov.json")
 depression = US_utils.load_json(json_source, "depression.json")
 depression_change = US_utils.load_json(json_source, "depression_change.json")
 ## Heating.
-#heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
+# heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 ## Location
 region_dict = US_utils.load_json(json_source, "region.json")
@@ -192,72 +192,84 @@ def format_ukhls_columns(year):
         The attribute_columns names directly from US data. Which columns will be extracted.
         The simplified column_names that are used in the microsim.
     """
-    #TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
+    # TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
     # Converted these into one dict because its annoying to edit two data frames.
-    attribute_dict =  {'birthy': "birth_year",  # birth year.
-                       'cduse5': 'fridge_freezer', # has fridge
-                       'cduse6': 'washing_machine',  # has washing machine
-                       'cduse7': 'tumble_dryer',  # has tumble dryer
-                       'cduse8': 'dishwasher',   # has dishwasher
-                       'cduse9': 'microwave',  # has microwave
-                       'crburg': 'burglaries',  # neighbourhood burglaries
-                       'crcar': 'car_crime',  # neighbourhood car crime
-                       'crdrnk': 'drunks',  # neighbourhood drunks
-                       'crmugg': 'muggings',  # neighbourhood muggings
-                       'crrace': 'racial_abuse',  # neighbourhood racial abuse
-                       'crteen': 'teenagers',  # neighbourhood teenager issues
-                       'crvand': 'vandalism',  # neighbourhood vandalism issues
-                       'ctband_dv': 'council_tax',  # council tax derived.
-                       'dvage': 'age',  # age derived.
-                       'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
-                       'gor_dv': 'region',  # government region
-                       'hheat': 'heating',  # household heating
-                       'hidp': 'hidp',  # household id
-                       'ieqmoecd_dv': 'oecd_equiv',  # Modified OECD equivalence scale
-                       'intdatem': 'hh_int_m',  # household interview month
-                       'intdatey': 'hh_int_y',  # household interview year
-                       'jbbgm': 'job_duration_m', # what month started job.
-                       'jbbgy': 'job_duration_y', # what year started job
-                       'jbft_dv': 'emp_type',  # part or full time employment
-                       'jbnssec8_dv': 'job_sec',  # job nssec code
-                       'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
-                       # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
-                       'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
-                       'jbstat': 'labour_state',  # labour state
-                       'ncigs': 'ncigs', # typical daily cigarettes smoked.
-                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
-                       #  not really applicable without random generation.
-                       'pidp': 'pidp',  # personal identifier
-                       'qfhigh_dv': 'education_state',  # highest education state
-                       'racel_dv': 'ethnicity',  # ethnicity derived.
-                       'rentgrs_dv': 'hh_rent',  # household monthly rent.
-                       'scghqi': 'depression_change',  # depression change GHQ.
-                       'sclonely': 'loneliness',  # is lonely.
-                       # sclonely only available in waves 9-11. scsf7 may be a good substitute.
-                       'sex': 'sex',  # biological sex.
-                       'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                       'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
-                       'smoker': 'smoker',  # Currently smokes.
-                       #TODO waves present roughly matches ncigs. no data for waves 1-5.
-                       # for waves 2 and 5 similar variable 'smnow' could be used.
-                       'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
-                       'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                       'indscub_xw': "weight", # TESTING: Cross-sectional analysis weight (waves 2-11)
-                       'nkids_dv': 'nkids',  # number of children
-                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
-                       'xpelecy': 'yearly_electric', # yearly electricty expenditure
-                       'xpgasy': 'yearly_gas', # yearly gas expenditure
-                       'xpduely': 'yearly_gas_electric', # yearly both expenditure.
-                       'xpoily': 'yearly_oil',  # yearly oil expenditure.
-                       'xpsfly': 'yearly_other_fuel', # yearly other fuel (wood?)
-                       'fuelhave1': 'has_electric',
-                       'fuelhave2': 'has_gas',
-                       'fuelhave3': 'has_oil',
-                       'fuelhave4': 'has_other',
-                       'fuelhave5': 'has_none',
-                       'rentinc2': 'energy_in_rent',
-
-    }
+    attribute_dict = {'birthy': "birth_year",  # birth year.
+                      'cduse5': 'fridge_freezer',  # has fridge
+                      'cduse6': 'washing_machine',  # has washing machine
+                      'cduse7': 'tumble_dryer',  # has tumble dryer
+                      'cduse8': 'dishwasher',  # has dishwasher
+                      'cduse9': 'microwave',  # has microwave
+                      'crburg': 'burglaries',  # neighbourhood burglaries
+                      'crcar': 'car_crime',  # neighbourhood car crime
+                      'crdrnk': 'drunks',  # neighbourhood drunks
+                      'crmugg': 'muggings',  # neighbourhood muggings
+                      'crrace': 'racial_abuse',  # neighbourhood racial abuse
+                      'crteen': 'teenagers',  # neighbourhood teenager issues
+                      'crvand': 'vandalism',  # neighbourhood vandalism issues
+                      'ctband_dv': 'council_tax',  # council tax derived.
+                      'dvage': 'age',  # age derived.
+                      'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
+                      'gor_dv': 'region',  # government region
+                      'hheat': 'heating',  # household heating
+                      'hidp': 'hidp',  # household id
+                      'ieqmoecd_dv': 'oecd_equiv',  # Modified OECD equivalence scale
+                      'intdatem': 'hh_int_m',  # household interview month
+                      'intdatey': 'hh_int_y',  # household interview year
+                      'jbbgm': 'job_duration_m',  # what month started job.
+                      'jbbgy': 'job_duration_y',  # what year started job
+                      'jbft_dv': 'emp_type',  # part or full time employment
+                      'jbnssec8_dv': 'job_sec',  # job nssec code
+                      'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
+                      # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
+                      'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
+                      'jbstat': 'labour_state',  # labour state
+                      'ncigs': 'ncigs',  # typical daily cigarettes smoked.
+                      # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
+                      #  not really applicable without random generation.
+                      'pidp': 'pidp',  # personal identifier
+                      'qfhigh_dv': 'education_state',  # highest education state
+                      'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
+                      'racel_dv': 'ethnicity',  # ethnicity derived.
+                      'rentgrs_dv': 'hh_rent',  # household monthly rent.
+                      #'scghqi': 'depression_change',  # depression change GHQ.
+                      'sclonely': 'loneliness',  # is lonely.
+                      # sclonely only available in waves 9-11. scsf7 may be a good substitute.
+                      'sex': 'sex',  # biological sex.
+                      'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
+                      'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
+                      'smoker': 'smoker',  # Currently smokes.
+                      # TODO waves present roughly matches ncigs. no data for waves 1-5.
+                      # for waves 2 and 5 similar variable 'smnow' could be used.
+                      'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
+                      'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
+                      'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
+                      'nkids_dv': 'nkids',  # number of children
+                      'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
+                      'xpelecy': 'yearly_electric',  # yearly electricty expenditure
+                      'xpgasy': 'yearly_gas',  # yearly gas expenditure
+                      'xpduely': 'yearly_gas_electric',  # yearly both expenditure.
+                      'xpoily': 'yearly_oil',  # yearly oil expenditure.
+                      'xpsfly': 'yearly_other_fuel',  # yearly other fuel (wood?)
+                      'fuelhave1': 'has_electric',  # spends money on electrictiy
+                      'fuelhave2': 'has_gas',  # spends money on gas
+                      'fuelhave3': 'has_oil',  # spends money on oil
+                      'fuelhave4': 'has_other',  # has some other fuel source.
+                      'fuelhave5': 'has_none',  # has no fuel source.
+                      'rentinc2': 'energy_in_rent',  # is it combined into rent?
+                      'xphsdba': 'behind_on_bills',  # behind on energy bills?
+                      'finnow': 'financial_situation',  # financial situation
+                      'finfut': 'future_financial_situation',  # expected near future financial situation.
+                      'lkmove': "likely_move",  # likelihood of moving house
+                      'scghqi': 'ghq_depression',  # ghq depression
+                      'scghql': 'ghq_happiness',  # ghq general happiness
+                      # 'sf1': 'sf1', # sf1 score
+                      'hcondn17': 'clinical_depression',  # has clinical depression.
+                      'scsf1': 'scsf1',  # sf1 score including proxy surveys
+                      'scsf3a': 'phealth_limits_work',  # physical health limits work.
+                      'scsf4a': 'mhealth_limits_work',  # mental health limits work.
+                      'scsf7': 'health_limits_social',  # health limits social life.
+                      }
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.
 
@@ -278,8 +290,10 @@ def format_ukhls_columns(year):
     column_names = list(attribute_dict.values())
     return attribute_columns, column_names
 
+
 def format_council_tax(data):
     """Format any council tax data for calculation of monthly overheads."""
+
 
 def format_ukhls_ethnicity(data):
     """ Format ethnicity variables.
@@ -333,7 +347,10 @@ def format_ukhls_education(data):
         Data after formatting educations.
     """
     # Map education ints to strings.
+    who_new_education = data.loc[~data['newest_education_state'].isin(US_utils.missing_types)].index
+    data.loc[who_new_education, 'education_state'] = data.loc[who_new_education, 'newest_education_state']
     data["education_state"] = data["education_state"].astype(str).map(education)
+    #print(data['education_state'].value_counts())
     return data
 
 
@@ -464,7 +481,7 @@ def format_data(year, data):
     # Categories that are formatted the same regardless of wave.
     data = format_sex(data)
     data = format_academic_year(data)
-    data = format_mental_state(data)
+    #data = format_mental_state(data)
     data = format_time(data, year)
     data = format_location(data, year)
 
@@ -511,8 +528,8 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 
 
 if __name__ == "__main__":
-    years = np.arange(1991, 2020) # need bhps for locf imputation. only keep years 2009-2020.
-    #years = np.arange(2009, 2020)
+    #years = np.arange(1991, 2020)  # need bhps for locf imputation. only keep years 2009-2020.
+    years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
@@ -522,7 +539,7 @@ if __name__ == "__main__":
 
     # Get source from args
     source = args.source_dir
-    #source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
+    # source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
     output = "data/raw_US/"
 
     main(years, source, output)

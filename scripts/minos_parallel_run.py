@@ -275,7 +275,7 @@ if __name__ == "__main__":
                         help="How many repitions to run in parallel. E.g. 10 runs 10 models with the same config.")
 
     args = vars(parser.parse_args())
-    input_kwargs = vars(args) # cast args as a dict.
+    input_kwargs = args # cast args as a dict.
     #args = {'config_file': 'config/beefyParallelConfig.yaml', 'reps': 2}
 
     # Assemble lists into grand list of all combinations.

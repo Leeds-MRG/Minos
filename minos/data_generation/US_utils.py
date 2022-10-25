@@ -179,9 +179,6 @@ def wave_prefix(columns, year):
     if year < 2009:
         wave_letter = 'b' + wave_letter
 
-    if year == 2008:
-        print('hi')
-
     exclude = ["pidp"]
     for i, item in enumerate(columns):
         if item not in exclude:
