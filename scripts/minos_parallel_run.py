@@ -34,6 +34,7 @@ from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import energyDownlift
+from minos.modules.intervention import livingWageIntervention
 
 class parallelMinos():
 
@@ -159,6 +160,9 @@ class parallelMinos():
             pop = utils.get_age_bucket(pop)
 
             # File name and save.
+            if "experiment_parameters" not in config:
+                config.update({'experiment_parameters': [config.run_id]}, source=str(Path(__file__).resolve()))
+                config.update({'experiment_parameters_names': ['id']}, source=str(Path(__file__).resolve()))
             print(config.experiment_parameters)
             params = config.experiment_parameters
             names = config.experiment_parameters_names
@@ -252,6 +256,8 @@ class parallelMinos():
             components.append(hhIncomeIntervention())
         if "hhIncomeChildUplift()" in config['components']:
             components.append(hhIncomeChildUplift())
+        if "livingWageIntervention()" in config['components']:
+            components.append(livingWageIntervention())
         if "hhIncomePovertyLineChildUplift()" in config['components']:
             components.append(hhIncomePovertyLineChildUplift())
         if 'energyDownlift()' in config['components']:

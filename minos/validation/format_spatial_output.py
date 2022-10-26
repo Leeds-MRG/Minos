@@ -32,14 +32,14 @@ def main(source, destination, v, tag, method_type):
 
     msim_data = pd.read_csv(source)
     # chris' spatially weighted data.
-    spatial_data = pd.read_csv("/Users/robertclay/data/ADULT_population_GB_2018.csv")
+    spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018_with_LADS.csv")
 
-    # subset US data. grab common pidps to prevent NA errors.
-    spatial_data2 = spatial_data.loc[spatial_data["pidp"].isin(msim_data["pidp"]), ]
-    US_data2 = msim_data.loc[msim_data["pidp"].isin(spatial_data2["pidp"]),["pidp", v]]
+    # subset msim data. grab common pidps to prevent NA errors.
 
-    # left merge US data into spatial data.
-    spatial_data2 = spatial_data2.merge(US_data2, how='left', on='pidp')
+    common_pidps = spatial_data.loc[spatial_data["pidp"].isin(msim_data["pidp"]),'pidp']
+    msim_data = msim_data.loc[msim_data["pidp"].isin(common_pidps),["pidp", v]]
+
+    spatial_data = spatial_data.loc[spatial_data["pidp"].isin(common_pidps),].merge(msim_data, how='left', on='pidp')
 
     # aggregate spatial data. Group by LSOAs (ZoneID)
     # TODO generalising this groupby to take methods other than just the mean.
@@ -51,20 +51,29 @@ def main(source, destination, v, tag, method_type):
         group_method = np.median
         method_kwargs = {}
 
-    spatial_data3 = spatial_data2.groupby("ZoneID")[v].apply(lambda x: group_method(x, **method_kwargs))
-    spatial_data3 = pd.DataFrame(spatial_data3)
-    spatial_data3["ZoneID"] = spatial_data3.index # put zoneid back into dataframe and reset index.
-    spatial_data3 = spatial_data3.reset_index(drop=True)  # resetting index that is changed by groupby.
+    group_on = "LADcd" # which spatial resolution to group by. LAD or LSOA
+    #group_on = "LSOAcd"
+
+    spatial_data = spatial_data.groupby(group_on)[v].apply(lambda x: group_method(x, **method_kwargs))
+    spatial_data = pd.DataFrame(spatial_data)
+    spatial_data[group_on] = spatial_data.index # put zoneid back into dataframe and reset index. rename to LSOAcd.
+    spatial_data = spatial_data.reset_index(drop=True)  # resetting index that is changed by groupby.
+
 
     # default dict assigns missing values to 0. prevents key errors later for any LSOA missing a value.
     # create a dictionary with keys as LSOAs and values as mean v by LSOA.
-    spatial_dict = defaultdict(int, zip(spatial_data3["ZoneID"], spatial_data3[v]))
-    print("merger done.")
 
+    # IGNORE FOR WS4.
     save_type = 'csv'
+    if save_type == "csv":
+        spatial_data.to_csv(destination + f"{tag}_{group_on}_{v}.csv", index=False)
+
     if save_type == 'geojson':
-    # Load in national LSOA geojson map data from ONS.
-    #https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
+        # convert
+        spatial_dict = defaultdict(int, zip(spatial_data["LSOAcd"], spatial_data[v]))
+        print("merger done.")
+        # Load in national LSOA geojson map data from ONS.
+        #https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
         json_source = "persistent_data/Lower_Layer_Super_Output_Areas_(December_2011)_Boundaries_Super_Generalised_Clipped_(BSC)_EW_V3.geojson"
         with open(json_source) as f:
             map_geojson = geojson.load(f)
@@ -84,12 +93,10 @@ def main(source, destination, v, tag, method_type):
         # save updated geojson for use in map plots.
         print(sum(spatial_dict.values()))
         print(f"GeoJSON attribute added.")
-        fname = destination + f"LSOAs_{v}.geojson"
+        fname = destination + f"{group_on}_{v}.geojson"
         print(f"Saving to {fname}.")
         with open(fname, 'w') as outfile:
             geojson.dump(map_geojson, outfile)
-    if save_type == "csv":
-        spatial_data3.to_csv(destination + f"{tag}_LSOAs_{v}.csv", index=False)
 
 if __name__ == "__main__":
     # data from some real US/minos

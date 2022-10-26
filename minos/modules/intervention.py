@@ -375,7 +375,7 @@ class livingWageIntervention():
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity']
+        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -412,7 +412,7 @@ class livingWageIntervention():
         Returns
         -------
         """
-        pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == '2'")
+        pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
         # TODO probably a faster way to do this than resetting the whole column.
         pop['hh_income'] -= pop['boost_amount']
         # Now get who gets uplift (different for London/notLondon)

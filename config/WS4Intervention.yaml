@@ -30,7 +30,7 @@ output_destination: 'WS4Intervention' # Further specify the output data is saved
 # Finally everything else can go in any order (priority 2).
 #components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
 #components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
-components : [Mortality(), hhIncomeIntervention(), Replenishment()]
+components : [livingWageIntervention(), Mortality(), Replenishment()]
 
 
 scale_rates:
