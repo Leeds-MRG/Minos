@@ -7,6 +7,14 @@ from collections import defaultdict
 import numpy as np
 import argparse
 
+
+def eightyTwenty(income):
+
+    split = pd.qcut(income, q=5, labels=[1, 2, 3, 4, 5])
+    who_bottom_twenty = split == 1
+    who_top_eighty = split > 1
+    eightyTwentyRatio = sum(income[who_bottom_twenty])/sum(income[who_top_eighty])
+    return eightyTwentyRatio
 def main(source, destination, v, tag, method_type):
 
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
@@ -50,6 +58,9 @@ def main(source, destination, v, tag, method_type):
     if method_type == "median":
         group_method = np.median
         method_kwargs = {}
+    if method_type == "eightyTwenty":
+        group_method = eightyTwenty
+        method_kwargs = {}
 
     group_on = "LADcd" # which spatial resolution to group by. LAD or LSOA
     #group_on = "LSOAcd"
@@ -66,7 +77,7 @@ def main(source, destination, v, tag, method_type):
     # IGNORE FOR WS4.
     save_type = 'csv'
     if save_type == "csv":
-        spatial_data.to_csv(destination + f"{tag}_{group_on}_{v}.csv", index=False)
+        spatial_data.to_csv(destination + f"{tag}_{method_type}_{group_on}_{v}.csv", index=False)
 
     if save_type == 'geojson':
         # convert
@@ -93,7 +104,7 @@ def main(source, destination, v, tag, method_type):
         # save updated geojson for use in map plots.
         print(sum(spatial_dict.values()))
         print(f"GeoJSON attribute added.")
-        fname = destination + f"{group_on}_{v}.geojson"
+        fname = destination + f"{tag}_{method_type}_{group_on}_{v}.geojson"
         print(f"Saving to {fname}.")
         with open(fname, 'w') as outfile:
             geojson.dump(map_geojson, outfile)
