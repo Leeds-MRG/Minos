@@ -4,16 +4,16 @@ fit baseline regression to data with no missingness correction.
 table of coefficients
 goodness of fit measures (rsquared)
 
-presentation
+presentation 
 
-forest plots
-diagnostics for ols.
-fitted-residual plot
-residuals density
+forest plots D
+diagnostics for ols. D
+fitted-residual plot D
+residuals density D
 
 missingness
 
-missingness structure aggr
+missingness structure aggr D
 spinograph for SF-12
 mice ols diagnostics.
 comparison between imputed and normal dataset SF12.
@@ -22,9 +22,15 @@ comparison between imputed and normal dataset SF12.
 extrapolation
 
 weighted regressions
-lasso
+lasso cv plot
+Lasso coefficients
 
 heterogeneity
 
-grand density graph.
-fitted-residual diagnostics
+grand residual density graph.
+More depth for glmm gamma. 
+Fitted density plots. 
+Forest plot. 
+Diagnostics table.
+
+Final combined effort. 

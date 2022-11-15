@@ -2,6 +2,7 @@ source('minos/transitions/utils.R')
 library(jtools) # for forest plots
 library(sjPlot) # forest plots
 library(strucchange) # CHOW TEST
+source("papers/phd1/paper_plots.R")
 
 get.extrapolated_weight.files <- function(source, year1, year2){
   # get files for year 1 and year 2 respectively.
@@ -31,8 +32,8 @@ main <- function(years){
     new_data2 <- new_data2[which(new_data2$pidp %in% common), ]
     new_data2 <- new_data2[, c("pidp", "SF_12")]
     colnames(new_data2) <- c("pidp", "y")
-    new_data <- merge(new_data, new_data2,"pidp")
-    new_data <- new_data[complete.cases(new_data),]
+    new_data <- merge(new_data, new_data2, "pidp")
+    #new_data <- new_data[complete.cases(new_data),]
     
     year0_weight <- paste0(paste0("X", year), "_weight")
     year5_weight <- paste0(paste0("X", year+5), "_weight")
@@ -66,8 +67,8 @@ main <- function(years){
   sf12.lm.weighted.2013 <- lm(formula, weights = year0_weight, data = data)
   print(summary(sf12.lm))
   
-  png('papers/phd1/plots/extrapolated_SF12_forest_2013.png')
-  plot_models(sf12.lm.weighted.2013, p.shape=T, legend.title = NULL, m.labels=NULL)
+  pdf('papers/phd1/plots/extrapolated_SF12_forest_2013.pdf')
+  print(plot_models(sf12.lm.weighted.2013, p.shape=T, legend.title = NULL, m.labels=NULL))
   dev.off()
   
   sf12.lm.weighted.2018 <- lm(formula, weights = year5_weight, data = data)
@@ -76,6 +77,12 @@ main <- function(years){
   png('papers/phd1/plots/extrapolated_SF12_forest_2018.png')
   plot_models(sf12.lm.weighted.2018, p.shape=T, legend.title = NULL, m.labels=NULL)
   dev.off()
+
+  
+  weights_2013 <- data$year0_weight
+  save(weights_2013, file="papers/phd1/data/US_2013_weights.RData")
+  weights_2018 <- data$year5_weight
+  save(weights_2018, file="papers/phd1/data/US_2018_weights.RData")
   
   ######
   #LASSO
@@ -95,8 +102,8 @@ main <- function(years){
   weights.2018 <- data$year5_weight
   
   # Fit LASSO
-  cv.lasso <- cv.glmnet(x, y, alpha = 1, family = "gaussian", weights=weights.2013)
-  lasso <- glmnet(x, y, alpha = 1,  family = "gaussian", weights = weights.2013, lambda=cv.lasso$lambda.1se)
+  cv.lasso <- cv.glmnet(x, y, family = "gaussian", weights=weights.2013)
+  lasso <- glmnet(x, y, alpha = 1,  family = "gaussian", weights = weights.2013)
   
   pdf('papers/phd1/plots/ols_lasso_2013.pdf')
   plot(lasso, xvar = "lambda", label = T) 
@@ -108,11 +115,12 @@ main <- function(years){
   pdf('papers/phd1/plots/ols_cv_lasso_2013.pdf')
   plot(cv.lasso)
   dev.off()
+  
   coef(cv.lasso, s = "lambda.min")
   
   # same again with 2018 weights.
-  cv.lasso2 <- cv.glmnet(x, y, alpha = 1, family = "gaussian", weights=weights.2018)
-  lasso2 <- glmnet(x, y, alpha = 1, family = "gaussian", weights = weights.2018, lambda=cv.lasso$lambda.1se)
+  cv.lasso2 <- cv.glmnet(x, y, family = "gaussian", weights=weights.2018)
+  lasso2 <- glmnet(x, y, alpha = 1, family = "gaussian", weights = weights.2018)
   
   
   pdf('papers/phd1/plots/ols_lasso_2018.pdf')

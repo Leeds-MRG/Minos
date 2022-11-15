@@ -11,7 +11,7 @@ def main(years, save):
 
     # get population
     # get projected weights by lookup.
-    file_name = f"data/complete_US/{years[0]}_US_cohort.csv"
+    file_name = f"data/composite_US/{years[0]}_US_cohort.csv"
     data = pd.read_csv(file_name)
     main_time = data['time']
     data[f"{years[0]}_weight"] = data['weight']

@@ -1,5 +1,6 @@
 library(sjPlot)
 library(ggplot2)
+library(ggpattern)
 
 main <- function(){
   load("papers/phd1/data/baseline_OLS.RData")
@@ -59,6 +60,10 @@ main <- function(){
   
   pdf("papers/phd1/plots/ols_sf12_leverage.pdf")
   plot(sf12.lm, 5)
+  dev.off()
+  
+  pdf("papers/phd1/plots/ols_sf12_qqplot.pdf")
+  plot(sf12.lm, 2)
   dev.off()
   
   texreg(summary(sf12.lm), dcolumn=T, booktabs=T, file="papers/phd1/ols_output.txt", title="SF12 OLS Coefficients", custom.model.names=c("SF12 OLS"), single.row=T, include.aic=T)

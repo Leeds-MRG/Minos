@@ -4,15 +4,27 @@ library(MuMIn)
 library(ggridges)
 library(ggplot2)
 library(car) # levene test
+library(texreg) # model outputs to tex tables. 
+library(strucchange) # CHOW TEST
+library(car) # levene test
+library(viridis)
+#library(tidyr) # for extract
 
-leveneTest(y~factor(time), data=data)
+#leveneTest(y~factor(time), data=data)kai
 #leveneTest(y~factor(pidp), data=data)
 
+source("papers/phd1/paper_plots.R")
+
+
 main <- function(){
+  load('papers/phd1/data/mice_pidps.RData')
   load('papers/phd1/data/mice_data.RData')
+  load('papers/phd1/data/baseline_OLS.RData')
+  load('papers/phd1/data/mice_lm_object.RData')
   data2 <- mice.data
-  leveneTest(y~factor(time), data=data)
-  leveneTest(y~factor(pidp), data=data)
+  data2$pidp <- pidps
+  #leveneTest(y~factor(time), data=data2)
+  #leveneTest(y~factor(pidp), data=data2)
   
   sf12.lm.oneterm <- lm(y ~ sex + 
                           ethnicity + 
@@ -36,13 +48,10 @@ main <- function(){
                       labour_state + 
                       job_sec +
                       region +
-                      scale(hh_income) + 1:pidp , data = data2, family = gaussian,id=pidp
+                      scale(hh_income) + 1:time , data = data2[with(data2, order(pidp, time)), ], family = gaussian, id=pidp
                     , corstr="ar1")
   
   gee.preds <- predict(dep.gee, data2)
-  #pdf("papers/ph1/plots/gee_densities.pdf")
-  #compare_densities_plot(gee.preds, data2$y, "SF_12")
-  #dev.off()
   print(summary(dep.gee))
   #print(QIC(dep.gee))
   
@@ -56,17 +65,19 @@ main <- function(){
                      scale(hh_income) +
                      (1|pidp), data = data2)
   
-  
   glmm.sum <- summary(dep.glmm)
-  AIC(dep.glmm)
-  r.squaredGLMM(dep.glmm)
+  print(glmm.sum)
+  print(AIC(dep.glmm))
+  #r.squaredGLMM(dep.glmm)
   
-  glmm.preds <- predict(dep.glmm)
-  pdf("papers/ph1/plots/glmm_densities.pdf")
-  compare_densities_plot(glmm.preds, data2$y, "SF_12")
-  dev.off()
+  #glmm.preds <- predict(dep.glmm)
+  #pdf("papers/ph1/plots/glmm_densities.pdf")
+  #compare_densities_plot(glmm.preds, data2$y, "SF_12")
+  #dev.off()
   
-  dep.glmm.gamma <- glmer(max(data2$y) - y + 0.001  ~
+  max_sf12 <- max(data2$y)
+  dep.glmm.gamma <- glmer(max_sf12 - y + 0.001  ~
+                            sex + 
                             ethnicity + 
                             age + 
                             education_state + 
@@ -74,34 +85,39 @@ main <- function(){
                             job_sec +
                             region +
                             scale(hh_income) +
-                            (1|pidp),  nAGQ=0, family=Gamma(link='log'), data = data2[complete.cases(data2),])
+                            (1|pidp),  nAGQ=0, family=Gamma(link='log'), data = data2)
   #r.squaredGLMM(dep.glmm.gamma)
-  
-  
+
   glmm.gamma.sum <- summary(dep.glmm.gamma)
-  AIC(dep.glmm.gamma)
+  print(glmm.gamma.sum)
+  print(AIC(dep.glmm.gamma))
   #r.squaredGLMM(dep.glmm.gamma)
   glmm.gamma.preds <- predict(dep.glmm.gamma, type='response')
-  glmm.gamma.preds <- glmm.gamma.preds[which(glmm.gamma.preds<100)]
-  pdf("papers/ph1/plots/glmm_gamma_densities.pdf")
-  compare_densities_plot(glmm.gamma.preds, data2$y, "SF_12")
-  dev.off()
+  glmm.gamma.preds <- max_sf12 - glmm.gamma.preds
+  
+  #pdf("papers/ph1/plots/glmm_gamma_densities.pdf")
+  #compare_densities_plot(glmm.gamma.preds, data2$y, "SF_12")
+  #dev.off()
   
   texreg.onemore <- sf12.lm.oneterm
-  texreg.gee <- extract(dep.gee)
-  texreg.glmm <- extract(dep.glmm)
-  texreg.glmm.gamma <- extract(dep.glmm.gamma)
+  texreg.gee <- texreg::extract(dep.gee)
+  texreg.glmm <- texreg::extract(dep.glmm)
+  texreg.glmm.gamma <- texreg::extract(dep.glmm.gamma)
   texreg.glmm.gamma@coef <- exp(-texreg.glmm.gamma@coef)
   
-  texreg(list(texreg.onemore, texreg.gee, texreg.glmm, texreg.glmm.gamma), dcolumn=T, booktabs=T, file='papers/ph1/plots/heterogeneity_coefficients.txt', title="SF12 Heterogeneity Coefficients", custom.model.names=c("OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma"), single.row=T)
+  # texreg(list(texreg.onemore, texreg.gee, texreg.glmm, texreg.glmm.gamma), dcolumn=T, booktabs=T, file='papers/ph1/plots/heterogeneity_coefficients.txt', title="SF12 Heterogeneity Coefficients", custom.model.names=c("OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma"), single.row=T)
+  texreg(list(sf12.lm, mice.lm.object, texreg.onemore, texreg.gee, texreg.glmm, texreg.glmm.gamma), 
+         dcolumn=T, 
+         booktabs=T,
+         file='papers/phd1/data/combined_coefficients.txt', 
+         title="SF12 All Coefficients", 
+         custom.model.names=c("OLS", "MICE OLS", "OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma"), 
+         single.row=T, 
+         leading.zero=F)
   
-  
-  texreg(list(sf12.lm, mice.lm.object, texreg.onemore, texreg.gee, texreg.glmm, texreg.glmm.gamma), dcolumn=T, booktabs=T, file='papers/ph1/plots/combined_coefficients.txt', title="SF12 All Coefficients", custom.model.names=c("OLS", "MICE OLS", "OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma"), single.row=T, leading.zero=F)
-  
-  data3 <- data2[complete.cases(data2), ]
-  fit.objects <- list(data3$SF_12, predict(sf12.lm), predict(pooled_lm, data3), predict(sf12.lm.oneterm, data3),
-                      predict(dep.gee, data3), predict(dep.glmm, data3), max(data2$y)- predict(dep.glmm.gamma, data3, type='response'))
-  names <- list("Real", "OLS", "OLS MICE", "OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma")
+  fit.objects <- list(data2$SF_12, predict(sf12.lm), predict(sf12.lm.oneterm, data2),
+                      predict(dep.gee, data2), predict(dep.glmm, data2), max_sf12 - predict(dep.glmm.gamma, data2, type='response'))
+  names <- list("Real", "OLS", "OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma")
   density.data <- c()
   
   for (i in seq(length(fit.objects))){
@@ -126,11 +142,11 @@ main <- function(){
   
   residual.objects <- list(rnorm(500000), 
                            scale(residuals(sf12.lm)), 
-                           scale(residuals(pooled_lm)), 
+                           #scale(residuals(pooled_lm)), 
                            scale(residuals(sf12.lm.oneterm)),
                            scale(residuals(dep.gee)), 
                            scale(residuals(dep.glmm)), scale(max(data2$y)- residuals(dep.glmm.gamma, type='response')))
-  residual.names <- list("Normal", "OLS", "OLS MICE", "OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma")
+  residual.names <- list("Normal", "OLS", "OLS + Oneterm", "GEE", "GLMM", "GLMM Gamma")
   
   residual.data <- c()
   for (i in seq(length(residual.objects))){
@@ -153,6 +169,17 @@ main <- function(){
   pdf('papers/phd1/plots/combined_sf12_residuals.pdf') 
   print(residual.densities)
   dev.off()
+  
+  dep.glmm.gamma@beta <- -dep.glmm.gamma@beta
+  forest_plot(dep.glmm.gamma, "papers/phd1/plots/glmm_gamma_forest.pdf", c(0.77, 1.11))
+  qq_plot(resid(dep.glmm.gamma), "papers/phd1/plots/glmm_gamma_qq.pdf")
+  residual_density_plot(res=resid(dep.glmm.gamma), file_name="papers/phd1/plots/glmm_gamma_residual_density.pdf", guide="normal")
+  
+  squareRootRes <- sqrt(abs(scale(resid(dep.glmm.gamma))))
+  fitted_residuals <- as.data.frame(cbind(fitted(dep.glmm.gamma), squareRootRes))
+  colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
+  fitted_residual_plot(fitted_residuals, 'papers/phd1/plots/glmm_gamma_fitted_residual_plot.pdf')
+  
 }
 
 main()
