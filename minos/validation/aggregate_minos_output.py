@@ -1,0 +1,123 @@
+import pandas as pd
+import glob as glob
+import numpy as np
+import argparse
+import os
+import yaml
+
+def aggregate_variables_by_year(source, years, tag, v, method):
+    """ Get aggregate values for value v using method function. Do this over the specified source and years.
+
+    A MINOS batch run under a certain intervention will produce 1000 files over 10 years and 100 iterations.
+    These files will all be in the source directory.
+
+    For each year this function grabs all files. If the model runs from 2010-2020 there would be 100 files for 2010.
+
+    For each file within a year the method function is used over variable v.
+    The default is taking the mean over SF12 using np.nanmean.
+
+    For each file this will produce a scalar value.
+    This scalar value is used along with a year and tag tag as a row in the output dataframe df.
+    These tags determine which year and which source the dataframe row belongs to.
+    If the source is a £25 uplift intervention the tag tag will correspond to this.
+    This is used later by sns.lineplot.
+
+    This is repeated over all years to produce an output dataframe with 1000 rows.
+    Each row is an aggregated v value for each iteration and year pair.
+
+    Parameters
+    ----------
+    source: str
+        What directory is being aggregated. E.g. output/baseline/
+    years, v : list
+        What range of years are being used. What set of variables are being aggregated.
+    tag: str
+        Which data source are being processed. adds a tag column to the df with this tag.
+    method: func
+
+    Returns
+    -------
+    df: pd.DataFrame
+        Data frame with columns year, tag and v. Year is year of observation, tag is MINOS batch run and intervention
+        it has come from, v is aggregated variable. Usually SF12.
+    """
+
+    df = pd.DataFrame(columns = ["year", "tag", v]) # keep year, tag and columns specified by user v.
+    for year in years:
+        files = glob.glob(os.path.join(source, f"*{year}.csv")) # grab all files at source with suffix year.csv.
+        for file in files: # loop over files. take aggregate value of v and add it as a row to output df.
+            agg_value = method(pd.read_csv(file, low_memory=False)[v])
+            new_df = pd.DataFrame([[agg_value, tag, year]], columns = [v, 'tag', 'year'])
+            df = pd.concat([df, new_df])
+    return df
+
+def main(source, years, tags, v, method):
+    """
+
+    Parameters
+    ----------
+    source: list
+        MINOS batch run to process.
+    years: list
+        Range of years to plot.
+    tag: list
+        Corresponding name of the MINOS batch source. Usually what intervention was used. Baseline Uplift, etc..
+    v: str
+        What variable to aggregate on. Defaults to SF_12
+    method: func
+        What function to aggregate over. Default np.nanmean.
+    destination: str
+        Where to save final plots. Defaults to original source.
+
+    Returns
+    -------
+    df: pd.DataFrame
+        Dataframe df containing 3 columns year, tag, v. Long frame of aggregates by year and source.
+    """
+    print(f"Aggregating for source {source}, tag {tags} using {method.__name__} over {v}")
+    destination = os.path.join(source, f"aggregated_{v}_by_{method.__name__}.csv")
+    df = aggregate_variables_by_year(source, years, tag, v, method)
+    df.to_csv(destination, index=False)
+    print(f"Saved file to {destination}")
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description="Aggregate output data from a MINOS batch run directory.")
+    parser.add_argument("-s", "--source", required=True, type=str,
+                        help="The source directory for Understanding Society/Minos data. Usually output/")
+    parser.add_argument("-d", "--directories", required=True, type=str,
+                        help="Subdirectories within source that are aggregated. Usually experiment names baseline childUplift etc.")
+    parser.add_argument("-t", "--tags", required=True, type=str,
+                        help="Corresponding name tags for which data is being processed. I.E which intervention Baseline/£20 Uplift etc. Used as label in later plots.")
+    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
+                        help="What variable from Minos is being aggregated. Defaults to SF12.")
+    parser.add_argument("-m", "--method", required=False, type=str, default="nanmean",
+                        help="What method is used to aggregate population. Defaults to np.nanmean.")
+    args = vars(parser.parse_args())
+    source = args['source']
+    directories = args['directories']
+    tags = args['tags']
+    v = args['variable']
+    method = args['method']
+
+    if method == "nanmean":
+        method = np.nanmean
+    else:
+        #TODO no better way to do this to my knowledge without eval() which shouldn't be used.
+        raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
+
+
+    directories = directories.split(",")
+    tags = tags.split(",")
+
+    for directory, tag in zip(directories, tags):
+        batch_source = os.path.join(source, directory)
+        # get years from MINOS batch run config yaml.
+        with open(f"{batch_source}/config_file.yml", "r") as stream:
+            config = yaml.safe_load(stream)
+            start_year = config['time']['start']['year']
+            end_year =  config['time']['end']['year']
+            years = np.arange(start_year+1, end_year+1) # don't use first year as variables all identical.
+        print(batch_source)
+        df = main(batch_source, years, tag, v, method)

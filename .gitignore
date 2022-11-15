@@ -56,6 +56,8 @@ Minos.Rproj
 # Plots and stuff
 plots/
 
+# rob phd data
+papers/phd1/data/*
 
 # Chris' data
 persistent_data/ADULT*.csv

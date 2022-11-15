@@ -18,7 +18,7 @@ MODULES = $(SOURCEDIR)/modules
 DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
-
+PLOTDIR = $(CURDIR)/plots
 # This path points to the python site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
 
@@ -78,7 +78,7 @@ conda:
 
 .PHONY: beefy_conda
 
-beefy_conda:
+hpc_conda:
 	conda create -n conda_minos python=3.9 # create conda environment. 
 	conda activate conda_minos # activate conda environment.
 	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0. 
@@ -118,6 +118,12 @@ baseline: ### Baseline run of MINOS, using configuration defined in beefyBaselin
 baseline: data transitions
 	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyBaseline.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
+beefy_baseline: # Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
+beefy_baseline: data transitions install beefy_conda
+	$(PYTHON) # fill in when have access to beefy again..
+
+arc4_baseline:
+	qsub scripts/arc.sh config.beefyBaseline.yaml
 incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
 ### flexible framework for running income interventions, and adjustments to the size and scale of the intervention can be
 ### made by editing the parameters in minos.modules.intervention.hhIncomeIntervention.pre_setup(). Eventually we might
@@ -243,6 +249,22 @@ $(TRANSITION_DATA)/nutrition/clm/nutrition_ols_2018_2019.rds: $(FINALDATA)/2019_
 $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
 
+
+# Post-model aggregation and plots.
+AGGREGATE_METHOD = nanmean
+AGGREGATE_VARIABLE = SF_12
+REF_LEVEL = Baseline
+DIRECTORIES = baseline,povertyUplift,childUplift
+DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift"
+
+aggregate_minos_output:
+	# See file for tag meanings.
+	# aggregate files for baseline, all child uplift, and poverty line uplift.
+	python3 minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE)
+	# stack aggregated files into one long array.
+	python3 minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	python3 minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
 ###
 ## Cleaning
