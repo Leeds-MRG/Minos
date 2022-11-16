@@ -5,7 +5,7 @@ import sys
 import pandas as pd
 import numpy as np
 from pathlib import Path
-
+from minos.modules.base_module import Base
 
 class hhIncomeIntervention():
 
@@ -437,43 +437,14 @@ class livingWageIntervention():
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
 
-class energyDownlift:
+class energyDownlift(Base):
     @property
     def name(self):
-        return "hh_income_80_energy_downlift"
+        return "energy_downlift"
 
     def __repr__(self):
-        return "hhIncome80EnergyDownlift()"
+        return "energyDownlift()"
 
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-        # nothing done here yet. transition models specified by year later.
-        if 'run_id' in config.keys():
-            # Pick a set of parameters according to task_id arg from minos_batch_run.py.
-            run_id = config['run_id']
-        else:
-            # If no task id specified (you should) choose the first task as a test.
-            run_id = sys.argv[4] - 1
-        parameters = [run_id]
-        config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
-        config.update({'experiment_parameters_names': ['run_id']}, source=str(Path(__file__).resolve()))
-
-        return simulation
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
 
@@ -526,7 +497,8 @@ class energyDownlift:
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
-        pop['boost_amount'] = (-(pop['yearly_gas_electric'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        # TODO is an 80% increase correct? More dynamic assumption needed?
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0

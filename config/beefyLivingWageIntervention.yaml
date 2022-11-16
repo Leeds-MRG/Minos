@@ -4,8 +4,8 @@ randomness: # Columns used in generation of CRN. need to find out what this actu
 input_data:
     location: 'UK' # again not sure why this is needed.
 time: # how long does the simulation run for. Has the start/end times. How long is a step and how many years does the model run.
-    start: {year: 2009, month: 10, day: 15} # Can probably derive these from start and n_steps instead.
-    end:   {year: 2019, month: 10, day: 15}
+    start: {year: 2018, month: 10, day: 15} # Can probably derive these from start and n_steps instead.
+    end:   {year: 2028, month: 10, day: 15}
     step_size: 365.25  # Days
     num_years: 10
 population:
@@ -17,8 +17,8 @@ replenishment_files_source: # local mount for US data when using docker image.
 
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv' # nomis mortality rate tables by age sex eth.
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv' # nomis fertility rate tables by age sex eth.
-#input_data_dir: 'data/final_US' # Where is cohort data saved after preprocessing.
-#persistent_data_dir: 'persistent_data' # Where is any persistent data saved.
+input_data_dir: 'data/final_US' # Where is cohort data saved after preprocessing.
+persistent_data_dir: 'persistent_data' # Where is any persistent data saved.
 output_data_dir: 'output' # Where is output data saved to.
 output_destination: 'livingWageIntervention' # Further specify the output data is saved to. E.g. running multiple models may need separate folders to prevent overwriting.
 
@@ -29,7 +29,8 @@ output_destination: 'livingWageIntervention' # Further specify the output data i
 # Only if Replenishment needs some other module in the future would it be superceded.
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. Not much use changing jobs if you're dead.(priority 1)
 # Finally everything else can go in any order (priority 2).
-components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), livingWageIntervention(), Replenishment()]
+#components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), livingWageIntervention(), Replenishment())]
+components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Education(), Mortality(), livingWageIntervention(), Replenishment()]
 
 scale_rates:
     # methods:
