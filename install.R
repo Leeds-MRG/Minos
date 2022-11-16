@@ -1,10 +1,10 @@
 # install any packages here that are needed.
-install.packages("ordinal")
-install.packages('nnet')
-install.packages('tidyverse')
-install.packages('stringr')
-install.packages('readr')
-install.packages('pscl')
-install.packages('ggplot2')
-install.packages('texreg')
+install.packages("ordinal",repos = "http://cran.us.r-project.org")
+install.packages('nnet',repos = "http://cran.us.r-project.org")
+install.packages('tidyverse',repos = "http://cran.us.r-project.org")
+install.packages('stringr',repos = "http://cran.us.r-project.org")
+install.packages('readr',repos = "http://cran.us.r-project.org")
+install.packages('pscl',repos = "http://cran.us.r-project.org")
+install.packages('ggplot2',repos = "http://cran.us.r-project.org")
+install.packages('texreg',repos = "http://cran.us.r-project.org")
 #

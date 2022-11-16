@@ -65,24 +65,26 @@ help: ### Show this help
 .PHONY: conda
 
 conda:
-	＠echo "Loading arc4 python module to use conda commands."
-	module load python anaconda
+	@echo "Loading arc4 python module to use conda commands."
+	#module load python anaconda
 	@echo "Initiating conda environment. "
 	conda create -p conda_minos python=3.8
 	@echo "Activating conda environment"
 	source activate conda_minos
-	@ "Minimal R 4.0.5 install in conda environment."
+	@"Minimal R 4.0.5 install in conda environment."
 	#conda install -c conda-forge r-base=4.0.5
 	conda install -c conda-forge r-essentials=4.0.5
 	@echo "conda install complete!"
 
-.PHONY: beefy_conda
+.PHONY: arc_conda
 
-hpc_conda:
+arc_conda:
+	$(shell module load python anaconda)
 	conda create -n conda_minos python=3.9 # create conda environment. 
 	conda activate conda_minos # activate conda environment.
-	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0. 
-
+	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
+	
+	
 ## Install
 ###
 .PHONY: install
@@ -123,7 +125,21 @@ beefy_baseline: data transitions install beefy_conda
 	$(PYTHON) # fill in when have access to beefy again..
 
 arc4_baseline:
-	qsub scripts/arc.sh config.beefyBaseline.yaml
+	$(shell module load python anaconda)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyBaseline.yaml)
+
+arc4_living_wage:
+	$(shell module load python anaconda)
+        $(shell conda activate conda_minos)
+        $(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
+
+arc4_energy:
+	$(shell module load python anaconda)
+        $(shell conda activate conda_minos)
+        $(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
+
+
 incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
 ### flexible framework for running income interventions, and adjustments to the size and scale of the intervention can be
 ### made by editing the parameters in minos.modules.intervention.hhIncomeIntervention.pre_setup(). Eventually we might

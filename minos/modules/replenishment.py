@@ -71,7 +71,6 @@ class Replenishment(Base):
                         'nobs',
                         'region',
                         'SF_12',
-                        'SF_12p',
                         'hh_int_y',
                         'hh_int_m',
                         'Date',
@@ -87,17 +86,17 @@ class Replenishment(Base):
                         'nkids',
                         'max_educ',
                         'yearly_energy',
-                        'nutrition_quality',
-                        'hourly_wage',
-                        'hourly_rate',
-                        'gross_paypm',
-                        'gross_pay_se',
-                        'job_hours',
-                        'job_hours_se',
-                        'job_inc',
-                        'jb_inc_per',
                         'job_sector',
-                        ]
+                        'SF_12p',
+                        'gross_pay_se',
+                        'nutrition_quality',
+                        'job_hours_se',
+                        'hourly_rate',
+                        'job_hours',
+                        'job_inc', 
+                        'jb_inc_per', 
+                        'hourly_wage', 
+                        'gross_paypm']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

@@ -66,7 +66,8 @@ class Minos():
         run_output_dir = os.path.join(config['output_data_dir'], config['output_destination'])
         run_output_plots_dir = os.path.join(config['output_data_dir'], 'plots')
 
-        if not os.path.exists(config['run_output_dir']):
+	# Make
+        if not os.path.exists(config['output_data_dir']):
             print("Specified output directory does not exist. creating..")
             os.makedirs(config['output_data_dir'], exist_ok=True)
 
@@ -297,7 +298,7 @@ if __name__ == "__main__":
     # parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
     # parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
     # parser.add_argument('--output_data_dir', type=str, help='directory where the output data is saved', default=None)
-    parser.add_argument("--run_id", type=int, metavar="config-file",
+    parser.add_argument("-r", "--run_id", type=int, metavar="config-file",
                         help="the model config file (YAML)")
 
     args = vars(parser.parse_args())

@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 # Set current working directory
 #$ -cwd
 
@@ -27,4 +27,4 @@
 # (income uplift amounds and run_id)
 # $1 is config file e.g. config/beefyBaseline.yaml
 # $SGE_TASK_ID is son of grid engine task id. run id for this minos run.
-python3 'scripts/minos_batch_run.py' $1 $SGE_TASK_ID
+python3 'scripts/minos_batch_run.py' -c $1 -r $SGE_TASK_ID

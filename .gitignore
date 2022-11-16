@@ -69,4 +69,5 @@ conda_minos
 logs/*
 
 # US raw files
-& UKDA-6614-stata
+UKDA-6614-stata
+data/UKDA-6614-stata

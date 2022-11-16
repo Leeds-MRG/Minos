@@ -62,7 +62,6 @@ class replenishmentNowcast(Base):
                         'job_duration_y',
                         'depression',
                         'academic_year',
-                        'depression_change',
                         'hidp',
                         'birth_month',
                         'birth_year',
@@ -83,7 +82,18 @@ class replenishmentNowcast(Base):
                         'nkids',
                         'ndrinks',
                         'max_educ',
-                        'yearly_energy']
+                        'yearly_energy',
+			'job_sector', 
+			'SF_12p', 
+			'gross_pay_se', 
+			'nutrition_quality', 
+			'job_hours_se', 
+			'hourly_rate', 
+			'job_hours', 
+			'job_inc', 
+			'jb_inc_per', 
+			'hourly_wage', 
+			'gross_paypm']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

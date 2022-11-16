@@ -119,4 +119,4 @@ class MWB(Base):
         f = plt.figure()
         histplot(pop, x = "SF_12", stat='density')
         plt.savefig(file_name)
-        plt.close()
+        plt.close('all')
