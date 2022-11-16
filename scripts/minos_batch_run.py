@@ -35,7 +35,8 @@ from minos.modules.education import Education
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
-
+from minos.modules.intervention import energyDownlift
+from minos.modules.intervention import livingWageIntervention
 
 class Minos():
 
@@ -75,13 +76,17 @@ class Minos():
         if not os.path.exists(run_output_dir):
             print("Specified output destination does not exist. creating..")
             os.makedirs(run_output_dir, exist_ok=True)
-            config['run_output_dir'] = run_output_dir
+        config['run_output_dir'] = run_output_dir
 
 
         if not os.path.exists(run_output_plots_dir):
             print("Specified plots file for output does not exist. creating..")
             os.makedirs(run_output_plots_dir, exist_ok=True)
-            config['run_output_plots_dir'] = run_output_plots_dir
+        config['run_output_plots_dir'] = run_output_plots_dir
+
+        # default do_plots in config to false. takes a lot less memory but less verbose.
+        if 'do_plots' not in config.keys():
+            config['do_plots'] = False
 
         # Start logging. Really helpful in arc4 with limited traceback available.
         logging.basicConfig(filename=os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
@@ -184,9 +189,11 @@ class Minos():
             params = config.experiment_parameters
             names = config.experiment_parameters_names
             output_data_filename = ""
+
             for i in range(len(params)):
                 output_data_filename += names[i] + "_"
                 output_data_filename += str(params[i]) + "_"
+
             output_data_filename += f"{config.time.start.year + year}.csv"
             output_file_path = os.path.join(config.run_output_dir, output_data_filename)
             pop.to_csv(output_file_path)
@@ -202,8 +209,9 @@ class Minos():
             if 'FertilityAgeSpecificRates()' in config.components:
                 print('New children', len(pop[pop['parent_id'] != -1]))
 
-            for component in self.components:
-                component.plot(pop, config)
+            if config.do_plots:
+                for component in self.components:
+                    component.plot(pop, config)
         return config, simulation
 
     def save(self, save_method, destination, file_name):
@@ -250,6 +258,12 @@ class Minos():
         # Check each of the modules is present.
         # components = [eval(x) for x in config.components] # more adapative way but security issues.
         # last one in first one off. any module that requires another should be BELOW IT in this order.
+
+        # Outcome module goes first (last in sim)
+        if "MWB()" in config['components']:
+            components.append(MWB())
+
+        # Intermediary modules.
         if "Tobacco()" in config['components']:
             components.append(Tobacco())
         if "Alcohol()" in config['components']:
@@ -258,8 +272,6 @@ class Minos():
             components.append(Neighbourhood())
         if "Labour()" in config['components']:
             components.append(Labour())
-        if "MWB()" in config['components']:
-            components.append(MWB())
         if "Housing()" in config['components']:
             components.append(Housing())
         if "Income()" in config['components']:
@@ -272,16 +284,24 @@ class Minos():
             components.append(FertilityAgeSpecificRates())
         if "Mortality()" in config['components']:
             components.append(Mortality())
+        if "Education()" in config['components']:
+            components.append(Education())
+
+        # Interventions
         if "hhIncomeIntervention()" in config['components']:
             components.append(hhIncomeIntervention())
         if "hhIncomeChildUplift()" in config['components']:
             components.append(hhIncomeChildUplift())
         if "hhIncomePovertyLineChildUplift()" in config['components']:
             components.append(hhIncomePovertyLineChildUplift())
+        if "livingWageIntervention()" in config['components']:
+            components.append(livingWageIntervention())
+        if "energyDownlift()" in config['components']:
+            components.append(energyDownlift())
+
+        # Replenishment always go last. (first in sim)
         if "Replenishment()" in config['components']:
             components.append(Replenishment())
-        if "Education()" in config['components']:
-            components.append(Education())
         if "replenishmentNowcast()" in config['components']:
             components.append(replenishmentNowcast())
         return components
