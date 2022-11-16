@@ -67,3 +67,6 @@ conda_minos
 
 # slurm logs
 logs/*
+
+# US raw files
+& UKDA-6614-stata
