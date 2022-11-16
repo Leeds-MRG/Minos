@@ -1,11 +1,11 @@
-# script for application of cumulative link model (clm) nutrition transitions in MINOS.
-# This file fits clm models to mice imputed datasets.
+# script for application of cumulative link model (ols) nutrition transitions in MINOS.
+# This file fits ols models to mice imputed datasets.
 ########################
 # todolist
 # get data in. two waves with desired household prediction and imputation variables.
 # may be easier to just impute household datasets seperately..
 
-# fit clm on estimation of next nutrition state.
+# fit ols on estimation of next nutrition state.
 ########################
 
 source("minos/transitions/utils.R")
@@ -23,7 +23,7 @@ get.nutrition.files <- function(source, year1, year2){
 
 
 get.nutrition.file.name <- function(destination, year1, year2){
-  # Rda file names for clm outputs. annoying string concatenation.
+  # Rda file names for ols outputs. annoying string concatenation.
   file_name <- paste0(destination, "nutrition_ols_")
   file_name <- paste0(file_name, str(year1))
   file_name <- paste0(file_name, "_")

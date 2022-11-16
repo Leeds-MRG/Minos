@@ -5,34 +5,9 @@ Calculation of weekly consumption of fruit and veg.
 
 import pandas as pd
 import minos.modules.r_utils as r_utils
+from minos.modules.base_module import Base
 
-
-class Nutrition:
-
-
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-
-        # Load in transition model
-
-        return simulation
-
+class Nutrition(Base):
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -90,22 +65,6 @@ class Nutrition:
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
-
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for mortality when new simulants are added.
-
-        Parameters
-        ----------
-        pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        Returns
-        -------
-        None
-        """
-
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -123,7 +82,8 @@ class Nutrition:
         newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
         newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
         # Set index type to int (instead of object as previous)
-        newWaveNutrition.index = newWaveNutrition.index.astype(int)
+        newWaveNutrition.index = (newWaveNutrition.index.astype(int))
+        newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
