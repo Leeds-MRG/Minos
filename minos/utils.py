@@ -19,14 +19,12 @@ DAYS_PER_YEAR = 365.25
 DAYS_PER_MONTH = DAYS_PER_YEAR / 12
 
 
-def get_config(config):
+def read_config(config_file):
 
     # Open the vivarium config yaml.
-    with open(config) as config_file:
-        config = ConfigTree(yaml.full_load(config_file))
+    with open(config_file) as file:
+        config = ConfigTree(yaml.full_load(file))
     return config
-
-
 
 
 # TODO Investigate the mock artifact manager. Not sure if this is what we should be using.
