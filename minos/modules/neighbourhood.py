@@ -129,7 +129,7 @@ class Neighbourhood(Base):
 
     def plot(self, pop, config):
 
-        file_name = config.run_output_plots_dir + f"neighbourhood_barplot_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"neighbourhood_barplot_{self.year}.pdf"
         densities = pd.DataFrame(pop['neighbourhood_safety'].value_counts(normalize=True))
         densities.columns = ['densities']
         densities['neighbourhood_safety'] = densities.index

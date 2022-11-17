@@ -111,7 +111,7 @@ class Housing(Base):
 
     def plot(self, pop, config):
 
-        file_name = config.run_output_plots_dir + f"housing_barplot_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"housing_barplot_{self.year}.pdf"
         densities = pd.DataFrame(pop['housing_quality'].value_counts(normalize=True))
         densities.columns = ['densities']
         densities['housing_quality'] = densities.index

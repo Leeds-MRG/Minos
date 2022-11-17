@@ -5,9 +5,19 @@ from minos.modules.base_module import Base
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+import matplotlib.pyplot as plt
+from seaborn import catplot
 
 class Education(Base):
 
+    # Special methods for vivarium.
+    @property
+    def name(self):
+        return "education"
+
+
+    def __repr__(self):
+        return "Education()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -96,7 +106,7 @@ class Education(Base):
         event : vivarium.population.PopulationEvent
             The `event` that triggered the function call.
         """
-        #self.year = event.time.year
+        self.year = event.time.year
 
         # Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17
         # No need to test max_educ for this one, everyone stays in education to 16 now minimum
@@ -128,12 +138,13 @@ class Education(Base):
         level7['education_state'][level7['education_state'] < 7] = 7
         self.population_view.update(level7['education_state'])
 
+    def plot(self, pop, config):
 
-    # Special methods for vivarium.
-    @property
-    def name(self):
-        return "education"
-
-
-    def __repr__(self):
-        return "Education()"
+        file_name = config.output_plots_dir + f"education_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['education_state'].value_counts(normalize=True))
+        densities.columns = ['densities']
+        densities['education_state'] = densities.index
+        f = plt.figure()
+        cat = catplot(data=densities, y='education_state', x='densities', kind='bar', orient='h')
+        plt.savefig(file_name)
+        plt.close()

@@ -1,1 +1,1 @@
-hh_income ~ age + sex + ethnicity + region
+hh_income ~ age + sex + factor(ethnicity) + region

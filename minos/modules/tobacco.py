@@ -117,7 +117,7 @@ class Tobacco(Base):
 
     def plot(self, pop, config):
 
-        file_name = config.run_output_plots_dir + f"tobacco_hist_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"tobacco_hist_{self.year}.pdf"
         f = plt.figure()
         histplot(pop, x="ncigs", stat='density')
         plt.savefig(file_name)

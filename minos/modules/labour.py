@@ -122,7 +122,7 @@ class Labour(Base):
 
     def plot(self, pop, config):
 
-        file_name = config.run_output_plots_dir + f"labour_barplot_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"labour_barplot_{self.year}.pdf"
         densities = pd.DataFrame(pop['labour_state'].value_counts(normalize=True))
         densities.columns = ['densities']
         densities['labour_state'] = densities.index

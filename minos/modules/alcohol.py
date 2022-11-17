@@ -116,7 +116,7 @@ class Alcohol(Base):
 
     def plot(self, pop, config):
 
-        file_name = config.run_output_plots_dir + f"alcohol_hist_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"alcohol_hist_{self.year}.pdf"
         f = plt.figure()
         histplot(pop, x="alcohol_spending", stat='density')
         plt.savefig(file_name)
