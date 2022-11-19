@@ -38,6 +38,13 @@ from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import energyDownlift
 from minos.modules.intervention import livingWageIntervention
 
+
+# validate config function - validate conifgs, add parts that are needed.
+# init components - check components in and initialise them.
+# run - loop through msim
+# save
+# main
+
 class Minos():
 
     def __init__(self, config_dir, run_id):
@@ -65,28 +72,35 @@ class Minos():
         # run_output_dir = os.path.join(config['output_data_dir'], str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
         # Or just assign them to some experiment folder.
         run_output_dir = os.path.join(config['output_data_dir'], config['output_destination'])
-        run_output_plots_dir = os.path.join(config['output_data_dir'], 'plots')
 
-	# Make
+        # Make output directories if they do not exist.
         if not os.path.exists(config['output_data_dir']):
             print("Specified output directory does not exist. creating..")
             os.makedirs(config['output_data_dir'], exist_ok=True)
-
-        # Make output directory if it does not exist.
         if not os.path.exists(run_output_dir):
             print("Specified output destination does not exist. creating..")
             os.makedirs(run_output_dir, exist_ok=True)
         config['run_output_dir'] = run_output_dir
 
 
-        if not os.path.exists(run_output_plots_dir):
-            print("Specified plots file for output does not exist. creating..")
-            os.makedirs(run_output_plots_dir, exist_ok=True)
-        config['run_output_plots_dir'] = run_output_plots_dir
+        # If doing plots check a plot directory is defined and if it exists.
+        # If it is defined and exists add plot directory name to config.
+        # If defined but does not exist. Create it and add to config.
+        # If no plot directory name specified create a default /plots in run_output_dir.
+        if config['do_plots']:
+            if 'output_plots_dir' not in config.keys():
+                output_plots_dir = os.path.join(run_output_dir, 'plots/')
+                print(f"No directory for saving plots specified. Setting default as '{output_plots_dir}'")
+            else:
+                output_plots_dir = config['output_plots_dir']
+            if not os.path.exists(output_plots_dir):
+                print("Specified plots file for output does not exist. creating..")
+                os.makedirs(output_plots_dir, exist_ok=True)
+            config['output_plots_dir'] = output_plots_dir
+
 
         # default do_plots in config to false. takes a lot less memory but less verbose.
-        if 'do_plots' not in config.keys():
-            config['do_plots'] = False
+
 
         # Start logging. Really helpful in arc4 with limited traceback available.
         logging.basicConfig(filename=os.path.join(run_output_dir, "minos.log"), level=logging.INFO)

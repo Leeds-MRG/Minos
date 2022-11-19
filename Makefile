@@ -83,7 +83,9 @@ arc_conda:
 	conda create -n conda_minos python=3.9 # create conda environment. 
 	conda activate conda_minos # activate conda environment.
 	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
-	
+	conda install -c conda-forge r-sf
+	conda install -c conda-forge r-dplyr
+	conda install -c conda-forge r-tidyverse	
 	
 ## Install
 ###
@@ -281,6 +283,15 @@ aggregate_minos_output:
 	python3 minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
 	python3 minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
+
+SPATIAL_DIRECTORY
+aggregate_lsoas_and_map:
+	
+	# Map data now aggregated. 
+	Rscript minos/validation/minos_SF12_maps.R -f output/baseline/2016.geojson -d output/baseline/sf12_map.pdf -m sheffield -v SF_12
+
+aggregate_two_and_map_diff:
+	 Rscript minos/validation/minos_SF12_maps.R -f output/baseline/2016.geojson -g output/povertyUplift/2016.geojson -d output/baseline/sf12_map.pdf -m sheffield -v SF_12
 
 ###
 ## Cleaning
