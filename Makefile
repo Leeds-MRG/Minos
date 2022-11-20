@@ -278,20 +278,35 @@ DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift"
 aggregate_minos_output:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	python3 minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE)
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE)
 	# stack aggregated files into one long array.
-	python3 minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	python3 minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
-SPATIAL_DIRECTORY
+SPATIAL_DIRECTORY1 = output/baseline # first geojson for comparison in diff plot.
+SPATIAL_DIRECTORY2 = output/povertyUplift # second geojson for comparison in aggregate_two_and_diff
+AGG_METHOD = nanmean # what method to aggregate with.
+AGG_VARIABLE = SF_12 # what variable to aggregate.
+AGG_YEAR = 2018 # what year to map in data.
+AGG_LOCATION = sheffield # or manchester/scotland
+SAVE_FILE1 = output/baseline/nanmean_SF_12_2018.geojson # data source from aggregation. Need to automate these file paths somehow.
+SAVE_PLOT1 = output/baseline/nanmean_SF_12_2018 # where to save plot for aggregate_lsoas_and_map
+SAVE_FILE2 = output/povertyUplift/nanmean_SF_12_2018.geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
+SAVE_PLOT2 = output/baseline/baseline_vs_povertyUplift_nanmean_SF_12_2018 # pdf file name for aggregate_two_and_diff. saves in first specified file.
+
 aggregate_lsoas_and_map:
-	
-	# Map data now aggregated. 
-	Rscript minos/validation/minos_SF12_maps.R -f output/baseline/2016.geojson -d output/baseline/sf12_map.pdf -m sheffield -v SF_12
+	# aggregate minos outputs into LSOAs.
+	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY1) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY1) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
+	# Map data now aggregated.
+	$(RSCRIPT) minos/validation/sf12_single_map.R -f $(SAVE_FILE1) -d $(SAVE_PLOT1) -m $(AGG_LOCATION) -v $(AGG_VARIABLE)
 
 aggregate_two_and_map_diff:
-	 Rscript minos/validation/minos_SF12_maps.R -f output/baseline/2016.geojson -g output/povertyUplift/2016.geojson -d output/baseline/sf12_map.pdf -m sheffield -v SF_12
+	# aggregate minos outputs into LSOAs.
+	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY1) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY1) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
+	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY2) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY2) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
+	# map LSOAs.
+	 $(RSCRIPT) minos/validation/sf12_difference_map.R -f $(SAVE_FILE1) -g $(SAVE_FILE2) -d $(SAVE_PLOT2) -m $(AGG_LOCATION) -v $(AGG_VARIABLE)
 
 ###
 ## Cleaning

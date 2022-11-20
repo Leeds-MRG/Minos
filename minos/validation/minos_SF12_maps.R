@@ -155,28 +155,6 @@ main.diff <- function(geojson_file1, geojson_file2, plot_destination_file, mode,
   minos_diff_map(data1, plot_destination_file)
 }
 
-main <- function(){
-
-    parser <- ArgumentParser(description="Plot a map of some MINOS geojson.")
-    parser$add_argument("-f", "--geojson_file_name", dest='file', help="What geojson to use.")
-    parser$add_argument("-d", "--plot_destination", dest='destination', help="Where to save a plot.")
-    parser$add_argument("-m", "--mode", dest='mode', help="What spatial region to use. sheffield, manchester, scotland(not yet)")
-    parser$add_argument("-v", "--v", dest='var', help="What variable to map.")
-    
-    args <- parser$parse_args()
-    geojson_file_name <- args$file
-    plot_destination <- args$destination
-    mode <- args$mode
-    v <- args$var
-  
-  main.single(geojson_file_name, plot_destination, mode, v)
-}
-
-#main.single("output/baseline/2016.geojson", "output/baseline/sf12_map.pdf", "sheffield", "SF_12")
-main()
-
-
-
 ###########################
 # Deprecated Stuff. Ignore.
 ###########################
