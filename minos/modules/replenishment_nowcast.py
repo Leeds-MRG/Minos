@@ -1,13 +1,17 @@
-""" File for adding new cohorts from Understanding Society data to the population"""
+"""
+File for adding new cohorts from Understanding Society data to the population
+"""
 
 import pandas as pd
+from minos.modules.base_module import Base
 
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
-from minos.modules.base_module import Base
+
 
 class replenishmentNowcast(Base):
+
     # Special methods for vivarium.
     @property
     def name(self):
