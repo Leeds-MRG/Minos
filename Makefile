@@ -80,12 +80,12 @@ conda:
 
 arc_conda:
 	$(shell module load python anaconda)
-	conda create -n conda_minos python=3.9 # create conda environment. 
-	conda activate conda_minos # activate conda environment.
+	conda create -n conda_minos python=3.9 # create conda environment.
+	#conda activate conda_minos # activate conda environment.
 	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
 	conda install -c conda-forge r-sf
 	conda install -c conda-forge r-dplyr
-	conda install -c conda-forge r-tidyverse	
+	conda install -c conda-forge r-tidyverse
 	
 ## Install
 ###
@@ -122,9 +122,9 @@ baseline: ### Baseline run of MINOS, using configuration defined in beefyBaselin
 baseline: data transitions
 	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyBaseline.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
-beefy_baseline: # Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
-beefy_baseline: data transitions install beefy_conda
-	$(PYTHON) # fill in when have access to beefy again..
+#beefy_baseline: # Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
+#beefy_baseline: data transitions install beefy_conda
+#	$(PYTHON) # fill in when have access to beefy again..
 
 arc4_baseline:
 	$(shell module load python anaconda)
@@ -133,13 +133,13 @@ arc4_baseline:
 
 arc4_living_wage:
 	$(shell module load python anaconda)
-        $(shell conda activate conda_minos)
-        $(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
 
 arc4_energy:
 	$(shell module load python anaconda)
-        $(shell conda activate conda_minos)
-        $(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
 
 
 incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
@@ -295,7 +295,7 @@ SAVE_PLOT1 = output/baseline/nanmean_SF_12_2018 # where to save plot for aggrega
 SAVE_FILE2 = output/povertyUplift/nanmean_SF_12_2018.geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
 SAVE_PLOT2 = output/baseline/baseline_vs_povertyUplift_nanmean_SF_12_2018 # pdf file name for aggregate_two_and_diff. saves in first specified file.
 
-aggregate_lsoas_and_map:
+aggregate_and_map:
 	# aggregate minos outputs into LSOAs.
 	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY1) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY1) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
 	# Map data now aggregated.

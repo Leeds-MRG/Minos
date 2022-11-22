@@ -2,15 +2,15 @@ source("minos/transitions/utils.R")
 #library(texreg)
 
 # Collect command line args from Makefile
-#args = commandArgs()
+args = commandArgs()
 # first 2 args are in positions 7 and 8 weirdly but still work
 dataDir <- paste0(args[7], '/final_US/')
 transitionDir <- args[8]
 transSourceDir <- args[9]
 
-dataDir <- 'data/final_US/'
-transitionDir <- "data/transitions"
-transSourceDir <- "minos/transitions"
+#dataDir <- 'data/final_US/'
+#transitionDir <- "data/transitions"
+#transSourceDir <- "minos/transitions"
 
 # Load required packages
 suppressPackageStartupMessages(require(stringr))
