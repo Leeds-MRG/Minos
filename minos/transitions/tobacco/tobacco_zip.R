@@ -80,17 +80,17 @@ main <- function(years){
     #                    scale(hh_income) | factor(ethnicity),
     #                   data = data, dist='pois')
     tobacco.zip <- zeroinfl(y ~ factor(sex) +
-                              age +
-                              SF_12 +
-                              factor(labour_state) +
-                              factor(job_sec) +
-                              relevel(factor(ethnicity), ref='WBI') +
-                              scale(hh_income) |
-                              relevel(factor(ethnicity), ref='WBI') +
-                              factor(labour_state) + 
-                              age + 
-                              SF_12,
-                            data = data, dist='pois')  
+                             scale(age) +
+                             scale(SF_12) +
+                             factor(labour_state) +
+                             factor(job_sec) +
+                             relevel(factor(ethnicity), ref='WBI') +
+                             scale(hh_income) |
+                             relevel(factor(ethnicity), ref='WBI') +
+                             factor(labour_state) + 
+                             scale(age) + 
+                             scale(SF_12),
+                           data = data, dist='pois')  
     
     print(summary(tobacco.zip))
     prs<- 1 - logLik(tobacco.zip)/logLik(zeroinfl(y ~ 1, data=data, dist='pois'))
