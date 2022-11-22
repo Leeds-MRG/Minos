@@ -16,7 +16,6 @@ fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
 input_data_dir: "data/final_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
-#output_destination: 'test' # Further specify the output data is saved to. E.g. running multiple models may need separate folders to prevent overwriting.
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
@@ -25,8 +24,6 @@ output_data_dir: "output"
 # Only if Replenishment needs some other module in the future would it be superceded.
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
-#components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
-#components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
 components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), Replenishment()]
 
 
