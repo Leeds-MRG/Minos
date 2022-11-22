@@ -48,17 +48,25 @@ clm.neighbourhood.main <- function(years){
 
     #print(str(data))
     
+    #formula <- "y ~ factor(sex) +
+    #                    age +
+    #                    SF_12 +
+    #                    labour_state +
+    #                    factor(job_sec) +
+    #                    ethnicity +
+    #                    hh_income +
+    #                    factor(housing_quality) +
+    #                    region +
+    #                    factor(education_state)"
     formula <- "y ~ factor(sex) +
                         age +
                         SF_12 +
                         labour_state +
-                        factor(job_sec) +
                         ethnicity +
                         hh_income +
                         factor(housing_quality) +
                         region +
-                        factor(education_state)
-                        "
+                        factor(education_state)"
     clm.neighbourhood <- clm(formula,
         data = data,
         link = "logit",

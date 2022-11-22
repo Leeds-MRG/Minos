@@ -58,8 +58,7 @@ main <- function(years){
     # simplest may be to impute years seperately and edit mids objects for final
     # pool of clms. see also longitudinal mice (looks slow and painful).
     # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
-    
-    #return(data2)
+
     #data2 <- data2[, c("pidp", "ncigs")]
     data2$ncigs[is.na(data2$ncigs)] <- 0 # set NAs to 0.
     #data2$ncigs[data2$ncigs < 0] <- 0 # set negative values to 0 (missings)
@@ -80,18 +79,29 @@ main <- function(years){
     #                    factor(ethnicity) +
     #                    scale(hh_income) | factor(ethnicity),
     #                   data = data, dist='pois')
+    #tobacco.zip <- zeroinfl(y ~ factor(sex) +
+    #                          age +
+    #                          SF_12 +
+    #                          factor(labour_state) +
+    #                          factor(job_sec) +
+    #                          relevel(factor(ethnicity), ref='WBI') +
+    #                          scale(hh_income) |
+    #                          relevel(factor(ethnicity), ref='WBI') +
+    #                          factor(labour_state) +
+    #                          age +
+    #                          SF_12,
+    #                        data = data, dist='pois')
     tobacco.zip <- zeroinfl(y ~ factor(sex) +
                               age +
                               SF_12 +
                               factor(labour_state) +
-                              factor(job_sec) +
                               relevel(factor(ethnicity), ref='WBI') +
                               scale(hh_income) |
                               relevel(factor(ethnicity), ref='WBI') +
-                              factor(labour_state) + 
-                              age + 
+                              factor(labour_state) +
+                              age +
                               SF_12,
-                            data = data, dist='pois')  
+                            data = data, dist='pois')
     
     print(summary(tobacco.zip))
     prs<- 1 - logLik(tobacco.zip)/logLik(zeroinfl(y ~ 1, data=data, dist='pois'))
