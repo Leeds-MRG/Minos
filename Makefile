@@ -103,11 +103,11 @@ install: ### Install all Minos requirements via pip
 
 ## Test
 ###
-.PHONY: testRun
+.PHONY: testRun testRun_Intervention
 
-#testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
+testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
 testRun: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --output_subdir 'testRun'
 
 testRun_Intervention: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyLivingWageIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
@@ -115,12 +115,13 @@ testRun_Intervention: setup
 ###
 ## Experiment Runs
 ###
+.phony: baseline beefy_baseline arc4_baseline arc4_living_wage arc4_energy
 
 baseline: ### Baseline run of MINOS, using configuration defined in beefyBaseline.yaml
 baseline: data transitions
 	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyBaseline.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
-beefy_baseline: # Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
+beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
 beefy_baseline: data transitions install beefy_conda
 	$(PYTHON) # fill in when have access to beefy again..
 
@@ -131,13 +132,13 @@ arc4_baseline:
 
 arc4_living_wage:
 	$(shell module load python anaconda)
-        $(shell conda activate conda_minos)
-        $(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
 
-arc4_energy:
+#arc4_energy:
 	$(shell module load python anaconda)
-        $(shell conda activate conda_minos)
-        $(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
 
 
 incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
@@ -287,7 +288,7 @@ aggregate_minos_output:
 .PHONY: clean_out clean_logs clean_data clean_all
 
 clean_all: ### Remove output, log files, generated data files and transition models
-clean_all: clean_data clean_transitions clean_logs
+clean_all: clean_data clean_out clean_transitions clean_logs
 
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
@@ -297,9 +298,11 @@ clean_out: ### Remove all output files
 clean_out:
 	rm -rf output/*
 
-clean_logs: ### Remove log files (currently only test.log)
+#TODO add one for arc4 logs too.
+clean_logs: ### Remove log files (including test.log and slurm logs (and arc logs soon))
 clean_logs:
 	rm -rf test.log
+	rm -rf logs/*
 
 clean_transitions: ### Remove model .rds files
 clean_transitions:
@@ -307,7 +310,3 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
-
-clean_logs: # remove all slurm minos logs.
-clean_logs: rm -rf logs/*
-clean_logs: #TODO add one for arc4 logs too. 
