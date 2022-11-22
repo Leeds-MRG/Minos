@@ -44,8 +44,9 @@ test.log
 # testing
 testing/
 testing/*
-# just for time being remove the tests (not in use currently)
+# just for time being remove the tests and data (not in use currently)
 tests/
+tests/data/*
 
 # R project files have US data in them. need removing.
 .Rproj.user
@@ -54,7 +55,7 @@ Minos.Rproj
 .Rhistory
 
 # Plots and stuff
-plots/
+
 
 # rob phd data
 papers/phd1/data/*
@@ -74,3 +75,7 @@ data/UKDA-6614-stata
 
 # Robs paper folders
 papers/
+
+# Plots (can be made by the model so should not be saved on git)
+plots/
+plots/*
