@@ -63,6 +63,7 @@ def run(args):
     # Read in config from file and set up some object vars
     config = utils.read_config(args.config)
     output_dest = args.subdir
+    run_id = args.runID
 
     # Vivarium needs an initial population size. Define it as the first cohort of US data.
     year_start = config['time']['start']['year']
@@ -71,17 +72,34 @@ def run(args):
 
     # Output directory where all files from the run will be saved.
     # Join file name with the time to prevent overwriting.
-    run_output_dir = os.path.join(config['output_data_dir'], output_dest, str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
-    run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
-
-    # Add important things to the config file
-    # output directory
-    # population size
-    config.update({
-        'run_output_dir': run_output_dir,
-        'run_output_plots_dir': run_output_plots_dir,
-        'population' : {'population_size' : start_population_size}
-    }, source=str(Path(__file__).resolve()))
+    # Add runID in if present for batch runs
+    if run_id:
+        run_output_dir = os.path.join(config['output_data_dir'], output_dest,
+                                      str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")), run_id)
+        run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
+        # Add important things to the config file
+        # output directory
+        # population size
+        # run ID
+        config.update({
+            'run_output_dir': run_output_dir,
+            'run_output_plots_dir': run_output_plots_dir,
+            'population': {'population_size': start_population_size},
+            'experiment_parameters': [run_id],
+            'experiment_parameters_names': ['run_id']
+        }, source=str(Path(__file__).resolve()))
+    else:
+        run_output_dir = os.path.join(config['output_data_dir'], output_dest,
+                                      str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
+        run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
+        # Add important things to the config file
+        # output directory
+        # population size
+        config.update({
+            'run_output_dir': run_output_dir,
+            'run_output_plots_dir': run_output_plots_dir,
+            'population': {'population_size': start_population_size}
+        }, source=str(Path(__file__).resolve()))
 
     ## Create directories if necessary
     # Make the output/ directory if not exists. This should only need to happen on first run
@@ -116,9 +134,9 @@ def run(args):
     logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
     # Run the microsimulation via runPipeline.
-    simulation = RunPipeline(config, start_population_size, run_output_dir)
+    simulation = RunPipeline(config, run_output_dir)
     # Grab the final simulant population.
-    # pop = simulation.get_population()
+    pop = simulation.get_population()
     print('Finished running the full simulation')
     # Save the output file to a csv.
 
@@ -176,9 +194,9 @@ def run_pipeline_OLD(configuration_file, input_data_dir=None, persistent_data_di
     logging.info("Minimum YAML config file written.")
 
     # Run the microsimulation via runPipeline.
-    simulation = RunPipeline(config, start_population_size, run_output_dir)
+    simulation = RunPipeline(config, run_output_dir)
     # Grab the final simulant population.
-    #pop = simulation.get_population()
+    # pop = simulation.get_population()
     print('Finished running the full simulation')
     # Save the output file to a csv.
 
@@ -191,18 +209,30 @@ if __name__ == "__main__":
     # Now only taking config and output directory as command line arguments, the rest can come from config.
     logging.basicConfig(filename="test.log", level=logging.INFO)
     logging.info("pipeline start.")
-    parser = argparse.ArgumentParser(description="Dynamic Microsimulation")
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
+                                        usage = 'use "%(prog)s --help" for more information',
+                                        formatter_class = argparse.RawTextHelpFormatter # For multi-line formatting in help text
+    )
 
     parser.add_argument("-c", "--config", required=True, type=str, metavar="config-file",
-                        help="the model config file (YAML)")
+                        help="Model config file (YAML)")
     #parser.add_argument('--location', help='LAD code', default=None)
     #parser.add_argument('--input_data_dir', help='directory where the input data is', default=None)
     #parser.add_argument('--persistent_data_dir', help='directory where the persistent data is', default=None)
     #parser.add_argument('--output_dir', type=str, help='directory where the output data is saved', default=None)
 
-    parser.add_argument("-o", "--output_subdir", type=str, metavar="subdir", dest='subdir',
-                        help='sub-directory within output/ where the output data from this specific run is saved',
-                        default=None)
+    parser.add_argument("-o", "--output_subdir", type=str, metavar="subdir", dest='subdir', default=None,
+                        help='Sub-directory within output/ where the data from this specific run is saved')
+    parser.add_argument("-r", "--run_id", type=int, metavar="runID", dest='runID', default=None,
+                        help="(Optional) Unique run ID specified to distinguish between multiple runs in a batch submission")
+    parser.add_argument("-i", "--intervention", type=str, metavar="intervention", dest="int", default=None,
+                        help=
+    """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
+       - hhIncomeIntervention
+       - hhIncomeChildUplift
+       - hhIncomePovertyLineChildUplift
+       - livingWageIntervention
+       - energyDownlift""")
 
     args = parser.parse_args()
     configuration_file = args.config
