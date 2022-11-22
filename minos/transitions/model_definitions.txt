@@ -1,1 +1,1 @@
-hh_income ~ age + sex + factor(ethnicity) + region
+hh_income ~ age + sex + factor(ethnicity) + factor(region) + scale(hh_income) + factor(job_sec) + factor(labour_state) + factor(education_state) + scale(SF_12) + factor(housing_quality)

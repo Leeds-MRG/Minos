@@ -36,15 +36,12 @@ sheffield_lsoa_subset_function <- function(data){
 manchestser_lsoa_subset_function <- function(data){
   lsoas <- read.csv("persistent_data/manchester_lsoas.csv")
   lsoas <- lsoas$x # just take needed lsoa column.
-  return(subset(data, LSOA11CD %in% lsoas))
 }
 
-scotland_lsoa_subset_function <- function(data){
-  #TODO need to find good list of scottish data zones (lsoas) from >=2018 that match Chris' data.
-  print("WARNING. scotland not implemented yet.")
-  lsoas <- read.csv("persistent_data/scotland_data_zones.csv")
-  lsoas <- lsoas$x
-  return(subset(data, LSOA11CD %in% lsoas))
+scotland_data_zone_subset_function <- function(data){
+  datazones <- read.csv("persistent_data/scotland_data_zones.csv")
+  datazones <- datazones$DZ2011_Code
+  return(subset(data, ZoneID %in% datazones))
 }
 
 choose_lsoa_function <- function(mode){
@@ -56,9 +53,7 @@ choose_lsoa_function <- function(mode){
     subset_function <- manchestser_lsoa_subset_function
   }
   else if (mode == "scotland"){
-    #TODO need to find good list of scottish data zones (lsoas) from >=2018 that match Chris' data.
-    print("WARNING. scotland not implemented yet.")
-    subset_function <- scotland_lsoa_subset_function
+    subset_function <- scotland_data_zone_subset_function
   }
   else {
     print("Warning no subset specified. Defaulting to Sheffield..")
@@ -78,7 +73,8 @@ minos_map <- function(data, v, destination_name, do_save=T){
   # plot map of minos results from a geojson data.  
   
   minos.map <- ggplot(data = data, aes_string(geometry = "geometry", fill=v)) + 
-    geom_sf() + # black outlines on borders for clarity.
+    #geom_sf() + # black outlines on borders for clarity.
+    geom_sf(color=NA) + # black outlines on borders for clarity.
     scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
     labs(fill='SF12 Score')  + # colour bar label. 
     theme(aspect.ratio=9/16) + # change plot to widescreen dimensions. 
@@ -141,6 +137,7 @@ main.single <- function(geojson_file_name, plot_destination_file, mode, v){
   lsoa_subset_function <- choose_lsoa_function(mode)
   data <- load_geojson(geojson_file_name)
   data <- subset_geojson(data, lsoa_subset_function)
+  #data[which(data$SF_12 %in% head(sort(data$SF_12), 10)),] # ten worst performing areas by SF12.
   minos_map(data, v, plot_destination_file)
 }
 
@@ -154,6 +151,8 @@ main.diff <- function(geojson_file1, geojson_file2, plot_destination_file, mode,
   data1 <- calculate_diff(data1, data2, v)
   minos_diff_map(data1, plot_destination_file)
 }
+
+main.single("output/baseline/nanmean_SF_12_2018.geojson", "output/baseline/scotland_sf12_map", "scotland", "SF_12")
 
 ###########################
 # Deprecated Stuff. Ignore.

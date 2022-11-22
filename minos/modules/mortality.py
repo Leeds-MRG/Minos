@@ -84,7 +84,7 @@ class Mortality(Base):
         # Assign mortality a common random number stream (seeded).
         #self.random = builder.randomness.get_stream(f'mortality_handler')
         # Assign a random mortality CRN stream (unseeded).
-        self.random = builder.randomness.get_stream(f'mortality_handler_{random.randint(0, 2**32-1)}')
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Which columns are created by this module in on_initialize_simulants.
         columns_created = ['cause_of_death', 'years_of_life_lost']

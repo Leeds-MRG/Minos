@@ -67,7 +67,8 @@ def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type=
     msim_data = group_minos_by_pidp(source, year, v, method)
     print('Done. Merging with spatial data..')
     # chris spatially weighted data.
-    spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018_with_LADS.csv")
+    spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018.csv")
+    #spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018_with_LADS.csv")
 
     # subset msim data. grab common pidps to prevent NA errors.
 
@@ -81,7 +82,7 @@ def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type=
 
     # TODO just aggregates over LSOA for now. maybe specify different resolutions if they are added to chris' data.
     #group_on = "LADcd" # which spatial resolution to group by. LAD or LSOA
-    group_on = "LSOAcd"
+    group_on = "ZoneID"
     # group over spatial resolution and aggregate using method (usually nanmean) to get aggregate values by spatial area.
     # E.g. get mean sf12 by lsoa.
     spatial_data = spatial_data.groupby(group_on).apply(lambda x: method(x[v]))
@@ -100,17 +101,17 @@ def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type=
         spatial_data.to_csv(os.path.join(destination, f"{method.__name__}_{group_on}_{v}.csv", index=False))
     elif save_type == 'geojson':
         # convert
-        spatial_dict = defaultdict(int, zip(spatial_data["LSOAcd"], spatial_data[v]))
+        spatial_dict = defaultdict(int, zip(spatial_data["ZoneID"], spatial_data[v]))
         # Load in national LSOA geojson map data from ONS.
         #https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
-        json_source = "persistent_data/Lower_Layer_Super_Output_Areas_(December_2011)_Boundaries_Super_Generalised_Clipped_(BSC)_EW_V3.geojson"
+        json_source = "persistent_data/UK_super_outputs.geojson"
         with open(json_source) as f:
             map_geojson = geojson.load(f)
 
         # loop over geojson features and add in new variable mean property.
         for i, item in enumerate(map_geojson["features"]):
             # grab LSOA of feature and corresponding mean value of v.
-            ons_code = item["properties"]["LSOA11CD"]
+            ons_code = item["properties"]["ZoneID"]
             variable_code = spatial_dict[ons_code]
             if variable_code == 0: # TODO needs improving with a more general catch all.
                 variable_code = None
@@ -120,7 +121,7 @@ def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type=
             map_geojson['features'][i] = item
 
         # save updated geojson for use in map plots.
-        print(f"GeoJSON attribute added.")
+        print(f"GeoJSON {v} attribute added.")
         fname = os.path.join(destination, f"{method.__name__}_{v}_{year}.geojson")
         print(f"Saving to {fname}.")
         with open(fname, 'w') as outfile:
