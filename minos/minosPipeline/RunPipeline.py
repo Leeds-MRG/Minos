@@ -32,15 +32,15 @@ from minos.modules.intervention import energyDownlift
 # for viz.
 from minos.validation.minos_distribution_visualisation import *
 
-def RunPipeline(config, start_population_size, run_output_dir):
+def RunPipeline(config, run_output_dir, intervention=None):
     """ Run the daedalus Microsimulation pipeline
 
    Parameters
     ----------
     config : ConfigTree
         Config file to run the pipeline
-    start_population_size: int
-        Size of the starting population
+    run_output_dir : String
+        Directory
     Returns
     --------
      A dataframe with the resulting simulation
@@ -79,16 +79,27 @@ def RunPipeline(config, start_population_size, run_output_dir):
         components.append(Education())
 
     # Interventions
-    if "hhIncomeIntervention()" in config['components']:
-        components.append(hhIncomeIntervention())
-    if "hhIncomeChildUplift()" in config['components']:
-        components.append(hhIncomeChildUplift())
-    if "hhIncomePovertyLineChildUplift()" in config['components']:
-        components.append(hhIncomePovertyLineChildUplift())
-    if "livingWageIntervention()" in config['components']:
-        components.append(livingWageIntervention())
-    if "energyDownlift()" in config['components']:
-        components.append(energyDownlift())
+    if intervention:
+        if intervention == 'hhIncomeIntervention':
+            components.append(hhIncomeIntervention())
+        if intervention == 'hhIncomeChildUplift':
+            components.append(hhIncomeChildUplift())
+        if intervention == 'hhIncomePovertyLineChildUplift':
+            components.append(hhIncomePovertyLineChildUplift())
+        if intervention == 'livingWageIntervention':
+            components.append(livingWageIntervention())
+        if intervention == 'energyDownlift':
+            components.append(energyDownlift())
+    #if "hhIncomeIntervention()" in config['components']:
+    #    components.append(hhIncomeIntervention())
+    #if "hhIncomeChildUplift()" in config['components']:
+    #    components.append(hhIncomeChildUplift())
+    #if "hhIncomePovertyLineChildUplift()" in config['components']:
+    #    components.append(hhIncomePovertyLineChildUplift())
+    #if "livingWageIntervention()" in config['components']:
+    #    components.append(livingWageIntervention())
+    #if "energyDownlift()" in config['components']:
+    #    components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
     if "Replenishment()" in config['components']:
@@ -133,7 +144,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
     simulation.setup()
 
     # Print time when modules are setup and the simulation starts.
-    print('Start running simulation')
+    #print('Start running simulation')
     config_time = utils.get_time()
     logging.info(print('Start running simulation'))
     logging.info(config_time)
@@ -149,7 +160,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
         simulation.run_for(duration=pd.Timedelta(days=365.25))
 
         # Print time when year finished running.
-        print(f'Finished running simulation for year: {year}')
+        #print(f'Finished running simulation for year: {year}')
         wave_time = utils.get_time()
         logging.info(print(f'Finished running simulation for year: {year}'))
         logging.info(wave_time)
@@ -175,7 +186,7 @@ def RunPipeline(config, start_population_size, run_output_dir):
         if 'FertilityAgeSpecificRates()' in config.components:
             print('New children', len(pop[pop['parent_id'] != -1]))
 
-        for component in components:
-            component.plot(pop, config)
+        #for component in components:
+        #    component.plot(pop, config)
 
     return simulation
