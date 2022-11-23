@@ -61,6 +61,9 @@ main <- function(years){
     
     data2 <- data2[, c("pidp", "ncigs")]
     data2$ncigs[is.na(data2$ncigs)] <- 0 # set NAs to 0. 
+    if (min(data2$ncigs)==-10){
+      data2[which(data2$ncigs==-10), "ncigs"] <- 0 # set NAs to 0. 
+    }
     data2[which(data2$ncigs!=0),]$ncigs <- (data2[which(data2$ncigs!=0),]$ncigs%/%5) + 1 # round up to nearest 5. 
     colnames(data2) <- c("pidp", "y")
     data <- merge(data, data2,"pidp")
@@ -82,14 +85,10 @@ main <- function(years){
     tobacco.zip <- zeroinfl(y ~ factor(sex) +
                              scale(age) +
                              scale(SF_12) +
-                             factor(labour_state) +
-                             factor(job_sec) +
+                             factor(labour_state)|
                              relevel(factor(ethnicity), ref='WBI') +
-                             scale(hh_income) |
-                             relevel(factor(ethnicity), ref='WBI') +
-                             factor(labour_state) + 
-                             scale(age) + 
-                             scale(SF_12),
+                             #factor(labour_state) + 
+                             scale(age),
                            data = data, dist='pois')  
     
     print(summary(tobacco.zip))
