@@ -56,7 +56,13 @@ class Income(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income']
+                        'hh_income'
+                        'job_sec',
+                        'labour_state',
+                        'education_state',
+                        'SF_12',
+                        'housing_quality'
+                        ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
