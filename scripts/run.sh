@@ -9,8 +9,20 @@ fi
 
 # if number of args submitted is less than 2 (4 with flags), print some help
 if [ "$#" -lt 4 ]; then
+  echo "You have not submitted enough arguments. Config file and output subdirectory are required."
   echo "Usage: $0 -c <config-file> -o <output_subdirectory> (OPTIONAL: -i <intervention>)"
-  echo  e.g. $0 -c config/test_config.yaml -o testRun -i livingWageIntervention
+  echo  "e.g. $0 -c config/test_config.yaml -o testRun -i livingWageIntervention"
+  exit 1
+elif [ "$#" -gt 6 ]; then
+  echo "You have submitted too many arguments"
+  echo "Usage: $0 -c <config-file> -o <output_subdirectory> (OPTIONAL: -i <intervention>)"
+  echo "e.g. $0 -c config/test_config.yaml -o testRun -i livingWageIntervention"
+  exit 1
+elif [ $(expr $# % 2) -ne 0 ]; then
+  echo "You have submitted an odd number of arguments"
+  echo "Have you submitted a flag without an argument or vice versa? (Flags are counted as arguments)"
+  echo "Usage: $0 -c <config-file> -o <output_subdirectory> (OPTIONAL: -i <intervention>)"
+  echo "e.g. $0 -c config/test_config.yaml -o testRun -i livingWageIntervention"
   exit 1
 fi
 
@@ -20,8 +32,4 @@ if [ "$#" -eq 4 ]; then
 elif [ "$#" -eq 6 ]; then
   echo "Running MINOS simulation with $6"
   python3 'scripts/run.py' -c $2 -o $4 -i $6
-elif [ "$#" -gt 6 ]; then
-  echo "You have submitted too many arguments"
-  echo  e.g. $0 -c config/test_config.yaml -o testRun -i livingWageIntervention
-  exit 1
 fi
