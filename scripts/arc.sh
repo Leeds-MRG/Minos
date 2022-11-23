@@ -26,7 +26,6 @@
 # (income uplift amounds and run_id)
 # $1 is config file e.g. config/beefyBaseline.yaml
 # $SGE_TASK_ID is son of grid engine task id. run id for this minos run.
-python3 'scripts/run.py' -c $1 -o $2 -r $SGE_TASK_ID -i $3
 
 
 # if number of args submitted is less than 2 (4 with flags), print some help
