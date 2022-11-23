@@ -20,12 +20,6 @@
 ## Tell computer this is an array job with tasks from 1 to N
 #$ -t 1-2
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 -c <config-file> -o <output_subdirectory> (OPTIONAL: -i <intervention>)"
-  echo  e.g. $0 -c config/test_config.yaml -o testRun -i livingWageIntervention
-  exit 1
-fi
-
 ## Run the executable minos_batch_run.py
 # no final ID here as its provided by the scheduler.
 # $SGE_TASK_ID is provided by qsub. It is an integer that corresponds to some combination of minos parameters
