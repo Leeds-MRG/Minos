@@ -18,7 +18,9 @@
 #$ -o /logs/log
 #$ -e /logs/errors
 
-make setup
+############## SET NUMBER OF RUNS HERE ##############
+## Tell computer this is an array job with tasks from 1 to N
+#$ -t 1-2
 
 if [ "$#" -eq 4 ]; then
   echo "Running baseline MINOS simulation"
