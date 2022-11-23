@@ -30,12 +30,13 @@ subset_geojson <- function(data, subset_function){
 sheffield_lsoa_subset_function <- function(data){
   lsoas <- read.csv("persistent_data/sheffield_lsoas.csv")
   lsoas <- lsoas$x # just take needed lsoa column
-  return(subset(data, LSOA11CD %in% lsoas))
+  return(subset(data, ZoneID %in% lsoas))
 }
 
 manchestser_lsoa_subset_function <- function(data){
   lsoas <- read.csv("persistent_data/manchester_lsoas.csv")
   lsoas <- lsoas$x # just take needed lsoa column.
+  return(subset(data, ZoneID %in% lsoas))
 }
 
 scotland_data_zone_subset_function <- function(data){
