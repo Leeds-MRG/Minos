@@ -56,7 +56,7 @@ class Income(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income'
+                        'hh_income',
                         'job_sec',
                         'labour_state',
                         'education_state',
