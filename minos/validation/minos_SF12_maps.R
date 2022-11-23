@@ -152,7 +152,7 @@ main.diff <- function(geojson_file1, geojson_file2, plot_destination_file, mode,
   minos_diff_map(data1, plot_destination_file)
 }
 
-main.single("output/baseline/nanmean_SF_12_2018.geojson", "output/baseline/scotland_sf12_map", "scotland", "SF_12")
+#main.single("output/baseline/nanmean_SF_12_2018.geojson", "output/baseline/scotland_sf12_map", "scotland", "SF_12")
 
 ###########################
 # Deprecated Stuff. Ignore.

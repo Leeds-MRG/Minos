@@ -18,5 +18,5 @@ main <- function(){
   main.single(geojson_file_name, plot_destination, mode, v)
 }
 
-#main()
-main.single("output/baseline/2016.geojson", "output/baseline/scotland_sf12_map.pdf", "scotland", "SF_12")
+main()
+#main.single("output/baseline/2016.geojson", "output/baseline/scotland_sf12_map.pdf", "scotland", "SF_12")
