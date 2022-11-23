@@ -15,18 +15,18 @@ from minos.minosPipeline.RunPipeline import RunPipeline
 
 def run(args):
     """
-    Given an basic input config file and data directory information configure the minos pipeline and run it.
 
     Parameters
     ----------
-    configuration_file : ConfigTree
-        Config yaml file of variables needed to run the pipeline.
+    args : ArgumentParser.Namespace
+       Command line arguments of parameters for the model run
+    Returns
+    -------
+    simulation : Vivarium.Simulation.InteractiveContext
+        Simulation object after running for n timesteps
     """
     # Read in config from file and set up some object vars
     config = utils.read_config(args.config)
-    output_dest = args.subdir
-    run_id = args.runID
-    intervention = args.intervention
 
     # Vivarium needs an initial population size. Define it as the first cohort of US data.
     year_start = config['time']['start']['year']
@@ -34,15 +34,15 @@ def run(args):
     print(f'Start Population Size: {start_population_size}')
 
     # If run_id or int arg not present, set value to empty string. This is for os.path.join and creating output directory
-    if not run_id:
+    if not args.runID:
         run_id = ''
-    if not intervention:
+    if not args.intervention:
         intervention = ''
     # Output directory where all files from the run will be saved.
     # Join file name with the time to prevent overwriting.
     # Add runID in if present for batch runs, and int if present for specific intervention
-    run_output_dir = os.path.join(config['output_data_dir'], output_dest, intervention,
-                                  str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")), run_id)
+    run_output_dir = os.path.join(config['output_data_dir'], args.subdir, intervention,
+                                  str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
     run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
 
     # Add important things to the config file
@@ -55,13 +55,13 @@ def run(args):
     }, source=str(Path(__file__).resolve()))
 
 
-    if run_id:
+    if args.runID:
         # Add run ID to config if present
         config.update({
             'experiment_parameters': [run_id],
             'experiment_parameters_names': ['run_id']
         }, source=str(Path(__file__).resolve()))
-    if intervention:
+    if args.intervention:
         # Add intervention to config if present
         config.update({
             'intervention': intervention
@@ -74,7 +74,7 @@ def run(args):
         os.makedirs(config['output_data_dir'], exist_ok=True)
     # Make run specific output directory if it does not exist. This should happen every run
     if not os.path.exists(run_output_dir):
-        print("Specified output destination does not exist. creating..")
+        print("Specified output sub-directory does not exist. creating..")
         os.makedirs(run_output_dir, exist_ok=True)
     # Make run specific plots directory
     if not os.path.exists(run_output_plots_dir):
@@ -94,9 +94,17 @@ def run(args):
     #print(config)
     # Save the config to a yaml file with the minimal amount of information needed to reproduce results in the output folder.
     output_config_file = os.path.join(run_output_dir, 'config_file.yml')
-    with open(output_config_file, 'w') as config_file:
-        yaml.dump(config.to_dict(), config_file)
-        print("Write config file successful")
+
+    # only save the config file once (on run 1 for multiple runs, or just once for single runs)
+    if run_id:
+        if run_id == 1:
+            with open(output_config_file, 'w') as config_file:
+                yaml.dump(config.to_dict(), config_file)
+                print("Write config file successful")
+    else:
+        with open(output_config_file, 'w') as config_file:
+            yaml.dump(config.to_dict(), config_file)
+            print("Write config file successful")
     logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
     # Run the microsimulation via RunPipeline.
@@ -106,10 +114,7 @@ def run(args):
     else:
         simulation = RunPipeline(config, run_output_dir)
 
-    # Grab the final simulant population.
-    pop = simulation.get_population()
     print('Finished running the full simulation')
-    # Save the output file to a csv.
 
     return simulation
 

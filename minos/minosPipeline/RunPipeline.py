@@ -78,7 +78,7 @@ def RunPipeline(config, run_output_dir, intervention=None):
     if "Education()" in config['components']:
         components.append(Education())
 
-    # Interventions
+    # Interventions (if necessary)
     if intervention:
         if intervention == 'hhIncomeIntervention':
             components.append(hhIncomeIntervention())
@@ -90,16 +90,6 @@ def RunPipeline(config, run_output_dir, intervention=None):
             components.append(livingWageIntervention())
         if intervention == 'energyDownlift':
             components.append(energyDownlift())
-    #if "hhIncomeIntervention()" in config['components']:
-    #    components.append(hhIncomeIntervention())
-    #if "hhIncomeChildUplift()" in config['components']:
-    #    components.append(hhIncomeChildUplift())
-    #if "hhIncomePovertyLineChildUplift()" in config['components']:
-    #    components.append(hhIncomePovertyLineChildUplift())
-    #if "livingWageIntervention()" in config['components']:
-    #    components.append(livingWageIntervention())
-    #if "energyDownlift()" in config['components']:
-    #    components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
     if "Replenishment()" in config['components']:
@@ -114,11 +104,6 @@ def RunPipeline(config, run_output_dir, intervention=None):
                                     configuration=config,
                                     plugin_configuration=utils.base_plugins(),
                                     setup=False)
-
-    # Use pre_setup method for each module.
-    # Do anything needed for each module's setup that cannot be done until the InteractiveContext object is created.
-    # For example, some modules require persistent rate table data.
-    # It is loaded into the simulation object at pre setup.
 
     # If this looks confusing look at the daedalus run script.
     # https://github.com/alan-turing-institute/daedalus/blob/master/daedalus/VphSpenserPipeline/RunPipeline.py
@@ -149,10 +134,6 @@ def RunPipeline(config, run_output_dir, intervention=None):
     logging.info(print('Start running simulation'))
     logging.info(config_time)
 
-    # output files path
-    file_out_dir = os.path.join(run_output_dir, 'simulation_data')
-    os.makedirs(file_out_dir)
-
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
     for year in range(1, config.time.num_years + 1):
 
@@ -172,10 +153,24 @@ def RunPipeline(config, run_output_dir, intervention=None):
         pop = utils.get_age_bucket(pop)
 
         # File name and save.
-        output_data_filename = f'{config.time.start.year + year}.csv'
-        pop.to_csv(os.path.join(file_out_dir, output_data_filename))
+        output_data_filename = ""
 
+        # Add experiment parameters to output file name if present
+        if 'experiment_parameters' in config.keys():
+            print(config.experiment_parameters)
+            params = config.experiment_parameters
+            names = config.experiment_parameters_names
+            for i in range(len(params)):
+                output_data_filename += names[i] + "_"
+                output_data_filename += str(params[i]) + "_"
+
+        # Now add year to output file name
+        output_data_filename += f"{config.time.start.year + year}.csv"
+        output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+        pop.to_csv(output_file_path)
+        print("Saved data to: ", output_file_path)
         print('In year: ', config.time.start.year + year)
+
         # Print some summary stats on the simulation.
         print('alive', len(pop[pop['alive'] == 'alive']))
 
