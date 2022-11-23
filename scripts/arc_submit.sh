@@ -7,7 +7,7 @@
 # $1 is config file e.g. config/beefyBaseline.yaml
 # $SGE_TASK_ID is son of grid engine task id. run id for this minos run.
 
-echo "Please note the number of runs is defined by a variable in the `scripts/arc_run.sh` script, and cannot "
+echo "Please note the number of runs is defined by a variable in the 'scripts/arc_run.sh' script, and cannot "
 echo "be defined by a command line argument, or otherwise automated."
 
 # if number of args submitted is less than 2 (4 with flags), print some help
