@@ -27,21 +27,20 @@ def run(args):
     """
     # Read in config from file and set up some object vars
     config = utils.read_config(args.config)
+    intervention = args.intervention
 
     # Vivarium needs an initial population size. Define it as the first cohort of US data.
     year_start = config['time']['start']['year']
     start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
     print(f'Start Population Size: {start_population_size}')
 
-    # If run_id or int arg not present, set value to empty string. This is for os.path.join and creating output directory
-    if not args.runID:
-        run_id = ''
+    # If intervention arg not present, set value to empty string. This is for os.path.join and creating output directory
     if not args.intervention:
         intervention = ''
     # Output directory where all files from the run will be saved.
     # Join file name with the time to prevent overwriting.
     # Add runID in if present for batch runs, and int if present for specific intervention
-    run_output_dir = os.path.join(config['output_data_dir'], args.subdir, intervention,
+    run_output_dir = os.path.join(config['output_data_dir'], args.subdir, args.intervention,
                                   str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
     run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
 
