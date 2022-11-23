@@ -57,7 +57,7 @@ def run(args):
     if args.runID:
         # Add run ID to config if present
         config.update({
-            'experiment_parameters': [run_id],
+            'experiment_parameters': [args.runID],
             'experiment_parameters_names': ['run_id']
         }, source=str(Path(__file__).resolve()))
     if args.intervention:
@@ -95,8 +95,8 @@ def run(args):
     output_config_file = os.path.join(run_output_dir, 'config_file.yml')
 
     # only save the config file once (on run 1 for multiple runs, or just once for single runs)
-    if run_id:
-        if run_id == 1:
+    if args.runID:
+        if args.runID == 1:
             with open(output_config_file, 'w') as config_file:
                 yaml.dump(config.to_dict(), config_file)
                 print("Write config file successful")
