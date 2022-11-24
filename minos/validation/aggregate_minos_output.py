@@ -4,8 +4,20 @@ import numpy as np
 import argparse
 import os
 import yaml
+from aggregate_subset_functions import who_alive, who_boosted
 
-def aggregate_variables_by_year(source, years, tag, v, method):
+
+def find_subset_function(function_string):
+    if function_string == "none":
+        subset_function = None
+    elif function_string == "who_boosted":
+        subset_function = who_boosted
+    else:
+        print("no subset_function defined. Defaulting to None")
+        subset_function = None
+    return subset_function
+
+def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
     """ Get aggregate values for value v using method function. Do this over the specified source and years.
 
     A MINOS batch run under a certain intervention will produce 1000 files over 10 years and 100 iterations.
@@ -46,12 +58,15 @@ def aggregate_variables_by_year(source, years, tag, v, method):
     for year in years:
         files = glob.glob(os.path.join(source, f"*{year}.csv")) # grab all files at source with suffix year.csv.
         for file in files: # loop over files. take aggregate value of v and add it as a row to output df.
-            agg_value = method(pd.read_csv(file, low_memory=False)[v])
+            df = pd.read_csv(file, low_memory=False)
+            if subset_func:
+                df = subset_func(df)
+            agg_value = method(df[v])
             new_df = pd.DataFrame([[agg_value, tag, year]], columns = [v, 'tag', 'year'])
             df = pd.concat([df, new_df])
     return df
 
-def main(source, years, tags, v, method):
+def main(source, years, tags, v, method, subset_func):
     """
 
     Parameters
@@ -76,7 +91,7 @@ def main(source, years, tags, v, method):
     """
     print(f"Aggregating for source {source}, tag {tags} using {method.__name__} over {v}")
     destination = os.path.join(source, f"aggregated_{v}_by_{method.__name__}.csv")
-    df = aggregate_variables_by_year(source, years, tag, v, method)
+    df = aggregate_variables_by_year(source, years, tag, v, method, subset_func)
     df.to_csv(destination, index=False)
     print(f"Saved file to {destination}")
 
@@ -94,12 +109,15 @@ if __name__ == '__main__':
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
     parser.add_argument("-m", "--method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to np.nanmean.")
+    parser.add_argument("-f", "--subset_function", required=False, type=str, default=None,
+                        help="What subset of the population is used in analysis. E.g. only look at the treated subset of the population")
     args = vars(parser.parse_args())
     source = args['source']
     directories = args['directories']
     tags = args['tags']
     v = args['variable']
     method = args['method']
+    subset_functions = args['subset_function']
 
     if method == "nanmean":
         method = np.nanmean
@@ -110,8 +128,10 @@ if __name__ == '__main__':
 
     directories = directories.split(",")
     tags = tags.split(",")
+    subset_functions = subset_functions.split(',')
 
-    for directory, tag in zip(directories, tags):
+    for directory, tag, subset_function_string in zip(directories, tags, subset_functions):
+        subset_function = find_subset_function(subset_function_string)
         batch_source = os.path.join(source, directory)
         # get years from MINOS batch run config yaml.
         with open(f"{batch_source}/config_file.yml", "r") as stream:
@@ -120,4 +140,4 @@ if __name__ == '__main__':
             end_year =  config['time']['end']['year']
             years = np.arange(start_year+1, end_year+1) # don't use first year as variables all identical.
         print(batch_source)
-        df = main(batch_source, years, tag, v, method)
+        df = main(batch_source, years, tag, v, method, subset_function)

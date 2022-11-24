@@ -18,7 +18,7 @@ def eightyTwenty(income):
     return eightyTwentyRatio
 
 
-def group_minos_by_pidp(source, year, v, method):
+def group_minos_by_pidp(source, year, v, method, subset_func=None):
     """ Load files from multiple minos runs and aggregate SF12 by mean.
     Parameters
     ----------
@@ -32,6 +32,8 @@ def group_minos_by_pidp(source, year, v, method):
     df = pd.DataFrame()
     for file in files:
         df = pd.concat([df, pd.read_csv(file, low_memory=True)])
+    if subset_func:
+        df = subset_func(df)
     df = df.groupby(['pidp']).apply(lambda x: method(x[v]))
     df = pd.DataFrame(df)
     df.columns = [v]
