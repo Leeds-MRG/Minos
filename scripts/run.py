@@ -41,6 +41,10 @@ def run(args):
     else:  ## if runtime present its been supplied by a batch submission script to keep all the runs in the same directory
         runtime = args.runtime
 
+    # if no subdir present, create empty string so os.join can ignore it
+    if not args.subdir:
+        subdir = ''
+
     ############## INITIAL VARIABLES ##############
     ## Define some initial vars that vivarium needs
     # start year
@@ -53,7 +57,7 @@ def run(args):
     ############## DIRECTORIES ##############
     # Output directory structure
     # Format - '<top_level_output>/<output_subdirectory>/<baseline_or_intervention>/<runtime>'
-    run_output_dir = os.path.join(config['output_data_dir'], args.subdir, scenario,
+    run_output_dir = os.path.join(config['output_data_dir'], subdir, scenario,
                                   runtime)
     run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
 
@@ -152,7 +156,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-c", "--config", required=True, type=str, metavar="config-file",
                         help="Model config file (YAML)")
-    parser.add_argument("-o", "--output_subdir", required=True, type=str, metavar="subdir", dest='subdir',
+    parser.add_argument("-o", "--output_subdir", type=str, metavar="subdir", dest='subdir', default=None,
                         help='Sub-directory within output/ where the data from this specific run is saved')
     parser.add_argument("-r", "--run_id", type=int, metavar="runID", dest='runID', default=None,
                         help="(Optional) Unique run ID specified to distinguish between multiple runs in a batch submission")

@@ -62,34 +62,39 @@ help: ### Show this help
 
 ## Conda install (if needed)
 ###
-.PHONY: conda
-
-conda:
-	@echo "Loading arc4 python module to use conda commands."
-	#module load python anaconda
-	@echo "Initiating conda environment. "
-	conda create -p conda_minos python=3.8
-	@echo "Activating conda environment"
-	source activate conda_minos
-	@"Minimal R 4.0.5 install in conda environment."
-	#conda install -c conda-forge r-base=4.0.5
-	conda install -c conda-forge r-essentials=4.0.5
-	@echo "conda install complete!"
-
 .PHONY: arc_conda
 
+#conda:
+#	@echo "Loading arc4 python module to use conda commands."
+#	#module load python anaconda
+#	@echo "Initiating conda environment. "
+#	conda create -p conda_minos python=3.8
+#	@echo "Activating conda environment"
+#	source activate conda_minos
+#	@echo "Minimal R 4.0.5 install in conda environment."
+#	#conda install -c conda-forge r-base=4.0.5
+#	conda install -c conda-forge r-essentials=4.0.5
+#	@echo "conda install complete!"
+
 arc_conda:
+	@echo "Loading anaconda module..."
 	$(shell module load python anaconda)
-	conda create -n conda_minos python=3.9 # create conda environment. 
-	conda activate conda_minos # activate conda environment.
-	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
-	
-	
+	@echo "Creating conda environment with python3.9..."
+	$(shell conda create -y -n conda_minos python=3.9) # create conda environment.
+	$(shell conda activate conda_minos) # activate conda environment.
+	@echo "Installing R..."
+	$(shell conda install -c conda-forge r-base=4.1.0) # install base R 4.1.0.
+
+
 ## Install
 ###
 .PHONY: install
 
+# Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
 install: ### Install all Minos requirements via pip
+install: $(SITEPACKAGES)/vivarium/__init__.py
+
+$(SITEPACKAGES)/vivarium/__init__.py:
 	@echo "Installing requirements via pip"
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
@@ -101,71 +106,86 @@ install: ### Install all Minos requirements via pip
 	@echo "\nInstall complete!\n"
 
 
-## Test
+## Test Simulations
 ###
 .PHONY: testRun testRun_Intervention
 
 testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
 testRun: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --output_subdir 'testRun'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml --output_subdir 'testRun'
 
 testRun_Intervention: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyLivingWageIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml --output_subdir 'testRun' -i 'livingWageIntervention'
 
 ###
 ## Experiment Runs
 ###
-.phony: baseline beefy_baseline arc4_baseline arc4_living_wage arc4_energy
+.phony: baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+.phony: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
-baseline: ### Baseline run of MINOS, using configuration defined in beefyBaseline.yaml
-baseline: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyBaseline.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+
+## Local
+
+baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
+baseline: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config'
+
+intervention_hhIncome: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
+
+intervention_hhIncomeChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
+
+intervention_PovertyLineChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
+
+intervention_livingWage: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'livingWageIntervention'
+
+intervention_energyDownLift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'energyDownlift'
+
+
+## Arc4
+.phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
+.phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+
+arc4_baseline: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config'
+
+arc4_intervention_hhIncome: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
+
+arc4_intervention_hhIncomeChildUplift: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
+
+arc4_intervention_PovertyLineChildUplift: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
+
+arc4_intervention_livingWage: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
+
+arc4_intervention_energyDownLift: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
+
+
+## Beefy
 
 beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
 beefy_baseline: data transitions install beefy_conda
 	$(PYTHON) # fill in when have access to beefy again..
 
-arc4_baseline:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
-	$(shell qsub scripts/arc.sh config/beefyBaseline.yaml)
 
-arc4_living_wage:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
-	$(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
+### SETUP
 
-#arc4_energy:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
-	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
+setup: ### Setup target to prepare everything required for simulation.
+### Runs install, prepares input data, estimates transition models, and generates input populations
+setup: install data transitions replenishing_data
 
-
-incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
-### flexible framework for running income interventions, and adjustments to the size and scale of the intervention can be
-### made by editing the parameters in minos.modules.intervention.hhIncomeIntervention.pre_setup(). Eventually we might
-### make these parameters available in the config file itself, but this will have to do for now.
-incomeIntervention: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyIncomeIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
-
-childUplift: ### Run the child uplift intervention using config defined in beefyChildUplift.yaml. This intervention
-### gives all adults with children an extra £20 to their household income per week per child.
-childUplift: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyChildUplift.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
-
-povertyUplift: ### Run the poverty uplift intervention using config defined in beefyPovertyUplift.yaml. This intervention
-### gives all adults in poverty with children an extra £20 to their household income per week per child. Anyone with a
-### household income below 60% of the median household income is defined as being in poverty.
-povertyUplift: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyPovertyUplift.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
 
 ###
 ## Data Generation
-# Combined Rules
 ###
-
-setup: ### Setup target just for ease of development, NEED MORE INFORMATION SOON.
-setup: data transitions replenishing_data
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
@@ -299,7 +319,7 @@ clean_out:
 	rm -rf output/*
 
 #TODO add one for arc4 logs too.
-clean_logs: ### Remove log files (including test.log and slurm logs (and arc logs soon))
+clean_logs: ### Remove log files (including test.log, slurm, and arc logs)
 clean_logs:
 	rm -rf test.log
 	rm -rf logs/*
@@ -310,3 +330,6 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+
+clean_plots: ### Remove all <plot>.pdf files in plots/
+	rm -rf plots/*.pdf

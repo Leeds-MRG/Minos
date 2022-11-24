@@ -1,14 +1,8 @@
 #!/bin/bash
 
-## Run the executable minos_batch_run.py
-# no final ID here as its provided by the scheduler.
-# $SGE_TASK_ID is provided by qsub. It is an integer that corresponds to some combination of minos parameters
-# (income uplift amounds and run_id)
-# $1 is config file e.g. config/beefyBaseline.yaml
-# $SGE_TASK_ID is son of grid engine task id. run id for this minos run.
-
-echo "Please note the number of runs is defined by a variable in the 'scripts/arc_run.sh' script, and cannot "
-echo "be defined by a command line argument, or otherwise automated."
+echo "Please note the number of runs is defined by a variable in the 'scripts/arc_run.sh' script, and cannot"
+echo "be assigned by a command line argument, or otherwise automated. You must modify this parameter in"
+echo "'scripts/arc_run.sh'"
 
 # if number of args submitted is less than 2 (4 with flags), print some help
 if [ "$#" -lt 4 ]; then
