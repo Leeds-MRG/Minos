@@ -76,14 +76,23 @@ help: ### Show this help
 #	conda install -c conda-forge r-essentials=4.0.5
 #	@echo "conda install complete!"
 
+
+####################### DOES NOT WORK #######################
 arc_conda:
-	@echo "Loading anaconda module..."
-	$(shell module load python anaconda)
-	@echo "Creating conda environment with python3.9..."
-	$(shell conda create -y -n conda_minos python=3.9) # create conda environment.
-	$(shell conda activate conda_minos) # activate conda environment.
-	@echo "Installing R..."
-	$(shell conda install -c conda-forge r-base=4.1.0) # install base R 4.1.0.
+	@echo "WARNING: THIS TARGET DOES NOT WORK AND PROBABLY NEVER WILL"
+	@echo "Maybe better to just force users to do it manually:"
+	@echo "You must create a conda environment with python3.9 or higher, activate the env, then"
+	@echo "install r-base=4.1.0"
+	#@echo "Loading anaconda module..."
+	#$(shell module load python anaconda)
+	#@echo "Creating conda environment with python3.9..."
+	#$(shell conda create -y -n conda_minos python=3.9) # create conda environment.
+	#$(shell conda activate conda_minos) # activate conda environment.
+	#@echo "Installing R..."
+	#$(shell conda install -c conda-forge r-base=4.1.0) # install base R 4.1.0.
+####################### DOES NOT WORK #######################
+# I think the best solution to this problem is to just force users to create their own conda env and load it up
+# realistically for the forseeable nobody outside of the research group is going to use it on arc anyway
 
 
 ## Install
