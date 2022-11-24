@@ -127,7 +127,7 @@ minos_diff_map <- function(data, destination_name, do_save=T){
     scale_fill_distiller(palette = "PuOr", limits=c(-c, c), direction=-1) + 
     labs(fill='Absolute Difference')  + # label colour bar
     theme(aspect.ratio=9/16) +
-    ggtitle("Difference in SF12 spatial distribution for minos vs real US data in Sheffield.") +
+    #ggtitle("Difference in SF12 spatial distribution for minos vs real US data in Sheffield.") +
     xlab("Longitude") + # axis labels
     ylab("Latitude")
 
