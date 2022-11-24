@@ -37,11 +37,19 @@ def run(args):
     # If intervention arg not present, set value to empty string. This is for os.path.join and creating output directory
     if not args.intervention:
         intervention = ''
+
+    ## if no runtime present, this is not a batch run and the current time should be used
+    if not args.runtime:
+        runtime = str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
+    else: ## if runtime present its been supplied by a batch submission script to keep all the runs in the same dir
+        runtime = args.runtime
+
+
     # Output directory where all files from the run will be saved.
     # Join file name with the time to prevent overwriting.
     # Add runID in if present for batch runs, and int if present for specific intervention
     run_output_dir = os.path.join(config['output_data_dir'], args.subdir, args.intervention,
-                                  str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")))
+                                  runtime)
     run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
 
     # Add important things to the config file
@@ -132,10 +140,12 @@ if __name__ == "__main__":
 
     parser.add_argument("-c", "--config", required=True, type=str, metavar="config-file",
                         help="Model config file (YAML)")
-    parser.add_argument("-o", "--output_subdir", type=str, metavar="subdir", dest='subdir', default=None,
+    parser.add_argument("-o", "--output_subdir", required=True, type=str, metavar="subdir", dest='subdir',
                         help='Sub-directory within output/ where the data from this specific run is saved')
     parser.add_argument("-r", "--run_id", type=int, metavar="runID", dest='runID', default=None,
                         help="(Optional) Unique run ID specified to distinguish between multiple runs in a batch submission")
+    parser.add_argument("-t", "--time", type=str, metavar="runtime", dest='runtime', default=None,
+                        help="(Optional) Runtime variable supplied by batch run scripts, so all batch outputs are kept in the same folder.")
     parser.add_argument("-i", "--intervention", type=str, metavar="intervention", dest="intervention", default=None,
                         help=
     """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
