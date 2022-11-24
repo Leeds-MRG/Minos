@@ -277,8 +277,9 @@ $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds: $(FINALDATA)/201
 AGGREGATE_METHOD = nanmean
 AGGREGATE_VARIABLE = SF_12
 REF_LEVEL = Baseline
-DIRECTORIES = baseline,povertyUplift,childUplift
-DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift"
+DIRECTORIES = baseline,povertyUplift,childUplift,livingWageIntervention,energyDownlift
+DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage,EnergyDownlift"
+SUBSET_FUNCTIONS = "none,who_boosted,who_boosted,who_boosted,who_boosted"
 
 aggregate_minos_output:
 	# See file for tag meanings.
@@ -289,16 +290,20 @@ aggregate_minos_output:
 	# make line plot.
 	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
-SPATIAL_DIRECTORY1 = output/baseline # first geojson for comparison in diff plot.
-SPATIAL_DIRECTORY2 = output/povertyUplift # second geojson for comparison in aggregate_two_and_diff
-AGG_METHOD = nanmean # what method to aggregate with.
-AGG_VARIABLE = SF_12 # what variable to aggregate.
-AGG_YEAR = 2018 # what year to map in data.
+
+
+INTERVENTION1 = baseline
+INTERVENTION2 = povertyUplift
+SPATIAL_DIRECTORY1 = output/$(INTERVENTION1)# first geojson for comparison in diff plot.
+SPATIAL_DIRECTORY2 = output/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
+AGG_METHOD = nanmean# what method to aggregate with.
+AGG_VARIABLE = SF_12# what variable to aggregate.
+AGG_YEAR = 2025# what year to map in data.
 AGG_LOCATION = glasgow # or manchester/scotland
-SAVE_FILE1 = output/baseline/nanmean_SF_12_2018.geojson # data source from aggregation. Need to automate these file paths somehow.
-SAVE_PLOT1 = output/baseline/nanmean_SF_12_2018 # where to save plot for aggregate_lsoas_and_map
-SAVE_FILE2 = output/povertyUplift/nanmean_SF_12_2018.geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
-SAVE_PLOT2 = output/baseline/baseline_vs_povertyUplift_nanmean_SF_12_2018 # pdf file name for aggregate_two_and_diff. saves in first specified file.
+SAVE_FILE1 = $(SPATIAL_DIRECTORY1)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR).geojson # data source from aggregation. Need to automate these file paths somehow.
+SAVE_PLOT1 = $(SPATIAL_DIRECTORY1)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR) # where to save plot for aggregate_lsoas_and_map
+SAVE_FILE2 = $(SPATIAL_DIRECTORY2)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR).geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
+SAVE_PLOT2 = $(SPATIAL_DIRECTORY1)/$(INTERVENTION1)_vs_$(INTERVENTION2)_$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR) # pdf file name for aggregate_two_and_diff. saves in first specified file.
 
 aggregate_and_map:
 	# aggregate minos outputs into LSOAs.
@@ -311,7 +316,31 @@ aggregate_two_and_map_diff:
 	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY1) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY1) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
 	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY2) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY2) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
 	# map LSOAs.
-	 $(RSCRIPT) minos/validation/sf12_difference_map.R -f $(SAVE_FILE1) -g $(SAVE_FILE2) -d $(SAVE_PLOT2) -m $(AGG_LOCATION) -v $(AGG_VARIABLE)
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f $(SAVE_FILE2) -g $(SAVE_FILE1) -d $(SAVE_PLOT2) -m $(AGG_LOCATION) -v $(AGG_VARIABLE)
+
+
+aggregate_baseline_energy_map:
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f geojson
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/energyDownlift -y $(AGG_YEAR) -d output/energyDownlift -m nanmean -v SF_12 -f geojson
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/energyDownlift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_energy_difference_map.pdf -m $(AGG_LOCATION) -v SF_12	
+
+aggregate_baseline_living_wage_map:
+        $(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson
+        $(PYTHON) minos/validation/format_spatial_output.py -s output/livingWageIntervention -y $(AGG_YEAR) -d output/livingWageIntervention -m	nanmean	-v SF_12 -f geojson
+        $(RSCRIPT) minos/validation/sf12_difference_map.R -f output/livingWageIntervention/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_living_wage_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
+
+aggregate_baseline_all_uplift_map:
+        $(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson
+        $(PYTHON) minos/validation/format_spatial_output.py -s output/childUplift -y $(AGG_YEAR) -d output/childUplift -m nanmean -v SF_12 -f geojson
+        $(RSCRIPT) minos/validation/sf12_difference_map.R -f output/childUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_all_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
+
+aggregate_baseline_poverty_uplift_map:
+        $(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson
+        $(PYTHON) minos/validation/format_spatial_output.py -s output/povertyUplift -y $(AGG_YEAR) -d output/povertyUplift -m	nanmean	-v SF_12 -f geojson
+        $(RSCRIPT) minos/validation/sf12_difference_map.R -f output/povertyUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_poverty_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
+
+map_all: aggregate_baseline_energy_mapaggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+
 
 ###
 ## Cleaning
