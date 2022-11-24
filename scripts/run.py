@@ -25,61 +25,44 @@ def run(args):
     simulation : Vivarium.Simulation.InteractiveContext
         Simulation object after running for n timesteps
     """
-    # Read in config from file and set up some object vars
-    config = utils.read_config(args.config)
-    intervention = args.intervention
 
-    # Vivarium needs an initial population size. Define it as the first cohort of US data.
+    ############## READ CONFIG AND ARGS ##############
+    ## Read config and set up some variables from the command line args
+    config = utils.read_config(args.config)
+    scenario = args.intervention
+
+    # If intervention arg not present, we must be doing a baseline run
+    if not args.intervention:
+        scenario = 'baseline'
+
+    # if no runtime present, this is not a batch run and the current time should be used
+    if not args.runtime:
+        runtime = str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
+    else:  ## if runtime present its been supplied by a batch submission script to keep all the runs in the same directory
+        runtime = args.runtime
+
+    ############## INITIAL VARIABLES ##############
+    ## Define some initial vars that vivarium needs
+    # start year
     year_start = config['time']['start']['year']
+    # start_population_size (use size of prepared input population in start year)
     start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
     print(f'Start Population Size: {start_population_size}')
 
-    # If intervention arg not present, set value to empty string. This is for os.path.join and creating output directory
-    if not args.intervention:
-        intervention = ''
 
-    ## if no runtime present, this is not a batch run and the current time should be used
-    if not args.runtime:
-        runtime = str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
-    else: ## if runtime present its been supplied by a batch submission script to keep all the runs in the same dir
-        runtime = args.runtime
-
-
-    # Output directory where all files from the run will be saved.
-    # Join file name with the time to prevent overwriting.
-    # Add runID in if present for batch runs, and int if present for specific intervention
-    run_output_dir = os.path.join(config['output_data_dir'], args.subdir, args.intervention,
+    ############## DIRECTORIES ##############
+    # Output directory structure
+    # Format - '<top_level_output>/<output_subdirectory>/<baseline_or_intervention>/<runtime>'
+    run_output_dir = os.path.join(config['output_data_dir'], args.subdir, scenario,
                                   runtime)
     run_output_plots_dir = os.path.join(run_output_dir, 'plots/')
 
-    # Add important things to the config file
-    # - output directories
-    # - population size
-    config.update({
-        'run_output_dir': run_output_dir,
-        'run_output_plots_dir': run_output_plots_dir,
-        'population': {'population_size': start_population_size}
-    }, source=str(Path(__file__).resolve()))
-
-
-    if args.runID:
-        # Add run ID to config if present
-        config.update({
-            'experiment_parameters': [args.runID],
-            'experiment_parameters_names': ['run_id']
-        }, source=str(Path(__file__).resolve()))
-    if args.intervention:
-        # Add intervention to config if present
-        config.update({
-            'intervention': intervention
-        }, source=str(Path(__file__).resolve()))
-
     ## Create directories if necessary
-    # Make the output/ directory if not exists. This should only need to happen on first run
+    # top level output dir. This should only need to happen on first run
     if not os.path.exists(config['output_data_dir']):
         print("Specified output directory does not exist. creating..")
         os.makedirs(config['output_data_dir'], exist_ok=True)
-    # Make run specific output directory if it does not exist. This should happen every run
+    # run specific output dir. This should happen every run
     if not os.path.exists(run_output_dir):
         print("Specified output sub-directory does not exist. creating..")
         os.makedirs(run_output_dir, exist_ok=True)
@@ -88,21 +71,33 @@ def run(args):
         print("Specified plots file for output does not exist. creating..")
         os.makedirs(run_output_plots_dir, exist_ok=True)
 
-    # TODO: Remove this from the config and turn it into a completely separate make command to run AFTER simulation
-    # Leaving the default in to do nothing for now.
-    #if 'do_plots' not in config.keys():
-    #    config['do_plots'] = False
 
-    # Start logging. Really helpful in arc4 with limited traceback available.
-    logging.basicConfig(filename=os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
-    logging.info("Pipeline start")
+    ############## CONFIG ##############
+    # Add some more important things to the config file (mostly derived from command line args)
+    add_to_config = {}
 
-    #print("Printing config: ")
-    #print(config)
-    # Save the config to a yaml file with the minimal amount of information needed to reproduce results in the output folder.
+    # Always required
+    add_to_config.update({
+        'run_output_dir': run_output_dir,
+        'run_output_plots_dir': run_output_plots_dir,
+        'population': {'population_size': start_population_size,},
+        'scenario': scenario
+    })
+
+    # only for batch runs
+    if args.runID:
+        # Add run ID to config if present
+        add_to_config.update({
+            'experiment_parameters': args.runID,
+            'experiment_parameters_names': 'run_id'
+        }, source=str(Path(__file__).resolve()))
+
+    # Now update the Vivarium ConfigTree object
+    config.update(add_to_config)
+
+    # generate config filename for saving to output directory
     output_config_file = os.path.join(run_output_dir, 'config_file.yml')
-
-    # only save the config file once (on run 1 for multiple runs, or just once for single runs)
+    # only save the config file once (on run 1 for batch runs)
     if args.runID:
         if args.runID == 1:
             with open(output_config_file, 'w') as config_file:
@@ -114,7 +109,24 @@ def run(args):
             print("Write config file successful")
     logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
-    # Run the microsimulation via RunPipeline.
+
+    # TODO: Remove this from the config and turn it into a completely separate make command to run AFTER simulation
+    # Leaving the default in to do nothing for now.
+    #if 'do_plots' not in config.keys():
+    #    config['do_plots'] = False
+
+
+    ############## LOGGING ##############
+    # Start logging. Really helpful in arc4 with limited traceback available.
+    logging.basicConfig(filename=os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
+    logging.info(f"Beginning a {scenario} simulation.")
+    logging.info(f"Start population size: {start_population_size}")
+    if args.runID:
+        logging.info(f"This is run {args.runID} of a batch run.")
+    logging.info("Pipeline start...")
+    #TODO: Add more here.
+
+    ############## RUN PIPELINE ##############
     # Different call for intervention or not
     if args.intervention:
         simulation = RunPipeline(config, run_output_dir, intervention=args.intervention)
@@ -123,7 +135,7 @@ def run(args):
 
     print('Finished running the full simulation')
 
-    return simulation
+    #return simulation
 
 
 # This __main__ function is used to run this script in a console. See daedalus github for examples.
@@ -158,4 +170,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     configuration_file = args.config
 
-    simulation = run(args)
+    run(args)
