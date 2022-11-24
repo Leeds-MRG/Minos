@@ -32,7 +32,6 @@ def group_minos_by_pidp(source, year, v, method):
     df = pd.DataFrame()
     for file in files:
         df = pd.concat([df, pd.read_csv(file, low_memory=True)])
-    print(df.columns)
     df = df.groupby(['pidp']).apply(lambda x: method(x[v]))
     df = pd.DataFrame(df)
     df.columns = [v]

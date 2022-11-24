@@ -45,6 +45,11 @@ scotland_data_zone_subset_function <- function(data){
   return(subset(data, ZoneID %in% datazones))
 }
 
+glasgow_data_zone_subset_function <- function(data){
+  datazones <- read.csv("persistent_data/glasgow_data_zones.csv")
+  datazones <- datazones$lsoa11cd
+  return(subset(data, ZoneID %in% datazones))
+}
 choose_lsoa_function <- function(mode){
   
   if (mode == "sheffield"){
@@ -55,6 +60,9 @@ choose_lsoa_function <- function(mode){
   }
   else if (mode == "scotland"){
     subset_function <- scotland_data_zone_subset_function
+  }
+  else if (mode == "glasgow"){
+    subset_function <- glasgow_data_zone_subset_function
   }
   else {
     print("Warning no subset specified. Defaulting to Sheffield..")
@@ -83,7 +91,7 @@ minos_map <- function(data, v, destination_name, do_save=T){
     ylab("Latitude")
   
   if(do_save){
-    pdf(paste(destination_name, '.pdf')) # need to do this or R won't save pdf from variable.
+    pdf(paste0(destination_name, '.pdf')) # need to do this or R won't save pdf from variable.
     print(minos.map) # note need to print maps when running R scripts outside of console or they're blank.
     dev.off()
   }
@@ -124,7 +132,7 @@ minos_diff_map <- function(data, destination_name, do_save=T){
     ylab("Latitude")
 
   if(do_save == T){
-    pdf(paste(destination_name, '.pdf'))
+    pdf(paste0(destination_name, '.pdf'))
     print(diff.map)
     dev.off()
   }

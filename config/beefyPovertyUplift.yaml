@@ -29,7 +29,7 @@ do_plots: False
 # Only if Replenishment needs some other module in the future would it be superceded.
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. Not much use changing jobs if you're dead.(priority 1)
 # Finally everything else can go in any order (priority 2).
-components : [MWB(), Tobacco(), Alcohol(), Neighbourhood(), Housing(), Fertility(), Mortality(), hhIncomePovertyLineChildUplift(), Replenishment()]
+components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Education(), hhIncomePovertyLineChildUplift(), Mortality(), Replenishment()]
 
 scale_rates:
     # methods:

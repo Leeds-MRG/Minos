@@ -141,6 +141,11 @@ arc4_energy:
 	$(shell conda activate conda_minos)
 	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
 
+arc4_all_child_uplift:
+	$(shell qsub scripts/arc.sh config/beefyChildUplift.yaml)
+
+arc4_poverty_line_uplift:
+	$(shell qsub scripts/arc.sh config/beefyPovertyUplift.yaml)
 
 incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
 ### flexible framework for running income interventions, and adjustments to the size and scale of the intervention can be
@@ -289,7 +294,7 @@ SPATIAL_DIRECTORY2 = output/povertyUplift # second geojson for comparison in agg
 AGG_METHOD = nanmean # what method to aggregate with.
 AGG_VARIABLE = SF_12 # what variable to aggregate.
 AGG_YEAR = 2018 # what year to map in data.
-AGG_LOCATION = sheffield # or manchester/scotland
+AGG_LOCATION = glasgow # or manchester/scotland
 SAVE_FILE1 = output/baseline/nanmean_SF_12_2018.geojson # data source from aggregation. Need to automate these file paths somehow.
 SAVE_PLOT1 = output/baseline/nanmean_SF_12_2018 # where to save plot for aggregate_lsoas_and_map
 SAVE_FILE2 = output/povertyUplift/nanmean_SF_12_2018.geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
