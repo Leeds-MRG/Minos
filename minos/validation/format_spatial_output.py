@@ -8,7 +8,7 @@ import numpy as np
 import argparse
 import glob
 import os
-
+from aggregate_subset_functions import find_subset_function
 def eightyTwenty(income):
 
     split = pd.qcut(income, q=5, labels=[1, 2, 3, 4, 5])
@@ -18,7 +18,7 @@ def eightyTwenty(income):
     return eightyTwentyRatio
 
 
-def group_minos_by_pidp(source, year, v, method, subset_func=None):
+def group_minos_by_pidp(source, year, v, method, subset_func):
     """ Load files from multiple minos runs and aggregate SF12 by mean.
     Parameters
     ----------
@@ -41,7 +41,7 @@ def group_minos_by_pidp(source, year, v, method, subset_func=None):
     df.reset_index(drop=True, inplace=True)
     return df
 
-def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type='geojson'):
+def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type='geojson', subset_function):
 
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
@@ -66,7 +66,7 @@ def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type=
     None
     """
     print(f"Aggregating MINOS data at {source} for {year}.")
-    msim_data = group_minos_by_pidp(source, year, v, method)
+    msim_data = group_minos_by_pidp(source, year, v, method, subset_function)
     print('Done. Merging with spatial data..')
     # chris spatially weighted data.
     spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018.csv")
@@ -148,6 +148,8 @@ if __name__ == "__main__":
                         help="What method is used to aggregate individuals by LSOA.")
     parser.add_argument("-f", "--format", required=True, type=str,
                         help="What file format is used. csv or geojson.")
+    parser.add_argument("-u", "--subset_function", required=True, type=str,
+                        help="What subset function is used for data frame. Usually none or who_boosted/interevened on.")
 
     args = vars(parser.parse_args())
 
@@ -157,6 +159,9 @@ if __name__ == "__main__":
     v = args['variable']
     method_type = args['method']
     save_type = args['format']
+    subset_function_string = args['subset_function']
+
+    subset_function = find_subset_function(subset_function_string)
 
     if method_type == "nanmean":
         method = np.nanmean
@@ -169,4 +174,4 @@ if __name__ == "__main__":
     #source = f"data/final_US/{year}_US_Cohort.csv" # if estimating LSOAs using real data.
     #destination = f"output/test_output/simulation_data/"
     #v = "SF_12"
-    main(source, year, destination, v, method, save_type)
+    main(source, year, destination, v, method, save_type, subset_function)

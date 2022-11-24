@@ -4,18 +4,7 @@ import numpy as np
 import argparse
 import os
 import yaml
-from aggregate_subset_functions import who_alive, who_boosted
-
-
-def find_subset_function(function_string):
-    if function_string == "none":
-        subset_function = None
-    elif function_string == "who_boosted":
-        subset_function = who_boosted
-    else:
-        print("no subset_function defined. Defaulting to None")
-        subset_function = None
-    return subset_function
+from aggregate_subset_functions import find_subset_function
 
 def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
     """ Get aggregate values for value v using method function. Do this over the specified source and years.
