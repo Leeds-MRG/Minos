@@ -128,5 +128,5 @@ if __name__ == '__main__':
             start_year = config['time']['start']['year']
             end_year =  config['time']['end']['year']
             years = np.arange(start_year+1, end_year+1) # don't use first year as variables all identical.
-        print(batch_source)
+        print(batch_source, years)
         df = main(batch_source, years, tag, v, method, subset_function)
