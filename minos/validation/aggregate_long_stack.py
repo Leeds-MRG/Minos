@@ -25,7 +25,7 @@ def long_stack_minos_aggregates(file_names):
     """
     df = pd.DataFrame()
     for file_name in file_names:
-        df = pd.concat([df, pd.read_csv(file_name)])
+        df = pd.concat([df, pd.read_csv(file_name, low_memory=False)])
     return df
 
 def relative_scaling(df, v, ref):

@@ -41,7 +41,7 @@ def group_minos_by_pidp(source, year, v, method, subset_func):
     df.reset_index(drop=True, inplace=True)
     return df
 
-def main(source, year, destination, v = "SF_12", method = np.nanmean, save_type='geojson', subset_function):
+def main(source, year, destination, subset_function, v = "SF_12", method = np.nanmean, save_type = "geojson"):
 
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
@@ -174,4 +174,4 @@ if __name__ == "__main__":
     #source = f"data/final_US/{year}_US_Cohort.csv" # if estimating LSOAs using real data.
     #destination = f"output/test_output/simulation_data/"
     #v = "SF_12"
-    main(source, year, destination, v, method, save_type, subset_function)
+    main(source, year, destination, subset_function, v, method, save_type)

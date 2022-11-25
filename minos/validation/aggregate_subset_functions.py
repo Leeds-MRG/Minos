@@ -1,5 +1,8 @@
 """Functions for subsetting minos output data in aggregates and plots"""
 
+import numpy as np
+import pandas as pd
+
 def find_subset_function(function_string):
     if function_string == "none":
         subset_function = None
@@ -36,5 +39,26 @@ def who_boosted(df):
     -------
 
     """
-    df = df.loc[df['alive'] == 'alive', ]
+    df = who_alive(df)
     return df.loc[df['income_boosted'], ]
+
+def who_kids(df):
+    "who has kids?"
+    df = who_alive(df)
+    return df.loc[df['nkids']>0]
+
+def who_below_poverty_line(df):
+    "who below poverty line?. Defined as 60% of national median hh income."
+    df = who_alive(df)
+    return df.loc[(df['hh_income'] <= np.nanmedian(df['hh_income']) * 0.6),]
+
+def who_living_wage(df):
+    df = who_alive(df)
+    "who earns below the living wage?"
+    who_uplifted_London = df['hourly_wage'] > 0
+    who_uplifted_London *= df['region'] == 'London'
+    who_uplifted_London *= df['hourly_wage'] < 11.95
+    who_uplifted_notLondon = df['hourly_wage'] > 0
+    who_uplifted_notLondon *= df['region'] != 'London'
+    who_uplifted_notLondon *= df['hourly_wage'] < 10.90
+    return df.loc[df[who_uplifted_notLondon | who_uplifted_London], ]
