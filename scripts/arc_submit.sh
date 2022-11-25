@@ -2,9 +2,9 @@
 
 echo
 echo "******************************************************************************************************"
-echo "Please note the number of runs is defined by a variable in the 'scripts/arc_run.sh' script, and cannot"
-echo "be assigned by a command line argument, or otherwise automated. You must modify this parameter in"
-echo "'scripts/arc_run.sh'"
+echo "Please note the number of runs is defined by a variable in 'scripts/arc_run.sh', and cannot be"
+echo "assigned by a command line argument, or otherwise automated. You must modify this parameter by"
+echo "changing the value of the task array in 'scripts/arc_run.sh'"
 echo "******************************************************************************************************"
 echo
 
