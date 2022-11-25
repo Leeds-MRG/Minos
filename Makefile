@@ -338,22 +338,22 @@ aggregate_two_and_map_diff:
 aggregate_baseline_energy_map:
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f geojson -u who_alive
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/energyDownlift -y $(AGG_YEAR) -d output/energyDownlift -m nanmean -v SF_12 -f geojson -u who_boosted
-	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/energyDownlift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_energy_difference_map.pdf -m $(AGG_LOCATION) -v SF_12	
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -g output/energyDownlift/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_energy_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 aggregate_baseline_living_wage_map:
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_alive
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/livingWageIntervention -y $(AGG_YEAR) -d output/livingWageIntervention -m	nanmean	-v SF_12 -f geojson -u who_boosted
-	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/livingWageIntervention/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_living_wage_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -g output/livingWageIntervention/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_living_wage_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 aggregate_baseline_all_uplift_map:
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_alive
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/childUplift -y $(AGG_YEAR) -d output/childUplift -m nanmean -v SF_12 -f geojson -u who_boosted
-	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/childUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_all_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -g output/childUplift/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_all_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_alive
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/povertyUplift -y $(AGG_YEAR) -d output/povertyUplift -m	nanmean	-v SF_12 -f geojson -u who_boosted
-	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/povertyUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_poverty_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -g output/povertyUplift/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_poverty_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 map_all: aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
 
