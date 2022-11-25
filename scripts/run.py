@@ -30,6 +30,7 @@ def run(args):
     ## Read config and set up some variables from the command line args
     config = utils.read_config(args.config)
     scenario = args.intervention
+    subdir = args.subdir
 
     # If intervention arg not present, we must be doing a baseline run
     if not args.intervention:

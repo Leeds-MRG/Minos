@@ -58,46 +58,10 @@ help: ### Show this help
 # cd /nobackup/<USERNAME>
 # Clone minos git in. (contains this makefile)
 # git clone https://github.com/Leeds-MRG/Minos
-# Should be able to run conda and install commands if needed.
-
-## Conda install (if needed)
-###
-.PHONY: arc_conda
-
-#conda:
-#	@echo "Loading arc4 python module to use conda commands."
-#	#module load python anaconda
-#	@echo "Initiating conda environment. "
-#	conda create -p conda_minos python=3.8
-#	@echo "Activating conda environment"
-#	source activate conda_minos
-#	@echo "Minimal R 4.0.5 install in conda environment."
-#	#conda install -c conda-forge r-base=4.0.5
-#	conda install -c conda-forge r-essentials=4.0.5
-#	@echo "conda install complete!"
-
-
-####################### DOES NOT WORK #######################
-arc_conda:
-	@echo "WARNING: THIS TARGET DOES NOT WORK AND PROBABLY NEVER WILL"
-	@echo "Maybe better to just force users to do it manually:"
-	@echo "You must create a conda environment with python3.9 or higher, activate the env, then"
-	@echo "install r-base=4.1.0"
-	#@echo "Loading anaconda module..."
-	#$(shell module load python anaconda)
-	#@echo "Creating conda environment with python3.9..."
-	#$(shell conda create -y -n conda_minos python=3.9) # create conda environment.
-	#$(shell conda activate conda_minos) # activate conda environment.
-	#@echo "Installing R..."
-	#$(shell conda install -c conda-forge r-base=4.1.0) # install base R 4.1.0.
-####################### DOES NOT WORK #######################
-# I think the best solution to this problem is to just force users to create their own conda env and load it up
-# realistically for the forseeable nobody outside of the research group is going to use it on arc anyway
 
 
 ## Install
 ###
-.PHONY: install
 
 # Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
 install: ### Install all Minos requirements via pip
@@ -129,7 +93,7 @@ testRun_Intervention: setup
 ###
 ## Experiment Runs
 ###
-.phony: baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+.phony: all_scenarios baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
 .phony: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 
