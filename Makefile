@@ -288,12 +288,10 @@ aggregate_minos_output:
 	# make line plot.
 	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
-
-
 AGGREGATE_METHOD = nanmean
 AGGREGATE_VARIABLE = SF_12
 REF_LEVEL = Baseline
-DIRECTORIES = baseline,povertyUplift,childUplift,livingWageIntervention,energyDownlift
+DIRECTORIES = baseline,povertyUplift,childUplift,livingWageIntervention
 DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage"
 SUBSET_FUNCTIONS = "who_alive,who_boosted,who_boosted,who_boosted"
 
@@ -305,7 +303,6 @@ aggregate_minos_output_treated:
 	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
 	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
-
 
 
 INTERVENTION1 = baseline
