@@ -136,14 +136,14 @@ def RunPipeline(config, run_output_dir, intervention=None):
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
     for year in range(1, config.time.num_years + 1):
 
-        logging.info(f'Begin simulation for year {config.time.num_years + 1}')
+        logging.info(f'Begin simulation for year {config.time.start.year + year}')
 
         # Step forwards a year in monthly increments.
         simulation.run_for(duration=pd.Timedelta(days=365.25))
 
         # Print time when year finished running.
-        print(f'Finished running simulation for year: {year}')
-        logging.info(f'Finished running simulation for year: {config.time.num_years + 1}')
+        print(f'Finished running simulation for year: {config.time.start.year + year}')
+        logging.info(f'Finished running simulation for year: {config.time.start.year + year}')
 
         # get population dataframe.
         pop = simulation.get_population()
