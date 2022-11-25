@@ -47,10 +47,10 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
     for year in years:
         files = glob.glob(os.path.join(source, f"*{year}.csv")) # grab all files at source with suffix year.csv.
         for file in files: # loop over files. take aggregate value of v and add it as a row to output df.
-            df = pd.read_csv(file, low_memory=False)
+            new_df = pd.read_csv(file, low_memory=False)
             if subset_func:
-                df = subset_func(df)
-            agg_var = df[v]
+                new_df = subset_func(new_df)
+            agg_var = new_df[v]
             agg_value = method(agg_var)
             new_df = pd.DataFrame([[year, tag, agg_value]], columns = ['year', 'tag', v])
             df = pd.concat([df, new_df], sort=False)
@@ -101,6 +101,7 @@ if __name__ == '__main__':
                         help="What method is used to aggregate population. Defaults to np.nanmean.")
     parser.add_argument("-f", "--subset_function", required=False, type=str, default=None,
                         help="What subset of the population is used in analysis. E.g. only look at the treated subset of the population")
+
     args = vars(parser.parse_args())
     source = args['source']
     directories = args['directories']
