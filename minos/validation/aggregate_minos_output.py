@@ -50,7 +50,8 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
             df = pd.read_csv(file, low_memory=False)
             if subset_func:
                 df = subset_func(df)
-            agg_value = method(df[v])
+            agg_var = df[v]
+            agg_value = method(agg_var)
             new_df = pd.DataFrame([[year, tag, agg_value]], columns = ['year', 'tag', v])
             df = pd.concat([df, new_df], sort=False)
     return df
