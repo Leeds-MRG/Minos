@@ -137,8 +137,6 @@ arc4_living_wage:
 	$(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
 
 arc4_energy:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
 	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
 
 arc4_all_child_uplift:
@@ -278,8 +276,8 @@ AGGREGATE_METHOD = nanmean
 AGGREGATE_VARIABLE = SF_12
 REF_LEVEL = Baseline
 DIRECTORIES = baseline,povertyUplift,childUplift,livingWageIntervention,energyDownlift
-DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage,EnergyDownlift"
-SUBSET_FUNCTIONS = "who_alive,who_boosted,who_boosted,who_boosted,who_alive"
+DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage,Energy_Downlift"
+SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive,who_alive"
 
 aggregate_minos_output:
 	# See file for tag meanings.
@@ -292,6 +290,24 @@ aggregate_minos_output:
 
 
 
+AGGREGATE_METHOD = nanmean
+AGGREGATE_VARIABLE = SF_12
+REF_LEVEL = Baseline
+DIRECTORIES = baseline,povertyUplift,childUplift,livingWageIntervention,energyDownlift
+DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage"
+SUBSET_FUNCTIONS = "who_alive,who_boosted,who_boosted,who_boosted"
+
+aggregate_minos_output_treated:
+	# See file for tag meanings.
+	# aggregate files for baseline, all child uplift, and poverty line uplift.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
+
+
+
 INTERVENTION1 = baseline
 INTERVENTION2 = povertyUplift
 SPATIAL_DIRECTORY1 = output/$(INTERVENTION1)# first geojson for comparison in diff plot.
@@ -299,7 +315,7 @@ SPATIAL_DIRECTORY2 = output/$(INTERVENTION2)# second geojson for comparison in a
 AGG_METHOD = nanmean# what method to aggregate with.
 AGG_VARIABLE = SF_12# what variable to aggregate.
 AGG_YEAR = 2025# what year to map in data.
-AGG_LOCATION = glasgow # or manchester/scotland
+AGG_LOCATION = glasgow # or manchester/scotland/sheffield
 SAVE_FILE1 = $(SPATIAL_DIRECTORY1)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR).geojson # data source from aggregation. Need to automate these file paths somehow.
 SAVE_PLOT1 = $(SPATIAL_DIRECTORY1)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR) # where to save plot for aggregate_lsoas_and_map
 SAVE_FILE2 = $(SPATIAL_DIRECTORY2)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR).geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
@@ -339,7 +355,7 @@ aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/povertyUplift -y $(AGG_YEAR) -d output/povertyUplift -m	nanmean	-v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/povertyUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_poverty_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
-map_all: aggregate_baseline_energy_mapaggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+map_all: aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
 
 
 ###
