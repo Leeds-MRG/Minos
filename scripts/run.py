@@ -78,8 +78,10 @@ def run(args):
 
     # Make logs dir for batch runs
     if args.runID:
+        log_dir = os.path.join(run_output_dir, 'logs')
+        if not os.path.exists(log_dir):
         print("Creating log directory for batch runs...")
-        os.makedirs(os.path.join(run_output_dir, 'logs'), exist_ok=True)
+        os.makedirs(log_dir, exist_ok=True)
 
 
     ############## CONFIG ##############
