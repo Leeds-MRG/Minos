@@ -76,6 +76,11 @@ def run(args):
         print("Specified plots file for output does not exist. creating..")
         os.makedirs(run_output_plots_dir, exist_ok=True)
 
+    # Make logs dir for batch runs
+    if args.runID:
+        print("Creating log directory for batch runs...")
+        os.makedirs(run_output_dir, 'logs', exist_ok=True)
+
 
     ############## CONFIG ##############
     # Add some more important things to the config file (mostly derived from command line args)
@@ -112,7 +117,6 @@ def run(args):
         with open(output_config_file, 'w') as config_file:
             yaml.dump(config.to_dict(), config_file)
             print("Write config file successful")
-    logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
 
 
     # TODO: Remove this from the config and turn it into a completely separate make command to run AFTER simulation
@@ -123,11 +127,25 @@ def run(args):
 
     ############## LOGGING ##############
     # Start logging. Really helpful in arc4 with limited traceback available.
-    logging.basicConfig(filename=os.path.join(run_output_dir, "minos.log"), level=logging.INFO)
-    logging.info(f"Beginning a {scenario} simulation.")
+    if args.runID:
+        logfile = os.path.join(run_output_dir, 'logs', f'run_{args.runID}_minos.log')
+    else:
+        logfile = os.path.join(run_output_dir, 'minos.log')
+
+    # have to add force=True - see stackoverflow for why https://stackoverflow.com/questions/30861524/logging-basicconfig-not-creating-log-file-when-i-run-in-pycharm
+    logging.basicConfig(filename=logfile,
+                        format='%(asctime)s %(message)s',
+                        level=logging.INFO,
+                        force=True)
+
+    logging.info("Minimum YAML config file written before vivarium simulation object is declared.")
     logging.info(f"Start population size: {start_population_size}")
+    logging.info(f"Running with configuration file: {args.config}")
+    logging.info(f"Output directory: {run_output_dir}")
+    logging.info(f"Beginning a {scenario} simulation.")
     if args.runID:
         logging.info(f"This is run {args.runID} of a batch run.")
+    logging.info(f"Beginning simulation in {config.time.start.year}, running for {config.time.num_years} years until {config.time.end.year}")
     logging.info("Pipeline start...")
     #TODO: Add more here.
 
@@ -148,8 +166,8 @@ if __name__ == "__main__":
 
     ## CHANGING HOW THIS SCRIPT WORKS
     # Now only taking config and output directory as command line arguments, the rest can come from config.
-    logging.basicConfig(filename="test.log", level=logging.INFO)
-    logging.info("pipeline start.")
+    #logging.basicConfig(filename="test.log", level=logging.INFO)
+    #logging.info("Collecting command line arguments...")
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
                                         usage = 'use "%(prog)s --help" for more information',
                                         formatter_class = argparse.RawTextHelpFormatter # For multi-line formatting in help text

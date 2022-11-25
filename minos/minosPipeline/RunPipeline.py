@@ -97,8 +97,6 @@ def RunPipeline(config, run_output_dir, intervention=None):
     if "replenishmentNowcast()" in config['components']:
         components.append(replenishmentNowcast())
 
-    logging.info("Final YAML config file written.")
-
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
                                     configuration=config,
@@ -113,38 +111,39 @@ def RunPipeline(config, run_output_dir, intervention=None):
     # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
 
+    logging.info("Components included:")
     # Run pre-setup method for each module.
     for component in components:
-        print(f"Presetup done for: {component}")
         simulation = component.pre_setup(config, simulation)
+        print(f"Presetup done for: {component}")
+        logging.info(f"\t{component}")
 
     # Print start time for entire simulation.
     print('Start simulation setup')
     start_time = utils.get_time()
-    print(start_time)
-    logging.info('Start simulation setup')
-    logging.info(start_time)
+    print(f"Started simulation setup at {start_time}")
+    logging.info(f'Running simulation setup...')
 
     # Run setup method for each module.
     simulation.setup()
 
     # Print time when modules are setup and the simulation starts.
-    #print('Start running simulation')
     config_time = utils.get_time()
-    logging.info(print('Start running simulation'))
-    logging.info(config_time)
+    print(f'Simulation loop start at {config_time}')
 
+
+    logging.info('Simulation loop start...')
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
     for year in range(1, config.time.num_years + 1):
+
+        logging.info(f'Begin simulation for year {config.time.num_years + 1}')
 
         # Step forwards a year in monthly increments.
         simulation.run_for(duration=pd.Timedelta(days=365.25))
 
         # Print time when year finished running.
-        #print(f'Finished running simulation for year: {year}')
-        wave_time = utils.get_time()
-        logging.info(print(f'Finished running simulation for year: {year}'))
-        logging.info(wave_time)
+        print(f'Finished running simulation for year: {year}')
+        logging.info(f'Finished running simulation for year: {config.time.num_years + 1}')
 
         # get population dataframe.
         pop = simulation.get_population()
@@ -169,17 +168,20 @@ def RunPipeline(config, run_output_dir, intervention=None):
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
         pop.to_csv(output_file_path)
         print("Saved data to: ", output_file_path)
-        print('In year: ', config.time.start.year + year)
+        logging.info(f"Saved data to: {output_file_path}")
 
         # Print some summary stats on the simulation.
         print('alive', len(pop[pop['alive'] == 'alive']))
+        logging.info(f"Total alive: {len(pop[pop['alive'] == 'alive'])}")
 
         # Print metrics for desired module.
         # TODO: this can be extended towards a generalised metrics method for each module.
         if 'Mortality()' in config.components:
             print('dead', len(pop[pop['alive'] == 'dead']))
+            logging.info(f"Total dead: {len(pop[pop['alive'] == 'dead'])}")
         if 'FertilityAgeSpecificRates()' in config.components:
             print('New children', len(pop[pop['parent_id'] != -1]))
+            logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
 
         #for component in components:
         #    component.plot(pop, config)

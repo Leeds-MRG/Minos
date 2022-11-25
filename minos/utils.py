@@ -75,7 +75,7 @@ def to_years(time: pd.Timedelta) -> float:
 
 
 def get_time():
-    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def make_uniform_pop_data(age_bin_midpoint=False):
