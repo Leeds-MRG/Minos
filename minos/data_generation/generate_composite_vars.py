@@ -289,7 +289,7 @@ def generate_energy_composite(data):
         US data with 'electricity_bill' composite column.
     """
 
-    # need to calculate expenditure on 5 types of fuel. (electric, gas, oil, solid, other.)
+    # need to calculate expenditure on 4 types of fuel. (electric, gas, oil, other.)
 
     # start composite 'yearly_energy' variable.
     data['yearly_energy'] = -8
@@ -319,6 +319,22 @@ def generate_energy_composite(data):
     data.loc[data['has_none'] == 1, 'yearly_energy'] = 0
     data.loc[data['energy_in_rent'] == 1, 'yearly_energy'] = 0
 
+    # force everyone with any expeniture values to missing.
+    who_missing_gas_electric = data['gas_electric_combined'] == 1 & data['yearly_gas_electric'].isin(US_utils.missing_types)
+    # if not combined bill. if declared electric or gas but missing expenditure set energy to -8
+    who_missing_electric = (data['gas_electric_combined'] == 2) & (data['has_electric'] == 1) & (data['yearly_electric'].isin(US_utils.missing_types))
+    who_missing_gas  = (data['gas_electric_combined']) == 2 & (data['has_gas'] == 1) & (data['yearly_gas'].isin(US_utils.missing_types))
+    # if declares oil or other but missing expenditure set to -8
+    who_missing_oil = data['has_oil'] == 1 & data['yearly_oil'].isin(US_utils.missing_types)
+    who_missing_other = data['has_other'] == 1 & data['yearly_other_fuel'].isin(US_utils.missing_types)
+
+    # anyone who is missing any of these values
+    data.loc[who_missing_gas_electric, 'yearly_energy'] = -8
+    data.loc[who_missing_electric, 'yearly_energy'] = -8
+    data.loc[who_missing_gas, 'yearly_energy'] = -8
+    data.loc[who_missing_oil, 'yearly_energy'] = -8
+    data.loc[who_missing_other, 'yearly_energy'] = -8
+
     # check over households. if someone is missing but another person in the house has a value. assign the missing person that value.
     # groupby to find max by hidp.
     data['yearly_energy'] = data.groupby('pidp')['yearly_energy'].transform('max')
@@ -332,7 +348,7 @@ def generate_energy_composite(data):
     # for now just naively adding things together. will be add differences between -9 and -1 but shouldnt matter too much.
 
     #print(sum(data['yearly_energy'] == -8))
-    print(sum(data['yearly_energy'].isin(US_utils.missing_types)))
+    print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
