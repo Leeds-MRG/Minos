@@ -70,7 +70,7 @@ def who_below_living_wage(df):
     who_uplifted_notLondon = df['hourly_wage'] > 0
     who_uplifted_notLondon *= df['region'] != 'London'
     who_uplifted_notLondon *= df['hourly_wage'] < 10.90
-    return df.loc[df[who_uplifted_notLondon | who_uplifted_London], ]
+    return df.loc[who_uplifted_notLondon | who_uplifted_London, ] # get anyone from either group.
 
 
 def who_bottom_income_quintile(df):
