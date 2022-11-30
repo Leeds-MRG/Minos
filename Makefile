@@ -288,21 +288,40 @@ aggregate_minos_output:
 	# make line plot.
 	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
-AGGREGATE_METHOD = nanmean
-AGGREGATE_VARIABLE = SF_12
-REF_LEVEL = Baseline
-DIRECTORIES = baseline,povertyUplift,childUplift,livingWageIntervention
-DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage"
-SUBSET_FUNCTIONS = "who_alive,who_boosted,who_boosted,who_boosted"
-
 aggregate_minos_output_treated:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,povertyUplift,childUplift,livingWageIntervention -t "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift,Living_Wage" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted,who_boosted,who_boosted
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,povertyUplift,childUplift,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,povertyUplift,childUplift,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
+
+aggregate_minos_output_living_wage:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,livingWageIntervention -t Baseline,Living_Wage -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_living_wage,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
+
+aggregate_minos_output_poverty_child_uplift:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,povertyUplift -t Baseline,Poverty_Line_Uplift -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_poverty_line_and_kids,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,povertyUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,povertyUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "poverty_line_child_uplift"
+
+aggregate_minos_output_all_child_uplift:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,childUplift -t Baseline,All_Line_Uplift -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_kids,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,childUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,childUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "all_child_uplift"
+
+
 
 
 INTERVENTION1 = baseline
@@ -333,22 +352,22 @@ aggregate_two_and_map_diff:
 
 
 aggregate_baseline_energy_map:
-	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f geojson -u who_alive
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f geojson -u who_bottom_income_quintile
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/energyDownlift -y $(AGG_YEAR) -d output/energyDownlift -m nanmean -v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/energyDownlift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_energy_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 aggregate_baseline_living_wage_map:
-	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_alive
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_below_living_wage
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/livingWageIntervention -y $(AGG_YEAR) -d output/livingWageIntervention -m	nanmean	-v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/livingWageIntervention/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_living_wage_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 aggregate_baseline_all_uplift_map:
-	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_alive
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_kids
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/childUplift -y $(AGG_YEAR) -d output/childUplift -m nanmean -v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/childUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson  -d plots/baseline_vs_all_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
 aggregate_baseline_poverty_uplift_map:
-	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_alive
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_below_poverty_line_and_kids
 	$(PYTHON) minos/validation/format_spatial_output.py -s output/povertyUplift -y $(AGG_YEAR) -d output/povertyUplift -m	nanmean	-v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/povertyUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_poverty_25_uplift_difference_map.pdf -m $(AGG_LOCATION) -v SF_12
 
