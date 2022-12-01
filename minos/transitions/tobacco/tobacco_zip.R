@@ -58,9 +58,10 @@ main <- function(years){
     # simplest may be to impute years seperately and edit mids objects for final
     # pool of clms. see also longitudinal mice (looks slow and painful).
     # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
-    
-    data2 <- data2[, c("pidp", "ncigs")]
-    data2$ncigs[is.na(data2$ncigs)] <- 0 # set NAs to 0. 
+
+    #data2 <- data2[, c("pidp", "ncigs")]
+    data2$ncigs[is.na(data2$ncigs)] <- 0 # set NAs to 0.
+    #data2$ncigs[data2$ncigs < 0] <- 0 # set negative values to 0 (missings)
     data2[which(data2$ncigs!=0),]$ncigs <- (data2[which(data2$ncigs!=0),]$ncigs%/%5) + 1 # round up to nearest 5. 
     colnames(data2) <- c("pidp", "y")
     data <- merge(data, data2,"pidp")
@@ -68,7 +69,6 @@ main <- function(years){
     #data$age<- scale(data$age)
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
-    
     
     # baseline model just zeroing based on ethnicity
     #    m1 <- zeroinfl(y ~ factor(sex) +
@@ -79,18 +79,29 @@ main <- function(years){
     #                    factor(ethnicity) +
     #                    scale(hh_income) | factor(ethnicity),
     #                   data = data, dist='pois')
+    #tobacco.zip <- zeroinfl(y ~ factor(sex) +
+    #                          age +
+    #                          SF_12 +
+    #                          factor(labour_state) +
+    #                          factor(job_sec) +
+    #                          relevel(factor(ethnicity), ref='WBI') +
+    #                          scale(hh_income) |
+    #                          relevel(factor(ethnicity), ref='WBI') +
+    #                          factor(labour_state) +
+    #                          age +
+    #                          SF_12,
+    #                        data = data, dist='pois')
     tobacco.zip <- zeroinfl(y ~ factor(sex) +
                               age +
                               SF_12 +
                               factor(labour_state) +
-                              factor(job_sec) +
                               relevel(factor(ethnicity), ref='WBI') +
                               scale(hh_income) |
                               relevel(factor(ethnicity), ref='WBI') +
-                              factor(labour_state) + 
-                              age + 
+                              factor(labour_state) +
+                              age +
                               SF_12,
-                            data = data, dist='pois')  
+                            data = data, dist='pois')
     
     print(summary(tobacco.zip))
     prs<- 1 - logLik(tobacco.zip)/logLik(zeroinfl(y ~ 1, data=data, dist='pois'))
@@ -111,11 +122,11 @@ main <- function(years){
     saveRDS(tobacco.zip, file=tobacco.file.name)
     print("Saved to: ")
     print(tobacco.file.name)
-    
   }
 }
 # no data until wave 5 because ????????????????. Changes to a likert scale for waves 3,4. no data at all for wave 1.
-# I'n just going to do 5 years of transitions..
+# I'm just going to do 5 years of transitions..
 years <- seq(2013, 2018, 1)
+#years <- c(2015)
 
-main(years)
+test <- main(years)
