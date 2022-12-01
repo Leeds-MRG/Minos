@@ -1,7 +1,5 @@
 randomness:
     key_columns: ['entrance_time', 'age']
-input_data:
-    location: 'UK'
 time:
     start: {year: 2018, month: 10, day: 15}
     end:   {year: 2024, month: 10, day: 15}
@@ -28,10 +26,6 @@ components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income
 
 
 scale_rates:
-    # methods:
-    # constant: all rates regardless of age/sex/... will be multiplied by the specified factor
-    #           if 1, the original rates will be usd
-    # these are essentially used to inflate rates in certain scenarios. E.g. employment decrease.
     method: "constant"
     constant:
         education: 1

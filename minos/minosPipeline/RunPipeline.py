@@ -157,11 +157,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
         # Add experiment parameters to output file name if present
         if 'experiment_parameters' in config.keys():
             print(config.experiment_parameters)
-            params = config.experiment_parameters
-            names = config.experiment_parameters_names
-            for i in range(len(params)):
-                output_data_filename += names[i] + "_"
-                output_data_filename += str(params[i]) + "_"
+            output_data_filename += config.experiment_parameters + '_'
+            output_data_filename += config.experiment_parameters_names + '_'
 
         # Now add year to output file name
         output_data_filename += f"{config.time.start.year + year}.csv"
