@@ -45,7 +45,7 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     else:
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
-    plt.xlabel(f"{v} {method}")
+    plt.ylabel(f"{v} {method}")
     plt.tight_layout()
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
