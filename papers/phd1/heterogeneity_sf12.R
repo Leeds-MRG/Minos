@@ -176,7 +176,7 @@ main <- function(){
   residual_density_plot(res=resid(dep.glmm.gamma), file_name="papers/phd1/plots/glmm_gamma_residual_density.pdf", guide="normal")
   
   squareRootRes <- sqrt(abs(scale(resid(dep.glmm.gamma))))
-  fitted_residuals <- as.data.frame(cbind(fitted(dep.glmm.gamma), squareRootRes))
+  fitted_residuals <- as.data.frame(cbind(max_sf12 - fitted(dep.glmm.gamma), squareRootRes))
   colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
   fitted_residual_plot(fitted_residuals, 'papers/phd1/plots/glmm_gamma_fitted_residual_plot.pdf')
   
