@@ -73,8 +73,7 @@ def who_below_living_wage(df):
     return df.loc[who_uplifted_notLondon | who_uplifted_London, ] # get anyone from either group.
 
 
-def who_bottom_income_quintile(df):
+def who_bottom_income_quintile(df, k=1):
     df = who_alive(df)
     split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
-    return df.loc[split == 1, ]
-
+    return df.loc[split == k, ]
