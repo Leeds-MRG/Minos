@@ -77,11 +77,17 @@ clm.housing.main <- function(years){
     data <- data[complete.cases(data),]
 
     data$y <- factor(data$y, levels=c(1, 2, 3))
+    #formula <- "y ~ factor(sex) +
+    #                age +
+    #                scale(SF_12) +
+    #                factor(labour_state) +
+    #                factor(job_sec) +
+    #                factor(ethnicity) +
+    #                scale(hh_income)"
     formula <- "y ~ factor(sex) +
                     age +
                     scale(SF_12) +
                     factor(labour_state) +
-                    factor(job_sec) +
                     factor(ethnicity) +
                     scale(hh_income)"
 
