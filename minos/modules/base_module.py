@@ -5,6 +5,7 @@ easier to build.
 
 """
 
+from datetime import datetime as dt
 
 class Base():
 
@@ -46,6 +47,18 @@ class Base():
         # No synthetic columns for housing currently. Maybe housing history variables added here.
         return pop_data
 
+    def generate_fixed_crn_key(self):
+        "CRN randomness streams in vivarium use hash some input string key as the seed for RNG."
+        "If we want a fixed seed for each vivarium run just use the name of the module."
+        "Useful if trying to reduce variance. Or for non-random models e.g. OLS."
+        return f"{self.name}"
+
+    def generate_random_crn_key(self):
+        "Provides random hash for each minos run using date time."
+        "Provides more stochasticity in random models e.g. binomial/clm"
+        "Seems like vivarium uses a 10 digit congruency generator to produces hashes."
+        "Very unlikely to repeat but even then doesn't matter.."
+        return f"{self.name}{dt.now()}"
 
     def plot(self, pop_data, config):
         """ Default plot method for modules. Does nothing.

@@ -19,28 +19,6 @@ class Education(Base):
     def __repr__(self):
         return "Education()"
 
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-        # load in the starting year. This is the first cohort that is loaded.
-        return simulation
-
-
     def setup(self, builder):
         """ Method for initialising the education module.
 
@@ -51,7 +29,7 @@ class Education(Base):
         """
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("education")
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -75,23 +53,6 @@ class Education(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=2)
-
-
-    def on_initialize_simulants(self, pop_data):
-        """ Initiate columns for education when new simulants are added.
-
-        Parameters
-        ----------
-        pop_data : vivarium.framework.population.SimulantData
-            `pop_data` is a custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-
-        Returns
-        -------
-        None.
-        """
-
 
     def on_time_step(self, event):
         """ On time step check handle various education changes for people aged 16-30.

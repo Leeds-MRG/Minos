@@ -8,6 +8,10 @@ dataDir <- paste0(args[7], '/final_US/')
 transitionDir <- args[8]
 transSourceDir <- args[9]
 
+#dataDir <- 'data/final_US/'
+#transitionDir <- "data/transitions"
+#transSourceDir <- "minos/transitions"
+
 # Load required packages
 suppressPackageStartupMessages(require(stringr))
 suppressPackageStartupMessages(require(readr))
@@ -98,9 +102,18 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     split <- str_split(def, pattern = " ~ ")[[1]]
     dependent <- split[1]
     independents <- split[2]
-
-    # formula
-    form <- as.formula(def)
+      
+    # This has been edited slightly by Rob to allow redefinition of independent variables to name 'y'.
+    # If hh_income is used as a lagged dependent variable need to load hh_income for left and right side but can't have the same name in the formula.
+    # Overriding dependent variable hh_income on the left side to y.
+    # Note in model_definitions.txt hh_income is declared on left and right side of formula. 
+    form_dependent <- "y"
+    form <- paste0(form_dependent, " ~ ")
+    form <- as.formula(paste0(form, independents))
+    
+    # old formula calculation. take directly from txt.
+    #form <- as.formula(def)
+    
     # yearly model estimation
     ## Need to construct dataframes for each year that have independents from time T and dependents from time T+1
     year.range <- min(data$time):(max(data$time) - 1)
@@ -114,6 +127,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])
       # dependent from T+1
       depen.df <- data %>% filter(time == year + 1) %>% select(pidp, .data[[dependent]])
+      # change dependent variable to y. Allows for using time lagged dependen variable hh_income.
+      depen.df$y <- depen.df$hh_income
       # smash them together
       merged <- merge(depen.df, indep.df, by='pidp')
 
@@ -133,7 +148,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       rownames(coefs) <- NULL
 
       # save model & coefficients to file (in their own folder)
-      write_csv(coefs, path = paste0(out.path, '/', dependent, '_', year, '_', year+1, '_coefficients.txt'))
+      write_csv(coefs, file = paste0(out.path, '/', dependent, '_', year, '_', year+1, '_coefficients.txt'))
       saveRDS(model, file=paste0(out.path, '/', dependent, '_', year, '_', year+1, '.rds'))
     }
     # Test texreg conversion of regression coefficient outputs to html.

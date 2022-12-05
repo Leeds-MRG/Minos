@@ -44,8 +44,7 @@ class Alcohol(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("alcohol")
-
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
