@@ -44,29 +44,29 @@ labour.nnet.main <- function(years){
         # no weight data in 2009
         m1 <- multinom(factor(y) ~
                  (factor(sex) +
-                  factor(ethnicity) +
+                  relevel(factor(ethnicity), ref = "WBI") +
                   age +
-                  factor(education_state) +
-                  SF_12 +
+                  relevel(factor(education_state), ref = '3') +
+                  scale(SF_12) +
                   factor(housing_quality) +
-                  factor(labour_state) +
+                  relevel(factor(labour_state), ref = "Employed") +
                   factor(job_sec) +
-                  hh_income +
-                    alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+                  scale(hh_income) +
+                  scale(alcohol_spending))#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                ,data = data, MaxNWts = 10000, maxit=10000)
     } else {
         # weight data available 2010 onwards
         m1 <- multinom(factor(y) ~
                  (factor(sex) +
-                  factor(ethnicity) +
+                  relevel(factor(ethnicity), ref = "WBI") +
                   age +
-                  factor(education_state) +
-                  SF_12 +
+                  relevel(factor(education_state), ref = '3') +
+                  scale(SF_12) +
                   factor(housing_quality) +
-                  factor(labour_state) +
+                  relevel(factor(labour_state), ref = "Employed") +
                   factor(job_sec) +
-                  hh_income +
-                    alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+                  scale(hh_income) +
+                  scale(alcohol_spending))#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
     }
     m1

@@ -15,6 +15,12 @@
 
 source("minos/transitions/utils.R")
 
+require(tidyverse)
+require(ordinal)
+require(nnet)
+require(stringr)
+require(pscl)
+
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
   # Get model type
@@ -134,7 +140,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data) {
   
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
-  modDef_path = paste0(transitionSourceDir_path, 'model_definitions.txt')
+  modDef_path = paste0(transitionSourceDir_path, 'model_definitions_NEW.txt')
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
   # read file
@@ -211,7 +217,6 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
         use.weights <- TRUE
       }
       
-      print(mod.type)
       
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
@@ -245,7 +250,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       }
       
       
-      return(model)
+      #return(model)
       
       #print(typeof(model$coefficients))
       #print(model$coefficients)
@@ -262,14 +267,27 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
       
     }
-    print("Finished for ", dependent, '.')
+    print(paste0("Finished for ", dependent, '.'))
   }
   # close and remove connection object from memory
   close(modDefs)
   rm(modDefs)
 }
 
+
 ################ Execute Script ################
 
-run_yearly_models()
+# Set paths
+dataDir <- 'data/final_US/'
+transitionDir <- 'data/transitions/'
+transSourceDir <- 'minos/transitions/'
+
+# Load input data (final_US/)
+filelist <- list.files(dataDir)
+filelist <- paste0(dataDir, filelist)
+data <- do.call(rbind, lapply(filelist, read.csv))
+
+run_yearly_models(transitionDir, transSourceDir, data)
+
+print('Generated all transition models.')
 

@@ -193,7 +193,7 @@ def generate_composite_neighbourhood_safety(data):
     'crteen' neighbourhood teenager issues
     'crvand' neighbourhood vandalism issues
 
-    The composite variable (called housing_quality) will have 3 levels:
+    The composite variable (called neighbourhood_safety) will have 3 levels:
     - Yes to all    == 1
     - Yes to some   == 2
     - No to all     == 3

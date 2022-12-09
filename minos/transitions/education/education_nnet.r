@@ -50,8 +50,8 @@ educ.nnet.main <- function(year){
   # weight data available 2010 onwards
   m1 <- multinom(factor(y) ~
                  (factor(sex) +
-                  factor(ethnicity) +
-                  factor(region))
+                  relevel(factor(ethnicity), ref = "WBI") +
+                  relevel(factor(region), ref = 'South East'))
         ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
   m1
 

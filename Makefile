@@ -60,31 +60,6 @@ help: ### Show this help
 # git clone https://github.com/Leeds-MRG/Minos
 # Should be able to run conda and install commands if needed.
 
-## Conda install (if needed)
-###
-.PHONY: conda
-
-conda:
-	@echo "Loading arc4 python module to use conda commands."
-	#module load python anaconda
-	@echo "Initiating conda environment. "
-	conda create -p conda_minos python=3.8
-	@echo "Activating conda environment"
-	source activate conda_minos
-	@"Minimal R 4.0.5 install in conda environment."
-	#conda install -c conda-forge r-base=4.0.5
-	conda install -c conda-forge r-essentials=4.0.5
-	@echo "conda install complete!"
-
-.PHONY: arc_conda
-
-arc_conda:
-	$(shell module load python anaconda)
-	conda create -n conda_minos python=3.9 # create conda environment. 
-	conda activate conda_minos # activate conda environment.
-	conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
-	
-	
 ## Install
 ###
 .PHONY: install
@@ -131,13 +106,13 @@ arc4_baseline:
 
 arc4_living_wage:
 	$(shell module load python anaconda)
-        $(shell conda activate conda_minos)
-        $(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
 
 arc4_energy:
 	$(shell module load python anaconda)
-        $(shell conda activate conda_minos)
-        $(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
+	$(shell conda activate conda_minos)
+	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
 
 
 incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
@@ -226,6 +201,9 @@ $(SPATIALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
 # Transitions
+
+new_transitions: final_data | $(TRANSITION_DATA)
+	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
 $(TRANSITION_DATA):
 	@echo "Creating transition data directory"
