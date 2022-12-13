@@ -37,6 +37,8 @@ minos.egg-info/
 
 # outputs
 output/*
+output/*/*
+output/*/*/*
 
 # logs
 test.log
