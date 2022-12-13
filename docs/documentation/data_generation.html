@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Housing preprocessing test &mdash; Minos  documentation</title>
+  <title>Data Generation &mdash; Minos  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Housing module test" href="housing_module.html" />
-    <link rel="prev" title="Data Generation" href="data_generation.html" /> 
+    <link rel="next" title="Housing preprocessing test" href="housing_missing_preprocessing.html" />
+    <link rel="prev" title="Documentation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,14 +41,15 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="data_generation.html">Data Generation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Housing preprocessing test</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#variables">Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#results">Results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#raw-formatting">Raw Formatting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#missing-data-correction">Missing Data Correction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#composites">Composites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-case">Complete Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replenishment">Replenishment</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="housing_module.html">Housing module test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules_intro.html">Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_template.html">DO NOT OVERWRITE THIS FILE. IF WRITING NEW DOCUMENTATION COPY ME FIRST.</a></li>
@@ -82,7 +83,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">Documentation</a> &raquo;</li>
-      <li>Housing preprocessing test</li>
+      <li>Data Generation</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -91,19 +92,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="housing-preprocessing-test">
-<h1>Housing preprocessing test<a class="headerlink" href="#housing-preprocessing-test" title="Permalink to this heading"></a></h1>
-<section id="variables">
-<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this heading"></a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="data-generation">
+<h1>Data Generation<a class="headerlink" href="#data-generation" title="Permalink to this heading"></a></h1>
+<p>This section reviews the data generation process of MINOS from raw
+Understanding Society Stata files to final data used directly in MINOS
+and transitions.</p>
+<section id="raw-formatting">
+<h2>Raw Formatting<a class="headerlink" href="#raw-formatting" title="Permalink to this heading"></a></h2>
+<p>How does data go from raw files to csvs with string encodings.</p>
 </section>
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h2>
+<section id="missing-data-correction">
+<h2>Missing Data Correction<a class="headerlink" href="#missing-data-correction" title="Permalink to this heading"></a></h2>
+<p>How does csv data have missing data corrected</p>
 </section>
-<section id="results">
-<h2>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h2>
+<section id="composites">
+<h2>Composites<a class="headerlink" href="#composites" title="Permalink to this heading"></a></h2>
+<p>What composite variables are generated for use in MINOS.</p>
 </section>
-<section id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h2>
+<section id="complete-case">
+<h2>Complete Case<a class="headerlink" href="#complete-case" title="Permalink to this heading"></a></h2>
+<p>What observations are removed from complete case analysis.</p>
+</section>
+<section id="replenishment">
+<h2>Replenishment<a class="headerlink" href="#replenishment" title="Permalink to this heading"></a></h2>
+<p>How is the replenishing population generated.</p>
 </section>
 </section>
 
@@ -111,8 +123,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="data_generation.html" class="btn btn-neutral float-left" title="Data Generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="housing_module.html" class="btn btn-neutral float-right" title="Housing module test" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="housing_missing_preprocessing.html" class="btn btn-neutral float-right" title="Housing preprocessing test" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
