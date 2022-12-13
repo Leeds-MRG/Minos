@@ -1,0 +1,69 @@
+
+\usepackage{booktabs}
+\usepackage{dcolumn}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{l D{)}{)}{9)3}}
+\toprule
+ & \multicolumn{1}{c}{OLS} \\
+\midrule
+(Intercept)                      & 48.63 \; (0.26)^{***} \\
+sexMale                          & 1.80 \; (0.09)^{***}  \\
+ethnicityBAN                     & -1.64 \; (0.44)^{***} \\
+ethnicityBLA                     & 1.09 \; (0.33)^{**}   \\
+ethnicityBLC                     & -0.10 \; (0.34)       \\
+ethnicityCHI                     & -0.07 \; (0.58)       \\
+ethnicityIND                     & 0.67 \; (0.24)^{**}   \\
+ethnicityMIX                     & -0.46 \; (0.31)       \\
+ethnicityOAS                     & -0.21 \; (0.37)       \\
+ethnicityOBL                     & -0.20 \; (0.98)       \\
+ethnicityOTH                     & 0.06 \; (0.71)        \\
+ethnicityPAK                     & -1.80 \; (0.34)^{***} \\
+ethnicityWHO                     & 0.38 \; (0.21)        \\
+scale(age)                       & 1.21 \; (0.05)^{***}  \\
+education\_state1                & 0.47 \; (0.43)        \\
+education\_state2                & 0.34 \; (0.12)^{**}   \\
+education\_state3                & -0.11 \; (0.15)       \\
+education\_state5                & -0.03 \; (0.16)       \\
+education\_state6                & -0.19 \; (0.14)       \\
+education\_state7                & -0.06 \; (0.15)       \\
+labour\_stateFamily Care         & -0.77 \; (0.90)       \\
+labour\_stateGovernment Training & 2.83 \; (2.55)        \\
+labour\_stateMaternity Leave     & -0.52 \; (0.45)       \\
+labour\_stateOther               & 0.21 \; (1.26)        \\
+labour\_stateRetired             & 1.39 \; (0.49)^{**}   \\
+labour\_stateSelf-employed       & 0.51 \; (0.19)^{**}   \\
+labour\_stateSick/Disabled       & -3.82 \; (1.06)^{***} \\
+labour\_stateStudent             & 0.89 \; (0.27)^{***}  \\
+labour\_stateUnemployed          & -0.22 \; (0.90)       \\
+job\_sec2                        & 0.04 \; (0.24)        \\
+job\_sec3                        & -0.37 \; (0.21)       \\
+job\_sec4                        & -0.22 \; (0.23)       \\
+job\_sec5                        & 0.20 \; (0.29)        \\
+job\_sec6                        & 0.34 \; (0.25)        \\
+job\_sec7                        & -0.21 \; (0.22)       \\
+job\_sec8                        & 0.31 \; (0.24)        \\
+regionEast Midlands              & 0.14 \; (0.20)        \\
+regionEast of England            & 0.35 \; (0.19)        \\
+regionNorth East                 & -0.01 \; (0.25)       \\
+regionNorth West                 & 0.13 \; (0.19)        \\
+regionNorthern Ireland           & 1.27 \; (0.25)^{***}  \\
+regionScotland                   & 0.99 \; (0.20)^{***}  \\
+regionSouth East                 & 0.11 \; (0.18)        \\
+regionSouth West                 & 0.65 \; (0.19)^{***}  \\
+regionWales                      & 0.60 \; (0.23)^{**}   \\
+regionWest Midlands              & -0.27 \; (0.20)       \\
+regionYorkshire and The Humber   & 0.30 \; (0.20)        \\
+scale(hh\_netinc)                & 0.46 \; (0.04)^{***}  \\
+\midrule
+R$^2$                            & 0.04                  \\
+Adj. R$^2$                       & 0.04                  \\
+Num. obs.                        & 46793                 \\
+\bottomrule
+\multicolumn{2}{l}{\scriptsize{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}
+\end{tabular}
+\caption{Statistical models}
+\label{table:coefficients}
+\end{center}
+\end{table}
