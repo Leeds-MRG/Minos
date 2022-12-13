@@ -43,11 +43,11 @@ class hhIncomeIntervention():
         run_id = np.arange(1, 50 + 1, 1)  # 50 repeats for each combination of the above parameters
         parameter_lists = list(itertools.product(*[uplift, percentage_uplift, run_id]))
         if 'run_id' in config.keys():
-            # Pick a set of parameters according to task_id arg from minos_batch_run.py.
+            # Pick a set of parameters according to task_id arg from batch run.
             run_id = config['run_id']
         else:
             # If no task id specified (you should) choose the first task as a test.
-            run_id = sys.argv[4] - 1
+            run_id = 1
         parameters = parameter_lists[run_id]
         config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
         config.update({'experiment_parameters_names': ['uplift', 'prop', 'id']}, source=str(Path(__file__).resolve()))

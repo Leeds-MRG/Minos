@@ -80,7 +80,7 @@ imp_columns <- c("SF_12",
                  "age", 
                  "time", 
                  "hh_income"
-                 )
+)
 method <- c("pmm",
             'pmm',
             'pmm',

@@ -83,16 +83,25 @@ main <- function(years){
     #                   data = data, dist='pois')
     
     data$y <-factor(data$y, levels=c(1, 2, 3))
+    #loneliness.clm <- clm(y ~ factor(sex) +
+    #                          age +
+    #                          scale(SF_12) +
+    #                          factor(labour_state) +
+    #                          factor(job_sec) +
+    #                          relevel(factor(ethnicity), ref='WBI') +
+    #                          scale(hh_income) +
+    #                          scale(alcohol_spending) +
+    #                          scale(ncigs)# + factor
+    #                      , data = data, link='logit')
     loneliness.clm <- clm(y ~ factor(sex) +
                               age +
                               scale(SF_12) +
                               factor(labour_state) +
-                              factor(job_sec) +
                               relevel(factor(ethnicity), ref='WBI') +
                               scale(hh_income) +
-                              scale(alcohol_spending) + 
+                              scale(alcohol_spending) +
                               scale(ncigs)# + factor
-                          , data = data, link='logit')  
+                          , data = data, link='logit')
     
     print(summary(loneliness.clm))
     prs<- 1 - logLik(loneliness.clm)/logLik(clm(y ~ 1, data=data))

@@ -1,6 +1,38 @@
 library(ggplot2)
 
 
+# forest plot for lm models. 
+forest_plot_lm <- function(model, file_name){
+  
+  sf12_coefs <- summary(model)$coefficients
+  sf12_coefs <- cbind(sf12_coefs, sf12_coefs[, 4])
+  colnames(sf12_coefs)[5] <- "p.stars"
+  what_ns <- which(sf12_coefs[, "Pr(>|t|)"] > 0.05)
+  what_one_star <- which(sf12_coefs[, "Pr(>|t|)"] <= 0.05)
+  what_two_star <- which(sf12_coefs[, "Pr(>|t|)"] <= 0.01)
+  what_three_star <- which(sf12_coefs[, "Pr(>|t|)"] <= 0.001)
+  
+  sf12_coefs[what_ns, 'p.stars'] <- ""
+  sf12_coefs[what_one_star, 'p.stars'] <- "*"
+  sf12_coefs[what_two_star, 'p.stars'] <- "**"
+  sf12_coefs[what_three_star, 'p.stars'] <- "***"
+  p.stars<- sf12_coefs[, 5]
+  
+  pdf(file_name)
+  p <- plot_model(model, transform=NULL,
+                  title = "") + aes(shape=p.stars)
+  p$data$p.stars[which(p$data$p.stars == "")] <- 'n.s.'
+  p <- p +  scale_shape_manual(name='Significance Level',
+                               limits=c("n.s.", "*", "**", "***"),
+                               breaks=c("n.s.", "*", "**", "***"),
+                               values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
+  plot(p)
+  dev.off()
+}
+
+
+
+# for glmm gamma
 forest_plot <- function(model, file_name, limits=NULL){
   pdf(file_name)
   p <- plot_model(model,

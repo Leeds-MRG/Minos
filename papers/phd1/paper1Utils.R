@@ -36,14 +36,14 @@ format_baseline_data <- function(source, years){
 format_transition_data <- function(source, years, v){
   main_data <- c()
   for (year in years){
-  print(year)
-  print(year+1)
-  data_source<- source
-  data_files <- get_US_files(data_source, year, year+1)
-  data <- data_files$data1
-  data2 <- data_files$data2
-  columns <- c( "pidp",
-                "time",
+    print(year)
+    print(year+1)
+    data_source<- source
+    data_files <- get_US_files(data_source, year, year+1)
+    data <- data_files$data1
+    data2 <- data_files$data2
+    columns <- c( "pidp",
+                  "time",
                   "sex",
                   "ethnicity", 
                   "age",
@@ -53,23 +53,23 @@ format_transition_data <- function(source, years, v){
                   "region",
                   "gross_hh_income",
                   "SF_12")
-  
-  data <- data[, columns]
-  data2 <- data2[, columns]
-  
-  data <- replace.missing(data)
-  data2 <- replace.missing(data2)
-  
-
-  # only look at individuals with data in both waves.
-  common <- intersect(data$pidp, data2$pidp)
-  data <- data[which(data$pidp %in% common), ]
-  data2 <- data2[which(data2$pidp %in% common), ]
-  
-  data2 <- data2[, c("pidp", v)]
-  colnames(data2) <- c("pidp", "y")
-  data <- merge(data, data2,"pidp")
-  main_data <- rbind(main_data, data)
+    
+    data <- data[, columns]
+    data2 <- data2[, columns]
+    
+    data <- replace.missing(data)
+    data2 <- replace.missing(data2)
+    
+    
+    # only look at individuals with data in both waves.
+    common <- intersect(data$pidp, data2$pidp)
+    data <- data[which(data$pidp %in% common), ]
+    data2 <- data2[which(data2$pidp %in% common), ]
+    
+    data2 <- data2[, c("pidp", v)]
+    colnames(data2) <- c("pidp", "y")
+    data <- merge(data, data2,"pidp")
+    main_data <- rbind(main_data, data)
   }
   return(main_data)
 }
@@ -143,4 +143,3 @@ compare_densities_plot <- function(preds, real, v){
     theme(legend.key.size = unit(1.5, 'cm'))
   return(ols.densities)
 }
-

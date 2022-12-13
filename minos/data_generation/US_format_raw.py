@@ -228,6 +228,7 @@ def format_ukhls_columns(year):
                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
                       #  not really applicable without random generation.
                       'pidp': 'pidp',  # personal identifier
+                      #'qfhigh_dv_dv': 'education_state',  # highest education state
                       'qfhigh_dv': 'education_state',  # highest education state
                       'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
                       'racel_dv': 'ethnicity',  # ethnicity derived.

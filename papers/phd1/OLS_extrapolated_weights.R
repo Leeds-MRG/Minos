@@ -40,7 +40,7 @@ main <- function(years){
     
     data <- rbind(data, new_data)
   }
-
+  
   data$ethnicity <- relevel(factor(data$ethnicity), ref="WBI")
   #data$education_state <- relevel(factor(data$education_state), ref=0)
   data$region <- relevel(factor(data$region), ref="London")
@@ -62,7 +62,7 @@ main <- function(years){
   
   sf12.lm <- lm(formula, weights = year0_weight, data = data)
   print(summary(sf12.lm))
-
+  
   
   
   png('papers/phd1/extrapolated_SF12_forest_2013.png')

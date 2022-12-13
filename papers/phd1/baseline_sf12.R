@@ -2,6 +2,7 @@
 # output coefficient table, rsquared and save to rda.
 
 source("papers/phd1/paper1Utils.R")
+source("papers/phd1/utils.R")
 library(texreg)
 library(sjPlot)
 library(VIM)
@@ -69,7 +70,7 @@ data$age <- scale(data$age)
 
 sf12.lm <- lm(y ~ sex + 
                 ethnicity + 
-                age + 
+                scale(age) + 
                 education_state + 
                 labour_state + 
                 job_sec +

@@ -36,7 +36,7 @@ main <- function(){
                           scale(hh_income) + 
                           SF_12, data=data2)
   
-  
+  print(AIC(sf12.lm.oneterm))
   #pdf("papers/phd1/plots/ols_oneterm_densities.pdf")
   #compare_densities_plot(predict(sf12.lm.oneterm), data2$y, "SF_12")
   #dev.off()
@@ -87,7 +87,7 @@ main <- function(){
                             scale(hh_income) +
                             (1|pidp),  nAGQ=0, family=Gamma(link='log'), data = data2)
   #r.squaredGLMM(dep.glmm.gamma)
-
+  
   glmm.gamma.sum <- summary(dep.glmm.gamma)
   print(glmm.gamma.sum)
   print(AIC(dep.glmm.gamma))
@@ -176,7 +176,7 @@ main <- function(){
   residual_density_plot(res=resid(dep.glmm.gamma), file_name="papers/phd1/plots/glmm_gamma_residual_density.pdf", guide="normal")
   
   squareRootRes <- sqrt(abs(scale(resid(dep.glmm.gamma))))
-  fitted_residuals <- as.data.frame(cbind(max_sf12 - fitted(dep.glmm.gamma), squareRootRes))
+  fitted_residuals <- as.data.frame(cbind(fitted(dep.glmm.gamma), squareRootRes))
   colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
   fitted_residual_plot(fitted_residuals, 'papers/phd1/plots/glmm_gamma_fitted_residual_plot.pdf')
   

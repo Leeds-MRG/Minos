@@ -12,7 +12,7 @@ invlogit <- function(x){
   # Practically any invlogit(x) for x > 100 is close enough to 1 (within 10^-16) 
   # to be indistinguishable. 
   if (x < 100){
-  out = 1/(1 + exp(-x))
+    out = 1/(1 + exp(-x))
   }
   else{
     out = 1
@@ -81,7 +81,7 @@ plot_depression_residuals <-function(res, y, colours, markers){
   # Horizontal line at 0.5 white with black border for clarity.
   abline(h = 0.5, col = "black", lwd = 6)
   abline(h = 0.5, col = "white", lwd = 3)
-
+  
   #plot(predict(m2, data2, allow.new.levels = T), col = colours, pch = 20)
   
   res[which(res>0.5)] = T
@@ -90,12 +90,12 @@ plot_depression_residuals <-function(res, y, colours, markers){
   results_table<- table(y, res)
   print(results_table)
   if (ncol(results_table) == 2 & nrow(results_table) == 2){
-  precision <- results_table[2,2]/(results_table[2,1]+results_table[2,2])
-  print(precision)
+    precision <- results_table[2,2]/(results_table[2,1]+results_table[2,2])
+    print(precision)
   }
   else{print("Noone predicted in one or more factor states. Small sample size or 
              model is a poor fit.")
-    }
+  }
 }
 
 format_employment_data <- function(source, years){

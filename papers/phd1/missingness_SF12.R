@@ -1,4 +1,5 @@
 source("papers/phd1/paper1Utils.R")
+source("papers/phd1/paper_plots.R")
 library(mice)
 library(VIM)
 library(ggplot2)
@@ -59,6 +60,7 @@ format_sf12_mice_transition_data <- function(source, years, v){
 }
 
 main <- function(cached){
+  
   data <- format_sf12_mice_transition_data("data/composite_US/", c(2011,2012, 2013), "SF_12")
   data$ethnicity <- relevel(factor(data$ethnicity), ref="WBI") # level against white british. 
   data$education_state <- relevel(factor(data$education_state), ref=1) # level against lowest educatoin.
@@ -112,10 +114,15 @@ main <- function(cached){
               'pmm'
   )
   
+  # structure plots for adding in auxliary variables
+  
   pdf("papers/phd1/plots/total_missingness_structure2.pdf")
   aggr(subset(data[,reg_columns], select=-c(y)), sortVars=T,  oma=c(8,4,4,4), numbers=T, cex.axis=1.0, col = c(blue, orange), prop=F, combined=T, cex.numbers=0.5)
   dev.off()
 
+  #pdf("papers/phd1/plots/sf12_ghq_depression_shared")
+  #aggr(subset(data[,"SF_12", "ghq_depression"], select=-c(y)), sortVars=T,  oma=c(8,4,4,4), numbers=T, cex.axis=1.0, col = c(blue, orange), prop=F, combined=T, cex.numbers=0.5)
+  #dev.off()
 
   if (cached){
     load('papers/phd1/data/mice_set.RData')
@@ -127,7 +134,7 @@ main <- function(cached){
     save(mice.weights, file = 'papers/phd1/data/mice_weights.RData')
     
     mice_set <- mice(data = data[,imp_columns], method=method,
-                     m = 30, maxit = 5,
+                     m = 10, maxit = 30,
                      remove.collinear=T)
     mice.data <- complete(mice_set) 
 
@@ -136,8 +143,11 @@ main <- function(cached){
   }
 
   
+  #pdf("papers/phd1/plots/ols_mice_convergence.pdf")
+  #print(plot(mice_set, y = SF_12 + y ~ .it | .ms))
+  #dev.off()
   pdf("papers/phd1/plots/ols_mice_convergence.pdf")
-  print(plot(mice_set, y = SF_12 + y ~ .it | .ms))
+  print(plot(mice_set, y = y ~ .it | .ms))
   dev.off()
   
   mice.sf12.lm <- with(mice_set, lm(y ~ sex + 
@@ -184,26 +194,24 @@ main <- function(cached){
   hist.data <- rbind(res,real)
   hist.data <- drop_na(hist.data)
   
-  ols.hist <- ggplot(hist.data, aes(x=SF12, fill = type, col=type)) +
-    geom_histogram(aes(y=..density..), alpha=0.5, binwidth=2, position='identity')
+  # ols.hist <- ggplot(hist.data, aes(x=SF12, fill = type, col=type)) +
+  #  geom_histogram(aes(y=..density..), alpha=0.5, binwidth=2, position='identity')
+  #  
+  #mice.ols.densities <- ggplot(hist.data) +
+  #  geom_density_pattern(aes(x=SF12, pattern_fill = as.factor(type), pattern_type = as.factor(type)),
+  #                       alpha=0.1,
+  #                       pattern = 'polygon_tiling',
+  #                       pattern_key_scale_factor = 1.2,
+  #                       pattern_alpha=0.4)+        
+  #  scale_pattern_type_manual(values = c("hexagonal", "rhombille"))+
+  #  theme_bw(18) +
+  #  theme(legend.key.size = unit(2, 'cm'))
   
-  mice.ols.densities <- ggplot(hist.data) +
-    geom_density_pattern(aes(x=SF12, pattern_fill = as.factor(type), pattern_type = as.factor(type)),
-                         alpha=0.1,
-                         pattern = 'polygon_tiling',
-                         pattern_key_scale_factor = 1.2,
-                         pattern_alpha=0.4)+        
-    scale_pattern_type_manual(values = c("hexagonal", "rhombille"))+
-    theme_bw(18) +
-    theme(legend.key.size = unit(2, 'cm'))
+  res <- as.data.frame(resid(pooled_lm))
+  residual_density_plot(res, 'papers/phd1/plots/mice_ols_densities.pdf', guide='normal')
   
-  pdf('papers/phd1/plots/mice_ols_densities.pdf')
-  print(mice.ols.densities)
-  dev.off()
+  forest_plot(mice.lm.object, 'papers/phd1/plots/mice_SF12_forest.pdf')
   
-  pdf('papers/phd1/plots/mice_SF12_forest.pdf')
-  print(plot_models(mice.lm.object, p.shape=T, legend.title = NULL, m.labels=NULL))
-  dev.off()
 }
 
 # cached parameter reloads previously calculated MICE object. 

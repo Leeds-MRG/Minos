@@ -2,6 +2,7 @@ library(sjPlot)
 library(ggplot2)
 library(ggpattern)
 source("papers/phd1/paper_plots.R")
+library(visreg)
 
 main <- function(){
   load("papers/phd1/data/baseline_OLS.RData")
@@ -35,7 +36,7 @@ main <- function(){
     #theme_bw(18) +
     #theme(legend.key.size = unit(2, 'cm'))
   
-  forest_plot(sf12.lm, "papers/phd1/plots/presentation_forest.pdf", c(0.77, 1.11))
+  forest_plot_lm(sf12.lm, "papers/phd1/plots/presentation_forest.pdf")
   qq_plot(resid(sf12.lm), "papers/phd1/plots/presentation_qq.pdf")
   residual_density_plot(res=resid(sf12.lm), file_name="papers/phd1/plots/presentation_residual_density.pdf", guide="normal")
   
@@ -44,7 +45,11 @@ main <- function(){
   colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
   fitted_residual_plot(fitted_residuals, 'papers/phd1/plots/presentation_fitted_residual_plot.pdf')
   
+  visreg(sf12.lm, "age", by="sex", overlay=T)
+  
+  
   texreg(summary(sf12.lm), dcolumn=T, booktabs=T, file="papers/phd1/ols_output.txt", title="SF12 OLS Coefficients", custom.model.names=c("SF12 OLS"), single.row=T, include.aic=T)
 }
+
 
 main()
