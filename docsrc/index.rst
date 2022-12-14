@@ -13,6 +13,7 @@ Welcome to Minos's documentation!
     documentation/index
     data_discovery
     data_tables
+    Coefficients/index
     API/index
     compile_help.md
 

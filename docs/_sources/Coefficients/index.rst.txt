@@ -1,6 +1,6 @@
 
 Welcome to Minos' Transition Model Coefficients!
-====================================
+=================================================
 
 
 Coefficients introduction.
