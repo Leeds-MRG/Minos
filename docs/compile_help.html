@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPHER - Minos Model &mdash; Minos  documentation</title>
+  <title>Compiling this page using sphinx. &mdash; Minos  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Documentation" href="documentation/index.html" />
-    <link rel="prev" title="Welcome to Minos’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Income API" href="API/income.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,12 +39,12 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_discovery.html">Data Discovery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API/index.html">Welcome to Minos’ API documentation!</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compile_help.html">Compiling this page using sphinx.</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -62,7 +61,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">SIPHER - Minos Model</li>
+      <li class="breadcrumb-item active">Compiling this page using sphinx.</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,36 +70,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="sipher-minos-model">
-<h1>SIPHER - Minos Model<a class="headerlink" href="#sipher-minos-model" title="Permalink to this heading"></a></h1>
-<p>Living Wage and Mental Health: Basic Model</p>
-<ul class="simple">
-<li><p>Assumes – same job (and no intensification of work/higher productivity), same number of hours</p></li>
-<li><p>Only looks at impact on the individual receiving the living wage (not household/children or at area level)</p></li>
-<li><p>Does not yet include impact of wage increase on Universal Credit receipt</p></li>
-<li><p>Need to sex stratify modelling as might impact women and men differently/disproportionately</p></li>
-</ul>
-<p>Living Wage —– income increase of X —- <strong>Pathways</strong> —- Improved Mental Health</p>
-<p><strong>Pathways</strong></p>
-<ol class="arabic simple">
-<li><p>Psychosocial: Improvement in social status/esteem, financial independence (including from benefit system stigma etc)</p></li>
-<li><p>Material improvements in:</p></li>
-<li><p>Behaviour: Nutrition (food security, hunger, better quality food)</p></li>
-<li><p>Behaviour: Alcohol and tobacco consumption (increase/decrease?)</p></li>
-<li><p>Housing quality (decent homes = less damp, warmer, housing security)</p></li>
-<li><p>Moving home (could mean less overcrowding, better neighbourhood with more green space, different cultural norms, better recreational and health care facilities, better food outlets, less tobacco and alcohol outlets, less crime and anti-social behaviours)</p></li>
-<li><p>More social inclusion (e.g. more ability to participate in leisure activities e.g. sports, cinema, or pub)</p></li>
-<li><p>Psychosocial - Financial security – less chronic stress/worry</p></li>
-</ol>
-<p><strong>DATA DISCOVERY HAS BEEN MOVED TO IT’S OWN GOOGLE DOC AS IT WAS TOO BIG - SEE TRELLO</strong></p>
+  <section id="compiling-this-page-using-sphinx">
+<h1>Compiling this page using sphinx.<a class="headerlink" href="#compiling-this-page-using-sphinx" title="Permalink to this heading"></a></h1>
+<p>Just some brief notes on how to compile this page.<br />
+First needs a python 3.8 environment with the following installed.</p>
+<p>conda install sphinx<br />
+conda install myst-parser<br />
+conda install sphinx-rtd-theme</p>
+<p>Then move to the docsrc folder in terminal.
+Makefile there has one command ‘github’. Running this should recompile the website ready to be pushed to github.
+When pushed to main branch the github page website should update in under 10 minutes.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Minos’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="documentation/index.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="API/income.html" class="btn btn-neutral float-left" title="Income API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

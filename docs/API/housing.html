@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Housing API &mdash; Minos  documentation</title>
@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,16 +43,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../housing_module.html">Housing Module Plan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../replenishment.html">Replenishment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../education.html">Education</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../nutrition.html">Nutrition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Welcome to Minos’ API documentation!</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Housing API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Housing API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minos.modules.housing.Housing"><code class="docutils literal notranslate"><span class="pre">Housing</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.calculate_housing"><code class="docutils literal notranslate"><span class="pre">Housing.calculate_housing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.on_time_step"><code class="docutils literal notranslate"><span class="pre">Housing.on_time_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.plot"><code class="docutils literal notranslate"><span class="pre">Housing.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.setup"><code class="docutils literal notranslate"><span class="pre">Housing.setup()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="income.html">Income API</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -67,9 +74,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Welcome to Minos’ API documentation!</a> &raquo;</li>
-      <li>Housing API</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Welcome to Minos’ API documentation!</a></li>
+      <li class="breadcrumb-item active">Housing API</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -80,6 +87,72 @@
              
   <section id="module-minos.modules.housing">
 <span id="housing-api"></span><h1>Housing API<a class="headerlink" href="#module-minos.modules.housing" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="minos.modules.housing.Housing">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minos.modules.housing.</span></span><span class="sig-name descname"><span class="pre">Housing</span></span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="minos.modules.housing.Housing.calculate_housing">
+<span class="sig-name descname"><span class="pre">calculate_housing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.calculate_housing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.calculate_housing" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate housing transition distribution based on provided people/indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pop</strong> (<em>pd.DataFrame</em>) – The population dataframe.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minos.modules.housing.Housing.on_time_step">
+<span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.on_time_step" title="Permalink to this definition"></a></dt>
+<dd><p>Produces new children and updates parent status on time steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<em>vivarium.population.PopulationEvent</em>) – The event time_step that called this function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minos.modules.housing.Housing.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Default plot method for modules. Does nothing.</p>
+<p>Modules can specify another plot object that saves distributions of state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_data</strong> (<em>population data from vivarium. Whatever columns needs plotting.</em>) – </p></li>
+<li><p><strong>config</strong> (<em>vivarium.configTree</em>) – Config yaml for any needed plot parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minos.modules.housing.Housing.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Initialise the module during simulation.setup().</p>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Load in data from pre_setup</p></li>
+<li><p>Register any value producers/modifiers for death rate</p></li>
+<li><p>Add required columns to population data frame</p></li>
+<li><p>Add listener event to check if people die on each time step.</p></li>
+<li><p>Update other required items such as randomness stream.</p></li>
+</ul>
+<section id="parameter">
+<h2>Parameter<a class="headerlink" href="#parameter" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>builder<span class="classifier">vivarium.engine.Builder</span></dt><dd><p>Vivarium’s control object. Stores all simulation metadata and allows modules to use it.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -93,7 +166,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Robert Clay and Friends.</p>
+    <p>&#169; Copyright 2022, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

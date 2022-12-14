@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'Minos'
-copyright = '2022, Robert Clay and Friends'
-author = 'Robert Clay and Friends'
+copyright = '2022, Open MIT License'
+author = 'Robert Clay, Luke Archer, Hugh Rice, and Nik Lomax'
 
 
 # -- General configuration ---------------------------------------------------

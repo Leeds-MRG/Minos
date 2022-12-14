@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Documentation &mdash; Minos  documentation</title>
@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,23 +43,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="data_generation.html">Data Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html">Housing module test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html">DO NOT OVERWRITE THIS FILE. IF WRITING NEW DOCUMENTATION COPY ME FIRST.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#module-template">Module Template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#data">Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#methods">Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#coefficients">Coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/index.html">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../housing_module.html">Housing Module Plan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../replenishment.html">Replenishment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../education.html">Education</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../nutrition.html">Nutrition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -74,8 +66,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Documentation</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Documentation</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -96,26 +88,49 @@
 <li class="toctree-l2"><a class="reference internal" href="data_generation.html#replenishment">Replenishment</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#variables">Variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#methods">Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#results">Results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#conclusion">Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/index.html">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/modules_intro.html">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/module_template.html">Module Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/module_template.html#data">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/module_template.html#methods">Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/module_template.html#coefficients">Coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/housing_missing_preprocessing.html">Housing preprocessing test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_missing_preprocessing.html#variables">Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_missing_preprocessing.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_missing_preprocessing.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_missing_preprocessing.html#conclusion">Conclusion</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="housing_module.html">Housing module test</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#summary">Summary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#data">Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#methods">Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#results">Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/housing_module.html">Housing module test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_module.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_module.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_module.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/housing_module.html#results">Results</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_template.html">DO NOT OVERWRITE THIS FILE. IF WRITING NEW DOCUMENTATION COPY ME FIRST.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_template.html#module-template">Module Template</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_template.html#data">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_template.html#methods">Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_template.html#coefficients">Coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/education.html">Education</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/education.html#purpose">Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/education.html#levels">Levels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/education.html#method">Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/education.html#attainment-ages">Attainment Ages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/nutrition.html">Nutrition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/nutrition.html#composite-variable">Composite Variable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/nutrition.html#transition-model">Transition Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/replenishment.html">Replenishment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/replenishment.html#rationale">Rationale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/replenishment.html#data-sources">Data Sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/replenishment.html#method">Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/replenishment.html#reweighting">Reweighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/replenishment.html#complication">Complication</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 </ul>
 </div>
 </section>
@@ -131,7 +146,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Robert Clay and Friends.</p>
+    <p>&#169; Copyright 2022, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

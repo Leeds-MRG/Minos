@@ -1,7 +1,7 @@
 
-# DO NOT OVERWRITE THIS FILE. IF WRITING NEW DOCUMENTATION COPY ME FIRST.
 
 # Module Template
+DO NOT OVERWRITE THIS FILE. IF WRITING NEW DOCUMENTATION COPY ME FIRST.
 
 This file provides a template structure of MINOS module documentation.
 A recommended structure is given looking at the outcome variables used,
