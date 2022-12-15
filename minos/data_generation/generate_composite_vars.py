@@ -100,15 +100,25 @@ def generate_composite_housing_quality(data):
 
     # conditionally assign housing_quality var based on the housing sum values
     # first set conditions and values for 4 level var
+    # conditions = [
+    #     (data["housing_core_sum"] == 0) & (data["housing_bonus_sum"] == 0), # no core no bonus
+    #     (data["housing_core_sum"] == 1) & (data["housing_bonus_sum"] == 0), # 1 core no bonus
+    #     (data["housing_core_sum"] == 2) & (data["housing_bonus_sum"] == 0), # 2 core no bonus
+    #     (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 0), # 3 core no bonus
+    #     (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] > 0) & (data["housing_bonus_sum"] < 3),  # 3 core some bonus (not all)
+    #     (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3), # 3 core 3 bonus
+    # ]
+    # values = [6, 5, 4, 3, 2, 1]
+
+    #
     conditions = [
-        (data["housing_core_sum"] == 0) & (data["housing_bonus_sum"] == 0), # no core no bonus
-        (data["housing_core_sum"] == 1) & (data["housing_bonus_sum"] == 0), # 1 core no bonus
-        (data["housing_core_sum"] == 2) & (data["housing_bonus_sum"] == 0), # 2 core no bonus
-        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 0), # 3 core no bonus
-        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] > 0) & (data["housing_bonus_sum"] < 3),  # 3 core some bonus (not all)
-        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3), # 3 core 3 bonus
+        (data["housing_core_sum"] > 0) & (data["housing_core_sum"] < 3),  # less than full core
+        (data["housing_core_sum"] == 3),  # all core no bonus
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] > 0) & (data["housing_bonus_sum"] < 3),
+        # all core some bonus
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3),  # 3 core 3 bonus
     ]
-    values = [6, 5, 4, 3, 2, 1]
+    values = [3, 2, 1]
 
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
@@ -241,6 +251,9 @@ def generate_composite_neighbourhood_safety(data):
     - Yes to all    == 1
     - Yes to some   == 2
     - No to all     == 3
+
+    *** CHANGE ../../.. ***
+    Make it a binary - where if you have any 1 of these things you are likely to have a problem with neighbourhood safety.
 
     Parameters
     ----------
