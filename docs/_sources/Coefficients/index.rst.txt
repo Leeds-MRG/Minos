@@ -8,11 +8,8 @@ Coefficients introduction.
 .. toctree::
 
     coefficients_intro
+    summarise_transitions_2.rst
 
 .. raw:: html
    :file: test_income_OLS_coefficients.html
-
-.. raw:: html
-   :file: summarise_transitions_2.nb.html
-
 
