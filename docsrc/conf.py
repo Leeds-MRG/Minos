@@ -12,8 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../../'))
-#import minos.modules.housing as Housing
+#sys.path.insert(0, os.path.abspath('../../../')) # adding root directory (for some reason).
 
 # -- Project information -----------------------------------------------------
 
@@ -49,6 +48,8 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+# see for more bibtext details.
+# https://sphinxcontrib-bibtex.readthedocs.io/en/latest/usage.html
 bibtex_bibfiles = ['refs.bib']
 
 ##############################################################################
