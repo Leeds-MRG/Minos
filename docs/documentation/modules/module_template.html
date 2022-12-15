@@ -45,10 +45,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Module Template</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#data">Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#coefficients">Coefficients</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Module Template</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coefficients">Coefficients</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="housing_module.html">Housing module test</a></li>
 <li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
@@ -62,6 +64,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
@@ -98,9 +101,8 @@
 A recommended structure is given looking at the outcome variables used,
 justification and definition of explanatory variates, definition of methods used,
 and coefficients.</p>
-</section>
 <section id="data">
-<h1>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h1>
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h2>
 <p>Describing the data used in a transition model.
 What outcome variables will be used? What data type are they? What is their range?
 Are there any odd shaped distributions such as zero-inflated or polymodal?
@@ -109,7 +111,7 @@ Justification of why all variables are used in terms of how the outcome influenc
 variates influence the outcome. Any data sources should be defined here.</p>
 </section>
 <section id="methods">
-<h1>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h1>
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h2>
 <p>What methods are used to create the transition model. This is usually pretty brief.
 Pre-established methods such as logistic regression are usually used.
 Describe any model assumptions and requirements.
@@ -119,12 +121,13 @@ Expected model results can be defined here. Should a variable have a certain coe
 Should this model perform better versus something else?</p>
 </section>
 <section id="coefficients">
-<h1>Coefficients<a class="headerlink" href="#coefficients" title="Permalink to this heading"></a></h1>
+<h2>Coefficients<a class="headerlink" href="#coefficients" title="Permalink to this heading"></a></h2>
 <p>Any model coefficients are displayed here in tables.
 Easiest way to do this is to create tex tables using texreg directly in R.
 These tex tables can be converted to Markdown and then imported directly.
 Don’t make your own tables if you value your time whatsoever.
 Worth investigating htmlreg in R and if these html tables can be imported directly into sphinx. Probably.</p>
+</section>
 </section>
 
 

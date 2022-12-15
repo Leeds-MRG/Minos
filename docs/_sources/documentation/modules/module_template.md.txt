@@ -8,7 +8,7 @@ A recommended structure is given looking at the outcome variables used,
 justification and definition of explanatory variates, definition of methods used,
 and coefficients.
 
-# Data
+## Data
 
 Describing the data used in a transition model. 
 What outcome variables will be used? What data type are they? What is their range?
@@ -17,7 +17,7 @@ What explanatory variates are going to be used. Again similar data description i
 Justification of why all variables are used in terms of how the outcome influences SF12 and how explanatory
 variates influence the outcome. Any data sources should be defined here. 
 
-# Methods
+## Methods
 
 What methods are used to create the transition model. This is usually pretty brief. 
 Pre-established methods such as logistic regression are usually used.
@@ -27,7 +27,7 @@ Any visualisation and post-hoc model goodness of fit tests should be defined her
 Expected model results can be defined here. Should a variable have a certain coefficient?
 Should this model perform better versus something else?
 
-# Coefficients
+## Coefficients
 
 Any model coefficients are displayed here in tables.
 Easiest way to do this is to create tex tables using texreg directly in R. 

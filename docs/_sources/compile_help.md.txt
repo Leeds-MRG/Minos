@@ -5,7 +5,8 @@ First needs a python 3.8 environment with the following installed.
 
 conda install sphinx\
 conda install myst-parser\
-conda install sphinx-rtd-theme
+pip install sphinx-rtd-theme\
+pip install sphinxcontrib-bibtex
 
 Then move to the docsrc folder in terminal.
 Makefile there has one command 'github'. Running this should recompile the website ready to be pushed to github.
