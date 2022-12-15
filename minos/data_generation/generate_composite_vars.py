@@ -36,6 +36,26 @@ def generate_composite_housing_quality(data):
     - Yes to some   == 2
     - No to all     == 3
 
+    *** CHANGE 13/12/21 ***
+    The previous method of generating a housing_quality composite results in a heavily skewed variable. There are very
+    few people in the 'No to all' category, which makes sense as having none of the list above would be a very low
+    quality household. Instead, based on some input from SIPHER colleagues, we will make a slight change to the
+    composite. We will define a 'core set' of the above variables, and categorise people based on their access to the
+    core set and the additional variables.
+
+    Core set:
+    - fridge_freezer
+    - washing_machine
+    - adequate_heating
+
+    The new composite will be:
+    All core all bonus  == 1
+    All core some bonus == 2
+    All core no bonus   == 3
+    2/3 core no bonus   == 4
+    1/3 core no bonus   == 5
+    No core no bonus    == 6
+
     Parameters
     ----------
     data : Pd.DataFrame
@@ -45,35 +65,59 @@ def generate_composite_housing_quality(data):
     data : Pd.DataFrame
         The same DataFrame now containing a composite housing quality variable
     """
-    # first make list of the columns we're interested in
-    sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
-    data["housing_complete"] = (data.loc[:, sum_list] >= 0).all(1)
-    # sum up all non-negative values in sum_list vars
-    data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
+    # # first make list of the columns we're interested in
+    # sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
+    # data["housing_complete"] = (data.loc[:, sum_list] >= 0).all(1)
+    # # sum up all non-negative values in sum_list vars
+    # data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
+    #
+    # # conditionally assign housing_quality var based on housing_sum
+    # # first set conditions and values for 3 level var
+    # conditions = [
+    #     (data["housing_sum"] <= 2),
+    #     (data["housing_sum"] > 2) & (data["housing_sum"] < 6),
+    #     (data["housing_sum"] == 6),
+    # ]
+    # values = [1, 2, 3]
+    # # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
+    # data["housing_quality"] = np.select(conditions, values)
+    #
+    # # drop cols we don't need
+    # data.drop(labels=['housing_sum', 'housing_complete', 'fridge_freezer', 'washing_machine', 'tumble_dryer',
+    #                   'dishwasher', 'microwave', 'heating'],
+    #           axis=1,
+    #           inplace=True)
 
-    # conditionally assign housing_quality var based on housing_sum
-    # first set conditions and values for 3 level var
-    # TODO virtually noone in the bottom tier. need to experiment with critical/luxury items.
-    # Switch to 2 or more for now.
-    #conditions = [
-    #    (data["housing_sum"] == 0),
-    #    (data["housing_sum"] > 0) & (data["housing_sum"] < 6),
-    #    (data["housing_sum"] == 6),
-    #]
+    # list both core and bonus vars
+    core_list = ['fridge_freezer', 'washing_machine', 'heating']
+    bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
+    data["housing_core_complete"] = (data.loc[:, core_list] >= 0).all(1)
+    data["housing_bonus_complete"] = (data.loc[:, bonus_list] >= 0).all(1)
+
+    # sum up all non-negative values in both lists of vars
+    data["housing_core_sum"] = data[core_list].gt(0).sum(axis=1)
+    data["housing_bonus_sum"] = data[bonus_list].gt(0).sum(axis=1)
+
+    # conditionally assign housing_quality var based on the housing sum values
+    # first set conditions and values for 4 level var
     conditions = [
-        (data["housing_sum"] <= 2),
-        (data["housing_sum"] > 2) & (data["housing_sum"] < 6),
-        (data["housing_sum"] == 6),
+        (data["housing_core_sum"] == 0) & (data["housing_bonus_sum"] == 0), # no core no bonus
+        (data["housing_core_sum"] == 1) & (data["housing_bonus_sum"] == 0), # 1 core no bonus
+        (data["housing_core_sum"] == 2) & (data["housing_bonus_sum"] == 0), # 2 core no bonus
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 0), # 3 core no bonus
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] > 0) & (data["housing_bonus_sum"] < 3),  # 3 core some bonus (not all)
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3), # 3 core 3 bonus
     ]
-    values = [1, 2, 3]
+    values = [6, 5, 4, 3, 2, 1]
+
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
 
     # drop cols we don't need
-    data.drop(labels=['housing_sum', 'housing_complete', 'fridge_freezer', 'washing_machine', 'tumble_dryer',
-                      'dishwasher', 'microwave', 'heating'],
-              axis=1,
-              inplace=True)
+    #data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'housing_complete', 'fridge_freezer', 'washing_machine',
+    #                  'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
+    #          axis=1,
+    #          inplace=True)
 
     return data
 
@@ -416,7 +460,7 @@ def main():
     data = generate_energy_composite(data)                # energy consumption.
     data = generate_nutrition_composite(data)             # nutrition
 
-    print('Finished composite generation.')
+    print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 
 
