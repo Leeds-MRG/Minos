@@ -49,12 +49,9 @@ def generate_composite_housing_quality(data):
     - adequate_heating
 
     The new composite will be:
-    All core all bonus  == 1
+    Missing 1+ core     == 1
     All core some bonus == 2
-    All core no bonus   == 3
-    2/3 core no bonus   == 4
-    1/3 core no bonus   == 5
-    No core no bonus    == 6
+    All core all bonus  == 3
 
     Parameters
     ----------
@@ -65,29 +62,6 @@ def generate_composite_housing_quality(data):
     data : Pd.DataFrame
         The same DataFrame now containing a composite housing quality variable
     """
-    # # first make list of the columns we're interested in
-    # sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
-    # data["housing_complete"] = (data.loc[:, sum_list] >= 0).all(1)
-    # # sum up all non-negative values in sum_list vars
-    # data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
-    #
-    # # conditionally assign housing_quality var based on housing_sum
-    # # first set conditions and values for 3 level var
-    # conditions = [
-    #     (data["housing_sum"] <= 2),
-    #     (data["housing_sum"] > 2) & (data["housing_sum"] < 6),
-    #     (data["housing_sum"] == 6),
-    # ]
-    # values = [1, 2, 3]
-    # # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
-    # data["housing_quality"] = np.select(conditions, values)
-    #
-    # # drop cols we don't need
-    # data.drop(labels=['housing_sum', 'housing_complete', 'fridge_freezer', 'washing_machine', 'tumble_dryer',
-    #                   'dishwasher', 'microwave', 'heating'],
-    #           axis=1,
-    #           inplace=True)
-
     # list both core and bonus vars
     core_list = ['fridge_freezer', 'washing_machine', 'heating']
     bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
@@ -99,24 +73,12 @@ def generate_composite_housing_quality(data):
     data["housing_bonus_sum"] = data[bonus_list].gt(0).sum(axis=1)
 
     # conditionally assign housing_quality var based on the housing sum values
-    # first set conditions and values for 4 level var
-    # conditions = [
-    #     (data["housing_core_sum"] == 0) & (data["housing_bonus_sum"] == 0), # no core no bonus
-    #     (data["housing_core_sum"] == 1) & (data["housing_bonus_sum"] == 0), # 1 core no bonus
-    #     (data["housing_core_sum"] == 2) & (data["housing_bonus_sum"] == 0), # 2 core no bonus
-    #     (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 0), # 3 core no bonus
-    #     (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] > 0) & (data["housing_bonus_sum"] < 3),  # 3 core some bonus (not all)
-    #     (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3), # 3 core 3 bonus
-    # ]
-    # values = [6, 5, 4, 3, 2, 1]
-
-    #
+    # first set conditions and values for 3 level var
     conditions = [
         (data["housing_core_sum"] > 0) & (data["housing_core_sum"] < 3),  # less than full core
-        (data["housing_core_sum"] == 3),  # all core no bonus
-        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] > 0) & (data["housing_bonus_sum"] < 3),
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] >= 0) & (data["housing_bonus_sum"] < 3),
         # all core some bonus
-        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3),  # 3 core 3 bonus
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3),  # all core all bonus
     ]
     values = [3, 2, 1]
 
@@ -124,10 +86,10 @@ def generate_composite_housing_quality(data):
     data["housing_quality"] = np.select(conditions, values)
 
     # drop cols we don't need
-    #data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'housing_complete', 'fridge_freezer', 'washing_machine',
-    #                  'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
-    #          axis=1,
-    #          inplace=True)
+    data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'housing_complete', 'fridge_freezer', 'washing_machine',
+                     'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
+             axis=1,
+             inplace=True)
 
     return data
 
