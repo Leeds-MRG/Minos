@@ -1,14 +1,12 @@
 ---
 title: "MINOS Transition Models"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
-# Setup
-
-## Tobacco
+# Tobacco Coefficients
 
 Tobacco consumption is measured in the usual number of cigarettes smoked per day, and is taken directly from a US variable ([ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs)).
 
@@ -17,6 +15,7 @@ We estimated a zero inflated poisson model, with the formula:
 > ncigs \~ age + sex + SF_12 + labour_state + job_sec + ethnicity + hh_income \| ethnicity + labour_state + SF_12
 
 ```{r}
+options(width=120)
 require(tidyverse)
 require(pscl)
 

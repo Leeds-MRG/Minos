@@ -3,14 +3,8 @@ MINOS Transition Models
 =======================
 
 
-Setup
-=====
-
-.. container::
-   :name: tobacco
-
-   .. rubric:: Tobacco
-      :name: tobacco
+Tobacco Coefficients
+====================
 
 Tobacco consumption is measured in the usual number of cigarettes smoked
 per day, and is taken directly from a US variable

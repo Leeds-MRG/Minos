@@ -60,6 +60,7 @@ bibtex_bibfiles = ['refs.bib']
 #}
 #nbsphinx_kernel_name = 'IRkernel'
 
+
 ##############################################################################
 # -- Options for HTML output -------------------------------------------------
 ##############################################################################
@@ -69,6 +70,11 @@ bibtex_bibfiles = ['refs.bib']
 #html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 html_show_sourcelink = False
+
+# specify custom css theme. just changes width of webpage for now.
+html_css_files = [
+    'minos_theme.css',
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
