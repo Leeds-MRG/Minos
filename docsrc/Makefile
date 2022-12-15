@@ -22,6 +22,6 @@ help:
 
 
 github:
-	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # force output directory or it defaults to /html.
-	@$(SPHINXAPIBUILD) -f -o $(SOURCEDIR) $(BUILDDIR)
+	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # build and write to /docs output directory or it defaults to /html.
+	@$(SPHINXAPIBUILD) -f -o $(SOURCEDIR) $(BUILDDIR) # likewise
 	#@cp -af _build/html/. "$(BUILDIR)"

@@ -32,6 +32,7 @@ extensions = ['myst_parser',
               'sphinx.ext.napoleon', # convert numpy style docstrings to reST.
               'sphinx.ext.githubpages', # Auto adds .nojekyll file to docs source. If using make clean its deleted so auto add it back on compile.
               'sphinx.ext.viewcode', # should allow "view source" buttons in api to work.
+              'sphinxcontrib.bibtex' # allows for references from a .bib biblatex file.
 ]
 
 source_suffix = {
@@ -48,6 +49,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+bibtex_bibfiles = ['refs.bib']
 
 ##############################################################################
 # -- Options for HTML output -------------------------------------------------
