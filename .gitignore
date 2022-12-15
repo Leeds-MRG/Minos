@@ -29,6 +29,10 @@ data/transitions/*.rds
 data/transitions/*/*/*.rds
 data/transitions/*/*.rds
 data/transitions/*/*coefficients.txt
+!data/transitions/doNotDelete.txt
+data/transitions/*
+data/transitions/*/*
+data/transitions/*/*/*
 
 # build stuff
 build/

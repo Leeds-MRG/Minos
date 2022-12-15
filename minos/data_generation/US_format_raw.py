@@ -285,6 +285,8 @@ def format_ukhls_columns(year):
                       'scsf3a': 'phealth_limits_work',  # physical health limits work.
                       'scsf4a': 'mhealth_limits_work',  # mental health limits work.
                       'scsf7': 'health_limits_social',  # health limits social life.
+                      'hhtype_dv': 'hh_composition', # household composition
+                      'marstat': 'marstat' # marital status
                       }
 
     # Some variables change names halfway through UKHLS.

@@ -62,6 +62,8 @@ def generate_composite_housing_quality(data):
     data : Pd.DataFrame
         The same DataFrame now containing a composite housing quality variable
     """
+    print('Generating composite for housing_quality...')
+
     # list both core and bonus vars
     core_list = ['fridge_freezer', 'washing_machine', 'heating']
     bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
@@ -86,7 +88,7 @@ def generate_composite_housing_quality(data):
     data["housing_quality"] = np.select(conditions, values)
 
     # drop cols we don't need
-    data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'housing_complete', 'fridge_freezer', 'washing_machine',
+    data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
                      'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
              axis=1,
              inplace=True)
@@ -105,6 +107,8 @@ def calculate_hourly_wage(data):
     data : Pd.DataFrame
         The same DataFrame now containing a calculated hourly wage variable
     """
+    print('Calculating hourly wage...')
+
     # apply basrate (hourly_rate) if present and non-negative
     data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
     # Now calculate for salaried employees (monthly wage applied to weekly hours worked, so multiply hours by 4.2)
@@ -176,6 +180,8 @@ def generate_hh_income(data):
     data : Pd.DataFrame
         The same DataFrame now containing a calculated household income variable
     """
+    print('Generating household income...')
+
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
@@ -226,8 +232,9 @@ def generate_composite_neighbourhood_safety(data):
     data : Pd.DataFrame
         The same DataFrame now containing a composite housing quality variable
     """
-    # first make list of the columns we're interested in
+    print('Generating composite for neighbourhood_safety...')
 
+    # first make list of the columns we're interested in
     sum_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
     # sum up all non-negative values in sum_list vars
     data["safety_sum"] = data[sum_list].gt(0).sum(axis=1)
@@ -263,9 +270,9 @@ def generate_labour_composite(data):
     data : pandas.DataFrame
         Data with final labour_state and emp_type removed.
     """
+    print('Generating composite for labour_state...')
 
     # grab anyone whop is Employed.
-
     who_employed = data.loc[data["labour_state"]=="Employed"]
     # there are around 14k missing values per year in emp_type.
     # Most of these can probably be removed with LOCF imputation.
@@ -307,6 +314,7 @@ def generate_energy_composite(data):
     data : pd.DataFrame
         US data with 'electricity_bill' composite column.
     """
+    print('Calculating yearly energy cost...')
 
     data['yearly_energy'] = data['yearly_gas_electric']
     # force people without certain energy sources to 0.
@@ -358,8 +366,8 @@ def generate_energy_composite(data):
 
 
 
-    print(sum(data['yearly_energy'] == -8))
-    print(sum(data['yearly_energy'].isin(US_utils.missing_types)))
+    #print(sum(data['yearly_energy'] == -8))
+    #print(sum(data['yearly_energy'].isin(US_utils.missing_types)))
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel'
@@ -397,6 +405,8 @@ def generate_nutrition_composite(data):
     data : pd.DataFrame
         US data with composite fruit and veg consumption variable, without the component vars.
     """
+    print('Generating composite for nutrition_quality...')
+
     # First calculate intermediate composites (amount * no. days)
     data['fruit_comp'] = data['fruit_days'] * data['fruit_per_day']
     data['veg_comp'] = data['veg_days'] * data['veg_per_day']
@@ -419,6 +429,98 @@ def generate_nutrition_composite(data):
     return data
 
 
+def generate_hh_structure(data):
+    """
+    Generate a variable for houshold composition by refactoring an existing US variable.
+
+    We want to create 3 groups:
+    1. Single adult no kids
+    2. Single adult 1+ kids
+    3. Multiple adults no kids
+    4. Multiple adults 1+ kids
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with US household composition variable (hhtype_dv)
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with a hh_comp variable.
+    """
+    print('Generating composite for household structure...')
+
+    # Which numbers in the original US hh_composition var correspond?
+    # First create empty var
+    data['hh_comp'] = -9
+
+    ## Single adult no kids
+    # 1, 2, 3
+    data['hh_comp'][data['hh_composition'].isin([1,2,3])] = 1
+    ## Single adult 1+ kids
+    # 4, 5
+    data['hh_comp'][data['hh_composition'].isin([4,5])] = 2
+    ## Multiple adults no kids
+    # 6, 8, 16, 17, 19, 22
+    data['hh_comp'][data['hh_composition'].isin([6,8,16,17,19,22])] = 3
+    ## Multiple adults 1+ kids
+    # 10, 11, 12, 18, 20, 21, 23
+    data['hh_comp'][data['hh_composition'].isin([10,11,12,18,20,21,23])] = 4
+
+    data.drop(labels=['hh_composition'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_marital_status(data):
+    """
+
+    Recoding the marstat variable from US.
+
+    Original has 9 levels (some below 1%), we will replace with 4:
+    1. Single never partnered
+    2. Partnered (married, civil partner)
+    3. Separated (separated legally married, divorced, sep from civil partner, a former civil partner)
+    4. Widowed (widowed, surviving civil partner)
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with US marital status variable (marstat)
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with a hh_comp variable.
+    """
+    print('Generating composite for marital status...')
+
+    # first create empty var
+    data['marital_status'] = -9
+
+    ## Single never partnered
+    # 1
+    data['marital_status'][data['marstat'] == 1] = 'Single'
+    ## Partnered
+    # 2, 3
+    data['marital_status'][data['marstat'].isin([2,3])] = 'Partnered'
+    ## Separated
+    # 4, 5, 7, 8
+    data['marital_status'][data['marstat'].isin([4,5,7,8])] = 'Separated'
+    ## Widowed
+    # 6, 9
+    data['marital_status'][data['marstat'].isin([6,9])] = 'Widowed'
+
+    data.drop(labels=['marstat'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def main():
     # first collect and load the datafiles for every year
     print("Starting composite generation.")
@@ -434,6 +536,8 @@ def main():
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
     data = generate_nutrition_composite(data)             # nutrition
+    data = generate_hh_structure(data)                    # household structure
+    data = generate_marital_status(data)                  # marital status
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
