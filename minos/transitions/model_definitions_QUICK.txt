@@ -1,1 +1,1 @@
-CLM : loneliness ~ scale(age) + factor(sex) + scale(SF_12) + relevel(factor(education_state), ref = "3") + relevel(factor(job_sec), ref = "3") + scale(hh_income) + relevel(factor(hh_comp), ref = "3") + relevel(factor(marital_status), ref = "Partnered")
+OLS : SF_12 ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = "WBI") + scale(hh_income) + relevel(factor(housing_quality), ref = "1") + relevel(factor(job_sec), ref = "3") + scale(phealth)

@@ -477,12 +477,11 @@ def generate_hh_structure(data):
 
 def generate_marital_status(data):
     """
-
-    Recoding the marstat variable from US.
+    Recoding the mastat_dv variable from US.
 
     Original has 9 levels (some below 1%), we will replace with 4:
     1. Single never partnered
-    2. Partnered (married, civil partner)
+    2. Partnered (married, civil partner, living as a couple)
     3. Separated (separated legally married, divorced, sep from civil partner, a former civil partner)
     4. Widowed (widowed, surviving civil partner)
 
@@ -505,8 +504,8 @@ def generate_marital_status(data):
     # 1
     data['marital_status'][data['marstat'] == 1] = 'Single'
     ## Partnered
-    # 2, 3
-    data['marital_status'][data['marstat'].isin([2,3])] = 'Partnered'
+    # 2, 3, 10
+    data['marital_status'][data['marstat'].isin([2,3,10])] = 'Partnered'
     ## Separated
     # 4, 5, 7, 8
     data['marital_status'][data['marstat'].isin([4,5,7,8])] = 'Separated'
@@ -517,6 +516,82 @@ def generate_marital_status(data):
     data.drop(labels=['marstat'],
               axis=1,
               inplace=True)
+
+    return data
+
+
+def generate_physical_health_score(data):
+    """
+    For generating a physical health score from the physical parts of the SF-12 questionnaire.
+    We will produce a continuous variable by adding the scores of 5 variables together, where lower scores
+    equate to better physical health.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with variables for parents education and ns-sec.
+    """
+    print('Generating composite for physical health...')
+
+    ## first flip the var thats in the opposite direction
+    data['pain_interfere_work'][data['pain_interfere_work'] > 0] = 6 - data['pain_interfere_work']
+
+    # now create summary var and add to it
+    data['phealth'] = 0
+    data['phealth'][data['phealth_limits_modact'] > 0] += data['phealth_limits_modact']
+    data['phealth'][data['phealth_limits_stairs'] > 0] += data['phealth_limits_stairs']
+    data['phealth'][data['phealth_limits_work'] > 0] += data['phealth_limits_work']
+    data['phealth'][data['phealth_limits_work_type'] > 0] += data['phealth_limits_work_type']
+    data['phealth'][data['pain_interfere_work'] > 0] += data['pain_interfere_work']
+
+    # now a counter for how many of these variable are not missing
+    data['counter'] = 0
+    data['counter'][data['phealth_limits_modact'] > 0] += 1
+    data['counter'][data['phealth_limits_stairs'] > 0] += 1
+    data['counter'][data['phealth_limits_work'] > 0] += 1
+    data['counter'][data['phealth_limits_work_type'] > 0] += 1
+    data['counter'][data['pain_interfere_work'] > 0] += 1
+
+    # finally, get the average of phealth for a mean summary score (then it doesn't matter if any are missing)
+    # only do this where counter does not equal 0. These cases we will record as missing
+    data['phealth'][data['counter'] != 0] = data['phealth'] / data['counter']
+
+    # now set those missing all to missing
+    data['phealth'][data['counter'] == 0] = -9
+
+    data.drop(labels=['phealth_limits_modact', 'phealth_limits_stairs',
+                      'phealth_limits_work_type', 'pain_interfere_work'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_parents_education(data):
+    """
+    For predicting the highest education a 16 will attain in their life, we can use information on the parents
+    education and NS-SEC if available.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with variables for parents education and ns-sec.
+    """
+
+    # First we need to find parents (or adults in the same house as we won't be able to find a direct parental link)
+    # Groupby hid then filter to make sure there is a 16 year old in the house
+    grouped_dat = data.groupby(['hidp'], axis=1).filter(lambda d: (d.age != 16.0), axis=0)
+    #filtered_dat = grouped_dat.filter(lambda d: (d['age'] != 16))
 
     return data
 
@@ -538,6 +613,7 @@ def main():
     data = generate_nutrition_composite(data)             # nutrition
     data = generate_hh_structure(data)                    # household structure
     data = generate_marital_status(data)                  # marital status
+    data = generate_physical_health_score(data)           # physical health score
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
