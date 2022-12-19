@@ -1,0 +1,37 @@
+---
+title: "Neighbourhood"
+output: html_document
+bibliography: 
+  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
+  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+---
+
+# Neighbourhood
+
+
+Introductory fluff. Why do we need this module? test reference [@1987:nelson]. 
+
+```{r setup, include=FALSE}
+source('sphinx_notebook_utils.R')
+```
+
+## Methods
+
+  What methods are used? Justification due to output data type. explanation of model output.
+  
+## Data
+  
+  What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
+  
+## Results
+  
+  What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
+
+
+```{r housing_output, echo=FALSE}
+options(width=120)
+clm_output("../../../data/transitions/test/neighbourhood_clm_2014_2017.rds") #e.g. ../../../data/transitions/test/housing_clm_2018_2019.rds
+```
+
+
+## References

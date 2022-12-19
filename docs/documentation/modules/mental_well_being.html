@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mental Well-Being &mdash; Minos  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tobacco Transition Module" href="tobacco.html" />
+    <link rel="prev" title="Neighbourhood" href="neighbourhood.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules_intro.html">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="household_income.html">Household Income</a></li>
+<li class="toctree-l2"><a class="reference internal" href="housing.html">Housing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mental Well-Being</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Mental Well-Being</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco Transition Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
+      <li class="breadcrumb-item active">Mental Well-Being</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="mental-well-being">
+<h1>Mental Well-Being<a class="headerlink" href="#mental-well-being" title="Permalink to this heading"></a></h1>
+<section id="id1">
+<h2>Mental Well-Being<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<p>Introductory fluff. Why do we need this module? test reference (Nelson
+1987).</p>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
+<p>What methods are used? Justification due to output data type.
+explanation of model output.</p>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
+<p>What variables are included? Why is this output chosen. What explanatory
+variables are used and why are they chosen</p>
+</section>
+<section id="results">
+<h3>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h3>
+<p>What are the results. Coefficients tables. diagnostic plots. measures of
+goodness of fit.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
+<span class="c1">## Call:</span>
+<span class="c1">## lm(formula = formula, data = data, weights = weight)</span>
+<span class="c1">##</span>
+<span class="c1">## Weighted Residuals:</span>
+<span class="c1">##      Min       1Q   Median       3Q      Max</span>
+<span class="c1">## -11922.1    -50.5      0.0    257.2   3860.5</span>
+<span class="c1">##</span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##                                      Estimate Std. Error t value Pr(&gt;|t|)</span>
+<span class="c1">## (Intercept)                         34.298898   1.683824  20.370  &lt; 2e-16 ***</span>
+<span class="c1">## factor(sex)Male                      0.581192   0.215393   2.698 0.006977 **</span>
+<span class="c1">## factor(ethnicity)BLA                 5.697763   1.603943   3.552 0.000383 ***</span>
+<span class="c1">## factor(ethnicity)BLC                 3.036485   1.803332   1.684 0.092235 .</span>
+<span class="c1">## factor(ethnicity)CHI                 1.729325   2.146717   0.806 0.420504</span>
+<span class="c1">## factor(ethnicity)IND                 2.462777   1.504434   1.637 0.101646</span>
+<span class="c1">## factor(ethnicity)MIX                 2.074729   1.582450   1.311 0.189846</span>
+<span class="c1">## factor(ethnicity)OAS                 4.768816   1.638880   2.910 0.003621 **</span>
+<span class="c1">## factor(ethnicity)OBL                 6.383625   4.042429   1.579 0.114319</span>
+<span class="c1">## factor(ethnicity)OTH                 4.298191   2.109843   2.037 0.041644 *</span>
+<span class="c1">## factor(ethnicity)PAK                 2.372117   1.589841   1.492 0.135705</span>
+<span class="c1">## factor(ethnicity)WBI                 2.586571   1.370180   1.888 0.059075 .</span>
+<span class="c1">## factor(ethnicity)WHO                 1.354800   1.426271   0.950 0.342182</span>
+<span class="c1">## age                                  0.108281   0.009115  11.880  &lt; 2e-16 ***</span>
+<span class="c1">## factor(education_state)1            -0.627273   0.815153  -0.770 0.441598</span>
+<span class="c1">## factor(education_state)2             0.236072   0.290368   0.813 0.416224</span>
+<span class="c1">## factor(education_state)3             0.495338   0.384683   1.288 0.197884</span>
+<span class="c1">## factor(education_state)5             1.115378   0.415749   2.683 0.007308 **</span>
+<span class="c1">## factor(education_state)6             0.351401   0.327533   1.073 0.283345</span>
+<span class="c1">## factor(education_state)7             0.712285   0.381529   1.867 0.061929 .</span>
+<span class="c1">## factor(labour_state)Family Care      0.304963   0.811348   0.376 0.707017</span>
+<span class="c1">## factor(labour_state)Maternity Leave -2.542077   1.243554  -2.044 0.040949 *</span>
+<span class="c1">## factor(labour_state)PT Employed     -0.605587   0.372088  -1.628 0.103641</span>
+<span class="c1">## factor(labour_state)Retired          0.261656   0.675626   0.387 0.698554</span>
+<span class="c1">## factor(labour_state)Self-employed    0.212515   0.580460   0.366 0.714284</span>
+<span class="c1">## factor(labour_state)Sick/Disabled   -7.159909   0.789389  -9.070  &lt; 2e-16 ***</span>
+<span class="c1">## factor(labour_state)Student          0.879400   0.632180   1.391 0.164225</span>
+<span class="c1">## factor(labour_state)Unemployed       1.165021   0.773379   1.506 0.131982</span>
+<span class="c1">## factor(job_sec)1                     2.719316   0.843895   3.222 0.001274 **</span>
+<span class="c1">## factor(job_sec)2                     0.904606   0.722854   1.251 0.210792</span>
+<span class="c1">## factor(job_sec)3                     1.958368   0.616340   3.177 0.001489 **</span>
+<span class="c1">## factor(job_sec)4                     1.907603   0.660486   2.888 0.003880 **</span>
+<span class="c1">## factor(job_sec)5                     0.900035   0.816015   1.103 0.270058</span>
+<span class="c1">## factor(job_sec)6                     4.060494   0.748712   5.423 5.93e-08 ***</span>
+<span class="c1">## factor(job_sec)7                     1.553039   0.620380   2.503 0.012311 *</span>
+<span class="c1">## factor(job_sec)8                     1.900414   0.698805   2.720 0.006544 **</span>
+<span class="c1">## scale(hh_income)                     0.401456   0.101844   3.942 8.12e-05 ***</span>
+<span class="c1">## scale(SF_12)                         6.421115   0.134206  47.845  &lt; 2e-16 ***</span>
+<span class="c1">## factor(housing_quality)2             0.812148   0.694038   1.170 0.241946</span>
+<span class="c1">## factor(housing_quality)3             1.646733   0.707482   2.328 0.019945 *</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">##</span>
+<span class="c1">## Residual standard error: 674.1 on 17123 degrees of freedom</span>
+<span class="c1">## Multiple R-squared:  0.1889, Adjusted R-squared:  0.187</span>
+<span class="c1">## F-statistic: 102.2 on 39 and 17123 DF,  p-value: &lt; 2.2e-16</span>
+</pre></div>
+</div>
+<p><img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" /><img alt="image1" src="../../_images/housing_output-2.png" /><img alt="image2" src="../../_images/housing_output-3.png" /><img alt="image3" src="../../_images/housing_output-4.png" /></p>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
+<div class="references csl-bib-body hanging-indent docutils container" id="refs">
+<div class="csl-entry docutils container" id="ref-1987-nelson">
+<p>Nelson, Edward. 1987. <em>Radically Elementary Probability Theory</em>.
+Princeton University Press.</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="neighbourhood.html" class="btn btn-neutral float-left" title="Neighbourhood" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tobacco.html" class="btn btn-neutral float-right" title="Tobacco Transition Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

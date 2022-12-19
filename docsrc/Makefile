@@ -22,7 +22,17 @@ help:
 
 	
 render_rmd:
-	bash compile_rmd_rst.sh "documentation/notebooks/summarise_transitions_2.Rmd" "documentation/modules/summarise_transitions_2.rst"
+	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
+	bash compile_rmd_rst.sh "documentation/notebooks/tobacco.Rmd" "documentation/modules/tobacco.rst"
+	bash compile_rmd_rst.sh "documentation/notebooks/household_income.Rmd" "documentation/modules/household_income.rst"
+	bash compile_rmd_rst.sh "documentation/notebooks/housing.Rmd" "documentation/modules/housing.rst"
+	bash compile_rmd_rst.sh "documentation/notebooks/mental_well_being.Rmd" "documentation/modules/mental_well_being.rst"
+	bash compile_rmd_rst.sh "documentation/notebooks/labour.Rmd" "documentation/modules/labour.rst"
+	bash compile_rmd_rst.sh "documentation/notebooks/loneliness.Rmd" "documentation/modules/loneliness.rst"
+	bash compile_rmd_rst.sh "documentation/notebooks/neighbourhood.Rmd" "documentation/modules/neighbourhood.rst"
+	rm -rf documentation/modules/figure # check new plot directory is empty. delete if not empty.
+	mv -f figure documentation/modules/figure # stupid trick to move generated rst figures from source directory docsrc/ to their position specified in rst filepaths of docsrc/documentation/modules/
+	# probably a better way to do this without force replacing with pandoc --extract-media..
 
 github: render_rmd
 	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # build and write to /docs output directory or it defaults to /html.

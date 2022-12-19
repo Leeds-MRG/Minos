@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; Minos  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules_intro.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="household_income.html">Household Income</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="household_income.html#id1">Household Income</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="housing.html">Housing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="housing.html#housing-quality">Housing Quality</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="loneliness.html">Loneliness</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="loneliness.html#id1">Loneliness</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="neighbourhood.html#id1">Neighbourhood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mental_well_being.html#id1">Mental Well-Being</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tobacco.html">Tobacco Transition Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tobacco.html#tobacco">Tobacco</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nutrition.html">Nutrition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nutrition.html#composite-variable">Composite Variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nutrition.html#transition-model">Transition Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="replenishment.html">Replenishment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html#rationale">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html#data-sources">Data Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html#method">Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html#reweighting">Reweighting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html#complication">Complication</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

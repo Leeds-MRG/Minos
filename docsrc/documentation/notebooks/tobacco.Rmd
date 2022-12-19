@@ -1,29 +1,38 @@
 ---
-title: "tobacco"
+title: "Tobacco Transition Module"
 output: html_document
-date: "2022-12-19"
+bibliography: 
+  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
+  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
 ---
 
+# Tobacco
+
+
+Number of cigarettes consumed is an indicator of XXXX. test reference [@1987:nelson]. 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+source('sphinx_notebook_utils.R')
 ```
 
-## R Markdown
+## Methods
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+  What methods are used? Justification due to output data type. explanation of model output.
+  
+## Data
+  
+  What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
+  
+## Results
+  
+  What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r tobacco_output, echo=FALSE}
+options(width=120)
+zip_output("../../../data/transitions/test/tobacco_zip_2018_2019.rds")
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+## References
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

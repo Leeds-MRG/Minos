@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Discovery &mdash; Minos  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/minos_theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Tables" href="data_tables.html" />
+    <link rel="prev" title="Validation" href="validation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Discovery</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#wage-income"><strong>Wage/Income</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#psychosocial-improvement-in-social-status-esteem-financial-independence"><strong>Psychosocial - Improvement in social status/esteem, financial independence</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#behaviour-nutrition"><strong>Behaviour - Nutrition</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#behaviour-alcohol-and-tobacco-consumption"><strong>Behaviour - Alcohol and Tobacco Consumption</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#housing-quality"><strong>Housing Quality</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moving-home"><strong>Moving Home</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#more-social-inclusion"><strong>More Social Inclusion</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#psychosocial-financial-security"><strong>Psychosocial - Financial Security</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#physical-well-being"><strong>Physical Well-Being</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mental-well-being"><strong>Mental Well-Being</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API/index.html">Welcome to Minos’ API documentation!</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Data Discovery</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="data-discovery">
+<h1>Data Discovery<a class="headerlink" href="#data-discovery" title="Permalink to this heading"></a></h1>
+<p>All variables here are from Understanding Society unless otherwise stated</p>
+<p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation">Link to variable search</a></p>
+<p>Although at first glance lots of variables are only asked intermittently, I think we will be able to derive lots of useful information from those that are asked more often. E.g. MRS social class in psychosocial is only included on two non-consecutive waves, however RG Social Class: present job was asked at every wave with good detail, which can be used to derive MRS.</p>
+<section id="wage-income">
+<h2><strong>Wage/Income</strong><a class="headerlink" href="#wage-income" title="Permalink to this heading"></a></h2>
+<p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/user-guides/main-survey-user-guide/individual-income-variables">Individual income variables</a> - this page details the six components of individual net income, and which variables in BHPS or US that relate to these components.</p>
+<p>Only going to list labour income variables, as there are lots of others that are unrelated to this work. A living wage will only affect labour income.</p>
+<p><strong>N.B.</strong> The top variable here (fimnlabnet_dv) is a derived variable, which is the sum of three earnings components:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">paynu_dv</span></code>: net usual pay</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seearnnet_dv</span></code>: net self-employment income</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">j2paynet_dv</span></code>: net pay in second job</p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>LABOUR</strong></p></td>
+<td><p><strong>INCOME</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fimnlabnet_dv">fimnlabnet_dv</a></p></td>
+<td><p>amount income component 1: net labour income</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Derived variable, sum of the next three variables in this table.<br/>Labour income, component 1 out of 6 of individual income.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fimnlabgrs_dv">fimnlabgrs_dv</a></p></td>
+<td><p>Total monthly labour gross income</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Gross monthly pay rather than net.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fihhmnlabgrs_dv">fihhmnlabgrs_dv</a></p></td>
+<td><p>Total gross household labour income: month before interview</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Gross monthly household income. <br />Calculated from fimnlabgrs_dv, calculating sum for household.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/paynu_dv">paynu_dv</a></p></td>
+<td><p>Usual net pay per month: current job</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Component of labour income.<br />Response of ‘inapplicable’ hovering around 40-50% across every wave. Don’t understand this, not obvious from the variable page. Could this be unemployed, disabled, or retired? Seems a large proportion to be in that group.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/seearnnet_dv">seearnnet_dv</a></p></td>
+<td><p>Self employment earnings - net</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Component of labour income</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/j2pay_dv">j2pay_dv</a></p></td>
+<td><p>Pay in second job</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Component of labour income.<br />Not sure if this is net income, the variable mentioned on the page about individual income is <em>j2paynet_dv</em>, but this doesn’t seem to exist in the variable search.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/basrate">basrate</a></p></td>
+<td><p>Basic pay hourly rate</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbhrs">jbhrs</a></p></td>
+<td><p>No. of hours normally worked per week</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="psychosocial-improvement-in-social-status-esteem-financial-independence">
+<h2><strong>Psychosocial - Improvement in social status/esteem, financial independence</strong><a class="headerlink" href="#psychosocial-improvement-in-social-status-esteem-financial-independence" title="Permalink to this heading"></a></h2>
+<p>(including from benefit stigma etc.)</p>
+<p>Come back to this, unfinished. Mostly collected variables that refer to social status/esteem (social class, NSSEC etc.). Financial independence is more complex as there are LOTS of variables related to benefits.</p>
+<p>Financial independence is a persons ability to support themselves financially. This relates to welfare/benefits, as well as extra support from family members (i.e. childcare from family members) as well as dependence for other reasons (i.e. victims of abuse).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Social</strong></p></td>
+<td><p><strong>Status/Esteem</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/opcls2">opcls2</a></p></td>
+<td><p>Subjective social class membership</p></td>
+<td><p>indresp</p></td>
+<td><p>bh01, bh06, bh10, bh15</p></td>
+<td><p>Ordinal variable, outcomes in the form ‘lower working class’, ‘ upper middle class’ etc.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbmrs">jbmrs</a></p></td>
+<td><p>MRS social class</p></td>
+<td><p>indresp</p></td>
+<td><p>bh08, bh15</p></td>
+<td><p>Approximated social grade with 6 categories, produced by ONS by applying an algorithm developed by MRS Census &amp; Geodemographics group. See <a class="reference external" href="https://ukgeographics.co.uk/blog/social-grade-a-b-c1-c2-d-e">link</a> for more info.Based on occupation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrssci">mrssci</a></p></td>
+<td><p>MRS Social Class Individual</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p>Similar to jbmrs above, distinction from household MRS</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrssch">mrssch</a></p></td>
+<td><p>MRS Social Class Household</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p>See above</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbgold">jbgold</a></p></td>
+<td><p>Goldthorpe Social Class: present job</p></td>
+<td><p>indresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>11 level occupational classification. Think this has been superceded by NS-SEC, also doesn’t seem to have all the job types in NS-SEC (missing managerial unless I’m being daft).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbrgsc_dv">jbrgsc_dv</a></p></td>
+<td><p>RG Social Class: present job</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Runs for every wave of BHPS and US.<br />Note about derived variable:<br/><em>Registrar General’s Social Class (SC) of current job. Uses the coding frame from the BHPS. Current job refers to being in paid employment during the last week, even if respondent was away from work in that week. This standard classification has been replaced by the NS-SEC. Derived from look-up file SOC2000 to RGSC provided on the CAMSIS project website. From Wave 2 onwards this is includes RGSC codes fed forward from the previous interview.</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mrjnssec8_dv">mrjnssec8_dv</a></p></td>
+<td><p>Occupation of most recent job: NSSEC 8 categories</p></td>
+<td><p>indresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Full length of BHPS 8 category NSSEC.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/j1nssec8_dv">j1nssec8_dv</a></p></td>
+<td><p>Own first job: NSSEC 8 classes</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Complete NSSEC of first job, most of BHPS &amp; all of US. Also a 2nd job NSSEC var if necessary.Derived variable note:<em>National Statistics Socio-economic Classification (NS-SEC) of respondent’s first job: Condensed 8-category version. Note that this indicator is constructed on the basis of less information than the respondent’s current or last job NSSEC: Information on establishment size and managerial duties is not considered. For a detailed look-up file between SOC 2000 and the 5-category NSSEC see</em><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bit.ly/1RzyUfR"><em>bit.ly/1RzyUfR</em></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/f132"><strong>f132</strong></a></p></td>
+<td><p>Income: income support (IS)</p></td>
+<td><p>indresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Whether someone receives income support, if they were to come off it then might have an impact on financial esteem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/benbase1"><strong>benbase1</strong></a></p></td>
+<td><p>Income Support</p></td>
+<td><p>indresp</p></td>
+<td><p>6, 7, 8, 9, 10, 11</p></td>
+<td><p>Income support as above but in US instead of BHPS</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Financial</strong></p></td>
+<td><p><strong>Independence</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="behaviour-nutrition">
+<h2><strong>Behaviour - Nutrition</strong><a class="headerlink" href="#behaviour-nutrition" title="Permalink to this heading"></a></h2>
+<p>(food security, hunger, better quality food)</p>
+<p>Variables related to food and nutrition are somewhat lacking in US. Some variables included here are not very strongly related or at best incomplete in capturing the topic.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Food</strong></p></td>
+<td><p><strong>Security</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/foodbank">foodbank</a></p></td>
+<td><p>Food banks usage</p></td>
+<td><p>hhresp</p></td>
+<td><p>11</p></td>
+<td><p>Only in wave 11, might be useful as a component of a constructed/aggregated variable</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hscane">hscane</a></p></td>
+<td><p>Eat meat on alternate days</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Think this can fit in both hunger or food security. As the last time this was asked was in BHPS wave 18 (2008), I don’t think the answers would be related to health or environmental reasons. Comes under index terms for financial management: problems and financial management: material wellbeing so we can be confident this is a financial decision.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/lacte">lacte</a></p></td>
+<td><p>How often: eat out</p></td>
+<td><p>indresp</p></td>
+<td><p>bh06, bh08, bh10, bh12, bh14, bh16, bh18</p></td>
+<td><p>Comes under index terms for time use and leisure activities, however we could investigate how income/wealth is related to those who answered never/almost never.Clutching at straws a little here as theres not much to go on.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Hunger</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/breakfst">breakfst</a></p></td>
+<td><p>Days eats breakfast</p></td>
+<td><p>indresp</p></td>
+<td><p>7, 9, 11</p></td>
+<td><p>Could be for many reasons other than lack of access to food, however included this as there are not many variables that can relate to hunger.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepa2"><strong>pdepa2</strong></a></p></td>
+<td><p>filling meal a day: no, no money for this</p></td>
+<td><p>hhresp</p></td>
+<td><p>4, 6, 8, 10</p></td>
+<td><p>Household question, only asked if there is a pensioner in the house.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Food</strong></p></td>
+<td><p><strong>Quality</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkfruit">wkfruit</a></p></td>
+<td><p>Days each week eat fruit</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, 7, 9, 11</p></td>
+<td><p>Including tinned, frozen, dried and fresh.Question asks for usual week.Categories: Never, 1-3d, 4-6d, everyday</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkvege">wkvege</a></p></td>
+<td><p>Days each week eat vegetables</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, 7, 9, 11</p></td>
+<td><p>Including tinned, frozen and fresh.Does not include potatoes, crisps, or chips.Same categories as above.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cdepdo5">cdepdo5</a></p></td>
+<td><p>Eat fruit and veg every day</p></td>
+<td><p>hhresp</p></td>
+<td><p>4, 6, 8, 10</p></td>
+<td><p>Only asked if there is at least one child (age 0-15) living in the household.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="behaviour-alcohol-and-tobacco-consumption">
+<h2><strong>Behaviour - Alcohol and Tobacco Consumption</strong><a class="headerlink" href="#behaviour-alcohol-and-tobacco-consumption" title="Permalink to this heading"></a></h2>
+<p>(increase/decrease?)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Alcohol</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scalcl7d">scalcl7d</a></p></td>
+<td><p>Drank alcohol last 7 days</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5</p></td>
+<td><p>Binary, only asked if answered previous question stating that respondent has had an alcoholic drink in last 12 months. Also only asked in self-completion or telephone interviews.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/auditc1">auditc1</a></p></td>
+<td><p>Past 12 months alcoholic drink</p></td>
+<td><p>indresp</p></td>
+<td><p>7, 9, 11</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/auditc3">auditc3</a></p></td>
+<td><p>Alcohol frequency past 12 months</p></td>
+<td><p>indresp</p></td>
+<td><p>7, 9, 11</p></td>
+<td><p>Ordinal, 5 categories ranging from Never, monthly or less, …, up to 4+ times per week.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/evralc">evralc</a></p></td>
+<td><p>Ever had an alcoholic drink</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 4, 6, 8, 10</p></td>
+<td><p>Only asked for young adults aged 16-21.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fivealcdr">fivealcdr</a></p></td>
+<td><p>Frequency of 5 plus alcoholic drinks</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 4, 6, 8, 10</p></td>
+<td><p>Again only asked for young adults aged 16-21. One drink is defined as one pint/bottle/can of beer or cider, 2 alcopops, one small glass of wine, a single measure of spirits.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hlprbj">hlprbj</a></p></td>
+<td><p>Health problems: Alcohol or drugs</p></td>
+<td><p>indresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary, positive response indicates problem with either alcohol or drugs.Very low relative frequency of positive response but could still be useful.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xpaltob_g3">xpaltob_g3</a></p></td>
+<td><p>Total amount spent on alcohol</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Household spending in past 4 weeks. Includes all alcohol (supermarkets/shops, pubs, restaurants, other venues).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/dklm">dklm</a></p></td>
+<td><p>Past month: how many alcoholic drinks?</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 4, 6, 8, 10</p></td>
+<td><p>Ordinal, question specifies how many <strong>times</strong> in the past month, not how many drinks.<br /> Answers range; most days, once or twice a week, 2 or 3 times, once only, never.Also youth version of this question asked.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scfalcdrnk">scfalcdrnk</a></p></td>
+<td><p>How often have you had an alcoholic drink during the last 12 months?</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5</p></td>
+<td><p>Ordinal variable with 8 categories. Almost every day, …, once or twice a week, …, once or twice a year, not at all in last 12 months.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Tobacco</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smoker">smoker</a></p></td>
+<td><p>Smoker</p></td>
+<td><p>indresp</p></td>
+<td><p>6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Simple binary, ‘<em>do you smoke cigarettes?</em>’</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smever">smever</a></p></td>
+<td><p>Ever smoked cigarettes?</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, bh09</p></td>
+<td><p>Cigarette, cigar, or pipe.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smnow">smnow</a></p></td>
+<td><p>Smoke nowadays</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, bh09</p></td>
+<td><p>Asked if smever == 1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smcigs">smcigs</a></p></td>
+<td><p>Smoking history</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, bh09, bh12</p></td>
+<td><p><strong>Text:</strong> _Have you ever smoked cigarettes regularly, that is at least one cigarette a day, or did you smoke them only occasionally?_If smever == 1 (yes) &amp;&amp; smnow == 2 (does no smoke nowadays).<br />Find it a bit weird that this question relies on answers to 2 other questions that were not asked in BH12.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs">ncigs</a></p></td>
+<td><p>Usual no. of cigarettes smoked per day</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Asked if smoker == 1<br />Continuous outcome.<br />Bit weird before wave BH09. Doesn’t seem to be a continuous variable however that could just be an error in the way it’s reported in the variable search.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/smncigs">smncigs</a></p></td>
+<td><p>Number of cigarettes smoked in past</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 5, bh09</p></td>
+<td><p>If smever == 1 (ever smoked)&amp;&amp; smnow == 2 (does not smoke now)&amp;&amp; smcigs == 1 (used to smoke regularly)<br />Continuous for wave 2 &amp; 5, unknown for wave BH09.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ecigs1">ecigs1</a></p></td>
+<td><p>Uses electronic cigarettes</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p>Ordinal.<br />Captures both whether respondent has or has not used ecigs, as well as the frequency.Frequency: only used once or twice -&amp;gt; at least once a week with steps in between.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="housing-quality">
+<h2><strong>Housing Quality</strong><a class="headerlink" href="#housing-quality" title="Permalink to this heading"></a></h2>
+<p>(decent homes = less damp, warmer, housing security)</p>
+<p>Still to do: Look for more vars related to housing security.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/lfsat3">lfsat3</a></p></td>
+<td><p>Satisfaction with: house/flat</p></td>
+<td><p>indresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Ordinal, 7 categories from:Not satisfied at all -&amp;gt; Completely satisfied</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/matdepd">matdepd</a></p></td>
+<td><p>Material deprivation: house</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 4, 6, 8, 10</p></td>
+<td><p>Question Text:<em>Enough money to keep your house in a decent state of repair?</em><br />Ordinal, 4 levels including: Yes, Can’t afford it, Don’t need it now, Does not apply</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdb">xphsdb</a></p></td>
+<td><p>Problems paying for housing</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p><em>Many people find it hard to keep up with their housing payments. In the last twelve months, have you ever found yourself behind with your rent/mortgage?</em><br />Binary, applies to both rented and mortgaged accommodation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbj">hsprbj</a></p></td>
+<td><p>Accom: not enough light</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbk">hsprbk</a></p></td>
+<td><p>Accom: lack of adequate heating</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbli">hsprb</a></p></td>
+<td><p>Accom: condensation</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbm">hsprbm</a></p></td>
+<td><p>Accom: leaky roof</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbn">hsprbn</a></p></td>
+<td><p>Accom: damp walls, floors etc.</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbo">hsprbo</a></p></td>
+<td><p>Accom: rot in windows, floors</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepf2"><strong>pdepf2</strong></a></p></td>
+<td><p>home good state of repair: no, no money for this</p></td>
+<td><p>hhresp</p></td>
+<td><p>4, 6, 8, 10</p></td>
+<td><p>Specifically about pensioners and only asked if pensioner in the house.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdeph2"><strong>pdeph2</strong></a></p></td>
+<td><p>damp-free home: no, no money for this</p></td>
+<td><p>hhresp</p></td>
+<td><p>4, 6, 8, 10</p></td>
+<td><p>Again pensioners only</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepi2"><strong>pdepi2</strong></a></p></td>
+<td><p>home kept warm: no, no money for this</p></td>
+<td><p>hhresp</p></td>
+<td><p>4, 6, 8, 10</p></td>
+<td><p>Pensioner</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hheat"><strong>hheat</strong></a></p></td>
+<td><p>keep accommodation warm enough</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 4, 6, 8, 9, 10, 11</p></td>
+<td><p>Asked of everyone, specifically about keeping the house warm enough in winter.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="moving-home">
+<h2><strong>Moving Home</strong><a class="headerlink" href="#moving-home" title="Permalink to this heading"></a></h2>
+<p>(could mean less overcrowding, better neighbourhood with more green space, different cultural norms, better recreational and health care facilities, better food outlets, less tobacco and alcohol outlets, less crime and anti-social behaviours)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbg">hsprbg</a></p></td>
+<td><p>Accom: shortage of space</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation?search_api_views_fulltext=housing&amp;page=1">hsprbh</a></p></td>
+<td><p>Accom: noise from neighbours</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbi">hsprbi</a></p></td>
+<td><p>Accom: street noise</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsbeds">hsbeds</a></p></td>
+<td><p>Number of bedrooms</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsgdn">hsgdn</a></p></td>
+<td><p>Accom: has terrace/garden</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Should be used alongside <a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsgdns">hsgdns</a>, which is <em>Accom: is terrace/garden shared?</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsprbp">hsprbp</a></p></td>
+<td><p>Accom: pollution/environmental problems</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsroom">hsroom</a></p></td>
+<td><p>Number of rooms in accomodation</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Neighbourhood</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rescond"><strong>rescond</strong></a></p></td>
+<td><p>conditions of residential properties</p></td>
+<td><p>hhsamp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Ordinal, 4 levels</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini1">vicini1</a></p></td>
+<td><p>Boarded houses: abandoned buildings: demolished houses or demolished buildings</p></td>
+<td><p>hhsamp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Thought this would relate to the neighbourhood quality.<br />Binary but in the form ‘Yes mentioned’ or ‘Not mentioned’. Not sure therefore how complete/reliable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini2"><strong>vicini2</strong></a></p></td>
+<td><p>trash: litter or junk in street/road</p></td>
+<td><p>hhsamp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vicini3"><strong>vicini3</strong></a></p></td>
+<td><p>heavy traffic on street/road</p></td>
+<td><p>hhsamp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nbrcoh_dv"><strong>nbrcoh_dv</strong></a></p></td>
+<td><p>Neighbourhood Social Cohesion,(Î±= .8)</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6</p></td>
+<td><p>Summary of 4 variables on neighbourhood social cohesion. Ordinal var with range from 4 (no cohesion) to 20 (strong cohesion).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scopngbhg"><strong>scopngbhg</strong></a></p></td>
+<td><p>Am similar to others in neighbourhood</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 3, 6, 9</p></td>
+<td><p><em>I think of myself as similar to the people that live in this neighbourhood.</em><br />Could mean many different things, like ethnicity, religion, life stage, etc. But could be useful in this context. Relates to the idea of belonging and ‘fitting in’.There is also a separate var for this in BHPS.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nbrcoh3"><strong>nbrcoh3</strong></a></p></td>
+<td><p>people in this neighbourhood can be trusted</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nbrsnci_dv"><strong>nbrsnci_dv</strong></a></p></td>
+<td><p>Buckner’s Neighbourhood Cohesion Instrument, short (alpha ±= .88)</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 3, 6, 9</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crburg"><strong>crburg</strong></a></p></td>
+<td><p>extent of: homes broken into</p></td>
+<td><p>hhresp, indresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p>This and the following 8 vars (labels all start with ‘extent of: ‘ are more objective measures of the quality of a neighbourhood (still measured subjectively, but asking about specific things).<br />All are ordinal with 4 levels, ranging from Very common to Not at all common. We could use these potentially to create a summary variable, ranging from the worst (9/36) to the best (36/36).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crcar"><strong>crcar</strong></a></p></td>
+<td><p>extent of: cars stolen/broken into</p></td>
+<td><p>indresp, hhresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crdrnk"><strong>crdrnk</strong></a></p></td>
+<td><p>extent of: drunks/tramps on street</p></td>
+<td><p>hhresp, indresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crgraf"><strong>crgraf</strong></a></p></td>
+<td><p>extent of: graffiti on walls</p></td>
+<td><p>indresp, hhresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crmugg"><strong>crmugg</strong></a></p></td>
+<td><p>extent of: people attacked on street</p></td>
+<td><p>indresp, hhresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crrace"><strong>crrace</strong></a></p></td>
+<td><p>extent of: racial insults/attacks</p></td>
+<td><p>hhresp, indresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crteen"><strong>crteen</strong></a></p></td>
+<td><p>extent of: teenagers hanging about</p></td>
+<td><p>indresp, hhresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crvand"><strong>crvand</strong></a></p></td>
+<td><p>extent of: vandalism</p></td>
+<td><p>hhresp, indresp</p></td>
+<td><p>3, 6, 9, bh07, bh12, bh17</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crrubsh"><strong>crrubsh</strong></a></p></td>
+<td><p>extent of: rubbish on street</p></td>
+<td><p>hhresp</p></td>
+<td><p>3, 6, 9</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crwora"><strong>crwora</strong></a></p></td>
+<td><p>worry about being affected by crime</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh07, bh12, bh17</p></td>
+<td><p>Binary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crworb"><strong>crworb</strong></a></p></td>
+<td><p>extent of worry about crime</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh07, bh12, bh17</p></td>
+<td><p>Ordinal, 3 levels</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locchd"><strong>locchd</strong></a></p></td>
+<td><p>Suitability of area for raising children</p></td>
+<td><p>indresp</p></td>
+<td><p>bh08, bh13, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hsctax"><strong>hsctax</strong></a></p></td>
+<td><p>Council tax band of accommodation</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>Don’t know if this is important or not but must have some relationship to neighbourhood?</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe1">unsafe1</a></p></td>
+<td><p>At school</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p>This and the following 12 variables all relate to feeling safe in specific places.<br />All binary although in the form ‘Mentioned/Not Mentioned’ so may not be complete.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe2">unsafe2</a></p></td>
+<td><p>At college/university</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe3">unsafe3</a></p></td>
+<td><p>At work</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe4">unsafe4</a></p></td>
+<td><p>On public transport</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe5">unsafe5</a></p></td>
+<td><p>At/near Bus/train stn</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe6">unsafe6</a></p></td>
+<td><p>In Shopping centres, etc</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe7">unsafe7</a></p></td>
+<td><p>In cinema, cafes</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe8">unsafe8</a></p></td>
+<td><p>At pub/disco/club</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe9">unsafe9</a></p></td>
+<td><p>In car parks</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe10">unsafe10</a></p></td>
+<td><p>Outside, street/park</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe11">unsafe11</a></p></td>
+<td><p>At home</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe96">unsafe96</a></p></td>
+<td><p>Not, in last 12 months</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/unsafe97">unsafe97</a></p></td>
+<td><p>Other places</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 5, 7, 9, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crworb"><strong>crworb</strong></a></p></td>
+<td><p>extent of worry about crime</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh07, bh12, bh17</p></td>
+<td><p>Think this var is part of the pathway between the quality of the neighbourhood and mental health. If a person is very worried about crime and in a high crime area then it will likely affect mental health.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/crwora"><strong>crwora</strong></a></p></td>
+<td><p>worry about being affected by crime</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh07, bh12, bh17</p></td>
+<td><p>See above, in the same vein.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Access To</strong></p></td>
+<td><p><strong>Services</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/servacc"><strong>servacc</strong></a></p></td>
+<td><p>able to access services when need to</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6</p></td>
+<td><p>Bit crap that it only runs for 2 waves, might be able to find a better var for this.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locchd"><strong>locchd</strong></a></p></td>
+<td><p>Suitability of area for raising children</p></td>
+<td><p>indresp</p></td>
+<td><p>bh08, bh13, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locsera"><strong>locsera</strong></a></p></td>
+<td><p>Standard of local services: Schools</p></td>
+<td><p>indresp</p></td>
+<td><p>bh08, bh13, bh18</p></td>
+<td><p>This and the following are much better variables related to services but still don’t run for very long. Could use them to create a summary variable that relates to the quality of services and access to them in the neighbourhood. This maybe wouldn’t be too useful in longitudinal models but could be interesting to see what relationship it has with mental health. OR on the other hand, we could investigate the relationship between all of these things individually and mental health and try to determine which if any are important.<br />Ordinal, subjective, 4 levels, Poor to Excellent.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locserap"><strong>locserap</strong></a></p></td>
+<td><p>standard of local services: primary schools</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locseras"><strong>locseras</strong></a></p></td>
+<td><p>standard of local services: secondary schools</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locserb"><strong>locserb</strong></a></p></td>
+<td><p>standard of local services: medical</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh08, bh13, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locserc"><strong>locserc</strong></a></p></td>
+<td><p>standard of public transport</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh08, bh13, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locserd"><strong>locserd</strong></a></p></td>
+<td><p>standard of local services: shopping</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh08, bh13, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/locsere"><strong>locsere</strong></a></p></td>
+<td><p>standard of local services: leisure</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, bh08, bh13, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/servaccy4"><strong>servaccy4</strong></a></p></td>
+<td><p>financial reasons</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6</p></td>
+<td><p><strong>Text:</strong> <em>What stops you from accessing services such as healthcare, food shops and learning facilities when you need to?</em><br />Not useful on its own but could relate to other vars.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="more-social-inclusion">
+<h2><strong>More Social Inclusion</strong><a class="headerlink" href="#more-social-inclusion" title="Permalink to this heading"></a></h2>
+<p>(e.g. more ability to participate in leisure activities e.g. sports, cinema, or pub)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely">sclonely</a></p></td>
+<td><p>How often feels lonely</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p>Ordinal, 3 levels.<br />Variable note:<em>The questions used to output levels of loneliness in Understanding Society come from the Government Statistical Service (GSS) harmonised principle of loneliness. This means the outputs are comparable with other surveys that use this principle. The GSS has a guidance page which may be useful to understand what other data can and cannot be compared with this output.</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scisolate">scisolate</a></p></td>
+<td><p>How often feels isolated from others</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p>See above</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclackcom">sclackcom</a></p></td>
+<td><p>How often feels lack of companionship</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scleftout">scleftout</a></p></td>
+<td><p>How often feels left out</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/visfrndsy2"><strong>visfrndsy2</strong></a></p></td>
+<td><p>Financial reasons</p></td>
+<td><p>indresp</p></td>
+<td><p>3, 6, 9</p></td>
+<td><p>Text:<br /><em>What stops you from going out socially or visiting friends when you want to?</em><br /><br />Not really an indicator of sorts but we could look at the relationship between this and other social isolation vars.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/pdepb2"><strong>pdepb2</strong></a></p></td>
+<td><p>go out socially: no, no money for this</p></td>
+<td><p>hhresp</p></td>
+<td><p>4, 6, 8, 10</p></td>
+<td><p>Household question, specifically asked about pensioners and only if there is a pensioner in the house.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="psychosocial-financial-security">
+<h2><strong>Psychosocial - Financial Security</strong><a class="headerlink" href="#psychosocial-financial-security" title="Permalink to this heading"></a></h2>
+<p>(less chronic stress/worry)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclfsat2"><strong>sclfsat2</strong></a></p></td>
+<td><p>Satisfaction with income</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>This is obviously a subjective measure, but I think it’s reasonable to assume that someone would become more satisfied with income if they were moved onto a living wage. The question specifically asks for satisfaction with household income.<br />Might be useful for looking at relationship with mental health or wage etc.<br />Ordinal, 7 levels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Savings Or</strong></p></td>
+<td><p><strong>Investments</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/save"><strong>save</strong></a></p></td>
+<td><p>whether saves</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 4, 6, 8, 10, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>This and the following vars are about whether a respondents (or household) has savings. Think we can assume a level of financial security based on the amount / existence of savings.<br />Would be interesting to see the relationship between extent of savings and mental health before we do anything in anger.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/saved"><strong>saved</strong></a></p></td>
+<td><p>monthly amount saved</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 4, 6, 8, 10, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvesth"><strong>nvesth</strong></a></p></td>
+<td><p>Savings/investments: savings account</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/matdepf"><strong>matdepf</strong></a></p></td>
+<td><p>regular savings</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 4, 6, 8, 10</p></td>
+<td><p>Text:<em>Enough money to make regular savings of £10 a month or more for rainy days or retirement?</em><br />Ordinal 4 levels. From I/We have this, Can’t afford it, Don’t need it now, Does not apply.<br />Weird levels in this one, we’d have to make some assumptions about those who say they don’t need it or it doesn’t apply.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fiyrdia"><strong>fiyrdia</strong></a></p></td>
+<td><p>savings and investments</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb3"><strong>svackb3</strong></a></p></td>
+<td><p>Over 10000 in savings</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb5"><strong>svackb5</strong></a></p></td>
+<td><p>Over 20000 in savings</p></td>
+<td><p>indresp</p></td>
+<td><p>bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestb"><strong>nvestb</strong></a></p></td>
+<td><p>Savings/investments: premium bonds</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestd"><strong>nvestd</strong></a></p></td>
+<td><p>Savings/investments: PEP</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nveste"><strong>nveste</strong></a></p></td>
+<td><p>Savings/investments: shares</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestg"><strong>nvestg</strong></a></p></td>
+<td><p>Savings/investments: other</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestj"><strong>nvestj</strong></a></p></td>
+<td><p>Savings/investments: tessa/ISA</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/nvestnn"><strong>nvestnn</strong></a></p></td>
+<td><p>Savings/investments: none</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rtfndb"><strong>rtfndb</strong></a></p></td>
+<td><p>Retirement income: savings</p></td>
+<td><p>indresp</p></td>
+<td><p>bh16</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svack"><strong>svack</strong></a></p></td>
+<td><p>Total value in savings accounts</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb1"><strong>svackb1</strong></a></p></td>
+<td><p>Over 1000 in savings accounts</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb2"><strong>svackb2</strong></a></p></td>
+<td><p>Over 5000 in savings accounts</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/svackb4"><strong>svackb4</strong></a></p></td>
+<td><p>Over 500 in savings accounts</p></td>
+<td><p>indresp</p></td>
+<td><p>bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fiyrinvinc_dv"><strong>fiyrinvinc_dv</strong></a></p></td>
+<td><p>income from savings and investments, annual</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>Relates more to income but also falls under financial security. Might be unlikely that someone has income below living wage that is propped up by savings/investments but not impossible.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankk"><strong>bankk</strong></a></p></td>
+<td><p>Amount in account(s) - non-reg saving</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb1"><strong>bankkb1</strong></a></p></td>
+<td><p>Savings amount to 1000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb2"><strong>bankkb2</strong></a></p></td>
+<td><p>Savings amount to 5000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb3"><strong>bankkb3</strong></a></p></td>
+<td><p>Savings amount to 10,000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/bankkb4"><strong>bankkb4</strong></a></p></td>
+<td><p>Savings amount to 500 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb1"><strong>savekb1</strong></a></p></td>
+<td><p>Savings amount to 1000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb2"><strong>savekb2</strong></a></p></td>
+<td><p>Savings amount to 5000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb3"><strong>savekb3</strong></a></p></td>
+<td><p>Savings amount to 10,000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/savekb4"><strong>savekb4</strong></a></p></td>
+<td><p>Savings amount to 500 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p><strong>There are MANY more vars related to savings and investments but I’m stopping here and leaving this note.</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Credit</strong></p></td>
+<td><p><strong>and</strong></p></td>
+<td><p><strong>Debt</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ccamtjt"><strong>ccamtjt</strong></a></p></td>
+<td><p>outstanding balance, cards in joint names</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8</p></td>
+<td><p>Joint account debt</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ccamtsole"><strong>ccamtsole</strong></a></p></td>
+<td><p>balance outstanding, cards in sole name</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8</p></td>
+<td><p>Sole account debt</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debt"><strong>debt</strong></a></p></td>
+<td><p>Resp. owe money</p></td>
+<td><p>indresp</p></td>
+<td><p>bh05, bh10, bh15</p></td>
+<td><p>Debt doesn’t always indicate financial insecurity, could be things like buying a car on finance or personal loan for something reasonable. Think the level of debt is important here, or a combination of debt and income to find respondents who are in more debt than is reasonable. Therefore debt to income ratio might be better indicator.<br />See next 5 vars for levels of debt</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc1"><strong>debtc1</strong></a></p></td>
+<td><p>owe 500 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8, bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc2"><strong>debtc2</strong></a></p></td>
+<td><p>owe 1,500 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8, bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc3"><strong>debtc3</strong></a></p></td>
+<td><p>owe 5,000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8, bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc4"><strong>debtc4</strong></a></p></td>
+<td><p>owe 100 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8, bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debtc5"><strong>debtc5</strong></a></p></td>
+<td><p>owe 10,000 or more</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/debty"><strong>debty</strong></a></p></td>
+<td><p>total amount owed</p></td>
+<td><p>indresp</p></td>
+<td><p>4, 8, bh05, bh10, bh15</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/deduc"><strong>deduc</strong></a></p></td>
+<td><p>total hh deductions</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphp"><strong>xphp</strong></a></p></td>
+<td><p>Repayments on hire purchase or loans</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p>This var and the following to the end are very good indicators of financial security and have great coverage. They could be used to create a summary variable that indicates whether someone has enough money to pay for housing and other bills, or if they have/are having trouble paying.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphpdf"><strong>xphpdf</strong></a></p></td>
+<td><p>Repayments a burden on household</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsd1"><strong>xphsd1</strong></a></p></td>
+<td><p>Housing payments required borrowing</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsd2"><strong>xphsd2</strong></a></p></td>
+<td><p>Housing payments required cutbacks</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdb"><strong>xphsdb</strong></a></p></td>
+<td><p>problems paying for housing</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdb_bh"><strong>xphsdb_bh</strong></a></p></td>
+<td><p>Been 2+ months late with housing payment</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdba"><strong>xphsdba</strong></a></p></td>
+<td><p>up to date with all bills</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdct"><strong>xphsdct</strong></a></p></td>
+<td><p>problems paying council tax</p></td>
+<td><p>hhresp</p></td>
+<td><p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphsdf"><strong>xphsdf</strong></a></p></td>
+<td><p>Problems paying for housing over year</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh01, bh02, bh03, bh04, bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xphp"><strong>xphp</strong></a></p></td>
+<td><p>Repayments on hire purchase or loans</p></td>
+<td><p>hhresp</p></td>
+<td><p>bh05, bh06, bh07, bh08, bh09, bh10, bh11, bh12, bh13, bh14, bh15, bh16, bh17, bh18</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="physical-well-being">
+<h2><strong>Physical Well-Being</strong><a class="headerlink" href="#physical-well-being" title="Permalink to this heading"></a></h2>
+<p>(e.g. do you have certain physical ailments? Does your physical well-being effect your ability to be social or work?)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Waves</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/adla"><strong>adX</strong></a></p></td>
+<td><p>Able to do X?</p></td>
+<td><p>indresp</p></td>
+<td><p>7, 9, 11</p></td>
+<td><p>Many variables of this form. Not listing them here..</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/adlad"><strong>adXd</strong></a></p></td>
+<td><p>Ease of doing X?</p></td>
+<td><p>indresp</p></td>
+<td><p>7, 9, 11</p></td>
+<td><p>See above</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cancertypn1"><strong>XtypeY/hcondX</strong></a></p></td>
+<td><p>Do you have disease X type Y? (e.g. cancer, arthritis)</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p>Many variables for every having a disease as well as history and severity. E.g. have you had a heart attack ever/ between interviews.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hlpformb1"><strong>hlpformX</strong></a></p></td>
+<td><p>Do you require assistance from X/ todo X?</p></td>
+<td><p>indresp</p></td>
+<td><p>7, 9, 11</p></td>
+<td><p>Does a person get help from medical/professionals/volunteers to do essential tasks such as getting groceries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf1"><strong>scsfX</strong></a></p></td>
+<td><p>Does your physical well-being affect X?</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>SF1 survey values. Usually 5 tier likert scales. Vague/subjective questions but greater coverage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sf12mcs_dv"><strong>Sf12pcs_dv</strong></a></p></td>
+<td><p>What is your Short form 12 (SF-12 ) physical component score?</p></td>
+<td><p>indresp</p></td>
+<td><p>1,2,3,4,5,6,7,8,9,10,11</p></td>
+<td><p>Continuous variable. Normalised to N(50,10) but still right skewed. See: <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/8628042/">A 12-Item Short-Form Health Survey</a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mental-well-being">
+<h2><strong>Mental Well-Being</strong><a class="headerlink" href="#mental-well-being" title="Permalink to this heading"></a></h2>
+<p>(e.g. do you have certain mental ailments? Does your mental well-being effect your ability to be social or work?)</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Variable</strong></p></th>
+<th class="head"><p><strong>Label</strong></p></th>
+<th class="head"><p><strong>Datafile</strong></p></th>
+<th class="head"><p><strong>Waves</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cancertypn1"><strong>XtypeY/hcondX</strong></a></p></td>
+<td><p>Do you have disease X type Y? (e.g. depression, anxiety.)</p></td>
+<td><p>indresp</p></td>
+<td><p>9, 10, 11</p></td>
+<td><p>Many variables for every having a disease as well as history and severity. E.g. have you had panic attacks ever/ between interviews.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf1"><strong>scsfX</strong></a></p></td>
+<td><p>Does your mental well-being affect X?</p></td>
+<td><p>indresp</p></td>
+<td><p>2, 3, 4, 5, 6, 7, 8, 9, 10, 11</p></td>
+<td><p>SF1 survey values. Usually 5 tier likert scales. Vague/subjective questions but greater coverage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sf12mcs_dv"><strong>Sf12mcs_dv</strong></a></p></td>
+<td><p>What is your Short form 12 (SF-12 ) mental component score?</p></td>
+<td><p>indresp</p></td>
+<td><p>1,2,3,4,5,6,7,8,9,10,11</p></td>
+<td><p>Continuous variable. Normalised to N(50,10) but still right skewed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/swemwbs_dv"><strong>swemwbs_dv</strong></a></p></td>
+<td><p>What is your Short Warwick Edinburgh Mental Well-Being Scale?</p></td>
+<td><p>indresp</p></td>
+<td><p>1, 4, 7, 10</p></td>
+<td><p>Warwick Edinburgh mental wellbeing scale. 7-35 likert scale. Pseudo-continuous.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scghqa"><strong>scghqX</strong></a></p></td>
+<td><p>Do you have trouble with X?</p></td>
+<td><p>indresp</p></td>
+<td><p>1,2,3,4,5,6,7,8,9,10,11</p></td>
+<td><p>General Health Questions. Subjective 4 tier likert scales. Not reliable but provide a good relative measure of health between interviews.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="validation.html" class="btn btn-neutral float-left" title="Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_tables.html" class="btn btn-neutral float-right" title="Data Tables" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
