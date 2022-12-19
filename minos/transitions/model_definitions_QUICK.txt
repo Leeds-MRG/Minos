@@ -1,1 +1,1 @@
-OLS : SF_12 ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = "WBI") + scale(hh_income) + relevel(factor(housing_quality), ref = "1") + relevel(factor(job_sec), ref = "3") + scale(phealth)
+CLM : neighbourhood_safety ~ scale(age) + factor(sex) + relevel(factor(job_sec), ref = "3") + relevel(factor(ethnicity), ref = "WBI") + scale(hh_income) + relevel(factor(housing_quality), ref = "3") + relevel(factor(region), ref = "South East")

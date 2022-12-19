@@ -221,7 +221,20 @@ def generate_composite_neighbourhood_safety(data):
     - No to all     == 3
 
     *** CHANGE ../../.. ***
-    Make it a binary - where if you have any 1 of these things you are likely to have a problem with neighbourhood safety.
+    For each of the seven crime variables, combine ‘very common’ and ‘fairly common’ to create a composite
+    ‘fairly or very common’ (these are the small number categories).
+
+    Then bin responses like this:
+    1. Response to all crime questions is “not at all common” (very safe neighbourhood). Justification is that if you
+        perceive no threat at all this is the best possible state.
+    2. Responds to 1+ question as “not very common” but no responses to ‘fairly or very common’ (safe neighbourhood).
+        Justification is that on the whole these people probably feel safe but not all is perfect, so probably not
+        quite as desirable as group 1.
+    3. Responds to 1+ question as fairly or very common’ (not safe). Justification is that if perception of crime is
+        very or fairly common, no matter what category, you are likely to feel that your neighbourhood safety is
+        compromised.
+
+    These might need tweaking but can we look at the three level distribution first
 
     Parameters
     ----------
@@ -235,25 +248,56 @@ def generate_composite_neighbourhood_safety(data):
     print('Generating composite for neighbourhood_safety...')
 
     # first make list of the columns we're interested in
-    sum_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
-    # sum up all non-negative values in sum_list vars
-    data["safety_sum"] = data[sum_list].gt(0).sum(axis=1)
+    var_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
 
-    # conditionally assign housing_quality var based on housing_sum
-    # first set conditions and values for 3 level var
-    conditions = [
-        (data["safety_sum"] == 0),
-        (data["safety_sum"] > 0) & (data["safety_sum"] < 7),
-        (data["safety_sum"] == 7),
-    ]
-    values = [1, 2, 3]
-    # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
-    data["neighbourhood_safety"] = np.select(conditions, values)
+    # Now combine very common (1) with fairly common (2) and recode to 1-3
+    for var in var_list:
+        data[var][data[var] == 1] = 2
+        data[var] = data[var] - 1
+
+    data['safety'] = -9
+    # First do very safe neighbourhood. All vars == 3 (not at all common)
+    #data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
+    data.safety[(data['burglaries'] == 3) & (data['car_crime'] == 3) & (data['drunks'] == 3) & (data['muggings'] == 3) &
+                (data['teenagers'] == 3) & (data['vandalism'] == 3)] = 3
+    # Now safe neighbourhood. Any var == 2 (not very common) but no var == 1 (very or fairly common)
+    data.safety[((data['burglaries'] == 2) | (data['car_crime'] == 2) | (data['drunks'] == 2) | (data['muggings'] == 2) |
+                 (data['teenagers'] == 2) | (data['vandalism'] == 2)) &
+                ((data['burglaries'] != 1) & (data['car_crime'] != 1) & (data['drunks'] != 1) & (data['muggings'] != 1) &
+                 (data['teenagers'] != 1) & (data['vandalism'] != 1))] = 2
+    # Now unsafe neighbourhood. Any var == 1 (very or fairly common)
+    data.safety[(data['burglaries'] == 1) | (data['car_crime'] == 1) | (data['drunks'] == 1) | (data['muggings'] == 1) |
+                (data['teenagers'] == 1) | (data['vandalism'] == 1)] = 1
+
+    data['neighbourhood_safety'] = data.safety
 
     # drop cols we don't need
-    data.drop(labels=['safety_sum'] + sum_list,
-              axis=1,
-              inplace=True)
+    #data.drop(labels=var_list,
+    #          axis=1,
+    #          inplace=True)
+
+    # # first make list of the columns we're interested in
+    # sum_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
+    # # sum up all non-negative values in sum_list vars
+    # data["safety_sum"] = data[sum_list].gt(0).sum(axis=1)
+    #
+    # # conditionally assign housing_quality var based on housing_sum
+    # # first set conditions and values for 3 level var
+    # conditions = [
+    #     (data["safety_sum"] == 0),
+    #     (data["safety_sum"] > 0) & (data["safety_sum"] < 7),
+    #     (data["safety_sum"] == 7),
+    # ]
+    # values = [1, 2, 3]
+    # # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
+    # data["neighbourhood_safety"] = np.select(conditions, values)
+    #
+    # # drop cols we don't need
+    # data.drop(labels=['safety_sum'] + sum_list,
+    #           axis=1,
+    #           inplace=True)
+
+
 
     return data
 

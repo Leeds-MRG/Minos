@@ -137,10 +137,10 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 
 ################ Main Run Loop ################
 
-run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data) {
+run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data) {
   
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
-  modDef_path = paste0(transitionSourceDir_path, 'model_definitions_NEW.txt')
+  modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
   # read file
@@ -175,16 +175,14 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
     year.range <- min(data$time):(max(data$time) - 1)
     # set up output directory
-    out.path1 <- paste0(transitionDir_path, 'test/', dependent, '/')
-    out.path2 <- paste0(transitionDir_path, tolower(mod.type), '/')
+    out.path1 <- paste0(transitionDir_path, dependent, '/')
+    out.path2 <- paste0(out.path1, tolower(mod.type), '/')
     create.if.not.exists(out.path1)
     create.if.not.exists(out.path2)
     
     print(paste0('Starting for ', dependent, '...'))
     
     for(year in year.range) {
-      
-      print(paste0('Starting estimation for ', dependent, ' in ', year))
       
       ## dependent year data is always year + 1 unless data requires something different
       # (as in neighbourhood estimation, does a t+3 model due to data)
@@ -202,6 +200,11 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       if(dependent == 'neighbourhood_safety'){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
+      #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
+      # SF_12 predictor (physical health score) not available in wave 1
+      if(dependent == 'SF_12' & year == 2009) { next }
+      
+      print(paste0('Starting estimation for ', dependent, ' in ', year))
       
       # independents from time T (current) with dependent removed
       indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])
@@ -261,9 +264,9 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       #rownames(coefs) <- NULL
       
       # save model & coefficients to file (in their own folder)
-      #out.filepath <- paste0(out.path, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
-      #write_csv(coefs, file = out.filepath)
-      saveRDS(model, file=paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '.rds'))
+      #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
+      #write_csv(coefs, file = coef.filepath)
+      saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
       
     }
@@ -281,13 +284,14 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
 dataDir <- 'data/final_US/'
 transitionDir <- 'data/transitions/'
 transSourceDir <- 'minos/transitions/'
+modDefFilename <- 'model_definitions_NEW.txt'
 
 # Load input data (final_US/)
 filelist <- list.files(dataDir)
 filelist <- paste0(dataDir, filelist)
 data <- do.call(rbind, lapply(filelist, read.csv))
 
-run_yearly_models(transitionDir, transSourceDir, data)
+run_yearly_models(transitionDir, transSourceDir, modDefFilename, data)
 
 print('Generated all transition models.')
 
