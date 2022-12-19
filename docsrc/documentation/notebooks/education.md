@@ -1,6 +1,6 @@
-# Education
+## Education
 
-## Purpose
+### Purpose
 
 This module has been added currently for the sole purpose of solving a problem created by our 
 current method of replenishing the population. Briefly, this is that 16 year olds are added to the 
@@ -9,7 +9,7 @@ throughout their lives. We needed to find a way to predict what the highest leve
 would be for each individual, and then manage their trajectory towards achieving that level in a 
 sensible timeframe. 
 
-## Levels
+### Levels
 
 Each qualification type as reported in Understanding Society has been mapped to a level, details of
 which are [provided by the government](https://www.gov.uk/what-different-qualification-levels-mean/list-of-qualification-levels):
@@ -31,7 +31,7 @@ which are [provided by the government](https://www.gov.uk/what-different-qualifi
 - Higher degree : 7
 - Other higher degree : 7
 
-## Method
+### Method
 
 During the data generation pipeline, a neural net model is estimated to predict the highest
 level of education a person will attain based on their sex, ethnicity, and region of the UK. 
@@ -56,7 +56,7 @@ decisions were made to get something reasonable for the first iteration that can
 upon in time - the important part was the framework for how we update education state for 
 replenishing populations over time.
 
-## Attainment Ages
+### Attainment Ages
 
 Each new qualification is added the year after it would be achieved, because some people 
 completed the survey before the end of the school year (i.e. someone could be 18 in the first 

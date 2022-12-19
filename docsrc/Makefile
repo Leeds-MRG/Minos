@@ -22,6 +22,12 @@ help:
 
 	
 render_rmd:
+	# convert markdowns to rst.
+	pandoc --citeproc -s "documentation/notebooks/education.md" -o "documentation/modules/education.rst"
+	pandoc --citeproc -s "documentation/notebooks/replenishment.md" -o "documentation/modules/replenishment.rst"
+	pandoc --citeproc -s "documentation/notebooks/modules_intro.md" -o "documentation/modules/modules_intro.rst"
+	pandoc --citeproc -s "documentation/notebooks/nutrition.md" -o "documentation/modules/nutrition.rst"
+
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
 	bash compile_rmd_rst.sh "documentation/notebooks/tobacco.Rmd" "documentation/modules/tobacco.rst"
 	bash compile_rmd_rst.sh "documentation/notebooks/household_income.Rmd" "documentation/modules/household_income.rst"

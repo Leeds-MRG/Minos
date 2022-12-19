@@ -6,7 +6,7 @@ bibliography:
   #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
 ---
 
-# XXXX
+## XXXX
 
 
 Introductory fluff. Why do we need this module? test reference [@1987:nelson]. 
@@ -15,15 +15,15 @@ Introductory fluff. Why do we need this module? test reference [@1987:nelson].
 source('sphinx_notebook_utils.R')
 ```
 
-## Methods
+### Methods
 
   What methods are used? Justification due to output data type. explanation of model output.
   
-## Data
+### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
   
-## Results
+### Results
   
   What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
 
@@ -34,4 +34,4 @@ clm_output("PATH_TO_TEST_MODEL_DATA") #e.g. ../../../data/transitions/test/housi
 ```
 
 
-## References
+### References

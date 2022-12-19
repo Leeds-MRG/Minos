@@ -1,9 +1,9 @@
-# Nutrition
+## Nutrition
 
 The nutrition module uses a composite variable comprised of the frequency and amount of the consumption of fruit and 
 vegetables.
 
-## Composite Variable
+### Composite Variable
 
 The variables available to us from Understanding Society on the quality of food consumption were
 [wkfruit](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkfruit),
@@ -25,7 +25,7 @@ eaten per week. Unfortunately because the `days_eating_<>_per_week` variables ar
 (levels = [Never, 1-3 days, 4-6 days, Everyday]) and not just the number of days, we can't calculate an actual value 
 for `amount_per_week`.
 
-## Transition Model
+### Transition Model
 
 Predictor variables:
 - Sex

@@ -8,6 +8,6 @@
     neighbourhood
     mental_well_being
     tobacco
-    education.md
+    education
     nutrition
     replenishment

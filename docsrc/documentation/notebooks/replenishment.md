@@ -1,13 +1,13 @@
-# Replenishment
+## Replenishment
 
-## Rationale
+### Rationale
 
 In order to run the model beyond the length of the Understanding Society data 
 (11 waves, currently from 2009 - 2020), we needed to generate a replenishing population
 that would maintain the age structure, as well as being representative of the British
 population into the future in terms of sex and ethnicity. 
 
-## Data Sources
+### Data Sources
 
 Counts by age, sex, and year were generated for 2008 - 2070 from 2 sources:
 1. National Midyear estimates for 2008 - 2020
@@ -19,7 +19,7 @@ Counts by ethnic group were obtained from a previous project involving Nik Lomax
 These were counts by ethnic group by age and LAD, which were summed to generate national level
 counts of ethnicity by single year of age. See [this link for more information about ethpop](https://reshare.ukdataservice.ac.uk/852508/).
 
-## Method
+### Method
 
 What we did to ensure that the simulation maintains the age structure of the data moving into the 
 future, was to begin with a population derived from a single year of understanding society (we 
@@ -30,7 +30,7 @@ simulation. We then take the 16 year olds from the replenishing population, whic
 reweighted to be representative for that year by sex and age (see below) and add them into the 
 simulation to replace the 16 year olds that have aged.
 
-## Reweighting
+### Reweighting
 
 As part of the data generation pipeline, we take the final_US datafiles (after a number of
 pre-processing and imputation steps) and use them to generate both the starting and 
@@ -45,7 +45,7 @@ The actual reweighting calculation is very simple:
 new_weight = (old_weight * count_by_group) / total_weight_by_group
 ```
 
-## Complication
+### Complication
 
 A slight complication to this method of replenishing is that education states now have to be 
 transformed over time in the model. This is handled by the Education module, which is described
