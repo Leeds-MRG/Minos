@@ -165,19 +165,19 @@ beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no 
 beefy_baseline: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config'
 
-slurm_intervention_hhIncome: setup
+beefy_intervention_hhIncome: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-slurm_intervention_hhIncomeChildUplift: setup
+beefy_intervention_hhIncomeChildUplift: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-slurm_intervention_PovertyLineChildUplift: setup
+beefy_intervention_PovertyLineChildUplift: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-slurm_intervention_livingWage: setup
+beefy_intervention_livingWage: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-slurm_intervention_energyDownLift: setup
+beefy_intervention_energyDownLift: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
 #####################################
