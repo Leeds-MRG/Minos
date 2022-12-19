@@ -36,8 +36,8 @@ TIME=`date +%Y_%m_%d_%H_%M_%S`
 
 if [ "$#" -eq 4 ]; then
   echo "Running baseline MINOS simulation"
-  qsub 'scripts/slurm_run.sh' -c $2 -o $4 -t $TIME
+  sbatch --array=1-5  'scripts/slurm_run.sh' -c $2 -o $4 -t $TIME
 elif [ "$#" -eq 6 ]; then
   echo "Running MINOS simulation with $6"
-  qsub 'scripts/slurm_run.sh' -c $2 -o $4 -i $6 -t $TIME
+  sbatch --array=1-5  'scripts/slurm_run.sh' -c $2 -o $4 -i $6 -t $TIME
 fi
