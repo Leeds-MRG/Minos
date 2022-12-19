@@ -41,3 +41,6 @@ elif [ "$#" -eq 6 ]; then
   echo "Running MINOS simulation with $6"
   qsub 'scripts/arc_run.sh' -c $2 -o $4 -i $6 -t $TIME
 fi
+
+# no errors
+exit 0
