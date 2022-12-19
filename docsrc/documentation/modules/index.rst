@@ -1,13 +1,13 @@
-Modules
-=======
-
 .. toctree::
 
     modules_intro
-    module_template
-    housing_missing_preprocessing
-    housing_module
+    household_income
+    housing
+    loneliness
+    labour
+    neighbourhood
+    mental_well_being
+    tobacco
     education
     nutrition
     replenishment
-    summarise_transitions_2
