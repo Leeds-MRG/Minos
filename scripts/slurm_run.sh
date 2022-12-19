@@ -15,8 +15,6 @@
 
 ./gpu_burn # GPU logging..? Proves traceback if something goes wrong.
 
-pwd; hostname; date
-
 echo "Running Minos task $SLURM_JOBID on $SLURM_CPUS_ON_NODE CPU cores"
 echo "Running task $SLURM_ARRAY_TASK_ID of $SLURM_ARRAY_TASK_MAX"
 
