@@ -20,8 +20,11 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+	
+render_rmd:
+	bash compile_rmd_rst.sh "documentation/notebooks/summarise_transitions_2.Rmd" "documentation/modules/summarise_transitions_2.rst"
 
-github:
+github: render_rmd
 	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # build and write to /docs output directory or it defaults to /html.
 	@$(SPHINXAPIBUILD) -f -o $(SOURCEDIR) $(BUILDDIR) # likewise
 	#@cp -af _build/html/. "$(BUILDIR)"

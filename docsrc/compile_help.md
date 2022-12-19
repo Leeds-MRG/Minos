@@ -8,16 +8,12 @@ conda install myst-parser\
 conda install -c conda-forge pandoc\
 pip install sphinx-rtd-theme\
 pip install sphinxcontrib-bibtex\
-pip install nbsphinx\
-pip install jupytext 
 
 Sphinx
 Markdown parser
 needed for nbsphinx.
 read the docs theme. 
 bibtex
-Rmd notebooks. 
-needed to parse Rmds.
 
 Then move to the docsrc folder in terminal. Two key files here are index.rst which contains the file tree for the website. 
 conf.py contains parameters for sphinx to run and html formatting.

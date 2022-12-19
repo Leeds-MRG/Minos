@@ -9,20 +9,24 @@ bibliography:
 
 Tobacco consumption is measured in the usual number of cigarettes smoked per day, and is taken directly from a US variable ([ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs)).
 
-Test references [@1987:nelson]
+Test references [@1987:nelson].
 
 We estimated a zero inflated poisson model, with the formula:
 
 > ncigs \~ age + sex + SF_12 + labour_state + job_sec + ethnicity + hh_income \| ethnicity + labour_state + SF_12
 
-```{r}
+```{r tobacco_output}
 options(width=120)
 require(tidyverse)
 require(pscl)
 
-workingDir <- "../.." #TODO stored in docsrc/Coefficients for now. move to data/transitions and change rst filepaths accordingly.
+workingDir <- "../../.." #TODO stored in docsrc/Coefficients for now. move to data/transitions and change rst filepaths accordingly.
 knitr::opts_knit$set(root.dir = workingDir)
 trans.path <- paste0(workingDir,'/data/transitions/test/')
 tobacco <- readRDS(paste0(trans.path, 'tobacco_zip_2018_2019.rds'))
 summary(tobacco)
 ```
+
+
+References
+----------

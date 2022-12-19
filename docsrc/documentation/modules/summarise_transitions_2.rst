@@ -1,9 +1,16 @@
+=======================
+MINOS Transition Models
+=======================
+
+
 Tobacco Coefficients
 ====================
 
 Tobacco consumption is measured in the usual number of cigarettes smoked
 per day, and is taken directly from a US variable
 (`ncigs <https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs>`__).
+
+Test references (Nelson 1987).
 
 We estimated a zero inflated poisson model, with the formula:
 
@@ -21,12 +28,12 @@ We estimated a zero inflated poisson model, with the formula:
 
 ::
 
-   ## ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.2 ──
+   ## ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.2 ──
    ## ✔ ggplot2 3.4.0      ✔ purrr   0.3.5 
    ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
    ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
    ## ✔ readr   2.1.3      ✔ forcats 0.5.2 
-   ## ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+   ## ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
    ## ✖ dplyr::filter() masks stats::filter()
    ## ✖ dplyr::lag()    masks stats::lag()
 
@@ -46,7 +53,7 @@ We estimated a zero inflated poisson model, with the formula:
 
 .. code:: r
 
-   workingDir <- "../.." #TODO stored in docsrc/Coefficients for now. move to data/transitions and change rst filepaths accordingly.
+   workingDir <- "../../.." #TODO stored in docsrc/Coefficients for now. move to data/transitions and change rst filepaths accordingly.
    knitr::opts_knit$set(root.dir = workingDir)
    trans.path <- paste0(workingDir,'/data/transitions/test/')
    tobacco <- readRDS(paste0(trans.path, 'tobacco_zip_2018_2019.rds'))
@@ -98,3 +105,15 @@ We estimated a zero inflated poisson model, with the formula:
    ## 
    ## Number of iterations in BFGS optimization: 30 
    ## Log-likelihood: -5657 on 25 Df
+
+References
+----------
+
+.. container:: references csl-bib-body hanging-indent
+   :name: refs
+
+   .. container:: csl-entry
+      :name: ref-1987:nelson
+
+      Nelson, Edward. 1987. *Radically Elementary Probability Theory*.
+      Princeton University Press.

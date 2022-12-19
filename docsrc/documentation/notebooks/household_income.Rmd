@@ -1,0 +1,19 @@
+---
+title: "Household_Income"
+output: html_document
+date: "2022-12-16"
+bibliography: references.bib  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Household Income 
+
+
+## Data
+
+## Methods
+
+## Results
