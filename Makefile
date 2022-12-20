@@ -244,19 +244,21 @@ transitions: $(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rd
 transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds $(TRANSITION_DATA)/nutrition/ols/nutrition_ols_2018_2019.rds
 transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
-new_transitions: final_data | $(TRANSITION_DATA)
+new_transitions: $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds | $(TRANSITION_DATA)
+
+$(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/estimate_transitions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
 $(TRANSITION_DATA):
 	@echo "Creating transition data directory"
 	mkdir -p $(TRANSITION_DATA)
 
-$(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/income/income_ols.r
-	# Script needs 3 arguments (which are set as Makefile variables, change there not here):
-	# 1 - Minos root directory (i.e. $(ROOT))
-	# 2 - Input data directory (i.e. data/composite or $(DATADIR))
-	# 3 - Transition model directory (data/transitions or $(TRANSITION_DATA))
-	$(RSCRIPT) $(SOURCEDIR)/transitions/income/income_ols.r --args $(DATADIR) $(TRANSITION_DATA) $(TRANSITION_SOURCE)
+#$(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/income/income_ols.r
+#	# Script needs 3 arguments (which are set as Makefile variables, change there not here):
+#	# 1 - Minos root directory (i.e. $(ROOT))
+#	# 2 - Input data directory (i.e. data/composite or $(DATADIR))
+#	# 3 - Transition model directory (data/transitions or $(TRANSITION_DATA))
+#	$(RSCRIPT) $(SOURCEDIR)/transitions/income/income_ols.r --args $(DATADIR) $(TRANSITION_DATA) $(TRANSITION_SOURCE)
 
 $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/housing/Housing_clm.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/housing/Housing_clm.R
