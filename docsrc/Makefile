@@ -27,6 +27,8 @@ render_rmd:
 	pandoc --citeproc -s "documentation/notebooks/replenishment.md" -o "documentation/modules/replenishment.rst"
 	pandoc --citeproc -s "documentation/notebooks/modules_intro.md" -o "documentation/modules/modules_intro.rst"
 	pandoc --citeproc -s "documentation/notebooks/nutrition.md" -o "documentation/modules/nutrition.rst"
+	pandoc --citeproc -s "documentation/notebooks/mortality.md" -o "documentation/modules/mortality.rst"
+	pandoc --citeproc -s "documentation/notebooks/interventions.md" -o "documentation/modules/interventions.rst"
 
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
 	bash compile_rmd_rst.sh "documentation/notebooks/tobacco.Rmd" "documentation/modules/tobacco.rst"
