@@ -41,7 +41,7 @@ class Loneliness(Base):
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("loneliness")
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
@@ -115,7 +115,7 @@ class Loneliness(Base):
 
     def plot(self, pop, config):
 
-        file_name = config.run_output_plots_dir + f"loneliness_barplot_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"loneliness_barplot_{self.year}.pdf"
         densities = pd.DataFrame(pop['loneliness'].value_counts(normalize=True))
         densities.columns = ['densities']
         densities['loneliness'] = densities.index

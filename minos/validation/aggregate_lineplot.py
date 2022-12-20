@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 
-def main(source, destination, v, method):
+def main(source, destination, v, method, prefix):
     """
 
     Parameters
@@ -19,10 +19,10 @@ def main(source, destination, v, method):
     -------
 
     """
-    aggregate_lineplot(source, destination, v, method)
+    aggregate_lineplot(source, destination, v, method, prefix)
     #TODO looks redundant for now but more plots can go here as needed..
 
-def aggregate_lineplot(source, destination, v, method):
+def aggregate_lineplot(source, destination, v, method, prefix):
     """ Plot lineplot over sources and years for aggregated v.
 
     Parameters
@@ -37,9 +37,16 @@ def aggregate_lineplot(source, destination, v, method):
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     df = pd.read_csv(source)
+    df[v] -= 1 # set centre at 0.
     f = plt.figure()
     sns.lineplot(data=df, x='year', y=v, hue = 'tag', style='tag', markers=True, palette='Set2')
-    file_name = os.path.join(destination, f"{v}_aggs_by_year.pdf")
+    if prefix:
+        file_name = f"{prefix}_{v}_aggs_by_year.pdf"
+    else:
+        file_name = f"{v}_aggs_by_year.pdf"
+    file_name = os.path.join(destination, file_name)
+    plt.ylabel(f"{v} {method}")
+    plt.tight_layout()
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
 
@@ -53,13 +60,16 @@ if __name__ == '__main__':
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
     parser.add_argument("-m", "--method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to np.nanmean.")
+    parser.add_argument("-p", "--prefix", required=False, default=None,
+                        help="Prefix for pdf output filename. used to differenate different plot types. e.g. all population vs treated only.")
 
     args = vars(parser.parse_args())
     sources = args['sources']
     destination = args['destination']
     v = args['variable']
     method = args['method']
+    prefix = args['prefix']
 
     sources = sources.split(",")
     source = os.path.join('output', sources[0], "aggregated_" + "_".join(sources) + ".csv")
-    main(source, destination, v, method)
+    main(source, destination, v, method, prefix)

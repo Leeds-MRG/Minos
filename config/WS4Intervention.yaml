@@ -1,7 +1,5 @@
 randomness:
     key_columns: ['entrance_time', 'age']
-input_data:
-    location: 'UK'
 time:
     start: {year: 2018, month: 10, day: 15}
     end:   {year: 2019, month: 10, day: 15}
@@ -11,15 +9,10 @@ population:
     age_start: 0
     age_end: 100
 
-replenishment_files_source:
-      "/home/docker/MINOS/UKDA-6614-stata/stata/stata13_se/"
-
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-#input_data_dir: "data"
-#persistent_data_dir: "persistent_data"
+
 output_data_dir: "output"
-output_destination: 'WS4Intervention' # Further specify the output data is saved to. E.g. running multiple models may need separate folders to prevent overwriting.
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
@@ -28,16 +21,10 @@ output_destination: 'WS4Intervention' # Further specify the output data is saved
 # Only if Replenishment needs some other module in the future would it be superceded.
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
-#components : [Depression(), Employment(), Education(), FertilityAgeSpecificRates(), Mortality(), Replenishment()]
-#components : [Depression(), Employment(), Education(), Mortality(), Replenishment()]
 components : [livingWageIntervention(), Mortality(), Replenishment()]
 
 
 scale_rates:
-    # methods:
-    # constant: all rates regardless of age/sex/... will be multiplied by the specified factor
-    #           if 1, the original rates will be usd
-    # these are essentially used to inflate rates in certain scenarios. E.g. employment decrease.
     method: "constant"
     constant:
         education: 1

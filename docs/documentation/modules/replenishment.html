@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Replenishment &mdash; Minos  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Running MINOS on Slurm/ARC4." href="../HPC.html" />
+    <link rel="prev" title="Nutrition" href="nutrition.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module_template.html">Module Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing_module.html">Housing module test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Replenishment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rationale">Rationale</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data-sources">Data Sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#method">Method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reweighting">Reweighting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#complication">Complication</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
+      <li class="breadcrumb-item active">Replenishment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="replenishment">
+<h1>Replenishment<a class="headerlink" href="#replenishment" title="Permalink to this heading"></a></h1>
+<section id="rationale">
+<h2>Rationale<a class="headerlink" href="#rationale" title="Permalink to this heading"></a></h2>
+<p>In order to run the model beyond the length of the Understanding Society data
+(11 waves, currently from 2009 - 2020), we needed to generate a replenishing population
+that would maintain the age structure, as well as being representative of the British
+population into the future in terms of sex and ethnicity.</p>
+</section>
+<section id="data-sources">
+<h2>Data Sources<a class="headerlink" href="#data-sources" title="Permalink to this heading"></a></h2>
+<p>Counts by age, sex, and year were generated for 2008 - 2070 from 2 sources:</p>
+<ol class="arabic simple">
+<li><p>National Midyear estimates for 2008 - 2020</p>
+<ol class="arabic simple">
+<li><p>These were obtained using the <a class="reference external" href="https://www.nomisweb.co.uk/">nomisweb data query tool</a></p></li>
+</ol>
+</li>
+<li><p>Principal Population Projections (PPP) for 2021 - 2070</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationprojections/datasets/z1zippedpopulationprojectionsdatafilesuk">Principal Population Projections</a></p></li>
+</ol>
+</li>
+</ol>
+<p>Counts by ethnic group were obtained from a previous project involving Nik Lomax called Ethpop.
+These were counts by ethnic group by age and LAD, which were summed to generate national level
+counts of ethnicity by single year of age. See <a class="reference external" href="https://reshare.ukdataservice.ac.uk/852508/">this link for more information about ethpop</a>.</p>
+</section>
+<section id="method">
+<h2>Method<a class="headerlink" href="#method" title="Permalink to this heading"></a></h2>
+<p>What we did to ensure that the simulation maintains the age structure of the data moving into the
+future, was to begin with a population derived from a single year of understanding society (we
+picked 2018). The replenishing population is also derived from US 2018, but instead takes just the
+16 year olds. Each year in the simulation, every simulant is transformed and ages by 1 year, which
+means the 16 year olds at time t will be 17 at time t+1, meaning there are no 16 year olds in the
+simulation. We then take the 16 year olds from the replenishing population, which have been
+reweighted to be representative for that year by sex and age (see below) and add them into the
+simulation to replace the 16 year olds that have aged.</p>
+</section>
+<section id="reweighting">
+<h2>Reweighting<a class="headerlink" href="#reweighting" title="Permalink to this heading"></a></h2>
+<p>As part of the data generation pipeline, we take the final_US datafiles (after a number of
+pre-processing and imputation steps) and use them to generate both the starting and
+replenishing populations. The model begins with a population derived from Understanding Society
+in 2018 (wave 9), from which the analysis weights provided by the survey are then modified based
+on the counts from both the age-sex projections and the counts by ethnicity. Replenishing populations
+are also derived from US wave 9, where we take all 16 year olds from wave 9, duplicate them for
+every year from 2009 - 2070, and reweight these populations by age, sex, and ethnicity.
+The actual reweighting calculation is very simple:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">new_weight</span> <span class="o">=</span> <span class="p">(</span><span class="n">old_weight</span> <span class="o">*</span> <span class="n">count_by_group</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_weight_by_group</span>
+</pre></div>
+</div>
+</section>
+<section id="complication">
+<h2>Complication<a class="headerlink" href="#complication" title="Permalink to this heading"></a></h2>
+<p>A slight complication to this method of replenishing is that education states now have to be
+transformed over time in the model. This is handled by the Education module, which is described
+on a different page.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nutrition.html" class="btn btn-neutral float-left" title="Nutrition" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../HPC.html" class="btn btn-neutral float-right" title="Running MINOS on Slurm/ARC4." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

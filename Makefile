@@ -58,13 +58,25 @@ help: ### Show this help
 # cd /nobackup/<USERNAME>
 # Clone minos git in. (contains this makefile)
 # git clone https://github.com/Leeds-MRG/Minos
-# Should be able to run conda and install commands if needed.
+
+
+# Requires python 3.8, R base v4.1.0. tidyverse dplyr and sf packages also loaded from condaforge as they take a long time to install.
+# conda create -n conda_minos python=3.9 # create conda environment.
+# #conda activate conda_minos # activate conda environment.
+# conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
+# conda install -c conda-forge r-sf
+# conda install -c conda-forge r-dplyr
+# conda install -c conda-forge r-tidyverse
+
 
 ## Install
 ###
-.PHONY: install
 
+# Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
 install: ### Install all Minos requirements via pip
+install: $(SITEPACKAGES)/vivarium/__init__.py
+
+$(SITEPACKAGES)/vivarium/__init__.py:
 	@echo "Installing requirements via pip"
 	pip install -v -e .
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
@@ -76,70 +88,98 @@ install: ### Install all Minos requirements via pip
 	@echo "\nInstall complete!\n"
 
 
-## Test
+## Test Simulations
 ###
-.PHONY: testRun
+.PHONY: testRun testRun_Intervention
 
-#testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
+testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
 testRun: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/testConfig.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml --output_subdir 'testRun'
 
 testRun_Intervention: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyLivingWageIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml --output_subdir 'testRun' -i 'livingWageIntervention'
 
 ###
 ## Experiment Runs
 ###
+.phony: all_scenarios baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+.phony: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
-baseline: ### Baseline run of MINOS, using configuration defined in beefyBaseline.yaml
-baseline: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyBaseline.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
+#####################################
+## Local runs of MINOS interventions.
+#####################################
 
-beefy_baseline: # Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
-beefy_baseline: data transitions install beefy_conda
+all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+
+baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
+baseline: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config'
+
+intervention_hhIncome: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
+
+intervention_hhIncomeChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
+
+intervention_PovertyLineChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
+
+intervention_livingWage: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'livingWageIntervention'
+
+intervention_energyDownLift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'energyDownlift'
+
+
+#####################################
+## Running MINOS scenarios on Arc4
+#####################################
+
+.phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
+.phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+
+arc4_baseline: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config'
+
+arc4_intervention_hhIncome: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
+
+arc4_intervention_hhIncomeChildUplift: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
+
+arc4_intervention_PovertyLineChildUplift: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
+
+arc4_intervention_livingWage: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
+
+arc4_intervention_energyDownLift: setup
+	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
+
+
+#####################################
+# Running scenarios on beefy HPC in LIDA.
+#####################################
+
+# Needs doing when we can access the machine again..
+beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
+beefy_baseline: install data transitions
 	$(PYTHON) # fill in when have access to beefy again..
 
-arc4_baseline:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
-	$(shell qsub scripts/arc.sh config/beefyBaseline.yaml)
+#####################################
+### SETUP
+#####################################
 
-arc4_living_wage:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
-	$(shell qsub scripts/arc.sh config/beefyLivingWageIntervention.yaml)
+setup: ### Setup target to prepare everything required for simulation.
+### Runs install, prepares input data, estimates transition models, and generates input populations
+setup: install data transitions replenishing_data
 
-arc4_energy:
-	$(shell module load python anaconda)
-	$(shell conda activate conda_minos)
-	$(shell qsub scripts/arc.sh config/beefyEnergyDownlift.yaml)
+new_setup: install data new_transitions replenishing_data
 
-
-incomeIntervention: ### Run the income intervention using config defined in beefyIncomeIntervention.yaml. This is the
-### flexible framework for running income interventions, and adjustments to the size and scale of the intervention can be
-### made by editing the parameters in minos.modules.intervention.hhIncomeIntervention.pre_setup(). Eventually we might
-### make these parameters available in the config file itself, but this will have to do for now.
-incomeIntervention: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyIncomeIntervention.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
-
-childUplift: ### Run the child uplift intervention using config defined in beefyChildUplift.yaml. This intervention
-### gives all adults with children an extra £20 to their household income per week per child.
-childUplift: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyChildUplift.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
-
-povertyUplift: ### Run the poverty uplift intervention using config defined in beefyPovertyUplift.yaml. This intervention
-### gives all adults in poverty with children an extra £20 to their household income per week per child. Anyone with a
-### household income below 60% of the median household income is defined as being in poverty.
-povertyUplift: data transitions
-	$(PYTHON) scripts/run.py -c $(CONFIG)/beefyPovertyUplift.yaml --input_data_dir $(DATADIR) --persistent_data_dir $(PERSISTDATA) --output_dir $(DATAOUT)
-
-###
-## Data Generation
-# Combined Rules
-###
-
-setup: ### Setup target just for ease of development, NEED MORE INFORMATION SOON.
-setup: data transitions replenishing_data
+#####################################
+### Data Generation
+#####################################
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
@@ -167,17 +207,9 @@ spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all 
 ### version of the final data to be used in spatial analyses (of Sheffield only)
 spatial_data: $(SPATIALDATA)/2019_US_cohort.csv
 
-###
-
-transitions: ### Run R scripts to generate transition models for each module
-transitions: | $(TRANSITION_DATA)
-transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds
-transitions: $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
-transitions: $(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds $(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds
-transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds $(TRANSITION_DATA)/nutrition/ols/nutrition_ols_2018_2019.rds
-transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
-
+#####################################
 # Input Populations
+#####################################
 
 $(RAWDATA)/2019_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py --source_dir $(USSOURCEDIR)
@@ -200,7 +232,17 @@ $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2019_US_cohor
 $(SPATIALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2019_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
-# Transitions
+#####################################
+### transitions
+#####################################
+
+transitions: ### Run R scripts to generate transition models for each module
+transitions: | $(TRANSITION_DATA)
+transitions: final_data $(TRANSITION_DATA)/hh_income/hh_income_2018_2019.rds $(TRANSITION_DATA)/housing/clm/housing_clm_2018_2019.rds
+transitions: $(TRANSITION_DATA)/mwb/ols/sf12_ols_2018_2019.rds $(TRANSITION_DATA)/labour/nnet/labour_nnet_2018_2019.rds
+transitions: $(TRANSITION_DATA)/neighbourhood/clm/neighbourhood_clm_2014_2017.rds $(TRANSITION_DATA)/tobacco/zip/tobacco_zip_2018_2019.rds
+transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds $(TRANSITION_DATA)/nutrition/ols/nutrition_ols_2018_2019.rds
+transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 new_transitions: final_data | $(TRANSITION_DATA)
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
@@ -244,28 +286,132 @@ $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds: $(FINALDATA)/201
 	$(RSCRIPT) $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
 
 
-# Post-model aggregation and plots.
+#####################################
+# Post-hoc aggregation of multiple MINOS runs on bash terminal.
+#####################################
+
 AGGREGATE_METHOD = nanmean
 AGGREGATE_VARIABLE = SF_12
 REF_LEVEL = Baseline
-DIRECTORIES = baseline,povertyUplift,childUplift
-DIRECTORY_TAGS = "Baseline,£20_PovertyLineUplift,£20_All_Child_Uplift"
+DIRECTORIES = baseline,childUplift,livingWageIntervention,energyDownlift
+DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
+SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
 
 aggregate_minos_output:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	python3 minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE)
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
 	# stack aggregated files into one long array.
-	python3 minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	python3 minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
-###
-## Cleaning
+aggregate_minos_output_treated:
+	# See file for tag meanings.
+	# aggregate files for baseline, all child uplift, and poverty line uplift.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,povertyUplift,childUplift,livingWageIntervention -t "Baseline,£25 Poverty Line Intervention,£25 All Child Uplift,Living Wage" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted,who_boosted,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,povertyUplift,childUplift,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,povertyUplift,childUplift,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
+
+aggregate_minos_output_living_wage:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_living_wage,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
+
+aggregate_minos_output_poverty_child_uplift:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,povertyUplift -t Baseline,Poverty_Line_Uplift -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_poverty_line_and_kids,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,povertyUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,povertyUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "poverty_line_child_uplift"
+
+aggregate_minos_output_all_child_uplift:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,childUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_kids,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,childUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,childUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "all_child_uplift"
+
+aggregate_minos_output_energy:
+	# custom baseline for living wage only.
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT) -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_bottom_income_quintile,who_boosted
+	# stack aggregated files into one long array.
+	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	# make line plot.
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
+
+all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift
+all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift
+
+#####################################
+# Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions. 
+#####################################
+
+INTERVENTION1 = baseline
+INTERVENTION2 = povertyUplift
+SPATIAL_DIRECTORY1 = output/$(INTERVENTION1)# first geojson for comparison in diff plot.
+SPATIAL_DIRECTORY2 = output/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
+AGG_METHOD = nanmean# what method to aggregate with.
+AGG_VARIABLE = SF_12# what variable to aggregate.
+AGG_YEAR = 2025# what year to map in data.
+AGG_LOCATION = glasgow # or manchester/scotland/sheffield
+SAVE_FILE1 = $(SPATIAL_DIRECTORY1)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR).geojson # data source from aggregation. Need to automate these file paths somehow.
+SAVE_PLOT1 = $(SPATIAL_DIRECTORY1)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR) # where to save plot for aggregate_lsoas_and_map
+SAVE_FILE2 = $(SPATIAL_DIRECTORY2)/$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR).geojson # data source for aggregation of second minos run. Used when comparing two interventions in aggreate_two_and_map_diff
+SAVE_PLOT2 = $(SPATIAL_DIRECTORY1)/$(INTERVENTION1)_vs_$(INTERVENTION2)_$(AGG_METHOD)_$(AGG_VARIABLE)_$(AGG_YEAR) # pdf file name for aggregate_two_and_diff. saves in first specified file.
+
+aggregate_and_map:
+	# aggregate minos outputs into LSOAs.
+	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY1) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY1) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
+	# Map data now aggregated.
+	$(RSCRIPT) minos/validation/sf12_single_map.R -f $(SAVE_FILE1) -d $(SAVE_PLOT1) -m $(AGG_LOCATION) -v $(AGG_VARIABLE)
+
+aggregate_two_and_map_diff:
+	# aggregate minos outputs into LSOAs.
+	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY1) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY1) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
+	$(PYTHON) minos/validation/format_spatial_output.py -s $(SPATIAL_DIRECTORY2) -y $(AGG_YEAR) -d $(SPATIAL_DIRECTORY2) -m $(AGG_METHOD) -v $(AGG_VARIABLE) -f geojson
+	# map LSOAs.
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f $(SAVE_FILE2) -g $(SAVE_FILE1) -d $(SAVE_PLOT2) -m $(AGG_LOCATION) -v $(AGG_VARIABLE)
+
+
+aggregate_baseline_energy_map:
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f geojson -u who_bottom_income_quintile
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/energyDownlift -y $(AGG_YEAR) -d output/energyDownlift -m nanmean -v SF_12 -f geojson -u who_boosted
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/energyDownlift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_energy_difference_map -m $(AGG_LOCATION) -v SF_12
+
+aggregate_baseline_living_wage_map:
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_below_living_wage
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/livingWageIntervention -y $(AGG_YEAR) -d output/livingWageIntervention -m	nanmean	-v SF_12 -f geojson -u who_boosted
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/livingWageIntervention/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_living_wage_difference_map -m $(AGG_LOCATION) -v SF_12
+
+aggregate_baseline_all_uplift_map:
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_kids
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/childUplift -y $(AGG_YEAR) -d output/childUplift -m nanmean -v SF_12 -f geojson -u who_boosted
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/childUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson  -d plots/baseline_vs_all_25_uplift_difference_map -m $(AGG_LOCATION) -v SF_12
+
+aggregate_baseline_poverty_uplift_map:
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/baseline -y $(AGG_YEAR) -d output/baseline -m nanmean -v SF_12 -f	geojson -u who_below_poverty_line_and_kids
+	$(PYTHON) minos/validation/format_spatial_output.py -s output/povertyUplift -y $(AGG_YEAR) -d output/povertyUplift -m	nanmean	-v SF_12 -f geojson -u who_boosted
+	$(RSCRIPT) minos/validation/sf12_difference_map.R -f output/povertyUplift/nanmean_SF_12_$(AGG_YEAR).geojson -g output/baseline/nanmean_SF_12_$(AGG_YEAR).geojson -d plots/baseline_vs_poverty_25_uplift_difference_map -m $(AGG_LOCATION) -v SF_12
+
+map_all: aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+
+
+#####################################
+### Cleaning
+#####################################
+
 .PHONY: clean_out clean_logs clean_data clean_all
 
 clean_all: ### Remove output, log files, generated data files and transition models
-clean_all: clean_data clean_transitions clean_logs
+clean_all: clean_data clean_out clean_transitions clean_logs
 
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
@@ -275,9 +421,11 @@ clean_out: ### Remove all output files
 clean_out:
 	rm -rf output/*
 
-clean_logs: ### Remove log files (currently only test.log)
+#TODO add one for arc4 logs too.
+clean_logs: ### Remove log files (including test.log, slurm, and arc logs)
 clean_logs:
 	rm -rf test.log
+	rm -rf logs/*
 
 clean_transitions: ### Remove model .rds files
 clean_transitions:
@@ -286,6 +434,5 @@ clean_transitions:
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
 
-clean_logs: # remove all slurm minos logs.
-clean_logs: rm -rf logs/*
-clean_logs: #TODO add one for arc4 logs too. 
+clean_plots: ### Remove all <plot>.pdf files in plots/
+	rm -rf plots/*.pdf

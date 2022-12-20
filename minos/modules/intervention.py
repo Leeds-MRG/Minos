@@ -43,11 +43,11 @@ class hhIncomeIntervention():
         run_id = np.arange(1, 50 + 1, 1)  # 50 repeats for each combination of the above parameters
         parameter_lists = list(itertools.product(*[uplift, percentage_uplift, run_id]))
         if 'run_id' in config.keys():
-            # Pick a set of parameters according to task_id arg from minos_batch_run.py.
+            # Pick a set of parameters according to task_id arg from batch run.
             run_id = config['run_id']
         else:
             # If no task id specified (you should) choose the first task as a test.
-            run_id = sys.argv[4] - 1
+            run_id = 1
         parameters = parameter_lists[run_id]
         config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
         config.update({'experiment_parameters_names': ['uplift', 'prop', 'id']}, source=str(Path(__file__).resolve()))
@@ -116,7 +116,7 @@ class hhIncomeIntervention():
 
 ####################################################################################################################
 
-class hhIncomeChildUplift():
+class hhIncomeChildUplift(Base):
     """Uplift by £20 per week per child in each household. """
 
     @property
@@ -125,39 +125,6 @@ class hhIncomeChildUplift():
 
     def __repr__(self):
         return "hhIncomeChildUplift()"
-
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run.
-
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.
-
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-        # nothing done here yet. transition models specified by year later.
-        #print("print sys argv")
-        #print(sys.argv)
-        if 'run_id' in config.keys():
-            run_id = config['run_id']
-        else:
-            # If no task id specified (you should) choose the first task as a test.
-            run_id = 0
-        # specify parameters unique to this experiment. used to produce save directories later.
-        parameters = [run_id]  # just the run_id is unique for £20 uplifts no change in amount/percentage of pop.
-        config.update({'experiment_parameters': parameters}, source=str(Path(__file__).resolve()))
-        config.update({'experiment_parameters_names': ['id']}, source=str(Path(__file__).resolve()))
-
-        return simulation
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

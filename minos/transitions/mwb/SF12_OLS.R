@@ -35,12 +35,19 @@ sf12.main <- function(years){
     colnames(data2) <- c("pidp", "y")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
+    #formula <- "y ~ factor(sex) +
+    #                factor(ethnicity) +
+    #                age +
+    #                factor(education_state) +
+    #                factor(labour_state) +
+    #                factor(job_sec) +
+    #                scale(hh_income) + scale(SF_12) +
+    #                factor(housing_quality)"
     formula <- "y ~ factor(sex) +
                     factor(ethnicity) +
                     age +
                     factor(education_state) +
                     factor(labour_state) +
-                    factor(job_sec) +
                     scale(hh_income) + scale(SF_12) +
                     factor(housing_quality)"
 

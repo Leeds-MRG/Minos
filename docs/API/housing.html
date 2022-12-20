@@ -16,6 +16,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -42,15 +43,23 @@
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../housing_module.html">Housing Module Plan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../replenishment.html">Replenishment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../education.html">Education</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Welcome to Minos’ API documentation!</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Housing API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Housing API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minos.modules.housing.Housing"><code class="docutils literal notranslate"><span class="pre">Housing</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.calculate_housing"><code class="docutils literal notranslate"><span class="pre">Housing.calculate_housing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.on_time_step"><code class="docutils literal notranslate"><span class="pre">Housing.on_time_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.plot"><code class="docutils literal notranslate"><span class="pre">Housing.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.housing.Housing.setup"><code class="docutils literal notranslate"><span class="pre">Housing.setup()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="income.html">Income API</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -66,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Welcome to Minos’ API documentation!</a> &raquo;</li>
-      <li>Housing API</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Welcome to Minos’ API documentation!</a></li>
+      <li class="breadcrumb-item active">Housing API</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -94,22 +103,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minos.modules.housing.Housing.on_initialize_simulants">
-<span class="sig-name descname"><span class="pre">on_initialize_simulants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.on_initialize_simulants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.on_initialize_simulants" title="Permalink to this definition"></a></dt>
-<dd><p>Initiate columns for mortality when new simulants are added.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pop_data</strong> (<em>vivarium.framework.population.SimulantData</em>) – Custom vivarium class for interacting with the population data frame.
-It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-creation_window, and current simulation state (setup/running/etc.).</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.housing.Housing.on_time_step">
 <span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.on_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Produces new children and updates parent status on time steps.</p>
@@ -121,22 +114,19 @@ creation_window, and current simulation state (setup/running/etc.).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minos.modules.housing.Housing.pre_setup">
-<span class="sig-name descname"><span class="pre">pre_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.pre_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.pre_setup" title="Permalink to this definition"></a></dt>
-<dd><p>Load in anything required for the module to run into the config and simulation object.</p>
+<dt class="sig sig-object py" id="minos.modules.housing.Housing.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/housing.html#Housing.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.housing.Housing.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Default plot method for modules. Does nothing.</p>
+<p>Modules can specify another plot object that saves distributions of state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<em>vivarium.config_tree.ConfigTree</em>) – Config yaml tree for vivarium with the items needed for this module to run.</p></li>
-<li><p><strong>simulation</strong> (<em>vivarium.interface.interactive.InteractiveContext</em>) – The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.</p></li>
+<li><p><strong>pop_data</strong> (<em>population data from vivarium. Whatever columns needs plotting.</em>) – </p></li>
+<li><p><strong>config</strong> (<em>vivarium.configTree</em>) – Config yaml for any needed plot parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>simulation</strong> – The initiated vivarium simulation object with anything needed to run the module.
-E.g. rate tables.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>vivarium.interface.interactive.InteractiveContext</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -153,10 +143,13 @@ E.g. rate tables.</p>
 <li><p>Add listener event to check if people die on each time step.</p></li>
 <li><p>Update other required items such as randomness stream.</p></li>
 </ul>
+<section id="parameter">
+<h2>Parameter<a class="headerlink" href="#parameter" title="Permalink to this heading"></a></h2>
 <dl class="simple">
 <dt>builder<span class="classifier">vivarium.engine.Builder</span></dt><dd><p>Vivarium’s control object. Stores all simulation metadata and allows modules to use it.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 </dd></dl>
@@ -174,7 +167,7 @@ E.g. rate tables.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Robert Clay and Friends.</p>
+    <p>&#169; Copyright 2022, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

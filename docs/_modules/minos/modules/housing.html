@@ -15,6 +15,7 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -39,11 +40,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation/index.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../housing_module.html">Housing Module Plan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../replenishment.html">Replenishment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../education.html">Education</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -59,9 +59,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>minos.modules.housing</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">minos.modules.housing</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -80,8 +80,12 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">minos.modules</span> <span class="kn">import</span> <span class="n">r_utils</span>
+<span class="kn">from</span> <span class="nn">minos.modules.base_module</span> <span class="kn">import</span> <span class="n">Base</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">seaborn</span> <span class="kn">import</span> <span class="n">catplot</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span>
 
-<div class="viewcode-block" id="Housing"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing">[docs]</a><span class="k">class</span> <span class="nc">Housing</span><span class="p">:</span>
+<div class="viewcode-block" id="Housing"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing">[docs]</a><span class="k">class</span> <span class="nc">Housing</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -91,25 +95,6 @@
         <span class="k">return</span> <span class="s2">&quot;Housing()&quot;</span>
 
     <span class="c1"># In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.</span>
-<div class="viewcode-block" id="Housing.pre_setup"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.pre_setup">[docs]</a>    <span class="k">def</span> <span class="nf">pre_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Load in anything required for the module to run into the config and simulation object.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        config : vivarium.config_tree.ConfigTree</span>
-<span class="sd">            Config yaml tree for vivarium with the items needed for this module to run.</span>
-
-<span class="sd">        simulation : vivarium.interface.interactive.InteractiveContext</span>
-<span class="sd">            The initiated vivarium simulation object before simulation.setup() is run with updated config/inputs.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">            simulation : vivarium.interface.interactive.InteractiveContext</span>
-<span class="sd">                The initiated vivarium simulation object with anything needed to run the module.</span>
-<span class="sd">                E.g. rate tables.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># nothing done here yet. transition models specified by year later.</span>
-        <span class="k">return</span> <span class="n">simulation</span></div>
 
 <div class="viewcode-block" id="Housing.setup"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
@@ -134,8 +119,10 @@
         <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
         <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
 
-        <span class="c1"># Assign randomness streams if necessary.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="s2">&quot;housing&quot;</span><span class="p">)</span>
+        <span class="c1"># Assign randomness streams if necessary. Only useful if seeding counterfactuals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_random_crn_key</span><span class="p">())</span>
+
+
         <span class="c1"># Determine which subset of the main population is used in this module.</span>
         <span class="c1"># columns_created is the columns created by this module.</span>
         <span class="c1"># view_columns is the columns from the main population used in this module. essentially what is needed for</span>
@@ -158,23 +145,6 @@
         <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
         <span class="c1"># individual graduate in an education module.</span>
         <span class="n">builder</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">register_listener</span><span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_time_step</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Housing.on_initialize_simulants"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.on_initialize_simulants">[docs]</a>    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;  Initiate columns for mortality when new simulants are added.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        pop_data: vivarium.framework.population.SimulantData</span>
-<span class="sd">            Custom vivarium class for interacting with the population data frame.</span>
-<span class="sd">            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
-<span class="sd">            creation_window, and current simulation state (setup/running/etc.).</span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Initiate any columns created by this module and add them to the main population.</span>
-        <span class="c1"># No synthetic columns for housing currently. Maybe housing history variables added here.</span>
-        <span class="k">return</span> <span class="n">pop_data</span></div>
 
 <div class="viewcode-block" id="Housing.on_time_step"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.on_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Produces new children and updates parent status on time steps.</span>
@@ -213,7 +183,18 @@
         <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;housing/clm/housing_clm_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># returns probability matrix (3xn) of next ordinal state.</span>
         <span class="n">prob_df</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_clm</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">prob_df</span></div></div>
+        <span class="k">return</span> <span class="n">prob_df</span></div>
+
+<div class="viewcode-block" id="Housing.plot"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_plots_dir</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;housing_barplot_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">densities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s1">&#39;housing_quality&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">densities</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;densities&#39;</span><span class="p">]</span>
+        <span class="n">densities</span><span class="p">[</span><span class="s1">&#39;housing_quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">densities</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">cat</span> <span class="o">=</span> <span class="n">catplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">densities</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;housing_quality&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;densities&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
@@ -223,7 +204,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Robert Clay and Friends.</p>
+    <p>&#169; Copyright 2022, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -50,7 +50,7 @@ labour.nnet.main <- function(years){
                   scale(SF_12) +
                   factor(housing_quality) +
                   relevel(factor(labour_state), ref = "Employed") +
-                  factor(job_sec) +
+                  #factor(job_sec) +
                   scale(hh_income) +
                   scale(alcohol_spending))#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                ,data = data, MaxNWts = 10000, maxit=10000)
@@ -64,7 +64,7 @@ labour.nnet.main <- function(years){
                   scale(SF_12) +
                   factor(housing_quality) +
                   relevel(factor(labour_state), ref = "Employed") +
-                  factor(job_sec) +
+                  #factor(job_sec) +
                   scale(hh_income) +
                   scale(alcohol_spending))#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)

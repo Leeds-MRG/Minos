@@ -45,7 +45,7 @@ class Income(Base):
         # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("income")
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -56,7 +56,13 @@ class Income(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income']
+                        'hh_income',
+                        'job_sec',
+                        'labour_state',
+                        'education_state',
+                        'SF_12',
+                        'housing_quality'
+                        ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

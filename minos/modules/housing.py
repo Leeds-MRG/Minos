@@ -10,6 +10,7 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+from datetime import datetime as dt
 
 class Housing(Base):
 
@@ -45,8 +46,10 @@ class Housing(Base):
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
-        # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("housing")
+        # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+
+
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for

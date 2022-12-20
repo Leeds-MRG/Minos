@@ -7,17 +7,15 @@ Welcome to Minos's documentation!
 =================================
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 5
 
     summary
     documentation/index
     data_discovery
-    housing_module
-    replenishment
-    education
-    nutrition
     data_tables
+    Coefficients/index
     API/index
+    compile_help.md
 
 Indices and tables
 ==================
