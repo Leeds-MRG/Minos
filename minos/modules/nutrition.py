@@ -100,7 +100,7 @@ class Nutrition(Base):
         -------
         """
         #year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"nutrition/ols/nutrition_ols_2018_2019")
+        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019")
         return r_utils.predict_next_timestep_ols(transition_model, pop, 'nutrition_quality')
 
 

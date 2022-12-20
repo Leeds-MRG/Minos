@@ -113,7 +113,7 @@ all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift i
 all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
-baseline: setup
+baseline: new_setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config'
 
 intervention_hhIncome: setup
@@ -139,22 +139,22 @@ intervention_energyDownLift: setup
 .phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
 .phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
-arc4_baseline: setup
+arc4_baseline: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config'
 
-arc4_intervention_hhIncome: setup
+arc4_intervention_hhIncome: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-arc4_intervention_hhIncomeChildUplift: setup
+arc4_intervention_hhIncomeChildUplift: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-arc4_intervention_PovertyLineChildUplift: setup
+arc4_intervention_PovertyLineChildUplift: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-arc4_intervention_livingWage: setup
+arc4_intervention_livingWage: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-arc4_intervention_energyDownLift: setup
+arc4_intervention_energyDownLift: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
 

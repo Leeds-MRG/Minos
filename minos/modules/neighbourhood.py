@@ -113,7 +113,7 @@ class Neighbourhood(Base):
             year -= 1 # e.g. 2012 moves back one year to 2011.
 
         year = min(year, 2014) # transitions only go up to 2014.
-        transition_model = r_utils.load_transitions(f"neighbourhood/clm/neighbourhood_clm_{year}_{year + 3}")
+        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}")
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop)
         return nextWaveNeighbourhood

@@ -102,7 +102,7 @@ def predict_education(repl):
     """
     print("Predicting max education level for replenishing populations...")
 
-    transition_model = r_utils.load_transitions(f"data/transitions/education/nnet/educ_nnet_2018_2019", "")
+    transition_model = r_utils.load_transitions(f"data/transitions/education_state/nnet/education_state_2018_2019", "")
 
     prob_df = r_utils.predict_highest_educ_nnet(transition_model, repl)
 

@@ -110,7 +110,7 @@ class MWB(Base):
         -------
         """
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"mwb/ols/sf12_ols_{year}_{year+1}")
+        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}")
         return r_utils.predict_next_timestep_ols(transition_model, pop, 'SF_12')
 
     def plot(self, pop, config):

@@ -50,6 +50,9 @@ digest_params <- function(line) {
 # information available)
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
+  
+  data = replace.missing(data)
+  
   if(include_weights) {
     # fit the model including weights (after 2009)
     model <- lm(formula,
@@ -65,6 +68,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
 
 estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
   
+  data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
   
@@ -87,6 +91,7 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
 
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
   
+  data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
   
@@ -114,11 +119,18 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   if(depend == 'ncigs') {
     data$ncigs[is.na(data$ncigs)] <- 0 # set NAs to 0. 
     data[which(data$ncigs!=0),]$ncigs <- (data[which(data$ncigs!=0),]$ncigs%/%5) + 1 # round up to nearest 5.
+    data$ncigs <- as.integer(data$ncigs)
+    print('Prepared ncigs for estimation')
   } else if(depend == 'alcohol_spending') {
     data$alcohol_spending <- data$alcohol_spending %/% 50 # round to nearest 50
+    data$alcohol_spending <- as.integer(data$alcohol_spending)
   }
   
-  data <- data[complete.cases(data),]
+  # grep through the formula for the variables to keep before doing complete cases
+  # this is because complete cases on the whole dataset removes every row
+  # grepl returns true if string found
+  
+  #data <- data[complete.cases(data),]
   
   if(include_weights) {
     model <- zeroinfl(formula = formula,
