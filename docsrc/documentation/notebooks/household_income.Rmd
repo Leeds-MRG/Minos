@@ -2,17 +2,17 @@
 title: "Household Income"
 output: html_document
 bibliography: 
-  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
-  #- "../../refs.bib"
+  #- "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
+  - "../../refs.bib" # useful for debugging.
 ---
 
 ## Household Income
 
-
-Number of cigarettes consumed is an indicator of XXXX. test reference [@1987:nelson]. 
+Household disposable income is a well known indicator of mental well-being. 
 
 ```{r setup, include=FALSE}
 source('sphinx_notebook_utils.R')
+notebook_setwd()
 ```
 
 ### Methods
@@ -23,6 +23,10 @@ source('sphinx_notebook_utils.R')
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
   
+```{r, hh_income_data}
+ols_histogram("data/transitions/test/hh_income_2018_2019.rds", "hh_income_next")  
+```
+
 ### Results
   
   What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
@@ -30,7 +34,8 @@ source('sphinx_notebook_utils.R')
 
 ```{r income_output, echo=FALSE}
 options(width=120)
-zip_output("../../../data/transitions/test/hh_income_2018_2019.rds")
+ols_output(hh_income_data_path <- "data/transitions/test/hh_income_2018_2019.rds"
+)
 ```
 
 

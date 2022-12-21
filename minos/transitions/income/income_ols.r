@@ -8,6 +8,7 @@ dataDir <- paste0(args[7], '/final_US/')
 transitionDir <- args[8]
 transSourceDir <- args[9]
 
+#debug dirs
 #dataDir <- 'data/final_US/'
 #transitionDir <- "data/transitions"
 #transSourceDir <- "minos/transitions"
@@ -100,15 +101,14 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
 
     # Work out the dependent and independents from the formula from txt file
     split <- str_split(def, pattern = " ~ ")[[1]]
-    dependent <- split[1]
+    dependent <- "hh_income"
     independents <- split[2]
       
     # This has been edited slightly by Rob to allow redefinition of independent variables to name 'y'.
     # If hh_income is used as a lagged dependent variable need to load hh_income for left and right side but can't have the same name in the formula.
     # Overriding dependent variable hh_income on the left side to y.
     # Note in model_definitions.txt hh_income is declared on left and right side of formula. 
-    form_dependent <- "y"
-    form <- paste0(form_dependent, " ~ ")
+    form <- paste0(dependent, "_next ~ ")
     form <- as.formula(paste0(form, independents))
     
     # old formula calculation. take directly from txt.
@@ -124,11 +124,12 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     create.if.not.exists(out.path)
     for(year in year.range) {
       # independents from time T (current) with dependent removed
-      indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])
+      indep.df <- data %>% filter(time == year)
       # dependent from T+1
       depen.df <- data %>% filter(time == year + 1) %>% select(pidp, .data[[dependent]])
       # change dependent variable to y. Allows for using time lagged dependen variable hh_income.
-      depen.df$y <- depen.df$hh_income
+      depen.df$hh_income_next <- depen.df$hh_income
+      depen.df <- depen.df[, c("hh_income_next", "pidp")]
       # smash them together
       merged <- merge(depen.df, indep.df, by='pidp')
 

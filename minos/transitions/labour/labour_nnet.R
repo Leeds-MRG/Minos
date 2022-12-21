@@ -53,7 +53,7 @@ labour.nnet.main <- function(years){
                   #factor(job_sec) +
                   hh_income +
                     alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
-               ,data = data, MaxNWts = 10000, maxit=10000)
+               ,data = data, MaxNWts = 10000, maxit=10000, model=T)
     } else {
         # weight data available 2010 onwards
         m1 <- multinom(factor(y) ~
@@ -67,7 +67,7 @@ labour.nnet.main <- function(years){
                   #factor(job_sec) +
                   hh_income +
                     alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
-               ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
+               ,data = data, MaxNWts = 10000, maxit=10000, weights = weight, model=T)
     }
     m1
 

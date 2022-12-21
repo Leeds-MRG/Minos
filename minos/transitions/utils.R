@@ -23,24 +23,6 @@ invlogit <- function(x){
   return (out)
 }
 
-#replace_missing <- function(data){
-#  data <- na_if(data, "-1")
-#  data <- na_if(data, "-2")
-#  data <- na_if(data, "-7")
-#  data <- na_if(data, "-8")
-#  data <- na_if(data, "-9")
-#  data <- na_if(data, -1)
-#  data <- na_if(data, -7)
-#  data <- na_if(data, -2)
-#  data <- na_if(data, -8)
-#  data <- na_if(data, -9)
-#  data <- na_if(data, -1.)
-#  data <- na_if(data, -2.)
-#  data <- na_if(data, -7.)
-#  data <- na_if(data, -8.)
-#  data <- na_if(data, -9.)
-#  return(data)
-#}
 
 missing.str <- c("-1", "-2", "-7", "-8", "-9", "-10")
 missing.int <- c(-1, -2, -7, -8, -9, -10)

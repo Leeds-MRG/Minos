@@ -2,8 +2,8 @@
 title: "Neighbourhood"
 output: html_document
 bibliography: 
-  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
-  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+  #- "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
+  - "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
 ---
 
 ## Neighbourhood

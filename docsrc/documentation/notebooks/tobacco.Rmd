@@ -13,6 +13,8 @@ Number of cigarettes consumed is an indicator of XXXX. test reference [@1987:nel
 
 ```{r setup, include=FALSE}
 source('sphinx_notebook_utils.R')
+notebook_setwd()
+
 ```
 
 ### Methods
@@ -22,7 +24,10 @@ source('sphinx_notebook_utils.R')
 ### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
-  
+
+```{r tobacco_data}
+zip_density("data/transitions/test/tobacco_zip_2018_2019.rds", 'y')
+```
 ### Results
   
   What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
@@ -30,7 +35,7 @@ source('sphinx_notebook_utils.R')
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-zip_output("../../../data/transitions/test/tobacco_zip_2018_2019.rds")
+zip_output("data/transitions/test/tobacco_zip_2018_2019.rds")
 ```
 
 
