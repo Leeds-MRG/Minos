@@ -5,7 +5,7 @@ source("minos/transitions/utils.R")
 
 get.neighbourhood.clm.filename <- function(destination, year1, year2){
   # generate file name for neighbourhood clm transition outputs for year1.
-  file_name <- paste0(destination, "neighbourhood_clm_")
+  file_name <- paste0(destination, "neighbourhood_safety_")
   file_name <- paste0(file_name, str(year1))
   file_name <- paste0(file_name, "_")
   file_name <- paste0(file_name, str(year2))
@@ -58,16 +58,16 @@ clm.neighbourhood.main <- function(years){
     #                    factor(housing_quality) +
     #                    region +
     #                    factor(education_state)"
-    formula <- "y ~ factor(sex) +
-                        age +
-                        SF_12 +
-                        labour_state +
-                        ethnicity +
-                        hh_income +
-                        factor(housing_quality) +
-                        region +
-                        factor(education_state)"
-    clm.neighbourhood <- clm(formula,
+    
+    formula <- "y ~ scale(age) + factor(sex) + factor(job_sec) + relevel(factor(ethnicity), ref = 'WBI') + scale(hh_income) + factor(housing_quality) + relevel(factor(region), ref = 'South East')"
+    
+    clm.neighbourhood <- clm(y ~ 
+                               scale(age) + 
+                               factor(sex) + 
+                               factor(job_sec) + 
+                               relevel(factor(ethnicity), ref = 'WBI') + 
+                               scale(hh_income) + factor(housing_quality) + 
+                               relevel(factor(region), ref = 'South East'),
         data = data,
         link = "logit",
         threshold = "flexible",

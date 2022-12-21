@@ -67,8 +67,8 @@ def generate_composite_housing_quality(data):
     # list both core and bonus vars
     core_list = ['fridge_freezer', 'washing_machine', 'heating']
     bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
-    data["housing_core_complete"] = (data.loc[:, core_list] >= 0).all(1)
-    data["housing_bonus_complete"] = (data.loc[:, bonus_list] >= 0).all(1)
+    #data["housing_core_complete"] = (data.loc[:, core_list] >= 0).all(1)
+    #data["housing_bonus_complete"] = (data.loc[:, bonus_list] >= 0).all(1)
 
     # sum up all non-negative values in both lists of vars
     data["housing_core_sum"] = data[core_list].gt(0).sum(axis=1)
@@ -84,6 +84,8 @@ def generate_composite_housing_quality(data):
     ]
     values = [3, 2, 1]
 
+    # first create housing_quality var and set all to missing
+    data['housing_quality'] = -9
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
 
@@ -271,35 +273,30 @@ def generate_composite_neighbourhood_safety(data):
 
     data['neighbourhood_safety'] = data.safety
 
+    ### BAD Data Correction
+    ## Please replace this when possible its dreadful
+    # Have to copy neighbourhood_safety from 2017 onto 2018 in order to run the model.
+    print("Doing horrible 'correction' because neighbourhood_safety is missing for 2018")
+    data['neighbourhood_safety'][data['time'] == 2018] = data['neighbourhood_safety'][data['time'] == 2017]
+    temp_nh = data[['pidp', 'time', 'neighbourhood_safety']][data['time'] == 2017]
+    temp_nh['time'] = 2018
+    data_merged = data.merge(right = temp_nh,
+                              how = 'left',
+                              on = ['pidp', 'time'])
+    # now create a new column with things combined
+    data_merged['nh_safety'] = -9
+    data_merged['nh_safety'][data_merged['time'] != 2018] = data_merged['neighbourhood_safety_x']
+    data_merged['nh_safety'][data_merged['time'] == 2018] = data_merged['neighbourhood_safety_y']
+
+    data_merged.drop(labels = ['neighbourhood_safety_x', 'neighbourhood_safety_y'], axis=1, inplace=True)
+    data_merged.rename(columns={'nh_safety': 'neighbourhood_safety'}, inplace=True)
+
     # drop cols we don't need
-    #data.drop(labels=var_list,
-    #          axis=1,
-    #          inplace=True)
+    data_merged.drop(labels=['safety'] + var_list,
+                     axis=1,
+                     inplace=True)
 
-    # # first make list of the columns we're interested in
-    # sum_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
-    # # sum up all non-negative values in sum_list vars
-    # data["safety_sum"] = data[sum_list].gt(0).sum(axis=1)
-    #
-    # # conditionally assign housing_quality var based on housing_sum
-    # # first set conditions and values for 3 level var
-    # conditions = [
-    #     (data["safety_sum"] == 0),
-    #     (data["safety_sum"] > 0) & (data["safety_sum"] < 7),
-    #     (data["safety_sum"] == 7),
-    # ]
-    # values = [1, 2, 3]
-    # # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
-    # data["neighbourhood_safety"] = np.select(conditions, values)
-    #
-    # # drop cols we don't need
-    # data.drop(labels=['safety_sum'] + sum_list,
-    #           axis=1,
-    #           inplace=True)
-
-
-
-    return data
+    return data_merged
 
 
 def generate_labour_composite(data):
@@ -617,7 +614,8 @@ def generate_physical_health_score(data):
     data['phealth'][data['counter'] == 0] = -9
 
     data.drop(labels=['phealth_limits_modact', 'phealth_limits_stairs',
-                      'phealth_limits_work_type', 'pain_interfere_work'],
+                      'phealth_limits_work_type', 'pain_interfere_work',
+                      'counter'],
               axis=1,
               inplace=True)
 

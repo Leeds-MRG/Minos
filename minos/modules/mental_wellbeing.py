@@ -61,7 +61,8 @@ class MWB(Base):
                         'job_sec',
                         'hh_income',
                         'SF_12',
-                        'housing_quality']
+                        'housing_quality',
+                        'phealth']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

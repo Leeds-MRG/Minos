@@ -58,6 +58,9 @@ def predict_next_timestep_ols(model, current, independant):
     base = importr('base')
     stats = importr('stats')
 
+    #print(current['education_state'].value_counts())
+    #print(sum(current['education_state'].isna()))
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -76,7 +79,7 @@ def predict_next_timestep_ols(model, current, independant):
     return newPandasPopDF[[independant]]
 
 
-def predict_next_timestep_clm(model, current):
+def predict_next_timestep_clm(model, current, dependent):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -93,23 +96,39 @@ def predict_next_timestep_clm(model, current):
     stats = importr('stats')
     ordinal = importr('ordinal')
 
+    # clm should always have an ordinal dependent, which needs to be type factor
+    # also the rpy2 converter can't encode int properly, so we're going to go to string and hope the converter
+    # changes to factor automatically in the R DataFrame
+    #current[dependent] = current[dependent].astype('str').astype('object')
+    #print(current[dependent].value_counts())
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
+    # need to cast the dependent var to an R FactorVector
+    #currentRDF.rx2(dependent) = currentRDF.rx2(dependent)
+    if dependent in ['loneliness', 'neighbourhood_safety', 'housing_quality']:
+        dependent_index = list(currentRDF.colnames).index(dependent)
+        dependent_col = FactorVector(currentRDF.rx2(dependent))
+        currentRDF[dependent_index] = dependent_col
 
     # NOTE clm package predict function is a bit wierdly written. The predict type "prob" gives the probability of an
     # individual belonging to each possible next state. If there are 4 states this is a 4xn matrix.
     # If the response variable (y in this case/ next housing state) is specific it ONLY gives the probability of being
     # in next true state (1xn matrix). Not an issue here as next housing state y isn't in the vivarium population.
 
-    # R predict.clm method returns a matrix of probabilities of beloning in each state.
+    # R predict.clm method returns a matrix of probabilities of belonging in each state.
     prediction = stats.predict(model, currentRDF, type="prob")
 
     # Convert prob matrix back to pandas.
     with localconverter(ro.default_converter + pandas2ri.converter):
         prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
     predictionDF = pd.DataFrame(prediction_matrix_list)
+
+    #if dependent == 'housing_quality':
+        #print('Focus')
+
     return predictionDF
 
 
@@ -206,7 +225,7 @@ def predict_highest_educ_nnet(model, current):
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
-    prediction = stats.predict(model, currentRDF, type="probs")
+    prediction = stats.predict(model, currentRDF, type="probs", na_action = 'na_omit')
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(prediction)

@@ -134,6 +134,10 @@ def generate_replenishing(projections):
     # finally, predict the highest level of educ
     final_repl = predict_education(repl)
 
+    # some columns need to replace missings (negative values in US) with NA
+    #final_repl = US_utils.replace_missing_with_na(final_repl, column_list=['job_sec',
+    #                                                                        'job_sector'])
+
     output_dir = 'data/replenishing/'
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv', index=False)

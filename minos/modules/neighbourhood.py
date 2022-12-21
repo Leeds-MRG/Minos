@@ -81,9 +81,15 @@ class Neighbourhood(Base):
         ## Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
+        # WHYYYYYYYYYY +1????!?!?!?!?!
+        #neighbourhood_prob_df["neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
+        #                                                                   list(neighbourhood_prob_df.columns),
+        #                                                                   neighbourhood_prob_df)+1
+
         neighbourhood_prob_df["neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
                                                                            list(neighbourhood_prob_df.columns),
-                                                                           neighbourhood_prob_df)+1
+                                                                           neighbourhood_prob_df)
+
         neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
@@ -115,7 +121,7 @@ class Neighbourhood(Base):
         year = min(year, 2014) # transitions only go up to 2014.
         transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}")
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop)
+        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop, 'neighbourhood_safety')
         return nextWaveNeighbourhood
 
     # Special methods used by vivarium.

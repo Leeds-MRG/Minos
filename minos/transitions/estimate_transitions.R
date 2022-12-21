@@ -51,7 +51,19 @@ digest_params <- function(line) {
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
   
-  data = replace.missing(data)
+  # print('----------------BEFORE------------------')
+  # print('----------------------------------------')
+  # print(table(data$ethnicity))
+  # print(table(data$region))
+  # print('----------------------------------------')
+  # 
+  # data = replace.missing(data)
+  # 
+  # print('----------------AFTER-------------------')
+  # print('----------------------------------------')
+  # print(table(data$ethnicity))
+  # print(table(data$region))
+  # print('----------------------------------------')
   
   if(include_weights) {
     # fit the model including weights (after 2009)
@@ -66,11 +78,18 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
   return(model)
 }
 
-estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
+estimate_yearly_clm <- function(data, formula.string, include_weights = FALSE, depend) {
+  
+  data$y = data[[depend]]
   
   data = replace.missing(data)
   # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
+  data$y <- as.factor(data$y)
+  # replace missing ncigs values (if still missing)
+  data[which(data$ncigs==-8), 'ncigs'] <- 0
+  
+  formula.string <- str_replace(formula.string, depend, "y")
+  formula = as.formula(formula.string)
   
   if(include_weights) {
     model <- clm(formula,
@@ -176,7 +195,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     independents <- split2[2]
     
     # formula
-    form <- as.formula(split1[2])
+    formula.string <- split1[2]
     #print(form)
     
     #print(paste0('Dependent: ', dependent))
@@ -206,7 +225,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       # labour_state only estimated for 2018
       if(dependent == 'education_state' & year != 2018) { next }
       # loneliness only estimated for waves starting 2017 and 2018
-      if(dependent == 'loneliness' & !year %in% c(2017, 2018)) { next }
+      if(dependent == 'loneliness' & !year > 2016) { next }
       # neighbourhood only estimated for wave 2011 and 2014
       if(dependent == 'neighbourhood_safety' & !year %in% c(2011, 2014)) { next }
       if(dependent == 'neighbourhood_safety'){ depend.year <- year + 3 } # set up 3 year horizon
@@ -233,6 +252,32 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       }
       
       
+      ## For the SF_12 model alone, we need to modify the formula on the fly
+      # as neighbourhood_safety, loneliness, and ncigs are not present every year
+      if(dependent == 'SF_12') {
+        if(!year %in% c(2011, 2014, 2017)) {
+          formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+        }
+        if(!year > 2016) {
+          formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+        }
+        if(year != 2018) {
+          formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
+        }
+        if(year < 2013) {
+          formula.string <- str_remove(formula.string, " \\+ scale\\(ncigs\\)")
+        }
+      }
+      # Now make string into formula
+      form <- as.formula(formula.string)
+      
+      
+      # print('----------------------------------------')
+      # print(table(data$ethnicity))
+      # print(table(data$region))
+      # print('----------------------------------------')
+      
+      
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
         
@@ -244,7 +289,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         
         # set ordinal dependent to factor
         model <- estimate_yearly_clm(data = merged, 
-                                     formula = form, 
+                                     formula = formula.string, 
                                      include_weights = use.weights, 
                                      depend = dependent)
         
@@ -290,7 +335,16 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 }
 
 
-################ Execute Script ################
+################ Last Minute Data Prep & Execute Script ################
+
+
+#### IMPORTANT!!
+## Because some variables are not present in every wave (i.e. neighbourhood_safety, loneliness) we need to handle this.
+## There is a decent solution that comes partly because we are estimating a different model for every year
+## We need to check when we are in the correct years, and remove a string subset from the formula
+## i.e. in 2015 no neighbourhood_safety, so remove 'relevel(factor(neighbourhood_safety), ref = '1')'
+
+
 
 # Set paths
 dataDir <- 'data/final_US/'

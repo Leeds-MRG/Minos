@@ -49,7 +49,7 @@ def missingness_table(data, subset = None):
 
     output = pd.DataFrame(0, index= [-1, -2, -7, -8, -9, -10], columns=data.columns)
     for v in data.columns:
-        output[v] = data.loc[data[v].isin(US_utils.missing_types)][v].astype(int).value_counts()
+        output[v] = data.loc[data[v].isin(US_utils.missing_types)][v].astype(float).astype(int).value_counts()
     output = output.replace(np.nan, 0)
 
     col_sums = pd.DataFrame(np.sum(output)).T
