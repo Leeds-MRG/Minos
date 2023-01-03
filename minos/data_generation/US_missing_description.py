@@ -56,7 +56,7 @@ def missingness_table(data):
     output["Row Sums"] = row_sums
 
     percent_missing = round((100*row_sums[-1])/(data.shape[0]*data.shape[1]), 3)
-    print(f"Number of missing data is {row_sums[-1]} which is {percent_missing}% of all data.")
+    print(f"Number of missing data is {int(row_sums[-1])} which is {percent_missing}% of all data.")
     return output
 
 def missingness_hist(data, v1, v2):

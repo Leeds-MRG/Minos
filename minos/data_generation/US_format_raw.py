@@ -224,6 +224,7 @@ def format_ukhls_columns(year):
                       # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
                       'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
                       'jbstat': 'labour_state',  # labour state
+                      'smoker': 'smoker',
                       'ncigs': 'ncigs',  # typical daily cigarettes smoked.
                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
                       #  not really applicable without random generation.

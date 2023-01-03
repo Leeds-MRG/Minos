@@ -209,35 +209,35 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None):
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data
 
-def main():
+def main(data, save=False):
+
+    US_missing_description.missingness_table(data)
+
+    #f_columns = ["education_state", "depression", "depression_change",
+    #             "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
+    #             "job_industry", "job_sec", "heating"]  # add more variables here.
+    # define columns to be forward filled, back filled, and linearly interpolated.
+    # note columns can be forward and back filled for immutables like ethnicity.
+    f_columns = ['education_state', 'labour_state', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
+                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker'] # 'ncigs', 'ndrinks']
+    fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
+    li_columns = ["age"]
+    data = locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    print("After LOCF correction.")
+    US_missing_description.missingness_table(data)
+    data = interpolate(data, li_columns)
+    print("After interpolation of linear variables.")
+    US_missing_description.missingness_table(data)
+
+    if save:
+        US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
+    return data
+
+if __name__ == "__main__":
     # Load in data.
     # Process data by year and pidp.
     # perform LOCF using lambda forward fill functions.
     years = np.arange(2009, 2020)
     file_names = [f"data/deterministic_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-    #US_missing_description.missingness_hist(data, "education_state", "age")
-    #US_missing_description.missingness_hist(data, "labour_state", "age")
-    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
-
-    before = US_missing_description.missingness_table(data)
-    f_columns = ["education_state", "depression", "depression_change",
-                 "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
-                 "job_industry", "job_sec", "heating", 'region'] #add more variables here.
-    fb_columns = ["sex", "ethnicity", "birth_year"] # or here if they're immutable.
-    li_columns = ["age"] # linear interpolation columns.
-    print('performing linear interpolation')
-    data = interpolate(data, li_columns)
-    print('done')
-    after_interp = US_missing_description.missingness_table(data)
-    data = locf(data, f_columns=f_columns, fb_columns=fb_columns)
-    after_locf = US_missing_description.missingness_table(data)
-    # marginal density plots.
-    #US_missing_description.missingness_hist(data, "education_state", "age")
-    #US_missing_description.missingness_hist(data, "labour_state", "age")
-    #US_missing_description.missingness_bars(data, "education_state", "ethnicity")
-    US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
-    return data, before, after
-
-if __name__ == "__main__":
-    data, before, after = main()
+    data =  main(data)

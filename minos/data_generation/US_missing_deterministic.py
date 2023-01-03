@@ -33,16 +33,12 @@ def det_missing(data, columns, conditioner, replacer):
     Returns
     -------
     """
-    missing_types = ['-1', '-2', '-7', '-8', '-9',
-                     -1, -2, -7, -8, -9,
-                     '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',]
 
     # Calculate people who are unemployed (labour state 2) but registered as missing in SIC codes.
     # Assign these people 0 value SIC/SOC/NSSEC codes. Also set their job duration to 0.
     for column in columns:
-        who_missing = data[column].isin(missing_types)
-        who_condition = conditioner(data)
-        missing_because_condition = who_missing & who_condition
+        who_missing = data[column].isin(US_utils.missing_types)
+        missing_because_condition = who_missing & conditioner(data)
         mbc_index = missing_because_condition.loc[missing_because_condition].index
         data = replacer(data, mbc_index, column)
     return data
@@ -83,7 +79,7 @@ def force_zero(data, index, column):
     -------
 
     """
-    data.loc[index, column] = "0"
+    data.loc[index, column] = 0
     return data
 
 def force_nine(data, index, column):
@@ -99,10 +95,10 @@ def force_nine(data, index, column):
     -------
 
     """
-    data.loc[index, column] = "-10.0"
+    data.loc[index, column] = "-9.0"
     return data
 
-def force_nine(data, index, column):
+def force_minus_ten(data, index, column):
     """
     Parameters
     ----------
@@ -115,26 +111,31 @@ def force_nine(data, index, column):
     data.loc[index, column] = "-10.0"
     return data
 
+def doesnt_smoke(data):
+    return data['smoker'] == 2
 
-def main():
+def main(data):
+    print("Before removing deterministically missing values.")
+
+    US_missing_description.missingness_table(data)
+    # Table of missing values by row/column after correction.
+    unemployed_columns = ["job_industry",
+                           "job_duration_m",
+                           "job_duration_y",
+                           "job_sec",
+                           "job_occupation"]
+    # force unemployed people to have value 0 in unemployed_columns.
+    data = det_missing(data, unemployed_columns, is_unemployed, force_minus_ten)
+    # Anyone who doesn't smoke force ncigs to 0.
+    data = det_missing(data, ['ncigs'], doesnt_smoke, force_zero)
+    # table of missing values by row/column after correction.
+    print("After removing deterministically missing values.")
+    US_missing_description.missingness_table(data)
+    return data
+
+if __name__ == "__main__":
     # Load in data.
     years = np.arange(2009, 2020)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-
-    # Table of missing values by row/column after correction.
-    before = US_missing_description.missingness_table(data)
-    unemployed_columns = ["job_industry",
-               "job_duration_m",
-               "job_duration_y",
-               #"job_sec",
-               "job_occupation"]
-    # force unemployed people to have value 0 in unemployed_columns.
-    data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
-    # table of missing values by row/column after correction.
-    after = US_missing_description.missingness_table(data)
-    US_utils.save_multiple_files(data, years, 'data/deterministic_US/', "")
-    return data, before, after
-
-if __name__ == "__main__":
     data, before, after = main()
