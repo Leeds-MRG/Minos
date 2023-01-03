@@ -5,6 +5,15 @@ import argparse
 import os
 import yaml
 from aggregate_subset_functions import find_subset_function
+from multiprocessing import Pool
+from itertools import repeat
+
+def aggregate_csv(filename, v, agg_method, subset_func):
+    'converts a filename to a pandas dataframe'
+    df = pd.read_csv(filename, low_memory=False)
+    if subset_func:
+     df = subset_func(df)
+    return agg_method(df[v])
 
 def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
     """ Get aggregate values for value v using method function. Do this over the specified source and years.
@@ -43,17 +52,26 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
         it has come from, v is aggregated variable. Usually SF12.
     """
 
-    df = pd.DataFrame(columns = ["year", "tag", v]) # keep year, tag and columns specified by user v.
+    df = pd.DataFrame()
     for year in years:
         files = glob.glob(os.path.join(source, f"*{year}.csv")) # grab all files at source with suffix year.csv.
-        for file in files: # loop over files. take aggregate value of v and add it as a row to output df.
-            new_df = pd.read_csv(file, low_memory=False)
-            if subset_func:
-                new_df = subset_func(new_df)
-            agg_var = new_df[v]
-            agg_value = method(agg_var)
-            new_df = pd.DataFrame([[year, tag, agg_value]], columns = ['year', 'tag', v])
-            df = pd.concat([df, new_df], sort=False)
+
+        with Pool() as pool:
+            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(v), repeat(method), repeat(subset_func)))
+
+        new_df = pd.DataFrame(aggregated_means)
+        new_df.columns = [v]
+        new_df['year'] = year
+        new_df['tag'] = tag
+        #for file in files: # loop over files. take aggregate value of v and add it as a row to output df.
+        #    new_df = pd.read_csv(file, low_memory=False)
+        #    if subset_func:
+        #        new_df = subset_func(new_df)
+        #    agg_var = new_df[v]
+        #    agg_value = method(agg_var)
+        #    new_df = pd.DataFrame([[year, tag, agg_value]], columns = ['year', 'tag', v])
+        #    df = pd.concat([df, new_df], sort=False)
+        df = pd.concat([df, new_df])
     return df
 
 def main(source, years, tags, v, method, subset_func):
@@ -130,5 +148,5 @@ if __name__ == '__main__':
             start_year = config['time']['start']['year']
             end_year =  config['time']['end']['year']
             years = np.arange(start_year+1, end_year+1) # don't use first year as variables all identical.
-        print(batch_source, years)
+        #print(batch_source, years)
         df = main(batch_source, years, tag, v, method, subset_function)
