@@ -34,7 +34,7 @@ def group_minos_by_pidp(source, year, v, method, subset_func):
     files = glob.glob(source + f"/*{year}.csv")
     df = pd.DataFrame()
     for file in files:
-        df = pd.concat([df, pd.read_csv(file, low_memory=True)])
+        df = pd.concat([df, pd.read_csv(file, low_memory=True)], sort = True)
     if subset_func:
         df = subset_func(df)
     df = df.groupby(['pidp']).apply(lambda x: method(x[v]))
