@@ -58,9 +58,6 @@ def predict_next_timestep_ols(model, current, independant):
     base = importr('base')
     stats = importr('stats')
 
-    #print(current['education_state'].value_counts())
-    #print(sum(current['education_state'].isna()))
-
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)

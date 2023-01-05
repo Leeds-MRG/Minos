@@ -136,6 +136,7 @@ if __name__ == '__main__':
 
         # Handle the datetime folder inside the output. Select most recent run
         runtime = os.listdir(os.path.abspath(os.path.join(source, directory)))
+        #TODO: Replace this block (or encapsulate) in a try except block for proper error handling
         if len(runtime) > 1:
             runtime = max(runtime, key= lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
