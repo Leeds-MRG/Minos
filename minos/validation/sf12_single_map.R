@@ -26,9 +26,6 @@ main <- function(){
     out.files.date <- as.Date(out.files)
     geojson_file_name <- paste0(dirname(geojson_file_name), '/', str(max(out.files.date)), '/', basename(geojson_file_name))
   }
-
-  print("This is the geojson file name:")
-  print(geojson_file_name)
   
   main.single(geojson_file_name, plot_destination, mode, v)
 }

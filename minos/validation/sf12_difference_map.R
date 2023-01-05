@@ -26,22 +26,18 @@ main <- function(){
   # First output dir
   if(length(out.files1) == 1) {
     geojson_file_name1 = paste0(dirname(geojson_file_name1), '/', out.files1[1], '/', basename(geojson_file_name1))
-    print(geojson_file_name1)
   }
   else if(length(out.files1) > 1) {
     out.files1.date <- as.Date(out.files1)
     geojson_file_name1 <- paste0(dirname(geojson_file_name1), '/', str(max(out.files1.date)), '/', basename(geojson_file_name1))
-    print(geojson_file_name1)
   }
   # Second output dir
   if(length(out.files2) == 1) {
     geojson_file_name2 = paste0(dirname(geojson_file_name2), '/', out.files2[1], '/', basename(geojson_file_name2))
-    print(geojson_file_name2)
   }
   else if(length(out.files2) > 1) {
     out.files2.date <- as.Date(out.files2)
     geojson_file_name2 <- paste0(dirname(geojson_file_name2), '/', str(max(out.files2.date)), '/', basename(geojson_file_name2))
-    print(geojson_file_name2)
   }
     
   main.diff(geojson_file_name1, geojson_file_name2, plot_destination, mode, v)
