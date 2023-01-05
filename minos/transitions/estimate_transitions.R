@@ -195,12 +195,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     independents <- split2[2]
     
     # formula
-    formula.string <- split1[2]
-    #print(form)
-    
-    #print(paste0('Dependent: ', dependent))
-    #print(paste0('Independents: ', independents))
-    #print(paste0('Formula: ', form))
+    formula.string.orig <- split1[2]
     
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
@@ -215,13 +210,16 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     
     for(year in year.range) {
       
+      # reset the formula string for each year
+      formula.string <- formula.string.orig
+      
       ## dependent year data is always year + 1 unless data requires something different
       # (as in neighbourhood estimation, does a t+3 model due to data)
       depend.year <- year + 1
       
       ## Some models don't run in certain years (data issues) so break here
       # nutrition_quality only estimated for 2018
-      if(dependent == 'nutrition_quality' & year != 2018) { next }
+      if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
       # labour_state only estimated for 2018
       if(dependent == 'education_state' & year != 2018) { next }
       # loneliness only estimated for waves starting 2017 and 2018
@@ -253,7 +251,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       
       
       ## For the SF_12 model alone, we need to modify the formula on the fly
-      # as neighbourhood_safety, loneliness, and ncigs are not present every year
+      # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
+      # not present every year
       if(dependent == 'SF_12') {
         if(!year %in% c(2011, 2014, 2017)) {
           formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
@@ -261,7 +260,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         if(!year > 2016) {
           formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
         }
-        if(year != 2018) {
+        if(!year %in% c(2015, 2017, 2019)) {
           formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
         }
         if(year < 2013) {
@@ -270,12 +269,6 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       }
       # Now make string into formula
       form <- as.formula(formula.string)
-      
-      
-      # print('----------------------------------------')
-      # print(table(data$ethnicity))
-      # print(table(data$region))
-      # print('----------------------------------------')
       
       
       ## Different model types require different functions
@@ -351,6 +344,8 @@ dataDir <- 'data/final_US/'
 transitionDir <- 'data/transitions/'
 transSourceDir <- 'minos/transitions/'
 modDefFilename <- 'model_definitions_NEW.txt'
+
+
 
 # Load input data (final_US/)
 filelist <- list.files(dataDir)

@@ -102,23 +102,16 @@ def predict_education(repl):
     """
     print("Predicting max education level for replenishing populations...")
 
-    transition_model = r_utils.load_transitions(f"data/transitions/education_state/nnet/education_state_2018_2019", "")
+    ## First load in the transition model and produce a probability distribution for max education
+    # Then create an empty variable for max_educ, and make a choice from the probability distribution about
+    # which level to assign as highest education attainment
 
+    transition_model = r_utils.load_transitions(f"data/transitions/education_state/nnet/education_state_2018_2019", "")
     prob_df = r_utils.predict_highest_educ_nnet(transition_model, repl)
 
-    #repl['new_educ'] = choice(a = prob_df.columns, p = prob_df[repl.index])
-
     repl['max_educ'] = np.nan
-
     for i, distribution in enumerate(prob_df.iterrows()):
-        #repl.loc[i, 'max_educ']
-        # choice(a=prob_df.columns, p=distribution)
-        #print(distribution[1])
         repl.loc[i, 'max_educ'] = choice(a=prob_df.columns, size=1, p=distribution[1])[0]
-        #print(test)
-
-    #new_educ = random.choices(population=prob_df.columns,
-    #                          weights=)
 
     return repl
 
@@ -129,14 +122,11 @@ def generate_replenishing(projections):
     file_name = "data/complete_US/2018_US_cohort.csv"
     data = pd.read_csv(file_name)
 
+    # expand and reweight the population
     repl = expand_and_reweight_repl(data, projections)
 
     # finally, predict the highest level of educ
     final_repl = predict_education(repl)
-
-    # some columns need to replace missings (negative values in US) with NA
-    #final_repl = US_utils.replace_missing_with_na(final_repl, column_list=['job_sec',
-    #                                                                        'job_sector'])
 
     output_dir = 'data/replenishing/'
     US_utils.check_output_dir(output_dir)
