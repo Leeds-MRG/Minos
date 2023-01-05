@@ -8,4 +8,5 @@ install.packages('pscl', repos = "http://cran.us.r-project.org")
 install.packages('ggplot2', repos = "http://cran.us.r-project.org")
 install.packages('texreg', repos = "http://cran.us.r-project.org")
 install.packages('geojsonsf', repos="http://cran.us.r-project.org")
+install.packages('argparse', repos="http://cran.us.r-project.org")
 #

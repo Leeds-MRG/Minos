@@ -8,7 +8,10 @@ import numpy as np
 import argparse
 import glob
 import os
+from datetime import datetime
 from aggregate_subset_functions import find_subset_function
+
+
 def eightyTwenty(income):
 
     split = pd.qcut(income, q=5, labels=[1, 2, 3, 4, 5])
@@ -148,7 +151,7 @@ if __name__ == "__main__":
                         help="What method is used to aggregate individuals by LSOA.")
     parser.add_argument("-f", "--format", required=True, type=str,
                         help="What file format is used. csv or geojson.")
-    parser.add_argument("-u", "--subset_function", required=True, type=str,
+    parser.add_argument("-u", "--subset_function", default="who_alive", type=str,
                         help="What subset function is used for data frame. Usually none or who_boosted/interevened on.")
 
     args = vars(parser.parse_args())
@@ -167,8 +170,21 @@ if __name__ == "__main__":
         method = np.nanmean
     else:
         #TODO no better way to do this to my knowledge without eval() which shouldn't be used.
-        raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
+        raise ValueError("Unknown aggregate function specified. Please add specific function required at 'aggregate_minos_output.py")
 
+    # Handle the datetime folder inside the output.
+    runtime = os.listdir(os.path.abspath(source))
+    if len(runtime) > 1: # Select most recent run
+        runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+    elif len(runtime) == 1: # os.listdir returns a list, we only have 1 element
+        runtime = runtime[0]
+    else:
+        raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                           "aggregate. Please check the output directory.")
+
+    # Now add runtime subdirectory to the path
+    source = os.path.join(source, runtime)
+    destination = source
 
     #source = f"output/test_output/simulation_data/2018.csv" # if estimating LSOAs using minos data from some output.
     #source = f"data/final_US/{year}_US_Cohort.csv" # if estimating LSOAs using real data.

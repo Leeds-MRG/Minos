@@ -14,6 +14,21 @@ main <- function(){
   plot_destination <- args$destination
   mode <- args$mode
   v <- args$var
+
+  ## handle runtime subdirectory
+  # first select only the path (not filename)
+  out.files <- list.files(dirname(geojson_file_name))
+
+  if(length(out.files) == 1) {
+    geojson_file_name = paste0(dirname(geojson_file_name), '/', out.files[1], '/', basename(geojson_file_name))
+  }
+  else if(length(out.files) > 1) {
+    out.files.date <- as.Date(out.files)
+    geojson_file_name <- paste0(dirname(geojson_file_name), '/', str(max(out.files.date)), '/', basename(geojson_file_name))
+  }
+
+  print("This is the geojson file name:")
+  print(geojson_file_name)
   
   main.single(geojson_file_name, plot_destination, mode, v)
 }

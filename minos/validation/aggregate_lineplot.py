@@ -71,5 +71,25 @@ if __name__ == '__main__':
     prefix = args['prefix']
 
     sources = sources.split(",")
-    source = os.path.join('output', sources[0], "aggregated_" + "_".join(sources) + ".csv")
+
+    for i, source in enumerate(sources):
+        # Handle the datetime folder inside the output. Select most recent run
+        runtime = os.listdir(os.path.abspath(os.path.join('output/default_config', source)))
+        if len(runtime) > 1:
+            runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+        elif len(runtime) == 1:
+            runtime = runtime[0]  # os.listdir returns a list, we only have 1 element
+        else:
+            raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                               "aggregate. Please check the output directory.")
+
+        sources[i] = os.path.join(source, runtime)
+
+    short_directories = []
+    for i, source in enumerate(sources):
+        if '/' in source:
+            source = source.split('/')[0]
+            short_directories.append(source)
+
+    source = os.path.join('output/default_config', sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
     main(source, destination, v, method, prefix)
