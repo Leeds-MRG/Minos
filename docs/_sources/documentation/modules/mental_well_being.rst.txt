@@ -15,8 +15,7 @@ Methods
 What methods are used? Justification due to output data type.
 explanation of model output.
 
-Data
-----
+|plot of chunk neighbourhood_barchart| ### Data
 
 What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen
@@ -26,6 +25,11 @@ Results
 
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
+
+.. figure:: ./figure/housing_output-1.png
+   :alt: plot of chunk housing_output
+
+   plot of chunk housing_output
 
 ::
 
@@ -100,7 +104,8 @@ References
       Nelson, Edward. 1987. *Radically Elementary Probability Theory*.
       Princeton University Press.
 
-.. |plot of chunk housing_output| image:: ./figure/housing_output-1.png
-.. |image1| image:: ./figure/housing_output-2.png
-.. |image2| image:: ./figure/housing_output-3.png
-.. |image3| image:: ./figure/housing_output-4.png
+.. |plot of chunk neighbourhood_barchart| image:: ./figure/neighbourhood_barchart-1.png
+.. |plot of chunk housing_output| image:: ./figure/housing_output-2.png
+.. |image1| image:: ./figure/housing_output-3.png
+.. |image2| image:: ./figure/housing_output-4.png
+.. |image3| image:: ./figure/housing_output-5.png

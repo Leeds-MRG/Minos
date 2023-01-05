@@ -19,6 +19,8 @@
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -128,225 +130,240 @@
 <h1>Labour<a class="headerlink" href="#labour" title="Permalink to this heading"></a></h1>
 <section id="id1">
 <h2>Labour<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
-<p>Introductory fluff. Why do we need this module? test reference (Nelson
-1987).</p>
+<p>Labour state is a measure of what an individual does. There are 8
+distinctive categories including employment, unemployment, and retired.
+The encodings of these states can be found
+[here]](<a class="reference external" href="https://leeds-mrg.github.io/Minos/documentation/data_tables.html">https://leeds-mrg.github.io/Minos/documentation/data_tables.html</a>).</p>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk labour_barchart" src="../../_images/labour_barchart-1.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk labour_barchart</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 <section id="methods">
 <h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
-<p>What methods are used? Justification due to output data type.
-explanation of model output.</p>
+<p>Labour state is a complex categorical data type. Single layer neural
+network is a simple way to estimate this state. Use multinom function
+from R’s nnet package. Formula for weights included given as.</p>
+<div class="math notranslate nohighlight">
+\[labour\_state\_next = sex + ethnicity + age + education\_state + SF\_12 + housing\_quality + labour\_state + job\_sec + hh\_income + alcohol\_spending\]</div>
 </section>
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
-<p>What variables are included? Why is this output chosen. What explanatory
-variables are used and why are they chosen</p>
+<p>Variables used in this model. Encodings for discrete variables found in
+data tables.</p>
+<ul class="simple">
+<li><p>sex. Biological sex male/female.</p></li>
+<li><p>ethnicity. Ethnicity e.g. white british. XXXX cite.</p></li>
+<li><p>age in years. XXXX cite.</p></li>
+<li><p>education. Highest qualification attained. XXXX cite</p></li>
+<li><p>sf12. Mental well-being score. XXXX cite</p></li>
+<li><p>housing quality. Number of household appliances. Ordinal 1-3. XXXX
+cite</p></li>
+<li><p>labour_state. Previous labour state. XXXX cite. Probably remove this.
+dominates prediction..</p></li>
+<li><p>nssec. Socioeconomic code of job. Indicates job quality with 1-9
+ordinal variable. XXXX cite</p></li>
+<li><p>household income. Monthly disposable income of individuals household.
+XXXX cite.</p></li>
+<li><p>alcohol spending. How much is spent on alcohol. XXXX cite. remove.</p></li>
+</ul>
 </section>
 <section id="results">
 <h3>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h3>
-<p>What are the results. Coefficients tables. diagnostic plots. measures of
-goodness of fit.</p>
+<ul class="simple">
+<li><p>hard to determine goodness of fit.</p></li>
+<li><p>use confusion matrix to estimate quality of fit.</p></li>
+<li><p>employed/retired well predicted. unemployed/student volatile socially
+and expectedly hard to predict.</p></li>
+<li><p>some deterministic replacement needed for categories like student
+that have specific time frames. e.g. three years for a degree.</p></li>
+</ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Call:</span>
 <span class="c1">## multinom(formula = factor(y) ~ (factor(sex) + factor(ethnicity) +</span>
 <span class="c1">##     age + factor(education_state) + SF_12 + factor(housing_quality) +</span>
-<span class="c1">##     factor(labour_state) + factor(job_sec) + hh_income + alcohol_spending),</span>
-<span class="c1">##     data = data, weights = weight, MaxNWts = 10000, maxit = 10000)</span>
+<span class="c1">##     factor(labour_state) + hh_income + alcohol_spending), data = data,</span>
+<span class="c1">##     weights = weight, model = T, MaxNWts = 10000, maxit = 10000)</span>
 <span class="c1">##</span>
 <span class="c1">## Coefficients:</span>
 <span class="c1">##                 (Intercept) factor(sex)Male factor(ethnicity)BLA factor(ethnicity)BLC factor(ethnicity)CHI</span>
-<span class="c1">## Family Care      -2.9497345     -1.36541687           -0.7948968           -1.6277063           0.11817892</span>
-<span class="c1">## Maternity Leave  -3.5820257     -4.44527918          -11.7371518          -14.5349570          -9.92827393</span>
-<span class="c1">## PT Employed      -2.0448978     -0.92764147           -0.9306805           -0.9331177          -1.40619415</span>
-<span class="c1">## Retired         -12.8295628     -0.08102316           -0.9429840           -0.3920822          -1.16563853</span>
-<span class="c1">## Self-employed    -4.0093586      0.25315997           -1.4027270           -0.8531256          -0.02967332</span>
-<span class="c1">## Sick/Disabled    -1.9664480     -0.36764454           -0.3290371           -0.5739203          -8.23754301</span>
-<span class="c1">## Student           1.8892772     -0.34221553           -0.4584254           -0.4811614          -0.29158755</span>
-<span class="c1">## Unemployed        0.2799377      0.24892489           -1.4686023            0.1650021          -1.58511178</span>
+<span class="c1">## Family Care       -5.427838     -1.36857506           -0.6854990          -1.61967630           -0.1168765</span>
+<span class="c1">## Maternity Leave   -4.174710     -4.32161486          -23.1671344         -20.22088647          -16.8218525</span>
+<span class="c1">## PT Employed       -1.814235     -0.92564199           -0.8120645          -0.77909500           -1.2961382</span>
+<span class="c1">## Retired          -15.216159     -0.08983041           -0.6573547          -0.01085643           -1.5971170</span>
+<span class="c1">## Self-employed     -4.788733      0.26504673           -1.0965227          -0.66715948            0.3675381</span>
+<span class="c1">## Sick/Disabled     -4.914758     -0.23076341            0.1400658          -0.30508870          -17.9304311</span>
+<span class="c1">## Student            1.633007     -0.36372813           -0.4278495          -0.50463144           -0.4346266</span>
+<span class="c1">## Unemployed        -1.265769      0.27796978           -1.2455510           0.30113430           -1.7425558</span>
 <span class="c1">##                 factor(ethnicity)IND factor(ethnicity)MIX factor(ethnicity)OAS factor(ethnicity)OBL</span>
-<span class="c1">## Family Care               0.14030977           -1.5509210           -0.8945242            0.2519840</span>
-<span class="c1">## Maternity Leave          -0.30264122           -0.4033260          -13.3046146          -15.0408827</span>
-<span class="c1">## PT Employed              -0.51132272           -1.1165830           -1.5637029          -30.0231856</span>
-<span class="c1">## Retired                   0.01581089           -0.5724423           -0.4387145           -2.3985793</span>
-<span class="c1">## Self-employed             0.70942239            0.1098976           -2.5231531           -0.3128006</span>
-<span class="c1">## Sick/Disabled            -0.50565692           -0.6655297           -2.2586774            1.4285698</span>
-<span class="c1">## Student                  -0.32663740           -0.7408731           -0.3964799            1.8573672</span>
-<span class="c1">## Unemployed               -0.16819318           -0.6845342           -0.7946784          -24.5867351</span>
+<span class="c1">## Family Care              -0.08170559           -1.6425998          -0.83297883           0.25500914</span>
+<span class="c1">## Maternity Leave          -0.10550090           -0.2270516         -19.87848320         -16.77600590</span>
+<span class="c1">## PT Employed              -0.28362777           -1.0626890          -1.42013438         -18.45672870</span>
+<span class="c1">## Retired                   0.21490745           -0.6083682          -0.01333375          -2.03725076</span>
+<span class="c1">## Self-employed             1.07615647            0.3597318          -2.02401797          -0.03832563</span>
+<span class="c1">## Sick/Disabled            -0.31695873           -0.3590320          -1.96524134           1.70411172</span>
+<span class="c1">## Student                  -0.34367785           -0.7904874          -0.52019509           1.99386593</span>
+<span class="c1">## Unemployed               -0.16273349           -0.6285184          -0.64270988         -12.97353289</span>
 <span class="c1">##                 factor(ethnicity)OTH factor(ethnicity)PAK factor(ethnicity)WBI factor(ethnicity)WHO          age</span>
-<span class="c1">## Family Care               -1.6345895           1.24418171           -0.4067465           -1.4172374  0.035376075</span>
-<span class="c1">## Maternity Leave            2.3924637         -12.10388834            0.5926260            1.0201013 -0.080272476</span>
-<span class="c1">## PT Employed                0.2693373          -0.50732873           -0.7221293           -0.9717529  0.020186477</span>
-<span class="c1">## Retired                    0.8772435           1.39822587            0.2204762           -0.2300769  0.194189896</span>
-<span class="c1">## Self-employed              1.4927405           0.57414890           -0.7972023           -0.4008622  0.012225839</span>
-<span class="c1">## Sick/Disabled             -0.5659292           0.09443374            0.3455181            0.1379029  0.037682591</span>
-<span class="c1">## Student                    0.6866963          -0.35259251           -0.9668251           -1.7488775 -0.144099422</span>
-<span class="c1">## Unemployed                -0.6127510          -0.18341167           -0.7577150           -0.8377109  0.008186388</span>
+<span class="c1">## Family Care              -0.89505200           1.36791557           -0.4621093          -1.39726289  0.031752630</span>
+<span class="c1">## Maternity Leave           2.70763648         -19.42822346            0.8050632           1.28558528 -0.074786069</span>
+<span class="c1">## PT Employed               0.40751410          -0.31051958           -0.5859156          -0.77982293  0.018568577</span>
+<span class="c1">## Retired                   0.09228302           1.76187406            0.5119257          -0.04689624  0.195398226</span>
+<span class="c1">## Self-employed             1.66354992           1.08453761           -0.4272246           0.01478191  0.015759164</span>
+<span class="c1">## Sick/Disabled            -0.38961378           0.49030224            0.5332637           0.35976890  0.035474558</span>
+<span class="c1">## Student                   0.59860185          -0.22471416           -0.9321785          -1.60536744 -0.146478667</span>
+<span class="c1">## Unemployed               -0.88988177           0.06394131           -0.6285829          -0.77625025  0.004275371</span>
 <span class="c1">##                 factor(education_state)1 factor(education_state)2 factor(education_state)3 factor(education_state)5</span>
-<span class="c1">## Family Care                   0.74281014               0.52131484              0.596315923              0.384622621</span>
-<span class="c1">## Maternity Leave               1.36589408              -0.48892543              0.905280375              0.107928538</span>
-<span class="c1">## PT Employed                   0.01132911               0.07981087              0.311845118              0.040625580</span>
-<span class="c1">## Retired                      -0.48440358              -0.01572557              0.267113484              0.102445363</span>
-<span class="c1">## Self-employed                -0.63219523              -0.04237620             -0.135584555             -0.331883602</span>
-<span class="c1">## Sick/Disabled                 0.27535789              -0.10294973             -0.558452297              0.316274693</span>
-<span class="c1">## Student                      -0.26800074              -0.20411862              0.161242861              0.008156958</span>
-<span class="c1">## Unemployed                   -0.03018320               0.06864482             -0.003671677             -0.240458470</span>
-<span class="c1">##                 factor(education_state)6 factor(education_state)7        SF_12 factor(housing_quality)2</span>
-<span class="c1">## Family Care                  -0.07609724              0.087652654 -0.013810509                0.5922054</span>
-<span class="c1">## Maternity Leave              -0.10104216              0.435330665  0.017592620                1.2082372</span>
-<span class="c1">## PT Employed                  -0.07433417              0.058489111 -0.005160245               -0.5429169</span>
-<span class="c1">## Retired                      -0.11644864             -0.006395467  0.002690721                0.1882706</span>
-<span class="c1">## Self-employed                -0.28381293             -0.125804959  0.001887230                0.0554855</span>
-<span class="c1">## Sick/Disabled                -0.72358208             -1.254921747 -0.040867556                0.1536673</span>
-<span class="c1">## Student                      -0.29540605              0.377481315 -0.004174788               -0.4718893</span>
-<span class="c1">## Unemployed                   -0.50220911             -0.253726649 -0.020076719               -0.6316680</span>
+<span class="c1">## Family Care                   0.83527379               0.64198978                0.6193079              0.350489819</span>
+<span class="c1">## Maternity Leave               1.82944596              -0.46533069                0.8926128              0.287960794</span>
+<span class="c1">## PT Employed                  -0.02224803               0.16201937                0.3500865             -0.025950157</span>
+<span class="c1">## Retired                      -0.40534713              -0.01191589                0.2842306              0.154118192</span>
+<span class="c1">## Self-employed                -0.26657306              -0.02998956               -0.1797569             -0.390600894</span>
+<span class="c1">## Sick/Disabled                 0.27379541              -0.15330549               -0.7222727              0.073203488</span>
+<span class="c1">## Student                      -0.24770936              -0.16164739                0.1141930             -0.006217061</span>
+<span class="c1">## Unemployed                   -0.03089045               0.04474756               -0.1149388             -0.360550704</span>
+<span class="c1">##                 factor(education_state)6 factor(education_state)7         SF_12 factor(housing_quality)2</span>
+<span class="c1">## Family Care                  -0.08149697             -0.061919449 -0.0149230757                0.4422199</span>
+<span class="c1">## Maternity Leave               0.19148931              0.714918763  0.0176925914                0.9982074</span>
+<span class="c1">## PT Employed                  -0.16168292             -0.075174142 -0.0058728033               -0.5890025</span>
+<span class="c1">## Retired                      -0.03885064              0.004699173  0.0002808132                0.3268997</span>
+<span class="c1">## Self-employed                -0.37149139             -0.281546857  0.0005757246                0.2173479</span>
+<span class="c1">## Sick/Disabled                -0.89726317             -1.652084951 -0.0423454912                0.2051458</span>
+<span class="c1">## Student                      -0.35988915              0.331056396 -0.0056564699               -0.5094467</span>
+<span class="c1">## Unemployed                   -0.70481604             -0.472356909 -0.0211076243               -0.6497516</span>
 <span class="c1">##                 factor(housing_quality)3 factor(labour_state)Family Care factor(labour_state)Maternity Leave</span>
-<span class="c1">## Family Care                   0.69240451                      3.79090641                          3.58710344</span>
-<span class="c1">## Maternity Leave               1.19095258                     -0.05666984                          1.16444014</span>
-<span class="c1">## PT Employed                  -0.48220328                      2.19612785                          2.17277135</span>
-<span class="c1">## Retired                       0.13319220                      1.87652818                         -6.89971549</span>
-<span class="c1">## Self-employed                -0.01169744                      2.27586925                          1.59875575</span>
-<span class="c1">## Sick/Disabled                -0.39742215                      1.19298909                       -260.62780461</span>
-<span class="c1">## Student                      -0.52794690                    -10.73850272                         -0.01132441</span>
-<span class="c1">## Unemployed                   -1.20564260                      2.17230699                          1.57974732</span>
+<span class="c1">## Family Care                    0.6057731                        6.560573                         2.801650857</span>
+<span class="c1">## Maternity Leave                1.0727501                      -27.050365                         0.855041149</span>
+<span class="c1">## PT Employed                   -0.5639443                        2.029644                         2.183333136</span>
+<span class="c1">## Retired                        0.2992377                        3.669181                       -11.670117758</span>
+<span class="c1">## Self-employed                  0.1621438                        2.496280                         1.798705071</span>
+<span class="c1">## Sick/Disabled                 -0.4121029                        4.189506                        -7.422299110</span>
+<span class="c1">## Student                       -0.5559980                       -7.175352                        -0.008006713</span>
+<span class="c1">## Unemployed                    -1.2712642                        3.825683                         1.416516254</span>
 <span class="c1">##                 factor(labour_state)PT Employed factor(labour_state)Retired factor(labour_state)Self-employed</span>
-<span class="c1">## Family Care                            1.516738                    2.120639                         1.7819615</span>
-<span class="c1">## Maternity Leave                        1.295354                    3.309351                         0.7815352</span>
-<span class="c1">## PT Employed                            3.426520                    2.661703                         1.7489819</span>
-<span class="c1">## Retired                                1.831565                    4.771644                         2.1743918</span>
-<span class="c1">## Self-employed                          1.543264                    3.226062                         5.2843949</span>
-<span class="c1">## Sick/Disabled                          1.417359                    2.027793                         0.2700767</span>
-<span class="c1">## Student                                2.522705                   -4.368500                         1.6741382</span>
-<span class="c1">## Unemployed                             1.292714                    1.792941                         1.9979514</span>
+<span class="c1">## Family Care                            1.528821                    4.857081                         2.5617401</span>
+<span class="c1">## Maternity Leave                        1.125087                    3.448937                         0.9534827</span>
+<span class="c1">## PT Employed                            3.557821                    2.693552                         1.8331160</span>
+<span class="c1">## Retired                                1.614635                    6.636309                         2.2120142</span>
+<span class="c1">## Self-employed                          1.452299                    3.460900                         6.3530827</span>
+<span class="c1">## Sick/Disabled                          1.127642                    4.989487                         1.4990161</span>
+<span class="c1">## Student                                2.674685                   -9.164293                         2.5631426</span>
+<span class="c1">## Unemployed                             1.399081                    3.501194                         2.1409753</span>
 <span class="c1">##                 factor(labour_state)Sick/Disabled factor(labour_state)Student factor(labour_state)Unemployed</span>
-<span class="c1">## Family Care                              1.935282                  -0.8837657                      1.1063835</span>
-<span class="c1">## Maternity Leave                          2.601701                  -2.5521503                    -14.7375055</span>
-<span class="c1">## PT Employed                              2.287280                   2.3489924                      1.7425244</span>
-<span class="c1">## Retired                                  2.883320                 -12.6548198                      0.4179273</span>
-<span class="c1">## Self-employed                            2.927572                   1.4983159                      2.1937774</span>
-<span class="c1">## Sick/Disabled                            5.641920                  -1.6945415                      0.9691273</span>
-<span class="c1">## Student                                  2.745633                   4.0794835                      1.9894943</span>
-<span class="c1">## Unemployed                               3.422059                   1.3017956                      2.3535479</span>
-<span class="c1">##                 factor(job_sec)1 factor(job_sec)2 factor(job_sec)3 factor(job_sec)4 factor(job_sec)5 factor(job_sec)6</span>
-<span class="c1">## Family Care          -14.4751942      -3.45519640      -3.69872191       -3.2317550      -1.39655762      -2.87498594</span>
-<span class="c1">## Maternity Leave       -0.1171488      -0.13099896       0.10179132       -1.2738393      -0.04224619      -0.13833148</span>
-<span class="c1">## PT Employed           -0.8752487      -0.38142249       0.05475755        0.2410632       0.56945373       0.15998216</span>
-<span class="c1">## Retired               -1.9746011      -2.54572438      -2.10441341       -2.1218438      -1.54366683      -1.50534412</span>
-<span class="c1">## Self-employed         -0.5102614      -0.09063855      -0.12740650       -0.7183060       1.96288755      -0.03350326</span>
-<span class="c1">## Sick/Disabled        -17.9271127      -2.71692686      -3.97168935       -5.0736450      -0.72462714      -2.68418075</span>
-<span class="c1">## Student              -12.5475088      -1.82691729      -0.41485274       -0.6318453       1.40921165      -1.05780877</span>
-<span class="c1">## Unemployed            -1.8752435      -2.75788822      -2.55311932       -1.7592651      -1.22182163      -2.02281948</span>
-<span class="c1">##                 factor(job_sec)7 factor(job_sec)8     hh_income alcohol_spending</span>
-<span class="c1">## Family Care          -2.99004929      -2.24253800 -2.997223e-05     6.199353e-04</span>
-<span class="c1">## Maternity Leave      -0.93112652       0.03554928  1.872417e-04    -4.635891e-03</span>
-<span class="c1">## PT Employed           0.49340171       0.54900127 -8.909814e-07     6.946914e-05</span>
-<span class="c1">## Retired              -2.61530352      -2.53350837  5.833198e-05     1.082706e-03</span>
-<span class="c1">## Self-employed        -0.85359953      -0.37689126  1.313467e-04     1.608024e-04</span>
-<span class="c1">## Sick/Disabled        -3.22156526      -3.18921149  2.133250e-06     2.303288e-04</span>
-<span class="c1">## Student              -0.02686193      -0.38769200 -3.042457e-05     9.604474e-04</span>
-<span class="c1">## Unemployed           -1.45315740      -1.47282109 -6.663903e-05    -1.103043e-03</span>
+<span class="c1">## Family Care                              4.466846                    1.678199                       3.829434</span>
+<span class="c1">## Maternity Leave                          2.904895                   -2.257192                     -19.550671</span>
+<span class="c1">## PT Employed                              2.255641                    2.406895                       1.529357</span>
+<span class="c1">## Retired                                  4.541592                  -18.866016                       2.342506</span>
+<span class="c1">## Self-employed                            3.173077                    1.790859                       2.241078</span>
+<span class="c1">## Sick/Disabled                            8.208586                    1.008471                       3.874616</span>
+<span class="c1">## Student                                  3.218337                    4.501494                       2.469657</span>
+<span class="c1">## Unemployed                               4.877558                    2.785955                       4.089258</span>
+<span class="c1">##                     hh_income alcohol_spending</span>
+<span class="c1">## Family Care     -5.771935e-05    -1.928691e-05</span>
+<span class="c1">## Maternity Leave  2.009409e-04    -5.651168e-03</span>
+<span class="c1">## PT Employed     -3.284892e-05    -1.495630e-04</span>
+<span class="c1">## Retired          3.129454e-05     6.816018e-04</span>
+<span class="c1">## Self-employed    1.017149e-04     3.447984e-04</span>
+<span class="c1">## Sick/Disabled   -3.880891e-05    -8.945572e-04</span>
+<span class="c1">## Student         -5.723791e-05     7.672958e-04</span>
+<span class="c1">## Unemployed      -9.100369e-05    -1.868479e-03</span>
 <span class="c1">##</span>
 <span class="c1">## Std. Errors:</span>
 <span class="c1">##                  (Intercept) factor(sex)Male factor(ethnicity)BLA factor(ethnicity)BLC factor(ethnicity)CHI</span>
-<span class="c1">## Family Care     4.342442e-04    5.623153e-04         7.809779e-05         8.805471e-06         1.671869e-05</span>
-<span class="c1">## Maternity Leave 1.804763e-05    2.439986e-06         1.879394e-11         3.585074e-13         5.917406e-11</span>
-<span class="c1">## PT Employed     1.154584e-03    1.459168e-03         1.181447e-04         5.361772e-05         1.743577e-05</span>
-<span class="c1">## Retired         8.478321e-05    1.852017e-03         1.338332e-05         1.408630e-05         3.247547e-06</span>
-<span class="c1">## Self-employed   3.329921e-04    1.840927e-03         9.024914e-05         3.829343e-05         3.455447e-05</span>
-<span class="c1">## Sick/Disabled   4.835214e-04    1.061065e-03         3.902344e-05         4.113404e-05         6.626953e-10</span>
-<span class="c1">## Student         3.872745e-04    2.026454e-03         1.542764e-04         4.248369e-05         1.780322e-05</span>
-<span class="c1">## Unemployed      8.679271e-04    1.606898e-03         9.869143e-05         1.044638e-04         7.557315e-06</span>
+<span class="c1">## Family Care     3.599990e-04    5.183946e-04         7.577712e-05         8.242053e-06         1.875153e-05</span>
+<span class="c1">## Maternity Leave 1.604664e-05    1.737667e-06         1.358760e-16         1.031065e-15         2.995950e-14</span>
+<span class="c1">## PT Employed     1.042258e-03    1.421046e-03         1.088879e-04         5.112275e-05         1.593181e-05</span>
+<span class="c1">## Retired         7.925086e-05    1.850908e-03         1.289113e-05         1.506194e-05         5.717021e-06</span>
+<span class="c1">## Self-employed   2.929192e-04    1.826746e-03         9.684570e-05         3.433277e-05         3.389267e-05</span>
+<span class="c1">## Sick/Disabled   4.203337e-04    1.077658e-03         3.424897e-05         3.544523e-05         5.986399e-14</span>
+<span class="c1">## Student         3.869903e-04    1.518819e-03         1.239351e-04         3.612408e-05         1.228684e-05</span>
+<span class="c1">## Unemployed      7.412049e-04    1.528355e-03         8.613568e-05         9.945933e-05         7.147975e-06</span>
 <span class="c1">##                 factor(ethnicity)IND factor(ethnicity)MIX factor(ethnicity)OAS factor(ethnicity)OBL</span>
-<span class="c1">## Family Care             1.078441e-04         1.117251e-05         1.303290e-04         9.577063e-06</span>
-<span class="c1">## Maternity Leave         2.652242e-06         1.304866e-06         7.521860e-12         3.010032e-14</span>
-<span class="c1">## PT Employed             1.952642e-04         1.273906e-04         8.906847e-05         5.452938e-18</span>
-<span class="c1">## Retired                 5.303829e-05         1.134785e-05         3.455446e-05         1.705537e-06</span>
-<span class="c1">## Self-employed           3.005222e-04         1.356333e-04         9.744535e-05         6.073181e-06</span>
-<span class="c1">## Sick/Disabled           6.519363e-05         3.757706e-05         5.426632e-06         9.895064e-06</span>
-<span class="c1">## Student                 2.152227e-04         2.750316e-04         1.463397e-04         1.119009e-05</span>
-<span class="c1">## Unemployed              3.037847e-04         1.729166e-04         1.438581e-04         2.653400e-16</span>
+<span class="c1">## Family Care             8.836709e-05         1.138355e-05         1.241400e-04         9.078023e-06</span>
+<span class="c1">## Maternity Leave         2.068933e-06         1.478327e-06         7.065474e-15         3.908089e-15</span>
+<span class="c1">## PT Employed             2.073072e-04         1.186170e-04         8.544246e-05         3.930693e-13</span>
+<span class="c1">## Retired                 5.428162e-05         9.932918e-06         3.448674e-05         1.816830e-06</span>
+<span class="c1">## Self-employed           3.043581e-04         1.049072e-04         1.093481e-04         5.890649e-06</span>
+<span class="c1">## Sick/Disabled           4.733190e-05         3.145531e-05         4.583401e-06         9.622405e-06</span>
+<span class="c1">## Student                 1.721469e-04         2.128175e-04         1.171347e-04         8.581789e-06</span>
+<span class="c1">## Unemployed              2.645788e-04         1.545851e-04         1.284842e-04         2.134065e-11</span>
 <span class="c1">##                 factor(ethnicity)OTH factor(ethnicity)PAK factor(ethnicity)WBI factor(ethnicity)WHO          age</span>
-<span class="c1">## Family Care             9.175514e-06         1.743482e-04         1.065500e-03         3.290276e-04 7.789890e-05</span>
-<span class="c1">## Maternity Leave         5.580979e-06         7.130926e-12         5.320196e-05         4.505423e-05 1.922297e-04</span>
-<span class="c1">## PT Employed             3.497209e-05         1.061181e-04         1.334246e-03         1.076443e-03 4.802763e-05</span>
-<span class="c1">## Retired                 1.518061e-05         3.907925e-05         3.043353e-04         1.151972e-04 7.514448e-05</span>
-<span class="c1">## Self-employed           8.790333e-05         1.302100e-04         1.528607e-03         5.729616e-04 7.151329e-05</span>
-<span class="c1">## Sick/Disabled           1.031165e-05         3.504362e-05         7.245953e-04         1.404643e-04 7.772225e-05</span>
-<span class="c1">## Student                 2.635773e-05         2.018670e-04         1.733217e-03         4.710982e-04 1.415025e-04</span>
-<span class="c1">## Unemployed              4.406198e-05         2.600604e-04         1.540329e-03         5.794466e-04 5.636969e-05</span>
+<span class="c1">## Family Care             9.585206e-06         1.668627e-04         0.0009689715         0.0003104709 7.771488e-05</span>
+<span class="c1">## Maternity Leave         5.435843e-06         2.400686e-15         0.0000484338         0.0000383771 1.862969e-04</span>
+<span class="c1">## PT Employed             3.357588e-05         1.081069e-04         0.0013187616         0.0008978079 4.727082e-05</span>
+<span class="c1">## Retired                 7.807769e-06         3.801897e-05         0.0002860321         0.0001059179 7.364582e-05</span>
+<span class="c1">## Self-employed           6.768732e-05         1.332946e-04         0.0014847507         0.0005444977 6.848791e-05</span>
+<span class="c1">## Sick/Disabled           8.408838e-06         3.282260e-05         0.0006146231         0.0001243856 7.531224e-05</span>
+<span class="c1">## Student                 2.244485e-05         1.605749e-04         0.0014272502         0.0004181797 1.370782e-04</span>
+<span class="c1">## Unemployed              3.499568e-05         2.404168e-04         0.0015018359         0.0005405674 5.586679e-05</span>
 <span class="c1">##                 factor(education_state)1 factor(education_state)2 factor(education_state)3 factor(education_state)5</span>
-<span class="c1">## Family Care                 1.071588e-04             1.457235e-03             2.976536e-04             1.717052e-04</span>
-<span class="c1">## Maternity Leave             6.608865e-06             2.242433e-05             6.192421e-05             3.424644e-05</span>
-<span class="c1">## PT Employed                 3.759206e-05             1.335557e-03             1.595889e-03             1.783358e-03</span>
-<span class="c1">## Retired                     5.966897e-05             1.775871e-03             2.057461e-04             2.760753e-04</span>
-<span class="c1">## Self-employed               5.908347e-05             1.353200e-03             4.038160e-04             2.323421e-04</span>
-<span class="c1">## Sick/Disabled               5.022223e-05             1.210784e-03             1.752387e-04             1.519234e-04</span>
-<span class="c1">## Student                     1.075098e-05             1.493713e-03             1.303170e-03             1.319873e-04</span>
-<span class="c1">## Unemployed                  4.351493e-05             1.533300e-03             1.420826e-03             1.934243e-04</span>
+<span class="c1">## Family Care                 1.030369e-04             1.498075e-03             2.724664e-04             1.963428e-04</span>
+<span class="c1">## Maternity Leave             6.970519e-06             1.824675e-05             5.916121e-05             3.785673e-05</span>
+<span class="c1">## PT Employed                 3.468506e-05             1.250300e-03             1.541783e-03             1.787870e-03</span>
+<span class="c1">## Retired                     6.468724e-05             1.770359e-03             2.343066e-04             2.882314e-04</span>
+<span class="c1">## Self-employed               6.995343e-05             1.445002e-03             4.822518e-04             2.867011e-04</span>
+<span class="c1">## Sick/Disabled               5.154466e-05             1.203295e-03             1.448427e-04             1.578403e-04</span>
+<span class="c1">## Student                     1.102772e-05             1.480586e-03             1.275723e-03             1.251753e-04</span>
+<span class="c1">## Unemployed                  4.202708e-05             1.501612e-03             1.075742e-03             1.868384e-04</span>
 <span class="c1">##                 factor(education_state)6 factor(education_state)7        SF_12 factor(housing_quality)2</span>
-<span class="c1">## Family Care                 3.281584e-04             1.866491e-04 7.653249e-05             1.260793e-03</span>
-<span class="c1">## Maternity Leave             4.386918e-05             5.909469e-05 1.360279e-04             6.742856e-05</span>
-<span class="c1">## PT Employed                 1.476272e-03             1.663749e-03 5.399319e-05             8.932971e-04</span>
-<span class="c1">## Retired                     8.124449e-04             5.171476e-04 8.760085e-05             1.109532e-03</span>
-<span class="c1">## Self-employed               1.754936e-03             1.482655e-03 6.831498e-05             1.096710e-03</span>
-<span class="c1">## Sick/Disabled               1.446236e-04             9.819000e-05 8.188384e-05             9.654297e-04</span>
-<span class="c1">## Student                     2.501431e-04             1.629361e-04 7.628102e-05             1.220661e-03</span>
-<span class="c1">## Unemployed                  5.580456e-04             3.655798e-04 5.532430e-05             1.126556e-03</span>
+<span class="c1">## Family Care                 3.598006e-04             0.0001897791 7.695239e-05             1.239252e-03</span>
+<span class="c1">## Maternity Leave             4.442776e-05             0.0000514736 1.326199e-04             5.763622e-05</span>
+<span class="c1">## PT Employed                 1.441987e-03             0.0016964304 5.215361e-05             8.709305e-04</span>
+<span class="c1">## Retired                     7.632435e-04             0.0004408949 8.604771e-05             1.105561e-03</span>
+<span class="c1">## Self-employed               1.783756e-03             0.0009938443 6.555011e-05             1.067965e-03</span>
+<span class="c1">## Sick/Disabled               1.555724e-04             0.0001123603 8.015271e-05             9.284825e-04</span>
+<span class="c1">## Student                     2.131216e-04             0.0001417418 7.548853e-05             1.216606e-03</span>
+<span class="c1">## Unemployed                  5.095567e-04             0.0003075911 5.371171e-05             1.106591e-03</span>
 <span class="c1">##                 factor(housing_quality)3 factor(labour_state)Family Care factor(labour_state)Maternity Leave</span>
-<span class="c1">## Family Care                 1.180723e-03                    1.602808e-03                        8.985609e-05</span>
-<span class="c1">## Maternity Leave             6.763619e-05                    5.799370e-06                        1.986301e-05</span>
-<span class="c1">## PT Employed                 9.857155e-04                    2.766135e-04                        3.185640e-04</span>
-<span class="c1">## Retired                     1.068212e-03                    2.634625e-04                        3.084222e-10</span>
-<span class="c1">## Self-employed               1.001123e-03                    1.338237e-04                        4.769826e-05</span>
-<span class="c1">## Sick/Disabled               6.917951e-04                    3.167163e-04                       1.092114e-119</span>
-<span class="c1">## Student                     1.158887e-03                    1.082084e-10                        5.150664e-06</span>
-<span class="c1">## Unemployed                  1.113581e-03                    8.208203e-04                        3.574125e-05</span>
+<span class="c1">## Family Care                 1.153711e-03                    1.672145e-03                        5.357447e-05</span>
+<span class="c1">## Maternity Leave             5.621207e-05                    9.553555e-18                        1.504999e-05</span>
+<span class="c1">## PT Employed                 9.330019e-04                    3.077129e-04                        2.215877e-04</span>
+<span class="c1">## Retired                     1.061355e-03                    2.406723e-04                        2.481804e-12</span>
+<span class="c1">## Self-employed               9.693579e-04                    1.301847e-04                        5.793731e-05</span>
+<span class="c1">## Sick/Disabled               6.717642e-04                    3.698338e-04                        8.977211e-10</span>
+<span class="c1">## Student                     1.156117e-03                    2.710250e-09                        5.393807e-06</span>
+<span class="c1">## Unemployed                  1.052262e-03                    7.918922e-04                        2.986506e-05</span>
 <span class="c1">##                 factor(labour_state)PT Employed factor(labour_state)Retired factor(labour_state)Self-employed</span>
-<span class="c1">## Family Care                        2.247457e-04                4.815378e-04                      1.233455e-04</span>
-<span class="c1">## Maternity Leave                    6.895016e-05                1.225137e-05                      1.758022e-05</span>
-<span class="c1">## PT Employed                        1.306760e-03                3.577849e-04                      3.699376e-04</span>
-<span class="c1">## Retired                            9.682588e-04                1.626870e-03                      4.497132e-04</span>
-<span class="c1">## Self-employed                      3.971318e-04                2.539942e-04                      1.477054e-03</span>
-<span class="c1">## Sick/Disabled                      1.142338e-04                4.248092e-04                      3.658187e-05</span>
-<span class="c1">## Student                            7.477603e-04                1.149476e-09                      7.314916e-05</span>
-<span class="c1">## Unemployed                         4.929702e-04                2.417982e-04                      2.064404e-04</span>
+<span class="c1">## Family Care                        2.228520e-04                4.573180e-04                      1.295523e-04</span>
+<span class="c1">## Maternity Leave                    5.319895e-05                1.397646e-05                      2.211520e-05</span>
+<span class="c1">## PT Employed                        1.286473e-03                3.768409e-04                      4.115961e-04</span>
+<span class="c1">## Retired                            9.220664e-04                1.696325e-03                      3.854377e-04</span>
+<span class="c1">## Self-employed                      4.064363e-04                2.566427e-04                      1.731318e-03</span>
+<span class="c1">## Sick/Disabled                      9.386838e-05                4.559525e-04                      2.805343e-05</span>
+<span class="c1">## Student                            5.277678e-04                4.025272e-12                      6.839712e-05</span>
+<span class="c1">## Unemployed                         3.590046e-04                2.467990e-04                      2.462873e-04</span>
 <span class="c1">##                 factor(labour_state)Sick/Disabled factor(labour_state)Student factor(labour_state)Unemployed</span>
-<span class="c1">## Family Care                          1.098583e-04                4.934618e-05                   7.015585e-04</span>
-<span class="c1">## Maternity Leave                      8.321274e-06                6.350274e-06                   4.180367e-12</span>
-<span class="c1">## PT Employed                          6.100748e-05                9.933094e-04                   4.144204e-04</span>
-<span class="c1">## Retired                              3.455040e-04                3.455623e-11                   1.383670e-04</span>
-<span class="c1">## Self-employed                        4.991741e-05                1.525295e-04                   3.324166e-04</span>
-<span class="c1">## Sick/Disabled                        1.509525e-03                1.617104e-05                   8.086136e-04</span>
-<span class="c1">## Student                              1.316903e-05                1.467587e-03                   3.456711e-04</span>
-<span class="c1">## Unemployed                           1.122855e-03                9.933811e-04                   1.566308e-03</span>
-<span class="c1">##                 factor(job_sec)1 factor(job_sec)2 factor(job_sec)3 factor(job_sec)4 factor(job_sec)5 factor(job_sec)6</span>
-<span class="c1">## Family Care         3.039978e-10     4.127454e-05     1.315257e-04     9.998751e-05     9.747108e-05     4.862156e-05</span>
-<span class="c1">## Maternity Leave     4.028923e-06     2.475044e-05     6.024942e-05     1.875085e-05     8.330642e-06     8.073375e-06</span>
-<span class="c1">## PT Employed         1.038607e-04     5.610007e-04     1.378038e-03     1.494413e-03     2.428316e-04     4.715531e-04</span>
-<span class="c1">## Retired             5.326735e-05     1.260184e-04     7.238485e-04     2.714788e-04     3.242490e-04     1.464736e-04</span>
-<span class="c1">## Self-employed       7.952528e-05     7.935532e-04     1.720729e-03     1.596218e-04     1.040548e-03     1.802849e-04</span>
-<span class="c1">## Sick/Disabled       6.393871e-12     3.176662e-05     4.420321e-05     7.781330e-06     4.480147e-05     5.893138e-05</span>
-<span class="c1">## Student             1.127809e-10     2.577772e-05     2.388133e-04     1.245008e-04     6.319745e-05     3.688589e-05</span>
-<span class="c1">## Unemployed          5.608839e-05     5.692383e-05     2.343427e-04     2.097156e-04     1.271489e-04     8.469653e-05</span>
-<span class="c1">##                 factor(job_sec)7 factor(job_sec)8    hh_income alcohol_spending</span>
-<span class="c1">## Family Care         1.432280e-04     1.296934e-04 7.263170e-07     1.469334e-05</span>
-<span class="c1">## Maternity Leave     2.623497e-05     4.357722e-05 7.977769e-07     3.959363e-05</span>
-<span class="c1">## PT Employed         1.326299e-03     1.607418e-03 5.546498e-07     9.172823e-06</span>
-<span class="c1">## Retired             2.775361e-04     1.947507e-04 6.155210e-07     1.326850e-05</span>
-<span class="c1">## Self-employed       1.861835e-04     1.762337e-04 6.036379e-07     1.272284e-05</span>
-<span class="c1">## Sick/Disabled       7.939485e-05     4.973675e-05 9.413016e-07     1.682318e-05</span>
-<span class="c1">## Student             8.216236e-04     1.783408e-04 1.033192e-06     1.544872e-05</span>
-<span class="c1">## Unemployed          6.949220e-04     3.753802e-04 5.745550e-07     1.406929e-05</span>
+<span class="c1">## Family Care                          1.301395e-04                4.688722e-05                   6.863905e-04</span>
+<span class="c1">## Maternity Leave                      1.017169e-05                3.965230e-06                   2.352938e-14</span>
+<span class="c1">## PT Employed                          6.196837e-05                9.714964e-04                   4.395201e-04</span>
+<span class="c1">## Retired                              4.075096e-04                8.452563e-15                   1.492057e-04</span>
+<span class="c1">## Self-employed                        6.684261e-05                1.237549e-04                   2.859285e-04</span>
+<span class="c1">## Sick/Disabled                        1.522054e-03                1.580962e-05                   7.267649e-04</span>
+<span class="c1">## Student                              1.753183e-05                1.327969e-03                   2.786079e-04</span>
+<span class="c1">## Unemployed                           1.027338e-03                9.703733e-04                   1.642992e-03</span>
+<span class="c1">##                    hh_income alcohol_spending</span>
+<span class="c1">## Family Care     6.609737e-07     1.511865e-05</span>
+<span class="c1">## Maternity Leave 7.600733e-07     4.152949e-05</span>
+<span class="c1">## PT Employed     4.900454e-07     9.096333e-06</span>
+<span class="c1">## Retired         5.906249e-07     1.340972e-05</span>
+<span class="c1">## Self-employed   6.284636e-07     1.147906e-05</span>
+<span class="c1">## Sick/Disabled   8.443992e-07     2.001233e-05</span>
+<span class="c1">## Student         9.691558e-07     1.500951e-05</span>
+<span class="c1">## Unemployed      4.748604e-07     1.473291e-05</span>
 <span class="c1">##</span>
-<span class="c1">## Residual Deviance: 51171549</span>
-<span class="c1">## AIC: 51172205</span>
+<span class="c1">## Residual Deviance: 52532654</span>
+<span class="c1">## AIC: 52533182</span>
 </pre></div>
 </div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk labour_output" src="../../_images/labour_output-1.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk labour_output</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
-<div class="references csl-bib-body hanging-indent docutils container" id="refs">
-<div class="csl-entry docutils container" id="ref-1987-nelson">
-<p>Nelson, Edward. 1987. <em>Radically Elementary Probability Theory</em>.
-Princeton University Press.</p>
-</div>
-</div>
 </section>
 </section>
 </section>
