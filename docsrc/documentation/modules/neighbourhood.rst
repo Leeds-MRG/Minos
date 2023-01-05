@@ -6,14 +6,31 @@ Neighbourhood
 Neighbourhood
 =============
 
-Introductory fluff. Why do we need this module? test reference (Nelson
-1987).
+Neighbourhood quality is an indicator of well-being suggested by the
+SIPHER-7 XXXX ref and others?.
 
 Methods
 -------
 
-What methods are used? Justification due to output data type.
-explanation of model output.
+::
+
+   ## 
+   ##     1     2     3 
+   ##    45   697 26681
+
+.. figure:: ./figure/neighbourhood_barchart-1.png
+   :alt: plot of chunk neighbourhood_barchart
+
+   plot of chunk neighbourhood_barchart
+
+::
+
+   ## [1] "/Users/robertclay/minos/docsrc/documentation/notebooks"
+
+Neighbourhood data are presented as a likert scale from 1-6 indicating
+the number of harmful activities that happen in a persons neighbourhood
+for individual health. These include robberies and vandalism with the
+full encoding available in the data tables.
 
 Data
 ----
@@ -27,83 +44,71 @@ Results
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
 
+.. figure:: ./figure/housing_output-1.png
+   :alt: plot of chunk housing_output
+
+   plot of chunk housing_output
+
 ::
 
    ## formula: 
-   ## y ~ factor(sex) + age + SF_12 + labour_state + factor(job_sec) + ethnicity + hh_income + factor(housing_quality) + region + factor(education_state)
+   ## neighbourhood_safety_next ~ sex + age + SF_12 + labour_state + ethnicity + hh_income + housing_quality + region + education_state
    ## data:    data
    ## 
    ##  link  threshold nobs  logLik   AIC     niter max.grad cond.H 
-   ##  logit flexible  23856 -2860.76 5825.52 8(0)  5.75e-07 2.7e+09
+   ##  logit flexible  22627 -2733.40 5554.80 8(0)  2.47e-07 2.2e+09
    ## 
    ## Coefficients:
    ##                                  Estimate Std. Error z value Pr(>|z|)    
-   ## factor(sex)Male                -7.433e-03  8.726e-02  -0.085 0.932119    
-   ## age                            -1.417e-02  3.997e-03  -3.546 0.000391 ***
-   ## SF_12                           5.326e-03  1.896e-03   2.808 0.004981 ** 
-   ## labour_stateFamily Care         1.084e-01  3.040e-01   0.357 0.721327    
-   ## labour_stateMaternity Leave    -2.137e-01  5.962e-01  -0.359 0.719959    
-   ## labour_statePT Employed        -1.660e-01  1.634e-01  -1.016 0.309575    
-   ## labour_stateRetired             2.885e-01  2.793e-01   1.033 0.301558    
-   ## labour_stateSelf-employed       7.228e-02  2.630e-01   0.275 0.783406    
-   ## labour_stateSick/Disabled      -4.128e-01  2.984e-01  -1.383 0.166548    
-   ## labour_stateStudent            -5.854e-01  2.744e-01  -2.134 0.032871 *  
-   ## labour_stateUnemployed         -6.740e-02  2.974e-01  -0.227 0.820697    
-   ## factor(job_sec)1                9.682e-01  4.197e-01   2.307 0.021064 *  
-   ## factor(job_sec)2                7.176e-01  3.302e-01   2.173 0.029767 *  
-   ## factor(job_sec)3                7.121e-01  2.686e-01   2.651 0.008014 ** 
-   ## factor(job_sec)4                4.698e-01  2.869e-01   1.638 0.101513    
-   ## factor(job_sec)5                3.924e-01  3.472e-01   1.130 0.258435    
-   ## factor(job_sec)6                5.140e-01  3.317e-01   1.549 0.121266    
-   ## factor(job_sec)7                6.130e-01  2.702e-01   2.268 0.023301 *  
-   ## factor(job_sec)8                3.719e-01  2.931e-01   1.269 0.204446    
-   ## ethnicityBLA                    6.616e-03  3.230e-01   0.020 0.983660    
-   ## ethnicityBLC                   -1.223e-01  3.192e-01  -0.383 0.701695    
-   ## ethnicityCHI                    3.686e-01  7.571e-01   0.487 0.626382    
-   ## ethnicityIND                    6.230e-02  2.986e-01   0.209 0.834736    
-   ## ethnicityMIX                   -4.516e-01  3.187e-01  -1.417 0.156475    
-   ## ethnicityOAS                   -4.108e-01  3.426e-01  -1.199 0.230512    
-   ## ethnicityOBL                   -8.174e-01  7.875e-01  -1.038 0.299336    
-   ## ethnicityOTH                   -4.708e-01  5.723e-01  -0.823 0.410701    
-   ## ethnicityPAK                    1.189e+00  4.270e-01   2.784 0.005365 ** 
-   ## ethnicityWBI                   -5.071e-02  2.557e-01  -0.198 0.842780    
-   ## ethnicityWHO                   -3.015e-01  3.012e-01  -1.001 0.316771    
-   ## hh_income                       3.817e-05  3.492e-05   1.093 0.274322    
-   ## factor(housing_quality)2        3.150e-01  1.854e-01   1.699 0.089294 .  
-   ## factor(housing_quality)3        6.931e-01  2.015e-01   3.439 0.000584 ***
-   ## regionEast of England          -4.332e-03  2.519e-01  -0.017 0.986282    
-   ## regionLondon                   -1.134e+00  2.130e-01  -5.324 1.02e-07 ***
-   ## regionNorth East               -4.285e-01  2.784e-01  -1.539 0.123771    
-   ## regionNorth West               -6.880e-01  2.174e-01  -3.164 0.001554 ** 
-   ## regionNorthern Ireland          1.404e+00  4.878e-01   2.878 0.004006 ** 
-   ## regionScotland                 -1.432e-01  2.560e-01  -0.559 0.576023    
-   ## regionSouth East               -6.845e-01  2.141e-01  -3.197 0.001389 ** 
-   ## regionSouth West               -2.518e-01  2.412e-01  -1.044 0.296578    
-   ## regionWales                    -2.918e-01  2.667e-01  -1.094 0.273899    
-   ## regionWest Midlands            -6.104e-01  2.280e-01  -2.678 0.007416 ** 
-   ## regionYorkshire and The Humber  3.864e-02  2.537e-01   0.152 0.878937    
-   ## factor(education_state)1       -7.356e-02  2.486e-01  -0.296 0.767347    
-   ## factor(education_state)2        1.133e-01  1.155e-01   0.981 0.326416    
-   ## factor(education_state)3        1.441e-01  1.590e-01   0.907 0.364537    
-   ## factor(education_state)5        1.252e-01  1.697e-01   0.738 0.460595    
-   ## factor(education_state)6        5.090e-03  1.365e-01   0.037 0.970244    
-   ## factor(education_state)7       -2.060e-03  1.608e-01  -0.013 0.989775    
+   ## sexMale                        -2.720e-02  8.840e-02  -0.308  0.75836    
+   ## age                            -1.370e-02  4.160e-03  -3.293  0.00099 ***
+   ## SF_12                           5.054e-03  1.922e-03   2.629  0.00855 ** 
+   ## labour_stateFamily Care        -4.864e-01  2.025e-01  -2.402  0.01630 *  
+   ## labour_stateMaternity Leave    -3.479e-01  5.962e-01  -0.583  0.55956    
+   ## labour_statePT Employed        -2.050e-01  1.664e-01  -1.233  0.21776    
+   ## labour_stateRetired            -3.616e-01  1.582e-01  -2.286  0.02227 *  
+   ## labour_stateSelf-employed      -2.091e-02  1.895e-01  -0.110  0.91213    
+   ## labour_stateSick/Disabled      -1.054e+00  1.920e-01  -5.487 4.09e-08 ***
+   ## labour_stateStudent            -1.119e+00  1.904e-01  -5.876 4.21e-09 ***
+   ## labour_stateUnemployed         -6.175e-01  1.969e-01  -3.137  0.00171 ** 
+   ## ethnicityBLA                    8.412e-02  3.197e-01   0.263  0.79243    
+   ## ethnicityBLC                   -5.421e-02  3.160e-01  -0.172  0.86379    
+   ## ethnicityCHI                    3.647e-01  7.559e-01   0.482  0.62947    
+   ## ethnicityIND                   -3.411e-02  2.881e-01  -0.118  0.90576    
+   ## ethnicityMIX                   -4.192e-01  3.154e-01  -1.329  0.18380    
+   ## ethnicityOAS                   -3.837e-01  3.395e-01  -1.130  0.25831    
+   ## ethnicityOBL                   -7.602e-01  7.830e-01  -0.971  0.33158    
+   ## ethnicityOTH                   -2.113e-01  6.423e-01  -0.329  0.74212    
+   ## ethnicityPAK                    1.335e+00  4.449e-01   3.001  0.00269 ** 
+   ## ethnicityWBI                   -3.990e-02  2.514e-01  -0.159  0.87388    
+   ## ethnicityWHO                   -2.710e-01  3.012e-01  -0.900  0.36827    
+   ## hh_income                       3.971e-05  3.557e-05   1.116  0.26425    
+   ## housing_quality2                4.084e-01  1.816e-01   2.249  0.02453 *  
+   ## housing_quality3                8.445e-01  2.000e-01   4.222 2.42e-05 ***
+   ## regionEast of England           4.640e-02  2.554e-01   0.182  0.85584    
+   ## regionLondon                   -1.170e+00  2.122e-01  -5.513 3.53e-08 ***
+   ## regionNorth East               -4.367e-01  2.786e-01  -1.567  0.11703    
+   ## regionNorth West               -6.496e-01  2.190e-01  -2.966  0.00302 ** 
+   ## regionNorthern Ireland          1.377e+00  4.881e-01   2.821  0.00478 ** 
+   ## regionScotland                  9.785e-02  2.777e-01   0.352  0.72460    
+   ## regionSouth East               -6.175e-01  2.161e-01  -2.858  0.00426 ** 
+   ## regionSouth West               -1.255e-01  2.476e-01  -0.507  0.61239    
+   ## regionWales                    -3.188e-02  2.972e-01  -0.107  0.91457    
+   ## regionWest Midlands            -6.146e-01  2.274e-01  -2.702  0.00688 ** 
+   ## regionYorkshire and The Humber -2.231e-03  2.521e-01  -0.009  0.99294    
+   ## education_state1               -1.447e-01  2.501e-01  -0.579  0.56279    
+   ## education_state2                3.333e-02  1.185e-01   0.281  0.77848    
+   ## education_state3                1.132e-01  1.620e-01   0.698  0.48501    
+   ## education_state5                9.421e-02  1.734e-01   0.543  0.58691    
+   ## education_state6                1.112e-02  1.389e-01   0.080  0.93619    
+   ## education_state7                2.264e-02  1.623e-01   0.139  0.88908    
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
    ## Threshold coefficients:
    ##     Estimate Std. Error z value
-   ## 1|2  -6.8529     0.5014 -13.669
-   ## 2|3  -3.7729     0.4686  -8.051
+   ## 1|2  -7.2110     0.4440  -16.24
+   ## 2|3  -4.2690     0.4104  -10.40
 
 References
 ----------
-
-.. container:: references csl-bib-body hanging-indent
-   :name: refs
-
-   .. container:: csl-entry
-      :name: ref-1987:nelson
-
-      Nelson, Edward. 1987. *Radically Elementary Probability Theory*.
-      Princeton University Press.

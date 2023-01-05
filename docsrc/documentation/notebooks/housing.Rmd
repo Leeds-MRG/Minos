@@ -11,7 +11,7 @@ bibliography:
 
 Number of cigarettes consumed is an indicator of XXXX. test reference [@1987:nelson]. 
 
-```{r setup, include=FALSE}
+```{r housing_setup, include=FALSE}
 source('sphinx_notebook_utils.R')
 ```
 
@@ -19,6 +19,11 @@ source('sphinx_notebook_utils.R')
 
   What methods are used? Justification due to output data type. explanation of model output.
   
+```{r housing_barchart, echo=FALSE}
+print(table(real_data$housing_quality))
+discrete_barplot("housing_quality")
+```
+
 ### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
@@ -30,6 +35,7 @@ source('sphinx_notebook_utils.R')
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
+clm_barplot("../../../data/transitions/test/housing_clm_2018_2019.rds", "housing_quality_next")
 clm_output("../../../data/transitions/test/housing_clm_2018_2019.rds")
 ```
 

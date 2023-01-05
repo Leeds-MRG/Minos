@@ -1,5 +1,5 @@
 ---
-title: "Tobacco Transition Module"
+title: "Tobacco"
 output: html_document
 bibliography: 
   - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
@@ -9,33 +9,57 @@ bibliography:
 ## Tobacco
 
 
-Number of cigarettes consumed is an indicator of XXXX. test reference [@1987:nelson]. 
+Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
 
 ```{r setup, include=FALSE}
 source('sphinx_notebook_utils.R')
-notebook_setwd()
-
 ```
 
-### Methods
 
-  What methods are used? Justification due to output data type. explanation of model output.
-  
 ### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
 ```{r tobacco_data}
-zip_density("data/transitions/test/tobacco_zip_2018_2019.rds", 'y')
+counts_density('ncigs')
 ```
+
+### Methods
+
+The number of zero inflated values is higher than expected for a count distribution such as a poisson distribution. This inflation occurs naturally as a large proportion (over 50\%) of the population do not smoke. There are two sources of cigarette consumption that can be modelled using zero inflated models. In this case a zero-inflated poisson (ZIP) is used. Two models are fitted simulatenously. One is a logistic regression that estimates whether a person smokes cigarettes or not. This provides a simple probability of smoking or not. The second is a poisson counts model estimating the number of cigarettes consumed. 
+
+### Data
+
+Two set of variables are needed for the logistic and poisson parts of the ZIP model respectively.
+
+Variables that predict how much a person smokes.
+
+age. persons age. generally older people and very young smoke. 
+SF_12. wellbeing estimates number of cigarettes smoked.
+labour_state. whether a person is employed or not.
+ethnicity. certain ethnicities more likely to smoke cigarettes. 
+education_state. highest qualification.
+job_sec job quality
+hh_income household income
+ncigs previous number consumed.
+
+Variables that predict whether a person smokes
+
+ethnicity. certain ethnicities more likely to smoke cigarettes. 
+labour_state. whether a person is employed or not.
+age
+SF_12. wellbeing estimates number of cigarettes smoked.
+ncigs previous number consumed.
+
 ### Results
   
-  What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
+Almost all coefficients significant. Particularly prevous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
 
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-zip_output("data/transitions/test/tobacco_zip_2018_2019.rds")
+zip_output("../../../data/transitions/test/tobacco_zip_2018_2019.rds")
+zip_density("../../../data/transitions/test/tobacco_zip_2018_2019.rds", 'ncigs_next')
 ```
 
 

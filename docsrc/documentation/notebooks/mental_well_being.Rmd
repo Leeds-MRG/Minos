@@ -19,6 +19,9 @@ source('sphinx_notebook_utils.R')
 
   What methods are used? Justification due to output data type. explanation of model output.
   
+```{r neighbourhood_barchart, echo=FALSE}
+continuous_density("SF_12")
+```
 ### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
@@ -30,7 +33,8 @@ source('sphinx_notebook_utils.R')
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
-ols_output("../../../data/transitions/test/sf12_ols_2018_2019.rds") #e.g. ../../../data/transitions/test/housing_clm_2018_2019.rds
+ols_histogram("../../../data/transitions/test/sf12_ols_2018_2019.rds", "y")
+ols_output("../../../data/transitions/test/sf12_ols_2018_2019.rds")
 ```
 
 

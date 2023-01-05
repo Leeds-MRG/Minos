@@ -2,22 +2,29 @@
 title: "Neighbourhood"
 output: html_document
 bibliography: 
-  #- "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
-  - "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
+  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
 ---
 
 ## Neighbourhood
 
 
-Introductory fluff. Why do we need this module? test reference [@1987:nelson]. 
+Neighbourhood quality is an indicator of well-being suggested by the SIPHER-7 XXXX ref and others?. 
 
-```{r setup, include=FALSE}
+```{r neighbourhood_setup, include=FALSE}
 source('sphinx_notebook_utils.R')
 ```
 
 ### Methods
+  
+```{r neighbourhood_barchart, echo=FALSE}
+print(table(real_data$neighbourhood_safety))
+discrete_barplot("neighbourhood_safety")
+getwd()
+```
 
-  What methods are used? Justification due to output data type. explanation of model output.
+  Neighbourhood data are presented as a likert scale from 1-6 indicating the number of harmful activities that happen in a persons
+  neighbourhood for individual health. These include robberies and vandalism with the full encoding available in the data tables.
   
 ### Data
   
@@ -30,7 +37,8 @@ source('sphinx_notebook_utils.R')
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
-clm_output("../../../data/transitions/test/neighbourhood_clm_2014_2017.rds") #e.g. ../../../data/transitions/test/housing_clm_2018_2019.rds
+clm_barplot("../../../data/transitions/test/neighbourhood_clm_2014_2017.rds", "neighbourhood_safety_next")
+clm_output("../../../data/transitions/test/neighbourhood_clm_2014_2017.rds")
 ```
 
 

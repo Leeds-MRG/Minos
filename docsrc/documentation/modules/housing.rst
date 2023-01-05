@@ -15,6 +15,17 @@ Methods
 What methods are used? Justification due to output data type.
 explanation of model output.
 
+::
+
+   ## 
+   ##     1     2     3 
+   ##   564 17192  9667
+
+.. figure:: ./figure/housing_barchart-1.png
+   :alt: plot of chunk housing_barchart
+
+   plot of chunk housing_barchart
+
 Data
 ----
 
@@ -27,55 +38,51 @@ Results
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
 
+.. figure:: ./figure/housing_output-1.png
+   :alt: plot of chunk housing_output
+
+   plot of chunk housing_output
+
 ::
 
-   ## formula: 
-   ## y ~ factor(sex) + age + scale(SF_12) + factor(labour_state) + factor(job_sec) + factor(ethnicity) + scale(hh_income)
+   ## formula: housing_quality_next ~ sex + age + SF_12 + labour_state + ethnicity + hh_income
    ## data:    data
    ## 
    ##  link  threshold nobs     logLik       AIC         niter max.grad cond.H 
-   ##  logit flexible  44418361 -37829212.83 75658491.67 8(20) 5.79e-06 7.1e+06
+   ##  logit flexible  44407783 -38244069.49 76488188.98 8(0)  1.67e-07 1.1e+10
    ## 
    ## Coefficients:
-   ##                                       Estimate Std. Error  z value Pr(>|z|)    
-   ## factor(sex)Male                      6.692e-02  6.406e-04  104.465  < 2e-16 ***
-   ## age                                 -9.855e-03  2.694e-05 -365.888  < 2e-16 ***
-   ## scale(SF_12)                         1.337e-01  4.034e-04  331.468  < 2e-16 ***
-   ## factor(labour_state)Family Care      1.035e-01  2.422e-03   42.724  < 2e-16 ***
-   ## factor(labour_state)Maternity Leave  5.096e-01  3.601e-03  141.513  < 2e-16 ***
-   ## factor(labour_state)PT Employed      2.135e-01  1.099e-03  194.394  < 2e-16 ***
-   ## factor(labour_state)Retired          1.837e-01  2.006e-03   91.591  < 2e-16 ***
-   ## factor(labour_state)Self-employed   -2.334e-03  1.748e-03   -1.335   0.1817    
-   ## factor(labour_state)Sick/Disabled   -3.151e-01  2.366e-03 -133.210  < 2e-16 ***
-   ## factor(labour_state)Student          3.096e-01  1.848e-03  167.517  < 2e-16 ***
-   ## factor(labour_state)Unemployed      -2.878e-01  2.321e-03 -123.975  < 2e-16 ***
-   ## factor(job_sec)1                     8.975e-01  2.526e-03  355.291  < 2e-16 ***
-   ## factor(job_sec)2                     4.736e-01  2.117e-03  223.729  < 2e-16 ***
-   ## factor(job_sec)3                     3.719e-01  1.812e-03  205.226  < 2e-16 ***
-   ## factor(job_sec)4                     2.124e-01  1.947e-03  109.089  < 2e-16 ***
-   ## factor(job_sec)5                     3.651e-01  2.438e-03  149.720  < 2e-16 ***
-   ## factor(job_sec)6                     3.290e-01  2.201e-03  149.477  < 2e-16 ***
-   ## factor(job_sec)7                     9.978e-02  1.834e-03   54.405  < 2e-16 ***
-   ## factor(job_sec)8                    -2.184e-01  2.079e-03 -105.054  < 2e-16 ***
-   ## factor(ethnicity)BLA                 1.923e-02  4.811e-03    3.997 6.41e-05 ***
-   ## factor(ethnicity)BLC                 1.231e-01  5.461e-03   22.540  < 2e-16 ***
-   ## factor(ethnicity)CHI                 1.840e-01  6.452e-03   28.516  < 2e-16 ***
-   ## factor(ethnicity)IND                 7.111e-01  4.520e-03  157.306  < 2e-16 ***
-   ## factor(ethnicity)MIX                 9.313e-01  4.732e-03  196.791  < 2e-16 ***
-   ## factor(ethnicity)OAS                 6.606e-02  4.968e-03   13.298  < 2e-16 ***
-   ## factor(ethnicity)OBL                 3.091e-02  1.227e-02    2.519   0.0118 *  
-   ## factor(ethnicity)OTH                 7.924e-01  6.266e-03  126.458  < 2e-16 ***
-   ## factor(ethnicity)PAK                 3.205e-01  4.789e-03   66.936  < 2e-16 ***
-   ## factor(ethnicity)WBI                 1.231e+00  4.119e-03  298.918  < 2e-16 ***
-   ## factor(ethnicity)WHO                 1.069e+00  4.281e-03  249.844  < 2e-16 ***
-   ## scale(hh_income)                     4.348e-01  4.448e-04  977.551  < 2e-16 ***
+   ##                               Estimate Std. Error z value Pr(>|z|)    
+   ## sexMale                      5.890e-02  6.303e-04   93.44   <2e-16 ***
+   ## age                         -9.076e-03  2.681e-05 -338.55   <2e-16 ***
+   ## SF_12                        9.582e-03  2.503e-05  382.87   <2e-16 ***
+   ## labour_stateFamily Care     -1.498e-01  1.796e-03  -83.43   <2e-16 ***
+   ## labour_stateMaternity Leave  6.194e-01  3.631e-03  170.60   <2e-16 ***
+   ## labour_statePT Employed      1.200e-01  1.073e-03  111.75   <2e-16 ***
+   ## labour_stateRetired         -1.007e-01  1.139e-03  -88.39   <2e-16 ***
+   ## labour_stateSelf-employed    9.279e-02  1.184e-03   78.38   <2e-16 ***
+   ## labour_stateSick/Disabled   -5.547e-01  1.770e-03 -313.45   <2e-16 ***
+   ## labour_stateStudent          1.122e-01  1.431e-03   78.44   <2e-16 ***
+   ## labour_stateUnemployed      -5.421e-01  1.688e-03 -321.23   <2e-16 ***
+   ## ethnicityBLA                 1.363e-01  4.727e-03   28.83   <2e-16 ***
+   ## ethnicityBLC                 2.358e-01  5.388e-03   43.76   <2e-16 ***
+   ## ethnicityCHI                 3.380e-01  6.198e-03   54.53   <2e-16 ***
+   ## ethnicityIND                 8.453e-01  4.430e-03  190.81   <2e-16 ***
+   ## ethnicityMIX                 1.021e+00  4.645e-03  219.84   <2e-16 ***
+   ## ethnicityOAS                 1.783e-01  4.879e-03   36.54   <2e-16 ***
+   ## ethnicityOBL                 1.277e-01  1.224e-02   10.43   <2e-16 ***
+   ## ethnicityOTH                 1.082e+00  6.274e-03  172.47   <2e-16 ***
+   ## ethnicityPAK                 4.655e-01  4.689e-03   99.28   <2e-16 ***
+   ## ethnicityWBI                 1.318e+00  4.029e-03  327.08   <2e-16 ***
+   ## ethnicityWHO                 1.127e+00  4.192e-03  268.89   <2e-16 ***
+   ## hh_income                    3.039e-04  2.880e-07 1055.25   <2e-16 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
    ## Threshold coefficients:
    ##      Estimate Std. Error z value
-   ## 1|2 -1.612189   0.004557  -353.8
-   ## 2|3  1.629395   0.004560   357.3
+   ## 1|2 -0.748224   0.004272  -175.1
+   ## 2|3  2.439665   0.004293   568.3
 
 References
 ----------

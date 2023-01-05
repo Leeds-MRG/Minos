@@ -2,40 +2,63 @@
 title: "Household Income"
 output: html_document
 bibliography: 
-  #- "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
-  - "../../refs.bib" # useful for debugging.
+  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
+  #- "../../refs.bib" # useful for debugging.
 ---
-
-## Household Income
-
-Household disposable income is a well known indicator of mental well-being. 
 
 ```{r setup, include=FALSE}
 source('sphinx_notebook_utils.R')
-notebook_setwd()
+```
+
+## Household Income
+
+Household disposable income is a well known indicator of mental well-being [@graham2009understanding]. Estimating this is a crucial instrument for the effects of many policy interventions
+
+The output variable is monthly household disposable income. This is calculated as a composite using several variables. Rent, mortgages, and council tax are subtracted from net household income and adjusted by household size. This value is then adjusted for yearly inflation estimates.
+
+$$    hh\_income\_intermediate = ((net\_hh\_income) - (rent + mortgage + council\_tax)) / hh\_size$$
+$$    hh\_income = hh\_income\_ * inflation\_factor$$
+This produces a continuous distribution of pounds per month available for a household to spend as it likes. This is plotted below with a median income of $~£1250$.
+
+```{r, hh_income_data}
+continuous_density("hh_income")  
 ```
 
 ### Methods
 
-  What methods are used? Justification due to output data type. explanation of model output.
+  To estimate this variable Ordinary Least Squares (OLS) linear regression is used. This is a common  technique for estimating Gaussian distributed variables that is easy to implement using base R.
   
+  
+    
 ### Data
   
-  What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
+  The formula for this linear regression is given as
   
-```{r, hh_income_data}
-ols_histogram("data/transitions/test/hh_income_2018_2019.rds", "hh_income_next")  
-```
+  $$hh\_income\_next ~ age + sex + factor(ethnicity) + factor(region) + scale(hh\_income) + factor(job\_sec) + factor(labour\_state) + factor(education\_state) + scale(SF\_12) + factor(housing\_quality)$$
+Each variable included is defined as follows. Each variable with discrete values is defined in the data tables section of this documentation [here](https://leeds-mrg.github.io/Minos/documentation/data_tables.html). 
+
+- sex. Individual's biological sex. [@dilmaghani2018sexual]
+- ethnicity. Individual ethnicity. Discrete string values White British, Black African, etc. [@clemens2014method]
+- region. Administrative region of the UK. Discrete strings such as London, North-East. [@brewer2007poverty]
+- household income. Previous household income values are a strong indicator of current value. [@dilmaghani2018sexual]
+- job_sec. NSSEC code for individual's employment. Ordinal values describing job quality. [@clemens2014method]
+- labour state. Is a person employed, unemployed, student etc. Discrete states. [@dilmaghani2018sexual]
+- education state. Highest attain qualification. Ordinal values based on UK government education tiers [@eika2019educational]
+- SF_12. Mental well-being. Continuous score indicating overall mental-wellbeing. is this an indicator of hh_income? [@viswanathan2005nature]
+- housing quality. Ordinal values indicating number of appliances in household. [@brewer2007poverty]
 
 ### Results
   
-  What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
-
+Model coefficients and diagnostics are displayed below. To summarise
+- r squared of 0.21 indicates reasonable fit. 
+- Gender not significant. Some ethnicities see increases. Only London has higher income. High quality jobs eanr more. PT employed earn less students earn more. Housing quality strong indicator of higher income. 
+- diagnostic plots show underdispersion. Some extreme outlier values need investigating. 
+- overall decent fit. 
 
 ```{r income_output, echo=FALSE}
 options(width=120)
-ols_output(hh_income_data_path <- "data/transitions/test/hh_income_2018_2019.rds"
-)
+ols_output("../../../data/transitions/test/hh_income_2018_2019.rds")
+ols_histogram("../../../data/transitions/test/hh_income_2018_2019.rds", "hh_income_next")  
 ```
 
 

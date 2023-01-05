@@ -3,9 +3,14 @@
 It is generally much tidier than having large blocks of code 
 lying around to call one line from here.
 "
+library(ggplot2)
 
-source("minos/transitions/utils.R")
-#source("../../../minos/transitions/utils.R")
+source("../../../minos/transitions/utils.R")
+real_data <- read.csv("../../../data/final_US/2017_US_Cohort.csv")
+
+#source("minos/transitions/utils.R")
+#real_data <- read.csv("data/final_US/2018_US_Cohort.csv")
+
 # Prevent spamming of package load messages when compiling with sphinx.
 # model stuff.
 suppressMessages(require(pscl))
@@ -17,14 +22,33 @@ suppressMessages(require(ggplot2))
 suppressMessages(require(stringr))
 suppressMessages(require(shadowtext))
 
-real_data <- read.csv("data/final_US/2018_US_Cohort.csv")
-#real_data <- read.csv("../../../data/final_US/2019_US_Cohort.csv")
-
 
 notebook_setwd<- function(){
   workingDir <- "../../.." # points to docsrc/ from the docsrc/documentation/notebooks folder where this file is run.
   knitr::opts_knit$set(root.dir = workingDir)
 }
+
+# general data visualisation
+
+continuous_density <- function(v){
+  obs <- real_data[, c(v)]
+  quants = quantile(obs, c(.001, .999))
+  plot(density(obs, from=quants[1], to=quants[2]), main='', xlab=v)
+}
+
+counts_density <- function(v){
+  obs <- real_data[, c(v)]
+  quants = quantile(obs, c(.001, .999))
+  plot(density(obs, from=0, to=quants[2]), main='', xlab=v)
+}
+
+discrete_barplot <- function(v){
+  obs <- real_data[, c(v)]
+  counts <- table(obs)
+  barplot(counts, horiz=F, cex.names=.7, las=2)
+}
+
+# ols models #############################################################################
 
 ols_histogram <- function(data_path, v, mode="both"){
   ols.model <- readRDS(data_path)
@@ -44,9 +68,9 @@ ols_histogram <- function(data_path, v, mode="both"){
     quants = quantile(obs, c(.001, .999))
     d1 <- density(obs, from=quants[1], to=max(quants[2]))
     d2 <- density(preds,  from=quants[1], to=max(quants[2]))
-    height <- max(max(d1$obs), max(d2$obs))
+    height <- max(max(d1$y), max(d2$y))
     
-    plot(d1, col='red', ylim=c(0, 1.02*height))
+    plot(d1, col='red', ylim=c(0, 1.02*height), main='', xlab=v)
     lines(d2, col='blue', lty=2)
     legend('topleft', legend=c("Observed", "Predicted"), col=c("red", "blue"), lty=1:2)
   }
@@ -59,11 +83,41 @@ ols_output <- function(data_path){
   plot(ols)
 }
 
+# clm models ###################################################################
+
+clm_barplot <- function(data_path, v){
+  clm_model<- readRDS(data_path)
+  #column_index <- paste0("factor(", v)
+  #column_index <- paste0(column_index, ")")
+  #obs <- clm_model$model[, c(column_index)]
+  obs <- as.vector(clm_model$model[, c(v)])
+  preds <- as.vector(predict(clm_model, type='class')$fit)
+  
+  obs <- as.data.frame(table(obs))
+  colnames(obs) <- c("value", "freq")
+  obs$source <- "Observed"
+  preds <-  as.data.frame(table(preds))
+  colnames(preds) <- c("value", "freq")
+  preds$source <- "Predicted"
+  
+  df <- rbind(obs, preds)
+  
+  clm_plot <- ggplot(data=df, aes(x=value, y=freq, fill=source)) + 
+              geom_bar(stat='identity', position=position_dodge()) +
+              labs(fill='Source.', x = v, y = "Freq.") + 
+              theme(legend.position='top', 
+                    legend.justification='left',
+                    legend.direction='horizontal')
+  print(clm_plot)
+}
+
 clm_output <- function(data_path){
-  clm.model<- readRDS(data_path)
-  print(summary(clm.model))
+  clm_model<- readRDS(data_path)
+  print(summary(clm_model))
   # any diagnostic plots for tobacco.
 }
+
+# glm models ###################################################################
 
 glm_barplot <- function(data_path){
   # for binary data plot a split barchart given observed and predicted counts.
@@ -86,6 +140,7 @@ glm_output <- function(data_path){
   # any diagnostic plots for tobacco.
 }
 
+# nnet models ######################################################################
 
 nnet_confusion_matrix <- function(data_path, mode, v){
   
@@ -127,8 +182,9 @@ nnet_confusion_matrix <- function(data_path, mode, v){
     geom_tile() + # creates grid of coloured tiles.
     geom_shadowtext(aes(label=Freq)) + # white text with black shadow. readable on any colour background. 
     labs(y = "True State [population in state]",x = "Predicted State (no units)") + # label axes and ticks.
-    scale_y_discrete(labels=rev(row_names)) +
-    scale_x_discrete(labels=col_names)
+    scale_y_discrete(labels=rev(row_names), expand=c(0, 0)) + # Expand removes whitespace between axes and grid.
+    scale_x_discrete(labels=col_names, expand=c(0, 0)) +
+    theme_minimal() # remove black border and axes ticks.
   plot(confusion_plot)
 }
 
@@ -138,7 +194,7 @@ nnet_output <- function(data_path){
 }
 
 
-
+# ZIP models #########################################
 
 zip_density <- function (data_path, v){
   # Density plot for zip models.
@@ -162,10 +218,10 @@ zip_density <- function (data_path, v){
   probs <- predict(zip_model, type='zero')
   counts <- predict(zip_model, type='count')
   # randomly assign 0 values to individuals based on probability of zero status.
-  preds <- (runif(length(probs)) < probs) * counts
+  preds <- (runif(length(probs)) >= probs) * counts
   # density plot for obs and preds lines.
-  plot(density(preds, from=0), xlim=c(0, 20), lty=1, col='red')
-  lines(density(obs, from=0), col='blue', xlim=c(0, 20), lty=2)
+  plot(density(preds, from=0), lty=1, col='red')
+  lines(density(obs, from=0), col='blue', lty=2)
   legend('topright', legend=c("Predicted", "Real"), col=c("red", "blue"), lty=1:2)
 }
 
@@ -178,7 +234,6 @@ zip_output <- function(data_path){
 
 
 #nnet_confusion_matrix("data/transitions/test/labour_nnet_2018_2019.rds", "multinom", "factor(y)")
+#nnet_confusion_matrix("data/transitions/test/loneliness_clm_2018_2019.rds", "ordinal", 'loneliness') 
 
-nnet_confusion_matrix("data/transitions/test/loneliness_clm_2018_2019.rds", "ordinal", 'loneliness') 
-
-
+#clm_barplot("data/transitions/test/neighbourhood_clm_2014_2017.rds", "neighbourhood_safety_next")

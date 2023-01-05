@@ -6,14 +6,8 @@ Tobacco Transition Module
 Tobacco
 =======
 
-Number of cigarettes consumed is an indicator of XXXX. test reference
-(Nelson 1987).
-
-Methods
--------
-
-What methods are used? Justification due to output data type.
-explanation of model output.
+Number of cigarettes consumed is an indicator of several mental
+illnesses including anxiety (Lawrence et al. 2010).
 
 Data
 ----
@@ -21,58 +15,138 @@ Data
 What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen
 
+.. code:: r
+
+   counts_density('ncigs')
+
+.. figure:: ./figure/tobacco_data-1.png
+   :alt: plot of chunk tobacco_data
+
+   plot of chunk tobacco_data
+
+Methods
+-------
+
+The number of zero inflated values is higher than expected for a count
+distribution such as a poisson distribution. This inflation occurs
+naturally as a large proportion (over 50%) of the population do not
+smoke. There are two sources of cigarette consumption that can be
+modelled using zero inflated models. In this case a zero-inflated
+poisson (ZIP) is used. Two models are fitted simulatenously. One is a
+logistic regression that estimates whether a person smokes cigarettes or
+not. This provides a simple probability of smoking or not. The second is
+a poisson counts model estimating the number of cigarettes consumed.
+
+.. _data-1:
+
+Data
+----
+
+Two set of variables are needed for the logistic and poisson parts of
+the ZIP model respectively.
+
+Variables that predict how much a person smokes.
+
+age. persons age. generally older people and very young smoke. SF_12.
+wellbeing estimates number of cigarettes smoked. labour_state. whether a
+person is employed or not. ethnicity. certain ethnicities more likely to
+smoke cigarettes. education_state. highest qualification. job_sec job
+quality hh_income household income ncigs previous number consumed.
+
+Variables that predict whether a person smokes
+
+ethnicity. certain ethnicities more likely to smoke cigarettes.
+labour_state. whether a person is employed or not. age SF_12. wellbeing
+estimates number of cigarettes smoked. ncigs previous number consumed.
+
 Results
 -------
 
-What are the results. Coefficients tables. diagnostic plots. measures of
-goodness of fit.
+Almost all coefficients significant. Particularly prevous consumption of
+cigarettes. Good estimation of the number of non-smokers in the
+population at around 55%. Counts of smoking are underdispersed and fail
+to estimate consumption over 20 cigarettes.
 
 ::
 
    ## 
    ## Call:
-   ## zeroinfl(formula = y ~ factor(sex) + scale(age) + scale(SF_12) + factor(labour_state) | relevel(factor(ethnicity), 
-   ##     ref = "WBI") + scale(age), data = data, dist = "pois")
+   ## zeroinfl(formula = ncigs_next ~ factor(sex) + age + SF_12 + factor(labour_state) + relevel(factor(ethnicity), 
+   ##     ref = "WBI") + factor(education_state) + factor(job_sec) + scale(hh_income) + ncigs | relevel(factor(ethnicity), 
+   ##     ref = "WBI") + age + SF_12 + ncigs, data = data, dist = "pois", link = "logit", model = T)
    ## 
    ## Pearson residuals:
    ##      Min       1Q   Median       3Q      Max 
-   ## -1.75024 -0.76329 -0.05563  0.58683 17.88004 
+   ## -10.2578  -0.1856  -0.1606  -0.1443  51.2535 
    ## 
    ## Count model coefficients (poisson with log link):
-   ##                                      Estimate Std. Error z value Pr(>|z|)    
-   ## (Intercept)                          1.158187   0.024071  48.116  < 2e-16 ***
-   ## factor(sex)Male                      0.106336   0.025077   4.240 2.23e-05 ***
-   ## scale(age)                           0.107561   0.017073   6.300 2.97e-10 ***
-   ## scale(SF_12)                        -0.029366   0.013324  -2.204 0.027518 *  
-   ## factor(labour_state)Family Care      0.207191   0.057175   3.624 0.000290 ***
-   ## factor(labour_state)Maternity Leave -0.302883   0.501065  -0.604 0.545525    
-   ## factor(labour_state)PT Employed      0.039547   0.044232   0.894 0.371273    
-   ## factor(labour_state)Retired         -0.028738   0.042805  -0.671 0.501989    
-   ## factor(labour_state)Self-employed    0.006792   0.047900   0.142 0.887239    
-   ## factor(labour_state)Sick/Disabled    0.107874   0.044940   2.400 0.016377 *  
-   ## factor(labour_state)Student         -0.391335   0.101514  -3.855 0.000116 ***
-   ## factor(labour_state)Unemployed       0.052690   0.047488   1.110 0.267196    
+   ##                                              Estimate Std. Error z value Pr(>|z|)    
+   ## (Intercept)                                 1.7224274  0.0792458  21.735  < 2e-16 ***
+   ## factor(sex)Male                            -0.0158980  0.0174087  -0.913 0.361126    
+   ## age                                         0.0072615  0.0006649  10.921  < 2e-16 ***
+   ## SF_12                                       0.0004771  0.0008215   0.581 0.561388    
+   ## factor(labour_state)Family Care            -0.1849962  0.2902678  -0.637 0.523910    
+   ## factor(labour_state)Maternity Leave        -0.0341810  0.3224089  -0.106 0.915568    
+   ## factor(labour_state)PT Employed            -0.0174770  0.0227601  -0.768 0.442559    
+   ## factor(labour_state)Retired                -0.3237311  0.1072880  -3.017 0.002550 ** 
+   ## factor(labour_state)Self-employed           0.0494795  0.0442191   1.119 0.263156    
+   ## factor(labour_state)Sick/Disabled          -0.1153768  0.1504914  -0.767 0.443280    
+   ## factor(labour_state)Student                -0.5658754  0.1020054  -5.548 2.90e-08 ***
+   ## factor(labour_state)Unemployed              0.0810197  0.1286433   0.630 0.528824    
+   ## relevel(factor(ethnicity), ref = "WBI")BAN -0.3034731  0.0650505  -4.665 3.08e-06 ***
+   ## relevel(factor(ethnicity), ref = "WBI")BLA -0.4836187  0.0974388  -4.963 6.93e-07 ***
+   ## relevel(factor(ethnicity), ref = "WBI")BLC -0.4829069  0.0681209  -7.089 1.35e-12 ***
+   ## relevel(factor(ethnicity), ref = "WBI")CHI -0.1349784  0.1678647  -0.804 0.421345    
+   ## relevel(factor(ethnicity), ref = "WBI")IND -0.5868165  0.0783148  -7.493 6.73e-14 ***
+   ## relevel(factor(ethnicity), ref = "WBI")MIX -0.1323552  0.0547454  -2.418 0.015621 *  
+   ## relevel(factor(ethnicity), ref = "WBI")OAS -0.0881745  0.1301595  -0.677 0.498131    
+   ## relevel(factor(ethnicity), ref = "WBI")OBL -0.5238722  0.3187479  -1.644 0.100273    
+   ## relevel(factor(ethnicity), ref = "WBI")OTH -0.1042441  0.1873938  -0.556 0.578017    
+   ## relevel(factor(ethnicity), ref = "WBI")PAK -0.7443683  0.0669256 -11.122  < 2e-16 ***
+   ## relevel(factor(ethnicity), ref = "WBI")WHO -0.0985790  0.0380550  -2.590 0.009585 ** 
+   ## factor(education_state)1                   -0.1283131  0.0877211  -1.463 0.143539    
+   ## factor(education_state)2                    0.0268111  0.0200296   1.339 0.180708    
+   ## factor(education_state)3                   -0.0275671  0.0314031  -0.878 0.380026    
+   ## factor(education_state)5                   -0.0385109  0.0310140  -1.242 0.214338    
+   ## factor(education_state)6                   -0.1444544  0.0321860  -4.488 7.19e-06 ***
+   ## factor(education_state)7                   -0.2033799  0.0395293  -5.145 2.67e-07 ***
+   ## factor(job_sec)2                            0.3925430  0.0761580   5.154 2.55e-07 ***
+   ## factor(job_sec)3                            0.2415458  0.0653083   3.699 0.000217 ***
+   ## factor(job_sec)4                            0.1733144  0.0680908   2.545 0.010917 *  
+   ## factor(job_sec)5                            0.3064129  0.0782046   3.918 8.93e-05 ***
+   ## factor(job_sec)6                            0.3537599  0.0676582   5.229 1.71e-07 ***
+   ## factor(job_sec)7                            0.2587243  0.0658783   3.927 8.59e-05 ***
+   ## factor(job_sec)8                            0.2778599  0.0667949   4.160 3.18e-05 ***
+   ## scale(hh_income)                            0.0233818  0.0082879   2.821 0.004785 ** 
+   ## ncigs                                       0.0234294  0.0006024  38.891  < 2e-16 ***
    ## 
    ## Zero-inflation model coefficients (binomial with logit link):
-   ##                                             Estimate Std. Error z value Pr(>|z|)    
-   ## (Intercept)                                 -1.74690    0.06856 -25.480  < 2e-16 ***
-   ## relevel(factor(ethnicity), ref = "WBI")BAN  -0.14975    0.51269  -0.292   0.7702    
-   ## relevel(factor(ethnicity), ref = "WBI")BLA  -0.65053    0.86881  -0.749   0.4540    
-   ## relevel(factor(ethnicity), ref = "WBI")BLC   0.31791    0.40897   0.777   0.4370    
-   ## relevel(factor(ethnicity), ref = "WBI")CHI   1.51817    0.70312   2.159   0.0308 *  
-   ## relevel(factor(ethnicity), ref = "WBI")IND   0.52296    0.36411   1.436   0.1509    
-   ## relevel(factor(ethnicity), ref = "WBI")MIX   0.20122    0.35581   0.566   0.5717    
-   ## relevel(factor(ethnicity), ref = "WBI")OAS   0.93407    0.60401   1.546   0.1220    
-   ## relevel(factor(ethnicity), ref = "WBI")OBL -13.01639  538.48954  -0.024   0.9807    
-   ## relevel(factor(ethnicity), ref = "WBI")OTH  -0.19411    0.99293  -0.195   0.8450    
-   ## relevel(factor(ethnicity), ref = "WBI")PAK   0.03483    0.37297   0.093   0.9256    
-   ## relevel(factor(ethnicity), ref = "WBI")WHO  -0.17955    0.31947  -0.562   0.5741    
-   ## scale(age)                                  -0.31921    0.06479  -4.927 8.35e-07 ***
+   ##                                              Estimate Std. Error z value Pr(>|z|)    
+   ## (Intercept)                                 2.7370763  0.2425463  11.285  < 2e-16 ***
+   ## relevel(factor(ethnicity), ref = "WBI")BAN -0.9299046  0.2736070  -3.399 0.000677 ***
+   ## relevel(factor(ethnicity), ref = "WBI")BLA -0.3607631  0.3065132  -1.177 0.239199    
+   ## relevel(factor(ethnicity), ref = "WBI")BLC -0.9188094  0.2602931  -3.530 0.000416 ***
+   ## relevel(factor(ethnicity), ref = "WBI")CHI  1.1232586  0.8901558   1.262 0.206997    
+   ## relevel(factor(ethnicity), ref = "WBI")IND  0.2124651  0.2622358   0.810 0.417822    
+   ## relevel(factor(ethnicity), ref = "WBI")MIX -0.5998187  0.2443270  -2.455 0.014089 *  
+   ## relevel(factor(ethnicity), ref = "WBI")OAS  0.7673658  0.6432942   1.193 0.232921    
+   ## relevel(factor(ethnicity), ref = "WBI")OBL  0.1944718  1.5594387   0.125 0.900756    
+   ## relevel(factor(ethnicity), ref = "WBI")OTH  0.1844605  1.0599812   0.174 0.861848    
+   ## relevel(factor(ethnicity), ref = "WBI")PAK -0.5658224  0.2449950  -2.310 0.020914 *  
+   ## relevel(factor(ethnicity), ref = "WBI")WHO -0.3790119  0.2024565  -1.872 0.061198 .  
+   ## age                                         0.0177198  0.0035461   4.997 5.82e-07 ***
+   ## SF_12                                       0.0003407  0.0046239   0.074 0.941268    
+   ## ncigs                                      -0.5200809  0.0136354 -38.142  < 2e-16 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
    ## 
-   ## Number of iterations in BFGS optimization: 30 
-   ## Log-likelihood: -5657 on 25 Df
+   ## Number of iterations in BFGS optimization: 54 
+   ## Log-likelihood: -8080 on 53 Df
+
+.. figure:: ./figure/tobacco_output-1.png
+   :alt: plot of chunk tobacco_output
+
+   plot of chunk tobacco_output
 
 References
 ----------
@@ -81,7 +155,9 @@ References
    :name: refs
 
    .. container:: csl-entry
-      :name: ref-1987:nelson
+      :name: ref-lawrence2010anxiety
 
-      Nelson, Edward. 1987. *Radically Elementary Probability Theory*.
-      Princeton University Press.
+      Lawrence, David, Julie Considine, Francis Mitrou, and Stephen R
+      Zubrick. 2010. “Anxiety Disorders and Cigarette Smoking: Results
+      from the Australian Survey of Mental Health and Wellbeing.”
+      *Australian & New Zealand Journal of Psychiatry* 44 (6): 520–27.
