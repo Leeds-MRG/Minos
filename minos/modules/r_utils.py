@@ -132,44 +132,6 @@ def predict_next_timestep_clm(model, current, dependent):
     return predictionDF
 
 
-def predict_next_timestep_SF12(model, current):
-    """
-    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
-    for a module.
-
-    Parameters
-    ----------
-    Model : R rds object
-        Fitted model loaded in from .rds file
-    current : vivarium.framework.population.PopulationView
-        View including columns that are required for prediction
-
-    Returns:
-    -------
-    A prediction of the information for next timestep
-    """
-    # import R packages
-    base = importr('base')
-    stats = importr('stats')
-
-    # Convert from pandas to R using package converter
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        currentRDF = ro.conversion.py2rpy(current)
-
-    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
-    prediction = stats.predict(model, currentRDF)
-    newRPopDF = base.cbind(currentRDF, SF_12 = prediction)
-    # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    #newPandasPopDF[[independant]] = newPandasPopDF[['predicted']]
-    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[["SF_12"]]
-
-
 def predict_next_timestep_labour_nnet(model, current):
     """Function for predicting next state using labour nnet models.
 
@@ -239,7 +201,7 @@ def predict_highest_educ_nnet(model, current):
                                                  '7'])
 
 
-def predict_next_timestep_alcohol_zip(model, current):
+def predict_next_timestep_zip(model, current, dependent, rescale_factor):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -252,7 +214,10 @@ def predict_next_timestep_alcohol_zip(model, current):
     -------
 
     """
-    current['alcohol_spending'] //= 50
+    # rescale alcohol
+    if dependent == 'alcohol_spending':
+        current['alcohol_spending'] //= rescale_factor
+
     base = importr('base')
     stats = importr('stats')
     zeroinfl = importr("pscl")
@@ -278,44 +243,4 @@ def predict_next_timestep_alcohol_zip(model, current):
     # otherwise assign 0 (no spending).
     preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
     # round up to nearest integer and times by 50 to get actual expenditure back.
-    return np.ceil(preds) * 50
-
-
-def predict_next_timestep_tobacco_zip(model, current):
-    """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
-
-    Parameters
-    ----------
-    model: ??? what type is this?
-    current: pd.DataFrame
-        current population dataframe.
-    Returns
-    -------
-
-    """
-    base = importr('base')
-    stats = importr('stats')
-    zeroinfl = importr("pscl")
-
-    # grab transition model
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        currentRDF = ro.conversion.py2rpy(current)
-
-    # grab count and zero prediction types
-    # count determines values if they actually drink
-    # zero determine probability of them not drinking
-    counts = stats.predict(model, currentRDF, type="count")
-    zeros = stats.predict(model, currentRDF, type="zero")
-
-
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        counts = ro.conversion.rpy2py(counts)
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        zeros = ro.conversion.rpy2py(zeros)
-
-    # draw randomly if a person smokes.
-    # if they drink assign them their predicted value from count.
-    # otherwise assign 0 (no cigarettes).
-    preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
-    # round up to nearest integer and times by 50 to get actual expenditure back.
-    return np.ceil(preds) * 5 #rescale back up to ncigs.
+    return np.ceil(preds) * rescale_factor

@@ -110,7 +110,10 @@ class Alcohol(Base):
         year = min(self.year, 2018)
         transition_model = r_utils.load_transitions(f"alcohol/zip/alcohol_zip_{year}_{year + 1}")
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveAlcohol = r_utils.predict_next_timestep_alcohol_zip(transition_model, pop)
+        nextWaveAlcohol = r_utils.predict_next_timestep_zip(model = transition_model,
+                                                                    current = pop,
+                                                                    dependent = 'alcohol_spending',
+                                                                    rescale_factor = 50)
         return nextWaveAlcohol
 
     def plot(self, pop, config):
