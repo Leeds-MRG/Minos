@@ -3,6 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
+
 
 def main(source, destination, v, method, prefix):
     """
@@ -38,6 +40,10 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     df = pd.read_csv(source)
     df[v] -= 1 # set centre at 0.
+
+    # set year to int for formatting purposes
+    df['year'] = pd.to_datetime(df['year'], format='%Y')
+
     f = plt.figure()
     sns.lineplot(data=df, x='year', y=v, hue = 'tag', style='tag', markers=True, palette='Set2')
     if prefix:
