@@ -38,14 +38,16 @@ clm.neighbourhood.main <- function(years){
     # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
   
     data2 <- data2[, c("pidp", "neighbourhood_safety")]
-    colnames(data2) <- c("pidp", "y")
+    colnames(data2) <- c("pidp", "neighbourhood_safety_next")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
     #data$age<- scale(data$age)
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
-    data$y <- factor(data$y, levels=c(1, 2, 3))
-
+    data$neighbourhood_safety_next <- factor(data$neighbourhood_safety_next, levels=c(1, 2, 3))
+    data$sex <- factor(data$sex)
+    data$housing_quality <- factor(data$housing_quality)
+    data$education_state <- factor(data$education_state)
     #print(str(data))
     
     #formula <- "y ~ factor(sex) +
@@ -58,22 +60,22 @@ clm.neighbourhood.main <- function(years){
     #                    factor(housing_quality) +
     #                    region +
     #                    factor(education_state)"
-    formula <- "y ~ factor(sex) +
-                        age +
-                        SF_12 +
-                        labour_state +
-                        ethnicity +
-                        hh_income +
-                        factor(housing_quality) +
-                        region +
-                        factor(education_state)"
+    formula <- "neighbourhood_safety_next ~ sex +
+                                            age +
+                                            SF_12 +
+                                            labour_state +
+                                            ethnicity +
+                                            hh_income +
+                                            housing_quality +
+                                            region +
+                                            education_state"
     clm.neighbourhood <- clm(formula,
         data = data,
         link = "logit",
         threshold = "flexible",
         Hess=T)
     print(summary(clm.neighbourhood))
-    prs<- 1 - logLik(clm.neighbourhood)/logLik(clm(y ~ 1, data=data))
+    prs<- 1 - logLik(clm.neighbourhood)/logLik(clm(neighbourhood_safety_next ~ 1, data=data))
     print(prs)
     
     out.path <- "data/transitions/neighbourhood/clm/"

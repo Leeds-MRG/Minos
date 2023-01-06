@@ -15,6 +15,15 @@ Methods
 What methods are used? Justification due to output data type.
 explanation of model output.
 
+.. code:: r
+
+   discrete_barplot("loneliness")
+
+.. figure:: ./figure/loneliness_data-1.png
+   :alt: plot of chunk loneliness_data
+
+   plot of chunk loneliness_data
+
 Data
 ----
 
@@ -27,57 +36,53 @@ Results
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
 
+.. figure:: ./figure/housing_output-1.png
+   :alt: plot of chunk housing_output
+
+   plot of chunk housing_output
+
 ::
 
-   ## formula: 
-   ## y ~ factor(sex) + age + scale(SF_12) + factor(labour_state) + factor(job_sec) + relevel(factor(ethnicity), ref = "WBI") + scale(hh_income) + scale(alcohol_spending) + scale(ncigs)
+   ## formula: loneliness_next ~ sex + age + SF_12 + labour_state + ethnicity + hh_income + alcohol_spending + ncigs
    ## data:    data
    ## 
-   ##  link  threshold nobs  logLik    AIC      niter max.grad cond.H 
-   ##  logit flexible  20954 -15942.99 31955.97 6(0)  5.20e-09 2.1e+06
+   ##  link  threshold nobs  logLik   AIC      niter max.grad cond.H 
+   ##  logit flexible  11783 -8923.25 17900.50 6(0)  4.40e-10 5.5e+09
    ## 
    ## Coefficients:
-   ##                                             Estimate Std. Error z value Pr(>|z|)    
-   ## factor(sex)Male                            -0.294212   0.031895  -9.224  < 2e-16 ***
-   ## age                                        -0.007143   0.001343  -5.317 1.05e-07 ***
-   ## scale(SF_12)                               -0.820147   0.016403 -50.001  < 2e-16 ***
-   ## factor(labour_state)Family Care            -0.190843   0.112725  -1.693  0.09046 .  
-   ## factor(labour_state)Maternity Leave        -0.244461   0.183887  -1.329  0.18371    
-   ## factor(labour_state)PT Employed             0.016507   0.052299   0.316  0.75228    
-   ## factor(labour_state)Retired                -0.150188   0.095031  -1.580  0.11401    
-   ## factor(labour_state)Self-employed           0.064390   0.085027   0.757  0.44888    
-   ## factor(labour_state)Sick/Disabled           0.466449   0.113628   4.105 4.04e-05 ***
-   ## factor(labour_state)Student                -0.056042   0.089504  -0.626  0.53122    
-   ## factor(labour_state)Unemployed             -0.006102   0.110895  -0.055  0.95612    
-   ## factor(job_sec)1                           -0.660150   0.124140  -5.318 1.05e-07 ***
-   ## factor(job_sec)2                           -0.425380   0.102559  -4.148 3.36e-05 ***
-   ## factor(job_sec)3                           -0.419313   0.086636  -4.840 1.30e-06 ***
-   ## factor(job_sec)4                           -0.345326   0.093158  -3.707  0.00021 ***
-   ## factor(job_sec)5                           -0.354301   0.119470  -2.966  0.00302 ** 
-   ## factor(job_sec)6                           -0.266585   0.108189  -2.464  0.01374 *  
-   ## factor(job_sec)7                           -0.146876   0.087454  -1.679  0.09306 .  
-   ## factor(job_sec)8                           -0.186697   0.100598  -1.856  0.06347 .  
-   ## relevel(factor(ethnicity), ref = "WBI")BAN  0.001875   0.118255   0.016  0.98735    
-   ## relevel(factor(ethnicity), ref = "WBI")BLA  0.169172   0.119458   1.416  0.15673    
-   ## relevel(factor(ethnicity), ref = "WBI")BLC  0.346748   0.113282   3.061  0.00221 ** 
-   ## relevel(factor(ethnicity), ref = "WBI")CHI  0.056151   0.224360   0.250  0.80238    
-   ## relevel(factor(ethnicity), ref = "WBI")IND  0.162074   0.078792   2.057  0.03969 *  
-   ## relevel(factor(ethnicity), ref = "WBI")MIX  0.160012   0.104382   1.533  0.12529    
-   ## relevel(factor(ethnicity), ref = "WBI")OAS  0.431569   0.137970   3.128  0.00176 ** 
-   ## relevel(factor(ethnicity), ref = "WBI")OBL -0.209107   0.419575  -0.498  0.61822    
-   ## relevel(factor(ethnicity), ref = "WBI")OTH  0.027826   0.250353   0.111  0.91150    
-   ## relevel(factor(ethnicity), ref = "WBI")PAK -0.082421   0.092343  -0.893  0.37210    
-   ## relevel(factor(ethnicity), ref = "WBI")WHO  0.029460   0.074714   0.394  0.69336    
-   ## scale(hh_income)                           -0.064153   0.015739  -4.076 4.58e-05 ***
-   ## scale(alcohol_spending)                    -0.045078   0.036883  -1.222  0.22163    
-   ## scale(ncigs)                                0.094840   0.015290   6.203 5.55e-10 ***
+   ##                               Estimate Std. Error z value Pr(>|z|)    
+   ## sexMale                     -2.697e-01  4.232e-02  -6.373 1.85e-10 ***
+   ## age                         -7.553e-03  1.660e-03  -4.550 5.37e-06 ***
+   ## SF_12                       -7.867e-02  2.113e-03 -37.230  < 2e-16 ***
+   ## labour_stateFamily Care      5.510e-01  5.467e-01   1.008 0.313520    
+   ## labour_stateMaternity Leave -2.198e-01  1.969e-01  -1.116 0.264236    
+   ## labour_statePT Employed      9.390e-02  5.471e-02   1.716 0.086116 .  
+   ## labour_stateRetired         -2.204e-01  2.365e-01  -0.932 0.351325    
+   ## labour_stateSelf-employed    2.228e-02  6.223e-02   0.358 0.720305    
+   ## labour_stateSick/Disabled   -1.658e-01  3.757e-01  -0.441 0.659011    
+   ## labour_stateStudent          1.625e-01  1.184e-01   1.372 0.169918    
+   ## labour_stateUnemployed      -6.677e-01  4.732e-01  -1.411 0.158225    
+   ## ethnicityBLA                 2.511e-01  2.115e-01   1.187 0.235048    
+   ## ethnicityBLC                 3.825e-01  2.107e-01   1.815 0.069451 .  
+   ## ethnicityCHI                -1.732e-01  2.976e-01  -0.582 0.560682    
+   ## ethnicityIND                 1.519e-01  1.845e-01   0.824 0.410186    
+   ## ethnicityMIX                 6.144e-02  2.017e-01   0.305 0.760680    
+   ## ethnicityOAS                 3.816e-01  2.354e-01   1.621 0.104998    
+   ## ethnicityOBL                -6.142e-01  5.588e-01  -1.099 0.271695    
+   ## ethnicityOTH                -1.805e-01  3.976e-01  -0.454 0.649771    
+   ## ethnicityPAK                -1.340e-02  2.017e-01  -0.066 0.947035    
+   ## ethnicityWBI                -7.840e-02  1.603e-01  -0.489 0.624841    
+   ## ethnicityWHO                -9.354e-02  1.840e-01  -0.509 0.611099    
+   ## hh_income                   -5.025e-05  1.430e-05  -3.513 0.000443 ***
+   ## alcohol_spending            -5.027e-05  6.421e-05  -0.783 0.433742    
+   ## ncigs                        2.436e-02  4.435e-03   5.494 3.94e-08 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
    ## Threshold coefficients:
    ##     Estimate Std. Error z value
-   ## 1|2  -0.2100     0.1021  -2.057
-   ## 2|3   2.1909     0.1042  21.028
+   ## 1|2  -3.7748     0.1899 -19.874
+   ## 2|3  -1.3542     0.1874  -7.228
 
 References
 ----------

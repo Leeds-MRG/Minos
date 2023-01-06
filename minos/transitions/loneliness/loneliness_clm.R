@@ -47,8 +47,6 @@ main <- function(years){
     data <- data[, columns]
     data2 <- data2[, c("pidp", "loneliness")]
     # Force missing values to NA.
-    
-    data[which(data$ncigs==-8), 'ncigs'] <- 0
     data <- replace.missing(data)
     data2 <- replace.missing(data2)
     
@@ -65,54 +63,28 @@ main <- function(years){
     # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
     
     data2 <- data2[, c("pidp", "loneliness")]
-    colnames(data2) <- c("pidp", "y")
+    colnames(data2) <- c("pidp", "loneliness_next")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
+    
     #data$age<- scale(data$age)
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
     
-    # baseline model just zeroing based on ethnicity
-    #    m1 <- zeroinfl(y ~ factor(sex) +
-    #                    age +
-    #                    scale(SF_12) +
-    #                    factor(labour_state) +
-    #                    factor(job_sec) +
-    #                    factor(ethnicity) +
-    #                    scale(hh_income) | factor(ethnicity),
-    #                   data = data, dist='pois')
-    
-    data$y <-factor(data$y, levels=c(1, 2, 3))
-    #loneliness.clm <- clm(y ~ factor(sex) +
-    #                          age +
-    #                          scale(SF_12) +
-    #                          factor(labour_state) +
-    #                          factor(job_sec) +
-    #                          relevel(factor(ethnicity), ref='WBI') +
-    #                          scale(hh_income) +
-    #                          scale(alcohol_spending) +
-    #                          scale(ncigs)# + factor
-    #                      , data = data, link='logit')
-    loneliness.clm <- clm(y ~ factor(sex) +
+    data$loneliness_next <-factor(data$loneliness_next, levels=c(1, 2, 3))
+    loneliness.clm <- clm(loneliness_next ~ sex +
                               age +
-                              scale(SF_12) +
-                              factor(labour_state) +
-                              relevel(factor(ethnicity), ref='WBI') +
-                              scale(hh_income) +
-                              scale(alcohol_spending) +
-                              scale(ncigs)# + factor
+                              SF_12 +
+                              labour_state +
+                              ethnicity +
+                              hh_income +
+                              alcohol_spending +
+                              ncigs
                           , data = data, link='logit')
     
     print(summary(loneliness.clm))
-    prs<- 1 - logLik(loneliness.clm)/logLik(clm(y ~ 1, data=data))
+    prs<- 1 - logLik(loneliness.clm)/logLik(clm(loneliness_next ~ 1, data=data))
     print(prs)
-    
-    #preds <- predict(loneliness.clm, type='zero')
-    #preds <- (runif(length(preds)) < preds) * predict(m1, type='count')
-    
-    #plot(density(preds, from=0), xlim=c(0, 20), lty=1)
-    #lines(density(data$y, from=0), col='red', xlim=c(0, 20), lty=2)
-    #legend('topright', legend=c("Predicted", "Real"), col=c("black", "red"), lty=1:2)
     
     out.path <- "data/transitions/loneliness/clm/"
     create.if.not.exists("data/transitions/loneliness/")

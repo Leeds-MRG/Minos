@@ -72,11 +72,14 @@ clm.housing.main <- function(years){
     #data2 <- format.housing.composite(data2)
 
     data2 <- data2[, c("pidp", "housing_quality")]
-    colnames(data2) <- c("pidp", "y")
+    colnames(data2) <- c("pidp", "housing_quality_next")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
 
-    data$y <- factor(data$y, levels=c(1, 2, 3))
+    data$housing_quality_next <- factor(data$housing_quality_next, levels=c(1, 2, 3))
+    data$sex <- factor(data$sex)
+    data$labour_state <- factor(data$labour_state)
+    data$ethnicity <- factor(data$ethnicity)
     #formula <- "y ~ factor(sex) +
     #                age +
     #                scale(SF_12) +
@@ -84,12 +87,13 @@ clm.housing.main <- function(years){
     #                factor(job_sec) +
     #                factor(ethnicity) +
     #                scale(hh_income)"
-    formula <- "y ~ factor(sex) +
+    formula <- "housing_quality_next ~
+                    sex +
                     age +
-                    scale(SF_12) +
-                    factor(labour_state) +
-                    factor(ethnicity) +
-                    scale(hh_income)"
+                    SF_12 +
+                    labour_state +
+                    ethnicity +
+                    hh_income"
 
     # Handle the fact that first wave (2009) has no weight data
     if (year == 2009) {
@@ -109,7 +113,7 @@ clm.housing.main <- function(years){
                    weights = weight)
     }
 
-    prs<- 1 - logLik(clm.housing)/logLik(clm(y ~ 1, data=data))
+    prs<- 1 - logLik(clm.housing)/logLik(clm(housing_quality_next ~ 1, data=data))
     print(prs)
 
     out.path <- "data/transitions/housing/clm/"

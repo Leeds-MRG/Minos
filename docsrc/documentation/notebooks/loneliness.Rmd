@@ -19,6 +19,10 @@ source('sphinx_notebook_utils.R')
 
   What methods are used? Justification due to output data type. explanation of model output.
   
+```{r loneliness_data}
+discrete_barplot("loneliness")
+```
+
 ### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
@@ -30,6 +34,7 @@ source('sphinx_notebook_utils.R')
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
+clm_barplot("../../../data/transitions/test/loneliness_clm_2018_2019.rds", "loneliness_next") 
 clm_output("../../../data/transitions/test/loneliness_clm_2018_2019.rds") #e.g. ../../../data/transitions/test/housing_clm_2018_2019.rds
 ```
 

@@ -61,7 +61,7 @@
 <li class="toctree-l2"><a class="reference internal" href="labour.html">Labour</a></li>
 <li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco Transition Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
 <li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
@@ -134,6 +134,15 @@
 <h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
 <p>What methods are used? Justification due to output data type.
 explanation of model output.</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">discrete_barplot</span><span class="p">(</span><span class="s">&quot;loneliness&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk loneliness_data" src="../../_images/loneliness_data-1.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="data">
 <h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
@@ -144,55 +153,52 @@ variables are used and why are they chosen</p>
 <h3>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h3>
 <p>What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## formula:</span>
-<span class="c1">## y ~ factor(sex) + age + scale(SF_12) + factor(labour_state) + factor(job_sec) + relevel(factor(ethnicity), ref = &quot;WBI&quot;) + scale(hh_income) + scale(alcohol_spending) + scale(ncigs)</span>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## formula: loneliness_next ~ sex + age + SF_12 + labour_state + ethnicity + hh_income + alcohol_spending + ncigs</span>
 <span class="c1">## data:    data</span>
 <span class="c1">##</span>
-<span class="c1">##  link  threshold nobs  logLik    AIC      niter max.grad cond.H</span>
-<span class="c1">##  logit flexible  20954 -15942.99 31955.97 6(0)  5.20e-09 2.1e+06</span>
+<span class="c1">##  link  threshold nobs  logLik   AIC      niter max.grad cond.H</span>
+<span class="c1">##  logit flexible  11783 -8923.25 17900.50 6(0)  4.40e-10 5.5e+09</span>
 <span class="c1">##</span>
 <span class="c1">## Coefficients:</span>
-<span class="c1">##                                             Estimate Std. Error z value Pr(&gt;|z|)</span>
-<span class="c1">## factor(sex)Male                            -0.294212   0.031895  -9.224  &lt; 2e-16 ***</span>
-<span class="c1">## age                                        -0.007143   0.001343  -5.317 1.05e-07 ***</span>
-<span class="c1">## scale(SF_12)                               -0.820147   0.016403 -50.001  &lt; 2e-16 ***</span>
-<span class="c1">## factor(labour_state)Family Care            -0.190843   0.112725  -1.693  0.09046 .</span>
-<span class="c1">## factor(labour_state)Maternity Leave        -0.244461   0.183887  -1.329  0.18371</span>
-<span class="c1">## factor(labour_state)PT Employed             0.016507   0.052299   0.316  0.75228</span>
-<span class="c1">## factor(labour_state)Retired                -0.150188   0.095031  -1.580  0.11401</span>
-<span class="c1">## factor(labour_state)Self-employed           0.064390   0.085027   0.757  0.44888</span>
-<span class="c1">## factor(labour_state)Sick/Disabled           0.466449   0.113628   4.105 4.04e-05 ***</span>
-<span class="c1">## factor(labour_state)Student                -0.056042   0.089504  -0.626  0.53122</span>
-<span class="c1">## factor(labour_state)Unemployed             -0.006102   0.110895  -0.055  0.95612</span>
-<span class="c1">## factor(job_sec)1                           -0.660150   0.124140  -5.318 1.05e-07 ***</span>
-<span class="c1">## factor(job_sec)2                           -0.425380   0.102559  -4.148 3.36e-05 ***</span>
-<span class="c1">## factor(job_sec)3                           -0.419313   0.086636  -4.840 1.30e-06 ***</span>
-<span class="c1">## factor(job_sec)4                           -0.345326   0.093158  -3.707  0.00021 ***</span>
-<span class="c1">## factor(job_sec)5                           -0.354301   0.119470  -2.966  0.00302 **</span>
-<span class="c1">## factor(job_sec)6                           -0.266585   0.108189  -2.464  0.01374 *</span>
-<span class="c1">## factor(job_sec)7                           -0.146876   0.087454  -1.679  0.09306 .</span>
-<span class="c1">## factor(job_sec)8                           -0.186697   0.100598  -1.856  0.06347 .</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN  0.001875   0.118255   0.016  0.98735</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA  0.169172   0.119458   1.416  0.15673</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC  0.346748   0.113282   3.061  0.00221 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI  0.056151   0.224360   0.250  0.80238</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND  0.162074   0.078792   2.057  0.03969 *</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX  0.160012   0.104382   1.533  0.12529</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS  0.431569   0.137970   3.128  0.00176 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL -0.209107   0.419575  -0.498  0.61822</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH  0.027826   0.250353   0.111  0.91150</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK -0.082421   0.092343  -0.893  0.37210</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO  0.029460   0.074714   0.394  0.69336</span>
-<span class="c1">## scale(hh_income)                           -0.064153   0.015739  -4.076 4.58e-05 ***</span>
-<span class="c1">## scale(alcohol_spending)                    -0.045078   0.036883  -1.222  0.22163</span>
-<span class="c1">## scale(ncigs)                                0.094840   0.015290   6.203 5.55e-10 ***</span>
+<span class="c1">##                               Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="c1">## sexMale                     -2.697e-01  4.232e-02  -6.373 1.85e-10 ***</span>
+<span class="c1">## age                         -7.553e-03  1.660e-03  -4.550 5.37e-06 ***</span>
+<span class="c1">## SF_12                       -7.867e-02  2.113e-03 -37.230  &lt; 2e-16 ***</span>
+<span class="c1">## labour_stateFamily Care      5.510e-01  5.467e-01   1.008 0.313520</span>
+<span class="c1">## labour_stateMaternity Leave -2.198e-01  1.969e-01  -1.116 0.264236</span>
+<span class="c1">## labour_statePT Employed      9.390e-02  5.471e-02   1.716 0.086116 .</span>
+<span class="c1">## labour_stateRetired         -2.204e-01  2.365e-01  -0.932 0.351325</span>
+<span class="c1">## labour_stateSelf-employed    2.228e-02  6.223e-02   0.358 0.720305</span>
+<span class="c1">## labour_stateSick/Disabled   -1.658e-01  3.757e-01  -0.441 0.659011</span>
+<span class="c1">## labour_stateStudent          1.625e-01  1.184e-01   1.372 0.169918</span>
+<span class="c1">## labour_stateUnemployed      -6.677e-01  4.732e-01  -1.411 0.158225</span>
+<span class="c1">## ethnicityBLA                 2.511e-01  2.115e-01   1.187 0.235048</span>
+<span class="c1">## ethnicityBLC                 3.825e-01  2.107e-01   1.815 0.069451 .</span>
+<span class="c1">## ethnicityCHI                -1.732e-01  2.976e-01  -0.582 0.560682</span>
+<span class="c1">## ethnicityIND                 1.519e-01  1.845e-01   0.824 0.410186</span>
+<span class="c1">## ethnicityMIX                 6.144e-02  2.017e-01   0.305 0.760680</span>
+<span class="c1">## ethnicityOAS                 3.816e-01  2.354e-01   1.621 0.104998</span>
+<span class="c1">## ethnicityOBL                -6.142e-01  5.588e-01  -1.099 0.271695</span>
+<span class="c1">## ethnicityOTH                -1.805e-01  3.976e-01  -0.454 0.649771</span>
+<span class="c1">## ethnicityPAK                -1.340e-02  2.017e-01  -0.066 0.947035</span>
+<span class="c1">## ethnicityWBI                -7.840e-02  1.603e-01  -0.489 0.624841</span>
+<span class="c1">## ethnicityWHO                -9.354e-02  1.840e-01  -0.509 0.611099</span>
+<span class="c1">## hh_income                   -5.025e-05  1.430e-05  -3.513 0.000443 ***</span>
+<span class="c1">## alcohol_spending            -5.027e-05  6.421e-05  -0.783 0.433742</span>
+<span class="c1">## ncigs                        2.436e-02  4.435e-03   5.494 3.94e-08 ***</span>
 <span class="c1">## ---</span>
 <span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
 <span class="c1">##</span>
 <span class="c1">## Threshold coefficients:</span>
 <span class="c1">##     Estimate Std. Error z value</span>
-<span class="c1">## 1|2  -0.2100     0.1021  -2.057</span>
-<span class="c1">## 2|3   2.1909     0.1042  21.028</span>
+<span class="c1">## 1|2  -3.7748     0.1899 -19.874</span>
+<span class="c1">## 2|3  -1.3542     0.1874  -7.228</span>
 </pre></div>
 </div>
 </section>
