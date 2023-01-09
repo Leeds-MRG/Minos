@@ -305,9 +305,9 @@ $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds: $(FINALDATA)/201
 AGGREGATE_METHOD = nanmean
 AGGREGATE_VARIABLE = SF_12
 REF_LEVEL = Baseline
-DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift,hhIncomePovertyLineChildUplift
-DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift,Poverty Line Child Uplift"
-SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive,who_alive"
+DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
+DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
+SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
 
 aggregate_minos_output:
 	# See file for tag meanings.
@@ -353,11 +353,11 @@ aggregate_minos_output_all_child_uplift:
 
 aggregate_minos_output_energy:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_bottom_income_quintile,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted
 	# stack aggregated files into one long array.
 	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "energy_downlift"
 
 all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift aggregate_minos_output_energy
