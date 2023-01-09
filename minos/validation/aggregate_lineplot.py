@@ -44,8 +44,15 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
 
+    # now rename some vars for plot labelling and formatting
+    # Capital letter for 'year'
+    # 'tag' renamed to 'Legend'
+    df.rename(columns={"year": "Year",
+                         "tag": "Legend"},
+              inplace=True)
+
     f = plt.figure()
-    sns.lineplot(data=df, x='year', y=v, hue = 'tag', style='tag', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=v, hue = 'Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
@@ -54,7 +61,7 @@ def aggregate_lineplot(source, destination, v, method, prefix):
 
     # Sort out axis labels
     if v == 'SF_12':
-        v = 'SF_12 MCS'
+        v = 'SF12 MCS'
     plt.ylabel(f"{v}")
     plt.tight_layout()
     plt.savefig(file_name)
