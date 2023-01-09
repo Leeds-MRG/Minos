@@ -50,8 +50,17 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
     for year in years:
         files = glob.glob(os.path.join(source, f"*{year}.csv")) # grab all files at source with suffix year.csv.
 
-        with Pool() as pool:
-            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(v), repeat(method), repeat(subset_func)))
+        # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
+        # Therefore we are just going to get everyone alive for now
+        if year == 2018:
+            subset_func = find_subset_function('who_alive')
+            with Pool() as pool:
+                aggregated_means = pool.starmap(aggregate_csv,
+                                                zip(files, repeat(v), repeat(method), repeat(subset_func)))
+        else:
+            with Pool() as pool:
+                aggregated_means = pool.starmap(aggregate_csv,
+                                                zip(files, repeat(v), repeat(method), repeat(subset_func)))
 
         new_df = pd.DataFrame(aggregated_means)
         new_df.columns = [v]
@@ -138,6 +147,7 @@ if __name__ == '__main__':
         runtime = os.listdir(os.path.abspath(os.path.join(source, directory)))
         #TODO: Replace this block (or encapsulate) in a try except block for proper error handling
         if len(runtime) > 1:
+            # if more than 1, select most recent datetime
             runtime = max(runtime, key= lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
             runtime = runtime[0] # os.listdir returns a list, we only have 1 element
@@ -151,7 +161,7 @@ if __name__ == '__main__':
         with open(f"{batch_source}/config_file.yml", "r") as stream:
             config = yaml.safe_load(stream)
             start_year = config['time']['start']['year']
-            end_year =  config['time']['end']['year']
-            years = np.arange(start_year+1, end_year+1) # don't use first year as variables all identical.
+            end_year = config['time']['end']['year']
+            years = np.arange(start_year, end_year)
         #print(batch_source, years)
         df = main(batch_source, years, tag, v, method, subset_function)
