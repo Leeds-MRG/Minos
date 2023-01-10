@@ -1,0 +1,10 @@
+.gitattributes
+=====================================================
+# HR 21/12/22 To normalise line endings for WSL/Linux and Windows
+# Avoids variation between LF (WSL/Linux default) and CRLF (Windows default)
+# ...as can cause ALL repo files to be marked as modified if moving between file systems
+# Follows instructions under section "A Simple .gitattributes Config"
+# Background here: https://www.aleksandrhovhannisyan.com/blog/crlf-vs-lf-normalizing-line-endings-in-git/
+# More specifics in docs here: https://git-scm.com/docs/gitattributes
+*.py	text eol=lf
+*.txt	text eol=lf
