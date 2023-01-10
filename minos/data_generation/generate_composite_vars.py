@@ -482,7 +482,7 @@ def generate_hh_structure(data):
     """
     Generate a variable for houshold composition by refactoring an existing US variable.
 
-    We want to create 3 groups:
+    We want to create 4 groups:
     1. Single adult no kids
     2. Single adult 1+ kids
     3. Multiple adults no kids
