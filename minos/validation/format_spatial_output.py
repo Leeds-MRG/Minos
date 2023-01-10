@@ -77,10 +77,12 @@ def main(source, year, destination, subset_function, v = "SF_12", method = np.na
         spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018.csv")
     except FileNotFoundError as e:
         print(e)
-        print("\nThe spatially disaggregated version of Understanding Society is required to spatially disaggregate and"
-              "produce maps from the output populations. Due to it's size, this file is not tracked along in the"
+        print("\nREADME::\n"
+              "The spatially disaggregated version of Understanding Society is required to spatially disaggregate and "
+              "produce maps from the output populations. Due to it's size, this file is not tracked along in the "
               "github repository, and must be acquired separately. Please email l.archer@leeds.ac.uk or gyrc@leeds.ac.uk "
               "for more information if required.\n")
+        raise
     #spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018_with_LADS.csv")
 
     # subset msim data. grab common pidps to prevent NA errors.
