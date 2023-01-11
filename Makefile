@@ -84,7 +84,7 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
 	@echo "Python install complete."
 	@echo "Installing R..."
-	conda install -c conda-forge
+	conda install -c conda-forge r-base=4.1.2
 	@echo "installing R requirements"
 	Rscript install.R # install any R packages. Annoying to do in conda.
 	@echo "\nInstall complete!\n"
