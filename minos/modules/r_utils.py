@@ -60,8 +60,6 @@ def predict_next_timestep_ols(model, current, dependent):
     base = importr('base')
     stats = importr('stats')
 
-    #next_dependent = 'next_' + dependent
-
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -124,17 +122,21 @@ def predict_next_timestep_clm(model, current, dependent):
         prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
     predictionDF = pd.DataFrame(prediction_matrix_list)
 
-    #if dependent == 'housing_quality':
-        #print('Focus')
-
     return predictionDF
 
 
-def predict_next_timestep_labour_nnet(model, current):
-    """Function for predicting next state using labour nnet models.
+def predict_nnet(model, current, columns):
+    """
+    Function for predicting next state using nnet models.
 
     Parameters
     ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    columns : Iterable[str]
+        List of potential output levels that have an associated probability
 
     Returns
     -------
@@ -148,55 +150,12 @@ def predict_next_timestep_labour_nnet(model, current):
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
-
-
-    prediction = stats.predict(model, currentRDF, type="probs")
+    prediction = stats.predict(model, currentRDF, type="probs", na_action='na_omit')
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(prediction)
 
-    return pd.DataFrame(newPandasPopDF, columns = ["Employed",
-                                                   "Family Care",
-                                                   "Maternity Leave",
-                                                   "PT Employed",
-                                                   "Retired",
-                                                   "Self-employed",
-                                                   "Sick/Disabled",
-                                                   "Student",
-                                                   "Unemployed"])
-
-
-
-def predict_highest_educ_nnet(model, current):
-    """Function for predicting highest level of education for the future replenishing populations using nnet model.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-
-    """
-    # import R packages
-    base = importr('base')
-    stats = importr('stats')
-    nnet = importr("nnet")
-    # Convert from pandas to R using package converter
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        currentRDF = ro.conversion.py2rpy(current)
-
-    prediction = stats.predict(model, currentRDF, type="probs", na_action = 'na_omit')
-
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(prediction)
-
-    return pd.DataFrame(newPandasPopDF, columns=['0',
-                                                 '1',
-                                                 '2',
-                                                 '3',
-                                                 '5',
-                                                 '6',
-                                                 '7'])
+    return pd.DataFrame(newPandasPopDF, columns=columns)
 
 
 def predict_next_timestep_zip(model, current, dependent, rescale_factor):
@@ -204,9 +163,14 @@ def predict_next_timestep_zip(model, current, dependent, rescale_factor):
 
     Parameters
     ----------
-    model: ??? what type is this?
+    model : R rds object
+        Fitted model loaded in from .rds file
     current: pd.DataFrame
         current population dataframe.
+    dependent : str
+        The dependent variable we are trying to predict
+    rescale_factor : int
+        Value for rescaling the dependent variable
 
     Returns
     -------
@@ -240,5 +204,5 @@ def predict_next_timestep_zip(model, current, dependent, rescale_factor):
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
     preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
-    # round up to nearest integer and times by 50 to get actual expenditure back.
+    # round up to the nearest integer and times by 50 to get actual expenditure back.
     return np.ceil(preds) * rescale_factor
