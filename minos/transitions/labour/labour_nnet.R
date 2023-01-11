@@ -36,13 +36,13 @@ labour.nnet.main <- function(years){
     data2 <- data2[which(data2$pidp %in% common), ]
     
     data2 <- data2[, c("pidp", "labour_state")]
-    colnames(data2) <- c("pidp", "y")
+    colnames(data2) <- c("pidp", "labour_state_next")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
 
     if(year == 2009) {
         # no weight data in 2009
-        m1 <- multinom(factor(y) ~
+        labour.nnet <- multinom(factor(y) ~
                  (factor(sex) +
                   factor(ethnicity) +
                   age +
@@ -56,31 +56,38 @@ labour.nnet.main <- function(years){
                ,data = data, MaxNWts = 10000, maxit=10000, model=T)
     } else {
         # weight data available 2010 onwards
-        m1 <- multinom(factor(y) ~
-                 (factor(sex) +
+        labour.nnet <- multinom(factor(labour_state_next) ~
+                  factor(sex) +
                   factor(ethnicity) +
-                  age +
+                  scale(age) +
                   factor(education_state) +
-                  SF_12 +
+                  scale(SF_12) +
                   factor(housing_quality) +
-                  factor(labour_state) +
-                  #factor(job_sec) +
-                  hh_income +
-                    alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+                  #factor(labour_state) +
+                  factor(job_sec) +
+                  scale(hh_income) +
+                  scale(alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
                ,data = data, MaxNWts = 10000, maxit=10000, weights = weight, model=T)
     }
-    m1
+    labour.nnet
 
     out.path <- "data/transitions/labour/nnet/"
     create.if.not.exists("data/transitions/labour/")
     create.if.not.exists(out.path)
 
     nnet.file.name <- get.nnet.file.name(out.path, year, year+1)
-    saveRDS(m1, file=nnet.file.name)
+    saveRDS(labour.nnet, file=nnet.file.name)
     print("Saved to:")
     print(nnet.file.name)
-    }
+  }
+  test_path <- "data/transitions/test/"
+  create.if.not.exists(test_path)
+  labour.testfile.name <- get.nnet.file.name(test_path, year, year+1)
+  saveRDS(labour.nnet, file=labour.testfile.name)
+  print("Saved to: ")
+  print(labour.testfile.name)
 }
 
-years <- seq(2009, 2018)
+#years <- seq(2009, 2018)
+years <- seq(2017, 2018)
 labour.nnet.main(years)

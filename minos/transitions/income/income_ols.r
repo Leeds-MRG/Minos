@@ -2,16 +2,16 @@ source("minos/transitions/utils.R")
 #library(texreg)
 
 # Collect command line args from Makefile
-args = commandArgs()
+#args = commandArgs()
 # first 2 args are in positions 7 and 8 weirdly but still work
-dataDir <- paste0(args[7], '/final_US/')
-transitionDir <- args[8]
-transSourceDir <- args[9]
+#dataDir <- paste0(args[7], '/final_US/')
+#transitionDir <- args[8]
+#transSourceDir <- args[9]
 
 #debug dirs
-#dataDir <- 'data/final_US/'
-#transitionDir <- "data/transitions"
-#transSourceDir <- "minos/transitions"
+dataDir <- 'data/final_US/'
+transitionDir <- "data/transitions"
+transSourceDir <- "minos/transitions"
 
 # Load required packages
 suppressPackageStartupMessages(require(stringr))
@@ -116,7 +116,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     
     # yearly model estimation
     ## Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- min(data$time):(max(data$time) - 1)
+    #year.range <- min(data$time):(max(data$time) - 1)
+    year.range <- max(data$time-2):(max(data$time) - 1) # Rob changed this to just run the 2018-2019 models for speed. 
     # set up list
     model.list <- list()
     # set up output directory
@@ -151,12 +152,22 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       # save model & coefficients to file (in their own folder)
       write_csv(coefs, file = paste0(out.path, '/', dependent, '_', year, '_', year+1, '_coefficients.txt'))
       saveRDS(model, file=paste0(out.path, '/', dependent, '_', year, '_', year+1, '.rds'))
+      
+
     }
+    test_path <- "data/transitions/test"
+    create.if.not.exists(test_path)
+    income.testfile.name <- paste0(test_path, '/', dependent, '_', year, '_', year+1, '.rds')
+    saveRDS(model, file=income.testfile.name)
+    print("Saved to: ")
+    print(income.testfile.name)
     # Test texreg conversion of regression coefficient outputs to html.
     # Only doing one year of transitions for now..
     # Assume file is run in root directory (../../..). 
     #htmlreg(model, file='docsrc/Coefficients/test_income_OLS_coefficients.html')
   }
+
+  
   # close and remove connection object from memory
   close(modDefs)
   rm(modDefs)

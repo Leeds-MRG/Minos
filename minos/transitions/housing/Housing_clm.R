@@ -38,7 +38,7 @@ format.housing.composite <- function(data){
   return(data)
 }
 
-get.clm.file.name <- function(destination, year1, year2){
+get.housing.clm.filename <- function(destination, year1, year2){
   file_name <- paste0(destination, "housing_clm_")
   file_name <- paste0(file_name, str(year1))
   file_name <- paste0(file_name, "_")
@@ -77,9 +77,6 @@ clm.housing.main <- function(years){
     data <- data[complete.cases(data),]
 
     data$housing_quality_next <- factor(data$housing_quality_next, levels=c(1, 2, 3))
-    data$sex <- factor(data$sex)
-    data$labour_state <- factor(data$labour_state)
-    data$ethnicity <- factor(data$ethnicity)
     #formula <- "y ~ factor(sex) +
     #                age +
     #                scale(SF_12) +
@@ -88,24 +85,24 @@ clm.housing.main <- function(years){
     #                factor(ethnicity) +
     #                scale(hh_income)"
     formula <- "housing_quality_next ~
-                    sex +
-                    age +
-                    SF_12 +
-                    labour_state +
-                    ethnicity +
-                    hh_income"
+                    factor(sex) +
+                    scale(age) +
+                    scale(SF_12) +
+                    factor(labour_state) +
+                    factor(ethnicity) +
+                    scale(hh_income)"
 
     # Handle the fact that first wave (2009) has no weight data
     if (year == 2009) {
         # No weight info for 2009 so run model without weights
-        clm.housing <- clm(formula,
+        housing.clm <- clm(formula,
                    data = data,
                    link = "logit",
                    threshold = "flexible",
                    Hess=T)
     } else {
         # Now weight info so run with weights
-        clm.housing <- clm(formula,
+        housing.clm <- clm(formula,
                    data = data,
                    link = "logit",
                    threshold = "flexible",
@@ -113,21 +110,30 @@ clm.housing.main <- function(years){
                    weights = weight)
     }
 
-    prs<- 1 - logLik(clm.housing)/logLik(clm(housing_quality_next ~ 1, data=data))
+    prs<- 1 - logLik(housing.clm)/logLik(clm(housing_quality_next ~ 1, data=data))
     print(prs)
 
     out.path <- "data/transitions/housing/clm/"
     create.if.not.exists("data/transitions/housing/")
     create.if.not.exists(out.path)
-
-    clm.file.name <- get.clm.file.name(out.path, year, year+1)
-    saveRDS(clm.housing, file=clm.file.name)
+    clm.file.name <- get.housing.clm.filename(out.path, year, year+1)
+    saveRDS(housing.clm, file=clm.file.name)
     print("Saved to:")
     print(clm.file.name)
+    
   }
+  test_path <- "data/transitions/test/"
+  create.if.not.exists(test_path)
+  housing.clm$household_quality_next <- NULL
+  housing.clm$model_data <- data
+  housing.testfile.name <- get.housing.clm.filename(test_path, year, year+1)
+  saveRDS(housing.clm, file=housing.testfile.name)
+  print("Saved to: ")
+  print(housing.testfile.name)
 }
 # apply clm model
 
 
-years <- seq(2009, 2018)
+#years <- seq(2009, 2018)
+years <- seq(2017, 2018)
 clm.housing.main(years)

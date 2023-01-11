@@ -71,7 +71,14 @@ sf12.main <- function(years){
     print("Saved to:")
     print(sf12.file.name)
   }
+  test_path <- "data/transitions/test/"
+  create.if.not.exists(test_path)
+  sf12.testfile.name <- get.sf12.file.name(test_path, year, year+1)
+  saveRDS(sf12.lm, file=sf12.testfile.name)
+  print("Saved to: ")
+  print(sf12.testfile.name)
 }
 
-years <- seq(2009,2018)
+#years <- seq(2009,2018)
+years <- seq(2017,2018)
 sf12.main(years)

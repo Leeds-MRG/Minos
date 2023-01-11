@@ -108,9 +108,16 @@ main <- function(years){
     print("Saved to: ")
     print(tobacco.file.name)
   }
+  test_path <- "data/test/"
+  create.if.not.exists(test_path)
+  tobacco.testfile.name <- get.tobacco.zip.filename(test_path, year, year+1)
+  saveRDS(tobacco.zip, file=tobacco.testfile.name)
+  print("Saved to: ")
+  print(tobacco.testfile.name)
 }
 # no data until wave 5 because ????????????????. Changes to a likert scale for waves 3,4. no data at all for wave 1.
 # I'm just going to do 5 years of transitions..
-years <- seq(2014, 2018, 1)
+#years <- seq(2014, 2018, 1)
+years <- seq(2017, 2018, 1)
 
 test <- main(years)
