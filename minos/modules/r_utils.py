@@ -38,17 +38,19 @@ def load_transitions(component, path = 'data/transitions/'):
     return model
 
 
-def predict_next_timestep_ols(model, current, independant):
+def predict_next_timestep_ols(model, current, dependent):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
 
     Parameters
     ----------
-    Model : R rds object
+    model : R rds object
         Fitted model loaded in from .rds file
     current : vivarium.framework.population.PopulationView
         View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
 
     Returns:
     -------
@@ -57,6 +59,8 @@ def predict_next_timestep_ols(model, current, independant):
     # import R packages
     base = importr('base')
     stats = importr('stats')
+
+    #next_dependent = 'next_' + dependent
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -70,10 +74,10 @@ def predict_next_timestep_ols(model, current, independant):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
 
     # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[independant]] = newPandasPopDF[['predicted']]
+    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
     newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
-    return newPandasPopDF[[independant]]
+    return newPandasPopDF[[dependent]]
 
 
 def predict_next_timestep_clm(model, current, dependent):
@@ -82,8 +86,12 @@ def predict_next_timestep_clm(model, current, dependent):
     for a module.
     Parameters
     ----------
-    Model : R rds object
+    model : R rds object
         Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The dependent variable we are trying to predict
     Returns:
     -------
     A prediction of the information for next timestep
@@ -93,18 +101,11 @@ def predict_next_timestep_clm(model, current, dependent):
     stats = importr('stats')
     ordinal = importr('ordinal')
 
-    # clm should always have an ordinal dependent, which needs to be type factor
-    # also the rpy2 converter can't encode int properly, so we're going to go to string and hope the converter
-    # changes to factor automatically in the R DataFrame
-    #current[dependent] = current[dependent].astype('str').astype('object')
-    #print(current[dependent].value_counts())
-
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
     # need to cast the dependent var to an R FactorVector
-    #currentRDF.rx2(dependent) = currentRDF.rx2(dependent)
     if dependent in ['loneliness', 'neighbourhood_safety', 'housing_quality']:
         dependent_index = list(currentRDF.colnames).index(dependent)
         dependent_col = FactorVector(currentRDF.rx2(dependent))

@@ -114,7 +114,7 @@ class Income(Base):
         year = min(self.year, 2018)
         transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}")
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model, pop, independant='hh_income')
+        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model, pop, dependent='hh_income')
         return nextWaveIncome
 
     def plot(self, pop, config):

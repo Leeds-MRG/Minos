@@ -51,20 +51,6 @@ digest_params <- function(line) {
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
   
-  # print('----------------BEFORE------------------')
-  # print('----------------------------------------')
-  # print(table(data$ethnicity))
-  # print(table(data$region))
-  # print('----------------------------------------')
-  # 
-  # data = replace.missing(data)
-  # 
-  # print('----------------AFTER-------------------')
-  # print('----------------------------------------')
-  # print(table(data$ethnicity))
-  # print(table(data$region))
-  # print('----------------------------------------')
-  
   if(include_weights) {
     # fit the model including weights (after 2009)
     model <- lm(formula,
@@ -78,18 +64,14 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
   return(model)
 }
 
-estimate_yearly_clm <- function(data, formula.string, include_weights = FALSE, depend) {
+estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
   
-  data$y = data[[depend]]
+  # Sort out dependent type (factor)
+  data[[depend]] <- as.factor(data[[depend]])
   
   data = replace.missing(data)
-  # Sort out dependent type (factor)
-  data$y <- as.factor(data$y)
   # replace missing ncigs values (if still missing)
   data[which(data$ncigs==-8), 'ncigs'] <- 0
-  
-  formula.string <- str_replace(formula.string, depend, "y")
-  formula = as.formula(formula.string)
   
   if(include_weights) {
     model <- clm(formula,
@@ -135,10 +117,12 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   data = replace.missing(data)
   
   # Some more outcome specific processing
-  if(depend == 'ncigs') {
-    data$ncigs[is.na(data$ncigs)] <- 0 # set NAs to 0. 
-    data[which(data$ncigs!=0),]$ncigs <- (data[which(data$ncigs!=0),]$ncigs%/%5) + 1 # round up to nearest 5.
-    data$ncigs <- as.integer(data$ncigs)
+  if(depend == 'next_ncigs') {
+    data$next_ncigs[is.na(data$next_ncigs)] <- 0 # set NAs to 0. 
+    data[which(data$next_ncigs!=0),]$next_ncigs <- (data[which(data$next_ncigs!=0),]$next_ncigs%/%5) + 1 # round up to nearest 5.
+    data$next_ncigs <- as.integer(data$next_ncigs)
+    # do complete case for the dependent at the very least
+    #data - data[complete.cases(data[ , c('next_ncigs', 'education_state', 'ethnicity', 'age', 'sex')]),]
     print('Prepared ncigs for estimation')
   } else if(depend == 'alcohol_spending') {
     data$alcohol_spending <- data$alcohol_spending %/% 50 # round to nearest 50
@@ -150,6 +134,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   # grepl returns true if string found
   
   #data <- data[complete.cases(data),]
+  
   
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -179,12 +164,6 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
     
-    ## Get model parameters
-    #model_params <- digest_params(def)
-    #dependent <- model_params[[1]]
-    #independents <- model_params[[2]]
-    #form <- model_params[[3]]
-    
     # Get model type
     split1 <- str_split(def, pattern = " : ")[[1]]
     mod.type <- split1[1]
@@ -207,6 +186,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     create.if.not.exists(out.path2)
     
     print(paste0('Starting for ', dependent, '...'))
+    
+    ## Implement the 'next_' functionality to male sure were not doing dodgy prediction when using lags
+    # add 'next_' keyword to dependent variable
+    formula.string.orig <- paste0('next_', formula.string.orig)
     
     for(year in year.range) {
       
@@ -235,10 +218,21 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       
       print(paste0('Starting estimation for ', dependent, ' in ', year))
       
-      # independents from time T (current) with dependent removed
-      indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])
-      # dependent from T+1
-      depen.df <- data %>% filter(time == depend.year) %>% select(pidp, .data[[dependent]])
+      # set up new dependent var name
+      next.dependent <- paste0('next_', dependent)
+
+      # independents from time T (current)
+      indep.df <- data %>% 
+        filter(time == year)
+      # dependent from T+1 (rename to 'next_{dependent}' soon)
+      depen.df <- data %>% 
+        filter(time == depend.year) %>% 
+        select(pidp, .data[[dependent]])
+      
+      # rename to next_{dependent}
+      next.colnames <- c('pidp', paste0('next_', dependent))
+      colnames(depen.df) <- next.colnames
+      
       # smash them together
       merged <- merge(depen.df, indep.df, by='pidp')
       
@@ -281,24 +275,24 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       } else if(tolower(mod.type) == 'clm') {
         
         # set ordinal dependent to factor
-        model <- estimate_yearly_clm(data = merged, 
-                                     formula = formula.string, 
+        model <- estimate_yearly_clm(data = merged,
+                                     formula = form, 
                                      include_weights = use.weights, 
-                                     depend = dependent)
+                                     depend = next.dependent)
         
       } else if(tolower(mod.type) == 'nnet') {
         
         model <- estimate_yearly_nnet(data = merged, 
                                       formula = form, 
                                       include_weights = use.weights, 
-                                      depend = dependent)
+                                      depend = next.dependent)
         
       } else if(tolower(mod.type) == 'zip') {
         
         model <- estimate_yearly_zip(data = merged,
                                      formula = form,
                                      include_weights = use.weights,
-                                     depend = dependent)
+                                     depend = next.dependent)
         
       }
       
