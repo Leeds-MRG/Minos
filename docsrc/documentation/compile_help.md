@@ -8,6 +8,7 @@ conda install myst-parser\
 conda install -c conda-forge pandoc\
 pip install sphinx-rtd-theme\
 pip install sphinxcontrib-bibtex\
+pip install nbsphinx\
 
 Sphinx
 Markdown parser

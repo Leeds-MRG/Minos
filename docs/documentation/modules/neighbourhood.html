@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Neighbourhood &mdash; Minos  documentation</title>
@@ -134,7 +134,7 @@ SIPHER-7 XXXX ref and others?.</p>
 <h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
 <span class="c1">##     1     2     3</span>
-<span class="c1">##    45   697 26681</span>
+<span class="c1">##    43   690 26504</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id2">
@@ -167,63 +167,63 @@ goodness of fit.</p>
 </figcaption>
 </figure>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## formula:</span>
-<span class="c1">## neighbourhood_safety_next ~ sex + age + SF_12 + labour_state + ethnicity + hh_income + housing_quality + region + education_state</span>
+<span class="c1">## neighbourhood_safety_next ~ factor(sex) + scale(age) + scale(SF_12) + factor(labour_state) + factor(ethnicity) + scale(hh_income) + factor(housing_quality) + factor(region) + factor(education_state)</span>
 <span class="c1">## data:    data</span>
 <span class="c1">##</span>
 <span class="c1">##  link  threshold nobs  logLik   AIC     niter max.grad cond.H</span>
-<span class="c1">##  logit flexible  22627 -2733.40 5554.80 8(0)  2.47e-07 2.2e+09</span>
+<span class="c1">##  logit flexible  22433 -2687.82 5463.63 8(0)  1.52e-10 2.0e+03</span>
 <span class="c1">##</span>
 <span class="c1">## Coefficients:</span>
-<span class="c1">##                                  Estimate Std. Error z value Pr(&gt;|z|)</span>
-<span class="c1">## sexMale                        -2.720e-02  8.840e-02  -0.308  0.75836</span>
-<span class="c1">## age                            -1.370e-02  4.160e-03  -3.293  0.00099 ***</span>
-<span class="c1">## SF_12                           5.054e-03  1.922e-03   2.629  0.00855 **</span>
-<span class="c1">## labour_stateFamily Care        -4.864e-01  2.025e-01  -2.402  0.01630 *</span>
-<span class="c1">## labour_stateMaternity Leave    -3.479e-01  5.962e-01  -0.583  0.55956</span>
-<span class="c1">## labour_statePT Employed        -2.050e-01  1.664e-01  -1.233  0.21776</span>
-<span class="c1">## labour_stateRetired            -3.616e-01  1.582e-01  -2.286  0.02227 *</span>
-<span class="c1">## labour_stateSelf-employed      -2.091e-02  1.895e-01  -0.110  0.91213</span>
-<span class="c1">## labour_stateSick/Disabled      -1.054e+00  1.920e-01  -5.487 4.09e-08 ***</span>
-<span class="c1">## labour_stateStudent            -1.119e+00  1.904e-01  -5.876 4.21e-09 ***</span>
-<span class="c1">## labour_stateUnemployed         -6.175e-01  1.969e-01  -3.137  0.00171 **</span>
-<span class="c1">## ethnicityBLA                    8.412e-02  3.197e-01   0.263  0.79243</span>
-<span class="c1">## ethnicityBLC                   -5.421e-02  3.160e-01  -0.172  0.86379</span>
-<span class="c1">## ethnicityCHI                    3.647e-01  7.559e-01   0.482  0.62947</span>
-<span class="c1">## ethnicityIND                   -3.411e-02  2.881e-01  -0.118  0.90576</span>
-<span class="c1">## ethnicityMIX                   -4.192e-01  3.154e-01  -1.329  0.18380</span>
-<span class="c1">## ethnicityOAS                   -3.837e-01  3.395e-01  -1.130  0.25831</span>
-<span class="c1">## ethnicityOBL                   -7.602e-01  7.830e-01  -0.971  0.33158</span>
-<span class="c1">## ethnicityOTH                   -2.113e-01  6.423e-01  -0.329  0.74212</span>
-<span class="c1">## ethnicityPAK                    1.335e+00  4.449e-01   3.001  0.00269 **</span>
-<span class="c1">## ethnicityWBI                   -3.990e-02  2.514e-01  -0.159  0.87388</span>
-<span class="c1">## ethnicityWHO                   -2.710e-01  3.012e-01  -0.900  0.36827</span>
-<span class="c1">## hh_income                       3.971e-05  3.557e-05   1.116  0.26425</span>
-<span class="c1">## housing_quality2                4.084e-01  1.816e-01   2.249  0.02453 *</span>
-<span class="c1">## housing_quality3                8.445e-01  2.000e-01   4.222 2.42e-05 ***</span>
-<span class="c1">## regionEast of England           4.640e-02  2.554e-01   0.182  0.85584</span>
-<span class="c1">## regionLondon                   -1.170e+00  2.122e-01  -5.513 3.53e-08 ***</span>
-<span class="c1">## regionNorth East               -4.367e-01  2.786e-01  -1.567  0.11703</span>
-<span class="c1">## regionNorth West               -6.496e-01  2.190e-01  -2.966  0.00302 **</span>
-<span class="c1">## regionNorthern Ireland          1.377e+00  4.881e-01   2.821  0.00478 **</span>
-<span class="c1">## regionScotland                  9.785e-02  2.777e-01   0.352  0.72460</span>
-<span class="c1">## regionSouth East               -6.175e-01  2.161e-01  -2.858  0.00426 **</span>
-<span class="c1">## regionSouth West               -1.255e-01  2.476e-01  -0.507  0.61239</span>
-<span class="c1">## regionWales                    -3.188e-02  2.972e-01  -0.107  0.91457</span>
-<span class="c1">## regionWest Midlands            -6.146e-01  2.274e-01  -2.702  0.00688 **</span>
-<span class="c1">## regionYorkshire and The Humber -2.231e-03  2.521e-01  -0.009  0.99294</span>
-<span class="c1">## education_state1               -1.447e-01  2.501e-01  -0.579  0.56279</span>
-<span class="c1">## education_state2                3.333e-02  1.185e-01   0.281  0.77848</span>
-<span class="c1">## education_state3                1.132e-01  1.620e-01   0.698  0.48501</span>
-<span class="c1">## education_state5                9.421e-02  1.734e-01   0.543  0.58691</span>
-<span class="c1">## education_state6                1.112e-02  1.389e-01   0.080  0.93619</span>
-<span class="c1">## education_state7                2.264e-02  1.623e-01   0.139  0.88908</span>
+<span class="c1">##                                         Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="c1">## factor(sex)Male                        -0.031740   0.089168  -0.356 0.721873</span>
+<span class="c1">## scale(age)                             -0.254508   0.073601  -3.458 0.000544 ***</span>
+<span class="c1">## scale(SF_12)                            0.091794   0.040158   2.286 0.022265 *</span>
+<span class="c1">## factor(labour_state)Family Care        -0.535625   0.203361  -2.634 0.008442 **</span>
+<span class="c1">## factor(labour_state)Maternity Leave    -0.015578   0.723280  -0.022 0.982817</span>
+<span class="c1">## factor(labour_state)PT Employed        -0.205347   0.166713  -1.232 0.218048</span>
+<span class="c1">## factor(labour_state)Retired            -0.335930   0.158891  -2.114 0.034497 *</span>
+<span class="c1">## factor(labour_state)Self-employed       0.005913   0.191835   0.031 0.975409</span>
+<span class="c1">## factor(labour_state)Sick/Disabled      -1.070390   0.192336  -5.565 2.62e-08 ***</span>
+<span class="c1">## factor(labour_state)Student            -1.115110   0.194842  -5.723 1.05e-08 ***</span>
+<span class="c1">## factor(labour_state)Unemployed         -0.589783   0.201658  -2.925 0.003448 **</span>
+<span class="c1">## factor(ethnicity)BLA                    0.022657   0.331144   0.068 0.945451</span>
+<span class="c1">## factor(ethnicity)BLC                   -0.141544   0.324078  -0.437 0.662286</span>
+<span class="c1">## factor(ethnicity)CHI                    0.294266   0.759214   0.388 0.698318</span>
+<span class="c1">## factor(ethnicity)IND                   -0.083718   0.297905  -0.281 0.778692</span>
+<span class="c1">## factor(ethnicity)MIX                   -0.505777   0.323286  -1.564 0.117703</span>
+<span class="c1">## factor(ethnicity)OAS                   -0.478387   0.346562  -1.380 0.167470</span>
+<span class="c1">## factor(ethnicity)OBL                   -0.267233   1.060968  -0.252 0.801136</span>
+<span class="c1">## factor(ethnicity)OTH                   -0.273907   0.646134  -0.424 0.671626</span>
+<span class="c1">## factor(ethnicity)PAK                    1.394876   0.475909   2.931 0.003379 **</span>
+<span class="c1">## factor(ethnicity)WBI                   -0.102713   0.261599  -0.393 0.694588</span>
+<span class="c1">## factor(ethnicity)WHO                   -0.314102   0.311405  -1.009 0.313136</span>
+<span class="c1">## scale(hh_income)                        0.126070   0.119399   1.056 0.291027</span>
+<span class="c1">## factor(housing_quality)2                0.404822   0.184085   2.199 0.027871 *</span>
+<span class="c1">## factor(housing_quality)3                0.832864   0.202123   4.121 3.78e-05 ***</span>
+<span class="c1">## factor(region)East of England           0.020601   0.257677   0.080 0.936278</span>
+<span class="c1">## factor(region)London                   -1.191791   0.215552  -5.529 3.22e-08 ***</span>
+<span class="c1">## factor(region)North East               -0.423865   0.283933  -1.493 0.135480</span>
+<span class="c1">## factor(region)North West               -0.683882   0.221620  -3.086 0.002030 **</span>
+<span class="c1">## factor(region)Northern Ireland          1.347346   0.489256   2.754 0.005890 **</span>
+<span class="c1">## factor(region)Scotland                  0.074075   0.279820   0.265 0.791224</span>
+<span class="c1">## factor(region)South East               -0.646429   0.218717  -2.956 0.003121 **</span>
+<span class="c1">## factor(region)South West               -0.148517   0.249938  -0.594 0.552370</span>
+<span class="c1">## factor(region)Wales                    -0.065368   0.299146  -0.219 0.827028</span>
+<span class="c1">## factor(region)West Midlands            -0.651428   0.229927  -2.833 0.004609 **</span>
+<span class="c1">## factor(region)Yorkshire and The Humber  0.048596   0.259615   0.187 0.851516</span>
+<span class="c1">## factor(education_state)1               -0.165702   0.250210  -0.662 0.507811</span>
+<span class="c1">## factor(education_state)2                0.036101   0.119188   0.303 0.761974</span>
+<span class="c1">## factor(education_state)3                0.132924   0.164673   0.807 0.419551</span>
+<span class="c1">## factor(education_state)5                0.110116   0.174991   0.629 0.529177</span>
+<span class="c1">## factor(education_state)6                0.016460   0.139470   0.118 0.906051</span>
+<span class="c1">## factor(education_state)7                0.030088   0.163442   0.184 0.853943</span>
 <span class="c1">## ---</span>
 <span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
 <span class="c1">##</span>
 <span class="c1">## Threshold coefficients:</span>
 <span class="c1">##     Estimate Std. Error z value</span>
-<span class="c1">## 1|2  -7.2110     0.4440  -16.24</span>
-<span class="c1">## 2|3  -4.2690     0.4104  -10.40</span>
+<span class="c1">## 1|2  -6.9671     0.4248  -16.40</span>
+<span class="c1">## 2|3  -3.9796     0.3870  -10.28</span>
 </pre></div>
 </div>
 </section>

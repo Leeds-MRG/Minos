@@ -90,68 +90,68 @@ overall decent fit.
    ## 
    ## Weighted Residuals:
    ##      Min       1Q   Median       3Q      Max 
-   ## -1990922   -13848        0     7539  3403183 
+   ## -1990161   -13979        0     7734  3420774 
    ## 
    ## Coefficients:
    ##                                        Estimate Std. Error t value Pr(>|t|)    
-   ## (Intercept)                             412.218    194.042   2.124  0.03365 *  
-   ## age                                       6.291      1.038   6.060 1.39e-09 ***
-   ## sexMale                                  12.256     24.496   0.500  0.61684    
-   ## factor(ethnicity)BLA                    120.620    180.062   0.670  0.50294    
-   ## factor(ethnicity)BLC                    361.686    202.933   1.782  0.07472 .  
-   ## factor(ethnicity)CHI                    644.037    237.557   2.711  0.00671 ** 
-   ## factor(ethnicity)IND                    268.561    168.894   1.590  0.11183    
-   ## factor(ethnicity)MIX                    457.606    178.013   2.571  0.01016 *  
-   ## factor(ethnicity)OAS                     61.325    184.060   0.333  0.73900    
-   ## factor(ethnicity)OBL                     -5.696    458.270  -0.012  0.99008    
-   ## factor(ethnicity)OTH                    262.356    241.228   1.088  0.27679    
-   ## factor(ethnicity)PAK                    183.294    179.340   1.022  0.30677    
-   ## factor(ethnicity)WBI                    391.118    154.627   2.529  0.01143 *  
-   ## factor(ethnicity)WHO                    331.423    160.909   2.060  0.03944 *  
-   ## factor(region)East of England            56.558     54.238   1.043  0.29707    
-   ## factor(region)London                    246.671     53.777   4.587 4.53e-06 ***
-   ## factor(region)North East                -30.897     67.059  -0.461  0.64499    
-   ## factor(region)North West                 66.540     53.963   1.233  0.21757    
-   ## factor(region)Northern Ireland           38.943     82.628   0.471  0.63743    
-   ## factor(region)Scotland                   65.676     61.669   1.065  0.28690    
-   ## factor(region)South East                 45.458     51.130   0.889  0.37398    
-   ## factor(region)South West                 29.053     55.642   0.522  0.60157    
-   ## factor(region)Wales                      35.705     75.613   0.472  0.63679    
-   ## factor(region)West Midlands              76.644     56.114   1.366  0.17201    
-   ## factor(region)Yorkshire and The Humber  110.450     56.170   1.966  0.04927 *  
-   ## scale(hh_income)                        581.992     11.532  50.468  < 2e-16 ***
-   ## factor(job_sec)1                        490.629     95.806   5.121 3.07e-07 ***
-   ## factor(job_sec)2                        389.665     82.418   4.728 2.29e-06 ***
-   ## factor(job_sec)3                        301.704     70.303   4.291 1.79e-05 ***
-   ## factor(job_sec)4                        101.444     75.271   1.348  0.17777    
-   ## factor(job_sec)5                        -67.170     92.209  -0.728  0.46635    
-   ## factor(job_sec)6                        179.737     85.909   2.092  0.03644 *  
-   ## factor(job_sec)7                         85.658     70.806   1.210  0.22639    
-   ## factor(job_sec)8                         25.167     79.558   0.316  0.75175    
-   ## factor(labour_state)Family Care          26.084     92.053   0.283  0.77691    
-   ## factor(labour_state)Maternity Leave      -1.985    142.958  -0.014  0.98892    
-   ## factor(labour_state)PT Employed        -110.989     42.599  -2.605  0.00918 ** 
-   ## factor(labour_state)Retired              44.437     76.883   0.578  0.56328    
-   ## factor(labour_state)Self-employed       115.570     65.302   1.770  0.07679 .  
-   ## factor(labour_state)Sick/Disabled       -28.306     89.746  -0.315  0.75246    
-   ## factor(labour_state)Student             198.869     72.423   2.746  0.00604 ** 
-   ## factor(labour_state)Unemployed          -51.936     88.115  -0.589  0.55559    
-   ## factor(education_state)1                -89.767     91.701  -0.979  0.32764    
-   ## factor(education_state)2                155.249     33.662   4.612 4.02e-06 ***
-   ## factor(education_state)3                228.772     43.900   5.211 1.90e-07 ***
-   ## factor(education_state)5                137.234     47.630   2.881  0.00397 ** 
-   ## factor(education_state)6                265.992     37.982   7.003 2.60e-12 ***
-   ## factor(education_state)7                416.316     44.055   9.450  < 2e-16 ***
-   ## scale(SF_12)                             29.686     15.563   1.907  0.05648 .  
-   ## factor(housing_quality)2                159.469     76.339   2.089  0.03673 *  
-   ## factor(housing_quality)3                423.238     78.000   5.426 5.84e-08 ***
+   ## (Intercept)                             505.524    189.502   2.668  0.00765 ** 
+   ## age                                       6.706      1.052   6.373 1.91e-10 ***
+   ## sexMale                                  10.808     24.738   0.437  0.66221    
+   ## factor(ethnicity)BLA                    112.234    182.207   0.616  0.53792    
+   ## factor(ethnicity)BLC                    360.423    204.686   1.761  0.07828 .  
+   ## factor(ethnicity)CHI                    643.937    239.039   2.694  0.00707 ** 
+   ## factor(ethnicity)IND                    267.919    170.401   1.572  0.11590    
+   ## factor(ethnicity)MIX                    456.355    179.897   2.537  0.01120 *  
+   ## factor(ethnicity)OAS                     49.458    185.440   0.267  0.78970    
+   ## factor(ethnicity)OBL                    -99.449    480.719  -0.207  0.83611    
+   ## factor(ethnicity)OTH                    253.470    243.697   1.040  0.29831    
+   ## factor(ethnicity)PAK                    177.365    181.250   0.979  0.32781    
+   ## factor(ethnicity)WBI                    389.700    156.167   2.495  0.01259 *  
+   ## factor(ethnicity)WHO                    324.318    162.642   1.994  0.04616 *  
+   ## factor(region)East of England            54.144     54.581   0.992  0.32122    
+   ## factor(region)London                    246.607     54.251   4.546 5.52e-06 ***
+   ## factor(region)North East                -31.013     67.585  -0.459  0.64633    
+   ## factor(region)North West                 62.718     54.349   1.154  0.24853    
+   ## factor(region)Northern Ireland           47.780     83.226   0.574  0.56591    
+   ## factor(region)Scotland                   70.013     62.034   1.129  0.25908    
+   ## factor(region)South East                 45.836     51.468   0.891  0.37317    
+   ## factor(region)South West                 28.277     55.971   0.505  0.61342    
+   ## factor(region)Wales                      36.369     76.186   0.477  0.63311    
+   ## factor(region)West Midlands              76.481     56.465   1.354  0.17560    
+   ## factor(region)Yorkshire and The Humber  112.330     56.510   1.988  0.04685 *  
+   ## scale(hh_income)                        580.967     11.620  49.997  < 2e-16 ***
+   ## factor(job_sec)1                        395.175     74.629   5.295 1.20e-07 ***
+   ## factor(job_sec)2                        307.623     60.392   5.094 3.55e-07 ***
+   ## factor(job_sec)3                        228.129     45.530   5.011 5.49e-07 ***
+   ## factor(job_sec)4                         40.278     50.918   0.791  0.42894    
+   ## factor(job_sec)5                        -44.211     65.261  -0.677  0.49813    
+   ## factor(job_sec)6                         94.076     64.060   1.469  0.14197    
+   ## factor(job_sec)7                          7.826     46.869   0.167  0.86740    
+   ## factor(job_sec)8                        -66.579     54.039  -1.232  0.21795    
+   ## factor(labour_state)Family Care         -71.214     71.909  -0.990  0.32202    
+   ## factor(labour_state)Maternity Leave       3.067    143.134   0.021  0.98290    
+   ## factor(labour_state)PT Employed        -117.894     42.484  -2.775  0.00553 ** 
+   ## factor(labour_state)Retired             -92.024     48.171  -1.910  0.05611 .  
+   ## factor(labour_state)Self-employed        50.923     59.198   0.860  0.38969    
+   ## factor(labour_state)Sick/Disabled      -132.008     71.196  -1.854  0.06374 .  
+   ## factor(labour_state)Student             121.412     61.427   1.977  0.04811 *  
+   ## factor(labour_state)Unemployed         -156.656     66.880  -2.342  0.01918 *  
+   ## factor(education_state)1                -87.683     91.971  -0.953  0.34041    
+   ## factor(education_state)2                144.936     33.924   4.272 1.95e-05 ***
+   ## factor(education_state)3                216.201     44.538   4.854 1.22e-06 ***
+   ## factor(education_state)5                117.079     48.093   2.434  0.01493 *  
+   ## factor(education_state)6                242.009     38.789   6.239 4.51e-10 ***
+   ## factor(education_state)7                387.257     45.000   8.606  < 2e-16 ***
+   ## scale(SF_12)                             27.261     15.624   1.745  0.08104 .  
+   ## factor(housing_quality)2                147.945     76.956   1.922  0.05457 .  
+   ## factor(housing_quality)3                403.073     78.667   5.124 3.03e-07 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
-   ## Residual standard error: 76540 on 16036 degrees of freedom
-   ##   (255 observations deleted due to missingness)
-   ## Multiple R-squared:  0.2143, Adjusted R-squared:  0.2119 
-   ## F-statistic: 87.49 on 50 and 16036 DF,  p-value: < 2.2e-16
+   ## Residual standard error: 76810 on 15892 degrees of freedom
+   ##   (253 observations deleted due to missingness)
+   ## Multiple R-squared:  0.2134, Adjusted R-squared:  0.2109 
+   ## F-statistic: 86.23 on 50 and 15892 DF,  p-value: < 2.2e-16
 
 |plot of chunk income_output|\ |image1|\ |image2|\ |image3|\ |image4|
 

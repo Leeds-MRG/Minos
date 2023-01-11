@@ -9,8 +9,8 @@ from vivarium import InteractiveContext
 import minos.utils as utils
 
 from minos.modules.mortality import Mortality
-from minos.modules.replenishment import Replenishment
-from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
+from minos.modules.replenishment import Replenishment, NoReplenishment
+from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
@@ -71,6 +71,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
         components.append(Loneliness())
     if "Nutrition()" in config['components']:
         components.append(Nutrition())
+    if "nkidsFertilityAgeSpecificRates()" in config['components']:
+        components.append(nkidsFertilityAgeSpecificRates())
     if "FertilityAgeSpecificRates()" in config['components']:
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config['components']:
@@ -92,6 +94,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
             components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
+    if "NoReplenishment()" in config['components']:
+        components.append(NoReplenishment())
     if "Replenishment()" in config['components']:
         components.append(Replenishment())
     if "replenishmentNowcast()" in config['components']:

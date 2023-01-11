@@ -43,46 +43,47 @@ goodness of fit.
 
 ::
 
-   ## formula: loneliness_next ~ sex + age + SF_12 + labour_state + ethnicity + hh_income + alcohol_spending + ncigs
+   ## formula: 
+   ## loneliness_next ~ factor(sex) + scale(age) + scale(SF_12) + factor(labour_state) + factor(ethnicity) + scale(hh_income) + alcohol_spending + ncigs
    ## data:    data
    ## 
-   ##  link  threshold nobs  logLik   AIC      niter max.grad cond.H 
-   ##  logit flexible  11783 -8923.25 17900.50 6(0)  4.40e-10 5.5e+09
+   ##  link  threshold nobs  logLik    AIC      niter max.grad cond.H 
+   ##  logit flexible  19415 -14800.00 29654.00 6(0)  6.67e-07 1.0e+07
    ## 
    ## Coefficients:
-   ##                               Estimate Std. Error z value Pr(>|z|)    
-   ## sexMale                     -2.697e-01  4.232e-02  -6.373 1.85e-10 ***
-   ## age                         -7.553e-03  1.660e-03  -4.550 5.37e-06 ***
-   ## SF_12                       -7.867e-02  2.113e-03 -37.230  < 2e-16 ***
-   ## labour_stateFamily Care      5.510e-01  5.467e-01   1.008 0.313520    
-   ## labour_stateMaternity Leave -2.198e-01  1.969e-01  -1.116 0.264236    
-   ## labour_statePT Employed      9.390e-02  5.471e-02   1.716 0.086116 .  
-   ## labour_stateRetired         -2.204e-01  2.365e-01  -0.932 0.351325    
-   ## labour_stateSelf-employed    2.228e-02  6.223e-02   0.358 0.720305    
-   ## labour_stateSick/Disabled   -1.658e-01  3.757e-01  -0.441 0.659011    
-   ## labour_stateStudent          1.625e-01  1.184e-01   1.372 0.169918    
-   ## labour_stateUnemployed      -6.677e-01  4.732e-01  -1.411 0.158225    
-   ## ethnicityBLA                 2.511e-01  2.115e-01   1.187 0.235048    
-   ## ethnicityBLC                 3.825e-01  2.107e-01   1.815 0.069451 .  
-   ## ethnicityCHI                -1.732e-01  2.976e-01  -0.582 0.560682    
-   ## ethnicityIND                 1.519e-01  1.845e-01   0.824 0.410186    
-   ## ethnicityMIX                 6.144e-02  2.017e-01   0.305 0.760680    
-   ## ethnicityOAS                 3.816e-01  2.354e-01   1.621 0.104998    
-   ## ethnicityOBL                -6.142e-01  5.588e-01  -1.099 0.271695    
-   ## ethnicityOTH                -1.805e-01  3.976e-01  -0.454 0.649771    
-   ## ethnicityPAK                -1.340e-02  2.017e-01  -0.066 0.947035    
-   ## ethnicityWBI                -7.840e-02  1.603e-01  -0.489 0.624841    
-   ## ethnicityWHO                -9.354e-02  1.840e-01  -0.509 0.611099    
-   ## hh_income                   -5.025e-05  1.430e-05  -3.513 0.000443 ***
-   ## alcohol_spending            -5.027e-05  6.421e-05  -0.783 0.433742    
-   ## ncigs                        2.436e-02  4.435e-03   5.494 3.94e-08 ***
+   ##                                       Estimate Std. Error z value Pr(>|z|)    
+   ## factor(sex)Male                     -0.3004708  0.0327233  -9.182  < 2e-16 ***
+   ## scale(age)                          -0.1226539  0.0253339  -4.841 1.29e-06 ***
+   ## scale(SF_12)                        -0.8178164  0.0170166 -48.060  < 2e-16 ***
+   ## factor(labour_state)Family Care      0.1316331  0.0862416   1.526 0.126928    
+   ## factor(labour_state)Maternity Leave -0.2765143  0.1950482  -1.418 0.156287    
+   ## factor(labour_state)PT Employed      0.0797832  0.0534149   1.494 0.135267    
+   ## factor(labour_state)Retired          0.1759821  0.0570212   3.086 0.002027 ** 
+   ## factor(labour_state)Self-employed    0.0197607  0.0612821   0.322 0.747108    
+   ## factor(labour_state)Sick/Disabled    0.7691415  0.0895790   8.586  < 2e-16 ***
+   ## factor(labour_state)Student          0.2480798  0.0713041   3.479 0.000503 ***
+   ## factor(labour_state)Unemployed       0.2930554  0.0855424   3.426 0.000613 ***
+   ## factor(ethnicity)BLA                 0.1561325  0.1668044   0.936 0.349262    
+   ## factor(ethnicity)BLC                 0.3485061  0.1633377   2.134 0.032871 *  
+   ## factor(ethnicity)CHI                -0.0384768  0.2515971  -0.153 0.878453    
+   ## factor(ethnicity)IND                 0.1288456  0.1407821   0.915 0.360080    
+   ## factor(ethnicity)MIX                 0.1073370  0.1575593   0.681 0.495715    
+   ## factor(ethnicity)OAS                 0.4034540  0.1816202   2.221 0.026323 *  
+   ## factor(ethnicity)OBL                -0.4167904  0.4491905  -0.928 0.353475    
+   ## factor(ethnicity)OTH                 0.0651488  0.2906450   0.224 0.822639    
+   ## factor(ethnicity)PAK                -0.0953418  0.1473989  -0.647 0.517743    
+   ## factor(ethnicity)WBI                -0.0274590  0.1199839  -0.229 0.818981    
+   ## factor(ethnicity)WHO                -0.0345249  0.1409714  -0.245 0.806528    
+   ## scale(hh_income)                    -0.0795816  0.0163490  -4.868 1.13e-06 ***
+   ## alcohol_spending                    -0.0002397  0.0001879  -1.276 0.202088    
+   ## ncigs                                0.0210371  0.0032054   6.563 5.27e-11 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
    ## Threshold coefficients:
    ##     Estimate Std. Error z value
-   ## 1|2  -3.7748     0.1899 -19.874
-   ## 2|3  -1.3542     0.1874  -7.228
+   ## 1|2   0.4763     0.1224   3.891
+   ## 2|3   2.8578     0.1253  22.814
 
 References
 ----------

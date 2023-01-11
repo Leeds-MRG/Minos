@@ -39,56 +39,48 @@ goodness of fit.
    ## 
    ## Weighted Residuals:
    ##      Min       1Q   Median       3Q      Max 
-   ## -11922.1    -50.5      0.0    257.2   3860.5 
+   ## -11929.0    -51.1      0.0    268.9   5850.7 
    ## 
    ## Coefficients:
    ##                                      Estimate Std. Error t value Pr(>|t|)    
-   ## (Intercept)                         34.298898   1.683824  20.370  < 2e-16 ***
-   ## factor(sex)Male                      0.581192   0.215393   2.698 0.006977 ** 
-   ## factor(ethnicity)BLA                 5.697763   1.603943   3.552 0.000383 ***
-   ## factor(ethnicity)BLC                 3.036485   1.803332   1.684 0.092235 .  
-   ## factor(ethnicity)CHI                 1.729325   2.146717   0.806 0.420504    
-   ## factor(ethnicity)IND                 2.462777   1.504434   1.637 0.101646    
-   ## factor(ethnicity)MIX                 2.074729   1.582450   1.311 0.189846    
-   ## factor(ethnicity)OAS                 4.768816   1.638880   2.910 0.003621 ** 
-   ## factor(ethnicity)OBL                 6.383625   4.042429   1.579 0.114319    
-   ## factor(ethnicity)OTH                 4.298191   2.109843   2.037 0.041644 *  
-   ## factor(ethnicity)PAK                 2.372117   1.589841   1.492 0.135705    
-   ## factor(ethnicity)WBI                 2.586571   1.370180   1.888 0.059075 .  
-   ## factor(ethnicity)WHO                 1.354800   1.426271   0.950 0.342182    
-   ## age                                  0.108281   0.009115  11.880  < 2e-16 ***
-   ## factor(education_state)1            -0.627273   0.815153  -0.770 0.441598    
-   ## factor(education_state)2             0.236072   0.290368   0.813 0.416224    
-   ## factor(education_state)3             0.495338   0.384683   1.288 0.197884    
-   ## factor(education_state)5             1.115378   0.415749   2.683 0.007308 ** 
-   ## factor(education_state)6             0.351401   0.327533   1.073 0.283345    
-   ## factor(education_state)7             0.712285   0.381529   1.867 0.061929 .  
-   ## factor(labour_state)Family Care      0.304963   0.811348   0.376 0.707017    
-   ## factor(labour_state)Maternity Leave -2.542077   1.243554  -2.044 0.040949 *  
-   ## factor(labour_state)PT Employed     -0.605587   0.372088  -1.628 0.103641    
-   ## factor(labour_state)Retired          0.261656   0.675626   0.387 0.698554    
-   ## factor(labour_state)Self-employed    0.212515   0.580460   0.366 0.714284    
-   ## factor(labour_state)Sick/Disabled   -7.159909   0.789389  -9.070  < 2e-16 ***
-   ## factor(labour_state)Student          0.879400   0.632180   1.391 0.164225    
-   ## factor(labour_state)Unemployed       1.165021   0.773379   1.506 0.131982    
-   ## factor(job_sec)1                     2.719316   0.843895   3.222 0.001274 ** 
-   ## factor(job_sec)2                     0.904606   0.722854   1.251 0.210792    
-   ## factor(job_sec)3                     1.958368   0.616340   3.177 0.001489 ** 
-   ## factor(job_sec)4                     1.907603   0.660486   2.888 0.003880 ** 
-   ## factor(job_sec)5                     0.900035   0.816015   1.103 0.270058    
-   ## factor(job_sec)6                     4.060494   0.748712   5.423 5.93e-08 ***
-   ## factor(job_sec)7                     1.553039   0.620380   2.503 0.012311 *  
-   ## factor(job_sec)8                     1.900414   0.698805   2.720 0.006544 ** 
-   ## scale(hh_income)                     0.401456   0.101844   3.942 8.12e-05 ***
-   ## scale(SF_12)                         6.421115   0.134206  47.845  < 2e-16 ***
-   ## factor(housing_quality)2             0.812148   0.694038   1.170 0.241946    
-   ## factor(housing_quality)3             1.646733   0.707482   2.328 0.019945 *  
+   ## (Intercept)                         34.485409   1.634733  21.095  < 2e-16 ***
+   ## factor(sex)Male                      0.575984   0.222052   2.594 0.009498 ** 
+   ## factor(ethnicity)BLA                 6.590234   1.660414   3.969 7.25e-05 ***
+   ## factor(ethnicity)BLC                 4.690490   1.865502   2.514 0.011936 *  
+   ## factor(ethnicity)CHI                 6.343840   2.171633   2.921 0.003491 ** 
+   ## factor(ethnicity)IND                 4.194507   1.549387   2.707 0.006792 ** 
+   ## factor(ethnicity)MIX                 3.753619   1.634865   2.296 0.021690 *  
+   ## factor(ethnicity)OAS                 6.334935   1.689290   3.750 0.000177 ***
+   ## factor(ethnicity)OBL                 7.008550   4.382247   1.599 0.109773    
+   ## factor(ethnicity)OTH                 5.704026   2.218579   2.571 0.010149 *  
+   ## factor(ethnicity)PAK                 4.016367   1.639869   2.449 0.014328 *  
+   ## factor(ethnicity)WBI                 4.207545   1.409282   2.986 0.002835 ** 
+   ## factor(ethnicity)WHO                 3.073975   1.469116   2.092 0.036419 *  
+   ## age                                  0.113208   0.009517  11.895  < 2e-16 ***
+   ## factor(education_state)1            -0.416676   0.836934  -0.498 0.618590    
+   ## factor(education_state)2             0.296434   0.307868   0.963 0.335632    
+   ## factor(education_state)3             0.660260   0.401769   1.643 0.100324    
+   ## factor(education_state)5             1.370757   0.433957   3.159 0.001588 ** 
+   ## factor(education_state)6             0.447677   0.340639   1.314 0.188789    
+   ## factor(education_state)7             0.638411   0.390018   1.637 0.101676    
+   ## factor(labour_state)Family Care     -2.007455   0.632196  -3.175 0.001499 ** 
+   ## factor(labour_state)Maternity Leave -2.802892   1.299391  -2.157 0.031014 *  
+   ## factor(labour_state)PT Employed     -0.749076   0.380365  -1.969 0.048929 *  
+   ## factor(labour_state)Retired         -1.750428   0.400997  -4.365 1.28e-05 ***
+   ## factor(labour_state)Self-employed   -0.820380   0.412457  -1.989 0.046717 *  
+   ## factor(labour_state)Sick/Disabled   -9.331572   0.612816 -15.227  < 2e-16 ***
+   ## factor(labour_state)Student         -0.308230   0.518760  -0.594 0.552409    
+   ## factor(labour_state)Unemployed      -0.695720   0.584918  -1.189 0.234287    
+   ## scale(hh_income)                     0.401025   0.105104   3.816 0.000136 ***
+   ## scale(SF_12)                         6.392215   0.139857  45.705  < 2e-16 ***
+   ## factor(housing_quality)2             0.696491   0.699976   0.995 0.319741    
+   ## factor(housing_quality)3             1.522001   0.714000   2.132 0.033050 *  
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
-   ## Residual standard error: 674.1 on 17123 degrees of freedom
-   ## Multiple R-squared:  0.1889, Adjusted R-squared:  0.187 
-   ## F-statistic: 102.2 on 39 and 17123 DF,  p-value: < 2.2e-16
+   ## Residual standard error: 700.4 on 15911 degrees of freedom
+   ## Multiple R-squared:  0.1855, Adjusted R-squared:  0.1839 
+   ## F-statistic: 116.9 on 31 and 15911 DF,  p-value: < 2.2e-16
 
 |plot of chunk housing_output|\ |image1|\ |image2|\ |image3|
 

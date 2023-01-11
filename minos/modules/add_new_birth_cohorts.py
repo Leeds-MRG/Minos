@@ -73,7 +73,7 @@ class FertilityAgeSpecificRates(Base):
         # Load in birth rate lookup table data and build lookup table.
         age_specific_fertility_rate = builder.data.load("covariate.age_specific_fertility_rate.estimate")
         fertility_rate = builder.lookup.build_table(age_specific_fertility_rate,
-                                                    key_columns=['sex', 'ethnicity'],
+                                                    key_columns=['sex', 'region', 'ethnicity'],
                                                     parameter_columns=['age', 'year'])
         # Register rate producer for birth rates by
         # This determines the rates at which sims give birth over the simulation time step.
@@ -194,3 +194,133 @@ class FertilityAgeSpecificRates(Base):
 
     def __repr__(self):
         return "FertilityAgeSpecificRates()"
+
+
+
+
+class nkidsFertilityAgeSpecificRates(Base):
+    """
+    A simulant-specific model for fertility and pregnancies.
+    """
+    @staticmethod
+    def pre_setup(config, simulation):
+        """ Load in anything required for the module to run.
+
+        Parameters
+        ----------
+        config : vivarium.config_tree.ConfigTree
+            Config yaml tree for vivarium with the items needed for this module to run
+
+        simulation : vivarium.interface.interactive.InteractiveContext
+            The initiated vivarium simulation object before simulation.setup() is run.
+
+        Returns
+        -------
+            simulation : vivarium.interface.interactive.InteractiveContext
+                The initiated vivarium simulation object with anything needed to run the module.
+                E.g. rate tables.
+        """
+        # produce rate table from minos file path in config and save it to the simulation.
+        config.update({
+            'path_to_fertility_file': "{}/{}".format(config.persistent_data_dir, config.fertility_file)
+        }, source=str(Path(__file__).resolve()))
+        asfr_fertility = FertilityRateTable(configuration=config)
+        asfr_fertility.set_rate_table()
+        simulation._data.write("covariate.age_specific_fertility_rate.estimate",
+                               asfr_fertility.rate_table)
+
+        return simulation
+
+    def setup(self, builder):
+        """ Initialise the module within the vivarium simulation.
+
+        - load in data from pre_setup
+        - register any value producers/modifiers for birth rate
+        - add required columns to population data frame
+        - add listener event to check if people are born on each time step.
+        - update other required items such as random and clock.
+
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+        # Load in birth rate lookup table data and build lookup table.
+        age_specific_fertility_rate = builder.data.load("covariate.age_specific_fertility_rate.estimate")
+        fertility_rate = builder.lookup.build_table(age_specific_fertility_rate,
+                                                    key_columns=['sex', 'region', 'ethnicity'],
+                                                    parameter_columns=['age', 'year'])
+        # Register rate producer for birth rates by
+        # This determines the rates at which sims give birth over the simulation time step.
+        self.fertility_rate = builder.value.register_rate_producer('fertility rate',
+                                                                   source=fertility_rate,
+                                                                   requires_columns=['sex', 'ethnicity'])
+
+        # CRN stream for seeding births.
+        self.randomness = builder.randomness.get_stream('fertility')
+
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'hidp']
+        # Add new columns to population required for module using build in sim creator.
+        self.population_view = builder.population.get_view(view_columns)
+
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 requires_columns=['sex'])
+        # Add listener event to check who has given birth on each time step using the on_time_step function below.
+        builder.event.register_listener('time_step', self.on_time_step, priority=1)
+
+    def on_initialize_simulants(self, pop_data):
+        """ Adds the required columns for the module to run to the population data frame.
+
+        Parameters
+        --------
+            pop_data: vivarium.framework.population.SimulantData
+            `pop_data` is a custom vivarium class for interacting with the population data frame.
+            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+            creation_window, and current simulation state (setup/running/etc.).
+        """
+        # doesn't create anything. just incrementing nkids in time step which already exists.
+        pass
+
+
+    def on_time_step(self, event):
+        """Produces new children and updates parent status on time steps.
+
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+        # Get a view on all living people.
+        population = self.population_view.get(event.index, query='alive == "alive"')
+        # not needed due to yearly incremenents.
+        #nine_months_ago = pd.Timestamp(event.time - PREGNANCY_DURATION)
+        #can_have_children = population.last_birth_time < nine_months_ago
+        #eligible_women = population[can_have_children]
+        # calculate rates of having children and randomly draw births
+        # filter_for_rate simply takes the subset of women who have given birth generated via the CRN stream.
+        who_women = population.loc[population['sex']=='Female',].index
+        rate_series = self.fertility_rate(who_women)
+        # get women who had children.
+        had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
+        # find everyone in a household who has had children by hidp and incremement nkids by 1.
+        had_children_hidps = population.loc[had_children, 'hidp']
+        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index
+        population.loc[who_had_children_households, 'nkids'] += 1
+        self.population_view.update(population[['nkids']])
+
+    @staticmethod
+    def load_age_specific_fertility_rate_data(builder):
+        """I have no idea what this is. loads in rate table taking subset for women and specific columns.
+        I think its been deprecated by the Ratetables.FertilityRateTable file."""
+        asfr_data = builder.data.load("covariate.age_specific_fertility_rate.estimate")
+        columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
+        asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
+        return asfr_data
+
+    @property
+    def name(self):
+        return 'nkids_age_specific_fertility'
+
+    def __repr__(self):
+        return "nkidsFertilityAgeSpecificRates()"

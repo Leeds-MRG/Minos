@@ -49,8 +49,8 @@ Variables used in this model. Encodings for discrete variables found in data tab
 
 ```{r labour_output, echo=FALSE}
 options(width=120)
-nnet_output("../../../data/transitions/test/labour_nnet_2018_2019.rds") #e.g. ../../../data/transitions/test/housing_clm_2018_2019.rds
-nnet_confusion_matrix("../../../data/transitions/test/labour_nnet_2018_2019.rds", mode='multinom', 'factor(labour_state)')
+nnet_output("../../../data/transitions/test/labour_nnet_2018_2019.rds")
+nnet_confusion_matrix("../../../data/transitions/test/labour_nnet_2018_2019.rds", mode='multinom', 'factor(labour_state_next)')
 ```
 
 

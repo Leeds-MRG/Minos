@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Income API &mdash; Minos  documentation</title>
@@ -121,13 +121,13 @@
 <span class="sig-name descname"><span class="pre">calculate_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.calculate_income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.calculate_income" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate income transition distribution based on provided people/indices</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>pop</strong> (<em>PopulationView</em>) – Population from MINOS to calculate next income for.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>nextWaveIncome</strong> – Vector of new household incomes from OLS prediction.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>pd.Series</p>
 </dd>
 </dl>
@@ -138,7 +138,7 @@
 <span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.on_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts the hh_income for the next timestep.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>event</strong> (<em>vivarium.population.PopulationEvent</em>) – The event time_step that called this function.</p>
 </dd>
 </dl>
@@ -150,13 +150,13 @@
 <dd><p>Default plot method for modules. Does nothing.</p>
 <p>Modules can specify another plot object that saves distributions of state.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pop_data</strong> (<em>population data from vivarium. Whatever columns needs plotting.</em>) – </p></li>
 <li><p><strong>config</strong> (<em>vivarium.configTree</em>) – Config yaml for any needed plot parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt class="field-even">Return type</dt>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
@@ -174,7 +174,7 @@
 <li><p>Update other required items such as randomness stream.</p></li>
 </ul>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>builder</strong> (<em>vivarium.engine.Builder</em>) – Vivarium’s control object. Stores all simulation metadata and allows modules to use it.</p>
 </dd>
 </dl>

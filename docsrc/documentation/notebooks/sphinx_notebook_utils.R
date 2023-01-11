@@ -90,8 +90,8 @@ clm_barplot <- function(data_path, v){
   #column_index <- paste0("factor(", v)
   #column_index <- paste0(column_index, ")")
   #obs <- clm_model$model[, c(column_index)]
-  obs <- as.vector(clm_model$model[, c(v)])
-  preds <- as.vector(predict(clm_model, type='class')$fit)
+  obs <- as.vector(clm_model$model_data[, c(v)])
+  preds <- as.vector(as.vector(predict(clm_model, clm_model$model_data, type='class')$fit))
   
   obs <- as.data.frame(table(obs))
   colnames(obs) <- c("value", "freq")
@@ -233,7 +233,7 @@ zip_output <- function(data_path){
 #TODO utility functions for education and replenishment. 
 
 
-#nnet_confusion_matrix("data/transitions/test/labour_nnet_2018_2019.rds", "multinom", "factor(y)")
+#nnet_confusion_matrix("data/transitions/test/labour_nnet_2018_2019.rds", "multinom", "factor(labour_state_next)")
 #nnet_confusion_matrix("data/transitions/test/loneliness_clm_2018_2019.rds", "ordinal", 'loneliness') 
 
-#clm_barplot("data/transitions/test/neighbourhood_clm_2014_2017.rds", "neighbourhood_safety_next")
+#clm_barplot("data/transitions/test/housing_clm_2018_2019.rds", "housing_quality_next")
