@@ -84,8 +84,27 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 	@echo "installing R requirements"
 	Rscript install.R # install any R packages. Annoying to do in conda.
 	@echo "\nInstall complete!\n"
+	
+devinstall: ### Install all Minos requirements via pip
+devinstall: $(SITEPACKAGES)/vivarium-lite/__init__.py
 
-
+$(SITEPACKAGES)/vivarium-lite/__init__.py:
+	@echo "Checking if vivarium-lite is installed"
+ifneq ("$(wildcard $(SITEPACKAGES)/vivarium-lite/__init__.py)","")
+	@echo "Vivarium-lite found, continuing."
+	@echo "Installing requirements via pip"
+	pip install -v -e . -r requirements-dev.txt
+	@echo "Replacing a line in vivarium-lite.framework.randomness.py because it's broken."
+	# New pandas version no longer needs to raise a key error.
+	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium-lite/framework/randomness.py
+	@echo "python install complete."
+	#@echo "installing R requirements"
+	#Rscript install.R # install any R packages. Annoying to do in conda.
+	@echo "\nInstall complete!\n"
+else
+	@echo "Vivarium-lite not found."
+endif
+	
 ## Test Simulations
 ###
 .PHONY: testRun testRun_Intervention
