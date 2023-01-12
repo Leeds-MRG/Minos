@@ -98,8 +98,8 @@ ifneq ("$(wildcard $(SITEPACKAGES)/vivarium-lite/__init__.py)","")
 	# New pandas version no longer needs to raise a key error.
 	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium-lite/framework/randomness.py
 	@echo "python install complete."
-	#@echo "installing R requirements"
-	#Rscript install.R # install any R packages. Annoying to do in conda.
+	@echo "installing R requirements"
+	Rscript install.R # install any R packages. Annoying to do in conda.
 	@echo "\nInstall complete!\n"
 else
 	@echo "Vivarium-lite not found."
