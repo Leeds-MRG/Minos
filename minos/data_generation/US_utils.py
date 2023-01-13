@@ -3,6 +3,7 @@
 """
 import os
 import pandas as pd
+import numpy as np
 import json
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 
@@ -377,8 +378,15 @@ def inflation_adjustment(data, var):
     return data
 
 
-missing_types = ['-1', '-2', '-7', '-8', '-9',
-                 -1., -2., -7., -8., -9.,
-                 -1, -2, -7, -8, -9,
-                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
+def replace_missing_with_na(data, column_list):
+
+    data[column_list] = data[column_list].replace(missing_types, np.nan)
+
+    return data
+
+
+missing_types = ['-1', '-2', '-7', '-8', '-9', '-10',
+                 -1., -2., -7., -8., -9., -10.,
+                 -1, -2, -7, -8, -9, -10,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0', '-10.0',
                  "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]

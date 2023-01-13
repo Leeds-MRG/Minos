@@ -5,7 +5,7 @@ source("minos/transitions/utils.R")
 
 get.neighbourhood.clm.filename <- function(destination, year1, year2){
   # generate file name for neighbourhood clm transition outputs for year1.
-  file_name <- paste0(destination, "neighbourhood_clm_")
+  file_name <- paste0(destination, "neighbourhood_safety_")
   file_name <- paste0(file_name, str(year1))
   file_name <- paste0(file_name, "_")
   file_name <- paste0(file_name, str(year2))
@@ -60,21 +60,21 @@ clm.neighbourhood.main <- function(years){
     #                    factor(housing_quality) +
     #                    region +
     #                    factor(education_state)"
-    data$neighbourhood_safety_next <- factor(data$neighbourhood_safety_next, levels=c(1,2,3))
-    formula <- "neighbourhood_safety_next ~ factor(sex) +
-                                            scale(age) +
-                                            scale(SF_12) +
-                                            factor(labour_state) +
-                                            factor(ethnicity) +
-                                            scale(hh_income) +
-                                            factor(housing_quality) +
-                                            factor(region) +
-                                            factor(education_state)"
-    neighbourhood.clm <- clm(formula,
-        data = data,
-        link = "logit",
-        threshold = "flexible",
-        Hess=T)
+
+    data$neighbourhood_safety_next <- factor(data$neighbourhood_safety_next, levels=c(1,2,3))    
+    formula <- "y ~ scale(age) + factor(sex) + factor(job_sec) + relevel(factor(ethnicity), ref = 'WBI') + scale(hh_income) + factor(housing_quality) + relevel(factor(region), ref = 'South East')"
+    neighbourhood.clm <- clm(neighbourhood_safety_next  ~ 
+                               scale(age) + 
+                               factor(sex) + 
+                               factor(job_sec) + 
+                               relevel(factor(ethnicity), ref = 'WBI') + 
+                               scale(hh_income) + factor(housing_quality) + 
+                               relevel(factor(region), ref = 'South East'),
+                                data = data,
+                                link = "logit",
+                                threshold = "flexible",
+                                Hess=T)
+                                
     print(summary(neighbourhood.clm))
     prs<- 1 - logLik(neighbourhood.clm)/logLik(clm(neighbourhood_safety_next ~ 1, data=data))
     print(prs)

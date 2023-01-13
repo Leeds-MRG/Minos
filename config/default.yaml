@@ -2,9 +2,9 @@ randomness:
     key_columns: ['entrance_time', 'age']
 time:
     start: {year: 2018, month: 10, day: 15}
-    end:   {year: 2035, month: 10, day: 15}
+    end:   {year: 2036, month: 10, day: 15}
     step_size: 365.25  # Days
-    num_years: 6
+    num_years: 18
 population:
     age_start: 0
     age_end: 100
@@ -22,7 +22,8 @@ output_data_dir: "output"
 # Only if Replenishment needs some other module in the future would it be superceded.
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
-components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+#components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Income(), Housing(), Nutrition(), Education(), Mortality(), Replenishment()]
 
 
 scale_rates:

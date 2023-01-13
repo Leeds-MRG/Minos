@@ -11,7 +11,7 @@ library(ordinal)
 
 get.loneliness.clm.filename <- function(destination, year1, year2){
   # generate file name for loneliness zero inflated poisson transition outputs for year1.
-  file_name <- paste0(destination, "loneliness_clm_")
+  file_name <- paste0(destination, "loneliness_")
   file_name <- paste0(file_name, str(year1))
   file_name <- paste0(file_name, "_")
   file_name <- paste0(file_name, str(year2))
@@ -42,7 +42,9 @@ main <- function(years){
                  "hh_income",
                  "alcohol_spending",
                  "ncigs",
-                 'loneliness')
+                 'loneliness',
+                 'hh_comp',
+                 'marital_status')
     
     data <- data[, columns]
     data2 <- data2[, c("pidp", "loneliness")]
@@ -68,15 +70,16 @@ main <- function(years){
     data <- data[complete.cases(data),]
     
     data$loneliness_next <- factor(data$loneliness_next, levels=c(1,2,3))
-    loneliness.clm <- clm(loneliness_next ~ factor(sex) +
-                              scale(age) +
-                              scale(SF_12) +
-                              factor(labour_state) +
-                              factor(ethnicity) +
-                              scale(hh_income) +
-                              alcohol_spending +
-                              ncigs
-                          , data = data, link='logit')
+    loneliness.clm <- clm(loneliness_next ~ scale(age) + 
+                            factor(sex) + 
+                            scale(SF_12) + 
+                            relevel(factor(education_state), ref = '3') + 
+                            relevel(factor(job_sec), ref = '3') + 
+                            scale(hh_income) + 
+                            relevel(factor(hh_comp), ref = '3') + 
+                            relevel(factor(marital_status), ref = 'Partnered'),
+                            data = data, 
+                            link='logit')
     
     print(summary(loneliness.clm))
     prs<- 1 - logLik(loneliness.clm)/logLik(clm(factor(loneliness_next) ~ 1, data=data))

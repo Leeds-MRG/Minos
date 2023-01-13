@@ -3,6 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
+
 
 def main(source, destination, v, method, prefix):
     """
@@ -38,14 +40,29 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     df = pd.read_csv(source)
     df[v] -= 1 # set centre at 0.
+
+    # set year to int for formatting purposes
+    df['year'] = pd.to_datetime(df['year'], format='%Y')
+
+    # now rename some vars for plot labelling and formatting
+    # Capital letter for 'year'
+    # 'tag' renamed to 'Legend'
+    df.rename(columns={"year": "Year",
+                         "tag": "Legend"},
+              inplace=True)
+
     f = plt.figure()
-    sns.lineplot(data=df, x='year', y=v, hue = 'tag', style='tag', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=v, hue = 'Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
-    plt.ylabel(f"{v} {method}")
+
+    # Sort out axis labels
+    if v == 'SF_12':
+        v = 'SF12 MCS'
+    plt.ylabel(f"{v}")
     plt.tight_layout()
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
@@ -71,5 +88,25 @@ if __name__ == '__main__':
     prefix = args['prefix']
 
     sources = sources.split(",")
-    source = os.path.join('output', sources[0], "aggregated_" + "_".join(sources) + ".csv")
+
+    for i, source in enumerate(sources):
+        # Handle the datetime folder inside the output. Select most recent run
+        runtime = os.listdir(os.path.abspath(os.path.join('output/default_config', source)))
+        if len(runtime) > 1:
+            runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+        elif len(runtime) == 1:
+            runtime = runtime[0]  # os.listdir returns a list, we only have 1 element
+        else:
+            raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                               "aggregate. Please check the output directory.")
+
+        sources[i] = os.path.join(source, runtime)
+
+    short_directories = []
+    for i, source in enumerate(sources):
+        if '/' in source:
+            source = source.split('/')[0]
+            short_directories.append(source)
+
+    source = os.path.join('output/default_config', sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
     main(source, destination, v, method, prefix)

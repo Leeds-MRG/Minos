@@ -2,6 +2,8 @@
 Understanding Society data."""
 
 import numpy as np
+import pandas as pd
+
 import US_utils
 
 def complete_case(data):
@@ -37,10 +39,19 @@ def complete_case_varlist(data, varlist):
     """
     for var in varlist:
         data[var] = data[var].replace(US_utils.missing_types, np.nan)
-        #data[var] = data[var].dropna(axis=0)
+        data = data.dropna(axis=0, subset=[var])
 
-    data = data.dropna(axis=0)
+    #data[varlist] = data[varlist].replace(US_utils.missing_types, np.nan)
+
+    #data = data.dropna(axis=0)
     data = data.reset_index(drop=True)
+    return data
+
+
+def complete_case_custom_years(data, var, years):
+
+    data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+
     return data
 
 
@@ -50,9 +61,20 @@ if __name__ == "__main__":
     file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    complete_case_vars = ["job_sec", "labour_state", "education_state", "housing_quality", "age",
-                          'yearly_energy', 'region'] # many of these
+    complete_case_vars = ["housing_quality", 'job_sector', 'marital_status', 'labour_state', 'yearly_energy', "job_sec",
+                          "education_state", 'region', "age"] # many of these
+
+
     data = complete_case_varlist(data, complete_case_vars)
+
+    ## Need to do correction on some variables individually as they are only in the dataset in specific years
+    # doing complete case without the year range taken into account removes the whole years data
+    data = complete_case_custom_years(data, 'loneliness', years = [2017, 2018, 2019, 2020])
+    # now make sure its int not float (need to convert NA to 0 for this to work)
+    data['loneliness'] = pd.to_numeric(data['loneliness'], errors='coerce').fillna(0).astype('int')
+    ## Now do same for neighbourhood_safety
+    data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2018])
+    data['neighbourhood_safety'] = pd.to_numeric(data['neighbourhood_safety'], errors='coerce').fillna(0).astype('int')
 
     drop_columns = ['financial_situation', # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',

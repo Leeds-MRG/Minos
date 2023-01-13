@@ -284,9 +284,16 @@ def format_ukhls_columns(year):
                       # 'sf1': 'sf1', # sf1 score
                       'hcondn17': 'clinical_depression',  # has clinical depression.
                       'scsf1': 'scsf1',  # sf1 score including proxy surveys
+                      'scsf2a': 'phealth_limits_modact', # physical health limits moderate activities
+                      'scsf2b': 'phealth_limits_stairs', # physical health limits several flights of stairs
                       'scsf3a': 'phealth_limits_work',  # physical health limits work.
+                      'scsf3b': 'phealth_limits_work_type', # physical health limits kind of work
                       'scsf4a': 'mhealth_limits_work',  # mental health limits work.
+                      'scsf5': 'pain_interfere_work', # pain interfered with work
                       'scsf7': 'health_limits_social',  # health limits social life.
+                      'hhtype_dv': 'hh_composition', # household composition
+                      'mastat_dv': 'marstat' # marital status
+                      ''
                       }
 
     # Some variables change names halfway through UKHLS.

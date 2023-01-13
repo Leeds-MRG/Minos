@@ -44,32 +44,31 @@ labour.nnet.main <- function(years){
         # no weight data in 2009
         labour.nnet <- multinom(factor(y) ~
                  (factor(sex) +
-                  factor(ethnicity) +
+                  relevel(factor(ethnicity), ref = "WBI") +
                   age +
-                  factor(education_state) +
-                  SF_12 +
-                  factor(housing_quality) +
-                  factor(labour_state) +
-                  #factor(job_sec) +
-                  hh_income +
-                    alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
-               ,data = data, MaxNWts = 10000, maxit=10000, model=T)
-    } else {
-        # weight data available 2010 onwards
-        labour.nnet <- multinom(factor(labour_state_next) ~
-                  factor(sex) +
-                  factor(ethnicity) +
-                  scale(age) +
-                  factor(education_state) +
+                  relevel(factor(education_state), ref = '3') +
                   scale(SF_12) +
                   factor(housing_quality) +
-                  #factor(labour_state) +
-                  factor(job_sec) +
+                  relevel(factor(labour_state), ref = "Employed") +
+                  #factor(job_sec) +
                   scale(hh_income) +
-                  scale(alcohol_spending)#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
-               ,data = data, MaxNWts = 10000, maxit=10000, weights = weight, model=T)
+                  scale(alcohol_spending))#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+               ,data = data, MaxNWts = 10000, maxit=10000)
+    } else {
+        # weight data available 2010 onwards
+        labour.nnet <- multinom(factor(y) ~
+                 (factor(sex) +
+                  relevel(factor(ethnicity), ref = "WBI") +
+                  age +
+                  relevel(factor(education_state), ref = '3') +
+                  scale(SF_12) +
+                  factor(housing_quality) +
+                  relevel(factor(labour_state), ref = "Employed") +
+                  #factor(job_sec) +
+                  scale(hh_income) +
+                  scale(alcohol_spending))#**2 # higher order terms. better accuracy but takes 20x as long to calibrate.
+               ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
     }
-    labour.nnet
 
     out.path <- "data/transitions/labour/nnet/"
     create.if.not.exists("data/transitions/labour/")

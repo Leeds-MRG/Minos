@@ -96,7 +96,10 @@ class Replenishment(Base):
                         'job_inc', 
                         'jb_inc_per', 
                         'hourly_wage', 
-                        'gross_paypm']
+                        'gross_paypm',
+                        'phealth',
+                        'marital_status',
+                        'hh_comp']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

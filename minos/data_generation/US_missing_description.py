@@ -32,7 +32,7 @@ def split_data_by_missing(data, v1):
     data2 = data.loc[~data[v1].isin(missing_set)]
     return data1, data2
 
-def missingness_table(data):
+def missingness_table(data, subset = None):
     """ Return a table of missing values for each variable as a percentage of total data.
 
     Parameters
@@ -44,9 +44,12 @@ def missingness_table(data):
 
     """
 
-    output = pd.DataFrame(0, index= [-1, -2, -7, -8, -9], columns=data.columns)
+    if subset:
+        data = data[subset]
+
+    output = pd.DataFrame(0, index= [-1, -2, -7, -8, -9, -10], columns=data.columns)
     for v in data.columns:
-        output[v] = data.loc[data[v].isin(US_utils.missing_types)][v].astype(int).value_counts()
+        output[v] = data.loc[data[v].isin(US_utils.missing_types)][v].astype(float).astype(int).value_counts()
     output = output.replace(np.nan, 0)
 
     col_sums = pd.DataFrame(np.sum(output)).T

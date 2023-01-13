@@ -73,6 +73,10 @@ def generate_stock(projections):
     #   weight from the survey and just transform the replenishing population weights to bring the mean back to ~1.
     data = reweight_stock(data, projections)
 
+    # some columns need to replace missings (negative values in US) with NA
+    #data = US_utils.replace_missing_with_na(data, column_list=['job_sec',
+    #                                                           'job_sector'])
+
     # Needs a max_educ column despite it not being important for the majority of people
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
