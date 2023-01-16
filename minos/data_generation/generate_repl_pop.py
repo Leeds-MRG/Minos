@@ -110,7 +110,7 @@ def predict_education(repl):
     # Then create an empty variable for max_educ, and make a choice from the probability distribution about
     # which level to assign as highest education attainment
 
-    # generate list of columns for prediction output
+    # generate list of columns for prediction output (no educ==4 in Understanding Society)
     cols = ['0', '1', '2', '3', '5', '6', '7']
 
     transition_model = r_utils.load_transitions(f"data/transitions/education_state/nnet/education_state_2018_2019", "")
