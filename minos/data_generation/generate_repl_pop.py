@@ -57,8 +57,10 @@ def expand_and_reweight_repl(US_2018, projections):
         new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
+        # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
+        new_repl = pd.concat([new_repl, new_repl, new_repl], ignore_index=True)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000
+        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
 
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
