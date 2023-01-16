@@ -337,7 +337,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 dataDir <- 'data/final_US/'
 transitionDir <- 'data/transitions/'
 transSourceDir <- 'minos/transitions/'
-modDefFilename <- 'model_definitions_NEW.txt'
+modDefFilename <- 'model_definitions.txt'
 
 
 
