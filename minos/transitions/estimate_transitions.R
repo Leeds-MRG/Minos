@@ -113,39 +113,39 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
   
-  # Replace missing values (util func)
-  data = replace.missing(data)
-  
-  # Some more outcome specific processing
   if(depend == 'next_ncigs') {
-    data$next_ncigs[is.na(data$next_ncigs)] <- 0 # set NAs to 0. 
-    data[which(data$next_ncigs!=0),]$next_ncigs <- (data[which(data$next_ncigs!=0),]$next_ncigs%/%5) + 1 # round up to nearest 5.
-    data$next_ncigs <- as.integer(data$next_ncigs)
-    # do complete case for the dependent at the very least
-    #data - data[complete.cases(data[ , c('next_ncigs', 'education_state', 'ethnicity', 'age', 'sex')]),]
-    print('Prepared ncigs for estimation')
-  } else if(depend == 'alcohol_spending') {
-    data$alcohol_spending <- data$alcohol_spending %/% 50 # round to nearest 50
-    data$alcohol_spending <- as.integer(data$alcohol_spending)
+    # first subset just the columns we want
+    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
+              'hh_income', 'ethnicity', 'weight')
+    dat.subset <- data[, cols]
+    
+    # Replace missing values with NA (util func)
+    dat.subset = replace.missing(dat.subset)
+    
+    # now set NA to 0
+    dat.subset$next_ncigs[is.na(dat.subset$next_ncigs)] <- 0
+    
+    # finally run complete cases
+    dat.subset <- dat.subset[complete.cases(dat.subset),]
   }
-  
-  # grep through the formula for the variables to keep before doing complete cases
-  # this is because complete cases on the whole dataset removes every row
-  # grepl returns true if string found
-  
-  #data <- data[complete.cases(data),]
-  
   
   if(include_weights) {
     model <- zeroinfl(formula = formula,
-                      data = data,
+                      data = dat.subset,
                       dist = 'pois',
-                      weights = weight)
+                      weights = weight,
+                      link='logit')
   } else {
     model <- zeroinfl(formula = formula,
-                      data = data,
-                      dist = 'pois')
+                      data = dat.subset,
+                      dist = 'pois', 
+                      link='logit')
   }
+  
+  #print(summary(model))
+  prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
+  #print(prs)
+  
   return(model)
 }
 

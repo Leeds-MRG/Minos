@@ -80,6 +80,10 @@ def expand_and_reweight_repl(US_2018, projections):
                          inplace=True,
                          axis=1)
 
+    # Final step is to rescale to range(0,1) because larger weights broke some transition models
+    expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
+                max(expanded_repl['weight']) - min(expanded_repl['weight']))
+
     return expanded_repl
 
 

@@ -54,9 +54,15 @@ def reweight_stock(data, projections):
     # now reweight new population file
     reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
     # drop extra columns
-    reweighted_data.drop(labels = ['count', 'sum_weight'],
+    reweighted_data.drop(labels=['count', 'sum_weight'],
                          inplace=True,
                          axis=1)
+
+    # Final step is to rescale the new weights to range(0,1). The previous large weights broke some of the transition
+    # models, specifically the zero-inflated poisson for ncigs
+    #TODO: There is another method of rescaling using the numpy.ptp() method that might be faster. Maybe worth looking into (see link below)
+    # https://stackoverflow.com/questions/38103467/rescaling-to-0-1-certain-columns-from-pandas-python-dataframe
+    reweighted_data['weight'] = (reweighted_data['weight'] - min(reweighted_data['weight'])) / (max(reweighted_data['weight']) - min(reweighted_data['weight']))
 
     return reweighted_data
 
@@ -93,7 +99,6 @@ def main():
     projections = projections.rename(columns={'year': 'time'})
 
     generate_stock(projections)
-
 
 
 if __name__ == "__main__":
