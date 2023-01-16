@@ -247,7 +247,7 @@ transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds $(TRANSITI
 transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 new_transitions: | $(TRANSITION_DATA)
-new_transitions: $(TRANSITION_SOURCE)/model_definitions_NEW.txt final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+new_transitions: $(TRANSITION_SOURCE)/model_definitions.txt final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
 #new_transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds
 
 $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
