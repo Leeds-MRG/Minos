@@ -158,7 +158,7 @@ def predict_nnet(model, current, columns):
     return pd.DataFrame(newPandasPopDF, columns=columns)
 
 
-def predict_next_timestep_zip(model, current, dependent, rescale_factor):
+def predict_next_timestep_zip(model, current, dependent):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -176,9 +176,6 @@ def predict_next_timestep_zip(model, current, dependent, rescale_factor):
     -------
 
     """
-    # rescale alcohol
-    if dependent == 'alcohol_spending':
-        current['alcohol_spending'] //= rescale_factor
 
     base = importr('base')
     stats = importr('stats')
@@ -203,6 +200,6 @@ def predict_next_timestep_zip(model, current, dependent, rescale_factor):
     # draw randomly if a person drinks
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
-    preds = (np.random.uniform(size=zeros.shape) < zeros) * counts
-    # round up to the nearest integer and times by 50 to get actual expenditure back.
-    return np.ceil(preds) * rescale_factor
+    preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
+
+    return np.ceil(preds)
