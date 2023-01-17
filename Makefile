@@ -267,7 +267,7 @@ transitions: | $(TRANSITION_DATA)
 transitions: $(TRANSITION_SOURCE)/model_definitions.txt final_data $(TRANSITION_SOURCE)/whole_population_mode.txt
 #new_transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds
 
-scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt final_data $(TRANSITION_SOURCE)/scotland_mode.txt
+scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data $(TRANSITION_SOURCE)/scotland_mode.txt
 
 $(TRANSITION_SOURCE)/whole_population_mode.txt: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
