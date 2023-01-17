@@ -13,7 +13,19 @@ def find_subset_function(function_string):
         "who_kids": who_kids,
         "who_below_poverty_line_and_kids": who_below_poverty_line_and_kids,
         "who_bottom_income_quintile": who_bottom_income_quintile
-        "who_scottish": ,
+        "who_scottish": who_scotland,
+        "who_disabled": who_disabled,
+        "who_ethnic_minority": who_ethnic_minority,
+        "who_three_kids": who_three_kids,
+        "who_young_mother": who_young_mother,
+        "who_young_adults": who_young_adults,
+        "who_unemployed_adults": who_unemployed_adults,
+        "who_no_formal_education": who_no_formal_education,
+        "who_lone_parent_families": None, # NOT IMPLEMENTED BELOW HERE YET.
+        "who_complex_needs": None,
+        "who_babies_under_one": None,
+        "who_income_benefits": None,
+        "who_no_public_funds_recourse": None,
 
     }
     if function_string in subset_functions.keys():
@@ -104,7 +116,3 @@ def who_unemployed_adults(df):
 
 def who_no_formal_education(df):
     return df.loc[df["education_state"] == 0, ]
-
-
-# TODO lone parent families, people with complex needs, babies under 1, income related benefits., no recourse to public funds.
-# TODO interventions suggested here. briding payment to £50 per week per child, fuel insecurity fund to £20m, flexible LA funding, moratorium on rent, debt releif for financially vulnerable, island household fund.
