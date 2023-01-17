@@ -114,8 +114,7 @@ class Tobacco(Base):
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
                                                             current=pop,
-                                                            dependent='ncigs',
-                                                            rescale_factor=5)
+                                                            dependent='ncigs')
         return nextWaveTobacco
 
     def plot(self, pop, config):

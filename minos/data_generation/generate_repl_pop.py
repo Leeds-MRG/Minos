@@ -57,8 +57,10 @@ def expand_and_reweight_repl(US_2018, projections):
         new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
+        # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
+        new_repl = pd.concat([new_repl, new_repl, new_repl], ignore_index=True)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000
+        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
 
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
@@ -79,6 +81,10 @@ def expand_and_reweight_repl(US_2018, projections):
     expanded_repl.drop(labels=['count', 'sum_weight'],
                          inplace=True,
                          axis=1)
+
+    # Final step is to rescale to range(0,1) because larger weights broke some transition models
+    expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
+                max(expanded_repl['weight']) - min(expanded_repl['weight']))
 
     return expanded_repl
 
@@ -106,7 +112,7 @@ def predict_education(repl):
     # Then create an empty variable for max_educ, and make a choice from the probability distribution about
     # which level to assign as highest education attainment
 
-    # generate list of columns for prediction output
+    # generate list of columns for prediction output (no educ==4 in Understanding Society)
     cols = ['0', '1', '2', '3', '5', '6', '7']
 
     transition_model = r_utils.load_transitions(f"data/transitions/education_state/nnet/education_state_2018_2019", "")

@@ -8,17 +8,14 @@ import US_missing_description
 
 def det_missing(data, columns, conditioner, replacer):
     """Correct data that is deterministically missing.
-
     Requires a data frame, a column to correct, a condition function for correction,
     and a function which decides what to replace missing values with.
-
     Examples
     --------
     data : US data frame
     columns :  List of columns to update deterministically.
     conditioner : function that returns True if a person is unemployed. False otherwise.
     replacer: function that returns 0 regardless of other individual attributes.
-
     Parameters
     ----------
     data : pd.DataFrame
@@ -47,12 +44,10 @@ def det_missing(data, columns, conditioner, replacer):
 def is_unemployed(data):
     """Check who has reason to be unemployed. Students etc. may be employed but if not missing SIC code for example it
         doesn't matter.
-
     Parameters
     ----------
     data: pd.DataFrame
         Data frame to determine whether individuals are unemployed or not.
-
     Returns
     -------
     who: pd.Series
@@ -68,32 +63,26 @@ def is_unemployed(data):
 
 def force_zero(data, index, column):
     """
-
     Parameters
     ----------
     data
     index
     column
-
     Returns
     -------
-
     """
     data.loc[index, column] = 0
     return data
 
 def force_nine(data, index, column):
     """
-
     Parameters
     ----------
     data
     index
     column
-
     Returns
     -------
-
     """
     data.loc[index, column] = "-9.0"
     return data

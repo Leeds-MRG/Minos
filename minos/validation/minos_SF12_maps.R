@@ -27,6 +27,45 @@ subset_geojson <- function(data, subset_function){
   return(data_tibble)
 }
 
+get_runtime_subdirectory <- function(path) {
+  # This function finds the most recent output subdirectory from within a 
+  # scenario output directory
+  
+  # first select only the path (not filenames)
+  out.folders <- list.files(path)
+  
+  print(out.folders)
+  
+  # if more than 1, take the most recent
+  if(length(out.folders) == 1) {
+    path = paste0(path, '/', out.folders[1], '/')
+  }
+  else if(length(out.folders) > 1) {
+    out.folders.date <- as.POSIXlt(out.folders, format='%Y_%m_%d_%H_%M_%S')
+    
+    max.date <- max(out.folders.date)
+    
+    # Collecting these objects here as they have to be formatted
+    yr <- max.date$year + 1900 # year is years since 1900
+    month <- formatC(max.date$mon + 1, width=2, flag='0') # months are zero indexed (WHY??)
+    day <- formatC(max.date$mday, width=2, flag='0')
+    hour <- formatC(max.date$hour, width=2, flag='0')
+    min <- formatC(max.date$min, width=2, flag='0')
+    sec <- formatC(max.date$sec, width=2, flag='0')
+    
+    str.date <- paste0(yr, '_', 
+                       month, '_',  
+                       day, '_',
+                       hour, '_',
+                       min, '_',
+                       sec)
+    
+    path <- paste0(path, '/', str.date, '/')
+    print(path)
+  }
+  return(path)
+}
+
 sheffield_lsoa_subset_function <- function(data){
   lsoas <- read.csv("persistent_data/sheffield_lsoas.csv")
   lsoas <- lsoas$x # just take needed lsoa column

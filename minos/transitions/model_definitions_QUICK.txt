@@ -1,1 +1,0 @@
-CLM : housing_quality ~ scale(age) + factor(sex) + scale(SF_12) + relevel(factor(ethnicity), ref = 'WBI') + scale(hh_income)

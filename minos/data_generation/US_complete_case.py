@@ -62,7 +62,7 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'job_sector', 'marital_status', 'labour_state', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age"] # many of these
+                          "education_state", 'region', "age", "SF_12"] # many of these
 
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -75,6 +75,9 @@ if __name__ == "__main__":
     ## Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2018])
     data['neighbourhood_safety'] = pd.to_numeric(data['neighbourhood_safety'], errors='coerce').fillna(0).astype('int')
+    # ncigs missing for wave 1 only
+    data = complete_case_custom_years(data, 'ncigs', years=list(range(2010, 2020, 1)))
+    data['ncigs'] = pd.to_numeric(data['ncigs'], errors='coerce').fillna(0).astype('int')
 
     drop_columns = ['financial_situation', # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
