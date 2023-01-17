@@ -345,13 +345,14 @@ scotland.mode <- args$scotland
 # Set paths (handle scotland mode here)
 if(scotland.mode) {
   dataDir <- 'data/scotland_US/'
+  modDefFilename <- 'model_definitions_SCOTLAND.txt'
 } else {
   dataDir <- 'data/final_US/'
+  modDefFilename <- 'model_definitions.txt'
 }
 
 transitionDir <- 'data/transitions/'
 transSourceDir <- 'minos/transitions/'
-modDefFilename <- 'model_definitions.txt'
 
 
 
