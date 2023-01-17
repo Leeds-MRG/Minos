@@ -416,7 +416,7 @@ def generate_energy_composite(data):
     # for now just naively adding things together. will be add differences between -9 and -1 but shouldnt matter too much.
 
     #print(sum(data['yearly_energy'] == -8))
-    print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
+    #print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',

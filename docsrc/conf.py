@@ -27,11 +27,13 @@ author = 'Robert Clay, Luke Archer, Hugh Rice, and Nik Lomax'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['myst_parser',
-              'sphinx.ext.autodoc', # autodoc functionality for docs.
-              'sphinx.ext.napoleon', # convert numpy style docstrings to reST.
-              'sphinx.ext.githubpages', # Auto adds .nojekyll file to docs source. If using make clean its deleted so auto add it back on compile.
-              'sphinx.ext.viewcode', # should allow "view source" buttons in api to work.
-              'sphinxcontrib.bibtex' # allows for references from a .bib biblatex file.
+              'sphinx.ext.autodoc',  # autodoc functionality for docs.
+              'sphinx.ext.napoleon',  # convert numpy style docstrings to reST.
+              'sphinx.ext.githubpages',  # Auto adds .nojekyll file to docs source.
+              # If using make clean its deleted so auto add it back on compile.
+              'sphinx.ext.viewcode',  # should allow "view source" buttons in api to work.
+              'sphinxcontrib.bibtex',  # allows for references from a .bib biblatex file.
+              'nbsphinx',  # notebooks in sphinx.
 ]
 
 source_suffix = {
@@ -52,6 +54,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://sphinxcontrib-bibtex.readthedocs.io/en/latest/usage.html
 bibtex_bibfiles = ['refs.bib']
 
+#
+#nbsphinx_custom_formats = {
+#    '.Rmd': ['jupytext.reads', {'fmt': 'Rmd'}],
+#}
+#nbsphinx_kernel_name = 'IRkernel'
+
+
 ##############################################################################
 # -- Options for HTML output -------------------------------------------------
 ##############################################################################
@@ -61,6 +70,11 @@ bibtex_bibfiles = ['refs.bib']
 #html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 html_show_sourcelink = False
+
+# specify custom css theme. just changes width of webpage for now.
+html_css_files = [
+    'minos_theme.css',
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

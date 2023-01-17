@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Education &mdash; Minos  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Education</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="education">
+<h1>Education<a class="headerlink" href="#education" title="Permalink to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Permalink to this heading"></a></h2>
+<p>This module has been added currently for the sole purpose of solving a problem created by our
+current method of replenishing the population. Briefly, this is that 16 year olds are added to the
+model before finishing their studies, and so some will increase their highest level of education
+throughout their lives. We needed to find a way to predict what the highest level of education
+would be for each individual, and then manage their trajectory towards achieving that level in a
+sensible timeframe.</p>
+</section>
+<section id="levels">
+<h2>Levels<a class="headerlink" href="#levels" title="Permalink to this heading"></a></h2>
+<p>Each qualification type as reported in Understanding Society has been mapped to a level, details of
+which are <a class="reference external" href="https://www.gov.uk/what-different-qualification-levels-mean/list-of-qualification-levels">provided by the government</a>:</p>
+<ul class="simple">
+<li><p>None of the above : 0</p></li>
+<li><p>Other School Certification : 1</p></li>
+<li><p>GCSE/O level : 2</p></li>
+<li><p>Standard/o/lower : 2</p></li>
+<li><p>CSE : 2</p></li>
+<li><p>AS level : 3</p></li>
+<li><p>A level : 3</p></li>
+<li><p>International Baccalaureate : 3</p></li>
+<li><p>Welsh Baccalaureate : 3</p></li>
+<li><p>Scottish Highers : 3</p></li>
+<li><p>Cert 6th year studies : 3</p></li>
+<li><p>Nursing/other med qual : 5</p></li>
+<li><p>Diploma in HE : 5</p></li>
+<li><p>Teaching qual not PGCE : 6</p></li>
+<li><p>1st Degree or equivalent : 6</p></li>
+<li><p>Higher degree : 7</p></li>
+<li><p>Other higher degree : 7</p></li>
+</ul>
+</section>
+<section id="method">
+<h2>Method<a class="headerlink" href="#method" title="Permalink to this heading"></a></h2>
+<p>During the data generation pipeline, a neural net model is estimated to predict the highest
+level of education a person will attain based on their sex, ethnicity, and region of the UK.
+At present this model is not particularly effective at predicting the correct maximum education
+level, and more variables from Understanding Society would most likely improve this, but it is
+passable for a first iteration. The model is estimated on a sample of the population over the age of
+30, at which point we assume that the vast majority of people have reached their highest level
+of qualification. This model is then used to predict the maximum education level for the entire replenishing
+population of 16 year olds.</p>
+<p>Then, at each wave of the simulation after the replenishing population is added for that wave, we
+run the education module. In simple terms, the education module checks the age of each simulant
+(between 16 and 26), and then checks to see if the max education level is higher than the current.
+If yes, and the simulant is at an age where a new qualification would be achieved, the current
+education level is modified. See section below for a list of ages where qualifications are
+achieved. Note that we assume that everybody achieves equivalent levels of education at exactly
+the same age, which is not correct for the real world.</p>
+<p>N.B. we do not vary these trends over time, so the distribution of
+education states will remain roughly static into the future. This is inadequate, but again
+decisions were made to get something reasonable for the first iteration that can be improved
+upon in time - the important part was the framework for how we update education state for
+replenishing populations over time.</p>
+</section>
+<section id="attainment-ages">
+<h2>Attainment Ages<a class="headerlink" href="#attainment-ages" title="Permalink to this heading"></a></h2>
+<p>Each new qualification is added the year after it would be achieved, because some people
+completed the survey before the end of the school year (i.e. someone could be 18 in the first
+month of the academic year, so it made more sense to wait until the next year to apply the change).</p>
+<ul class="simple">
+<li><p>Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17</p>
+<ul>
+<li><p>No need to check the maximum education level for this one, everyone should stay in school until at least age 18 now</p></li>
+</ul>
+</li>
+<li><p>Level 3 is equivalent to A-level, so make this change by age 19 if max_educ is 3 or larger</p></li>
+<li><p>Level 5 is nursing/medical and HE diploma, so make this change by age 22 if max_educ is 5</p></li>
+<li><p>Level 6 is 1st degree or teaching qual (not PGCE), so make this change by age 22 if max_educ is 6 or larger</p></li>
+<li><p>Level 7 is higher degree (masters/PhD), so make this change by age 25 if max_educ is 7</p></li>
+</ul>
+<p>Currently there is no mechanism for those who achieve less than GCSE (level 0-1).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

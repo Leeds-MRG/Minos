@@ -166,8 +166,25 @@ arc4_intervention_energyDownLift: new_setup
 
 # Needs doing when we can access the machine again..
 beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
-beefy_baseline: install data transitions
-	$(PYTHON) # fill in when have access to beefy again..
+beefy_baseline: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config'
+
+beefy_intervention_hhIncome: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
+
+beefy_intervention_hhIncomeChildUplift: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
+
+beefy_intervention_PovertyLineChildUplift: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
+
+beefy_intervention_livingWage: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
+
+beefy_intervention_energyDownLift: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
+
+beefy_all: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervention_PovertyLineChildUplift beefy_intervention_livingWage beefy_intervention_energyDownLift
 
 #####################################
 ### SETUP

@@ -7,6 +7,7 @@
   <title>Modules &mdash; Minos  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -17,11 +18,12 @@
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Module Template" href="module_template.html" />
-    <link rel="prev" title="Modules" href="index.html" /> 
+    <link rel="next" title="Household Income" href="household_income.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,28 +42,31 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module_template.html">Module Template</a></li>
-<li class="toctree-l3"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a></li>
-<li class="toctree-l3"><a class="reference internal" href="housing_module.html">Housing module test</a></li>
-<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="household_income.html">Household Income</a></li>
+<li class="toctree-l2"><a class="reference internal" href="housing.html">Housing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
+<li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -79,7 +84,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
-          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
+          <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
       <li class="breadcrumb-item active">Modules</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -89,30 +94,62 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="modules">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="modules">
 <h1>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h1>
-<p>MINOS consists of multiple modules. Each module has a specific purpose in the microsimulaton. Most are transition modules that evolve some subset of the population data frame forwards in time. Others are more specialist and handle issues such as population replenishment and interventions.</p>
-<p>List of Modules (alphabetically)<br />
-Alcohol <br />
-Household Income <br />
-Housing <br />
-Interventions <br />
-Labour <br />
-Loneliness <br />
-Mental Well-Being <br />
-Mortality \
-Neighbourhood <br />
-Nurtition <br />
-Replenishment <br />
-Tobacco</p>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>MINOS consists of multiple modules. Each module has a specific purpose
+in the microsimulaton. Most are transition modules that evolve some
+subset of the population data frame forwards in time. Others are more
+specialist and handle issues such as population replenishment and
+interventions.</p>
+<p>List of fleshed out modules:</p>
+<div class="line-block">
+<div class="line">List of Modules with templates (alphabetically)</div>
+<div class="line">Household Income</div>
+<div class="line">Housing</div>
+<div class="line">Interventions</div>
+<div class="line">Labour</div>
+<div class="line">Loneliness</div>
+<div class="line">Mental Well-Being</div>
+<div class="line">Mortality   Neighbourhood</div>
+<div class="line">Nurtition</div>
+<div class="line">Replenishment</div>
+<div class="line">Tobacco Interventions Mortality Neighbourhood Replenishment.</div>
+</div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="module_template.html" class="btn btn-neutral float-right" title="Module Template" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="household_income.html" class="btn btn-neutral float-right" title="Household Income" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

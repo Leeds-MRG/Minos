@@ -38,14 +38,16 @@ clm.neighbourhood.main <- function(years){
     # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
   
     data2 <- data2[, c("pidp", "neighbourhood_safety")]
-    colnames(data2) <- c("pidp", "y")
+    colnames(data2) <- c("pidp", "neighbourhood_safety_next")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
     #data$age<- scale(data$age)
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
-    data$y <- factor(data$y, levels=c(1, 2, 3))
-
+    data$neighbourhood_safety_next <- factor(data$neighbourhood_safety_next, levels=c(1, 2, 3))
+    data$sex <- factor(data$sex)
+    #data$housing_quality <- factor(data$housing_quality)
+    #data$education_state <- factor(data$education_state)
     #print(str(data))
     
     #formula <- "y ~ factor(sex) +
@@ -58,33 +60,41 @@ clm.neighbourhood.main <- function(years){
     #                    factor(housing_quality) +
     #                    region +
     #                    factor(education_state)"
-    
+
+    data$neighbourhood_safety_next <- factor(data$neighbourhood_safety_next, levels=c(1,2,3))    
     formula <- "y ~ scale(age) + factor(sex) + factor(job_sec) + relevel(factor(ethnicity), ref = 'WBI') + scale(hh_income) + factor(housing_quality) + relevel(factor(region), ref = 'South East')"
-    
-    clm.neighbourhood <- clm(y ~ 
+    neighbourhood.clm <- clm(neighbourhood_safety_next  ~ 
                                scale(age) + 
                                factor(sex) + 
                                factor(job_sec) + 
                                relevel(factor(ethnicity), ref = 'WBI') + 
                                scale(hh_income) + factor(housing_quality) + 
                                relevel(factor(region), ref = 'South East'),
-        data = data,
-        link = "logit",
-        threshold = "flexible",
-        Hess=T)
-    print(summary(clm.neighbourhood))
-    prs<- 1 - logLik(clm.neighbourhood)/logLik(clm(y ~ 1, data=data))
+                                data = data,
+                                link = "logit",
+                                threshold = "flexible",
+                                Hess=T)
+                                
+    print(summary(neighbourhood.clm))
+    prs<- 1 - logLik(neighbourhood.clm)/logLik(clm(neighbourhood_safety_next ~ 1, data=data))
     print(prs)
     
     out.path <- "data/transitions/neighbourhood/clm/"
     create.if.not.exists("data/transitions/neighbourhood/")
     create.if.not.exists(out.path)
     
+    neighbourhood.clm$model_data <- data 
     clm.file.name <- get.neighbourhood.clm.filename(out.path, year, year+3)
-    saveRDS(clm.neighbourhood, file=clm.file.name)
+    saveRDS(neighbourhood.clm, file=clm.file.name)
     print("Saved to: ")
     print(clm.file.name)
   }
+  test_path <- "data/transitions/test/"
+  create.if.not.exists(test_path)
+  neighbourhood.testfile.name <- get.neighbourhood.clm.filename(test_path, year, year+3)
+  saveRDS(neighbourhood.clm, file=neighbourhood.testfile.name)
+  print("Saved to: ")
+  print(neighbourhood.testfile.name)
 }
 
 years <- seq(2011, 2014, 3)

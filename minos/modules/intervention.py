@@ -413,3 +413,42 @@ class energyDownlift(Base):
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+
+### some test on time steps for variious scotland interventions
+#scotland only.
+# pop = self.population_view.get(event.index, query="alive =='alive' and region=='Scotland'")
+
+#disabled people. labour state.
+# pop = self.population_view.get(event.index, query="alive =='alive' and labour_state=='Sick/Disabled'")
+#unemployed adults. unemployed labour state.
+# pop = self.population_view.get(event.index, query="alive =='alive' and labour_state=='Unemployed'")
+
+#minority ethnic households
+# pop = pop.loc[pop['ethnicity'].isin(minorities) # BAN,BLA,BLC,CHI,IND,OBL,WHO,OAS,PAK any others?
+
+#child poverty priority groups (3+ children, mother under 25). nkids >3/ nkids >0 and female and under 25. further groups depend on data.)
+# pop = self.population_view.get(event.index, query="alive =='alive' and nkids>=3")
+# pop = self.population_view.get(event.index, query="alive =='alive' and age<=25 and nkids>0")
+
+#young adults (under 25). obvious.
+# pop = self.population_view.get(event.index, query="alive =='alive' and age<=25")
+
+#those with no formal qualifications. Education level 0.
+# pop = self.population_view.get(event.index, query="alive =='alive' and education_state==0")
+
+
+# Doubling briding payment from 130 to 260 per month per child. analogous to child uplift.
+
+# fuel insecurity fund to 20 million. most interesting one here in my opinion for my PhD. particularly in terms of defining a set fund and how to optimally apply it.
+# constraining scotland to only use 20 million for energy expenditure.
+# requires full scale population or reduction of money to be proportional.
+
+#funding to Local authorities for more flexible management of energy bills. seems idealistic and hard to implement without extensive data on how each LA would react. needs much more research.
+# again needs full spatial population as MINOS input.
+
+#moratorium on rent/evictions. not sure how easy this would be. can freeze rents but no eviction variables.
+
+# debt relief on most financially vulnerable. (again no debt variables.) have financial condition variables which may be useful instead?
+
+# island households fund. spatial policy should be easy to cut by island super outputs but need a list of them from somewhere (spatial policy...).
