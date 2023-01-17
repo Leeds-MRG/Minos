@@ -9,6 +9,7 @@ COMPOSITEDATA = $(DATADIR)/composite_US
 COMPLETEDATA = $(DATADIR)/complete_US
 FINALDATA = $(DATADIR)/final_US
 SPATIALDATA = $(DATADIR)/spatial_US
+SCOTDATA = $(DATADIR)/scotland_US
 PERSISTDATA = $(CURDIR)/persistent_data
 PERSISTJSON = $(PERSISTDATA)/JSON
 SOURCEDIR = $(CURDIR)/minos
@@ -278,7 +279,7 @@ scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data 
 $(TRANSITION_SOURCE)/whole_population_mode.txt: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
-$(TRANSITION_SOURCE)/scotland_mode.txt: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_SOURCE)/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
 
 $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R

@@ -335,12 +335,15 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 
 ## Argparse stuff
 parser = ArgumentParser()
-parser$add_argument('-s', '--scotland', metavar='s', action='store_true', 
+parser$add_argument('-s', '--scotland', action='store_true', dest='scotland', 
                     default=FALSE,
                     help='Run in Scotland mode - MORE HELP NEEDED HERE')
+args <- parser$parse_args()
+
+scotland.mode <- args$scotland
 
 # Set paths (handle scotland mode here)
-if(args$scotland) {
+if(scotland.mode) {
   dataDir <- 'data/scotland_US/'
 } else {
   dataDir <- 'data/final_US/'
