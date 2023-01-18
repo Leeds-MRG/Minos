@@ -15,6 +15,7 @@
 
 source("minos/transitions/utils.R")
 
+require(argparse)
 require(tidyverse)
 require(ordinal)
 require(nnet)
@@ -332,12 +333,26 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 ## i.e. in 2015 no neighbourhood_safety, so remove 'relevel(factor(neighbourhood_safety), ref = '1')'
 
 
+## Argparse stuff
+parser = ArgumentParser()
+parser$add_argument('-s', '--scotland', action='store_true', dest='scotland', 
+                    default=FALSE,
+                    help='Run in Scotland mode - MORE HELP NEEDED HERE')
+args <- parser$parse_args()
 
-# Set paths
-dataDir <- 'data/final_US/'
+scotland.mode <- args$scotland
+
+# Set paths (handle scotland mode here)
+if(scotland.mode) {
+  dataDir <- 'data/scotland_US/'
+  modDefFilename <- 'model_definitions_SCOTLAND.txt'
+} else {
+  dataDir <- 'data/final_US/'
+  modDefFilename <- 'model_definitions.txt'
+}
+
 transitionDir <- 'data/transitions/'
 transSourceDir <- 'minos/transitions/'
-modDefFilename <- 'model_definitions.txt'
 
 
 
@@ -349,4 +364,22 @@ data <- do.call(rbind, lapply(filelist, read.csv))
 run_yearly_models(transitionDir, transSourceDir, modDefFilename, data)
 
 print('Generated all transition models.')
+
+
+
+whole.pop.mode.file <- paste0(transitionDir, 'whole_population_mode.txt')
+scotland.mode.file <- paste0(transitionDir, 'scotland_mode.txt')
+
+# For output and graceful handling with Makefile
+if(args$scotland) {
+  if(file.exists(whole.pop.mode.file)) { # if the other mode file is there, remove
+    file.remove(whole.pop.mode.file)
+  }
+  file.create(paste0(transitionDir, 'scotland_mode.txt'))
+} else {
+  if(file.exists(scotland.mode.file)) { # if the other mode file is there, remove
+    file.remove(scotland.mode.file)
+  }
+  file.create(paste0(transitionDir, 'whole_population_mode.txt'))
+}
 
