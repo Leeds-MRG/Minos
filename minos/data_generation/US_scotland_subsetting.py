@@ -5,8 +5,17 @@ import pandas as pd
 import numpy as np
 
 def get_scottish(data):
-    "get the scots."
-    return data.loc[data['region']=='Scotland',]
+    """
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    return data.loc[data['region'] == 'Scotland', ]
 
 #def main():
 #    # get files
