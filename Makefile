@@ -136,6 +136,13 @@ intervention_energyDownLift: new_setup
 
 
 #####################################
+## Scotland Local runs of MINOS interventions.
+#####################################
+
+scot_baseline: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scot_config'
+
+#####################################
 ## Running MINOS scenarios on Arc4
 #####################################
 
@@ -195,9 +202,9 @@ setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions replenishing_data
 
-new_setup: install data new_transitions replenishing_data
+new_setup: install data transitions replenishing_data
 
-scot_setup install scot_data scot_transitions
+scot_setup: install scot_data scot_transitions scot_replenishing
 
 #####################################
 ### Data Generation
@@ -225,12 +232,13 @@ final_data: $(FINALDATA)/2019_US_cohort.csv
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
 replenishing_data: $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
 
+scot_replenishing: $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
+
 spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
 ### version of the final data to be used in spatial analyses (of Sheffield only)
 spatial_data: $(SPATIALDATA)/2019_US_cohort.csv
 
-scot_data: final_data
-scot_data: $(SCOTLANDDATA)/2019_US_cohort.csv
+scot_data: $(SCOTDATA)/2019_US_cohort.csv
 
 #####################################
 # Input Populations
@@ -257,8 +265,8 @@ $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2019_US_cohor
 $(SPATIALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2019_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
-$(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
-	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py --source_dir $(SPATIALSOURCEDIR)
+$(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
 #####################################
 ### transitions

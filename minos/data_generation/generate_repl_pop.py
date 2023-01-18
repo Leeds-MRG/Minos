@@ -16,7 +16,7 @@ sex and ethnicity to ensure representative populations into the future.
 import pandas as pd
 import numpy as np
 from numpy.random import choice
-import random
+import argparse
 
 import US_utils
 from minos.modules import r_utils
@@ -27,19 +27,19 @@ pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithC
 
 
 def expand_and_reweight_repl(US_2018, projections):
-    """ Expand and reweight replenishing populations (16 year olds) from 2019 - 2070
+    """ Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
 
     Parameters
     ----------
     US_2018 : pandas.DataFrame
         Datafile derived from Understanding Society 2018 including all ages
     projections : pandas.DataFrame
-        Datafile containing counts by age and sex from 2008 - 2070 (2008-2020 from midyear estimates, 2021 - 2070 from
-        principal population projections.
+        Datafile containing counts by age and sex from 2008 to 2070 (2008-2020 from midyear estimates, 2021 - 2070 from
+        principal population projections).
     Returns
     -------
     expanded_repl : pandas.DataFrame
-        Expanded dataset (copy of original 16 year olds for each year from 2018 - 2070) reweighted by sex
+        Expanded dataset (copy of original 16-year-olds for each year from 2018 to 2070) reweighted by sex
     """
 
     # just select the 16-year-olds in 2018 to be copied and reweighted
@@ -125,10 +125,16 @@ def predict_education(repl):
     return repl
 
 
-def generate_replenishing(projections):
+def generate_replenishing(projections, scotland_mode):
     print('Generating replenishing population...')
+
+    if scotland_mode:
+        data_source = 'scotland_US'
+    else:
+        data_source = 'final_US'
+
     # first collect and load the datafile for 2018
-    file_name = "data/complete_US/2018_US_cohort.csv"
+    file_name = f"data/{data_source}/2018_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
@@ -144,6 +150,18 @@ def generate_replenishing(projections):
 
 
 def main():
+
+    # Use argparse to select between normal and scotland mode
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
+                                     usage='use "%(prog)s --help" for more information')
+
+    parser.add_argument("-s", "--scotland", action='store_true', default=False,
+                        help="Select Scotland mode to only produce replenishing using scottish sample.")
+
+    args = parser.parse_args()
+    scotland_mode = args.scotland
+
+
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
     projections = pd.read_csv(proj_file)
@@ -151,7 +169,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections)
+    generate_replenishing(projections, scotland_mode)
 
 
 if __name__ == "__main__":
