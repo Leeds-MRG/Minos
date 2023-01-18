@@ -185,12 +185,12 @@ if __name__ == "__main__":
                         help="(Optional) Runtime variable supplied by batch run scripts, so all batch outputs are kept in the same folder.")
     parser.add_argument("-i", "--intervention", type=str, metavar="intervention", dest="intervention", default=None,
                         help=
-    """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
-       - hhIncomeIntervention
-       - hhIncomeChildUplift
-       - hhIncomePovertyLineChildUplift
-       - livingWageIntervention
-       - energyDownlift""")
+                                """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
+                                   - hhIncomeIntervention
+                                   - hhIncomeChildUplift
+                                   - hhIncomePovertyLineChildUplift
+                                   - livingWageIntervention
+                                   - energyDownlift""")
 
     args = parser.parse_args()
     configuration_file = args.config

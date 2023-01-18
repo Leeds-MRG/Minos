@@ -375,11 +375,15 @@ if(args$scotland) {
   if(file.exists(whole.pop.mode.file)) { # if the other mode file is there, remove
     file.remove(whole.pop.mode.file)
   }
-  file.create(paste0(transitionDir, 'scotland_mode.txt'))
+  if(!file.exists(scotland.mode.file)) {
+    file.create(scotland.mode.file)
+  }
 } else {
   if(file.exists(scotland.mode.file)) { # if the other mode file is there, remove
     file.remove(scotland.mode.file)
   }
-  file.create(paste0(transitionDir, 'whole_population_mode.txt'))
+  if(!file.exists(whole.pop.mode.file)) {
+    file.create(whole.pop.mode.file)
+  }
 }
 

@@ -13,7 +13,9 @@ from vivarium import InteractiveContext
 import minos.utils as utils
 
 from minos.modules.mortality import Mortality
-from minos.modules.replenishment import Replenishment, NoReplenishment
+from minos.modules.replenishment import Replenishment
+from minos.modules.replenishment_nowcast import ReplenishmentNowcast
+from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income
@@ -36,7 +38,7 @@ from minos.modules.intervention import energyDownlift
 # for viz.
 from minos.validation.minos_distribution_visualisation import *
 
-def RunPipeline(config, run_output_dir, intervention=None):
+def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline
 
    Parameters
@@ -98,12 +100,12 @@ def RunPipeline(config, run_output_dir, intervention=None):
             components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
-    if "NoReplenishment()" in config['components']:
-        components.append(NoReplenishment())
     if "Replenishment()" in config['components']:
         components.append(Replenishment())
-    if "replenishmentNowcast()" in config['components']:
-        components.append(replenishmentNowcast())
+    if "ReplenishmentNowcast()" in config['components']:
+        components.append(ReplenishmentNowcast())
+    if "ReplenishmentScotland()" in config['components']:
+        components.append(ReplenishmentScotland())
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
