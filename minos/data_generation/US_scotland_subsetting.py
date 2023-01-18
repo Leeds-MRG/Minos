@@ -18,6 +18,25 @@ def get_scottish(data):
 #    US_utils.save_multiple_files(data, [2018], "subsetted_US", "")
 
 
+def handle_small_samples(data):
+    """
+    Scot data has much smaller sample than the whole UK, and therefore some transition models struggled. We need to
+    combine some groups in order to get Scotland mode working.
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+
+    # JOB_SEC breaking the loneliness model
+    # JOO_SEC also breaking the ncigs model
+
+    # First deal with education_state == 6 - very small numbers in this group. Combine with level
+
+
 def main():
     # get files
     # subset by X.

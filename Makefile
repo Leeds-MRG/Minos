@@ -197,6 +197,8 @@ setup: install data transitions replenishing_data
 
 new_setup: install data new_transitions replenishing_data
 
+scot_setup install scot_data scot_transitions
+
 #####################################
 ### Data Generation
 #####################################

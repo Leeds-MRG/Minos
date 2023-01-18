@@ -42,12 +42,12 @@ def expand_and_reweight_repl(US_2018, projections):
         Expanded dataset (copy of original 16 year olds for each year from 2018 - 2070) reweighted by sex
     """
 
-    # just select the 16 year olds in 2018 to be copied and reweighted
+    # just select the 16-year-olds in 2018 to be copied and reweighted
     repl_2018 = US_2018[(US_2018['age'] == 16)]
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
-        # first get copy of 2018 16 year olds
+        # first get copy of 2018 16-year-olds
         new_repl = repl_2018
         # change time (for entry year)
         new_repl['time'] = year
