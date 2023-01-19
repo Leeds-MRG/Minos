@@ -11,7 +11,7 @@ def find_subset_function(function_string):
                         "who_below_living_wage": who_below_living_wage,
                         "who_kids": who_kids,
                         "who_below_poverty_line_and_kids": who_below_poverty_line_and_kids,
-                        "who_bottom_income_quintile": who_bottom_income_quintile
+                        "who_bottom_income_quintile": who_bottom_income_quintile,
                         "who_scottish": who_scottish,
                         "who_scottish_below_living_wage": who_scottish_below_living_wage,
                         "who_kids": who_kids,
