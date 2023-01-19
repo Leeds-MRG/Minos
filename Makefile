@@ -167,6 +167,7 @@ arc4_intervention_livingWage: new_setup
 arc4_intervention_energyDownLift: new_setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
+arc4_allscenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
