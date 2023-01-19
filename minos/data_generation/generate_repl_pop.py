@@ -17,6 +17,7 @@ import pandas as pd
 import numpy as np
 from numpy.random import choice
 import argparse
+import os
 
 import US_utils
 from minos.modules import r_utils
@@ -26,7 +27,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_and_reweight_repl(US_2018, projections):
+def expand_repl(US_2018):
     """ Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
 
     Parameters
@@ -42,12 +43,13 @@ def expand_and_reweight_repl(US_2018, projections):
         Expanded dataset (copy of original 16-year-olds for each year from 2018 to 2070) reweighted by sex
     """
 
-    # just select the 16-year-olds in 2018 to be copied and reweighted
-    repl_2018 = US_2018[(US_2018['age'] == 16)]
+    # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
+    repl_2018 = US_2018[(US_2018['age'].isin([16, 17]))]
+    repl_2018['age'] = 16
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
-        # first get copy of 2018 16-year-olds
+        # first get copy of 2018 16 (and 17) -year-olds
         new_repl = repl_2018
         # change time (for entry year)
         new_repl['time'] = year
@@ -57,16 +59,44 @@ def expand_and_reweight_repl(US_2018, projections):
         new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
-        # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
-        new_repl = pd.concat([new_repl, new_repl, new_repl], ignore_index=True)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
         new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
+
+        #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
+
+        ## Previously tried duplicating the 16 year olds but this is hard in Scotland mode as there are only 3 people
+        # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
+        # Instead now we take both 16 and 17-year-olds, and call them all 16-year-olds
+        # new_repl = pd.concat([new_repl, new_repl, new_repl], ignore_index=True)
 
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
 
+    return expanded_repl
+
+
+def reweight_repl(expanded_repl, projections):
+    """
+
+    Parameters
+    ----------
+    expanded_repl
+    projections
+
+    Returns
+    -------
+
+    """
     ## Now reweight by sex and year
     print('Reweighting by sex, ethnic group, and year...')
+
+    ## SCOTLAND MODE FORCED A CHANGE IN ETHNICITY
+    # People categorised as white vs non-white instead of all ethnic groups due to small numbers
+    # Re-categorise the projections and sum across ethnic groups
+    #projections['ethnicity'][~projections['ethnicity'].isin(['WBI', 'WHO'])] = 'Non-White'
+    #projections['ethnicity'][projections['ethnicity'].isin(['WBI', 'WHO'])] = 'White'
+    #projections = projections.groupby(['sex', 'age', 'time', 'ethnicity'])['count'].sum().reset_index()
+
     # first group_by sex and year and sum weight for totals, then rename before merge
     summed_weights = expanded_repl.groupby(['sex', 'time', 'ethnicity'])['weight'].sum().reset_index()
     summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
@@ -79,14 +109,14 @@ def expand_and_reweight_repl(US_2018, projections):
     expanded_repl['weight'] = (expanded_repl['weight'] * expanded_repl['count']) / expanded_repl['sum_weight']
 
     expanded_repl.drop(labels=['count', 'sum_weight'],
-                         inplace=True,
-                         axis=1)
+                       inplace=True,
+                       axis=1)
 
     # Final step is to rescale to range(0,1) because larger weights broke some transition models
     expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
-                max(expanded_repl['weight']) - min(expanded_repl['weight']))
+            max(expanded_repl['weight']) - min(expanded_repl['weight']))
 
-    return expanded_repl
+    return(expanded_repl)
 
 
 def predict_education(repl):
@@ -126,24 +156,36 @@ def predict_education(repl):
 
 
 def generate_replenishing(projections, scotland_mode):
-    print('Generating replenishing population...')
+
+    output_dir = 'data/replenishing/'
 
     if scotland_mode:
+        print('Generating replenishing population for Scotland mode...')
         data_source = 'scotland_US'
+        if os.path.exists(output_dir + 'whole_pop_mode.txt'):
+            os.remove(output_dir + 'whole_pop_mode.txt')
+        with open(output_dir + 'scotland_mode.txt', 'a') as mode_file:
+            pass
     else:
+        print('Generating replenishing population...')
         data_source = 'final_US'
+        if os.path.exists(output_dir + 'scotland_mode.txt'):
+            os.remove(output_dir + 'scotland_mode.txt')
+        with open(output_dir + 'whole_pop_mode.txt', 'a') as mode_file:
+            pass
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2018_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
-    repl = expand_and_reweight_repl(data, projections)
+    expanded_repl = expand_repl(data)
+
+    reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(repl)
+    final_repl = predict_education(reweighted_repl)
 
-    output_dir = 'data/replenishing/'
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv', index=False)
     print('Replenishing population generated for 2019 - 2070')

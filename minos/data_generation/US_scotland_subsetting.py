@@ -40,10 +40,17 @@ def handle_small_samples(data):
 
     """
 
+    ## FIRST deal with ethnic group
+    # Need to replace all the groups with a white/non-white split as minority ethnic groups are too small number
+    #data['ethnicity'][~data['ethnicity'].isin(['WBI', 'WHO'])] = 'Non-White'
+    #data['ethnicity'][data['ethnicity'].isin(['WBI', 'WHO'])] = 'White'
+
     # JOB_SEC breaking the loneliness model
     # JOO_SEC also breaking the ncigs model
 
     # First deal with education_state == 6 - very small numbers in this group. Combine with level
+
+    return data
 
 
 def main():
@@ -55,6 +62,7 @@ def main():
     file_names = [f"data/final_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = get_scottish(data)
+    data = handle_small_samples(data)
     US_utils.save_multiple_files(data, years, "data/scotland_US/", "")
 
 if __name__ == '__main__':
