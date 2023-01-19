@@ -201,6 +201,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       # (as in neighbourhood estimation, does a t+3 model due to data)
       depend.year <- year + 1
       
+      #TODO: Replace all these if statements with a check for data in that year
+      #   i.e. if colsum == (-9 * length(column)) 
+      #   then all elements == -9 as they would have been assigned that due to missing
+      
       ## Some models don't run in certain years (data issues) so break here
       # nutrition_quality only estimated for 2018
       if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
