@@ -46,6 +46,9 @@ def expand_repl(US_2018):
     # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
     repl_2018 = US_2018[(US_2018['age'].isin([16, 17]))]
     repl_2018['age'] = 16
+    # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
+    repl_2018['education_state'][repl_2018['education_state'] > 2] = 2
+
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
