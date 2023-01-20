@@ -204,10 +204,10 @@ def get_output_data_filename(config, year=0):
     output_data_filename = ""
 
     # Add experiment parameters to output file name if present
-    if 'experiment_parameters' in config.keys():
-        print(config.experiment_parameters)
-        output_data_filename += str(config.experiment_parameters) + '_'
-        output_data_filename += str(config.experiment_parameters_names) + '_'
+    if 'run_ID' in config.keys():
+        print(config.run_ID)
+        output_data_filename += str(config.run_ID) + '_'
+        output_data_filename += str(config.run_ID_names) + '_'
 
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"

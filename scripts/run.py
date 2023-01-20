@@ -100,8 +100,8 @@ def run(args):
     if args.runID:
         # Add run ID to config if present
         add_to_config.update({
-            'experiment_parameters': args.runID,
-            'experiment_parameters_names': 'run_id'
+            'run_ID': args.runID,
+            'run_ID_names': 'run_id'
         }, source=str(Path(__file__).resolve()))
 
     # Now update the Vivarium ConfigTree object
