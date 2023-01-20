@@ -50,7 +50,9 @@ digest_params <- function(line) {
 # to include the survey weights in estimation (only no for 2009 where no weight
 # information available)
 
-estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
+estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) {
+  
+  data[[depend]] <- as.integer(data[[depend]])
   
   if(include_weights) {
     # fit the model including weights (after 2009)
@@ -114,7 +116,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
   
-  if(depend == 'next_ncigs') {
+  if(depend == 'next_ncigs' | depend == 'ncigs') {
     # first subset just the columns we want
     cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
               'hh_income', 'ethnicity', 'weight')
@@ -124,7 +126,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
     dat.subset = replace.missing(dat.subset)
     
     # now set NA to 0
-    dat.subset$next_ncigs[is.na(dat.subset$next_ncigs)] <- 0
+    dat.subset[[depend]][is.na(dat.subset[[depend]])] <- 0
     
     # finally run complete cases
     dat.subset <- dat.subset[complete.cases(dat.subset),]
@@ -144,7 +146,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   }
   
   #print(summary(model))
-  prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
+  #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
   
   return(model)
@@ -225,6 +227,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       
       # set up new dependent var name
       next.dependent <- paste0('next_', dependent)
+      #next.dependent <- dependent
 
       # independents from time T (current)
       indep.df <- data %>% 
@@ -248,16 +251,16 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         use.weights <- TRUE
       }
       
-      
+      #print(formula.string)
       ## For the SF_12 model alone, we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
       # not present every year
       if(dependent == 'SF_12') {
         if(!year %in% c(2011, 2014, 2017, 2018)) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+          formula.string <- str_remove(formula.string, " \\+ relevel\\(factor\\(neighbourhood_safety\\), ref = '1'\\)")
         }
         if(!year > 2016) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+          formula.string <- str_remove(formula.string, " \\+ relevel\\(factor\\(loneliness\\), ref = '1'\\)")
         }
         if(!year %in% c(2015, 2017, 2019)) {
           formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
@@ -266,8 +269,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
           formula.string <- str_remove(formula.string, " \\+ scale\\(ncigs\\)")
         }
       }
+      #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
+      
       
       
       ## Different model types require different functions
@@ -275,7 +280,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         
         model <- estimate_yearly_ols(data = merged, 
                                      formula = form, 
-                                     include_weights = use.weights)
+                                     include_weights = use.weights,
+                                     depend = next.dependent)
         
       } else if(tolower(mod.type) == 'clm') {
         
@@ -348,9 +354,11 @@ scotland.mode <- args$scotland
 
 # Set paths (handle scotland mode here)
 if(scotland.mode) {
+  print('Estimating transition models in Scotland mode')
   dataDir <- 'data/scotland_US/'
   modDefFilename <- 'model_definitions_SCOTLAND.txt'
 } else {
+  print('Estimating transition models in whole population mode')
   dataDir <- 'data/final_US/'
   modDefFilename <- 'model_definitions.txt'
 }
