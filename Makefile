@@ -69,6 +69,9 @@ help: ### Show this help
 # conda install -c conda-forge r-dplyr
 # conda install -c conda-forge r-tidyverse
 
+# TEMPORARY TEST RUN
+tmp_test: new_setup baseline intervention_energyDownLift aggregate_minos_output_energy
+
 
 ## Install
 ###
@@ -290,7 +293,7 @@ transitions: $(TRANSITION_SOURCE)/model_definitions.txt final_data $(TRANSITION_
 
 scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/scotland_mode.txt
 
-$(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
 $(TRANSITION_SOURCE)/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
