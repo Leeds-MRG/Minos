@@ -231,7 +231,7 @@ final_data: ### Produce the final version of the data (including replenishing po
 final_data: $(FINALDATA)/2019_US_cohort.csv
 
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
-replenishing_data:  $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/whole_pop_mode.txt
+replenishing_data:  $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
 
 scot_replenishing: $(DATADIR)/replenishing/scotland_mode.txt $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
