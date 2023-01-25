@@ -116,22 +116,22 @@ all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift i
 all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
-baseline: new_setup
+baseline: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config'
 
-intervention_hhIncome: new_setup
+intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-intervention_hhIncomeChildUplift: new_setup
+intervention_hhIncomeChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-intervention_PovertyLineChildUplift: new_setup
+intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-intervention_livingWage: new_setup
+intervention_livingWage: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-intervention_energyDownLift: new_setup
+intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'energyDownlift'
 
 
