@@ -249,7 +249,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
       # not present every year
       if(dependent == 'SF_12') {
-        if(!year %in% c(2011, 2014, 2017, 2018)) {
+        if(!year %in% c(2011, 2014, 2017)) {
           formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
         }
         if(!year > 2016) {
