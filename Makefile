@@ -69,10 +69,14 @@ help: ### Show this help
 # conda install -c conda-forge r-dplyr
 # conda install -c conda-forge r-tidyverse
 
-tmp_test: tmp_testrun tmp_testplot
+tmp_test: tmp_testrun dodgy_output_move tmp_testplot
+tmp_t2: tmp_testrun tmp_testplot
 
-tmp_testrun: clean_transitions clean_out setup baseline intervention_livingWage intervention_hhIncomeChildUplift
+tmp_testrun: clean_out setup baseline intervention_livingWage intervention_hhIncomeChildUplift
 tmp_testplot: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift
+
+dodgy_output_move:
+	bash dodgy_output_move.sh
 
 ## Install
 ###

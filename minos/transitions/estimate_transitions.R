@@ -256,10 +256,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
           formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
         }
         if(!year %in% c(2015, 2017, 2019)) {
-          formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
+          formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
         }
         if(year < 2013) {
-          formula.string <- str_remove(formula.string, " \\+ scale\\(ncigs\\)")
+          formula.string <- str_remove(formula.string, " \\+ ncigs")
         }
       }
       # Now make string into formula
