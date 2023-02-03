@@ -5,9 +5,10 @@ import argparse
 import os
 import yaml
 from datetime import datetime
-from aggregate_subset_functions import find_subset_function
 from multiprocessing import Pool
 from itertools import repeat
+from aggregate_subset_functions import find_subset_function
+
 
 def aggregate_csv(filename, v, agg_method, subset_func):
     'converts a filename to a pandas dataframe'
@@ -15,6 +16,7 @@ def aggregate_csv(filename, v, agg_method, subset_func):
     if subset_func:
        df = subset_func(df)
     return agg_method(df[v])
+
 
 def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
     """ Get aggregate values for value v using method function. Do this over the specified source and years.
@@ -52,11 +54,11 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
 
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
-        if year == 2018:
-            subset_func = find_subset_function('who_alive')
+        if year == years[0]:
+            subset_func_first = find_subset_function('who_alive')
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
-                                                zip(files, repeat(v), repeat(method), repeat(subset_func)))
+                                                zip(files, repeat(v), repeat(method), repeat(subset_func_first)))
         else:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
@@ -66,16 +68,9 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
         new_df.columns = [v]
         new_df['year'] = year
         new_df['tag'] = tag
-        #for file in files: # loop over files. take aggregate value of v and add it as a row to output df.
-        #    new_df = pd.read_csv(file, low_memory=False)
-        #    if subset_func:
-        #        new_df = subset_func(new_df)
-        #    agg_var = new_df[v]
-        #    agg_value = method(agg_var)
-        #    new_df = pd.DataFrame([[year, tag, agg_value]], columns = ['year', 'tag', v])
-        #    df = pd.concat([df, new_df], sort=False)
         df = pd.concat([df, new_df])
     return df
+
 
 def main(source, years, tags, v, method, subset_func):
     """
@@ -148,15 +143,16 @@ if __name__ == '__main__':
         #TODO: Replace this block (or encapsulate) in a try except block for proper error handling
         if len(runtime) > 1:
             # if more than 1, select most recent datetime
-            runtime = max(runtime, key= lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+            runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
-            runtime = runtime[0] # os.listdir returns a list, we only have 1 element
+            runtime = runtime[0]  # os.listdir returns a list, we only have 1 element
         else:
             raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
                                "aggregate. Please check the output directory.")
 
         subset_function = find_subset_function(subset_function_string)
         batch_source = os.path.join(source, directory, runtime)
+        #  batch_source = os.path.join(source, directory)
         # get years from MINOS batch run config yaml.
         with open(f"{batch_source}/config_file.yml", "r") as stream:
             config = yaml.safe_load(stream)
