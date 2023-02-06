@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
 
 def main(source, destination, v, method, prefix):
     """
@@ -39,12 +40,16 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     df = pd.read_csv(source)
     df[v] -= 1 # set centre at 0.
     f = plt.figure()
-    sns.lineplot(data=df, x='year', y=v, hue = 'tag', style='tag', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
+
+    # Sort out axis labels
+    if v == 'SF_12':
+        v = 'SF12 MCS'
     plt.ylabel(f"{v} {method}")
     plt.tight_layout()
     plt.savefig(file_name)
