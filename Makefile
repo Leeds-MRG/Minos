@@ -78,6 +78,12 @@ tmp_testplot: aggregate_minos_output_living_wage aggregate_minos_output_all_chil
 dodgy_output_move:
 	bash dodgy_output_move.sh
 
+local_batch:
+	bash scripts/local_batch.sh
+
+test_batch: setup local_batch tmp_testplot
+
+
 ## Install
 ###
 
