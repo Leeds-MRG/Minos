@@ -50,7 +50,7 @@ def aggregate_variables_by_year(source, years, tag, v, method, subset_func):
 
     df = pd.DataFrame()
     for year in years:
-        files = glob.glob(os.path.join(source, f"*{year}.csv")) # grab all files at source with suffix year.csv.
+        files = glob.glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
 
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
