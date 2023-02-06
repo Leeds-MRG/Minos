@@ -182,18 +182,18 @@ if __name__ == "__main__":
         #TODO no better way to do this to my knowledge without eval() which shouldn't be used.
         raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
 
-        # Handle the datetime folder inside the output.
-        runtime = os.listdir(os.path.abspath(source))
-        if len(runtime) > 1:  # Select most recent run
-            runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
-        elif len(runtime) == 1:  # os.listdir returns a list, we only have 1 element
-            runtime = runtime[0]
-        else:
-            raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
-                               "aggregate. Please check the output directory.")
+    # Handle the datetime folder inside the output.
+    runtime = os.listdir(os.path.abspath(source))
+    if len(runtime) > 1:  # Select most recent run
+        runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+    elif len(runtime) == 1:  # os.listdir returns a list, we only have 1 element
+        runtime = runtime[0]
+    else:
+        raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                           "aggregate. Please check the output directory.")
 
-        # Now add runtime subdirectory to the path
-        source = os.path.join(source, runtime)
-        destination = source
+    # Now add runtime subdirectory to the path
+    source = os.path.join(source, runtime)
+    destination = source
 
     main(source, year, destination, subset_function, v, method, save_type)

@@ -14,7 +14,36 @@ main <- function(){
   plot_destination <- args$destination
   mode <- args$mode
   v <- args$var
-  
+
+  ## handle runtime subdirectory
+  # first select only the path (not filename)
+  out.files <- list.files(dirname(geojson_file_name))
+
+  if(length(out.files) == 1) {
+    geojson_file_name = paste0(dirname(geojson_file_name), '/', out.files[1], '/', basename(geojson_file_name))
+  }
+  else if(length(out.files) > 1) {
+    out.files.date <- as.POSIXlt(out.files, format='%Y_%m_%d_%H_%M_%S')
+    max.date <- max(out.files.date)
+
+    # Collecting these objects here as they have to be formatted
+    yr <- max.date$year + 1900 # year is years since 1900
+    month <- formatC(max.date$mon + 1, width=2, flag='0') # months are zero indexed (WHY??)
+    day <- formatC(max.date$mday, width=2, flag='0')
+    hour <- formatC(max.date$hour, width=2, flag='0')
+    min <- formatC(max.date$min, width=2, flag='0')
+    sec <- formatC(max.date$sec, width=2, flag='0')
+    # generate the string runtime directory so we can add to the path
+    str.date <- paste0(yr, '_',
+                       month, '_',
+                       day, '_',
+                       hour, '_',
+                       min, '_',
+                       sec)
+
+    geojson_file_name <- paste0(dirname(geojson_file_name), '/', str.date, '/', basename(geojson_file_name))
+  }
+
   main.single(geojson_file_name, plot_destination, mode, v)
 }
 
