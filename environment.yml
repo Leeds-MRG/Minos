@@ -1,0 +1,33 @@
+name: conda_minos413
+channels:
+  - defaults
+dependencies: # Added pip and python at top to avoid conda giving grumpy warnings
+  - pip
+  - python=3.9
+  - conda-forge::r-base=4.1.3
+  - conda-forge::r-sf
+  - conda-forge::r-dplyr
+  - conda-forge::r-tidyverse
+  - conda-forge::r-argparse
+  - conda-forge::r-ordinal
+  - conda-forge::r-nnet
+  - conda-forge::r-pscl
+  - conda-forge::r-geojsonsf
+  - conda-forge::r-sp
+  - conda-forge::r-texreg
+  - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
+      - rpy2
+      - pyyaml>=5.4
+      - pytest~=6.0.1
+      - pandas~=1.4.1
+      - numpy~=1.22.3
+      - scikit-learn
+      - setuptools
+      - matplotlib
+      - distutils_pytest
+      - striprtf
+      - geojson
+      - seaborn
+      - matplotlib
+
+prefix: /home/hpr/miniconda3/envs/conda_minos413
