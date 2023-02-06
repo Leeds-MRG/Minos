@@ -38,9 +38,20 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     df = pd.read_csv(source)
-    df[v] -= 1 # set centre at 0.
+    df[v] -= 1  # set centre at 0.
+
+    # set year to int for formatting purposes
+    df['year'] = pd.to_datetime(df['year'], format='%Y')
+
+    # now rename some vars for plot labelling and formatting
+    # Capital letter for 'year'
+    # 'tag' renamed to 'Legend'
+    df.rename(columns={"year": "Year",
+                       "tag": "Legend"},
+              inplace=True)
+
     f = plt.figure()
-    sns.lineplot(data=df, x='year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
