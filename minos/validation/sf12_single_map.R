@@ -23,8 +23,8 @@ main <- function(){
     geojson_file_name = paste0(dirname(geojson_file_name), '/', out.files[1], '/', basename(geojson_file_name))
   }
   else if(length(out.files) > 1) {
-    out.folders.date <- as.POSIXlt(out.folders, format='%Y_%m_%d_%H_%M_%S')
-    max.date <- max(out.folders.date)
+    out.files.date <- as.POSIXlt(out.files, format='%Y_%m_%d_%H_%M_%S')
+    max.date <- max(out.files.date)
     
     # Collecting these objects here as they have to be formatted
     yr <- max.date$year + 1900 # year is years since 1900
