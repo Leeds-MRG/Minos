@@ -85,7 +85,7 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 	#conda develop . # Alternative method, but Minos will not be shown in "conda list"
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken..."
 	# New pandas version no longer needs to raise a key error.
-	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
+	@sed -i.backup 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
 	@echo "\nInstall complete!\n"
 
 

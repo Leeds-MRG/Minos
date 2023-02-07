@@ -29,7 +29,7 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
+4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system. NOTE: This can cause conflicts with conda R packages that are already installed. Some R packages may need to be removed in the environment this is beinginstalled from (e.g. base). 
 
 ```
 > conda env create -n minos_conda -f environment.yml
