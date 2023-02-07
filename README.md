@@ -29,10 +29,10 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate conda_minos413``` or ```conda activate conda_minos413```, depdending on your system.
+4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depdending on your system.
 
 ```
-> conda create -n conda_minos413 -f environment.yml
+> conda env create -n minos_conda -f environment.yml
 ```
 
 5. Navigate to the uppermost *Minos* folder. The following command will install *Minos* and all its dependencies. All replenishing and transition data necessary to run *Minos* will be generated, all of which are derived from the Understanding Society dataset. You will then be able to run any of the microsimulation scenarios provided.
