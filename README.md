@@ -18,7 +18,7 @@ Docker images hosted on Dockerhub, including a readme for how to setup and use M
 
 ```> git clone https://github.com/Leeds-MRG/Minos```
 
-2. Download and unpack the Understanding Society dataset from the UK Data Service (UKDA) website [here](https://ukdataservice.ac.uk/find-data/) (more information [here](https://www.understandingsociety.ac.uk/documentation/access-data)), for which you will need a UKDA account. Ensure you download the dataset in STATA format such that the folder is named ```UK-6614-stata```. Understanding Society is a longitudinal study of UK households and is used as input data for *Minos*; more details [here]().
+2. Download and unpack the Understanding Society dataset from the UK Data Service (UKDA) website [here](https://ukdataservice.ac.uk/find-data/) (more information [here](https://www.understandingsociety.ac.uk/documentation/access-data)), for which you will need a UKDA account. Ensure you download the dataset in STATA format such that the folder is named ```UK-6614-stata```. Understanding Society is a longitudinal study of UK households and is used as input data for *Minos*; more details [here](https://www.understandingsociety.ac.uk/).
 
 3. Contact the developers to obtain the spatially disaggregated version of the Understanding Society data (in a folder called ```US_spatial_lookup```) that will allow you to plot results produced by *Minos*. The resulting directory structure should look as it does below.
 
@@ -29,13 +29,13 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system. NOTE: This can cause conflicts with conda R packages that are already installed. Some R packages may need to be removed in the environment this is beinginstalled from (e.g. base). 
+4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system. NOTE: This can cause conflicts with conda R packages that are already installed. Some R packages may need to be removed in the environment this is being installed from (e.g. ```base```). A known issue is that R packages installed via ```install.packages()``` can cause conflicts with instances of the same packages installed via ```conda install```. In this case, it is recommended that you uninstall the offending packages with ```remove.packages()``` and then, if necessary, uninstall and reinstall via ```conda uninstall``` and ```conda reinstall```. If that fails, we recommend you uninstall and reinstall Anaconda/Miniconda entirely to start from a fresh base environment.
 
 ```
 > conda env create -n minos_conda -f environment.yml
 ```
 
-5. Navigate to the uppermost *Minos* folder. The following command will install *Minos* and all its dependencies. All replenishing and transition data necessary to run *Minos* will be generated, all of which are derived from the Understanding Society dataset. You will then be able to run any of the microsimulation scenarios provided.
+5. Navigate to the uppermost *Minos* folder. The following command will install *Minos* and all its dependencies. All replenishing and transition data necessary to run *Minos* will be generated, all of which are derived from the Understanding Society dataset. This may take several minutes. You will then be able to run any of the microsimulation scenarios provided.
 
 ```> make setup```
 
