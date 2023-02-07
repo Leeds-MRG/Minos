@@ -80,7 +80,9 @@ install: $(SITEPACKAGES)/vivarium/__init__.py
 
 $(SITEPACKAGES)/vivarium/__init__.py:
 	@echo "Installing remaining requirements via pip..."
+	#pip install vivarium~=0.10.12 # Alternative method to specifying this in setup.py, which is called by "pip install" below
 	pip install -v -e .
+	#conda develop . # Alternative method, but Minos will not be shown in "conda list"
 	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken..."
 	# New pandas version no longer needs to raise a key error.
 	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
