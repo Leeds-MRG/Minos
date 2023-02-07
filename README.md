@@ -29,7 +29,7 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depdending on your system.
+4. Create a ```conda``` environment in which to run *Minos* using the file provided, as below. Then activate it with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
 
 ```
 > conda env create -n minos_conda -f environment.yml
