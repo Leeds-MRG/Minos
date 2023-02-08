@@ -69,11 +69,23 @@ help: ### Show this help
 # conda install -c conda-forge r-dplyr
 # conda install -c conda-forge r-tidyverse
 
-tmp_test: tmp_testrun dodgy_output_move tmp_testplot
-tmp_t2: tmp_testrun tmp_testplot
+test1: test_prep test_allChild test_poverty
+test2: test_prep test_energy test_living
+test_all: test_prep test_energy test_living test_allChild test_poverty
 
-tmp_testrun: clean_out setup baseline intervention_livingWage intervention_hhIncomeChildUplift
-tmp_testplot: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift
+test_prep: clean_out setup baseline
+
+test_living: intervention_livingWage aggregate_minos_output_living_wage
+test_energy: intervention_energyDownLift aggregate_minos_output_energy
+test_allChild: intervention_hhIncomeChildUplift aggregate_minos_output_all_child_uplift
+test_poverty: intervention_PovertyLineChildUplift aggregate_minos_output_poverty_child_uplift
+
+#tmp_test: tmp_testrun dodgy_output_move tmp_testplot
+#tmp_t2: tmp_testrun tmp_testplot
+#tmp_testrun: clean_out setup baseline intervention_livingWage intervention_hhIncomeChildUplift
+#tmp_testplot: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift
+#tmp_testrun2: clean_out setup baseline intervention_energyDownLift aggregate_minos_output_energy
+#tmp_testplot2: intervention_PovertyLineChildUplift aggregate_minos_output_poverty_child_uplift
 
 dodgy_output_move:
 	bash dodgy_output_move.sh
