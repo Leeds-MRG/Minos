@@ -91,7 +91,7 @@ class hhIncomeIntervention():
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
@@ -160,7 +160,7 @@ class hhIncomeChildUplift(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
@@ -173,8 +173,8 @@ class hhIncomeChildUplift(Base):
         # print(np.mean(pop['hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
         pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
-        pop['boost_amount'] = (20 * 30.436875 * pop['nkids'] / 7) # £20 per week * 30.463/7 weeks per average month * nkids.
-        pop['income_boosted'] = pop['boost_amount'] != 0
+        pop['boost_amount'] = (25 * 30.436875 * pop['nkids'] / 7) # £25 per week * 30.463/7 weeks per average month * nkids.
+        pop['income_boosted'] = (pop['boost_amount'] != 0)
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
@@ -226,7 +226,7 @@ class hhIncomePovertyLineChildUplift(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False, # who boosted?
@@ -294,7 +294,7 @@ class livingWageIntervention(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
 
     def on_initialize_simulants(self, pop_data):
@@ -386,7 +386,7 @@ class energyDownlift(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
 
     def on_initialize_simulants(self, pop_data):
