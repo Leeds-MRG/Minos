@@ -345,7 +345,10 @@ class NoReplenishment(Base):
                         'job_inc',
                         'jb_inc_per',
                         'hourly_wage',
-                        'gross_paypm']
+                        'gross_paypm',
+                        'marital_status',
+                        'phealth',
+                        'hh_comp']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -365,6 +368,7 @@ class NoReplenishment(Base):
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
         builder.event.register_listener('time_step', self.age_simulants)
+        builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
 
@@ -443,6 +447,21 @@ class NoReplenishment(Base):
         # get alive people and add time in years to their age.
         population = self.population_view.get(event.index, query="alive == 'alive'")
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
+        self.population_view.update(population)
+
+
+    def update_time(self, event):
+        """
+        Update time variable by the length of the simulation time step in days
+
+        Parameters
+        ----------
+        event : builder.event
+            some time point at which to run the method.
+        """
+        # get alive people and add time in years to their age.
+        population = self.population_view.get(event.index, query="alive == 'alive'")
+        population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
         self.population_view.update(population)
 
 
