@@ -103,14 +103,14 @@ testRun_Intervention: setup
 ###
 ## Experiment Runs
 ###
-.phony: all_scenarios baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+.phony: all_scenarios baseline intervention_hhIncome intervention_hhIncomeChildUplift
 .phony: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 #####################################
 ## Local runs of MINOS interventions.
 #####################################
 
-all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift
 all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
