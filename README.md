@@ -29,7 +29,7 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system. NOTE: This can cause conflicts with conda R packages that are already installed. Some R packages may need to be removed in the environment this is being installed from (e.g. ```base```). A known issue is that R packages installed via ```install.packages()``` can cause conflicts with instances of the same packages installed via ```conda install```. In this case, it is recommended that you try: (1) uninstalling the offending packages with ```remove.packages()``` and then, if necessary, uninstalling and reinstalling via ```conda uninstall``` and ```conda install```; or (2) resetting your base environment to an earlier state (see [here](https://stackoverflow.com/questions/41914139/how-to-reset-anaconda-root-environment), for example). If you still encounter problems, we recommend you uninstall and reinstall Anaconda/Miniconda entirely to start from a fresh base environment.
+4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
 
 ```
 > conda env create -f environment.yml
@@ -38,6 +38,14 @@ yourproject/
 5. Navigate to the uppermost *Minos* folder. The following command will install *Minos* and all its dependencies. All replenishing and transition data necessary to run *Minos* will be generated, all of which are derived from the Understanding Society dataset. This may take several minutes. You will then be able to run any of the microsimulation scenarios provided.
 
 ```> make setup```
+
+NOTE: Step 4 above can cause conflicts with ```conda``` R packages that are already installed and may require that some R packages be removed in the environment this is being installed from (e.g. ```base```). A known issue is that R packages installed via ```install.packages()``` can cause conflicts with instances of the same packages installed via ```conda install```. In this case, it is recommended that you try the following steps:
+
+A. Uninstall the offending packages with ```remove.packages()``` and then, if necessary, uninstall and reinstall via ```conda uninstall``` and ```conda install```.
+
+B. Reset your base environment to an earlier state (see [here](https://stackoverflow.com/questions/41914139/how-to-reset-anaconda-root-environment), for example).
+
+C. If you still encounter problems, we recommend you uninstall and reinstall Anaconda/Miniconda entirely to start from a fresh base environment.
 
 ### Information, issues and contacts
 
