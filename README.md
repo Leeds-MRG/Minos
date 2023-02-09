@@ -12,7 +12,7 @@ Docker images hosted on Dockerhub, including a readme for how to setup and use M
 
 ### Installation and quick start guide
 
-*Minos* was developed in Python and R using a ```conda``` (i.e. Anaconda/Miniconda) environment. It has been tested with Python 3.9 and R 4.1.3. It is recommended that you follow the installation instructions below, which will install *Minos* in development mode. *Minos* has been developed and tested on Linux systems only, and performance with other operating systems can't be guaranteed.
+*Minos* was developed in Python and R using a ```conda``` (i.e. Anaconda/Miniconda) environment. It has been tested with Python 3.9 and R 4.1.3. It is recommended that you follow the installation instructions below, which will install *Minos* in development mode. *Minos* has been developed and tested on Linux systems only, and compatibility with other operating systems can't be guaranteed.
 
 1. Clone this repository, ensuring you have ```git``` installed, to a location of your choice.
 
