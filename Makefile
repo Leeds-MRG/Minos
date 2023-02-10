@@ -71,6 +71,7 @@ libpaths: ### Grab paths to Python and R libraries
 # git clone https://github.com/Leeds-MRG/Minos
 
 
+
 ## Install
 ###
 
@@ -114,22 +115,22 @@ all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift
 all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
-baseline: new_setup
+baseline: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config'
 
-intervention_hhIncome: new_setup
+intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-intervention_hhIncomeChildUplift: new_setup
+intervention_hhIncomeChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-intervention_PovertyLineChildUplift: new_setup
+intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-intervention_livingWage: new_setup
+intervention_livingWage: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-intervention_energyDownLift: new_setup
+intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'energyDownlift'
 
 
@@ -140,22 +141,22 @@ intervention_energyDownLift: new_setup
 .phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
 .phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
-arc4_baseline: new_setup
+arc4_baseline: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config'
 
-arc4_intervention_hhIncome: new_setup
+arc4_intervention_hhIncome: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-arc4_intervention_hhIncomeChildUplift: new_setup
+arc4_intervention_hhIncomeChildUplift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-arc4_intervention_PovertyLineChildUplift: new_setup
+arc4_intervention_PovertyLineChildUplift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-arc4_intervention_livingWage: new_setup
+arc4_intervention_livingWage: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-arc4_intervention_energyDownLift: new_setup
+arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
 
@@ -192,8 +193,6 @@ beefy_all: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervent
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions replenishing_data
-
-new_setup: install data new_transitions replenishing_data
 
 #####################################
 ### Data Generation
@@ -269,12 +268,12 @@ $(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions: | $(TRANSITION_DATA)
-transitions: $(TRANSITION_SOURCE)/model_definitions.txt final_data $(TRANSITION_SOURCE)/whole_population_mode.txt
-new_transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds
+transitions:  final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+
 
 scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data $(TRANSITION_SOURCE)/scotland_mode.txt
 
-$(TRANSITION_SOURCE)/whole_population_mode.txt: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
 $(TRANSITION_SOURCE)/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R

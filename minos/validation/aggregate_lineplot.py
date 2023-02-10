@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 
-
 def main(source, destination, v, method, prefix):
     """
 
@@ -39,7 +38,7 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     df = pd.read_csv(source)
-    df[v] -= 1 # set centre at 0.
+    df[v] -= 1  # set centre at 0.
 
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
@@ -48,11 +47,11 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     # Capital letter for 'year'
     # 'tag' renamed to 'Legend'
     df.rename(columns={"year": "Year",
-                         "tag": "Legend"},
+                       "tag": "Legend"},
               inplace=True)
 
     f = plt.figure()
-    sns.lineplot(data=df, x='Year', y=v, hue = 'Legend', style='Legend', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
@@ -62,7 +61,7 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     # Sort out axis labels
     if v == 'SF_12':
         v = 'SF12 MCS'
-    plt.ylabel(f"{v}")
+    plt.ylabel(f"{v} {method}")
     plt.tight_layout()
 
     dir_name = os.path.dirname(file_name)
