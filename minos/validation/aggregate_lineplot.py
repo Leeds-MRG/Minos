@@ -63,6 +63,11 @@ def aggregate_lineplot(source, destination, v, method, prefix):
         v = 'SF12 MCS'
     plt.ylabel(f"{v} {method}")
     plt.tight_layout()
+
+    dir_name = os.path.dirname(file_name)
+    if not os.path.isdir(dir_name):
+        print("Plots folder not found; creating...")
+        os.mkdir(dir_name)
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
 

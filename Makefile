@@ -20,8 +20,11 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
-# This path points to the python site-packages directory in the conda environment
+
+# These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
+#SITEPACKAGES_VIVARIUM = $(shell python -c "import os, vivarium; print(os.path.dirname(vivarium.__file__))") # Alternative method
+SITEPACKAGESR = $(shell Rscript -e '.libPaths()') | sed "s/^[^ ]* //"
 
 # Executables
 PYTHON = python
@@ -51,6 +54,13 @@ help: ### Show this help
 	@echo
 	@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
 
+.PHONY: libpaths
+libpaths: ### Grab paths to Python and R libraries
+	@echo "Default conda site-packages paths for Python and R modules:"
+	@echo $(SITEPACKAGES)
+	@echo $(SITEPACKAGESR)
+
+
 # ARC4 install instructions
 # https://arcdocs.leeds.ac.uk/getting_started/logon.html
 # When logged in to arc4. need to create user directory
@@ -61,59 +71,22 @@ help: ### Show this help
 # git clone https://github.com/Leeds-MRG/Minos
 
 
-# Requires python 3.8, R base v4.1.0. tidyverse dplyr and sf packages also loaded from condaforge as they take a long time to install.
-# conda create -n conda_minos python=3.9 # create conda environment.
-# #conda activate conda_minos # activate conda environment.
-# conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
-# conda install -c conda-forge r-sf
-# conda install -c conda-forge r-dplyr
-# conda install -c conda-forge r-tidyverse
-
-test1: test_prep test_allChild test_poverty
-test2: test_prep test_energy test_living
-test_all: test_prep test_energy test_living test_allChild test_poverty
-
-test_prep: clean_out setup baseline
-
-test_living: intervention_livingWage aggregate_minos_output_living_wage
-test_energy: intervention_energyDownLift aggregate_minos_output_energy
-test_allChild: intervention_hhIncomeChildUplift aggregate_minos_output_all_child_uplift
-test_poverty: intervention_PovertyLineChildUplift aggregate_minos_output_poverty_child_uplift
-
-#tmp_test: tmp_testrun dodgy_output_move tmp_testplot
-#tmp_t2: tmp_testrun tmp_testplot
-#tmp_testrun: clean_out setup baseline intervention_livingWage intervention_hhIncomeChildUplift
-#tmp_testplot: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift
-#tmp_testrun2: clean_out setup baseline intervention_energyDownLift aggregate_minos_output_energy
-#tmp_testplot2: intervention_PovertyLineChildUplift aggregate_minos_output_poverty_child_uplift
-
-dodgy_output_move:
-	bash dodgy_output_move.sh
-
-local_batch:
-	bash scripts/local_batch.sh
-
-test_batch: setup local_batch tmp_testplot
-
 
 ## Install
 ###
 
 # Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
-install: ### Install all Minos requirements via pip
+install: ### Install Minos and requirements (all except vivarium removed to conda env file)
 install: $(SITEPACKAGES)/vivarium/__init__.py
 
 $(SITEPACKAGES)/vivarium/__init__.py:
-	@echo "Installing requirements via pip..."
+	@echo "Installing remaining requirements via pip..."
+	#pip install vivarium~=0.10.12 # Alternative method to specifying this in setup.py, which is called by "pip install" below
 	pip install -v -e .
-	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
+	#conda develop . # Alternative method, but Minos will not be shown in "conda list"
+	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken..."
 	# New pandas version no longer needs to raise a key error.
-	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
-	@echo "Python install complete."
-	@echo "Installing R..."
-	conda install -c conda-forge r-base=4.1.2
-	@echo "installing R requirements"
-	Rscript install.R # install any R packages. Annoying to do in conda.
+	@sed -i.backup 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
 	@echo "\nInstall complete!\n"
 
 
@@ -296,7 +269,7 @@ $(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
 
 transitions: | $(TRANSITION_DATA)
 transitions:  final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
-#new_transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds
+
 
 scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data $(TRANSITION_SOURCE)/scotland_mode.txt
 
@@ -416,7 +389,7 @@ all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_m
 all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift aggregate_minos_output_energy
 
 #####################################
-# Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions. 
+# Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
 #####################################
 
 DEFAULT_OUTPUT_SUBDIRECTORY = default_config
@@ -428,8 +401,8 @@ OUT_HHINCOMECHILDUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomeChildUplift
 OUT_ENERGYDOWNLIFT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownlift
 OUT_LIVINGWAGEINT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/livingWageIntervention
 OUT_POVERTYUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomePovertyLineChildUplift
-SPATIAL_DIRECTORY1 = output/$(INTERVENTION1)# first geojson for comparison in diff plot.
-SPATIAL_DIRECTORY2 = output/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
+SPATIAL_DIRECTORY1 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION1)# first geojson for comparison in diff plot.
+SPATIAL_DIRECTORY2 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
 AGG_METHOD = nanmean# what method to aggregate with.
 AGG_VARIABLE = SF_12# what variable to aggregate.
 AGG_YEAR = 2025# what year to map in data.
