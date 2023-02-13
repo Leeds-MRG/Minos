@@ -161,8 +161,8 @@ if __name__ == "__main__":
                         help="What method is used to aggregate individuals by LSOA.")
     parser.add_argument("-f", "--format", required=True, type=str,
                         help="What file format is used. csv or geojson.")
-    parser.add_argument("-u", "--subset_function", required=True, type=str,
-                        help="What subset function is used for data frame. Usually none or who_boosted/interevened on.")
+    parser.add_argument("-u", "--subset_function", default="", type=str,
+                        help="What subset function is used for data frame. Usually none or who_boosted/intervened on.")
 
     args = vars(parser.parse_args())
 
