@@ -36,6 +36,23 @@ def generate_composite_housing_quality(data):
     - Yes to some   == 2
     - No to all     == 3
 
+    *** CHANGE 13/12/21 ***
+    The previous method of generating a housing_quality composite results in a heavily skewed variable. There are very
+    few people in the 'No to all' category, which makes sense as having none of the list above would be a very low
+    quality household. Instead, based on some input from SIPHER colleagues, we will make a slight change to the
+    composite. We will define a 'core set' of the above variables, and categorise people based on their access to the
+    core set and the additional variables.
+
+    Core set:
+    - fridge_freezer
+    - washing_machine
+    - adequate_heating
+
+    The new composite will be:
+    Missing 1+ core     == 1
+    All core some bonus == 2
+    All core all bonus  == 3
+
     Parameters
     ----------
     data : Pd.DataFrame
@@ -45,35 +62,38 @@ def generate_composite_housing_quality(data):
     data : Pd.DataFrame
         The same DataFrame now containing a composite housing quality variable
     """
-    # first make list of the columns we're interested in
-    sum_list = ['fridge_freezer', 'washing_machine', 'tumble_dryer', 'dishwasher', 'microwave', 'heating']
-    data["housing_complete"] = (data.loc[:, sum_list] >= 0).all(1)
-    # sum up all non-negative values in sum_list vars
-    data["housing_sum"] = data[sum_list].gt(0).sum(axis=1)
+    print('Generating composite for housing_quality...')
 
-    # conditionally assign housing_quality var based on housing_sum
+    # list both core and bonus vars
+    core_list = ['fridge_freezer', 'washing_machine', 'heating']
+    bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
+    #data["housing_core_complete"] = (data.loc[:, core_list] >= 0).all(1)
+    #data["housing_bonus_complete"] = (data.loc[:, bonus_list] >= 0).all(1)
+
+    # sum up all non-negative values in both lists of vars
+    data["housing_core_sum"] = data[core_list].gt(0).sum(axis=1)
+    data["housing_bonus_sum"] = data[bonus_list].gt(0).sum(axis=1)
+
+    # conditionally assign housing_quality var based on the housing sum values
     # first set conditions and values for 3 level var
-    # TODO virtually noone in the bottom tier. need to experiment with critical/luxury items.
-    # Switch to 2 or more for now.
-    #conditions = [
-    #    (data["housing_sum"] == 0),
-    #    (data["housing_sum"] > 0) & (data["housing_sum"] < 6),
-    #    (data["housing_sum"] == 6),
-    #]
     conditions = [
-        (data["housing_sum"] <= 2),
-        (data["housing_sum"] > 2) & (data["housing_sum"] < 6),
-        (data["housing_sum"] == 6),
+        (data["housing_core_sum"] > 0) & (data["housing_core_sum"] < 3),  # less than full core
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] >= 0) & (data["housing_bonus_sum"] < 3),
+        # all core some bonus
+        (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3),  # all core all bonus
     ]
-    values = [1, 2, 3]
+    values = [3, 2, 1]
+
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
+    # Set to -9 if missing (currently when housing_quality == 0)
+    data['housing_quality'][data['housing_quality'] == 0] = -9
 
     # drop cols we don't need
-    data.drop(labels=['housing_sum', 'housing_complete', 'fridge_freezer', 'washing_machine', 'tumble_dryer',
-                      'dishwasher', 'microwave', 'heating'],
-              axis=1,
-              inplace=True)
+    data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
+                     'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
+             axis=1,
+             inplace=True)
 
     return data
 
@@ -89,6 +109,8 @@ def calculate_hourly_wage(data):
     data : Pd.DataFrame
         The same DataFrame now containing a calculated hourly wage variable
     """
+    print('Calculating hourly wage...')
+
     # apply basrate (hourly_rate) if present and non-negative
     data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
     # Now calculate for salaried employees (monthly wage applied to weekly hours worked, so multiply hours by 4.2)
@@ -160,6 +182,8 @@ def generate_hh_income(data):
     data : Pd.DataFrame
         The same DataFrame now containing a calculated household income variable
     """
+    print('Generating household income...')
+
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
@@ -193,10 +217,26 @@ def generate_composite_neighbourhood_safety(data):
     'crteen' neighbourhood teenager issues
     'crvand' neighbourhood vandalism issues
 
-    The composite variable (called housing_quality) will have 3 levels:
+    The composite variable (called neighbourhood_safety) will have 3 levels:
     - Yes to all    == 1
     - Yes to some   == 2
     - No to all     == 3
+
+    *** CHANGE ../../.. ***
+    For each of the seven crime variables, combine ‘very common’ and ‘fairly common’ to create a composite
+    ‘fairly or very common’ (these are the small number categories).
+
+    Then bin responses like this:
+    1. Response to all crime questions is “not at all common” (very safe neighbourhood). Justification is that if you
+        perceive no threat at all this is the best possible state.
+    2. Responds to 1+ question as “not very common” but no responses to ‘fairly or very common’ (safe neighbourhood).
+        Justification is that on the whole these people probably feel safe but not all is perfect, so probably not
+        quite as desirable as group 1.
+    3. Responds to 1+ question as fairly or very common’ (not safe). Justification is that if perception of crime is
+        very or fairly common, no matter what category, you are likely to feel that your neighbourhood safety is
+        compromised.
+
+    These might need tweaking but can we look at the three level distribution first
 
     Parameters
     ----------
@@ -207,27 +247,36 @@ def generate_composite_neighbourhood_safety(data):
     data : Pd.DataFrame
         The same DataFrame now containing a composite housing quality variable
     """
+    print('Generating composite for neighbourhood_safety...')
+
     # first make list of the columns we're interested in
+    var_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
 
-    sum_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
-    # sum up all non-negative values in sum_list vars
-    data["safety_sum"] = data[sum_list].gt(0).sum(axis=1)
+    # Now combine very common (1) with fairly common (2) and recode to 1-3
+    for var in var_list:
+        data[var][data[var] == 1] = 2
+        data[var] = data[var] - 1
 
-    # conditionally assign housing_quality var based on housing_sum
-    # first set conditions and values for 3 level var
-    conditions = [
-        (data["safety_sum"] == 0),
-        (data["safety_sum"] > 0) & (data["safety_sum"] < 7),
-        (data["safety_sum"] == 7),
-    ]
-    values = [1, 2, 3]
-    # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
-    data["neighbourhood_safety"] = np.select(conditions, values)
+    data['safety'] = -9
+    # First do very safe neighbourhood. All vars == 3 (not at all common)
+    #data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
+    data.safety[(data['burglaries'] == 3) & (data['car_crime'] == 3) & (data['drunks'] == 3) & (data['muggings'] == 3) &
+                (data['teenagers'] == 3) & (data['vandalism'] == 3)] = 3
+    # Now safe neighbourhood. Any var == 2 (not very common) but no var == 1 (very or fairly common)
+    data.safety[((data['burglaries'] == 2) | (data['car_crime'] == 2) | (data['drunks'] == 2) | (data['muggings'] == 2) |
+                 (data['teenagers'] == 2) | (data['vandalism'] == 2)) &
+                ((data['burglaries'] != 1) & (data['car_crime'] != 1) & (data['drunks'] != 1) & (data['muggings'] != 1) &
+                 (data['teenagers'] != 1) & (data['vandalism'] != 1))] = 2
+    # Now unsafe neighbourhood. Any var == 1 (very or fairly common)
+    data.safety[(data['burglaries'] == 1) | (data['car_crime'] == 1) | (data['drunks'] == 1) | (data['muggings'] == 1) |
+                (data['teenagers'] == 1) | (data['vandalism'] == 1)] = 1
+
+    data['neighbourhood_safety'] = data.safety
 
     # drop cols we don't need
-    data.drop(labels=['safety_sum'] + sum_list,
-              axis=1,
-              inplace=True)
+    data.drop(labels=['safety'] + var_list,
+                     axis=1,
+                     inplace=True)
 
     return data
 
@@ -244,9 +293,9 @@ def generate_labour_composite(data):
     data : pandas.DataFrame
         Data with final labour_state and emp_type removed.
     """
+    print('Generating composite for labour_state...')
 
     # grab anyone whop is Employed.
-
     who_employed = data.loc[data["labour_state"]=="Employed"]
     # there are around 14k missing values per year in emp_type.
     # Most of these can probably be removed with LOCF imputation.
@@ -288,6 +337,7 @@ def generate_energy_composite(data):
     data : pd.DataFrame
         US data with 'electricity_bill' composite column.
     """
+    print('Calculating yearly energy cost...')
 
     # need to calculate expenditure on 4 types of fuel. (electric, gas, oil, other.)
 
@@ -348,7 +398,7 @@ def generate_energy_composite(data):
     # for now just naively adding things together. will be add differences between -9 and -1 but shouldnt matter too much.
 
     #print(sum(data['yearly_energy'] == -8))
-    print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
+    #print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
@@ -386,6 +436,8 @@ def generate_nutrition_composite(data):
     data : pd.DataFrame
         US data with composite fruit and veg consumption variable, without the component vars.
     """
+    print('Generating composite for nutrition_quality...')
+
     # First calculate intermediate composites (amount * no. days)
     data['fruit_comp'] = data['fruit_days'] * data['fruit_per_day']
     data['veg_comp'] = data['veg_days'] * data['veg_per_day']
@@ -408,6 +460,174 @@ def generate_nutrition_composite(data):
     return data
 
 
+def generate_hh_structure(data):
+    """
+    Generate a variable for houshold composition by refactoring an existing US variable.
+
+    We want to create 4 groups:
+    1. Single adult no kids
+    2. Single adult 1+ kids
+    3. Multiple adults no kids
+    4. Multiple adults 1+ kids
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with US household composition variable (hhtype_dv)
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with a hh_comp variable.
+    """
+    print('Generating composite for household structure...')
+
+    # Which numbers in the original US hh_composition var correspond?
+    # First create empty var
+    data['hh_comp'] = -9
+
+    ## Single adult no kids
+    # 1, 2, 3
+    data['hh_comp'][data['hh_composition'].isin([1,2,3])] = 1
+    ## Single adult 1+ kids
+    # 4, 5
+    data['hh_comp'][data['hh_composition'].isin([4,5])] = 2
+    ## Multiple adults no kids
+    # 6, 8, 16, 17, 19, 22
+    data['hh_comp'][data['hh_composition'].isin([6,8,16,17,19,22])] = 3
+    ## Multiple adults 1+ kids
+    # 10, 11, 12, 18, 20, 21, 23
+    data['hh_comp'][data['hh_composition'].isin([10,11,12,18,20,21,23])] = 4
+
+    data.drop(labels=['hh_composition'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_marital_status(data):
+    """
+    Recoding the mastat_dv variable from US.
+
+    Original has 9 levels (some below 1%), we will replace with 4:
+    1. Single never partnered
+    2. Partnered (married, civil partner, living as a couple)
+    3. Separated (separated legally married, divorced, sep from civil partner, a former civil partner)
+    4. Widowed (widowed, surviving civil partner)
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with US marital status variable (marstat)
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with a hh_comp variable.
+    """
+    print('Generating composite for marital status...')
+
+    # first create empty var
+    data['marital_status'] = -9
+
+    ## Single never partnered
+    # 1
+    data['marital_status'][data['marstat'] == 1] = 'Single'
+    ## Partnered
+    # 2, 3, 10
+    data['marital_status'][data['marstat'].isin([2,3,10])] = 'Partnered'
+    ## Separated
+    # 4, 5, 7, 8
+    data['marital_status'][data['marstat'].isin([4,5,7,8])] = 'Separated'
+    ## Widowed
+    # 6, 9
+    data['marital_status'][data['marstat'].isin([6,9])] = 'Widowed'
+
+    data.drop(labels=['marstat'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_physical_health_score(data):
+    """
+    For generating a physical health score from the physical parts of the SF-12 questionnaire.
+    We will produce a continuous variable by adding the scores of 5 variables together, where lower scores
+    equate to better physical health.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with variables for parents education and ns-sec.
+    """
+    print('Generating composite for physical health...')
+
+    ## first flip the var thats in the opposite direction
+    data['pain_interfere_work'][data['pain_interfere_work'] > 0] = 6 - data['pain_interfere_work']
+
+    # now create summary var and add to it
+    data['phealth'] = 0
+    data['phealth'][data['phealth_limits_modact'] > 0] += data['phealth_limits_modact']
+    data['phealth'][data['phealth_limits_stairs'] > 0] += data['phealth_limits_stairs']
+    data['phealth'][data['phealth_limits_work'] > 0] += data['phealth_limits_work']
+    data['phealth'][data['phealth_limits_work_type'] > 0] += data['phealth_limits_work_type']
+    data['phealth'][data['pain_interfere_work'] > 0] += data['pain_interfere_work']
+
+    # now a counter for how many of these variable are not missing
+    data['counter'] = 0
+    data['counter'][data['phealth_limits_modact'] > 0] += 1
+    data['counter'][data['phealth_limits_stairs'] > 0] += 1
+    data['counter'][data['phealth_limits_work'] > 0] += 1
+    data['counter'][data['phealth_limits_work_type'] > 0] += 1
+    data['counter'][data['pain_interfere_work'] > 0] += 1
+
+    # finally, get the average of phealth for a mean summary score (then it doesn't matter if any are missing)
+    # only do this where counter does not equal 0. These cases we will record as missing
+    data['phealth'][data['counter'] != 0] = data['phealth'] / data['counter']
+
+    # now set those missing all to missing
+    data['phealth'][data['counter'] == 0] = -9
+
+    data.drop(labels=['phealth_limits_modact', 'phealth_limits_stairs',
+                      'phealth_limits_work_type', 'pain_interfere_work',
+                      'counter'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_parents_education(data):
+    """
+    For predicting the highest education a 16 will attain in their life, we can use information on the parents
+    education and NS-SEC if available.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with variables for parents education and ns-sec.
+    """
+
+    # First we need to find parents (or adults in the same house as we won't be able to find a direct parental link)
+    # Groupby hid then filter to make sure there is a 16 year old in the house
+    grouped_dat = data.groupby(['hidp'], axis=1).filter(lambda d: (d.age != 16.0), axis=0)
+    #filtered_dat = grouped_dat.filter(lambda d: (d['age'] != 16))
+
+    return data
+
+
 def main():
     # first collect and load the datafiles for every year
     print("Starting composite generation.")
@@ -423,8 +643,11 @@ def main():
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
     data = generate_nutrition_composite(data)             # nutrition
+    data = generate_hh_structure(data)                    # household structure
+    data = generate_marital_status(data)                  # marital status
+    data = generate_physical_health_score(data)           # physical health score
 
-    print('Finished composite generation.')
+    print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 
 

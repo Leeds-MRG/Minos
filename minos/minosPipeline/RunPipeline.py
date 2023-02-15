@@ -4,13 +4,17 @@ import logging
 import os
 from pathlib import Path
 
+# Do this to suppress warnings from Vivariums code...
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 from vivarium import InteractiveContext
 
 import minos.utils as utils
 
 from minos.modules.mortality import Mortality
-from minos.modules.replenishment import Replenishment
-from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates
+from minos.modules.replenishment import Replenishment, NoReplenishment
+from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
@@ -71,6 +75,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
         components.append(Loneliness())
     if "Nutrition()" in config['components']:
         components.append(Nutrition())
+    if "nkidsFertilityAgeSpecificRates()" in config['components']:
+        components.append(nkidsFertilityAgeSpecificRates())
     if "FertilityAgeSpecificRates()" in config['components']:
         components.append(FertilityAgeSpecificRates())
     if "Mortality()" in config['components']:
@@ -92,6 +98,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
             components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
+    if "NoReplenishment()" in config['components']:
+        components.append(NoReplenishment())
     if "Replenishment()" in config['components']:
         components.append(Replenishment())
     if "replenishmentNowcast()" in config['components']:
@@ -131,6 +139,17 @@ def RunPipeline(config, run_output_dir, intervention=None):
     config_time = utils.get_time()
     print(f'Simulation loop start at {config_time}')
 
+    ###
+    # Save population BEFORE start of the simulation. This is for comparisons and change from baseline
+    pop = simulation.get_population()
+    pop = utils.get_age_bucket(pop)
+    # File name and save
+    output_data_filename = get_output_data_filename(config)
+    output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+    pop.to_csv(output_file_path)
+    print("Saved initial data to: ", output_file_path)
+    logging.info(f"Saved initial data to: {output_file_path}")
+
 
     logging.info('Simulation loop start...')
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
@@ -151,17 +170,9 @@ def RunPipeline(config, run_output_dir, intervention=None):
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
 
-        # File name and save.
-        output_data_filename = ""
+        # File name and save
+        output_data_filename = get_output_data_filename(config, year)
 
-        # Add experiment parameters to output file name if present
-        if 'experiment_parameters' in config.keys():
-            print(config.experiment_parameters)
-            output_data_filename += str(config.experiment_parameters + '_')
-            output_data_filename += str(config.experiment_parameters_names + '_')
-
-        # Now add year to output file name
-        output_data_filename += f"{config.time.start.year + year}.csv"
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
         pop.to_csv(output_file_path)
         print("Saved data to: ", output_file_path)
@@ -184,3 +195,19 @@ def RunPipeline(config, run_output_dir, intervention=None):
         #    component.plot(pop, config)
 
     return simulation
+
+
+def get_output_data_filename(config, year=0):
+    # File name and save.
+    output_data_filename = ""
+
+    # Add experiment parameters to output file name if present
+    if 'experiment_parameters' in config.keys():
+        print(config.experiment_parameters)
+        output_data_filename += str(config.experiment_parameters) + '_'
+        output_data_filename += str(config.experiment_parameters_names) + '_'
+
+    # Now add year to output file name
+    output_data_filename += f"{config.time.start.year + year}.csv"
+
+    return(output_data_filename)

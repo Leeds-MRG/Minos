@@ -40,7 +40,8 @@ main <- function(years){
                  "labour_state",
                  "job_sec",
                  "hh_income",
-                 "ncigs")
+                 "ncigs",
+                 "weight")
     
     data <- data[, columns]
     data2 <- data2[, c("pidp", "ncigs")]
@@ -48,71 +49,55 @@ main <- function(years){
     data <- replace.missing(data)
     data2 <- replace.missing(data2)
     
-    # only look at individuals with data in both waves.
-    common <- intersect(data$pidp, data2$pidp)
-    data <- data[which(data$pidp %in% common), ]
-    data2 <- data2[which(data2$pidp %in% common), ]
-    
-    # TODO no MICE imputation here yet..
-    # not 100% sure how to impute across years.
-    # simplest may be to impute years seperately and edit mids objects for final
-    # pool of clms. see also longitudinal mice (looks slow and painful).
-    # Huque 2014 - A comparison of multiple imputation methods for missing data in longitudinal studies
 
+    
     #data2 <- data2[, c("pidp", "ncigs")]
     data2$ncigs[is.na(data2$ncigs)] <- 0 # set NAs to 0.
     #data2$ncigs[data2$ncigs < 0] <- 0 # set negative values to 0 (missings)
-    data2[which(data2$ncigs!=0),]$ncigs <- (data2[which(data2$ncigs!=0),]$ncigs%/%5) + 1 # round up to nearest 5. 
-    colnames(data2) <- c("pidp", "y")
+    #data2[which(data2$ncigs!=0),]$ncigs <- (data2[which(data2$ncigs!=0),]$ncigs%/%5) + 1 # round up to nearest 5. 
+    colnames(data2) <- c("pidp", "ncigs_next")
     data <- merge(data, data2,"pidp")
     data <- data[complete.cases(data),]
     #data$age<- scale(data$age)
     #data$SF_12<- scale(data$SF_12)
     #data$hh_income<- scale(data$hh_income)
     
-    # baseline model just zeroing based on ethnicity
-    #    m1 <- zeroinfl(y ~ factor(sex) +
-    #                    age +
-    #                    scale(SF_12) +
-    #                    factor(labour_state) +
-    #                    factor(job_sec) +
-    #                    factor(ethnicity) +
-    #                    scale(hh_income) | factor(ethnicity),
-    #                   data = data, dist='pois')
-    #tobacco.zip <- zeroinfl(y ~ factor(sex) +
-    #                          age +
-    #                          SF_12 +
-    #                          factor(labour_state) +
-    #                          factor(job_sec) +
-    #                          relevel(factor(ethnicity), ref='WBI') +
-    #                          scale(hh_income) |
-    #                          relevel(factor(ethnicity), ref='WBI') +
-    #                          factor(labour_state) +
-    #                          age +
-    #                          SF_12,
-    #                        data = data, dist='pois')
-    tobacco.zip <- zeroinfl(y ~ factor(sex) +
+    # no weight var in 2009 (wave 1)
+    if(year == 2009) {
+      data$weight <- 1
+    }
+    
+    tobacco.zip <- zeroinfl(ncigs_next ~ 
+                              factor(sex) +
                               age +
                               SF_12 +
                               factor(labour_state) +
                               relevel(factor(ethnicity), ref='WBI') +
-                              scale(hh_income) |
+                              factor(education_state) +
+                              factor(job_sec) +
+                              scale(hh_income) +
+                              ncigs |
                               relevel(factor(ethnicity), ref='WBI') +
-                              factor(labour_state) +
+                              #factor(labour_state) +
                               age +
-                              SF_12,
-                            data = data, dist='pois')
+                              SF_12 + ncigs, 
+                            #weights = weight, 
+                            model=T,
+                            data = data, 
+                            dist='pois', link='logit')
     
     print(summary(tobacco.zip))
-    prs<- 1 - logLik(tobacco.zip)/logLik(zeroinfl(y ~ 1, data=data, dist='pois'))
+    prs<- 1 - (logLik(tobacco.zip)/logLik(zeroinfl(ncigs_next ~ 1, data=data, dist='negbin', link='logit')))
     print(prs)
     
+    # deprecated density plot.
     #preds <- predict(tobacco.zip, type='zero')
-    #preds <- (runif(length(preds)) < preds) * predict(tobacco.zip, type='count')
-    
-    #plot(density(preds, from=0), xlim=c(0, 20), lty=1)
-    #lines(density(data$y, from=0), col='red', xlim=c(0, 20), lty=2)
-    #legend('topright', legend=c("Predicted", "Real"), col=c("black", "red"), lty=1:2)
+    #preds <- (runif(length(preds)) > preds) * predict(tobacco.zip, type='count')
+    #d1 <- density(data$ncigs_next, from=-0.0001)
+    #d2 <- density(preds, from=-0.0001)
+    #plot(d1, ylim=c(0, max(max(d1$y), max(d2$y))), lty=1, col='red')
+    #lines(d2, col='blue', xlim=c(0, 20), lty=2)
+    #legend('topright', legend=c("Predicted", "Real"), col=c("blue", "red"), lty=1:2)
     
     out.path <- "data/transitions/tobacco/zip/"
     create.if.not.exists("data/transitions/tobacco/")
@@ -123,10 +108,16 @@ main <- function(years){
     print("Saved to: ")
     print(tobacco.file.name)
   }
+  test_path <- "data/test/"
+  create.if.not.exists(test_path)
+  tobacco.testfile.name <- get.tobacco.zip.filename(test_path, year, year+1)
+  saveRDS(tobacco.zip, file=tobacco.testfile.name)
+  print("Saved to: ")
+  print(tobacco.testfile.name)
 }
 # no data until wave 5 because ????????????????. Changes to a likert scale for waves 3,4. no data at all for wave 1.
 # I'm just going to do 5 years of transitions..
-years <- seq(2013, 2018, 1)
-#years <- c(2015)
+#years <- seq(2014, 2018, 1)
+years <- seq(2017, 2018, 1)
 
 test <- main(years)

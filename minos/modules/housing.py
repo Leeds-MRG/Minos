@@ -71,7 +71,7 @@ class Housing(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -90,7 +90,11 @@ class Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns), housing_prob_df)+1
+        # TODO: Find out why this was adding 1 to the prediction?
+        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
+                                                                list(housing_prob_df.columns),
+                                                                housing_prob_df) + 1
+
         housing_prob_df.index = housing_prob_df.index.astype(int)
 
         self.population_view.update(housing_prob_df["housing_quality"])
@@ -107,9 +111,9 @@ class Housing(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"housing/clm/housing_clm_{year}_{year+1}")
+        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}")
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, pop, 'housing_quality')
         return prob_df
 
     def plot(self, pop, config):

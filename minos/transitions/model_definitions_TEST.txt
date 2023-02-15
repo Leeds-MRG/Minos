@@ -1,0 +1,8 @@
+OLS : hh_income ~ hh_income + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
+OLS : nutrition_quality ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + relevel(factor(ethnicity), ref = 'WBI') + hh_income + ncigs
+OLS : SF_12 ~ age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + scale(phealth) + ncigs + factor(neighbourhood_safety) + nutrition_quality + factor(loneliness)
+CLM : housing_quality ~ age + factor(sex) + SF_12 + relevel(factor(ethnicity), ref = 'WBI') + hh_income
+CLM : loneliness ~ age + factor(sex) + SF_12 + relevel(factor(education_state), ref = '3') + relevel(factor(job_sec), ref = '3') + hh_income + relevel(factor(hh_comp), ref = '3') + relevel(factor(marital_status), ref = 'Partnered') + relevel(factor(ethnicity), ref = 'WBI')
+CLM : neighbourhood_safety ~ age + factor(sex) + factor(job_sec) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + relevel(factor(region), ref = 'South East')
+NNET : education_state ~ factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East')
+ZIP : ncigs ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + SF_12 + relevel(factor(job_sec), ref = '3') + hh_income + relevel(factor(ethnicity), ref = 'WBI') | relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(job_sec), ref = '3') + hh_income + SF_12

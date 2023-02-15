@@ -64,7 +64,7 @@ class Neighbourhood(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -81,9 +81,11 @@ class Neighbourhood(Base):
         ## Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
+        # WHYYYYYYYYYY +1????!?!?!?!?!
         neighbourhood_prob_df["neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
                                                                            list(neighbourhood_prob_df.columns),
-                                                                           neighbourhood_prob_df)+1
+                                                                           neighbourhood_prob_df) + 1
+
         neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
@@ -113,9 +115,9 @@ class Neighbourhood(Base):
             year -= 1 # e.g. 2012 moves back one year to 2011.
 
         year = min(year, 2014) # transitions only go up to 2014.
-        transition_model = r_utils.load_transitions(f"neighbourhood/clm/neighbourhood_clm_{year}_{year + 3}")
+        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}")
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop)
+        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop, 'neighbourhood_safety')
         return nextWaveNeighbourhood
 
     # Special methods used by vivarium.

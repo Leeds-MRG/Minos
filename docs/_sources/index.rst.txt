@@ -2,6 +2,7 @@
    sphinx-quickstart on Thu Feb 10 12:12:48 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
+   LEAVE THE SPACE BETWEEN :maxdepth: 5 AND THE FIRST FILE LOADED.
 
 Welcome to Minos's documentation!
 =================================
@@ -9,13 +10,12 @@ Welcome to Minos's documentation!
 .. toctree::
     :maxdepth: 5
 
-    summary
+    documentation/summary
     documentation/index
-    data_discovery
-    data_tables
-    Coefficients/index
+    documentation/data_discovery
+    documentation/data_tables
     API/index
-    compile_help.md
+    documentation/compile_help.md
 
 Indices and tables
 ==================

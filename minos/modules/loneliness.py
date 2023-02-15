@@ -51,11 +51,13 @@ class Loneliness(Base):
                         "SF_12",
                         "job_sec",
                         "ethnicity",
+                        "education_state",
                         "age",
                         "housing_quality",
                         "hh_income",
                         "loneliness",
-                        "alcohol_spending",
+                        "hh_comp",
+                        "marital_status",
                         "ncigs"]
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -88,6 +90,7 @@ class Loneliness(Base):
         loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
                                                               list(loneliness_prob_df.columns),
                                                               loneliness_prob_df) + 1
+
         loneliness_prob_df.index = loneliness_prob_df.index.astype(int)
 
         self.population_view.update(loneliness_prob_df["loneliness"])
@@ -108,9 +111,9 @@ class Loneliness(Base):
         else:
             year = self.year
         year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_clm_{year}_{year + 1}")
+        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}")
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, pop)
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, pop, 'loneliness')
         return prob_df
 
     def plot(self, pop, config):

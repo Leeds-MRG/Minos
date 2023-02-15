@@ -2,15 +2,16 @@ source("minos/transitions/utils.R")
 #library(texreg)
 
 # Collect command line args from Makefile
-args = commandArgs()
+#args = commandArgs()
 # first 2 args are in positions 7 and 8 weirdly but still work
-dataDir <- paste0(args[7], '/final_US/')
-transitionDir <- args[8]
-transSourceDir <- args[9]
+#dataDir <- paste0(args[7], '/final_US/')
+#transitionDir <- args[8]
+#transSourceDir <- args[9]
 
-#dataDir <- 'data/final_US/'
-#transitionDir <- "data/transitions"
-#transSourceDir <- "minos/transitions"
+#debug dirs
+dataDir <- 'data/final_US/'
+transitionDir <- "data/transitions"
+transSourceDir <- "minos/transitions"
 
 # Load required packages
 suppressPackageStartupMessages(require(stringr))
@@ -100,15 +101,14 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
 
     # Work out the dependent and independents from the formula from txt file
     split <- str_split(def, pattern = " ~ ")[[1]]
-    dependent <- split[1]
+    dependent <- "hh_income"
     independents <- split[2]
       
     # This has been edited slightly by Rob to allow redefinition of independent variables to name 'y'.
     # If hh_income is used as a lagged dependent variable need to load hh_income for left and right side but can't have the same name in the formula.
     # Overriding dependent variable hh_income on the left side to y.
     # Note in model_definitions.txt hh_income is declared on left and right side of formula. 
-    form_dependent <- "y"
-    form <- paste0(form_dependent, " ~ ")
+    form <- paste0(dependent, "_next ~ ")
     form <- as.formula(paste0(form, independents))
     
     # old formula calculation. take directly from txt.
@@ -116,7 +116,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     
     # yearly model estimation
     ## Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- min(data$time):(max(data$time) - 1)
+    #year.range <- min(data$time):(max(data$time) - 1)
+    year.range <- max(data$time-2):(max(data$time) - 1) # Rob changed this to just run the 2018-2019 models for speed. 
     # set up list
     model.list <- list()
     # set up output directory
@@ -124,11 +125,12 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
     create.if.not.exists(out.path)
     for(year in year.range) {
       # independents from time T (current) with dependent removed
-      indep.df <- data %>% filter(time == year) %>% select(-.data[[dependent]])
+      indep.df <- data %>% filter(time == year)
       # dependent from T+1
       depen.df <- data %>% filter(time == year + 1) %>% select(pidp, .data[[dependent]])
       # change dependent variable to y. Allows for using time lagged dependen variable hh_income.
-      depen.df$y <- depen.df$hh_income
+      depen.df$hh_income_next <- depen.df$hh_income
+      depen.df <- depen.df[, c("hh_income_next", "pidp")]
       # smash them together
       merged <- merge(depen.df, indep.df, by='pidp')
 
@@ -150,12 +152,22 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       # save model & coefficients to file (in their own folder)
       write_csv(coefs, file = paste0(out.path, '/', dependent, '_', year, '_', year+1, '_coefficients.txt'))
       saveRDS(model, file=paste0(out.path, '/', dependent, '_', year, '_', year+1, '.rds'))
+      
+
     }
+    test_path <- "data/transitions/test"
+    create.if.not.exists(test_path)
+    income.testfile.name <- paste0(test_path, '/', dependent, '_', year, '_', year+1, '.rds')
+    saveRDS(model, file=income.testfile.name)
+    print("Saved to: ")
+    print(income.testfile.name)
     # Test texreg conversion of regression coefficient outputs to html.
     # Only doing one year of transitions for now..
     # Assume file is run in root directory (../../..). 
     #htmlreg(model, file='docsrc/Coefficients/test_income_OLS_coefficients.html')
   }
+
+  
   # close and remove connection object from memory
   close(modDefs)
   rm(modDefs)

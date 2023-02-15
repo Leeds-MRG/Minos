@@ -8,7 +8,10 @@ import numpy as np
 import argparse
 import glob
 import os
+from datetime import datetime
 from aggregate_subset_functions import find_subset_function
+
+
 def eightyTwenty(income):
 
     split = pd.qcut(income, q=5, labels=[1, 2, 3, 4, 5])
@@ -68,9 +71,19 @@ def main(source, year, destination, subset_function, v = "SF_12", method = np.na
     print(f"Aggregating MINOS data at {source} for {year}.")
     msim_data = group_minos_by_pidp(source, year, v, method, subset_function)
     print('Done. Merging with spatial data..')
-    # chris spatially weighted data.
-    spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018.csv")
-    #spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018_with_LADS.csv")
+
+    try:
+        # chris spatially weighted data.
+        spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018.csv")
+    except FileNotFoundError as e:
+        print(e)
+        print("\nREADME::\n"
+              "The spatially disaggregated version of Understanding Society is required to spatially disaggregate and "
+              "produce maps from the output populations. Due to it's size, this file is not tracked along in the "
+              "github repository, and must be acquired separately. Please email l.archer@leeds.ac.uk or gyrc@leeds.ac.uk "
+              "for more information if required.\n")
+        raise
+    # spatial_data = pd.read_csv("persistent_data/ADULT_population_GB_2018_with_LADS.csv")
 
     # subset msim data. grab common pidps to prevent NA errors.
 
@@ -148,8 +161,8 @@ if __name__ == "__main__":
                         help="What method is used to aggregate individuals by LSOA.")
     parser.add_argument("-f", "--format", required=True, type=str,
                         help="What file format is used. csv or geojson.")
-    parser.add_argument("-u", "--subset_function", required=True, type=str,
-                        help="What subset function is used for data frame. Usually none or who_boosted/interevened on.")
+    parser.add_argument("-u", "--subset_function", default="", type=str,
+                        help="What subset function is used for data frame. Usually none or who_boosted/intervened on.")
 
     args = vars(parser.parse_args())
 
@@ -169,9 +182,18 @@ if __name__ == "__main__":
         #TODO no better way to do this to my knowledge without eval() which shouldn't be used.
         raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
 
+    # Handle the datetime folder inside the output.
+    runtime = os.listdir(os.path.abspath(source))
+    if len(runtime) > 1:  # Select most recent run
+        runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+    elif len(runtime) == 1:  # os.listdir returns a list, we only have 1 element
+        runtime = runtime[0]
+    else:
+        raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                           "aggregate. Please check the output directory.")
 
-    #source = f"output/test_output/simulation_data/2018.csv" # if estimating LSOAs using minos data from some output.
-    #source = f"data/final_US/{year}_US_Cohort.csv" # if estimating LSOAs using real data.
-    #destination = f"output/test_output/simulation_data/"
-    #v = "SF_12"
+    # Now add runtime subdirectory to the path
+    source = os.path.join(source, runtime)
+    destination = source
+
     main(source, year, destination, subset_function, v, method, save_type)

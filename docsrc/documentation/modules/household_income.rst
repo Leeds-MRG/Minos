@@ -1,0 +1,210 @@
+================
+Household Income
+================
+
+
+Household Income
+================
+
+Household disposable income is a well known indicator of mental
+well-being (Graham 2009). Estimating this is a crucial instrument for
+the effects of many policy interventions
+
+The output variable is monthly household disposable income. This is
+calculated as a composite using several variables. Rent, mortgages, and
+council tax are subtracted from net household income and adjusted by
+household size. This value is then adjusted for yearly inflation
+estimates.
+
+.. math::     hh\_income\_intermediate = ((net\_hh\_income) - (rent + mortgage + council\_tax)) / hh\_size
+
+.. math::     hh\_income = hh\_income\_ * inflation\_factor
+
+This produces a continuous distribution of pounds per month available
+for a household to spend as it likes. This is plotted below with a
+median income of :math:`~£1250`.
+
+.. code:: r
+
+   continuous_density("hh_income")  
+
+.. figure:: ./figure/hh_income_data-1.png
+   :alt: plot of chunk hh_income_data
+
+   plot of chunk hh_income_data
+
+Methods
+-------
+
+To estimate this variable Ordinary Least Squares (OLS) linear regression
+is used. This is a common technique for estimating Gaussian distributed
+variables that is easy to implement using base R.
+
+Data
+----
+
+The formula for this linear regression is given as
+
+.. math:: hh\_income\_next ~ age + sex + factor(ethnicity) + factor(region) + scale(hh\_income) + factor(job\_sec) + factor(labour\_state) + factor(education\_state) + scale(SF\_12) + factor(housing\_quality)
+
+Each variable included is defined as follows. Each variable with
+discrete values is defined in the data tables section of this
+documentation
+`here <https://leeds-mrg.github.io/Minos/documentation/data_tables.html>`__.
+
+-  sex. Individual’s biological sex. (Dilmaghani 2018)
+-  ethnicity. Individual ethnicity. Discrete string values White
+   British, Black African, etc. (Clemens and Dibben 2014)
+-  region. Administrative region of the UK. Discrete strings such as
+   London, North-East. (Brewer et al. 2007)
+-  household income. Previous household income values are a strong
+   indicator of current value. (Dilmaghani 2018)
+-  job_sec. NSSEC code for individual’s employment. Ordinal values
+   describing job quality. (Clemens and Dibben 2014)
+-  labour state. Is a person employed, unemployed, student etc. Discrete
+   states. (Dilmaghani 2018)
+-  education state. Highest attain qualification. Ordinal values based
+   on UK government education tiers (Eika, Mogstad, and Zafar 2019)
+-  SF_12. Mental well-being. Continuous score indicating overall
+   mental-wellbeing. is this an indicator of hh_income? (Viswanathan,
+   Anderson, and Thomas 2005)
+-  housing quality. Ordinal values indicating number of appliances in
+   household. (Brewer et al. 2007)
+
+Results
+-------
+
+Model coefficients and diagnostics are displayed below. To summarise - r
+squared of 0.21 indicates reasonable fit. - Gender not significant. Some
+ethnicities see increases. Only London has higher income. High quality
+jobs eanr more. PT employed earn less students earn more. Housing
+quality strong indicator of higher income. - diagnostic plots show
+underdispersion. Some extreme outlier values need investigating. -
+overall decent fit.
+
+::
+
+   ## 
+   ## Call:
+   ## lm(formula = formula, data = data, weights = weight)
+   ## 
+   ## Weighted Residuals:
+   ##      Min       1Q   Median       3Q      Max 
+   ## -1990161   -13979        0     7734  3420774 
+   ## 
+   ## Coefficients:
+   ##                                        Estimate Std. Error t value Pr(>|t|)    
+   ## (Intercept)                             505.524    189.502   2.668  0.00765 ** 
+   ## age                                       6.706      1.052   6.373 1.91e-10 ***
+   ## sexMale                                  10.808     24.738   0.437  0.66221    
+   ## factor(ethnicity)BLA                    112.234    182.207   0.616  0.53792    
+   ## factor(ethnicity)BLC                    360.423    204.686   1.761  0.07828 .  
+   ## factor(ethnicity)CHI                    643.937    239.039   2.694  0.00707 ** 
+   ## factor(ethnicity)IND                    267.919    170.401   1.572  0.11590    
+   ## factor(ethnicity)MIX                    456.355    179.897   2.537  0.01120 *  
+   ## factor(ethnicity)OAS                     49.458    185.440   0.267  0.78970    
+   ## factor(ethnicity)OBL                    -99.449    480.719  -0.207  0.83611    
+   ## factor(ethnicity)OTH                    253.470    243.697   1.040  0.29831    
+   ## factor(ethnicity)PAK                    177.365    181.250   0.979  0.32781    
+   ## factor(ethnicity)WBI                    389.700    156.167   2.495  0.01259 *  
+   ## factor(ethnicity)WHO                    324.318    162.642   1.994  0.04616 *  
+   ## factor(region)East of England            54.144     54.581   0.992  0.32122    
+   ## factor(region)London                    246.607     54.251   4.546 5.52e-06 ***
+   ## factor(region)North East                -31.013     67.585  -0.459  0.64633    
+   ## factor(region)North West                 62.718     54.349   1.154  0.24853    
+   ## factor(region)Northern Ireland           47.780     83.226   0.574  0.56591    
+   ## factor(region)Scotland                   70.013     62.034   1.129  0.25908    
+   ## factor(region)South East                 45.836     51.468   0.891  0.37317    
+   ## factor(region)South West                 28.277     55.971   0.505  0.61342    
+   ## factor(region)Wales                      36.369     76.186   0.477  0.63311    
+   ## factor(region)West Midlands              76.481     56.465   1.354  0.17560    
+   ## factor(region)Yorkshire and The Humber  112.330     56.510   1.988  0.04685 *  
+   ## scale(hh_income)                        580.967     11.620  49.997  < 2e-16 ***
+   ## factor(job_sec)1                        395.175     74.629   5.295 1.20e-07 ***
+   ## factor(job_sec)2                        307.623     60.392   5.094 3.55e-07 ***
+   ## factor(job_sec)3                        228.129     45.530   5.011 5.49e-07 ***
+   ## factor(job_sec)4                         40.278     50.918   0.791  0.42894    
+   ## factor(job_sec)5                        -44.211     65.261  -0.677  0.49813    
+   ## factor(job_sec)6                         94.076     64.060   1.469  0.14197    
+   ## factor(job_sec)7                          7.826     46.869   0.167  0.86740    
+   ## factor(job_sec)8                        -66.579     54.039  -1.232  0.21795    
+   ## factor(labour_state)Family Care         -71.214     71.909  -0.990  0.32202    
+   ## factor(labour_state)Maternity Leave       3.067    143.134   0.021  0.98290    
+   ## factor(labour_state)PT Employed        -117.894     42.484  -2.775  0.00553 ** 
+   ## factor(labour_state)Retired             -92.024     48.171  -1.910  0.05611 .  
+   ## factor(labour_state)Self-employed        50.923     59.198   0.860  0.38969    
+   ## factor(labour_state)Sick/Disabled      -132.008     71.196  -1.854  0.06374 .  
+   ## factor(labour_state)Student             121.412     61.427   1.977  0.04811 *  
+   ## factor(labour_state)Unemployed         -156.656     66.880  -2.342  0.01918 *  
+   ## factor(education_state)1                -87.683     91.971  -0.953  0.34041    
+   ## factor(education_state)2                144.936     33.924   4.272 1.95e-05 ***
+   ## factor(education_state)3                216.201     44.538   4.854 1.22e-06 ***
+   ## factor(education_state)5                117.079     48.093   2.434  0.01493 *  
+   ## factor(education_state)6                242.009     38.789   6.239 4.51e-10 ***
+   ## factor(education_state)7                387.257     45.000   8.606  < 2e-16 ***
+   ## scale(SF_12)                             27.261     15.624   1.745  0.08104 .  
+   ## factor(housing_quality)2                147.945     76.956   1.922  0.05457 .  
+   ## factor(housing_quality)3                403.073     78.667   5.124 3.03e-07 ***
+   ## ---
+   ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+   ## 
+   ## Residual standard error: 76810 on 15892 degrees of freedom
+   ##   (253 observations deleted due to missingness)
+   ## Multiple R-squared:  0.2134, Adjusted R-squared:  0.2109 
+   ## F-statistic: 86.23 on 50 and 15892 DF,  p-value: < 2.2e-16
+
+|plot of chunk income_output|\ |image1|\ |image2|\ |image3|\ |image4|
+
+References
+----------
+
+.. container:: references csl-bib-body hanging-indent
+   :name: refs
+
+   .. container:: csl-entry
+      :name: ref-brewer2007poverty
+
+      Brewer, Mike, Alastair Muriel, David Phillips, and Luke Sibieta.
+      2007. “Poverty and Inequality in the UK: 2008.”
+
+   .. container:: csl-entry
+      :name: ref-clemens2014method
+
+      Clemens, Tom, and Chris Dibben. 2014. “A Method for Estimating
+      Wage, Using Standardised Occupational Classifications, for Use in
+      Medical Research in the Place of Self-Reported Income.” *BMC
+      Medical Research Methodology* 14 (1): 1–8.
+
+   .. container:: csl-entry
+      :name: ref-dilmaghani2018sexual
+
+      Dilmaghani, Maryam. 2018. “Sexual Orientation, Labour Earnings,
+      and Household Income in Canada.” *Journal of Labor Research* 39
+      (1): 41–55.
+
+   .. container:: csl-entry
+      :name: ref-eika2019educational
+
+      Eika, Lasse, Magne Mogstad, and Basit Zafar. 2019. “Educational
+      Assortative Mating and Household Income Inequality.” *Journal of
+      Political Economy* 127 (6): 2795–835.
+
+   .. container:: csl-entry
+      :name: ref-graham2009understanding
+
+      Graham, Hilary. 2009. *Understanding Health Inequalities*.
+      McGraw-hill education (UK).
+
+   .. container:: csl-entry
+      :name: ref-viswanathan2005nature
+
+      Viswanathan, Hema, Rodney Anderson, and Joseph Thomas. 2005.
+      “Nature and Correlates of SF-12 Physical and Mental Quality of
+      Life Components Among Low-Income HIV Adults Using an HIV Service
+      Center.” *Quality of Life Research* 14 (4): 935–44.
+
+.. |plot of chunk income_output| image:: ./figure/income_output-1.png
+.. |image1| image:: ./figure/income_output-2.png
+.. |image2| image:: ./figure/income_output-3.png
+.. |image3| image:: ./figure/income_output-4.png
+.. |image4| image:: ./figure/income_output-5.png

@@ -15,7 +15,7 @@ get.educ.file <- function(source, year1, year2){
 
 
 get.nnet.file.name <- function(destination, year1, year2){
-  file_name <- paste0(destination, "educ_nnet_")
+  file_name <- paste0(destination, "education_state_")
   file_name <- paste0(file_name, str(year1))
   file_name <- paste0(file_name, "_")
   file_name <- paste0(file_name, str(year2))
@@ -50,12 +50,12 @@ educ.nnet.main <- function(year){
   # weight data available 2010 onwards
   m1 <- multinom(factor(y) ~
                  (factor(sex) +
-                  factor(ethnicity) +
-                  factor(region))
+                  relevel(factor(ethnicity), ref = 'WBI') +
+                  relevel(factor(region), ref = 'South East'))
         ,data = data, MaxNWts = 10000, maxit=10000, weights = weight)
   m1
 
-  out.path <- "data/transitions/education/"
+  out.path <- "data/transitions/education_state/"
   create.if.not.exists(out.path)
   create.if.not.exists(paste0(out.path, 'nnet/'))
 

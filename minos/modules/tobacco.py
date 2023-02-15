@@ -87,7 +87,7 @@ class Tobacco(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
-        ## Predict next tobacco value
+        # Predict next tobacco value
         newWaveTobacco = self.calculate_tobacco(pop)
         newWaveTobacco = pd.DataFrame(newWaveTobacco, columns=["ncigs"])
         # Set index type to int (instead of object as previous)
@@ -110,9 +110,11 @@ class Tobacco(Base):
         # load transition model based on year.
         year = max(self.year, 2014)
         year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"tobacco/zip/tobacco_zip_{year}_{year + 1}")
+        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}")
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveTobacco = r_utils.predict_next_timestep_tobacco_zip(transition_model, pop)
+        nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
+                                                            current=pop,
+                                                            dependent='ncigs')
         return nextWaveTobacco
 
     def plot(self, pop, config):

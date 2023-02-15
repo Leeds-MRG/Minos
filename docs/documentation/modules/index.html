@@ -4,9 +4,10 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modules &mdash; Minos  documentation</title>
+  <title>&lt;no title&gt; &mdash; Minos  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -17,6 +18,7 @@
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,29 +41,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../summary.html">SIPHER - Minos Model</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="module_template.html">Module Template</a></li>
-<li class="toctree-l3"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a></li>
-<li class="toctree-l3"><a class="reference internal" href="housing_module.html">Housing module test</a></li>
-<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -79,7 +65,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
-      <li class="breadcrumb-item active">Modules</li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -88,29 +74,104 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="modules">
-<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h1>
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_template.html">Module Template</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#data">Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#methods">Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_template.html#coefficients">Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_intro.html">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules_intro.html#introduction">Introduction</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="housing_missing_preprocessing.html">Housing preprocessing test</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#variables">Variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#methods">Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#results">Results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_missing_preprocessing.html#conclusion">Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="household_income.html">Household Income</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="household_income.html#id1">Household Income</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html#references">References</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="housing_module.html">Housing module test</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#summary">Summary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#data">Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#methods">Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing_module.html#results">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="housing.html">Housing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="housing.html#housing-quality">Housing Quality</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="loneliness.html">Loneliness</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="loneliness.html#id1">Loneliness</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="labour.html">Labour</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="labour.html#id1">Labour</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="labour.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="neighbourhood.html#id1">Neighbourhood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mental_well_being.html#id1">Mental Well-Being</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tobacco.html">Tobacco</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tobacco.html#id1">Tobacco</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#data">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#methods">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#data-1">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#results">Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html#references">References</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="education.html">Education</a><ul>
@@ -135,7 +196,6 @@
 </li>
 </ul>
 </div>
-</section>
 
 
            </div>

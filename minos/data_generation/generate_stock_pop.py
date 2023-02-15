@@ -54,9 +54,15 @@ def reweight_stock(data, projections):
     # now reweight new population file
     reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
     # drop extra columns
-    reweighted_data.drop(labels = ['count', 'sum_weight'],
+    reweighted_data.drop(labels=['count', 'sum_weight'],
                          inplace=True,
                          axis=1)
+
+    # Final step is to rescale the new weights to range(0,1). The previous large weights broke some of the transition
+    # models, specifically the zero-inflated poisson for ncigs
+    #TODO: There is another method of rescaling using the numpy.ptp() method that might be faster. Maybe worth looking into (see link below)
+    # https://stackoverflow.com/questions/38103467/rescaling-to-0-1-certain-columns-from-pandas-python-dataframe
+    reweighted_data['weight'] = (reweighted_data['weight'] - min(reweighted_data['weight'])) / (max(reweighted_data['weight']) - min(reweighted_data['weight']))
 
     return reweighted_data
 
@@ -77,6 +83,13 @@ def generate_stock(projections):
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
 
+    # Set loneliness and ncigs as int
+    data['loneliness'] = data['loneliness'].astype('int64')
+    data['ncigs'] = data['ncigs'].astype('int64')
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
+    data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
+    data['housing_quality'] = data['housing_quality'].astype('int64')
+
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
 
@@ -89,7 +102,6 @@ def main():
     projections = projections.rename(columns={'year': 'time'})
 
     generate_stock(projections)
-
 
 
 if __name__ == "__main__":

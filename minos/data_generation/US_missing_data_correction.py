@@ -62,6 +62,7 @@ def fix_leading_entries(data):
     data = data.dropna(0)
     
     return data
+
         
 def main(save):
     # Load data.

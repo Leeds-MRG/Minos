@@ -7,8 +7,8 @@ def readme():
     with open('README.md') as f:
         return f.read()
 
-with open("requirements.txt", "r") as f:
-    REQUIRED_PACKAGES = f.read().splitlines()
+# with open("requirements.txt", "r") as f:
+#     REQUIRED_PACKAGES = f.read().splitlines()
 
 setup(name='minos',
       version='0.0.1',
@@ -20,7 +20,7 @@ setup(name='minos',
       license='MIT',
       packages=['minos'],
       zip_safe=False,
-      install_requires=REQUIRED_PACKAGES,
+      install_requires=['vivarium~=0.10.12'],
       test_suite='nose.collector',
       tests_require=['nose'],
 )

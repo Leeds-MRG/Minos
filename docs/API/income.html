@@ -7,6 +7,7 @@
   <title>Income API &mdash; Minos  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/minos_theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -17,10 +18,11 @@
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Compiling this page using sphinx." href="../compile_help.html" />
+    <link rel="next" title="Compiling this page using sphinx." href="../documentation/compile_help.html" />
     <link rel="prev" title="Housing API" href="housing.html" /> 
 </head>
 
@@ -40,11 +42,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/data_tables.html">Data Tables</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Welcome to Minos’ API documentation!</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="housing.html">Housing API</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Income API</a><ul>
@@ -59,7 +60,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -86,7 +87,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-minos.modules.income">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-minos.modules.income">
 <span id="income-api"></span><h1>Income API<a class="headerlink" href="#module-minos.modules.income" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minos.modules.income.Income">
@@ -164,7 +189,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="housing.html" class="btn btn-neutral float-left" title="Housing API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../compile_help.html" class="btn btn-neutral float-right" title="Compiling this page using sphinx." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../documentation/compile_help.html" class="btn btn-neutral float-right" title="Compiling this page using sphinx." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

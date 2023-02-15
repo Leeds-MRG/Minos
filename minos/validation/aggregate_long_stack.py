@@ -2,13 +2,16 @@ import os
 import pandas as pd
 import argparse
 import numpy as np
+from datetime import datetime
+
 
 def get_file_names(source_directories, v, method):
     file_names = []
     for source in source_directories:
-        file_name = os.path.join("output", source, f"aggregated_{v}_by_{method}.csv")
+        file_name = os.path.abspath(os.path.join("output/default_config", source, f"aggregated_{v}_by_{method}.csv"))
         file_names.append(file_name)
     return file_names
+
 
 def long_stack_minos_aggregates(file_names):
     """
@@ -28,6 +31,7 @@ def long_stack_minos_aggregates(file_names):
         new_df = pd.read_csv(file_name, low_memory=False)
         df = pd.concat([df, new_df], sort=False)
     return df
+
 
 def relative_scaling(df, v, ref):
     """ Scale aggregate dataframe based on some reference source.
@@ -68,6 +72,7 @@ def relative_scaling(df, v, ref):
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
     return df
 
+
 def main(source_directories, v="SF_12", method="nanmean", destination = None, ref=None):
     """
 
@@ -86,12 +91,19 @@ def main(source_directories, v="SF_12", method="nanmean", destination = None, re
     df = long_stack_minos_aggregates(file_names)
     df = relative_scaling(df, v, ref)
 
+    short_directories = []
+    for i, source in enumerate(source_directories):
+        if '/' in source:
+            source = source.split('/')[0]
+            short_directories.append(source)
+
     # join directories together to make name. put it in the first specified source directory.
     if not destination:
         print(f"No destination for output file defined. Storing in first specified source directory {source_directories[0]}.")
-        destination = os.path.join("output", source_directories[0])
-    out_file = os.path.join(destination, "aggregated_" + "_".join(source_directories) + ".csv")
+        destination = os.path.join("output/default_config", source_directories[0])
+    out_file = os.path.join(destination, "aggregated_" + "_".join(short_directories) + ".csv")
     df.to_csv(out_file, index=False)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Stack minos aggregate batches into long data frame for plotting.")
@@ -114,4 +126,18 @@ if __name__ == '__main__':
     ref = args['ref']
 
     sources = sources.split(",")
+
+    for i, source in enumerate(sources):
+        # Handle the datetime folder inside the output. Select most recent run
+        runtime = os.listdir(os.path.abspath(os.path.join('output/default_config', source)))
+        if len(runtime) > 1:
+            runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+        elif len(runtime) == 1:
+            runtime = runtime[0]  # os.listdir returns a list, we only have 1 element
+        else:
+            raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                               "aggregate. Please check the output directory.")
+
+        sources[i] = os.path.join(source, runtime)
+
     main(sources, v, method, destination, ref)

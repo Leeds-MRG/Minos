@@ -29,6 +29,10 @@ data/transitions/*.rds
 data/transitions/*/*/*.rds
 data/transitions/*/*.rds
 data/transitions/*/*coefficients.txt
+!data/transitions/doNotDelete.txt
+data/transitions/*
+data/transitions/*/*
+data/transitions/*/*/*
 
 # build stuff
 build/
@@ -81,3 +85,7 @@ papers/
 # Plots (can be made by the model so should not be saved on git)
 plots/
 plots/*
+
+# HR 21/12/22 Windows utils stuff to ignore
+minos/windowsutils/output/
+minos/windowsutils/output/*
