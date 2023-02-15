@@ -24,7 +24,7 @@ from minos.modules import r_utils
 
 
 # suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
 def expand_repl(US_2018):
@@ -154,20 +154,22 @@ def generate_replenishing(projections, scotland_mode):
 
     output_dir = 'data/replenishing/'
 
-    if scotland_mode:
-        print('Generating replenishing population for Scotland mode...')
-        data_source = 'scotland_US'
-        if os.path.exists(output_dir + 'whole_pop_mode.txt'):
-            os.remove(output_dir + 'whole_pop_mode.txt')
-        with open(output_dir + 'scotland_mode.txt', 'a') as mode_file:
-            pass
-    else:
-        print('Generating replenishing population...')
-        data_source = 'final_US'
-        if os.path.exists(output_dir + 'scotland_mode.txt'):
-            os.remove(output_dir + 'scotland_mode.txt')
-        with open(output_dir + 'whole_pop_mode.txt', 'a') as mode_file:
-            pass
+    # if scotland_mode:
+    #     print('Generating replenishing population for Scotland mode...')
+    #     data_source = 'scotland_US'
+    #     if os.path.exists(output_dir + 'whole_pop_mode.txt'):
+    #         os.remove(output_dir + 'whole_pop_mode.txt')
+    #     with open(output_dir + 'scotland_mode.txt', 'a') as mode_file:
+    #         pass
+    # else:
+    #     print('Generating replenishing population...')
+    #     data_source = 'final_US'
+    #     if os.path.exists(output_dir + 'scotland_mode.txt'):
+    #         os.remove(output_dir + 'scotland_mode.txt')
+    #     with open(output_dir + 'whole_pop_mode.txt', 'a') as mode_file:
+    #         pass
+
+    data_source = 'final_US'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2017_US_cohort.csv"
