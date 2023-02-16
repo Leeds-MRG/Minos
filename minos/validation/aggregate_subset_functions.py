@@ -4,23 +4,17 @@ import numpy as np
 import pandas as pd
 
 def find_subset_function(function_string):
-    if function_string == "none":
-        subset_function = None
-    elif function_string == "who_alive":
-        subset_function = who_alive
-    elif function_string == "who_boosted":
-        subset_function = who_boosted
-    elif function_string == "who_below_living_wage":
-        subset_function = who_below_living_wage
-    elif function_string == "who_kids":
-        subset_function = who_kids
-    elif function_string == "who_below_poverty_line_and_kids":
-        subset_function = who_below_poverty_line_and_kids
-    elif function_string == "who_bottom_income_quintile":
-        subset_function = who_bottom_income_quintile
-    else:
-        print("no subset_function defined. Defaulting to anyone alive.")
-        subset_function = who_alive
+    DEFAULT_SUBSET = who_alive
+    subset_dict = {"none": None,
+                   "who_alive": who_alive,
+                   "who_boosted": who_boosted,
+                   "who_below_living_wage": who_below_living_wage,
+                   "who_kids": who_kids,
+                   "who_below_poverty_line_and_kids": who_below_poverty_line_and_kids,
+                   "who_bottom_income_quintile": who_bottom_income_quintile,}
+    if function_string not in subset_dict:
+        print("No subset_function defined. Defaulting to anyone alive")
+    subset_function = subset_dict.get(function_string, DEFAULT_SUBSET)
     return subset_function
 
 def who_alive(df):

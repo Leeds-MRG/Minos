@@ -1,0 +1,4 @@
++ factor(neighbourhood_safety) + scale(ncigs) + factor(loneliness) + scale(nutrition_quality)
+
++ factor(neighbourhood_safety)
+ + scale(ncigs)
