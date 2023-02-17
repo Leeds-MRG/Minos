@@ -17,6 +17,10 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-geojsonsf
   - r-sp
   - r-texreg
+  - r-shadowtext
+  - pandoc
+  - sphinx
+  - myst-parser
   - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
       - rpy2
       - pyyaml>=5.4
@@ -31,6 +35,9 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
       - geojson
       - seaborn
       - matplotlib
+      - sphinx-rtd-theme
+      - sphinxcontrib-bibtex
+      - nbsphinx
       #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
 
 prefix:

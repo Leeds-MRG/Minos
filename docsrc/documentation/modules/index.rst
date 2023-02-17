@@ -7,7 +7,7 @@
     labour
     neighbourhood
     mental_well_being
-    tobacco
     education
     nutrition
     replenishment
+    tobacco

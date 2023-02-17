@@ -2,40 +2,41 @@
 title: "Mental Well-Being"
 output: html_document
 bibliography: 
-  - "refs.bib" # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
-  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+  - "docsrc/refs.bib"
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir= "../minos")
+```
 
 ## Mental Well-Being
 
+Introductory fluff. Why do we need this module? test reference [@1987:nelson].
 
-Introductory fluff. Why do we need this module? test reference [@1987:nelson]. 
-
-```{r setup, include=FALSE}
-source('sphinx_notebook_utils.R')
+```{r load_data, include=FALSE}
+source("docsrc/documentation/notebooks/sphinx_notebook_utils.R")
 ```
 
 ### Methods
 
-  What methods are used? Justification due to output data type. explanation of model output.
-  
-```{r neighbourhood_barchart, echo=FALSE}
-continuous_density("SF_12")
+What methods are used? Justification due to output data type. explanation of model output.
+
+```{r SF12_Density}
+continuous_density("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")  
 ```
+
 ### Data
-  
-  What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
-  
+
+What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
+
 ### Results
-  
-  What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
 
+What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
 
-```{r housing_output, echo=FALSE}
+```{r SF12_Output, echo=FALSE}
 options(width=120)
-ols_histogram("../../../data/transitions/test/sf12_ols_2018_2019.rds", "y")
-ols_output("../../../data/transitions/test/sf12_ols_2018_2019.rds")
+ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
+ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
 ```
-
 
 ### References

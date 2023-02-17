@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tobacco &mdash; Minos  documentation</title>
@@ -22,8 +22,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Education" href="education.html" />
-    <link rel="prev" title="Mental Well-Being" href="mental_well_being.html" /> 
+    <link rel="next" title="Running MINOS on Slurm/ARC4." href="../HPC.html" />
+    <link rel="prev" title="Replenishment" href="replenishment.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Minos
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Minos
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -52,6 +56,9 @@
 <li class="toctree-l2"><a class="reference internal" href="labour.html">Labour</a></li>
 <li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tobacco</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Tobacco</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
@@ -63,9 +70,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
 </ul>
@@ -89,7 +93,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
           <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
       <li class="breadcrumb-item active">Tobacco</li>
@@ -135,7 +139,7 @@ illnesses including anxiety (Lawrence et al. 2010).</p>
 <h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
 <p>What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">counts_density</span><span class="p">(</span><span class="s">&#39;ncigs&#39;</span><span class="p">)</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">counts_density</span><span class="p">(</span><span class="s">&quot;data/transitions/ncigs/zip/ncigs_2018_2019.rds&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;y&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id3">
@@ -180,78 +184,70 @@ population at around 55%. Counts of smoking are underdispersed and fail
 to estimate consumption over 20 cigarettes.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
 <span class="c1">## Call:</span>
-<span class="c1">## zeroinfl(formula = ncigs_next ~ factor(sex) + age + SF_12 + factor(labour_state) + relevel(factor(ethnicity),</span>
-<span class="c1">##     ref = &quot;WBI&quot;) + factor(education_state) + factor(job_sec) + scale(hh_income) + ncigs | relevel(factor(ethnicity),</span>
-<span class="c1">##     ref = &quot;WBI&quot;) + age + SF_12 + ncigs, data = data, dist = &quot;pois&quot;, link = &quot;logit&quot;, model = T)</span>
+<span class="c1">## zeroinfl(formula = formula, data = dat.subset, weights = weight, dist = &quot;pois&quot;, link = &quot;logit&quot;)</span>
 <span class="c1">##</span>
 <span class="c1">## Pearson residuals:</span>
 <span class="c1">##      Min       1Q   Median       3Q      Max</span>
-<span class="c1">## -13.5258  -0.1851  -0.1546  -0.1317  44.3375</span>
+<span class="c1">## -0.22590 -0.02780 -0.01848  0.00000  3.90660</span>
 <span class="c1">##</span>
 <span class="c1">## Count model coefficients (poisson with log link):</span>
-<span class="c1">##                                              Estimate Std. Error z value Pr(&gt;|z|)</span>
-<span class="c1">## (Intercept)                                 2.0851576  0.0401255  51.966  &lt; 2e-16 ***</span>
-<span class="c1">## factor(sex)Male                             0.0141691  0.0129642   1.093 0.274419</span>
-<span class="c1">## age                                         0.0064996  0.0005318  12.222  &lt; 2e-16 ***</span>
-<span class="c1">## SF_12                                      -0.0021571  0.0005780  -3.732 0.000190 ***</span>
-<span class="c1">## factor(labour_state)Family Care             0.2254327  0.0297159   7.586 3.29e-14 ***</span>
-<span class="c1">## factor(labour_state)Maternity Leave        -0.0855599  0.3206467  -0.267 0.789596</span>
-<span class="c1">## factor(labour_state)PT Employed             0.0066390  0.0219167   0.303 0.761950</span>
-<span class="c1">## factor(labour_state)Retired                -0.0026351  0.0238955  -0.110 0.912191</span>
-<span class="c1">## factor(labour_state)Self-employed           0.0766447  0.0334323   2.293 0.021875 *</span>
-<span class="c1">## factor(labour_state)Sick/Disabled           0.0407686  0.0259998   1.568 0.116872</span>
-<span class="c1">## factor(labour_state)Student                -0.3281149  0.0483501  -6.786 1.15e-11 ***</span>
-<span class="c1">## factor(labour_state)Unemployed              0.1073869  0.0257229   4.175 2.98e-05 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN -0.4125926  0.0624020  -6.612 3.80e-11 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA -0.4577618  0.0761570  -6.011 1.85e-09 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC -0.5435353  0.0558868  -9.726  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI -0.3517933  0.1429282  -2.461 0.013842 *</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND -0.5251485  0.0623874  -8.418  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX -0.2655940  0.0448645  -5.920 3.22e-09 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS -0.1213163  0.0986363  -1.230 0.218721</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL -0.6448752  0.2198301  -2.934 0.003351 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH -0.1538574  0.1165979  -1.320 0.186984</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK -0.6059558  0.0535081 -11.325  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO -0.1146488  0.0308163  -3.720 0.000199 ***</span>
-<span class="c1">## factor(education_state)1                   -0.0895149  0.0496629  -1.802 0.071475 .</span>
-<span class="c1">## factor(education_state)2                    0.0056618  0.0147358   0.384 0.700815</span>
-<span class="c1">## factor(education_state)3                   -0.0370368  0.0242143  -1.530 0.126130</span>
-<span class="c1">## factor(education_state)5                   -0.0462688  0.0251651  -1.839 0.065972 .</span>
-<span class="c1">## factor(education_state)6                   -0.1420103  0.0255623  -5.555 2.77e-08 ***</span>
-<span class="c1">## factor(education_state)7                   -0.0570756  0.0308758  -1.849 0.064522 .</span>
-<span class="c1">## factor(job_sec)1                           -0.0605048  0.0554776  -1.091 0.275441</span>
-<span class="c1">## factor(job_sec)2                            0.3299314  0.0406703   8.112 4.97e-16 ***</span>
-<span class="c1">## factor(job_sec)3                            0.0584352  0.0246486   2.371 0.017753 *</span>
-<span class="c1">## factor(job_sec)4                            0.0625456  0.0277822   2.251 0.024367 *</span>
-<span class="c1">## factor(job_sec)5                            0.1283189  0.0319127   4.021 5.80e-05 ***</span>
-<span class="c1">## factor(job_sec)6                            0.2190621  0.0272359   8.043 8.76e-16 ***</span>
-<span class="c1">## factor(job_sec)7                            0.1136585  0.0226746   5.013 5.37e-07 ***</span>
-<span class="c1">## factor(job_sec)8                            0.1684281  0.0243215   6.925 4.36e-12 ***</span>
-<span class="c1">## scale(hh_income)                            0.0236496  0.0066289   3.568 0.000360 ***</span>
-<span class="c1">## ncigs                                       0.0171283  0.0002817  60.800  &lt; 2e-16 ***</span>
+<span class="c1">##                                                Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                   1.826e+00         NA      NA       NA</span>
+<span class="c1">## age                                           1.364e-02         NA      NA       NA</span>
+<span class="c1">## factor(sex)Male                               5.071e-02         NA      NA       NA</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)0  3.819e-02         NA      NA       NA</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)1  3.870e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)2  9.921e-02         NA      NA       NA</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)5 -3.817e-02         NA      NA       NA</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)6 -2.838e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)7  2.962e-01         NA      NA       NA</span>
+<span class="c1">## SF_12                                        -3.491e-03         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1          8.265e-02         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2          7.372e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4          1.603e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5          1.904e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6          1.211e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7          1.474e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8          2.507e-01         NA      NA       NA</span>
+<span class="c1">## hh_income                                     4.793e-05         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN   -5.872e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA   -5.784e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC   -5.287e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI   -4.005e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND   -5.132e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX   -2.855e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS   -4.219e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL   -7.849e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH    7.849e-02         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK   -6.763e-01         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO   -3.410e-02         NA      NA       NA</span>
 <span class="c1">##</span>
 <span class="c1">## Zero-inflation model coefficients (binomial with logit link):</span>
-<span class="c1">##                                             Estimate Std. Error z value Pr(&gt;|z|)</span>
-<span class="c1">## (Intercept)                                 2.174538   0.171951  12.646  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN -0.409017   0.243218  -1.682  0.09263 .</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA -0.407966   0.246538  -1.655  0.09797 .</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC -0.957178   0.208264  -4.596 4.31e-06 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI  0.773182   0.658884   1.173  0.24061</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND  0.299649   0.215367   1.391  0.16412</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX -0.462840   0.205337  -2.254  0.02419 *</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS  0.793557   0.512057   1.550  0.12120</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL -1.086962   0.814659  -1.334  0.18212</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH -0.122495   0.680492  -0.180  0.85714</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK -0.206189   0.196713  -1.048  0.29456</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO -0.410170   0.165281  -2.482  0.01308 *</span>
-<span class="c1">## age                                         0.016152   0.002193   7.367 1.75e-13 ***</span>
-<span class="c1">## SF_12                                       0.012717   0.003382   3.760  0.00017 ***</span>
-<span class="c1">## ncigs                                      -0.516195   0.010658 -48.434  &lt; 2e-16 ***</span>
-<span class="c1">## ---</span>
-<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">##                                              Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                 1.3968641         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN -0.0665143         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA  0.7077274         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC -0.8377246         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI  0.2628890         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND  1.4577262         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX -0.2970005         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS  1.0415864         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL  0.3374910         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH -0.8345472         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK -0.0972652         NA      NA       NA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO -0.2608373         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1        0.4389168         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2        0.5864644         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4       -0.1661200         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5       -0.2828293         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6       -0.8209764         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7       -0.7934972         NA      NA       NA</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8       -0.7788828         NA      NA       NA</span>
+<span class="c1">## hh_income                                   0.0002134         NA      NA       NA</span>
+<span class="c1">## SF_12                                       0.0179618         NA      NA       NA</span>
 <span class="c1">##</span>
-<span class="c1">## Number of iterations in BFGS optimization: 59</span>
-<span class="c1">## Log-likelihood: -1.362e+04 on 54 Df</span>
+<span class="c1">## Number of iterations in BFGS optimization: 90</span>
+<span class="c1">## Log-likelihood: -84.87 on 50 Df</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id4">
@@ -279,8 +275,8 @@ from the Australian Survey of Mental Health and Wellbeing.”
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="mental_well_being.html" class="btn btn-neutral float-left" title="Mental Well-Being" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="education.html" class="btn btn-neutral float-right" title="Education" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="replenishment.html" class="btn btn-neutral float-left" title="Replenishment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../HPC.html" class="btn btn-neutral float-right" title="Running MINOS on Slurm/ARC4." accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

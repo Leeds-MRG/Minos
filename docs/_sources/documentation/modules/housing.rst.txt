@@ -15,12 +15,6 @@ Methods
 What methods are used? Justification due to output data type.
 explanation of model output.
 
-::
-
-   ## 
-   ##     1     2     3 
-   ##   549 17066  9622
-
 .. figure:: ./figure/housing_barchart-1.png
    :alt: plot of chunk housing_barchart
 
@@ -45,45 +39,37 @@ goodness of fit.
 
 ::
 
-   ## formula: 
-   ## housing_quality_next ~ factor(sex) + scale(age) + scale(SF_12) + factor(labour_state) + factor(ethnicity) + scale(hh_income)
+   ## formula: next_housing_quality ~ age + factor(sex) + SF_12 + relevel(factor(ethnicity), ref = "WBI") + hh_income
    ## data:    data
    ## 
-   ##  link  threshold nobs     logLik       AIC         niter max.grad cond.H 
-   ##  logit flexible  44193278 -38114733.98 76229517.96 6(0)  1.15e-07 5.1e+03
+   ##  link  threshold nobs     logLik AIC    niter max.grad cond.H 
+   ##  logit flexible  103.1594 -97.99 229.99 5(0)  8.47e-07 9.2e+09
    ## 
    ## Coefficients:
-   ##                                       Estimate Std. Error z value Pr(>|z|)    
-   ## factor(sex)Male                      0.0558236  0.0006313   88.42   <2e-16 ***
-   ## scale(age)                          -0.1628516  0.0004907 -331.90   <2e-16 ***
-   ## scale(SF_12)                         0.1508474  0.0004022  375.03   <2e-16 ***
-   ## factor(labour_state)Family Care     -0.1570490  0.0018192  -86.33   <2e-16 ***
-   ## factor(labour_state)Maternity Leave  0.6073570  0.0036212  167.72   <2e-16 ***
-   ## factor(labour_state)PT Employed      0.1167170  0.0010727  108.81   <2e-16 ***
-   ## factor(labour_state)Retired         -0.1090539  0.0011417  -95.52   <2e-16 ***
-   ## factor(labour_state)Self-employed    0.0856879  0.0011851   72.31   <2e-16 ***
-   ## factor(labour_state)Sick/Disabled   -0.5583446  0.0017725 -315.00   <2e-16 ***
-   ## factor(labour_state)Student          0.1225262  0.0014395   85.11   <2e-16 ***
-   ## factor(labour_state)Unemployed      -0.5506065  0.0017037 -323.18   <2e-16 ***
-   ## factor(ethnicity)BLA                 0.1448945  0.0047652   30.41   <2e-16 ***
-   ## factor(ethnicity)BLC                 0.2591639  0.0054113   47.89   <2e-16 ***
-   ## factor(ethnicity)CHI                 0.3644415  0.0062071   58.71   <2e-16 ***
-   ## factor(ethnicity)IND                 0.8851952  0.0044509  198.88   <2e-16 ***
-   ## factor(ethnicity)MIX                 1.0575175  0.0046746  226.22   <2e-16 ***
-   ## factor(ethnicity)OAS                 0.2031260  0.0048923   41.52   <2e-16 ***
-   ## factor(ethnicity)OBL                 0.1965951  0.0129046   15.23   <2e-16 ***
-   ## factor(ethnicity)OTH                 1.1101132  0.0063123  175.87   <2e-16 ***
-   ## factor(ethnicity)PAK                 0.5495317  0.0047129  116.60   <2e-16 ***
-   ## factor(ethnicity)WBI                 1.3434706  0.0040522  331.54   <2e-16 ***
-   ## factor(ethnicity)WHO                 1.1678576  0.0042176  276.90   <2e-16 ***
-   ## scale(hh_income)                     0.4693541  0.0004462 1051.91   <2e-16 ***
+   ##                                              Estimate Std. Error z value Pr(>|z|)  
+   ## age                                         0.0082681  0.0113336   0.730   0.4657  
+   ## factor(sex)Male                            -0.0938937  0.3845571  -0.244   0.8071  
+   ## SF_12                                      -0.0136238  0.0202522  -0.673   0.5011  
+   ## relevel(factor(ethnicity), ref = "WBI")BAN  1.0235392  2.6780803   0.382   0.7023  
+   ## relevel(factor(ethnicity), ref = "WBI")BLA  1.3244641  1.6063660   0.825   0.4097  
+   ## relevel(factor(ethnicity), ref = "WBI")BLC  0.6422992  2.4039794   0.267   0.7893  
+   ## relevel(factor(ethnicity), ref = "WBI")CHI  1.3129964  2.8385130   0.463   0.6437  
+   ## relevel(factor(ethnicity), ref = "WBI")IND  0.4518321  1.2442697   0.363   0.7165  
+   ## relevel(factor(ethnicity), ref = "WBI")MIX  0.2691325  1.5009851   0.179   0.8577  
+   ## relevel(factor(ethnicity), ref = "WBI")OAS  0.7642680  1.8362644   0.416   0.6773  
+   ## relevel(factor(ethnicity), ref = "WBI")OBL  1.5285576  8.6893576   0.176   0.8604  
+   ## relevel(factor(ethnicity), ref = "WBI")OTH  0.4339788  3.1233946   0.139   0.8895  
+   ## relevel(factor(ethnicity), ref = "WBI")PAK  0.5250905  1.7236335   0.305   0.7606  
+   ## relevel(factor(ethnicity), ref = "WBI")WHO  0.1788316  0.8328175   0.215   0.8300  
+   ## hh_income                                  -0.0003135  0.0001778  -1.764   0.0778 .
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
    ## Threshold coefficients:
-   ##      Estimate Std. Error z value
-   ## 1|2 -1.231036   0.004078  -301.9
-   ## 2|3  1.946753   0.004091   475.9
+   ##     Estimate Std. Error z value
+   ## 1|2   -1.325      1.042  -1.272
+   ## 2|3    1.189      1.044   1.139
+   ## (273 observations deleted due to missingness)
 
 References
 ----------
