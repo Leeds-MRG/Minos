@@ -29,6 +29,10 @@ pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWith
 
 def expand_repl(US_2018):
     """ Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
+<<<<<<< HEAD
+
+=======
+>>>>>>> scotland_mode
     Parameters
     ----------
     US_2018 : pandas.DataFrame
@@ -79,12 +83,23 @@ def expand_repl(US_2018):
 
 def reweight_repl(expanded_repl, projections):
     """
+<<<<<<< HEAD
+
+=======
+>>>>>>> scotland_mode
     Parameters
     ----------
     expanded_repl
     projections
+<<<<<<< HEAD
+
     Returns
     -------
+
+=======
+    Returns
+    -------
+>>>>>>> scotland_mode
     """
     ## Now reweight by sex and year
     print('Reweighting by sex, ethnic group, and year...')
@@ -153,26 +168,14 @@ def predict_education(repl):
 def generate_replenishing(projections, scotland_mode):
 
     output_dir = 'data/replenishing/'
-
-    # if scotland_mode:
-    #     print('Generating replenishing population for Scotland mode...')
-    #     data_source = 'scotland_US'
-    #     if os.path.exists(output_dir + 'whole_pop_mode.txt'):
-    #         os.remove(output_dir + 'whole_pop_mode.txt')
-    #     with open(output_dir + 'scotland_mode.txt', 'a') as mode_file:
-    #         pass
-    # else:
-    #     print('Generating replenishing population...')
-    #     data_source = 'final_US'
-    #     if os.path.exists(output_dir + 'scotland_mode.txt'):
-    #         os.remove(output_dir + 'scotland_mode.txt')
-    #     with open(output_dir + 'whole_pop_mode.txt', 'a') as mode_file:
-    #         pass
-
     data_source = 'final_US'
+
+    if scotland_mode:
+        output_dir = 'data/replenishing/scotland/'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2017_US_cohort.csv"
+
     data = pd.read_csv(file_name)
 
     # expand and reweight the population

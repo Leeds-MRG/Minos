@@ -13,7 +13,9 @@ from vivarium import InteractiveContext
 import minos.utils as utils
 
 from minos.modules.mortality import Mortality
-from minos.modules.replenishment import Replenishment, NoReplenishment
+from minos.modules.replenishment import Replenishment
+from minos.modules.replenishment_nowcast import ReplenishmentNowcast
+from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income
@@ -36,7 +38,7 @@ from minos.modules.intervention import energyDownlift
 # for viz.
 from minos.validation.minos_distribution_visualisation import *
 
-def RunPipeline(config, run_output_dir, intervention=None):
+def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline
 
    Parameters
@@ -98,12 +100,12 @@ def RunPipeline(config, run_output_dir, intervention=None):
             components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
-    if "NoReplenishment()" in config['components']:
-        components.append(NoReplenishment())
     if "Replenishment()" in config['components']:
         components.append(Replenishment())
-    if "replenishmentNowcast()" in config['components']:
-        components.append(replenishmentNowcast())
+    if "ReplenishmentNowcast()" in config['components']:
+        components.append(ReplenishmentNowcast())
+    if "ReplenishmentScotland()" in config['components']:
+        components.append(ReplenishmentScotland())
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -202,10 +204,10 @@ def get_output_data_filename(config, year=0):
     output_data_filename = ""
 
     # Add experiment parameters to output file name if present
-    if 'experiment_parameters' in config.keys():
-        print(config.experiment_parameters)
-        output_data_filename += str(config.experiment_parameters) + '_'
-        output_data_filename += str(config.experiment_parameters_names) + '_'
+    if 'run_ID' in config.keys():
+        print(config.run_ID)
+        output_data_filename += str(config.run_ID) + '_'
+        output_data_filename += str(config.run_ID_names) + '_'
 
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"

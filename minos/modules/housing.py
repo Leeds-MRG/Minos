@@ -90,7 +90,6 @@ class Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        # TODO: Find out why this was adding 1 to the prediction?
         housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1

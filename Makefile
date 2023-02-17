@@ -70,8 +70,6 @@ libpaths: ### Grab paths to Python and R libraries
 # Clone minos git in. (contains this makefile)
 # git clone https://github.com/Leeds-MRG/Minos
 
-
-
 ## Install
 ###
 
@@ -135,6 +133,13 @@ intervention_energyDownLift: setup
 
 
 #####################################
+## Scotland Local runs of MINOS interventions.
+#####################################
+
+scot_baseline: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scot_config'
+
+#####################################
 ## Running MINOS scenarios on Arc4
 #####################################
 
@@ -159,6 +164,7 @@ arc4_intervention_livingWage: setup
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
+arc4_allscenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
@@ -194,6 +200,8 @@ setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions replenishing_data
 
+scot_setup: install scot_data scot_transitions scot_replenishing
+
 #####################################
 ### Data Generation
 #####################################
@@ -218,14 +226,15 @@ final_data: ### Produce the final version of the data (including replenishing po
 final_data: $(FINALDATA)/2019_US_cohort.csv
 
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
-replenishing_data: $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
+replenishing_data:  $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
+
+scot_replenishing: $(DATADIR)/replenishing/scotland_mode.txt $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
 spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
 ### version of the final data to be used in spatial analyses (of Sheffield only)
 spatial_data: $(SPATIALDATA)/2019_US_cohort.csv
 
-scot_data: final_data
-scot_data: $(SCOTLANDDATA)/2019_US_cohort.csv
+scot_data: $(SCOTDATA)/2019_US_cohort.csv
 
 #####################################
 # Input Populations
@@ -249,11 +258,14 @@ $(FINALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/20
 $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
+$(DATADIR)/replenishing/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland
+
 $(SPATIALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2019_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
-$(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
-	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py --source_dir $(SPATIALSOURCEDIR)
+$(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/scotland_mode.txt
+	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
 #####################################
 ### transitions
@@ -268,15 +280,14 @@ $(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions: | $(TRANSITION_DATA)
-transitions:  final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+transitions: final_data $(TRANSITION_SOURCE)/model_definitions.txt $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
 
-
-scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data $(TRANSITION_SOURCE)/scotland_mode.txt
+scot_transitions: final_data $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt $(SCOTDATA)/2019_US_cohort.csv
 
 $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
-$(TRANSITION_SOURCE)/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
 
 $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R

@@ -78,10 +78,9 @@ class Neighbourhood(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
-        ## Predict next neighbourhood value
+        # Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
-        # WHYYYYYYYYYY +1????!?!?!?!?!
         neighbourhood_prob_df["neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
                                                                            list(neighbourhood_prob_df.columns),
                                                                            neighbourhood_prob_df) + 1
