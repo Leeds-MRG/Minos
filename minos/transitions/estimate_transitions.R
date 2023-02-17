@@ -256,17 +256,17 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
       # not present every year
       if(dependent == 'SF_12') {
-        if(!year %in% c(2011, 2014, 2017, 2018)) {
-          formula.string <- str_remove(formula.string, " \\+ relevel\\(factor\\(neighbourhood_safety\\), ref = '1'\\)")
+        if(!year %in% c(2011, 2014, 2017)) {
+          formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
         }
         if(!year > 2016) {
           formula.string <- str_remove(formula.string, " \\+ relevel\\(factor\\(loneliness\\), ref = '1'\\)")
         }
         if(!year %in% c(2015, 2017, 2019)) {
-          formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
+          formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
         }
         if(year < 2013) {
-          formula.string <- str_remove(formula.string, " \\+ scale\\(ncigs\\)")
+          formula.string <- str_remove(formula.string, " \\+ ncigs")
         }
       }
       #print(formula.string)
@@ -357,15 +357,15 @@ if(scotland.mode) {
   print('Estimating transition models in Scotland mode')
   dataDir <- 'data/scotland_US/'
   modDefFilename <- 'model_definitions_SCOTLAND.txt'
+  transitionDir <- 'data/transitions/scotland/'
 } else {
   print('Estimating transition models in whole population mode')
   dataDir <- 'data/final_US/'
   modDefFilename <- 'model_definitions.txt'
+  transitionDir <- 'data/transitions/'
 }
 
-transitionDir <- 'data/transitions/'
 transSourceDir <- 'minos/transitions/'
-
 
 
 # Load input data (final_US/)
@@ -376,26 +376,3 @@ data <- do.call(rbind, lapply(filelist, read.csv))
 run_yearly_models(transitionDir, transSourceDir, modDefFilename, data)
 
 print('Generated all transition models.')
-
-
-
-whole.pop.mode.file <- paste0(transitionDir, 'whole_population_mode.txt')
-scotland.mode.file <- paste0(transitionDir, 'scotland_mode.txt')
-
-# For output and graceful handling with Makefile
-if(args$scotland) {
-  if(file.exists(whole.pop.mode.file)) { # if the other mode file is there, remove
-    file.remove(whole.pop.mode.file)
-  }
-  if(!file.exists(scotland.mode.file)) {
-    file.create(scotland.mode.file)
-  }
-} else {
-  if(file.exists(scotland.mode.file)) { # if the other mode file is there, remove
-    file.remove(scotland.mode.file)
-  }
-  if(!file.exists(whole.pop.mode.file)) {
-    file.create(whole.pop.mode.file)
-  }
-}
-

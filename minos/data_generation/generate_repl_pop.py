@@ -24,12 +24,15 @@ from minos.modules import r_utils
 
 
 # suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
 def expand_repl(US_2018):
     """ Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
+<<<<<<< HEAD
 
+=======
+>>>>>>> scotland_mode
     Parameters
     ----------
     US_2018 : pandas.DataFrame
@@ -80,15 +83,23 @@ def expand_repl(US_2018):
 
 def reweight_repl(expanded_repl, projections):
     """
+<<<<<<< HEAD
 
+=======
+>>>>>>> scotland_mode
     Parameters
     ----------
     expanded_repl
     projections
+<<<<<<< HEAD
 
     Returns
     -------
 
+=======
+    Returns
+    -------
+>>>>>>> scotland_mode
     """
     ## Now reweight by sex and year
     print('Reweighting by sex, ethnic group, and year...')
@@ -125,19 +136,15 @@ def reweight_repl(expanded_repl, projections):
 def predict_education(repl):
     """
     This function predicts the highest level of education that will be attained by simulants in the model.
-
     There are 2 steps to this process:
         1. First the highest education will be predicted for all 16 year olds in the replenishing population, which
             will then be used in the simulation to decide who and when to change their education.
         2. Predict education for all 16-25 year olds, as they may not have finished education and can still improve.
-
     Parameters
     ----------
     repl
-
     Returns
     -------
-
     """
     print("Predicting max education level for replenishing populations...")
 
@@ -161,24 +168,14 @@ def predict_education(repl):
 def generate_replenishing(projections, scotland_mode):
 
     output_dir = 'data/replenishing/'
+    data_source = 'final_US'
 
     if scotland_mode:
-        print('Generating replenishing population for Scotland mode...')
-        data_source = 'scotland_US'
-        if os.path.exists(output_dir + 'whole_pop_mode.txt'):
-            os.remove(output_dir + 'whole_pop_mode.txt')
-        with open(output_dir + 'scotland_mode.txt', 'a') as mode_file:
-            pass
-    else:
-        print('Generating replenishing population...')
-        data_source = 'final_US'
-        if os.path.exists(output_dir + 'scotland_mode.txt'):
-            os.remove(output_dir + 'scotland_mode.txt')
-        with open(output_dir + 'whole_pop_mode.txt', 'a') as mode_file:
-            pass
+        output_dir = 'data/replenishing/scotland/'
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2018_US_cohort.csv"
+    file_name = f"data/{data_source}/2017_US_cohort.csv"
+
     data = pd.read_csv(file_name)
 
     # expand and reweight the population

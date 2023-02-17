@@ -84,10 +84,10 @@ def generate_composite_housing_quality(data):
     ]
     values = [3, 2, 1]
 
-    # first create housing_quality var and set all to missing
-    data['housing_quality'] = -9
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
+    # Set to -9 if missing (currently when housing_quality == 0)
+    data['housing_quality'][data['housing_quality'] == 0] = -9
 
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
@@ -300,30 +300,12 @@ def generate_composite_neighbourhood_safety(data):
 
     data['neighbourhood_safety'] = data.safety
 
-    ### BAD Data Correction
-    ## Please replace this when possible its dreadful
-    # Have to copy neighbourhood_safety from 2017 onto 2018 in order to run the model.
-    print("Doing horrible 'correction' because neighbourhood_safety is missing for 2018")
-    data['neighbourhood_safety'][data['time'] == 2018] = data['neighbourhood_safety'][data['time'] == 2017]
-    temp_nh = data[['pidp', 'time', 'neighbourhood_safety']][data['time'] == 2017]
-    temp_nh['time'] = 2018
-    data_merged = data.merge(right=temp_nh,
-                             how='left',
-                             on=['pidp', 'time'])
-    # now create a new column with things combined
-    data_merged['nh_safety'] = -9
-    data_merged['nh_safety'][data_merged['time'] != 2018] = data_merged['neighbourhood_safety_x']
-    data_merged['nh_safety'][data_merged['time'] == 2018] = data_merged['neighbourhood_safety_y']
-
-    data_merged.drop(labels=['neighbourhood_safety_x', 'neighbourhood_safety_y'], axis=1, inplace=True)
-    data_merged.rename(columns={'nh_safety': 'neighbourhood_safety'}, inplace=True)
-
     # drop cols we don't need
-    data_merged.drop(labels=['safety'] + var_list,
-                     axis=1,
-                     inplace=True)
+    data.drop(labels=['safety'] + var_list,
+              axis=1,
+              inplace=True)
 
-    return data_merged
+    return data
 
 
 def generate_labour_composite(data):

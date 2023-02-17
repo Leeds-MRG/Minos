@@ -20,8 +20,11 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
-# This path points to the python site-packages directory in the conda environment
+
+# These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
+#SITEPACKAGES_VIVARIUM = $(shell python -c "import os, vivarium; print(os.path.dirname(vivarium.__file__))") # Alternative method
+SITEPACKAGESR = $(shell Rscript -e '.libPaths()') | sed "s/^[^ ]* //"
 
 # Executables
 PYTHON = python
@@ -51,6 +54,13 @@ help: ### Show this help
 	@echo
 	@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
 
+.PHONY: libpaths
+libpaths: ### Grab paths to Python and R libraries
+	@echo "Default conda site-packages paths for Python and R modules:"
+	@echo $(SITEPACKAGES)
+	@echo $(SITEPACKAGESR)
+
+
 # ARC4 install instructions
 # https://arcdocs.leeds.ac.uk/getting_started/logon.html
 # When logged in to arc4. need to create user directory
@@ -60,37 +70,21 @@ help: ### Show this help
 # Clone minos git in. (contains this makefile)
 # git clone https://github.com/Leeds-MRG/Minos
 
-
-# Requires python 3.8, R base v4.1.0. tidyverse dplyr and sf packages also loaded from condaforge as they take a long time to install.
-# conda create -n conda_minos python=3.9 # create conda environment.
-# #conda activate conda_minos # activate conda environment.
-# conda install -c conda-forge r-base=4.1.0 # install base R 4.1.0.
-# conda install -c conda-forge r-sf
-# conda install -c conda-forge r-dplyr
-# conda install -c conda-forge r-tidyverse
-
-# TEMPORARY TEST RUN
-tmp_test: new_setup baseline intervention_energyDownLift aggregate_minos_output_energy
-
-
 ## Install
 ###
 
 # Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
-install: ### Install all Minos requirements via pip
+install: ### Install Minos and requirements (all except vivarium removed to conda env file)
 install: $(SITEPACKAGES)/vivarium/__init__.py
 
 $(SITEPACKAGES)/vivarium/__init__.py:
-	@echo "Installing requirements via pip..."
+	@echo "Installing remaining requirements via pip..."
+	#pip install vivarium~=0.10.12 # Alternative method to specifying this in setup.py, which is called by "pip install" below
 	pip install -v -e .
-	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken."
+	#conda develop . # Alternative method, but Minos will not be shown in "conda list"
+	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken..."
 	# New pandas version no longer needs to raise a key error.
-	@sed -i 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
-	@echo "Python install complete."
-	@echo "Installing R..."
-	conda install -c conda-forge r-base=4.1.2
-	@echo "installing R requirements"
-	Rscript install.R # install any R packages. Annoying to do in conda.
+	@sed -i.backup 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
 	@echo "\nInstall complete!\n"
 
 
@@ -108,33 +102,33 @@ testRun_Intervention: setup
 ###
 ## Experiment Runs
 ###
-.phony: all_scenarios baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+.phony: all_scenarios baseline intervention_hhIncome intervention_hhIncomeChildUplift
 .phony: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 #####################################
 ## Local runs of MINOS interventions.
 #####################################
 
-all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift intervention_hhIncomeChildUplift
+all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift
 all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
-baseline: new_setup
+baseline: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config'
 
-intervention_hhIncome: new_setup
+intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-intervention_hhIncomeChildUplift: new_setup
+intervention_hhIncomeChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-intervention_PovertyLineChildUplift: new_setup
+intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-intervention_livingWage: new_setup
+intervention_livingWage: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-intervention_energyDownLift: new_setup
+intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o 'default_config' -i 'energyDownlift'
 
 
@@ -152,22 +146,22 @@ scot_baseline: scot_setup
 .phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
 .phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
-arc4_baseline: new_setup
+arc4_baseline: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config'
 
-arc4_intervention_hhIncome: new_setup
+arc4_intervention_hhIncome: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeIntervention'
 
-arc4_intervention_hhIncomeChildUplift: new_setup
+arc4_intervention_hhIncomeChildUplift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomeChildUplift'
 
-arc4_intervention_PovertyLineChildUplift: new_setup
+arc4_intervention_PovertyLineChildUplift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'hhIncomePovertyLineChildUplift'
 
-arc4_intervention_livingWage: new_setup
+arc4_intervention_livingWage: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'livingWageIntervention'
 
-arc4_intervention_energyDownLift: new_setup
+arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
 arc4_allscenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
@@ -205,8 +199,6 @@ beefy_all: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervent
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions replenishing_data
-
-new_setup: install data transitions replenishing_data
 
 scot_setup: install scot_data scot_transitions scot_replenishing
 
@@ -288,15 +280,14 @@ $(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOU
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions: | $(TRANSITION_DATA)
-transitions: $(TRANSITION_SOURCE)/model_definitions.txt final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
-#new_transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds
+transitions: final_data $(TRANSITION_SOURCE)/model_definitions.txt $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
 
-scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/scotland_mode.txt
+scot_transitions: final_data $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt $(SCOTDATA)/2019_US_cohort.csv
 
 $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
-$(TRANSITION_SOURCE)/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
 
 $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
@@ -409,7 +400,7 @@ all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_m
 all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift aggregate_minos_output_energy
 
 #####################################
-# Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions. 
+# Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
 #####################################
 
 DEFAULT_OUTPUT_SUBDIRECTORY = default_config
@@ -421,8 +412,8 @@ OUT_HHINCOMECHILDUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomeChildUplift
 OUT_ENERGYDOWNLIFT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownlift
 OUT_LIVINGWAGEINT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/livingWageIntervention
 OUT_POVERTYUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomePovertyLineChildUplift
-SPATIAL_DIRECTORY1 = output/$(INTERVENTION1)# first geojson for comparison in diff plot.
-SPATIAL_DIRECTORY2 = output/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
+SPATIAL_DIRECTORY1 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION1)# first geojson for comparison in diff plot.
+SPATIAL_DIRECTORY2 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
 AGG_METHOD = nanmean# what method to aggregate with.
 AGG_VARIABLE = SF_12# what variable to aggregate.
 AGG_YEAR = 2025# what year to map in data.

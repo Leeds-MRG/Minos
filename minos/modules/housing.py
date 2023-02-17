@@ -71,7 +71,7 @@ class Housing(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -90,10 +90,10 @@ class Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        # TODO: Find out why this was adding 1 to the prediction?
-        #housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns), housing_prob_df)+1
-        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns),
+        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
+                                                                list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
+
         housing_prob_df.index = housing_prob_df.index.astype(int)
 
         self.population_view.update(housing_prob_df["housing_quality"])
