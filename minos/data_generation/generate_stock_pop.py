@@ -68,9 +68,10 @@ def reweight_stock(data, projections):
 
 
 def generate_stock(projections):
+    maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
-    years = np.arange(2009, 2020)
+    years = np.arange(2009, maxyr)
     file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 

@@ -35,4 +35,6 @@ def main(years):
         #spatial_data.to_csv(f"data/spatial_US/{year}_US_cohort.csv")
 
 if __name__ == '__main__':
-    main(np.arange(2009, 2019, 1))
+    maxyr = US_utils.get_data_maxyr()
+
+    main(np.arange(2009, maxyr, 1))

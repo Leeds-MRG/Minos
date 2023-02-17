@@ -34,19 +34,19 @@ def add_nobs_column(data):
 
 
 def main(output_dir):
+    maxyr = US_utils.get_data_maxyr()
     # Load in data.
     # Process data by year and pidp.
-    years = np.arange(1991, 2020) # need the full range of US data for locf imputation.
-    save_years = np.arange(2009, 2020) # only saving UKHLS data after 2009.
+    years = np.arange(1991, maxyr)  # need the full range of US data for locf imputation.
+    save_years = np.arange(2009, maxyr)  # only saving UKHLS data after 2009.
 
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = add_nobs_column(data)
-    data = US_utils.restrict_chains(data, 2) #grab people with two or more obs.
+    data = US_utils.restrict_chains(data, 2)  # grab people with two or more obs.
 
     # missingness table simply counts number of missing data entries in entire data frame.
     print("Raw data before correction")
-
 
     # Last observation carried forwards (LOCF) interpolation of variables only recorded when changed.
     data = US_missing_LOCF.main(data)
@@ -64,9 +64,7 @@ def main(output_dir):
 
     US_utils.save_multiple_files(data, save_years, output_dir, "")
 
-    return data
-
 
 if __name__ == "__main__":
-    output = 'data/corrected_US/'
-    data = main(output)
+    output_dir = 'data/corrected_US/'
+    main(output_dir)
