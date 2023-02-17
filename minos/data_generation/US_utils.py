@@ -399,7 +399,7 @@ def get_data_maxyr():
     # hardcoding this because its simpler than passing it as command line arg to each datagen script
     # TODO: find a way to run this func once in US_format_raw.py and save somewhere for easy access
     #   Maybe a Makefile arg would make more sense?
-    raw_US_dir = '../../../UKDA-6614-stata_NEW/stata/stata13_se/ukhls/'
+    raw_US_dir = '../../../UKDA-6614-stata/stata/stata13_se/ukhls/'
 
     # Get a list of the filenames in the raw US directory
     #   drop the _indresp.dta suffix
@@ -433,7 +433,3 @@ missing_types = ['-1', '-2', '-7', '-8', '-9', '-10',
                  -1, -2, -7, -8, -9, -10,
                  '-1.0', '-2.0', '-7.0', '-8.0', '-9.0', '-10.0',
                  "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
-
-
-if __name__ == '__main__':
-    endyr = get_data_endyear()
