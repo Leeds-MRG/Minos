@@ -557,7 +557,7 @@ if __name__ == "__main__":
 
     maxyr = US_utils.get_data_maxyr()
 
-    years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2020.
+    years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
     #years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)

@@ -394,12 +394,12 @@ def get_data_maxyr():
     maxyr : int
         The final year of US data in the input data directory.
     """
-    print('Calculating max year of raw input data...')
+    print('Calculating max year of data...')
 
     # hardcoding this because its simpler than passing it as command line arg to each datagen script
     # TODO: find a way to run this func once in US_format_raw.py and save somewhere for easy access
     #   Maybe a Makefile arg would make more sense?
-    raw_US_dir = '../../../UKDA-6614-stata/stata/stata13_se/ukhls/'
+    raw_US_dir = '../UKDA-6614-stata/stata/stata13_se/ukhls/'
 
     # Get a list of the filenames in the raw US directory
     #   drop the _indresp.dta suffix
@@ -418,7 +418,7 @@ def get_data_maxyr():
     # first year of ukhls data is 2009
     maxyr = 2009 + max(wave_numlist)
 
-    return(maxyr)
+    return maxyr
 
 
 def replace_missing_with_na(data, column_list):
