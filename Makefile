@@ -258,13 +258,13 @@ $(FINALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/20
 $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
-$(DATADIR)/replenishing/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland
 
 $(SPATIALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2019_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
-$(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/scotland_mode.txt
+$(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
 #####################################
@@ -280,14 +280,14 @@ $(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOU
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions: | $(TRANSITION_DATA)
-transitions: final_data $(TRANSITION_SOURCE)/model_definitions.txt $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+transitions: final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
 
-scot_transitions: final_data $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt $(SCOTDATA)/2019_US_cohort.csv
+scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds
 
 $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
-$(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
 
 $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
