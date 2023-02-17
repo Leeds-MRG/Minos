@@ -91,7 +91,7 @@ class hhIncomeIntervention():
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
@@ -160,7 +160,7 @@ class hhIncomeChildUplift(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
@@ -172,9 +172,9 @@ class hhIncomeChildUplift(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # print(np.mean(pop['hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
-        pop['boost_amount'] = (20 * 30.436875 * pop['nkids'] / 7) # £20 per week * 30.463/7 weeks per average month * nkids.
-        pop['income_boosted'] = pop['boost_amount'] != 0
+        #pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
+        pop['boost_amount'] = (25 * 30.436875 * pop['nkids'] / 7) # £25 per week * 30.463/7 weeks per average month * nkids.
+        pop['income_boosted'] = (pop['boost_amount'] != 0)
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
@@ -226,7 +226,7 @@ class hhIncomePovertyLineChildUplift(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False, # who boosted?
@@ -237,7 +237,7 @@ class hhIncomePovertyLineChildUplift(Base):
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']
+        #pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -294,7 +294,7 @@ class livingWageIntervention(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
 
     def on_initialize_simulants(self, pop_data):
@@ -321,7 +321,7 @@ class livingWageIntervention(Base):
         """
         pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']
+        #pop['hh_income'] -= pop['boost_amount']
         # Now get who gets uplift (different for London/notLondon)
         who_uplifted_London = pop['hourly_wage'] > 0
         who_uplifted_London *= pop['region'] == 'London'
@@ -386,7 +386,7 @@ class energyDownlift(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
 
     def on_initialize_simulants(self, pop_data):
@@ -399,7 +399,7 @@ class energyDownlift(Base):
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']
+        #pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.

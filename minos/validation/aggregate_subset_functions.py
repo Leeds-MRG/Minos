@@ -3,9 +3,11 @@
 import numpy as np
 import pandas as pd
 
+
 def find_subset_function(function_string):
 
-    subset_functions = {"none": None,
+    DEFAULT_SUBSET = who_alive
+    subset_dict = {"none": None,
                         "who_alive": who_alive,
                         "who_boosted": who_boosted,
                         "who_below_living_wage": who_below_living_wage,
@@ -31,11 +33,11 @@ def find_subset_function(function_string):
                         "who_babies_under_one": None,
                         "who_income_benefits": None,
                         "who_no_public_funds_recourse": None,}
+    if function_string not in subset_dict:
+        print("No subset_function defined. Defaulting to anyone alive")
+    subset_function = subset_dict.get(function_string, DEFAULT_SUBSET)
+    return subset_function
 
-    if function_string not in subset_functions.keys():
-        print("no subset_function defined. Defaulting to anyone alive.")
-        return who_alive
-    return subset_functions[function_string]
 
 def who_alive(df):
     """ Get who is alive.

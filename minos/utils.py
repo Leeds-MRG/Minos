@@ -11,6 +11,8 @@ import datetime
 from itertools import product
 import scipy
 
+import sys
+import importlib
 from vivarium.config_tree import ConfigTree
 
 
@@ -98,3 +100,55 @@ def make_uniform_pop_data(age_bin_midpoint=False):
     if age_bin_midpoint:  # used for population tests
         pop['age'] = pop.apply(lambda row: (row['age_start'] + row['age_end']) / 2, axis=1)
     return pop
+
+
+REPLACEMENTS_DEFAULT = {"\n": "\n"} # i.e. do nothing
+
+
+def replace_text(input_text, replacements=REPLACEMENTS_DEFAULT):
+    num_rep = len(replacements)
+    print('++ Total replacements:', num_rep)
+    for i, (old_text, new_text) in enumerate(replacements.items()):
+        print('Replacement', i+1, 'of', num_rep, ':', old_text, 'for', new_text)
+        print('Before:', input_text.count(old_text), input_text.count(new_text))
+        input_text = input_text.replace(old_text, new_text)
+        print('After:', input_text.count(old_text), input_text.count(new_text))
+    return input_text
+
+
+def patch(module, modification_function=replace_text, *args, **kwargs):
+    '''
+    HR 09/02/23
+    To patch module at runtime arbitrarily
+
+    1. Adapted from here: https://stackoverflow.com/questions/5362771/how-to-load-a-module-from-code-in-a-string
+    2. ...and here: https://stackoverflow.com/questions/41858147/how-to-modify-imported-source-code-on-the-fly
+
+    Much simpler ways are available for:
+    1. Adding/removing methods entirely
+    2. Overriding methods entirely
+    3. Wrapping/decorating methods, e.g. if only inputs/outputs need to be modified
+
+    Usage:
+    e.g. replace block of code:
+    module = patch(module, replacements={'old_text':'new_text'})
+
+    By default, method does nothing
+    '''
+    print('Running "patch"')
+
+    module_name = module.__name__
+    # 1. Retrieve module code as text
+    spec = importlib.util.find_spec(module_name, None)
+    old_source = spec.loader.get_source(module_name)
+
+    # 2. Modify code of module in text form
+    new_source = modification_function(old_source, *args, **kwargs)
+
+    # 3. Create/load module using modified text
+    module = importlib.util.module_from_spec(spec)
+    codeobj = compile(new_source, module.__spec__.origin, 'exec')
+    exec(codeobj, module.__dict__)
+    sys.modules[module_name] = module
+    globals()[module_name] = module
+    return module
