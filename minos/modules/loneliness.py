@@ -110,7 +110,7 @@ class Loneliness(Base):
         else:
             year = self.year
         year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}")
+        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop, 'loneliness')
         return prob_df

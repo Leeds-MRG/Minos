@@ -28,7 +28,11 @@ class Base():
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
+        # Use transition directory specified in config file
+        self.transition_dir = config.transition_dir
+
         return simulation
+
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added. By default adds no columns.
