@@ -2,17 +2,20 @@
 title: "Loneliness"
 output: html_document
 bibliography: 
-  - "refs.bib"  # bib reference depending on where the file is being run. Use this one when compiling the website using the makefile.
+  - "docsrc/refs.bib"  # bib reference depending on where the file is being run. Use this one when compiling the website using the makefile.
   #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging. Make sure to switch back when done..
 ---
 
 ## Loneliness
 
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir= "../minos")
+```
 
 Introductory fluff. Why do we need this module? test reference [@1987:nelson]. 
 
-```{r setup, include=FALSE}
-source('sphinx_notebook_utils.R')
+```{r load_data, include=FALSE}
+source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
 ```
 
 ### Methods
@@ -20,7 +23,7 @@ source('sphinx_notebook_utils.R')
   What methods are used? Justification due to output data type. explanation of model output.
   
 ```{r loneliness_data}
-discrete_barplot("loneliness")
+discrete_barplot("data/transitions/loneliness/clm/loneliness_2018_2019.rds", 'next_loneliness')
 ```
 
 ### Data
@@ -34,8 +37,8 @@ discrete_barplot("loneliness")
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
-clm_barplot("../../../data/transitions/test/loneliness_clm_2018_2019.rds", "loneliness_next") 
-clm_output("../../../data/transitions/test/loneliness_clm_2018_2019.rds") #e.g. ../../../data/transitions/test/housing_clm_2018_2019.rds
+clm_barplot("data/transitions/loneliness/clm/loneliness_2018_2019.rds", "next_loneliness") 
+clm_output("data/transitions/loneliness/clm/loneliness_2018_2019.rds")
 ```
 
 

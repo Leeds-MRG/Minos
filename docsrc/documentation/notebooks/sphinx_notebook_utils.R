@@ -4,9 +4,8 @@ It is generally much tidier than having large blocks of code
 lying around to call one line from here.
 "
 library(ggplot2)
-
-source("../../../minos/transitions/utils.R")
-real_data <- read.csv("../../../data/final_US/2017_US_Cohort.csv")
+source("minos/transitions/utils.R")
+real_data <- read.csv("data/final_US/2019_US_Cohort.csv")
 
 #source("minos/transitions/utils.R")
 #real_data <- read.csv("data/final_US/2018_US_Cohort.csv")
@@ -30,20 +29,20 @@ notebook_setwd<- function(){
 
 # general data visualisation
 
-continuous_density <- function(v){
-  obs <- real_data[, c(v)]
-  quants = quantile(obs, c(.001, .999))
+continuous_density <- function(path, v){
+  obs <- readRDS(path)[[v]]
+  quants = quantile(obs, c(.001, .999)) # cutting off huge outliers for better plots.
   plot(density(obs, from=quants[1], to=quants[2]), main='', xlab=v)
 }
 
-counts_density <- function(v){
-  obs <- real_data[, c(v)]
+counts_density <- function(path, v){
+  obs <- readRDS(path)$y
   quants = quantile(obs, c(.001, .999))
   plot(density(obs, from=0, to=quants[2]), main='', xlab=v)
 }
 
-discrete_barplot <- function(v){
-  obs <- real_data[, c(v)]
+discrete_barplot <- function(path, v){
+  obs <- readRDS(path)[[v]]
   counts <- table(obs)
   barplot(counts, horiz=F, cex.names=.7, las=2)
 }
@@ -90,8 +89,8 @@ clm_barplot <- function(data_path, v){
   #column_index <- paste0("factor(", v)
   #column_index <- paste0(column_index, ")")
   #obs <- clm_model$model[, c(column_index)]
-  obs <- as.vector(clm_model$model_data[, c(v)])
-  preds <- as.vector(as.vector(predict(clm_model, clm_model$model_data, type='class')$fit))
+  obs <- clm_model[[v]]
+  preds <- clm_model$class_preds
   
   obs <- as.data.frame(table(obs))
   colnames(obs) <- c("value", "freq")
@@ -150,13 +149,13 @@ nnet_confusion_matrix <- function(data_path, mode, v){
   # predicted as sick/disabled (~7%).
   if (mode == "multinom"){
     multinom_model<- readRDS(data_path)
-    obs <- multinom_model$model[, c(v)]
+    #obs <- multinom_model$model[, c(v)]
+    obs <- as.data.frame(multinom_model[v])[,c(v)]
     preds <- predict(multinom_model)
   }
   else if (mode == "ordinal"){
     ordinal_model<- readRDS(data_path)
-    real_data[,c(v)] <- replace.missing(real_data)[, c(v)]
-    obs <- real_data[, c(v)]
+    obs <- as.data.frame(multinom_model[v])[,c(v)]
     preds <- predict(ordinal_model, type='class', real_data)$fit
   }
 
@@ -213,7 +212,7 @@ zip_density <- function (data_path, v){
   
   # get obs/preds
   zip_model <- readRDS(data_path)
-  obs <- zip_model$model[, c(v)]
+  obs <- zip_model[[v]]
   # predict probability of zero value and counts of non-zero value..
   probs <- predict(zip_model, type='zero')
   counts <- predict(zip_model, type='count')
@@ -232,8 +231,43 @@ zip_output <- function(data_path){
 
 #TODO utility functions for education and replenishment. 
 
+test_main <-function()
+{
+  
+  # labour
+  discrete_barplot("data/transitions/labour_state/nnet/labour_state_2018_2019.rds", 'next_labour_state')
+  nnet_confusion_matrix("data/transitions/labour_state/nnet/labour_state_2018_2019.rds", "multinom", "next_labour_state")
+  
+  #loneliness
+  discrete_barplot("data/transitions/loneliness/clm/loneliness_2018_2019.rds", 'next_loneliness')
+  clm_barplot("data/transitions/loneliness/clm/loneliness_2018_2019.rds", "next_loneliness") 
+  clm_output("data/transitions/loneliness/clm/loneliness_2018_2019.rds")
+  
+  # household income
+  continuous_density("data/transitions/hh_income/ols/hh_income_2018_2019.rds", "next_hh_income")  
+  ols_output("data/transitions/hh_income/ols/hh_income_2018_2019.rds")
+  ols_histogram("data/transitions/hh_income/ols/hh_income_2018_2019.rds", "next_hh_income")
+  
+  # housing
+  discrete_barplot("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds", 'next_housing_quality')
+  clm_barplot("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds", "next_housing_quality") 
+  clm_output("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds")
+  
+  # MWB
+  continuous_density("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")  
+  ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
+  ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
+  
+  #neighbourhood
+  discrete_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", 'next_neighbourhood_safety')
+  clm_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", "next_neighbourhood_safety") 
+  clm_output("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds")  
+  
+  # tobacco
+  counts_density("data/transitions/ncigs/zip/ncigs_2018_2019.rds", "y")
+  zip_output("data/transitions/ncigs/zip/ncigs_2018_2019.rds")
+  zip_density("data/transitions/ncigs/zip/ncigs_2018_2019.rds", 'y')
+  
+  }
 
-#nnet_confusion_matrix("data/transitions/test/labour_nnet_2018_2019.rds", "multinom", "factor(labour_state_next)")
-#nnet_confusion_matrix("data/transitions/test/loneliness_clm_2018_2019.rds", "ordinal", 'loneliness') 
-
-#clm_barplot("data/transitions/test/housing_clm_2018_2019.rds", "housing_quality_next")
+#test_main()

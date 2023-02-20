@@ -50,7 +50,7 @@ digest_params <- function(line) {
 # to include the survey weights in estimation (only no for 2009 where no weight
 # information available)
 
-estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
+estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) {
   
   if(include_weights) {
     # fit the model including weights (after 2009)
@@ -62,6 +62,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
     model <- lm(formula,
                 data = data)
   }
+  model[[depend]] <- data[[depend]]
   return(model)
 }
 
@@ -88,6 +89,9 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
                  threshold = "flexible",
                  Hess=T)
   }
+  model[[depend]] <- data[[depend]]
+  data[[depend]] <- NULL
+  model$class_preds <- predict(model, newdata = data, type='class')
   return(model)
 }
 
@@ -108,6 +112,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
                       data = data,
                       MaxNWts = 10000,
                       maxit = 1000)
+  model[[depend]] <- data[[depend]]
   }
   return(model)
 }
@@ -141,6 +146,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
                       data = dat.subset,
                       dist = 'pois', 
                       link='logit')
+  model[[depend]] <- data[[depend]]
   }
   
   #print(summary(model))
@@ -179,7 +185,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- min(data$time):(max(data$time) - 1)
+    year.range <- seq(max(data$time)-5, (max(data$time) - 1))
     # set up output directory
     out.path1 <- paste0(transitionDir_path, dependent, '/')
     out.path2 <- paste0(out.path1, tolower(mod.type), '/')
@@ -271,7 +277,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         
         model <- estimate_yearly_ols(data = merged, 
                                      formula = form, 
-                                     include_weights = use.weights)
+                                     include_weights = use.weights,
+                                     depend = next.dependent)
         
       } else if(tolower(mod.type) == 'clm') {
         
