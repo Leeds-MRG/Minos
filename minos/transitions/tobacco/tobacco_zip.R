@@ -39,7 +39,7 @@ main <- function(years){
                  "ethnicity",
                  "labour_state",
                  "job_sec",
-                 "hh_income",
+                 "net_hh_income",
                  "ncigs",
                  "weight")
     

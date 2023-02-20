@@ -55,12 +55,12 @@ class Tobacco(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income',
+                        'net_hh_income',
                         'SF_12',
                         'education_state',
                         'labour_state',
                         'job_sec',
-                        'hh_income',
+                        'net_hh_income',
                         'alcohol_spending',
                         'ncigs']
         #view_columns += self.transition_model.rx2('model').names

@@ -54,7 +54,7 @@ class Loneliness(Base):
                         "education_state",
                         "age",
                         "housing_quality",
-                        "hh_income",
+                        "net_hh_income",
                         "loneliness",
                         "hh_comp",
                         "marital_status",

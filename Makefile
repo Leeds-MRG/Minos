@@ -268,7 +268,7 @@ $(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions: | $(TRANSITION_DATA)
-transitions:  final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+transitions:  final_data $(TRANSITION_DATA)/gross_hh_income/ols/gross_hh_income_2018_2019.rds
 
 
 scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data $(TRANSITION_SOURCE)/scotland_mode.txt

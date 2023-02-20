@@ -62,7 +62,7 @@ class Labour(Base):
                         "ethnicity",
                         "age",
                         "housing_quality",
-                        "hh_income",
+                        "net_hh_income",
                         "education_state",
                         "alcohol_spending",]
         self.population_view = builder.population.get_view(columns=view_columns)
