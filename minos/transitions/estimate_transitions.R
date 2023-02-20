@@ -260,7 +260,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
           formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
         }
         if(!year > 2016) {
-          formula.string <- str_remove(formula.string, " \\+ relevel\\(factor\\(loneliness\\), ref = '1'\\)")
+          formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
         }
         if(!year %in% c(2015, 2017, 2019)) {
           formula.string <- str_remove(formula.string, " \\+ nutrition_quality")

@@ -182,7 +182,7 @@ class ReplenishmentScotland(Base):
             pop['time'] += 1
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
-            new_wave = pd.read_csv(f"data/replenishing/replenishing_pop_2019-2070.csv")
+            new_wave = pd.read_csv(f"data/replenishing/scotland/replenishing_pop_2019-2070.csv")
             # Now select the population for the current year
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds
