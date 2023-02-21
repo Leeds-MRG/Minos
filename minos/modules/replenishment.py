@@ -109,7 +109,8 @@ class Replenishment(Base):
                         'nbedrooms',
                         'hhsize',
                         'oecd_equiv',
-                        'financial_situation']
+                        'financial_situation',
+                        'heating',]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

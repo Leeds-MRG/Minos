@@ -25,12 +25,14 @@ columns <- c("pidp",
              'marital_status',
              'heating',
              'weight',
-             'urban',
              'nbedrooms',
              #'household_size',
              'tenure',
+             'hhsize',
+             'urban',
              #'central_heating',
-             'yearly_energy')
+             'yearly_energy',
+             'financial_situation')
 
 data <- data[, columns]
 data2 <- data2[, c("pidp", "heating")]
@@ -53,19 +55,15 @@ data$weight <- scale(data$weight)
 data$weight <- data$weight - min(data$weight)
 
 formula <- "heating_next ~ factor(heating) +
-            factor(labour_state)+ 
             scale(SF_12)+ 
-            factor(job_sec)+ 
+            relevel(factor(ethnicity), ref='WBI') +
             net_hh_income+ 
-            + I(net_hh_income**2) +
             factor(marital_status)+ 
             ncigs+ 
-            age+ 
-            I(age**2) +
+            hhsize +
             factor(urban) +
-            nbedrooms +
-            household_size +
-            factor(tenure)"
+            factor(tenure) + 
+            factor(financial_situation)"
 heating_logit <- glm(formula, family=binomial(link="logit"), data=data)
 
 create.if.not.exists("data/transitions/heating")
@@ -75,7 +73,13 @@ finsit.clm.file <- "heating_logit_2018_2019.rds"
 finsit.clm.filename <- paste0(finsit.clm.path, finsit.clm.file)
 saveRDS(finnow_clm, file=finsit.clm.filename)
 
+
 print(summary(heating_logit))
+
+preds <- predict(heating_logit, type='response')
+preds <- runif(length(preds)) <= preds
+print(table(data$heating_next, preds))
+
 #preds <- predict(heating_logit)
 #preds <-sapply(preds, invlogit)
 #preds[which(preds>=0.5)] <- 1

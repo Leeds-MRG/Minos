@@ -1,11 +1,13 @@
+
 source("minos/transitions/utils.R")
+source("minos/transitions/plotting_utils.R")
 
 # load data for 2018/2019
 # fit binary logistic glm.
 # plot goodness of fit. 
 
 years <- c(2018, 2019)
-files <- get.two.files("data/final_US/", 2018, 2019)
+files <- get.two.files("data/composite_US/", 2018, 2019)
 data <- files$data1
 data2 <- files$data2
 
@@ -18,7 +20,7 @@ columns <- c("pidp",
              #"ethnicity",
              "labour_state",
              "job_sec",
-             "net_hh_income",
+             "hh_income",
              #"alcohol_spending",
              #"ncigs",
              #"nkids",
@@ -33,8 +35,8 @@ columns <- c("pidp",
              #'central_heating',
              #'yearly_energy',
              'financial_situation')
-#'neighbourhood_safety',
-#'housing_quality')
+             #'neighbourhood_safety',
+             #'housing_quality')
 
 data <- data[, columns]
 data2 <- data2[, c("pidp", "financial_situation")]
@@ -82,20 +84,20 @@ data$financial_situation_next <- factor(data$financial_situation_next)
 #                  weights = weight)
 
 finnow_clm <- clm(financial_situation_next ~ 
-                    factor(financial_situation) +
-                    factor(labour_state) + 
-                    #factor(ethnicity) +
-                    scale(SF_12) + 
-                    factor(job_sec)+ 
-                    scale(net_hh_income)+ 
-                    I(scale(net_hh_income)**2) +
-                    #factor(region) +
-                    factor(marital_status) +
-                    #ncigs+ 
-                    #I(scale(age)) +
-                    #nbedrooms +
-                    hhsize +
-                    factor(tenure)
+                  factor(financial_situation) +
+                  factor(labour_state) + 
+                  #factor(ethnicity) +
+                  scale(SF_12) + 
+                  factor(job_sec)+ 
+                  scale(hh_income)+ 
+                  I(scale(hh_income)**2) +
+                  #factor(region) +
+                  factor(marital_status) +
+                  #ncigs+ 
+                  #I(scale(age)) +
+                  #nbedrooms +
+                  hhsize +
+                  factor(tenure)
                   ,
                   data = data,
                   #weights=weight,
@@ -121,13 +123,8 @@ finnow_clm <- clm(financial_situation_next ~
 #data$hh_income <- data$hh_income - 1000
 #round(predict(finsit_poisson, type='response'))
 
-
-finsit.clm.path <- "data/transitions/financial_situation/clm/"
-finsit.clm.file <- "financial_situation_2018_2019.rds"
-
-create.if.not.exists("data/transitions/financial_situation")
-create.if.not.exists(finsit.clm.path)
-
+finsit.clm.path <- "data/transitions/hh_income/clm"
+finsit.clm.file <- "/perception_clm.rds"
 finsit.clm.filename <- paste0(finsit.clm.path, finsit.clm.file)
 create.if.not.exists(finsit.clm.path)
 saveRDS(finnow_clm, file=finsit.clm.filename)
@@ -139,5 +136,6 @@ prob_mat <-  predict(finnow_clm, newdata = data, type='prob')$fit
 preds <- predict(finnow_clm, newdata = data, type='class')$fit
 preds <- apply(prob_mat, 1, function(x) sample(5, 1, prob=x))
 print(table(obs, preds))
-#clm_barplot(obs, preds, "financial_situation")
-#clm_output(finnow_clm)
+clm_barplot(obs, preds, "financial_situation")
+clm_output(finnow_clm)
+#fdasf

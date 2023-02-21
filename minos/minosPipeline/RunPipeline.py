@@ -15,7 +15,7 @@ import minos.utils as utils
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment, NoReplenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
-from minos.modules.housing import Housing
+from minos.modules.housing import Housing, Heating
 from minos.modules.income import Income, grossIncome
 from minos.modules.mental_wellbeing import MWB
 from minos.modules.labour import Labour
@@ -67,6 +67,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
         components.append(Neighbourhood())
     if "Labour()" in config['components']:
         components.append(Labour())
+    if "Heating()" in config['components']:
+        components.append(Heating())
     if "Housing()" in config['components']:
         components.append(Housing())
     if "Income()" in config['components']:
