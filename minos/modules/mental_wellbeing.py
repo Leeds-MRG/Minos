@@ -59,7 +59,7 @@ class MWB(Base):
                         'education_state',
                         'labour_state',
                         'job_sec',
-                        'hh_income',
+                        'net_hh_income',
                         'SF_12',
                         'housing_quality',
                         'phealth',

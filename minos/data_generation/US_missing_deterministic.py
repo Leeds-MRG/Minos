@@ -112,7 +112,8 @@ def main(data):
                            "job_duration_m",
                            "job_duration_y",
                            "job_sec",
-                           "job_occupation"]
+                           "job_occupation",
+                          "job_sector"]
     # force unemployed people to have value 0 in unemployed_columns.
     data = det_missing(data, unemployed_columns, is_unemployed, force_minus_ten)
     # Anyone who doesn't smoke force ncigs to 0.

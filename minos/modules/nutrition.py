@@ -44,12 +44,11 @@ class Nutrition(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income',
+                        'net_hh_income',
                         'SF_12',
                         'education_state',
                         'labour_state',
                         'job_sec',
-                        'hh_income',
                         'alcohol_spending',
                         'ncigs',
                         'nutrition_quality']

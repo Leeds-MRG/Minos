@@ -47,7 +47,7 @@ class Neighbourhood(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income',
+                        'net_hh_income',
                         'neighbourhood_safety',
                         'SF_12',
                         'labour_state',

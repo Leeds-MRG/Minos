@@ -68,14 +68,13 @@ class Replenishment(Base):
                         'hidp',
                         'birth_month',
                         'birth_year',
-                        'nobs',
                         'region',
                         'SF_12',
                         'hh_int_y',
                         'hh_int_m',
                         'Date',
                         'housing_quality',
-                        'hh_income',
+                        #'hh_income',
                         'neighbourhood_safety',
                         'ncigs',
                         'alcohol_spending',
@@ -99,7 +98,18 @@ class Replenishment(Base):
                         'gross_paypm',
                         'phealth',
                         'marital_status',
-                        'hh_comp']
+                        'hh_comp',
+                        'urban',
+                        'tenure',
+                        'hh_netinc',
+                        'outgoings',
+                        'gross_hh_income',
+                        'FP10',
+                        'net_hh_income',
+                        'nbedrooms',
+                        'hhsize',
+                        'oecd_equiv',
+                        'financial_situation']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
