@@ -15,7 +15,8 @@ input_data_dir: "data/scotland_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
-transition_dir: "data/transitions/scotland/"
+transition_dir: 'data/transitions/scotland/'
+replenishing_dir: 'data/replenishing/scotland'
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.

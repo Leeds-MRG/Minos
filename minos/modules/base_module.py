@@ -32,6 +32,8 @@ class Base():
         self.transition_dir = config.transition_dir
         # Use data directory from config file
         self.input_data_dir = config.input_data_dir
+        # replenishing directory
+        self.replenishing_dir = config.replenishing_dir
 
         return simulation
 
