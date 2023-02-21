@@ -154,7 +154,7 @@ scot_intervention_livingWage: scot_setup
 scot_intervention_energyDownLift: scot_setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'energyDownlift'
 
-all_scot_scenarios: scot_baseline scot_intervention_hhIncomeChildUplift scot_intervention_PovertyLineChildUplift scot_intervention_livingWage scot_intervention_energyDownLift
+scot_all_scenarios: scot_baseline scot_intervention_hhIncomeChildUplift scot_intervention_PovertyLineChildUplift scot_intervention_livingWage scot_intervention_energyDownLift
 
 #####################################
 ## Running MINOS scenarios on Arc4
@@ -365,14 +365,24 @@ SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
 
 #TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
 scot_all_lineplots: MODE=scotland_mode
+scot_all_lineplots: ALIVE=who_scottish
+scot_all_lineplots: BOOSTED=who_scottish_boosted
+scot_all_lineplots: LIVING_WAGE=who_scottish_below_living_wage
+scot_all_lineplots: POVERTY=who_scottish_below_poverty_line_and_kids
+scot_all_lineplots: CHILD=who_scottish_and_kids
 scot_all_lineplots: all_lineplots
 
 default_all_lineplots: MODE=default_config
+default_all_lineplots: ALIVE=who_alive
+default_all_lineplots: BOOSTED=who_boosted
+default_all_lineplots: LIVING_WAGE=who_below_living_wage
+default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
+default_all_lineplots: CHILD=who_kids
 default_all_lineplots: all_lineplots
 
 all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 
-# Set the
+# Set the output directory based on
 OUTPUT_DIR = $(DATAOUT)/$(MODE)
 
 aggregate_minos_output:
@@ -387,7 +397,7 @@ aggregate_minos_output:
 aggregate_minos_output_treated:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted,who_boosted,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(ALIVE),$(BOOSTED),$(BOOSTED),$(BOOSTED)
 	# stack aggregated files into one long array.
 	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
@@ -395,7 +405,7 @@ aggregate_minos_output_treated:
 
 aggregate_minos_output_living_wage:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_living_wage,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(LIVING_WAGE),$(BOOSTED)
 	# stack aggregated files into one long array.
 	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
@@ -403,7 +413,7 @@ aggregate_minos_output_living_wage:
 
 aggregate_minos_output_poverty_child_uplift:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomePovertyLineChildUplift -t "Baseline,Poverty Line Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_poverty_line_and_kids,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomePovertyLineChildUplift -t "Baseline,Poverty Line Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(POVERTY),$(BOOSTED)
 	# stack aggregated files into one long array.
 	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,hhIncomePovertyLineChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
@@ -411,7 +421,7 @@ aggregate_minos_output_poverty_child_uplift:
 
 aggregate_minos_output_all_child_uplift:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomeChildUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_kids,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomeChildUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(CHILD),$(BOOSTED)
 	# stack aggregated files into one long array.
 	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,hhIncomeChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
@@ -419,7 +429,7 @@ aggregate_minos_output_all_child_uplift:
 
 aggregate_minos_output_energy:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(ALIVE),$(BOOSTED)
 	# stack aggregated files into one long array.
 	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
@@ -432,6 +442,7 @@ all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
 #####################################
 
+#TODO: Parameterise this as above for the lineplots. This var can be set by a target
 DEFAULT_OUTPUT_SUBDIRECTORY = default_config
 
 INTERVENTION1 = baseline
