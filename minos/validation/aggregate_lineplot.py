@@ -73,6 +73,8 @@ def aggregate_lineplot(source, destination, v, method, prefix):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lineplot several aggregates of MINOS batches..")
+    parser.add_argument("-o", "--output_dir", required=True, type=str,
+                        help="The output directory for Minos data. Usually output/*")
     parser.add_argument("-s", "--sources", required=True, type=str,
                         help="The source directory for Understanding Society/Minos data. Usually has form output/*. where * specified by model config e.g. baseline/childUplift/etc.")
     parser.add_argument("-d", "--destination", required=False, type=str, default=None,
@@ -85,6 +87,7 @@ if __name__ == '__main__':
                         help="Prefix for pdf output filename. used to differenate different plot types. e.g. all population vs treated only.")
 
     args = vars(parser.parse_args())
+    output_dir = args['output_dir']
     sources = args['sources']
     destination = args['destination']
     v = args['variable']
@@ -95,7 +98,7 @@ if __name__ == '__main__':
 
     for i, source in enumerate(sources):
         # Handle the datetime folder inside the output. Select most recent run
-        runtime = os.listdir(os.path.abspath(os.path.join('output/default_config', source)))
+        runtime = os.listdir(os.path.abspath(os.path.join(output_dir, source)))
         if len(runtime) > 1:
             runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
@@ -112,5 +115,5 @@ if __name__ == '__main__':
             source = source.split('/')[0]
             short_directories.append(source)
 
-    source = os.path.join('output/default_config', sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
+    source = os.path.join(output_dir, sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
     main(source, destination, v, method, prefix)

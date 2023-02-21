@@ -137,7 +137,24 @@ intervention_energyDownLift: setup
 #####################################
 
 scot_baseline: scot_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scot_config'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode'
+
+scot_intervention_hhIncome: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'hhIncomeIntervention'
+
+scot_intervention_hhIncomeChildUplift: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'hhIncomeChildUplift'
+
+scot_intervention_PovertyLineChildUplift: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'hhIncomePovertyLineChildUplift'
+
+scot_intervention_livingWage: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'livingWageIntervention'
+
+scot_intervention_energyDownLift: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'energyDownlift'
+
+all_scot_scenarios: scot_baseline scot_intervention_hhIncomeChildUplift scot_intervention_PovertyLineChildUplift scot_intervention_livingWage scot_intervention_energyDownLift
 
 #####################################
 ## Running MINOS scenarios on Arc4
@@ -346,55 +363,67 @@ DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
 DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
 SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
 
+#TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
+scot_all_lineplots: MODE=scotland_mode
+scot_all_lineplots: all_lineplots
+
+default_all_lineplots: MODE=default_config
+default_all_lineplots: all_lineplots
+
+all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
+
+# Set the
+OUTPUT_DIR = $(DATAOUT)/$(MODE)
+
 aggregate_minos_output:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
 aggregate_minos_output_treated:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted,who_boosted,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted,who_boosted,who_boosted
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
 
 aggregate_minos_output_living_wage:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_living_wage,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_living_wage,who_boosted
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
 
 aggregate_minos_output_poverty_child_uplift:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,hhIncomePovertyLineChildUplift -t "Baseline,Poverty Line Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_poverty_line_and_kids,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomePovertyLineChildUplift -t "Baseline,Poverty Line Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_poverty_line_and_kids,who_boosted
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,hhIncomePovertyLineChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,hhIncomePovertyLineChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,hhIncomePovertyLineChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "poverty_line_child_uplift"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,hhIncomePovertyLineChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "poverty_line_child_uplift"
 
 aggregate_minos_output_all_child_uplift:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,hhIncomeChildUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_kids,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomeChildUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_kids,who_boosted
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,hhIncomeChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,hhIncomeChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,hhIncomeChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "all_child_uplift"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,hhIncomeChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "all_child_uplift"
 
 aggregate_minos_output_energy:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "energy_downlift"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "energy_downlift"
 
 all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift aggregate_minos_output_energy
