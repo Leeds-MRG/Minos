@@ -155,7 +155,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, data
       
 
     }
-    test_path <- "data/transitions/test"
+    test_path <- "data/transitions/gross_hh_income"
     create.if.not.exists(test_path)
     income.testfile.name <- paste0(test_path, '/', dependent, '_', year, '_', year+1, '.rds')
     saveRDS(model, file=income.testfile.name)

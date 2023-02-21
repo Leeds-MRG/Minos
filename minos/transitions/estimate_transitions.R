@@ -95,6 +95,26 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
+
+estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
+  
+  # Sort out dependent type (factor)
+  data[[depend]] <- as.factor(data[[depend]])
+  
+  data = replace.missing(data)
+  
+  if(include_weights) {
+    model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
+  } else {
+    model <- glm(formula, family=binomial(link="logit"), data=data)
+  }
+  # add obs and preds to model object for any later plotting.
+  # This is mildly stupid.. 
+  model[[depend]] <- data[[depend]]
+  model$class_preds <- predict(model)
+  return(model)
+}
+
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
   
   data = replace.missing(data)
@@ -288,6 +308,14 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
                                      include_weights = use.weights, 
                                      depend = next.dependent)
         
+      } else if(tolower(mod.type) == 'logit') {
+          
+        # set ordinal dependent to factor
+        model <- estimate_yearly_logit(data = merged,
+                                     formula = form, 
+                                     include_weights = use.weights, 
+                                     depend = next.dependent)
+          
       } else if(tolower(mod.type) == 'nnet') {
         
         model <- estimate_yearly_nnet(data = merged, 
