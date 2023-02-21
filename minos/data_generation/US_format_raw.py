@@ -210,6 +210,7 @@ def format_ukhls_columns(year):
                       'ctband_dv': 'council_tax',  # council tax derived.
                       'dvage': 'age',  # age derived.
                       'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
+                      'fihhmngrs_dv': 'gross_hh_income',
                       'gor_dv': 'region',  # government region
                       'hheat': 'heating',  # household heating
                       'hidp': 'hidp',  # household id
@@ -292,8 +293,11 @@ def format_ukhls_columns(year):
                       'scsf5': 'pain_interfere_work', # pain interfered with work
                       'scsf7': 'health_limits_social',  # health limits social life.
                       'hhtype_dv': 'hh_composition', # household composition
-                      'mastat_dv': 'marstat' # marital status
-                      ''
+                      'mastat_dv': 'marstat', # marital status
+                      'tenure_dv': 'tenure',
+                      'hhsize': 'hhsize',
+                      'hsbeds': 'nbedrooms',
+                      'urban_dv': 'urban',
                       }
 
     # Some variables change names halfway through UKHLS.

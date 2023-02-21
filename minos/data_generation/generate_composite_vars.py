@@ -192,14 +192,14 @@ def generate_hh_income(data):
     data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
     # Now calculate hh income before adjusting for inflation
-    data["hh_income"] = -9
-    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
+    data["net_hh_income"] = -9
+    data["net_hh_income"] = (data["gross_hh_income"] - data["outgoings"]) / data["oecd_equiv"]
 
     # Adjust hh income for inflation
-    data = US_utils.inflation_adjustment(data, "hh_income")
+    data = US_utils.inflation_adjustment(data, "gross_hh_income")
 
     # now drop the intermediates
-    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax'],
               axis=1,
               inplace=True)
 
@@ -628,6 +628,20 @@ def generate_parents_education(data):
     return data
 
 
+def generate_fp10_composite(data):
+    """Generate FP10 comsposite. This is simply if a house spends more than 10% of its annual income on heating.
+    Do you spend more than 10% of annual gross income on heating?
+    0 - No
+    1 - Yes
+    - Get yearly gross income and energy.
+    - Return True if 10*energy >= income
+    """
+
+    data['FP10'] = (10*data['yearly_energy'] >= 12*data['gross_hh_income']) #gross income is monthly. scale up by 12.
+    # TODO other indicators are considered better these days but just dont have the variables..
+    return data
+
+
 def main():
     # first collect and load the datafiles for every year
     print("Starting composite generation.")
@@ -642,6 +656,7 @@ def main():
     data = generate_composite_neighbourhood_safety(data)  # safety.
     data = generate_labour_composite(data)                # labour state.
     data = generate_energy_composite(data)                # energy consumption.
+    data = generate_fp10_composite(data)                  # FP10 energy poverty composite.
     data = generate_nutrition_composite(data)             # nutrition
     data = generate_hh_structure(data)                    # household structure
     data = generate_marital_status(data)                  # marital status

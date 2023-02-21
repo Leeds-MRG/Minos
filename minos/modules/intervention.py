@@ -79,7 +79,7 @@ class hhIncomeIntervention():
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income"]
+        view_columns = ["net_hh_income"]
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -103,15 +103,15 @@ class hhIncomeIntervention():
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
-        # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
-        who_uplifted = pop['hh_income'] <= pop['hh_income'].quantile(self.prop / 100)
+        pop['net_hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        # pop['income_deciles'] = pd.qcut(pop["net_hh_income"], int(100/self.prop), labels=False)
+        who_uplifted = pop['net_hh_income'] <= pop['net_hh_income'].quantile(self.prop / 100)
         pop['income_boosted'] = who_uplifted
         pop['boost_amount'] = (self.uplift * pop["income_boosted"])
-        pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) for debugging. to ensure mean value is feasible. errors can hugely inflate it.
+        pop['net_hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['net_hh_income'])) for debugging. to ensure mean value is feasible. errors can hugely inflate it.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['net_hh_income', 'income_boosted', 'boost_amount']])
 
 
 ####################################################################################################################
@@ -148,7 +148,7 @@ class hhIncomeChildUplift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids']
+        view_columns = ["net_hh_income", 'nkids']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -170,15 +170,15 @@ class hhIncomeChildUplift(Base):
 
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        # print(np.mean(pop['hh_income'])) # for debugging purposes.
+        # print(np.mean(pop['net_hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
+        #pop['net_hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
         pop['boost_amount'] = (25 * 30.436875 * pop['nkids'] / 7) # £25 per week * 30.463/7 weeks per average month * nkids.
         pop['income_boosted'] = (pop['boost_amount'] != 0)
-        pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) # for debugging.
+        pop['net_hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['net_hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['net_hh_income', 'income_boosted', 'boost_amount']])
 
 
 ########################################################################################################################
@@ -214,7 +214,7 @@ class hhIncomePovertyLineChildUplift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income"]
+        view_columns = ["net_hh_income"]
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -237,24 +237,24 @@ class hhIncomePovertyLineChildUplift(Base):
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']
+        #pop['net_hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
-        who_uplifted = (pop['hh_income'] <= np.nanmedian(pop['hh_income']) * 0.6) #
+        who_uplifted = (pop['net_hh_income'] <= np.nanmedian(pop['net_hh_income']) * 0.6) #
         pop['boost_amount'] = (who_uplifted * 20 * 30.436875 / 7) # £20 per child per week uplift for everyone under poverty line.
 
-        # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
+        # pop['income_deciles'] = pd.qcut(pop["net_hh_income"], int(100/self.prop), labels=False)
         pop['income_boosted'] = who_uplifted
-        pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) # for debugging.
+        pop['net_hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['net_hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['net_hh_income', 'income_boosted', 'boost_amount']])
 
 
 class livingWageIntervention(Base):
-    """Living Wage Intervention. Increase hh_income for anyone who doesn't earn a living wage to bridge the gap."""
+    """Living Wage Intervention. Increase net_hh_income for anyone who doesn't earn a living wage to bridge the gap."""
 
     @property
     def name(self):
@@ -282,7 +282,7 @@ class livingWageIntervention(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
+        view_columns = ['net_hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -321,7 +321,7 @@ class livingWageIntervention(Base):
         """
         pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']
+        #pop['net_hh_income'] -= pop['boost_amount']
         # Now get who gets uplift (different for London/notLondon)
         who_uplifted_London = pop['hourly_wage'] > 0
         who_uplifted_London *= pop['region'] == 'London'
@@ -335,13 +335,13 @@ class livingWageIntervention(Base):
         pop['boost_amount'] += (10.90 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
 
 
-        # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
+        # pop['income_deciles'] = pd.qcut(pop["net_hh_income"], int(100/self.prop), labels=False)
         pop['income_boosted'] = who_uplifted_notLondon | who_uplifted_London
         #pop.drop(labels='who_uplifted', inplace=True)
-        pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) # for debugging.
+        pop['net_hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['net_hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of household composition.
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['net_hh_income', 'income_boosted', 'boost_amount']])
 
 
 class energyDownlift(Base):
@@ -374,7 +374,7 @@ class energyDownlift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'yearly_energy']
+        view_columns = ["net_hh_income", 'yearly_energy']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -399,7 +399,7 @@ class energyDownlift(Base):
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']
+        #pop['net_hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -409,10 +409,10 @@ class energyDownlift(Base):
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
-        pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) # for debugging.
+        pop['net_hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['net_hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['net_hh_income', 'income_boosted', 'boost_amount']])
 
 
 ### some test on time steps for variious scotland interventions

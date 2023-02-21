@@ -142,7 +142,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   if(depend == 'next_ncigs') {
     # first subset just the columns we want
     cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
-              'hh_income', 'ethnicity', 'weight')
+              'net_hh_income', 'ethnicity', 'weight', 'labour_state')
     dat.subset <- data[, cols]
     
     # Replace missing values with NA (util func)

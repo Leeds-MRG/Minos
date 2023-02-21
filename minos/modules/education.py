@@ -40,7 +40,7 @@ class Education(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income',
+                        'net_hh_income',
                         'education_state',
                         'max_educ']
         self.population_view = builder.population.get_view(columns=view_columns)
