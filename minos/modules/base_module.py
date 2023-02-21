@@ -30,6 +30,8 @@ class Base():
         """
         # Use transition directory specified in config file
         self.transition_dir = config.transition_dir
+        # Use data directory from config file
+        self.input_data_dir = config.input_data_dir
 
         return simulation
 
