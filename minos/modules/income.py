@@ -287,8 +287,10 @@ class grossIncome(Base):
 
     def adjust_inflation(self, gross_income, year):
         """ Adjust gross income according to yearly inflation."""
-        yearly_inf_rate = 1 + (annual_cpi_rates[year] / 100) # Get forecasted inflation rate due to CPI.
-        if year > 2026:
+        if year >= 2026:
             yearly_inf_rate = 1.02
+        else:
+            yearly_inf_rate = 1 + (annual_cpi_rates[year] / 100)  # Get forecasted inflation rate due to CPI.
+
             # Widely assumed to be 2% after 2026 for UK.
         return gross_income / yearly_inf_rate
