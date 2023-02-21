@@ -17,7 +17,7 @@ explanation of model output.
 
 .. code:: r
 
-   discrete_barplot("loneliness")
+   discrete_barplot("data/transitions/loneliness/clm/loneliness_2018_2019.rds", 'next_loneliness')
 
 .. figure:: ./figure/loneliness_data-1.png
    :alt: plot of chunk loneliness_data
@@ -44,46 +44,56 @@ goodness of fit.
 ::
 
    ## formula: 
-   ## loneliness_next ~ factor(sex) + scale(age) + scale(SF_12) + factor(labour_state) + factor(ethnicity) + scale(hh_income) + alcohol_spending + ncigs
+   ## next_loneliness ~ age + factor(sex) + SF_12 + relevel(factor(education_state), ref = "3") + relevel(factor(job_sec), ref = "3") + hh_income + relevel(factor(hh_comp), ref = "3") + relevel(factor(marital_status), ref = "Partnered") + relevel(factor(ethnicity), ref = "WBI")
    ## data:    data
    ## 
-   ##  link  threshold nobs  logLik    AIC      niter max.grad cond.H 
-   ##  logit flexible  19415 -14800.00 29654.00 6(0)  6.67e-07 1.0e+07
+   ##  link  threshold nobs     logLik AIC    niter max.grad cond.H 
+   ##  logit flexible  103.1594 -75.90 223.81 6(0)  5.05e-12 1.7e+10
    ## 
    ## Coefficients:
-   ##                                       Estimate Std. Error z value Pr(>|z|)    
-   ## factor(sex)Male                     -0.3004708  0.0327233  -9.182  < 2e-16 ***
-   ## scale(age)                          -0.1226539  0.0253339  -4.841 1.29e-06 ***
-   ## scale(SF_12)                        -0.8178164  0.0170166 -48.060  < 2e-16 ***
-   ## factor(labour_state)Family Care      0.1316331  0.0862416   1.526 0.126928    
-   ## factor(labour_state)Maternity Leave -0.2765143  0.1950482  -1.418 0.156287    
-   ## factor(labour_state)PT Employed      0.0797832  0.0534149   1.494 0.135267    
-   ## factor(labour_state)Retired          0.1759821  0.0570212   3.086 0.002027 ** 
-   ## factor(labour_state)Self-employed    0.0197607  0.0612821   0.322 0.747108    
-   ## factor(labour_state)Sick/Disabled    0.7691415  0.0895790   8.586  < 2e-16 ***
-   ## factor(labour_state)Student          0.2480798  0.0713041   3.479 0.000503 ***
-   ## factor(labour_state)Unemployed       0.2930554  0.0855424   3.426 0.000613 ***
-   ## factor(ethnicity)BLA                 0.1561325  0.1668044   0.936 0.349262    
-   ## factor(ethnicity)BLC                 0.3485061  0.1633377   2.134 0.032871 *  
-   ## factor(ethnicity)CHI                -0.0384768  0.2515971  -0.153 0.878453    
-   ## factor(ethnicity)IND                 0.1288456  0.1407821   0.915 0.360080    
-   ## factor(ethnicity)MIX                 0.1073370  0.1575593   0.681 0.495715    
-   ## factor(ethnicity)OAS                 0.4034540  0.1816202   2.221 0.026323 *  
-   ## factor(ethnicity)OBL                -0.4167904  0.4491905  -0.928 0.353475    
-   ## factor(ethnicity)OTH                 0.0651488  0.2906450   0.224 0.822639    
-   ## factor(ethnicity)PAK                -0.0953418  0.1473989  -0.647 0.517743    
-   ## factor(ethnicity)WBI                -0.0274590  0.1199839  -0.229 0.818981    
-   ## factor(ethnicity)WHO                -0.0345249  0.1409714  -0.245 0.806528    
-   ## scale(hh_income)                    -0.0795816  0.0163490  -4.868 1.13e-06 ***
-   ## alcohol_spending                    -0.0002397  0.0001879  -1.276 0.202088    
-   ## ncigs                                0.0210371  0.0032054   6.563 5.27e-11 ***
+   ##                                                               Estimate Std. Error z value Pr(>|z|)    
+   ## age                                                         -5.569e-03  1.835e-02  -0.303 0.761523    
+   ## factor(sex)Male                                             -3.589e-01  4.577e-01  -0.784 0.432936    
+   ## SF_12                                                       -8.155e-02  2.343e-02  -3.480 0.000501 ***
+   ## relevel(factor(education_state), ref = "3")0                 2.914e-02  8.171e-01   0.036 0.971555    
+   ## relevel(factor(education_state), ref = "3")1                -9.217e-01  2.282e+00  -0.404 0.686310    
+   ## relevel(factor(education_state), ref = "3")2                -9.872e-02  7.794e-01  -0.127 0.899213    
+   ## relevel(factor(education_state), ref = "3")5                 3.943e-02  9.663e-01   0.041 0.967449    
+   ## relevel(factor(education_state), ref = "3")6                -2.789e-02  8.153e-01  -0.034 0.972708    
+   ## relevel(factor(education_state), ref = "3")7                -1.657e-02  8.952e-01  -0.019 0.985232    
+   ## relevel(factor(job_sec), ref = "3")1                        -5.268e-02  1.178e+00  -0.045 0.964341    
+   ## relevel(factor(job_sec), ref = "3")2                        -4.476e-02  8.804e-01  -0.051 0.959455    
+   ## relevel(factor(job_sec), ref = "3")4                         1.111e-01  7.103e-01   0.156 0.875694    
+   ## relevel(factor(job_sec), ref = "3")5                         1.473e-01  8.046e-01   0.183 0.854767    
+   ## relevel(factor(job_sec), ref = "3")6                         1.387e-01  1.024e+00   0.135 0.892287    
+   ## relevel(factor(job_sec), ref = "3")7                         1.219e-01  6.942e-01   0.176 0.860594    
+   ## relevel(factor(job_sec), ref = "3")8                         4.119e-01  8.313e-01   0.496 0.620235    
+   ## hh_income                                                   -2.184e-05  1.065e-04  -0.205 0.837501    
+   ## relevel(factor(hh_comp), ref = "3")1                         6.569e-01  8.048e-01   0.816 0.414395    
+   ## relevel(factor(hh_comp), ref = "3")2                         1.534e-01  1.360e+00   0.113 0.910192    
+   ## relevel(factor(hh_comp), ref = "3")4                        -7.012e-04  5.634e-01  -0.001 0.999007    
+   ## relevel(factor(marital_status), ref = "Partnered")Separated  4.325e-01  9.785e-01   0.442 0.658485    
+   ## relevel(factor(marital_status), ref = "Partnered")Single     5.185e-01  7.343e-01   0.706 0.480147    
+   ## relevel(factor(marital_status), ref = "Partnered")Widowed    5.301e-01  1.257e+00   0.422 0.673306    
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                   2.416e-01  2.916e+00   0.083 0.933978    
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                  -1.811e-01  1.841e+00  -0.098 0.921640    
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                   1.215e-02  2.594e+00   0.005 0.996264    
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                  -2.081e-01  3.374e+00  -0.062 0.950826    
+   ## relevel(factor(ethnicity), ref = "WBI")IND                   5.520e-02  1.409e+00   0.039 0.968742    
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                  -1.125e-01  1.678e+00  -0.067 0.946581    
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                   2.742e-01  2.027e+00   0.135 0.892424    
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                  -6.353e-01  1.022e+01  -0.062 0.950411    
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                   3.507e-01  3.219e+00   0.109 0.913227    
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                   3.829e-01  1.886e+00   0.203 0.839100    
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                  -1.210e-01  9.828e-01  -0.123 0.902043    
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 
    ## Threshold coefficients:
    ##     Estimate Std. Error z value
-   ## 1|2   0.4763     0.1224   3.891
-   ## 2|3   2.8578     0.1253  22.814
+   ## 1|2   -3.515      1.582  -2.221
+   ## 2|3   -1.130      1.544  -0.732
+   ## (273 observations deleted due to missingness)
 
 References
 ----------
