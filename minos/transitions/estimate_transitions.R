@@ -352,20 +352,23 @@ args <- parser$parse_args()
 
 scotland.mode <- args$scotland
 
+## RUNTIME ARGS
+transSourceDir <- 'minos/transitions/'
+dataDir <- 'data/final_US/'
+modDefFilename <- 'model_definitions.txt'
+transitionDir <- 'data/transitions/'
+
+
 # Set paths (handle scotland mode here)
 if(scotland.mode) {
   print('Estimating transition models in Scotland mode')
   dataDir <- 'data/scotland_US/'
   modDefFilename <- 'model_definitions_SCOTLAND.txt'
-  transitionDir <- 'data/transitions/scotland/'
+  transitionDir <- paste0(transitionDir, 'scotland/')
+  create.if.not.exists(transitionDir)
 } else {
   print('Estimating transition models in whole population mode')
-  dataDir <- 'data/final_US/'
-  modDefFilename <- 'model_definitions.txt'
-  transitionDir <- 'data/transitions/'
 }
-
-transSourceDir <- 'minos/transitions/'
 
 
 # Load input data (final_US/)
