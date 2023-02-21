@@ -32,7 +32,7 @@ def load_transitions(component, path='data/transitions/'):
     base = importr('base')
 
     # generate filename from arguments and load model
-    filename = f"{path}{component}.rds"
+    filename = f"{path}/{component}.rds"
     model = base.readRDS(filename)
 
     return model

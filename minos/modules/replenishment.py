@@ -20,7 +20,6 @@ class Replenishment(Base):
     def __repr__(self):
         return "Replenishment()"
 
-
     def setup(self, builder):
         """ Method for initialising the depression module.
         Parameters
@@ -175,7 +174,6 @@ class Replenishment(Base):
             # otherwise dont load anyone in.
             new_wave = pd.DataFrame()
 
-
         # Get alive population.
         #pop = self.population_view.get(event.index, query='pidp > 0 and alive == "alive"')
         # Check new data has any simulants in it before adding to frame.
@@ -206,7 +204,6 @@ class Replenishment(Base):
             # The method used can be changed in setup via builder.population.initializes_simulants.
             self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
 
-
     def age_simulants(self, event):
         """ Age everyone by the length of the simulation time step in days
         Parameters
@@ -230,18 +227,6 @@ class Replenishment(Base):
         population = self.population_view.get(event.index, query="alive == 'alive'")
         population['time'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
-
-    # Special methods for vivarium.
-    @property
-    def name(self):
-        return "replenishment"
-
-
-    def __repr__(self):
-        return "Replenishment()"
-
-
-
 
 
 class NoReplenishment(Base):
@@ -332,7 +317,6 @@ class NoReplenishment(Base):
         builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
-
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
 
@@ -381,7 +365,6 @@ class NoReplenishment(Base):
         self.register(new_population[["entrance_time", "age"]])
         self.population_view.update(new_population)
 
-
     def on_time_step(self, event):
         """ On time step add new simulants to the module.
         New simulants to be added must be 16 years old, and will be reweighted to fit some constraints defined
@@ -394,7 +377,6 @@ class NoReplenishment(Base):
         """
         # no replenishment after initial cohort. do nothing...
         pass
-
 
     def age_simulants(self, event):
         """
@@ -410,7 +392,6 @@ class NoReplenishment(Base):
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
 
-
     def update_time(self, event):
         """
         Update time variable by the length of the simulation time step in days
@@ -425,12 +406,10 @@ class NoReplenishment(Base):
         population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
         self.population_view.update(population)
 
-
     # Special methods for vivarium.
     @property
     def name(self):
         return "no_replenishment"
-
 
     def __repr__(self):
         return "NoReplenishment()"

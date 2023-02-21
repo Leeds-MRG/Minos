@@ -133,7 +133,7 @@ def reweight_repl(expanded_repl, projections):
     return(expanded_repl)
 
 
-def predict_education(repl):
+def predict_education(repl, transition_dir):
     """
     This function predicts the highest level of education that will be attained by simulants in the model.
     There are 2 steps to this process:
@@ -155,7 +155,7 @@ def predict_education(repl):
     # generate list of columns for prediction output (no educ==4 in Understanding Society)
     cols = ['0', '1', '2', '3', '5', '6', '7']
 
-    transition_model = r_utils.load_transitions(f"data/transitions/education_state/nnet/education_state_2018_2019", "")
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, repl, cols)
 
     repl['max_educ'] = np.nan
@@ -167,11 +167,14 @@ def predict_education(repl):
 
 def generate_replenishing(projections, scotland_mode):
 
-    output_dir = 'data/replenishing/'
+    output_dir = 'data/replenishing'
     data_source = 'final_US'
+    transition_dir = 'data/transitions'
 
     if scotland_mode:
-        output_dir = 'data/replenishing/scotland/'
+        data_source = 'scotland_US'
+        output_dir = 'data/replenishing/scotland'
+        transition_dir = 'data/transitions/scotland'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2017_US_cohort.csv"
@@ -184,10 +187,10 @@ def generate_replenishing(projections, scotland_mode):
     reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(reweighted_repl)
+    final_repl = predict_education(reweighted_repl, transition_dir)
 
     US_utils.check_output_dir(output_dir)
-    final_repl.to_csv(output_dir + 'replenishing_pop_2019-2070.csv', index=False)
+    final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
     print('Replenishing population generated for 2019 - 2070')
 
 

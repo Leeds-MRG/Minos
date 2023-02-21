@@ -15,7 +15,7 @@ input_data_dir: "data/scotland_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
-transition_dir: 'data/transitions/scotland/'
+transition_dir: 'data/transitions/scotland'
 replenishing_dir: 'data/replenishing/scotland'
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
@@ -26,7 +26,7 @@ replenishing_dir: 'data/replenishing/scotland'
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Income(), Housing(), Nutrition(), Education(), Mortality(), ReplenishmentScotland()]
+components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Income(), Housing(), Nutrition(), Education(), Mortality(), NoReplenishment()]
 
 
 scale_rates:

@@ -14,6 +14,7 @@ import minos.utils as utils
 
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
+from minos.modules.replenishment import NoReplenishment
 from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
@@ -102,6 +103,8 @@ def RunPipeline(config, intervention=None):
     # Replenishment always go last. (first in sim)
     if "Replenishment()" in config['components']:
         components.append(Replenishment())
+    if "NoReplenishment()" in config['components']:
+        components.append(NoReplenishment())
     if "ReplenishmentNowcast()" in config['components']:
         components.append(ReplenishmentNowcast())
     if "ReplenishmentScotland()" in config['components']:
