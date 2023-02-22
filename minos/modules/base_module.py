@@ -85,3 +85,40 @@ class Base():
         -------
         None
         """
+        pass
+
+
+class Intervention:
+
+    # Generic intervention class to reduce boilerplate.
+
+    #presetup
+    #setup
+    #ontimestep
+    #plot
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+
+    def plot(self, pop_data, config):
+        """ Default plot method for modules. Does nothing.
+
+        Modules can specify another plot object that saves distributions of state.
+
+        Parameters
+        ----------
+        pop_data: population data from vivarium. Whatever columns needs plotting.
+
+        config: vivarium.configTree
+
+            Config yaml for any needed plot parameters.
+
+        Returns
+        -------
+        None
+        """
+        pass
