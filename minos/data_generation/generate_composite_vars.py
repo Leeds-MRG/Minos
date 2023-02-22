@@ -14,7 +14,7 @@ import US_utils
 import US_missing_description as USmd
 
 # suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
 def generate_composite_housing_quality(data):
@@ -67,8 +67,8 @@ def generate_composite_housing_quality(data):
     # list both core and bonus vars
     core_list = ['fridge_freezer', 'washing_machine', 'heating']
     bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
-    #data["housing_core_complete"] = (data.loc[:, core_list] >= 0).all(1)
-    #data["housing_bonus_complete"] = (data.loc[:, bonus_list] >= 0).all(1)
+    # data["housing_core_complete"] = (data.loc[:, core_list] >= 0).all(1)
+    # data["housing_bonus_complete"] = (data.loc[:, bonus_list] >= 0).all(1)
 
     # sum up all non-negative values in both lists of vars
     data["housing_core_sum"] = data[core_list].gt(0).sum(axis=1)
@@ -77,7 +77,7 @@ def generate_composite_housing_quality(data):
     # conditionally assign housing_quality var based on the housing sum values
     # first set conditions and values for 3 level var
     conditions = [
-        (data["housing_core_sum"] > 0) & (data["housing_core_sum"] < 3),  # less than full core
+        (data["housing_core_sum"] >= 0) & (data["housing_core_sum"] < 3),  # less than full core
         (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] >= 0) & (data["housing_bonus_sum"] < 3),
         # all core some bonus
         (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3),  # all core all bonus
@@ -91,9 +91,9 @@ def generate_composite_housing_quality(data):
 
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
-                     'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
-             axis=1,
-             inplace=True)
+                      'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
+              axis=1,
+              inplace=True)
 
     return data
 
@@ -115,9 +115,10 @@ def calculate_hourly_wage(data):
     data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
     # Now calculate for salaried employees (monthly wage applied to weekly hours worked, so multiply hours by 4.2)
     # (4.2 because thats the average number of weeks in a month)
-    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (data["job_hours"] * 4.2)
+    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (
+                data["job_hours"] * 4.2)
     # Now calculate for self-employed (make sure s/emp pay not missing and hours worked over 0)
-    #data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
+    # data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
 
     """
     KEEPING THIS BECAUSE IT MIGHT BE USEFUL ONE DAY!!!
@@ -250,7 +251,7 @@ def generate_composite_neighbourhood_safety(data):
     print('Generating composite for neighbourhood_safety...')
 
     # first make list of the columns we're interested in
-    var_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse','teenagers', 'vandalism']
+    var_list = ['burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism']
 
     # Now combine very common (1) with fairly common (2) and recode to 1-3
     for var in var_list:
@@ -258,25 +259,51 @@ def generate_composite_neighbourhood_safety(data):
         data[var] = data[var] - 1
 
     data['safety'] = -9
-    # First do very safe neighbourhood. All vars == 3 (not at all common)
-    #data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
-    data.safety[(data['burglaries'] == 3) & (data['car_crime'] == 3) & (data['drunks'] == 3) & (data['muggings'] == 3) &
-                (data['teenagers'] == 3) & (data['vandalism'] == 3)] = 3
+    # First do very safe neighbourhood. All vars == 3 (not at all common) OR missing == -9
+    # data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
+    data.safety[(data['burglaries'].isin([3, -9, -2, -3])) &
+                (data['car_crime'].isin([3, -9, -2, -3])) &
+                (data['drunks'].isin([3, -9, -2, -3])) &
+                (data['muggings'].isin([3, -9, -2, -3])) &
+                (data['teenagers'].isin([3, -9, -2, -3])) &
+                (data['vandalism'].isin([3, -9, -2, -3]))] = 3
+
     # Now safe neighbourhood. Any var == 2 (not very common) but no var == 1 (very or fairly common)
-    data.safety[((data['burglaries'] == 2) | (data['car_crime'] == 2) | (data['drunks'] == 2) | (data['muggings'] == 2) |
-                 (data['teenagers'] == 2) | (data['vandalism'] == 2)) &
-                ((data['burglaries'] != 1) & (data['car_crime'] != 1) & (data['drunks'] != 1) & (data['muggings'] != 1) &
-                 (data['teenagers'] != 1) & (data['vandalism'] != 1))] = 2
+    data.safety[((data['burglaries'].isin([2, -9, -2, -3])) |
+                 (data['car_crime'].isin([2, -9, -2, -3])) |
+                 (data['drunks'].isin([2, -9, -2, -3])) |
+                 (data['muggings'].isin([2, -9, -2, -3])) |
+                 (data['teenagers'].isin([2, -9, -2, -3])) |
+                 (data['vandalism'].isin([2, -9, -2, -3])))
+                &
+                ((data['burglaries'] != 1) &
+                 (data['car_crime'] != 1) &
+                 (data['drunks'] != 1) &
+                 (data['muggings'] != 1) &
+                 (data['teenagers'] != 1) &
+                 (data['vandalism'] != 1))] = 2
     # Now unsafe neighbourhood. Any var == 1 (very or fairly common)
-    data.safety[(data['burglaries'] == 1) | (data['car_crime'] == 1) | (data['drunks'] == 1) | (data['muggings'] == 1) |
-                (data['teenagers'] == 1) | (data['vandalism'] == 1)] = 1
+    data.safety[(data['burglaries'] == 1) |
+                (data['car_crime'] == 1) |
+                (data['drunks'] == 1) |
+                (data['muggings'] == 1) |
+                (data['teenagers'] == 1) |
+                (data['vandalism'] == 1)] = 1
+    
+    # If all missing then set back to -9
+    data.safety[(data['burglaries'] < 0) &
+                (data['car_crime'] < 0) &
+                (data['drunks'] < 0) &
+                (data['muggings'] < 0) &
+                (data['teenagers'] < 0) &
+                (data['vandalism'] < 0)] = -9
 
     data['neighbourhood_safety'] = data.safety
 
     # drop cols we don't need
     data.drop(labels=['safety'] + var_list,
-                     axis=1,
-                     inplace=True)
+              axis=1,
+              inplace=True)
 
     return data
 
@@ -296,7 +323,7 @@ def generate_labour_composite(data):
     print('Generating composite for labour_state...')
 
     # grab anyone whop is Employed.
-    who_employed = data.loc[data["labour_state"]=="Employed"]
+    who_employed = data.loc[data["labour_state"] == "Employed"]
     # there are around 14k missing values per year in emp_type.
     # Most of these can probably be removed with LOCF imputation.
     # Just ignoring anyone with missing emp_type value for now. Assume they're FT employed.
@@ -349,7 +376,7 @@ def generate_energy_composite(data):
 
     # first gas and electric.
     # if they pay a combined bill for gas and electric add the combined yearly bill to yearly_energy
-    who_combined_bill = data['gas_electric_combined']==1 & ~data['yearly_gas_electric'].isin(US_utils.missing_types)
+    who_combined_bill = data['gas_electric_combined'] == 1 & ~data['yearly_gas_electric'].isin(US_utils.missing_types)
     data.loc[who_combined_bill, 'yearly_energy'] += data.loc[who_combined_bill, 'yearly_gas_electric']
 
     # If they pay separate bills add them separately. note remove anyone who declares they use an energy but expenditure is still missing.
@@ -370,10 +397,13 @@ def generate_energy_composite(data):
     data.loc[data['energy_in_rent'] == 1, 'yearly_energy'] = 0
 
     # force everyone with any expeniture values to missing.
-    who_missing_gas_electric = data['gas_electric_combined'] == 1 & data['yearly_gas_electric'].isin(US_utils.missing_types)
+    who_missing_gas_electric = data['gas_electric_combined'] == 1 & data['yearly_gas_electric'].isin(
+        US_utils.missing_types)
     # if not combined bill. if declared electric or gas but missing expenditure set energy to -8
-    who_missing_electric = (data['gas_electric_combined'] == 2) & (data['has_electric'] == 1) & (data['yearly_electric'].isin(US_utils.missing_types))
-    who_missing_gas  = (data['gas_electric_combined']) == 2 & (data['has_gas'] == 1) & (data['yearly_gas'].isin(US_utils.missing_types))
+    who_missing_electric = (data['gas_electric_combined'] == 2) & (data['has_electric'] == 1) & (
+        data['yearly_electric'].isin(US_utils.missing_types))
+    who_missing_gas = (data['gas_electric_combined']) == 2 & (data['has_gas'] == 1) & (
+        data['yearly_gas'].isin(US_utils.missing_types))
     # if declares oil or other but missing expenditure set to -8
     who_missing_oil = data['has_oil'] == 1 & data['yearly_oil'].isin(US_utils.missing_types)
     who_missing_other = data['has_other'] == 1 & data['yearly_other_fuel'].isin(US_utils.missing_types)
@@ -397,12 +427,13 @@ def generate_energy_composite(data):
     # probably loc functions conditioning on positive bills.
     # for now just naively adding things together. will be add differences between -9 and -1 but shouldnt matter too much.
 
-    #print(sum(data['yearly_energy'] == -8))
-    #print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
+    # print(sum(data['yearly_energy'] == -8))
+    # print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
-                      'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none', 'energy_in_rent'],
+                      'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none',
+                      'energy_in_rent'],
               axis=1,
               inplace=True)
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
@@ -451,9 +482,8 @@ def generate_nutrition_composite(data):
     data['nutrition_quality'][data['veg_days'] < 0] = data['veg_days']
     data['nutrition_quality'][data['veg_per_day'] < 0] = data['veg_per_day']
 
-
-    data.drop(labels = ['fruit_comp', 'fruit_days', 'fruit_per_day',
-                        'veg_comp', 'veg_days', 'veg_per_day'],
+    data.drop(labels=['fruit_comp', 'fruit_days', 'fruit_per_day',
+                      'veg_comp', 'veg_days', 'veg_per_day'],
               axis=1,
               inplace=True)
 
@@ -488,16 +518,16 @@ def generate_hh_structure(data):
 
     ## Single adult no kids
     # 1, 2, 3
-    data['hh_comp'][data['hh_composition'].isin([1,2,3])] = 1
+    data['hh_comp'][data['hh_composition'].isin([1, 2, 3])] = 1
     ## Single adult 1+ kids
     # 4, 5
-    data['hh_comp'][data['hh_composition'].isin([4,5])] = 2
+    data['hh_comp'][data['hh_composition'].isin([4, 5])] = 2
     ## Multiple adults no kids
     # 6, 8, 16, 17, 19, 22
-    data['hh_comp'][data['hh_composition'].isin([6,8,16,17,19,22])] = 3
+    data['hh_comp'][data['hh_composition'].isin([6, 8, 16, 17, 19, 22])] = 3
     ## Multiple adults 1+ kids
     # 10, 11, 12, 18, 20, 21, 23
-    data['hh_comp'][data['hh_composition'].isin([10,11,12,18,20,21,23])] = 4
+    data['hh_comp'][data['hh_composition'].isin([10, 11, 12, 18, 20, 21, 23])] = 4
 
     data.drop(labels=['hh_composition'],
               axis=1,
@@ -536,13 +566,13 @@ def generate_marital_status(data):
     data['marital_status'][data['marstat'] == 1] = 'Single'
     ## Partnered
     # 2, 3, 10
-    data['marital_status'][data['marstat'].isin([2,3,10])] = 'Partnered'
+    data['marital_status'][data['marstat'].isin([2, 3, 10])] = 'Partnered'
     ## Separated
     # 4, 5, 7, 8
-    data['marital_status'][data['marstat'].isin([4,5,7,8])] = 'Separated'
+    data['marital_status'][data['marstat'].isin([4, 5, 7, 8])] = 'Separated'
     ## Widowed
     # 6, 9
-    data['marital_status'][data['marstat'].isin([6,9])] = 'Widowed'
+    data['marital_status'][data['marstat'].isin([6, 9])] = 'Widowed'
 
     data.drop(labels=['marstat'],
               axis=1,
@@ -623,7 +653,7 @@ def generate_parents_education(data):
     # First we need to find parents (or adults in the same house as we won't be able to find a direct parental link)
     # Groupby hid then filter to make sure there is a 16 year old in the house
     grouped_dat = data.groupby(['hidp'], axis=1).filter(lambda d: (d.age != 16.0), axis=0)
-    #filtered_dat = grouped_dat.filter(lambda d: (d['age'] != 16))
+    # filtered_dat = grouped_dat.filter(lambda d: (d['age'] != 16))
 
     return data
 
@@ -636,16 +666,16 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
-    data = generate_composite_housing_quality(data)       # housing_quality.
-    data = generate_hh_income(data)                       # hh_income.
-    data = calculate_hourly_wage(data)                    # hourly_wage
+    data = generate_composite_housing_quality(data)  # housing_quality.
+    data = generate_hh_income(data)  # hh_income.
+    data = calculate_hourly_wage(data)  # hourly_wage
     data = generate_composite_neighbourhood_safety(data)  # safety.
-    data = generate_labour_composite(data)                # labour state.
-    data = generate_energy_composite(data)                # energy consumption.
-    data = generate_nutrition_composite(data)             # nutrition
-    data = generate_hh_structure(data)                    # household structure
-    data = generate_marital_status(data)                  # marital status
-    data = generate_physical_health_score(data)           # physical health score
+    data = generate_labour_composite(data)  # labour state.
+    data = generate_energy_composite(data)  # energy consumption.
+    data = generate_nutrition_composite(data)  # nutrition
+    data = generate_hh_structure(data)  # household structure
+    data = generate_marital_status(data)  # marital status
+    data = generate_physical_health_score(data)  # physical health score
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

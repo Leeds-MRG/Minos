@@ -70,8 +70,6 @@ libpaths: ### Grab paths to Python and R libraries
 # Clone minos git in. (contains this makefile)
 # git clone https://github.com/Leeds-MRG/Minos
 
-
-
 ## Install
 ###
 
@@ -135,6 +133,30 @@ intervention_energyDownLift: setup
 
 
 #####################################
+## Scotland Local runs of MINOS interventions.
+#####################################
+
+scot_baseline: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode'
+
+scot_intervention_hhIncome: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'hhIncomeIntervention'
+
+scot_intervention_hhIncomeChildUplift: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'hhIncomeChildUplift'
+
+scot_intervention_PovertyLineChildUplift: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'hhIncomePovertyLineChildUplift'
+
+scot_intervention_livingWage: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'livingWageIntervention'
+
+scot_intervention_energyDownLift: scot_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scot_default.yaml -o 'scotland_mode' -i 'energyDownlift'
+
+scot_all_scenarios: scot_baseline scot_intervention_hhIncomeChildUplift scot_intervention_PovertyLineChildUplift scot_intervention_livingWage scot_intervention_energyDownLift
+
+#####################################
 ## Running MINOS scenarios on Arc4
 #####################################
 
@@ -159,6 +181,7 @@ arc4_intervention_livingWage: setup
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c config/default.yaml -o 'default_config' -i 'energyDownlift'
 
+arc4_allscenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
@@ -194,6 +217,8 @@ setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions replenishing_data
 
+scot_setup: install scot_data scot_transitions scot_replenishing
+
 #####################################
 ### Data Generation
 #####################################
@@ -218,14 +243,15 @@ final_data: ### Produce the final version of the data (including replenishing po
 final_data: $(FINALDATA)/2019_US_cohort.csv
 
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
-replenishing_data: $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
+replenishing_data:  $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
+
+scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
 spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
 ### version of the final data to be used in spatial analyses (of Sheffield only)
 spatial_data: $(SPATIALDATA)/2019_US_cohort.csv
 
-scot_data: final_data
-scot_data: $(SCOTLANDDATA)/2019_US_cohort.csv
+scot_data: $(SCOTDATA)/2019_US_cohort.csv
 
 #####################################
 # Input Populations
@@ -249,11 +275,14 @@ $(FINALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/20
 $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
+$(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland
+
 $(SPATIALDATA)/2019_US_cohort.csv: $(RAWDATA)/2019_US_cohort.csv $(CORRECTDATA)/2019_US_cohort.csv $(COMPOSITEDATA)/2019_US_cohort.csv $(COMPLETEDATA)/2019_US_cohort.csv $(FINALDATA)/2019_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2019_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
 
-$(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
-	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py --source_dir $(SPATIALSOURCEDIR)
+$(SCOTDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
 #####################################
 ### transitions
@@ -268,15 +297,14 @@ $(SCOTLANDDATA)/2019_US_cohort.csv: $(FINALDATA)/2019_US_cohort.csv
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions: | $(TRANSITION_DATA)
-transitions:  final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+transitions: final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
 
-
-scot_transitions: $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt scot_data $(TRANSITION_SOURCE)/scotland_mode.txt
+scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds
 
 $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
 
-$(TRANSITION_SOURCE)/scotland_mode.txt: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R
+$(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
 
 $(TRANSITION_DATA)/loneliness/clm/loneliness_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(SOURCEDIR)/transitions/loneliness/loneliness_clm.R
@@ -335,55 +363,77 @@ DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
 DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
 SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
 
+#TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
+scot_all_lineplots: MODE=scotland_mode
+scot_all_lineplots: ALIVE=who_scottish
+scot_all_lineplots: BOOSTED=who_scottish_boosted
+scot_all_lineplots: LIVING_WAGE=who_scottish_below_living_wage
+scot_all_lineplots: POVERTY=who_scottish_below_poverty_line_and_kids
+scot_all_lineplots: CHILD=who_scottish_and_kids
+scot_all_lineplots: all_lineplots
+
+default_all_lineplots: MODE=default_config
+default_all_lineplots: ALIVE=who_alive
+default_all_lineplots: BOOSTED=who_boosted
+default_all_lineplots: LIVING_WAGE=who_below_living_wage
+default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
+default_all_lineplots: CHILD=who_kids
+default_all_lineplots: all_lineplots
+
+all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
+
+# Set the output directory based on
+OUTPUT_DIR = $(DATAOUT)/$(MODE)
+
 aggregate_minos_output:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(SUBSET_FUNCTIONS)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD)
 
 aggregate_minos_output_treated:
 	# See file for tag meanings.
 	# aggregate files for baseline, all child uplift, and poverty line uplift.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted,who_boosted,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d $(DIRECTORIES) -t $(DIRECTORY_TAGS) -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(ALIVE),$(BOOSTED),$(BOOSTED),$(BOOSTED)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s $(DIRECTORIES) -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "treated"
 
 aggregate_minos_output_living_wage:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_living_wage,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,livingWageIntervention -t "Baseline,Living Wage Intervention" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(LIVING_WAGE),$(BOOSTED)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,livingWageIntervention -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,livingWageIntervention -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "living_wage_treated"
 
 aggregate_minos_output_poverty_child_uplift:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,hhIncomePovertyLineChildUplift -t "Baseline,Poverty Line Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_below_poverty_line_and_kids,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomePovertyLineChildUplift -t "Baseline,Poverty Line Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(POVERTY),$(BOOSTED)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,hhIncomePovertyLineChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,hhIncomePovertyLineChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,hhIncomePovertyLineChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "poverty_line_child_uplift"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,hhIncomePovertyLineChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "poverty_line_child_uplift"
 
 aggregate_minos_output_all_child_uplift:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,hhIncomeChildUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_kids,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,hhIncomeChildUplift -t "Baseline,All Children Uplift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(CHILD),$(BOOSTED)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,hhIncomeChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,hhIncomeChildUplift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,hhIncomeChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "all_child_uplift"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,hhIncomeChildUplift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "all_child_uplift"
 
 aggregate_minos_output_energy:
 	# custom baseline for living wage only.
-	$(PYTHON) minos/validation/aggregate_minos_output.py -s $(DATAOUT)/default_config -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f who_alive,who_boosted
+	$(PYTHON) minos/validation/aggregate_minos_output.py -o $(OUTPUT_DIR) -d baseline,energyDownlift -t "Baseline,Energy Downlift" -m $(AGGREGATE_METHOD) -v $(AGGREGATE_VARIABLE) -f $(ALIVE),$(BOOSTED)
 	# stack aggregated files into one long array.
-	$(PYTHON) minos/validation/aggregate_long_stack.py -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
+	$(PYTHON) minos/validation/aggregate_long_stack.py -o $(OUTPUT_DIR) -s baseline,energyDownlift -r $(REF_LEVEL) -v $(AGGREGATE_VARIABLE) -m $(AGGREGATE_METHOD)
 	# make line plot.
-	$(PYTHON) minos/validation/aggregate_lineplot.py -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "energy_downlift"
+	$(PYTHON) minos/validation/aggregate_lineplot.py -o $(OUTPUT_DIR) -s baseline,energyDownlift -v $(AGGREGATE_VARIABLE) -d $(PLOTDIR) -m $(AGGREGATE_METHOD) -p "energy_downlift"
 
 all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_poverty_child_uplift aggregate_minos_output_all_child_uplift aggregate_minos_output_energy
@@ -392,6 +442,7 @@ all_treated_lineplots: aggregate_minos_output_living_wage aggregate_minos_output
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
 #####################################
 
+#TODO: Parameterise this as above for the lineplots. This var can be set by a target
 DEFAULT_OUTPUT_SUBDIRECTORY = default_config
 
 INTERVENTION1 = baseline
@@ -484,6 +535,13 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+	rm -rf data/transitions/scotland/*/*.rds
+
+clean_scotland: ### Clean all files related to Scotland mode
+clean_scotland:
+	rm -rf data/transitions/scotland/*/*.rds
+	rm -rf data/scotland_US/*.csv
+	rm -rf data/replenishing/scotland/*.csv
 
 clean_plots: ### Remove all <plot>.pdf files in plots/
 	rm -rf plots/*.pdf

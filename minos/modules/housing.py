@@ -90,7 +90,6 @@ class Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        # TODO: Find out why this was adding 1 to the prediction?
         housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
@@ -111,7 +110,7 @@ class Housing(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}")
+        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, pop, 'housing_quality')
         return prob_df

@@ -32,7 +32,7 @@ def load_transitions(component, path='data/transitions/'):
     base = importr('base')
 
     # generate filename from arguments and load model
-    filename = f"{path}{component}.rds"
+    filename = f"{path}/{component}.rds"
     model = base.readRDS(filename)
 
     return model
@@ -66,7 +66,7 @@ def predict_next_timestep_ols(model, current, dependent):
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     prediction = stats.predict(model, currentRDF)
-    newRPopDF = base.cbind(currentRDF, predicted = prediction)
+    newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)

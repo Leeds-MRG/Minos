@@ -39,9 +39,6 @@ def complete_case_varlist(data, varlist):
         data[var] = data[var].replace(US_utils.missing_types, np.nan)
         data = data.dropna(axis=0, subset=[var])
 
-    #data[varlist] = data[varlist].replace(US_utils.missing_types, np.nan)
-
-    #data = data.dropna(axis=0)
     data = data.reset_index(drop=True)
     return data
 
@@ -67,25 +64,16 @@ if __name__ == "__main__":
 
     data = complete_case_varlist(data, complete_case_vars)
 
-    ## Need to do correction on some variables individually as they are only in the dataset in specific years
+    # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
     # make sure its int not float (need to convert NA to 0 for this to work)
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
-    #data['loneliness'] = pd.to_numeric(data['loneliness'], errors='coerce').fillna(1).astype('int')
-    ## Now do same for neighbourhood_safety
+    # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017])
-    #data['neighbourhood_safety'] = pd.to_numeric(data['neighbourhood_safety'], errors='coerce').fillna(2).astype('int')
     # ncigs missing for wave 1 only
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2020, 1)))
-    #data['ncigs'] = pd.to_numeric(data['ncigs'], errors='coerce').fillna(0).astype('int')
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
-    #data['nutrition_quality'] = pd.to_numeric(data['nutrition_quality'], errors='coerce').fillna((data['nutrition_quality']).mean()).astype('int')
-
-    ########## TESTING ##########
-    #data = data[~(data['time'].isin([2011, 2014, 2017]) & data['neighbourhood_safety'].isna())]
-    ########## TESTING ##########
-
 
     drop_columns = ['financial_situation', # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
@@ -102,7 +90,4 @@ if __name__ == "__main__":
     # remove them here or as late as needed.
     data = data.drop(labels=drop_columns, axis=1)
 
-
-
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")
-

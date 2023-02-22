@@ -110,7 +110,7 @@ class Tobacco(Base):
         # load transition model based on year.
         year = max(self.year, 2014)
         year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}")
+        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
                                                             current=pop,

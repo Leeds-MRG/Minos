@@ -5,10 +5,10 @@ import numpy as np
 from datetime import datetime
 
 
-def get_file_names(source_directories, v, method):
+def get_file_names(output_dir, source_directories, v, method):
     file_names = []
     for source in source_directories:
-        file_name = os.path.abspath(os.path.join("output/default_config", source, f"aggregated_{v}_by_{method}.csv"))
+        file_name = os.path.abspath(os.path.join(output_dir, source, f"aggregated_{v}_by_{method}.csv"))
         file_names.append(file_name)
     return file_names
 
@@ -73,7 +73,7 @@ def relative_scaling(df, v, ref):
     return df
 
 
-def main(source_directories, v="SF_12", method="nanmean", destination = None, ref=None):
+def main(output_dir, source_directories, v="SF_12", method="nanmean", destination = None, ref=None):
     """
 
     Parameters
@@ -87,7 +87,7 @@ def main(source_directories, v="SF_12", method="nanmean", destination = None, re
 
     """
 
-    file_names = get_file_names(source_directories, v, method)
+    file_names = get_file_names(output_dir, source_directories, v, method)
     df = long_stack_minos_aggregates(file_names)
     df = relative_scaling(df, v, ref)
 
@@ -100,13 +100,15 @@ def main(source_directories, v="SF_12", method="nanmean", destination = None, re
     # join directories together to make name. put it in the first specified source directory.
     if not destination:
         print(f"No destination for output file defined. Storing in first specified source directory {source_directories[0]}.")
-        destination = os.path.join("output/default_config", source_directories[0])
+        destination = os.path.join(output_dir, source_directories[0])
     out_file = os.path.join(destination, "aggregated_" + "_".join(short_directories) + ".csv")
     df.to_csv(out_file, index=False)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Stack minos aggregate batches into long data frame for plotting.")
+    parser.add_argument("-o", "--output_dir", required=True, type=str,
+                        help="The output directory for Minos data. Usually output/*")
     parser.add_argument("-s", "--sources", required=True, type=str,
                         help="Source directories for aggregated data. Writted as one string separated by commas. E.g. baseline,childUplift,povertyUplift")
     parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
@@ -119,6 +121,7 @@ if __name__ == '__main__':
                         help="If using relative scaling. which source is used as reference. Usually baseline.")
 
     args = vars(parser.parse_args())
+    output_dir = args['output_dir']
     sources = args['sources']
     v = args['variable']
     method = args['method']
@@ -129,7 +132,7 @@ if __name__ == '__main__':
 
     for i, source in enumerate(sources):
         # Handle the datetime folder inside the output. Select most recent run
-        runtime = os.listdir(os.path.abspath(os.path.join('output/default_config', source)))
+        runtime = os.listdir(os.path.abspath(os.path.join(output_dir, source)))
         if len(runtime) > 1:
             runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
@@ -140,4 +143,4 @@ if __name__ == '__main__':
 
         sources[i] = os.path.join(source, runtime)
 
-    main(sources, v, method, destination, ref)
+    main(output_dir, sources, v, method, destination, ref)

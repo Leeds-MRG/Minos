@@ -78,10 +78,9 @@ class Neighbourhood(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
-        ## Predict next neighbourhood value
+        # Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
-        # WHYYYYYYYYYY +1????!?!?!?!?!
         neighbourhood_prob_df["neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
                                                                            list(neighbourhood_prob_df.columns),
                                                                            neighbourhood_prob_df) + 1
@@ -115,7 +114,7 @@ class Neighbourhood(Base):
             year -= 1 # e.g. 2012 moves back one year to 2011.
 
         year = min(year, 2014) # transitions only go up to 2014.
-        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}")
+        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop, 'neighbourhood_safety')
         return nextWaveNeighbourhood
