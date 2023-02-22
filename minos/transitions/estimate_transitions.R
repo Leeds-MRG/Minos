@@ -15,12 +15,14 @@
 
 source("minos/transitions/utils.R")
 
-require(argparse)
-require(tidyverse)
-require(ordinal)
-require(nnet)
-require(stringr)
-require(pscl)
+require(argparse) # read variables from command line.
+require(tidyverse) # data manipulation
+require(ordinal) # CLMs
+require(nnet) # multinomial regression
+require(stringr) #String parsing.
+require(pscl) # ZIPs
+require(lme4) # GLMMs
+require(geepack) #GEEs
 
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
@@ -107,6 +109,63 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
   } else {
     model <- glm(formula, family=binomial(link="logit"), data=data)
+  }
+  # add obs and preds to model object for any later plotting.
+  # This is mildly stupid.. 
+  model[[depend]] <- data[[depend]]
+  model$class_preds <- predict(model)
+  return(model)
+}
+
+
+estimate_yearly_gamma_gee <- function(data, formula, include_weights = FALSE, depend) {
+  
+  # Sort out dependent type (factor)
+  data[[depend]] <- as.factor(data[[depend]])
+  
+  data = replace.missing(data)
+  
+  if(include_weights) {
+    model <- geeglm(formula,
+                    id = pidp,
+                    waves = time,
+                    family = Gamma(link='inverse'), # canonical inverse gamma link. Could use log link instead..
+                    data = data,
+                    weights = weight,
+                    corstr="ar1") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+  } else {
+    model <- geeglm(formula,
+                    id = pidp,
+                    waves = time,
+                    family = Gamma(link='inverse'),
+                    data = data,
+                    corstr="ar1")
+  }
+  # add obs and preds to model object for any later plotting.
+  # This is mildly stupid.. 
+  model[[depend]] <- data[[depend]]
+  model$class_preds <- predict(model)
+  return(model)
+}
+
+estimate_yearly_glmm <- function(data, formula, include_weights = FALSE, depend) {
+  
+  # Sort out dependent type (factor)
+  data[[depend]] <- as.factor(data[[depend]])
+  
+  data = replace.missing(data)
+  
+  if(include_weights) {
+    model <- glmer(formula,  
+                   nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
+                   family=Gamma(link='log'), # gamma family with log link.
+                   weights=weight, 
+                   data = data)
+  } else {
+    model <- glmer(formula, 
+                   nAGQ=0, 
+                   family=Gamma(link='log'),
+                   data = data)
   }
   # add obs and preds to model object for any later plotting.
   # This is mildly stupid.. 
@@ -316,6 +375,22 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
                                      include_weights = use.weights, 
                                      depend = next.dependent)
           
+      } else if(tolower(mod.type) == 'glmm') {
+        
+        # set ordinal dependent to factor
+        model <- estimate_yearly_glmm(data = merged,
+                                       formula = form, 
+                                       include_weights = use.weights, 
+                                       depend = next.dependent)
+        
+      } else if(tolower(mod.type) == 'gee') {
+        
+        # set ordinal dependent to factor
+        model <- estimate_yearly_gee(data = merged,
+                                       formula = form, 
+                                       include_weights = use.weights, 
+                                       depend = next.dependent)
+        
       } else if(tolower(mod.type) == 'nnet') {
         
         model <- estimate_yearly_nnet(data = merged, 
