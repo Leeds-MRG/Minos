@@ -156,6 +156,11 @@ scot_intervention_energyDownLift: scot_setup
 
 scot_all_scenarios: scot_baseline scot_intervention_hhIncomeChildUplift scot_intervention_PovertyLineChildUplift scot_intervention_livingWage scot_intervention_energyDownLift
 
+arc4_scot_baseline:
+	bash scripts/arc_submit.sh -c config/scot_default.yaml -o 'scotland_mode'
+
+arc4_scot_all_child_uplift:
+	bash scripts/arc_submit.sh -c config/scot_default.yaml -o 'scotland_mode' -i 'hhIncomeChildUplift'
 #####################################
 ## Running MINOS scenarios on Arc4
 #####################################
