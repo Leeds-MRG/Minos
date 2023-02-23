@@ -10,13 +10,15 @@
 #SBATCH --cpus-per-task=2            # Number of CPU cores per task
 #SBATCH --mem=2gb                     # Job memory request
 #SBATCH --time=00:15:00               # Time limit hrs:min:sec
-#SBATCH --output=logs/minos_batch-%A-%a.out   # Standard output log.
-#SBATCH --error=logs/minos_batch-%A-%a.err   # Standard output log.
+#SBATCH --output=logs/errors/minos_batch-%A-%a.out   # Standard output log.
+#SBATCH --error=logs/logs/minos_batch-%A-%a.err   # Standard output log.
 #SBATCH --gres=gpu:rtx_6000:1 # What GPUs you want: 1
 
-../gpu-burn/gpu_burn # GPU logging..? Proves traceback if something goes wrong.
+#../gpu-burn/gpu_burn # GPU testing.. ignore.
 
 mkdir -p logs #make logs directory if it doesn't exist.
+mkdir -p logs/logs #make logs directory if it doesn't exist.
+mkdir -p logs/errors #make logs directory if it doesn't exist.
 
 echo "Running Minos task $SLURM_JOBID on $SLURM_CPUS_ON_NODE CPU cores"
 echo "Running task $SLURM_ARRAY_TASK_ID of $SLURM_ARRAY_TASK_MAX"
