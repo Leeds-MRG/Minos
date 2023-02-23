@@ -3,6 +3,7 @@
 import logging
 import os
 from pathlib import Path
+from rpy2.robjects.packages import importr
 
 # Do this to suppress warnings from Vivariums code...
 import warnings
@@ -28,7 +29,6 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition
-
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -133,6 +133,15 @@ def RunPipeline(config, intervention=None):
     # Even then these classes could be appended with pre_setup functions.
     # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
+
+    rpy2_modules = {"base": importr('base'),
+                    "stats": importr('stats'),
+                    "nnet": importr("nnet"),
+                    "ordinal": importr('ordinal'),
+                    "zeroinfl": importr("pscl")
+                    }
+    simulation._data.write("rpy2_modules",
+                           rpy2_modules)
 
     logging.info("Components included:")
     # Run pre-setup method for each module.

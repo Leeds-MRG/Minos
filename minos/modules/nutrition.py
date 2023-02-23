@@ -27,6 +27,7 @@ class Nutrition(Base):
         """
 
         # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -100,8 +101,8 @@ class Nutrition(Base):
         -------
         """
         #year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, pop, 'nutrition_quality')
+        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", self.rpy2Modules, path=self.transition_dir)
+        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'nutrition_quality')
 
 
     # Special methods used by vivarium.

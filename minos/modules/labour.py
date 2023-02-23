@@ -40,7 +40,7 @@ class Labour(Base):
         """
 
         # Load in any inputs from pre-setup.
-        # Nothing here yet..
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -119,9 +119,9 @@ class Labour(Base):
 
         # load transition model based on year.
         year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
-        transition_model = r_utils.load_transitions(f"labour/nnet/labour_nnet_{year}_{year+1}", path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"labour/nnet/labour_nnet_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(transition_model, pop, cols)
+        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):

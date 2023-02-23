@@ -220,9 +220,9 @@ beefy_all: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervent
 
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
-setup: install data transitions replenishing_data
+setup: install data transitions replenishing_data serialise_rpy2
 
-scot_setup: install scot_data scot_transitions scot_replenishing
+scot_setup: install scot_data scot_transitions scot_replenishing serialise_rpy2
 
 #####################################
 ### Data Generation
@@ -257,6 +257,8 @@ spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all 
 spatial_data: $(SPATIALDATA)/2019_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2019_US_cohort.csv
+
+serialise_rpy2: $(PYTHON)/data_generation/serialise_rpy2_pickle.py
 
 #####################################
 # Input Populations
