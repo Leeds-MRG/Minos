@@ -75,11 +75,6 @@ def validate_components(config_components, intervention):
         "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
         "Mortality()": Mortality(),
         "Education()": Education(),
-        # Replenishment
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
     }
 
     intervention_components_map = {        #Interventions
@@ -90,16 +85,29 @@ def validate_components(config_components, intervention):
         "energyDownlift()": energyDownlift()
     }
 
+    replenishment_components_map = {
+        "Replenishment()": Replenishment(),
+        "NoReplenishment()": NoReplenishment(),
+        "ReplenishmentNowcast()": ReplenishmentNowcast(),
+        "ReplenishmentScotland()": ReplenishmentScotland(),
+    }
+
     component_list = []
+    replenishment_component = []
     for component in config_components:
         if component in components_map.keys():
             # add non intervention components
             component_list.append(components_map[component])
-        elif intervention and component in intervention_components_map.keys():
-            # add intervention components.
-            component_list.append(intervention_components_map[component])
+        elif component in replenishment_components_map.keys():
+            replenishment_component.append(replenishment_components_map[component])
         else:
             print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
+
+    if intervention in intervention_components_map.keys():
+        # add intervention components.
+        component_list.append(intervention_components_map[intervention])
+
+    component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
     return component_list
 
 def RunPipeline(config, intervention=None):
