@@ -9,7 +9,6 @@ pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithC
 
 class Replenishment(Base):
 
-
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run into the config and simulation object.
@@ -146,7 +145,7 @@ class Replenishment(Base):
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
             #new_population = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
-            new_population = pd.read_csv(f"data/final_US/2017_US_cohort.csv")  # FORCE START IN 2017
+            new_population = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
         elif pop_data.user_data["cohort_type"] == "replenishment":
