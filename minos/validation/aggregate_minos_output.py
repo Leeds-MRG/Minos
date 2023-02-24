@@ -15,6 +15,7 @@ def aggregate_csv(filename, v, agg_method, subset_func_string, mode):
     df = pd.read_csv(filename, low_memory=False)
     if subset_func_string:
        df = dynamic_subset_function(df, subset_func_string, mode)
+    #print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
     return agg_method(df[v])
 
 
@@ -58,10 +59,13 @@ def aggregate_variables_by_year(source, mode, years, tag, v, method, subset_func
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
         if year == years[0]:
-            subset_func_string = 'who_alive'
-        with Pool() as pool:
-            aggregated_means = pool.starmap(aggregate_csv,
-                                            zip(files, repeat(v), repeat(method), repeat(subset_func_string), repeat(mode)))
+            with Pool() as pool:
+                aggregated_means = pool.starmap(aggregate_csv,
+                                                zip(files, repeat(v), repeat(method), repeat("who_alive"), repeat(mode)))
+        else:
+            with Pool() as pool:
+                aggregated_means = pool.starmap(aggregate_csv,
+                                                zip(files, repeat(v), repeat(method), repeat(subset_func_string), repeat(mode)))
 
         new_df = pd.DataFrame(aggregated_means)
         new_df.columns = [v]
@@ -71,7 +75,7 @@ def aggregate_variables_by_year(source, mode, years, tag, v, method, subset_func
     return df
 
 
-def main(source, mode, years, tags, v, method, subset_function_string):
+def main(source, mode, years, tag, v, method, subset_function_string):
     """
     Parameters
     ----------
@@ -94,8 +98,8 @@ def main(source, mode, years, tags, v, method, subset_function_string):
     df: pd.DataFrame
         Dataframe df containing 3 columns year, tag, v. Long frame of aggregates by year and source.
     """
-    print(f"Aggregating for source {source}, tag {tags} using {method.__name__} over {v}")
-    destination = os.path.join(source, f"aggregated_{v}_by_{method.__name__}.csv")
+    print(f"Aggregating for source {source}, tag {tag} using {method.__name__} over {v}")
+    destination = os.path.join(source, f"{tag}_aggregated_{v}_by_{method.__name__}.csv")
     df = aggregate_variables_by_year(source, mode, years, tag, v, method, subset_function_string)
     df.to_csv(destination, index=False)
     print(f"Saved file to {destination}")

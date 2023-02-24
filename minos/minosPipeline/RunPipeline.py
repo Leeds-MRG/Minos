@@ -228,7 +228,7 @@ def get_output_data_filename(config, year=0):
     # Add experiment parameters to output file name if present
     if 'run_ID' in config.keys():
         print(config.run_ID)
-        output_data_filename += str(config.run_ID).zfill(3) + '_' # pad with zeros so files are saved in correct order.
+        output_data_filename += str(config.run_ID).zfill(4) + '_' # pad with zeros so files are saved in correct order.
         output_data_filename += str(config.run_ID_names) + '_'
 
     # Now add year to output file name

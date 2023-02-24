@@ -18,13 +18,13 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
                     "who_below_poverty_line_and_kids": [who_alive, who_kids, who_below_poverty_line],
                     #"who_bottom_income_quintile": who_bottom_income_quintile,
                     # Scottish gov sgugested vulnerable subgroups.
-                    "who_disabled": [who_alive, who_disabled],
-                    "who_ethnic_minority": [who_alive, who_ethnic_minority],
+                    "who_disabled": [who_alive, who_kids, who_disabled],
+                    "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],
                     "who_three_kids": [who_alive, who_three_kids],
                     "who_young_mother": [who_alive, who_young_adults, who_female, who_kids],
-                    "who_young_adults": [who_alive, who_young_adults],
-                    "who_unemployed_adults": [who_alive, who_adult, who_unemployed],
-                    "who_no_formal_education": who_no_formal_education,
+                    "who_young_adults": [who_alive, who_kids, who_young_adults],
+                    "who_unemployed_adults": [who_alive, who_adult, who_kids, who_unemployed],
+                    "who_no_formal_education": [who_alive, who_kids, who_no_formal_education],
                      # Not sure about this one? single parent may not be primrary caregiver. e.g. divorced dad without custody.
                     "who_lone_parent_families": [who_alive, who_single, who_kids],
                     # NOT IMPLEMENTED BELOW HERE YET. NO SUFFICIENT DATA IN UNDERSTANDING SOCIETY.
@@ -41,6 +41,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
 
     for subset_function in subset_chain:
         data = subset_function(data)
+
     return data
 
 
@@ -106,7 +107,7 @@ def who_kids(df):
 
 def who_no_formal_education(df):
     # Lowest education tier.
-    return df.loc[df["education_state"] == 0, ]
+    return df.query("`education_state` == 0")
 
 
 def who_scottish(df):

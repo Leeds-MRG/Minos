@@ -220,9 +220,9 @@ beefy_all: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervent
 
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
-setup: install data transitions replenishing_data serialise_rpy2
+setup: install data transitions replenishing_data
 
-scot_setup: install scot_data scot_transitions scot_replenishing serialise_rpy2
+scot_setup: install scot_data scot_transitions scot_replenishing
 
 #####################################
 ### Data Generation
@@ -230,7 +230,7 @@ scot_setup: install scot_data scot_transitions scot_replenishing serialise_rpy2
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
-data: raw_data corrected_data composite_data complete_data final_data
+data: raw_data corrected_data composite_data complete_data final_data replenishing_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2019_US_cohort.csv
@@ -248,7 +248,7 @@ final_data: ### Produce the final version of the data (including replenishing po
 final_data: $(FINALDATA)/2019_US_cohort.csv
 
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
-replenishing_data:  $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv
+replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
 scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
@@ -257,8 +257,6 @@ spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all 
 spatial_data: $(SPATIALDATA)/2019_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2019_US_cohort.csv
-
-serialise_rpy2: $(PYTHON)/data_generation/serialise_rpy2_pickle.py
 
 #####################################
 # Input Populations
