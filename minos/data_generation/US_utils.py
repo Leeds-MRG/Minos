@@ -412,6 +412,7 @@ def get_data_maxyr():
         wave_list.append(string.replace("_indresp.dta", ""))
     wave_list = sorted(wave_list)
 
+    # if letters == number from a=1 b=2 c=3 etc. then get number from wave letter
     wave_numlist = [ord(char) - 96 for char in wave_list]
 
     # now calculate max year
