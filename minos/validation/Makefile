@@ -5,11 +5,11 @@
 
 #TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
 scot_all_lineplots: MODE=scotland_mode
-scot_all_lineplots: ALIVE=who_scottish
-scot_all_lineplots: BOOSTED=who_scottish_boosted
-scot_all_lineplots: LIVING_WAGE=who_scottish_below_living_wage
-scot_all_lineplots: POVERTY=who_scottish_below_poverty_line_and_kids
-scot_all_lineplots: CHILD=who_scottish_and_kids
+scot_all_lineplots: ALIVE=who_alive
+scot_all_lineplots: BOOSTED=who_boosted
+scot_all_lineplots: LIVING_WAGE=who_below_living_wage
+scot_all_lineplots: POVERTY=who_below_poverty_line_and_kids
+scot_all_lineplots: CHILD=who_kids
 scot_all_lineplots: all_lineplots
 
 default_all_lineplots: MODE=default_config
@@ -20,8 +20,9 @@ default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
 default_all_lineplots: CHILD=who_kids
 default_all_lineplots: all_lineplots
 
-all_lineplots: aggregate_minos_output aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
-vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift minos_output_uneducated_child_uplift
+all_lineplots: aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
+vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
+
 
 aggregate_minos_output:
 aggregate_minos_output:	DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
@@ -32,17 +33,17 @@ aggregate_minos_output:
 
 
 MODE=scotland_mode
-aggregate_minos_output_treated:	TREATED_DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
-aggregate_minos_output_treated:	TREATED_DIRECTORY_TAGS="Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
-aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),$(BOOSTED),$(BOOSTED)
+aggregate_minos_output_treated:	TREATED_DIRECTORIES = baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift
+aggregate_minos_output_treated:	TREATED_DIRECTORY_TAGS="Baseline,£25 All Child Uplift,£25 Povert Line Child Uplift, Living Wage,Energy Downlift"
+aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),$(BOOSTED)$(BOOSTED),$(BOOSTED)
 aggregate_minos_output_treated:
 	bash minos/validation/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated"
 
 aggregate_minos_output_living_wage:
-	bash minos/validation/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_alive,who_boosted "living_wage_treated"
+	bash minos/validation/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"
 
 aggregate_minos_output_poverty_child_uplift:
-	bash minos/validation/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_alive,who_boosted "poverty_line_child_uplift"
+	bash minos/validation/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
 
 aggregate_minos_output_all_child_uplift:
 	bash minos/validation/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_kids "all_child_uplift"
@@ -72,7 +73,6 @@ aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_TAGS="Baseline,All Children U
 aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,who_disabled,who_ethnic_minority,who_three_kids,who_young_adults,who_no_formal_education
 aggregate_combined_vulnerable:
 	bash minos/validation/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable"
-
 
 aggregate_minos_output_energy:
 	bash minos/validation/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_alive,who_alive "energy_downlift"
