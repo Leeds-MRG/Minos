@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies: # Added pip and python at top to avoid conda giving grumpy warnings
   - pip
+  - python_abi=3.9=*cp*
   - python=3.9
   #- conda-forge::conda- # For alternative method of "conda build ."; required conda-build to be installed
   - r-base=4.1.3
