@@ -17,7 +17,7 @@ from minos.modules.replenishment import Replenishment, NoReplenishment
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing, Heating
 from minos.modules.income import Income, grossIncome
-from minos.modules.mental_wellbeing import MWB
+from minos.modules.mental_wellbeing import MWB, geeMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -55,6 +55,8 @@ def RunPipeline(config, run_output_dir, intervention=None):
     #components = [eval(x) for x in config.components] # more adapative way but security issues.
     # last one in first one off. any module that requires another should be BELOW IT in this order.
     # Outcome module goes first (last in sim)
+    if "geeMWB()" in config['components']:
+        components.append(geeMWB())
     if "MWB()" in config['components']:
         components.append(MWB())
 

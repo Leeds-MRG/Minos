@@ -74,7 +74,7 @@ format_sf12_gee_transition_data <- function(source, years, v){
                "ethnicity", 
                "age", 
                "time", 
-               "hh_income", 
+               "net_hh_income", 
                "housing_quality",
                "loneliness",
                #"yearly_energy",
@@ -92,8 +92,19 @@ format_sf12_gee_transition_data <- function(source, years, v){
   return(data)
 }
 
-data <- format_sf12_gee_transition_data("data/final_US/", c(2016,2017,2018,2019), "SF_12")
+data <- format_sf12_gee_transition_data("data/final_US/", c(2015,2016,2017,2018,2019), "SF_12")
 data <- data[order(data$pidp, data$time),]
+
+formula <- "I(max(SF_12) - SF_12 + 0.001)  ~ # reflection about maximum makes right skewed non-negative data. also slight addition to make strictly positive values.
+  sex + 
+  ethnicity + 
+  age + 
+  I(age**2) +
+  I(age**3) +
+  labour_state + 
+  factor(loneliness) +
+  factor(housing_quality) +
+  factor(financial_situation)"
 
 dep.gee.gamma <- geeglm(I(max(SF_12) - SF_12 + 0.001)  ~ # reflection about maximum makes right skewed non-negative data. also slight addition to make strictly positive values.
                           sex + 
@@ -120,7 +131,7 @@ dep.gee.gamma <- geeglm(I(max(SF_12) - SF_12 + 0.001)  ~ # reflection about maxi
                         corstr="ar1")
 
 sf12.gee.path <- "data/transitions/SF_12/gee/"
-sf12.gee.name <- "sf12_gee.rds"
+sf12.gee.name <- "sf12_gee_2018_2019.rds"
 sf12.gee.filename <- paste(sf12.gee.path, sf12.gee.name)
 create.if.not.exists(sf12.gee.path)
 saveRDS(dep.gee.gamma, file=sf12.gee.filename)
@@ -137,10 +148,10 @@ dep.gee.gamma.preds <- predict(dep.gee.gamma, newdata=recent_data, allow.new.lev
 dep.gee.gamma.preds <- max(data$SF_12) - dep.gee.gamma.preds
 
 
-hist(dep.gee.gamma.preds)
-res <- residuals(dep.gee.gamma, type='pearson')
-residual_density_plot(res, "plots/residual_density_test.pdf", guide="normal")
-qq_plot(res, "plots/qq_plot_test.pdf")
+#hist(dep.gee.gamma.preds)
+#res <- residuals(dep.gee.gamma, type='pearson')
+#residual_density_plot(res, "plots/residual_density_test.pdf", guide="normal")
+#qq_plot(res, "plots/qq_plot_test.pdf")
 
 #squareRootRes <- sqrt(abs(scale(resid(dep.gee.gamma, type='pearson'))))
 #fitted_residuals <- as.data.frame(cbind(fitted(dep.gee.gamma), squareRootRes))

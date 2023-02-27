@@ -165,6 +165,83 @@ def predict_next_timestep_clm(model, current, dependent):
     return predictionDF
 
 
+def predict_next_timestep_gee(model, current, dependent):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = importr('base')
+    lme4 = importr('lme4')
+    geepack = importr('geepack')
+    stats = importr('stats')
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    prediction = stats.predict(model, currentRDF, type='response', allow_new_levels=True)
+    newRPopDF = base.cbind(currentRDF, predicted = prediction)
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    return newPandasPopDF[[dependent]]
+
+def predict_next_timestep_glmm(model, current, dependent):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = importr('base')
+    lme4 = importr('lme4')
+    stats = importr('stats')
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    prediction = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)
+    newRPopDF = base.cbind(currentRDF, predicted = prediction)
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    return newPandasPopDF[[dependent]]
+
 def predict_nnet(model, current, columns):
     """
     Function for predicting next state using nnet models.

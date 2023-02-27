@@ -10,6 +10,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
+import numpy as np
 
 class MWB(Base):
     """Mental Well-Being Module"""
@@ -128,8 +129,6 @@ class MWB(Base):
         plt.close('all')
 
 
-
-
 class glmmMWB(Base):
     """Mental Well-Being Module"""
     # Special methods used by vivarium.
@@ -246,5 +245,123 @@ class glmmMWB(Base):
         plt.close('all')
 
 
-class geeMWB():
-    pass
+class geeMWB(Base):
+    """Mental Well-Being Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'geeMWB'
+
+    def __repr__(self):
+        return "geeMWB()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for income
+        - Add required columns to population data frame
+        - Update other required items such as randomness stream.
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Load in inputs from pre-setup.
+        # Nothing here yet..
+
+        # Build vivarium objects for calculating transition probabilities.
+        # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
+
+        # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ['pidp',
+                        'sex',
+                        'ethnicity',
+                        'age',
+                        'education_state',
+                        'labour_state',
+                        'job_sec',
+                        'net_hh_income',
+                        'SF_12',
+                        'housing_quality',
+                        'phealth',
+                        'ncigs',
+                        'nutrition_quality',
+                        'neighbourhood_safety',
+                        'loneliness',
+                        'financial_situation']
+
+        self.population_view = builder.population.get_view(columns=view_columns)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+
+        self.max_sf12 = None
+
+    def update_prediction_population(self, current_pop):
+        """ Update longitudinal data frame of past observations with current information.
+
+        Remove those not alive and sort by pidp and time so gee R model can read it.
+
+        Parameters
+        ----------
+        current_pop
+
+        Returns
+        -------
+
+        """
+    def on_time_step(self, event):
+        """Produces new children and updates parent status on time steps.
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+
+        self.year = event.time.year
+
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        if self.max_sf12 == None:
+            self.max_sf12 = np.max(pop["SF_12"])
+
+        ## Predict next income value
+        newWaveMWB = self.calculate_mwb(pop)
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        # Set index type to int (instead of object as previous)
+        newWaveMWB.index = newWaveMWB.index.astype(int)
+
+        print(np.mean(newWaveMWB["SF_12"]))
+        # Draw individuals next states randomly from this distribution.
+        # Update population with new income
+        self.population_view.update(newWaveMWB['SF_12'])
+
+
+    def calculate_mwb(self, pop):
+        """Calculate income transition distribution based on provided people/indices
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        year = min(self.year, 2018)
+        transition_model = r_utils.load_transitions(f"SF_12/gee/SF_12_GEE")
+        return self.max_sf12 - r_utils.predict_next_timestep_gee(transition_model, pop, 'SF_12')

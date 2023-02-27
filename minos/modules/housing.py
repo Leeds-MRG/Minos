@@ -90,7 +90,8 @@ class Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        # TODO: Find out why this was adding 1 to the prediction?
+        # TODO: Find out why this was adding 1 to the prediction? its to do with the second argument probably.
+        # its a list between 0 and 2. some variables are indexed at 0 and 1 annoyingly. need to double check args here.
         housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
