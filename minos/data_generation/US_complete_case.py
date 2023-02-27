@@ -73,9 +73,9 @@ if __name__ == "__main__":
     # make sure its int not float (need to convert NA to 0 for this to work)
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
     # Now do same for neighbourhood_safety
-    data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017])
+    data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     # ncigs missing for wave 1 only
-    data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2020, 1)))
+    data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
 
