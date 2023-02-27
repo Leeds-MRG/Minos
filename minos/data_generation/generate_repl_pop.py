@@ -172,7 +172,7 @@ def generate_replenishing(projections, scotland_mode):
     data_source = 'final_US'
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2017_US_cohort.csv"
+    file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
