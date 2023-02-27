@@ -28,24 +28,27 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> Minos
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Minos
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../documentation/index.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../data_discovery.html">Data Discovery</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../data_tables.html">Data Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Coefficients/index.html">Welcome to Minos’ Transition Model Coefficients!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../compile_help.html">Compiling this page using sphinx.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/compile_help.html">Compiling this page using sphinx.</a></li>
 </ul>
 
         </div>
@@ -61,7 +64,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
       <li class="breadcrumb-item active">minos.modules.housing</li>
       <li class="wy-breadcrumbs-aside">
@@ -99,7 +102,7 @@
     <span class="c1"># In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.</span>
 
 <div class="viewcode-block" id="Housing.setup"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -146,10 +149,10 @@
 
         <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
         <span class="c1"># individual graduate in an education module.</span>
-        <span class="n">builder</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">register_listener</span><span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_time_step</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+        <span class="n">builder</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">register_listener</span><span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_time_step</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Housing.on_time_step"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.on_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Produces new children and updates parent status on time steps.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces new children and updates parent status on time steps.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -165,13 +168,17 @@
 
         <span class="n">housing_prob_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_housing</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
 
-        <span class="n">housing_prob_df</span><span class="p">[</span><span class="s2">&quot;housing_quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">housing_prob_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">housing_prob_df</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">housing_prob_df</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="c1"># TODO: Find out why this was adding 1 to the prediction?</span>
+        <span class="n">housing_prob_df</span><span class="p">[</span><span class="s2">&quot;housing_quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">housing_prob_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                                                <span class="nb">list</span><span class="p">(</span><span class="n">housing_prob_df</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span>
+                                                                <span class="n">housing_prob_df</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
         <span class="n">housing_prob_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">housing_prob_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">housing_prob_df</span><span class="p">[</span><span class="s2">&quot;housing_quality&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Housing.calculate_housing"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.calculate_housing">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_housing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate housing transition distribution based on provided people/indices.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate housing transition distribution based on provided people/indices.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -182,9 +189,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># load transition model based on year.</span>
         <span class="n">year</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="mi">2018</span><span class="p">)</span>
-        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;housing/clm/housing_clm_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;housing_quality/clm/housing_quality_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># returns probability matrix (3xn) of next ordinal state.</span>
-        <span class="n">prob_df</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_clm</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span> <span class="n">pop</span><span class="p">)</span>
+        <span class="n">prob_df</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_clm</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="s1">&#39;housing_quality&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">prob_df</span></div>
 
 <div class="viewcode-block" id="Housing.plot"><a class="viewcode-back" href="../../../API/housing.html#minos.modules.housing.Housing.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>

@@ -15,6 +15,9 @@ input_data_dir: "data/final_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
+transition_dir: 'data/transitions'
+replenishing_dir: 'data/replenishing'
+
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.

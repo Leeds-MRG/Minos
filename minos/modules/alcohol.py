@@ -108,7 +108,7 @@ class Alcohol(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"alcohol/zip/alcohol_zip_{year}_{year + 1}")
+        transition_model = r_utils.load_transitions(f"alcohol/zip/alcohol_zip_{year}_{year + 1}", path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveAlcohol = r_utils.predict_next_timestep_zip(model = transition_model,
                                                                     current = pop,

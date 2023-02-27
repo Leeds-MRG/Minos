@@ -16,7 +16,7 @@ def get_scottish(data):
     -------
 
     """
-    return data.loc[data['region']=='Scotland',]
+    return data.loc[data['region'] == 'Scotland', ]
 
 #def main():
 #    # get files
@@ -26,6 +26,32 @@ def get_scottish(data):
 #    data = US_utils.load_multiple_data(file_names)[0]
 #    data =get_scottish(data)
 #    US_utils.save_multiple_files(data, [2018], "subsetted_US", "")
+
+
+def handle_small_samples(data):
+    """
+    Scot data has much smaller sample than the whole UK, and therefore some transition models struggled. We need to
+    combine some groups in order to get Scotland mode working.
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+
+    ## FIRST deal with ethnic group
+    # Need to replace all the groups with a white/non-white split as minority ethnic groups are too small number
+    #data['ethnicity'][~data['ethnicity'].isin(['WBI', 'WHO'])] = 'Non-White'
+    #data['ethnicity'][data['ethnicity'].isin(['WBI', 'WHO'])] = 'White'
+
+    # JOB_SEC breaking the loneliness model
+    # JOO_SEC also breaking the ncigs model
+
+    # First deal with education_state == 6 - very small numbers in this group. Combine with level
+
+    return data
 
 
 def main():
@@ -39,6 +65,7 @@ def main():
     file_names = [f"data/final_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = get_scottish(data)
+    data = handle_small_samples(data)
     US_utils.save_multiple_files(data, years, "data/scotland_US/", "")
 
 

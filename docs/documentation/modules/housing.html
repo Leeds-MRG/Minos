@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Housing &mdash; Minos  documentation</title>
@@ -31,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Minos
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Minos
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -61,10 +65,10 @@
 <li class="toctree-l2"><a class="reference internal" href="labour.html">Labour</a></li>
 <li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
 <li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
 </ul>
@@ -88,7 +92,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
           <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
       <li class="breadcrumb-item active">Housing</li>
@@ -134,11 +138,6 @@
 <h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
 <p>What methods are used? Justification due to output data type.
 explanation of model output.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
-<span class="c1">##     1     2     3</span>
-<span class="c1">##   549 17066  9622</span>
-</pre></div>
-</div>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk housing_barchart" src="../../_images/housing_barchart-1.png" />
 <figcaption>
@@ -161,45 +160,37 @@ goodness of fit.</p>
 <p><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## formula:</span>
-<span class="c1">## housing_quality_next ~ factor(sex) + scale(age) + scale(SF_12) + factor(labour_state) + factor(ethnicity) + scale(hh_income)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## formula: next_housing_quality ~ age + factor(sex) + SF_12 + relevel(factor(ethnicity), ref = &quot;WBI&quot;) + hh_income</span>
 <span class="c1">## data:    data</span>
 <span class="c1">##</span>
-<span class="c1">##  link  threshold nobs     logLik       AIC         niter max.grad cond.H</span>
-<span class="c1">##  logit flexible  44193278 -38114733.98 76229517.96 6(0)  1.15e-07 5.1e+03</span>
+<span class="c1">##  link  threshold nobs     logLik AIC    niter max.grad cond.H</span>
+<span class="c1">##  logit flexible  103.1594 -97.99 229.99 5(0)  8.47e-07 9.2e+09</span>
 <span class="c1">##</span>
 <span class="c1">## Coefficients:</span>
-<span class="c1">##                                       Estimate Std. Error z value Pr(&gt;|z|)</span>
-<span class="c1">## factor(sex)Male                      0.0558236  0.0006313   88.42   &lt;2e-16 ***</span>
-<span class="c1">## scale(age)                          -0.1628516  0.0004907 -331.90   &lt;2e-16 ***</span>
-<span class="c1">## scale(SF_12)                         0.1508474  0.0004022  375.03   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Family Care     -0.1570490  0.0018192  -86.33   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Maternity Leave  0.6073570  0.0036212  167.72   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)PT Employed      0.1167170  0.0010727  108.81   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Retired         -0.1090539  0.0011417  -95.52   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Self-employed    0.0856879  0.0011851   72.31   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Sick/Disabled   -0.5583446  0.0017725 -315.00   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Student          0.1225262  0.0014395   85.11   &lt;2e-16 ***</span>
-<span class="c1">## factor(labour_state)Unemployed      -0.5506065  0.0017037 -323.18   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)BLA                 0.1448945  0.0047652   30.41   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)BLC                 0.2591639  0.0054113   47.89   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)CHI                 0.3644415  0.0062071   58.71   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)IND                 0.8851952  0.0044509  198.88   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)MIX                 1.0575175  0.0046746  226.22   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)OAS                 0.2031260  0.0048923   41.52   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)OBL                 0.1965951  0.0129046   15.23   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)OTH                 1.1101132  0.0063123  175.87   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)PAK                 0.5495317  0.0047129  116.60   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)WBI                 1.3434706  0.0040522  331.54   &lt;2e-16 ***</span>
-<span class="c1">## factor(ethnicity)WHO                 1.1678576  0.0042176  276.90   &lt;2e-16 ***</span>
-<span class="c1">## scale(hh_income)                     0.4693541  0.0004462 1051.91   &lt;2e-16 ***</span>
+<span class="c1">##                                              Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="c1">## age                                         0.0082681  0.0113336   0.730   0.4657</span>
+<span class="c1">## factor(sex)Male                            -0.0938937  0.3845571  -0.244   0.8071</span>
+<span class="c1">## SF_12                                      -0.0136238  0.0202522  -0.673   0.5011</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN  1.0235392  2.6780803   0.382   0.7023</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA  1.3244641  1.6063660   0.825   0.4097</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC  0.6422992  2.4039794   0.267   0.7893</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI  1.3129964  2.8385130   0.463   0.6437</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND  0.4518321  1.2442697   0.363   0.7165</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX  0.2691325  1.5009851   0.179   0.8577</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS  0.7642680  1.8362644   0.416   0.6773</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL  1.5285576  8.6893576   0.176   0.8604</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH  0.4339788  3.1233946   0.139   0.8895</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK  0.5250905  1.7236335   0.305   0.7606</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO  0.1788316  0.8328175   0.215   0.8300</span>
+<span class="c1">## hh_income                                  -0.0003135  0.0001778  -1.764   0.0778 .</span>
 <span class="c1">## ---</span>
 <span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
 <span class="c1">##</span>
 <span class="c1">## Threshold coefficients:</span>
-<span class="c1">##      Estimate Std. Error z value</span>
-<span class="c1">## 1|2 -1.231036   0.004078  -301.9</span>
-<span class="c1">## 2|3  1.946753   0.004091   475.9</span>
+<span class="c1">##     Estimate Std. Error z value</span>
+<span class="c1">## 1|2   -1.325      1.042  -1.272</span>
+<span class="c1">## 2|3    1.189      1.044   1.139</span>
+<span class="c1">## (273 observations deleted due to missingness)</span>
 </pre></div>
 </div>
 </section>

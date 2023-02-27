@@ -2,9 +2,13 @@
 title: "Neighbourhood"
 output: html_document
 bibliography: 
-  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
+  - "docsrc/refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
   #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
 ---
+
+```{r load_data, include=FALSE}
+knitr::opts_knit$set(root.dir= "../minos")
+```
 
 ## Neighbourhood
 
@@ -12,15 +16,13 @@ bibliography:
 Neighbourhood quality is an indicator of well-being suggested by the SIPHER-7 XXXX ref and others?. 
 
 ```{r neighbourhood_setup, include=FALSE}
-source('sphinx_notebook_utils.R')
+source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
 ```
 
 ### Methods
   
 ```{r neighbourhood_barchart, echo=FALSE}
-print(table(real_data$neighbourhood_safety))
-discrete_barplot("neighbourhood_safety")
-getwd()
+discrete_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", 'next_neighbourhood_safety')
 ```
 
   Neighbourhood data are presented as a likert scale from 1-6 indicating the number of harmful activities that happen in a persons
@@ -37,8 +39,8 @@ getwd()
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
-clm_barplot("../../../data/transitions/test/neighbourhood_clm_2014_2017.rds", "neighbourhood_safety_next")
-clm_output("../../../data/transitions/test/neighbourhood_clm_2014_2017.rds")
+clm_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", "next_neighbourhood_safety") 
+clm_output("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds")  
 ```
 
 

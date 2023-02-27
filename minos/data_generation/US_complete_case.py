@@ -39,9 +39,6 @@ def complete_case_varlist(data, varlist):
         data[var] = data[var].replace(US_utils.missing_types, np.nan)
         data = data.dropna(axis=0, subset=[var])
 
-    #data[varlist] = data[varlist].replace(US_utils.missing_types, np.nan)
-
-    #data = data.dropna(axis=0)
     data = data.reset_index(drop=True)
     return data
 

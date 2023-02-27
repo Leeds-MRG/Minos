@@ -103,8 +103,8 @@ def main(source, years, tags, v, method, subset_func):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Aggregate output data from a MINOS batch run directory.")
-    parser.add_argument("-s", "--source", required=True, type=str,
-                        help="The source directory for Understanding Society/Minos data. Usually output/")
+    parser.add_argument("-o", "--output_dir", required=True, type=str,
+                        help="The output directory for Minos data. Usually output/*")
     parser.add_argument("-d", "--directories", required=True, type=str,
                         help="Subdirectories within source that are aggregated. Usually experiment names baseline childUplift etc.")
     parser.add_argument("-t", "--tags", required=True, type=str,
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                         help="What subset of the population is used in analysis. E.g. only look at the treated subset of the population")
 
     args = vars(parser.parse_args())
-    source = args['source']
+    output_dir = args['output_dir']
     directories = args['directories']
     tags = args['tags']
     v = args['variable']
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     for directory, tag, subset_function_string in zip(directories, tags, subset_functions):
 
         # Handle the datetime folder inside the output. Select most recent run
-        runtime = os.listdir(os.path.abspath(os.path.join(source, directory)))
+        runtime = os.listdir(os.path.abspath(os.path.join(output_dir, directory)))
         #TODO: Replace this block (or encapsulate) in a try except block for proper error handling
         if len(runtime) > 1:
             # if more than 1, select most recent datetime
@@ -151,7 +151,7 @@ if __name__ == '__main__':
                                "aggregate. Please check the output directory.")
 
         subset_function = find_subset_function(subset_function_string)
-        batch_source = os.path.join(source, directory, runtime)
+        batch_source = os.path.join(output_dir, directory, runtime)
         #  batch_source = os.path.join(source, directory)
         # get years from MINOS batch run config yaml.
         with open(f"{batch_source}/config_file.yml", "r") as stream:

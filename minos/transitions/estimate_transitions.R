@@ -50,7 +50,7 @@ digest_params <- function(line) {
 # to include the survey weights in estimation (only no for 2009 where no weight
 # information available)
 
-estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
+estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) {
   
   if(include_weights) {
     # fit the model including weights (after 2009)
@@ -62,6 +62,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE) {
     model <- lm(formula,
                 data = data)
   }
+  model[[depend]] <- data[[depend]]
   return(model)
 }
 
@@ -88,6 +89,9 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
                  threshold = "flexible",
                  Hess=T)
   }
+  model[[depend]] <- data[[depend]]
+  data[[depend]] <- NULL
+  model$class_preds <- predict(model, newdata = data, type='class')
   return(model)
 }
 
@@ -108,13 +112,14 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
                       data = data,
                       MaxNWts = 10000,
                       maxit = 1000)
+  model[[depend]] <- data[[depend]]
   }
   return(model)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
   
-  if(depend == 'next_ncigs') {
+  if(depend == 'next_ncigs' | depend == 'ncigs') {
     # first subset just the columns we want
     cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
               'hh_income', 'ethnicity', 'weight')
@@ -124,7 +129,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
     dat.subset = replace.missing(dat.subset)
     
     # now set NA to 0
-    dat.subset$next_ncigs[is.na(dat.subset$next_ncigs)] <- 0
+    dat.subset[[depend]][is.na(dat.subset[[depend]])] <- 0
     
     # finally run complete cases
     dat.subset <- dat.subset[complete.cases(dat.subset),]
@@ -141,10 +146,11 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
                       data = dat.subset,
                       dist = 'pois', 
                       link='logit')
+  model[[depend]] <- data[[depend]]
   }
   
   #print(summary(model))
-  prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
+  #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
   
   return(model)
@@ -179,7 +185,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- min(data$time):(max(data$time) - 1)
+    year.range <- seq(max(data$time)-5, (max(data$time) - 1))
     # set up output directory
     out.path1 <- paste0(transitionDir_path, dependent, '/')
     out.path2 <- paste0(out.path1, tolower(mod.type), '/')
@@ -201,6 +207,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       # (as in neighbourhood estimation, does a t+3 model due to data)
       depend.year <- year + 1
       
+      #TODO: Replace all these if statements with a check for data in that year
+      #   i.e. if colsum == (-9 * length(column)) 
+      #   then all elements == -9 as they would have been assigned that due to missing
+      
       ## Some models don't run in certain years (data issues) so break here
       # nutrition_quality only estimated for 2018
       if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
@@ -221,6 +231,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       
       # set up new dependent var name
       next.dependent <- paste0('next_', dependent)
+      #next.dependent <- dependent
 
       # independents from time T (current)
       indep.df <- data %>% 
@@ -244,7 +255,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         use.weights <- TRUE
       }
       
-      
+      #print(formula.string)
       ## For the SF_12 model alone, we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
       # not present every year
@@ -262,8 +273,10 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
           formula.string <- str_remove(formula.string, " \\+ ncigs")
         }
       }
+      #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
+      
       
       
       ## Different model types require different functions
@@ -271,7 +284,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
         
         model <- estimate_yearly_ols(data = merged, 
                                      formula = form, 
-                                     include_weights = use.weights)
+                                     include_weights = use.weights,
+                                     depend = next.dependent)
         
       } else if(tolower(mod.type) == 'clm') {
         
@@ -342,18 +356,23 @@ args <- parser$parse_args()
 
 scotland.mode <- args$scotland
 
+## RUNTIME ARGS
+transSourceDir <- 'minos/transitions/'
+dataDir <- 'data/final_US/'
+modDefFilename <- 'model_definitions.txt'
+transitionDir <- 'data/transitions/'
+
+
 # Set paths (handle scotland mode here)
 if(scotland.mode) {
+  print('Estimating transition models in Scotland mode')
   dataDir <- 'data/scotland_US/'
   modDefFilename <- 'model_definitions_SCOTLAND.txt'
+  transitionDir <- paste0(transitionDir, 'scotland/')
+  create.if.not.exists(transitionDir)
 } else {
-  dataDir <- 'data/final_US/'
-  modDefFilename <- 'model_definitions.txt'
+  print('Estimating transition models in whole population mode')
 }
-
-transitionDir <- 'data/transitions/'
-transSourceDir <- 'minos/transitions/'
-
 
 
 # Load input data (final_US/)
@@ -364,22 +383,3 @@ data <- do.call(rbind, lapply(filelist, read.csv))
 run_yearly_models(transitionDir, transSourceDir, modDefFilename, data)
 
 print('Generated all transition models.')
-
-
-
-whole.pop.mode.file <- paste0(transitionDir, 'whole_population_mode.txt')
-scotland.mode.file <- paste0(transitionDir, 'scotland_mode.txt')
-
-# For output and graceful handling with Makefile
-if(args$scotland) {
-  if(file.exists(whole.pop.mode.file)) { # if the other mode file is there, remove
-    file.remove(whole.pop.mode.file)
-  }
-  file.create(paste0(transitionDir, 'scotland_mode.txt'))
-} else {
-  if(file.exists(scotland.mode.file)) { # if the other mode file is there, remove
-    file.remove(scotland.mode.file)
-  }
-  file.create(paste0(transitionDir, 'whole_population_mode.txt'))
-}
-

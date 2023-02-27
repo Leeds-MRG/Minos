@@ -100,8 +100,8 @@ def run(args):
     if args.runID:
         # Add run ID to config if present
         add_to_config.update({
-            'experiment_parameters': args.runID,
-            'experiment_parameters_names': 'run_id'
+            'run_ID': args.runID,
+            'run_ID_names': 'run_id'
         }, source=str(Path(__file__).resolve()))
 
     # Now update the Vivarium ConfigTree object
@@ -154,7 +154,7 @@ def run(args):
     ############## RUN PIPELINE ##############
     # Different call for intervention or not
     if args.intervention:
-        simulation = RunPipeline(config, run_output_dir, intervention=args.intervention)
+        simulation = RunPipeline(config, intervention=args.intervention)
     else:
         simulation = RunPipeline(config, run_output_dir)
 
@@ -175,22 +175,22 @@ if __name__ == "__main__":
                                         formatter_class = argparse.RawTextHelpFormatter # For multi-line formatting in help text
     )
 
-    parser.add_argument("-c", "--config", required=True, type=str, metavar="config-file",
+    parser.add_argument("-c", "--config", required=True, type=str, dest='config',
                         help="Model config file (YAML)")
-    parser.add_argument("-o", "--output_subdir", type=str, metavar="subdir", dest='subdir', default=None,
+    parser.add_argument("-o", "--output_subdir", type=str, dest='subdir', default=None,
                         help='Sub-directory within output/ where the data from this specific run is saved')
-    parser.add_argument("-r", "--run_id", type=int, metavar="runID", dest='runID', default=None,
+    parser.add_argument("-r", "--run_id", type=int, dest='runID', default=None,
                         help="(Optional) Unique run ID specified to distinguish between multiple runs in a batch submission")
-    parser.add_argument("-t", "--time", type=str, metavar="runtime", dest='runtime', default=None,
+    parser.add_argument("-t", "--time", type=str, dest='runtime', default=None,
                         help="(Optional) Runtime variable supplied by batch run scripts, so all batch outputs are kept in the same folder.")
-    parser.add_argument("-i", "--intervention", type=str, metavar="intervention", dest="intervention", default=None,
+    parser.add_argument("-i", "--intervention", type=str, dest="intervention", default=None,
                         help=
-    """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
-       - hhIncomeIntervention
-       - hhIncomeChildUplift
-       - hhIncomePovertyLineChildUplift
-       - livingWageIntervention
-       - energyDownlift""")
+                                """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
+                                   - hhIncomeIntervention
+                                   - hhIncomeChildUplift
+                                   - hhIncomePovertyLineChildUplift
+                                   - livingWageIntervention
+                                   - energyDownlift""")
 
     args = parser.parse_args()
     configuration_file = args.config

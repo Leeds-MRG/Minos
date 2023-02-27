@@ -1,45 +1,18 @@
-"""
-File for adding new cohorts from Understanding Society data to the population
-"""
+""" File for adding new cohorts from Understanding Society data to the population"""
 
 import pandas as pd
 from minos.modules.base_module import Base
-
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-class replenishmentNowcast(Base):
+class ReplenishmentNowcast(Base):
 
-    # Special methods for vivarium.
-    @property
-    def name(self):
-        return "replenishment_nowcast"
-
-    def __repr__(self):
-        return "replenishmentNowcast()"
-
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
-    def pre_setup(self, config, simulation):
-        """ Load in anything required for the module to run into the config and simulation object.
-        Parameters
-        ----------
-        config : vivarium.config_tree.ConfigTree
-            Config yaml tree for vivarium with the items needed for this module to run
-        simulation : vivarium.interface.interactive.InteractiveContext
-            The initiated vivarium simulation object before simulation.setup() is run.
-        Returns
-        -------
-            simulation : vivarium.interface.interactive.InteractiveContext
-                The initiated vivarium simulation object with anything needed to run the module.
-                E.g. rate tables.
-        """
-        # load in the starting year. This is the first cohort that is loaded.
-        return simulation
 
     def setup(self, builder):
         """ Method for initialising the depression module.
+
         Parameters
         ----------
         builder : vivarium.builder
@@ -83,26 +56,37 @@ class replenishmentNowcast(Base):
                         'smoker',
                         'loneliness',
                         'weight',
-                        'nkids',
                         'ndrinks',
+                        'nkids',
                         'max_educ',
                         'yearly_energy',
-			'job_sector', 
-			'SF_12p', 
-			'gross_pay_se', 
-			'nutrition_quality', 
-			'job_hours_se', 
-			'hourly_rate', 
-			'job_hours', 
-			'job_inc', 
-			'jb_inc_per', 
-			'hourly_wage', 
-			'gross_paypm']
+                        'job_sector',
+                        'SF_12p',
+                        'gross_pay_se',
+                        'nutrition_quality',
+                        'job_hours_se',
+                        'hourly_rate',
+                        'job_hours',
+                        'job_inc', 
+                        'jb_inc_per', 
+                        'hourly_wage', 
+                        'gross_paypm',
+                        'phealth',
+                        'marital_status',
+                        'hh_comp']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
         self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
         self.register = builder.randomness.register_simulants  # register new simulants to CRN streams (seed them).
+
+        # load in population projection data for reweighting and generate a lookup table
+        #pop_projections = builder.data.load('pop_projections_2008-2070')
+        #self.pop_projections = builder.lookup.build_table(pop_projections,
+        #                                                  key_columns=['sex'],
+        #                                                  parameter_columns=['year', 'age'],
+        #                                                  value_columns=['count'])
+
 
         # Defines how this module initialises simulants when self.simulant_creater is called.
         builder.population.initializes_simulants(self.on_initialize_simulants,
@@ -112,14 +96,17 @@ class replenishmentNowcast(Base):
         #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
+
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
+
         Parameters
         ----------
         pop_data : vivarium.framework.population.SimulantData
             `pop_data` is a custom vivarium class for interacting with the population data frame.
             It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
             creation_window, and current simulation state (setup/running/etc.).
+
         Returns
         -------
         None.
@@ -132,10 +119,14 @@ class replenishmentNowcast(Base):
         if pop_data.user_data["sim_state"] == "setup":
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
-            new_population = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
+            new_population = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
         elif pop_data.user_data["cohort_type"] == "replenishment":
+            # After setup only load in 16 year old agents from the 2018 datafile at each wave
+            #new_population = pd.read_csv(f"data/final_US/2018_US_cohort.csv")
+            #new_population = new_population[(new_population['age'] == 16)]
+
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
@@ -159,6 +150,7 @@ class replenishmentNowcast(Base):
         self.register(new_population[["entrance_time", "age"]])
         self.population_view.update(new_population)
 
+
     def on_time_step(self, event):
         """ On time step add new simulants to the module.
         Parameters
@@ -174,7 +166,7 @@ class replenishmentNowcast(Base):
             self.current_year += 1
             pop['time'] += 1
             self.population_view.update(pop)
-            new_wave = pd.read_csv(f"data/final_US/{self.current_year}_US_cohort.csv")
+            new_wave = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
         else:
             # otherwise dont load anyone in.
             new_wave = pd.DataFrame()
@@ -200,8 +192,11 @@ class replenishmentNowcast(Base):
             # The method used can be changed in setup via builder.population.initializes_simulants.
             self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
 
+
     def age_simulants(self, event):
-        """ Age everyone by the length of the simulation time step in days
+        """
+        Age everyone by the length of the simulation time step in days
+
         Parameters
         ----------
         event : builder.event
@@ -212,8 +207,11 @@ class replenishmentNowcast(Base):
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
 
+
     def update_time(self, event):
-        """ Update time variable by the length of the simulation time step in days
+        """
+        Update time variable by the length of the simulation time step in days
+
         Parameters
         ----------
         event : builder.event
@@ -223,3 +221,13 @@ class replenishmentNowcast(Base):
         population = self.population_view.get(event.index, query="alive == 'alive'")
         population['time'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
+
+
+    # Special methods for vivarium.
+    @property
+    def name(self):
+        return "replenishmentNowcast"
+
+
+    def __repr__(self):
+        return "ReplenishmentNowcast()"
