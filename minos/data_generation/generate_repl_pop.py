@@ -28,11 +28,9 @@ pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWith
 
 
 def expand_repl(US_2018):
-    """ Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
-<<<<<<< HEAD
+    """
+    Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
 
-=======
->>>>>>> scotland_mode
     Parameters
     ----------
     US_2018 : pandas.DataFrame
@@ -54,19 +52,20 @@ def expand_repl(US_2018):
 
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
+    #TODO: Figure out why the 'time' and 'hh_int_y' values are getting mucked up by this (year - 2017) stuff | (FIXED?)
     for year in range(2018, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
         new_repl = repl_2018
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
-        new_repl['birth_year'] = new_repl['birth_year'] + (year - 2017)
+        new_repl['birth_year'] = new_repl['birth_year'] + (new_repl['time'] - 2017)
         # change interview year
-        new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
+        new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (new_repl['time'] - 2017)
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
+        new_repl['pidp'] = new_repl['pidp'] + new_repl['time'] + 1000000 + new_repl.index
 
         #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
@@ -83,23 +82,15 @@ def expand_repl(US_2018):
 
 def reweight_repl(expanded_repl, projections):
     """
-<<<<<<< HEAD
 
-=======
->>>>>>> scotland_mode
     Parameters
     ----------
     expanded_repl
     projections
-<<<<<<< HEAD
 
     Returns
     -------
 
-=======
-    Returns
-    -------
->>>>>>> scotland_mode
     """
     ## Now reweight by sex and year
     print('Reweighting by sex, ethnic group, and year...')
