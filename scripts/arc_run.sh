@@ -11,9 +11,9 @@
 ## Email if a run aborts
 #$ -m a
 ## Select memory
-#$ -l h_vmem=15G # was 15 for big runs
+#$ -l h_vmem=2G # was 15 for big runs
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
-#$ -pe smp 5
+#$ -pe smp 1
 ## Set logs directories
 #$ -o ./logs/log
 #$ -e ./logs/errors
@@ -22,6 +22,10 @@
 ## Tell computer this is an array job with tasks from 1 to N
 #$ -t 1-2
 
+# create these if they dont exist. Will crash arc4 if you dont do this.
+mkdir -p logs
+mkdir -p logs/log
+mkdir -p logs/errors
 
 if [ "$#" -eq 6 ]; then
   echo "Running baseline MINOS simulation"

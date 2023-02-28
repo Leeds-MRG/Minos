@@ -6,14 +6,13 @@ R utility functions. These are currently all related to the use of transition mo
 
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
-from rpy2.robjects.packages import importr
 from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.vectors import FactorVector
 import pandas as pd
 import numpy as np
 
 
-def load_transitions(component, path='data/transitions/'):
+def load_transitions(component, rpy2_modules, path='data/transitions/'):
     """
     This function will load transition models that have been generated in R and saved as .rds files.
     
@@ -29,7 +28,7 @@ def load_transitions(component, path='data/transitions/'):
     An RDS object containing a fitted model for prediction.
     """
     # import base R package
-    base = importr('base')
+    base = rpy2_modules['base']
 
     # generate filename from arguments and load model
     filename = f"{path}/{component}.rds"
@@ -38,7 +37,7 @@ def load_transitions(component, path='data/transitions/'):
     return model
 
 
-def predict_next_timestep_ols(model, current, dependent):
+def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -57,8 +56,8 @@ def predict_next_timestep_ols(model, current, dependent):
     A prediction of the information for next timestep
     """
     # import R packages
-    base = importr('base')
-    stats = importr('stats')
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -78,7 +77,7 @@ def predict_next_timestep_ols(model, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_clm(model, current, dependent):
+def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -95,9 +94,9 @@ def predict_next_timestep_clm(model, current, dependent):
     A prediction of the information for next timestep
     """
     # import R packages
-    base = importr('base')
-    stats = importr('stats')
-    ordinal = importr('ordinal')
+    base = rpy2modules['base']
+    stats = rpy2modules['stats']
+    ordinal = rpy2modules['ordinal']
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -125,7 +124,7 @@ def predict_next_timestep_clm(model, current, dependent):
     return predictionDF
 
 
-def predict_nnet(model, current, columns):
+def predict_nnet(model, rpy2Modules, current, columns):
     """
     Function for predicting next state using nnet models.
 
@@ -143,9 +142,9 @@ def predict_nnet(model, current, columns):
 
     """
     # import R packages
-    base = importr('base')
-    stats = importr('stats')
-    nnet = importr("nnet")
+    base = rpy2Modules['base']
+    stats =  rpy2Modules['stats']
+    nnet =  rpy2Modules['nnet']
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -158,7 +157,7 @@ def predict_nnet(model, current, columns):
     return pd.DataFrame(newPandasPopDF, columns=columns)
 
 
-def predict_next_timestep_zip(model, current, dependent):
+def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -177,9 +176,9 @@ def predict_next_timestep_zip(model, current, dependent):
 
     """
 
-    base = importr('base')
-    stats = importr('stats')
-    zeroinfl = importr("pscl")
+    base = rpy2Modules['base']
+    stats = rpy2Modules['stats']
+    zeroinfl = rpy2Modules['zeroinfl']
 
     # grab transition model
     with localconverter(ro.default_converter + pandas2ri.converter):

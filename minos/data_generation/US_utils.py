@@ -7,7 +7,7 @@ import numpy as np
 import json
 import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
-
+import pickle
 
 ########################
 # Single wave functions.

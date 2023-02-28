@@ -39,7 +39,7 @@ class MWB(Base):
         """
 
         # Load in inputs from pre-setup.
-        # Nothing here yet..
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -116,8 +116,8 @@ class MWB(Base):
         """
         # year = min(self.year, 2018)
         year = 2017  # 2017 is latest year with information on all SF_12 variables
-        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, pop, 'SF_12')
+        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
 
     def plot(self, pop, config):
 

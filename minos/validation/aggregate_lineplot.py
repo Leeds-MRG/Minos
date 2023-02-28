@@ -73,7 +73,7 @@ def aggregate_lineplot(source, destination, v, method, prefix):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lineplot several aggregates of MINOS batches..")
-    parser.add_argument("-o", "--output_dir", required=True, type=str,
+    parser.add_argument("-m", "--mode", required=True, type=str,
                         help="The output directory for Minos data. Usually output/*")
     parser.add_argument("-s", "--sources", required=True, type=str,
                         help="The source directory for Understanding Society/Minos data. Usually has form output/*. where * specified by model config e.g. baseline/childUplift/etc.")
@@ -81,24 +81,24 @@ if __name__ == '__main__':
                         help="Where is the aggregated csv being saved to. Defaults to source directory.")
     parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
-    parser.add_argument("-m", "--method", required=False, type=str, default="nanmean",
+    parser.add_argument("-a", "--aggregate_method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to np.nanmean.")
     parser.add_argument("-p", "--prefix", required=False, default=None,
                         help="Prefix for pdf output filename. used to differenate different plot types. e.g. all population vs treated only.")
 
     args = vars(parser.parse_args())
-    output_dir = args['output_dir']
+    mode = args['mode']
     sources = args['sources']
     destination = args['destination']
     v = args['variable']
-    method = args['method']
+    method = args['aggregate_method']
     prefix = args['prefix']
 
     sources = sources.split(",")
 
     for i, source in enumerate(sources):
         # Handle the datetime folder inside the output. Select most recent run
-        runtime = os.listdir(os.path.abspath(os.path.join(output_dir, source)))
+        runtime = os.listdir(os.path.abspath(os.path.join("output/", mode, source)))
         if len(runtime) > 1:
             runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
@@ -115,5 +115,5 @@ if __name__ == '__main__':
             source = source.split('/')[0]
             short_directories.append(source)
 
-    source = os.path.join(output_dir, sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
+    source = os.path.join("output/", mode, sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
     main(source, destination, v, method, prefix)

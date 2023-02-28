@@ -30,6 +30,7 @@ class Neighbourhood(Base):
         """
 
         # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -112,11 +113,11 @@ class Neighbourhood(Base):
             pass  # e.g. 2011 is correct
         elif mod == 2:
             year -= 1  # e.g. 2012 moves back one year to 2011.
-
+            
         year = min(year, 2017) # transitions only go up to 2014.
-        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop, 'neighbourhood_safety')
+        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
         return nextWaveNeighbourhood
 
     # Special methods used by vivarium.

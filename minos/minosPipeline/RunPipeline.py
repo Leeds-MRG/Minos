@@ -3,6 +3,7 @@
 import logging
 import os
 from pathlib import Path
+from rpy2.robjects.packages import importr
 
 # Do this to suppress warnings from Vivariums code...
 import warnings
@@ -29,7 +30,6 @@ from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition
 
-
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
@@ -38,6 +38,77 @@ from minos.modules.intervention import energyDownlift
 
 # for viz.
 from minos.validation.minos_distribution_visualisation import *
+
+def validate_components(config_components, intervention):
+    """
+
+    Parameters
+    ----------
+    config_components: list
+        List of reprs from vivarium modules
+    intervention: bool
+        Is an intervention included in the modules list?
+
+    Returns
+    -------
+        component_list: list
+            List of component module classes.
+    """
+
+    #components = [eval(x) for x in config.components] # more adapative way but security issues.
+    # last one in first one off. any module that requires another should be BELOW IT in this order.
+    # Note priority in vivarium modules supercedes this. two
+    # Outcome module goes first (last in sim)
+    components_map = {
+        # Outcome module.
+        "MWB()": MWB(),
+        #Intermediary modules
+        "Tobacco()": Tobacco(),
+        "Alcohol()": Alcohol(),
+        "Neighbourhood()": Neighbourhood(),
+        "Labour()": Labour(),
+        "Housing()": Housing(),
+        "Income()": Income(),
+        "Loneliness()": Loneliness(),
+        "Nutrition()": Nutrition(),
+        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
+        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
+        "Mortality()": Mortality(),
+        "Education()": Education(),
+    }
+
+    intervention_components_map = {        #Interventions
+        "hhIncomeIntervention()": hhIncomeIntervention(),
+        "hhIncomeChildUplift()": hhIncomeChildUplift(),
+        "hhIncomePovertyLineChildUplift()": hhIncomePovertyLineChildUplift(),
+        "livingWageIntervention()": livingWageIntervention(),
+        "energyDownlift()": energyDownlift()
+    }
+
+    replenishment_components_map = {
+        "Replenishment()": Replenishment(),
+        "NoReplenishment()": NoReplenishment(),
+        "ReplenishmentNowcast()": ReplenishmentNowcast(),
+        "ReplenishmentScotland()": ReplenishmentScotland(),
+    }
+
+    component_list = []
+    replenishment_component = []
+    for component in config_components:
+        if component in components_map.keys():
+            # add non intervention components
+            component_list.append(components_map[component])
+        elif component in replenishment_components_map.keys():
+            replenishment_component.append(replenishment_components_map[component])
+        else:
+            print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
+
+    if intervention in intervention_components_map.keys():
+        # add intervention components.
+        component_list.append(intervention_components_map[intervention])
+
+    component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
+    return component_list
 
 def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline
@@ -52,63 +123,10 @@ def RunPipeline(config, intervention=None):
     --------
      A dataframe with the resulting simulation
     """
-
-    components = []
     # Check each of the modules is present.
-    #components = [eval(x) for x in config.components] # more adapative way but security issues.
-    # last one in first one off. any module that requires another should be BELOW IT in this order.
-    # Outcome module goes first (last in sim)
-    if "MWB()" in config['components']:
-        components.append(MWB())
-
-    # Intermediary modules.
-    if "Tobacco()" in config['components']:
-        components.append(Tobacco())
-    if "Alcohol()" in config['components']:
-        components.append(Alcohol())
-    if "Neighbourhood()" in config['components']:
-        components.append(Neighbourhood())
-    if "Labour()" in config['components']:
-        components.append(Labour())
-    if "Housing()" in config['components']:
-        components.append(Housing())
-    if "Income()" in config['components']:
-        components.append(Income())
-    if "Loneliness()" in config['components']:
-        components.append(Loneliness())
-    if "Nutrition()" in config['components']:
-        components.append(Nutrition())
-    if "nkidsFertilityAgeSpecificRates()" in config['components']:
-        components.append(nkidsFertilityAgeSpecificRates())
-    if "FertilityAgeSpecificRates()" in config['components']:
-        components.append(FertilityAgeSpecificRates())
-    if "Mortality()" in config['components']:
-        components.append(Mortality())
-    if "Education()" in config['components']:
-        components.append(Education())
-
-    # Interventions (if necessary)
-    if intervention:
-        if intervention == 'hhIncomeIntervention':
-            components.append(hhIncomeIntervention())
-        if intervention == 'hhIncomeChildUplift':
-            components.append(hhIncomeChildUplift())
-        if intervention == 'hhIncomePovertyLineChildUplift':
-            components.append(hhIncomePovertyLineChildUplift())
-        if intervention == 'livingWageIntervention':
-            components.append(livingWageIntervention())
-        if intervention == 'energyDownlift':
-            components.append(energyDownlift())
 
     # Replenishment always go last. (first in sim)
-    if "Replenishment()" in config['components']:
-        components.append(Replenishment())
-    if "NoReplenishment()" in config['components']:
-        components.append(NoReplenishment())
-    if "ReplenishmentNowcast()" in config['components']:
-        components.append(ReplenishmentNowcast())
-    if "ReplenishmentScotland()" in config['components']:
-        components.append(ReplenishmentScotland())
+    components = validate_components(config['components'], intervention)
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -123,6 +141,15 @@ def RunPipeline(config, intervention=None):
     # Even then these classes could be appended with pre_setup functions.
     # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
+
+    rpy2_modules = {"base": importr('base'),
+                    "stats": importr('stats'),
+                    "nnet": importr("nnet"),
+                    "ordinal": importr('ordinal'),
+                    "zeroinfl": importr("pscl")
+                    }
+    simulation._data.write("rpy2_modules",
+                           rpy2_modules)
 
     logging.info("Components included:")
     # Run pre-setup method for each module.
@@ -209,7 +236,7 @@ def get_output_data_filename(config, year=0):
     # Add experiment parameters to output file name if present
     if 'run_ID' in config.keys():
         print(config.run_ID)
-        output_data_filename += str(config.run_ID) + '_'
+        output_data_filename += str(config.run_ID).zfill(4) + '_' # pad with zeros so files are saved in correct order.
         output_data_filename += str(config.run_ID_names) + '_'
 
     # Now add year to output file name

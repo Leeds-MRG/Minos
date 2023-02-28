@@ -38,6 +38,7 @@ class Tobacco(Base):
         """
 
         # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -109,9 +110,10 @@ class Tobacco(Base):
         # load transition model based on year.
         year = max(self.year, 2014)
         year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
+                                                            rpy2Modules= self.rpy2Modules,
                                                             current=pop,
                                                             dependent='ncigs')
         return nextWaveTobacco

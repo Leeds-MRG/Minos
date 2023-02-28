@@ -5,10 +5,10 @@ import numpy as np
 from datetime import datetime
 
 
-def get_file_names(output_dir, source_directories, v, method):
+def get_file_names(output_dir, source_directories, tags, v, method):
     file_names = []
-    for source in source_directories:
-        file_name = os.path.abspath(os.path.join(output_dir, source, f"aggregated_{v}_by_{method}.csv"))
+    for i, source in enumerate(source_directories):
+        file_name = os.path.abspath(os.path.join(output_dir, source, f"{tags[i]}_aggregated_{v}_by_{method}.csv"))
         file_names.append(file_name)
     return file_names
 
@@ -73,7 +73,7 @@ def relative_scaling(df, v, ref):
     return df
 
 
-def main(output_dir, source_directories, v="SF_12", method="nanmean", destination = None, ref=None):
+def main(output_dir, source_directories, tags, v="SF_12", method="nanmean", destination = None, ref=None):
     """
 
     Parameters
@@ -87,7 +87,7 @@ def main(output_dir, source_directories, v="SF_12", method="nanmean", destinatio
 
     """
 
-    file_names = get_file_names(output_dir, source_directories, v, method)
+    file_names = get_file_names(output_dir, source_directories, tags, v, method)
     df = long_stack_minos_aggregates(file_names)
     df = relative_scaling(df, v, ref)
 
@@ -107,13 +107,15 @@ def main(output_dir, source_directories, v="SF_12", method="nanmean", destinatio
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Stack minos aggregate batches into long data frame for plotting.")
-    parser.add_argument("-o", "--output_dir", required=True, type=str,
+    parser.add_argument("-m", "--mode", required=True, type=str,
                         help="The output directory for Minos data. Usually output/*")
+    parser.add_argument("-t", "--tags", required=True, type=str,
+                        help="Corresponding name tags for which data is being processed. I.E which intervention Baseline/£20 Uplift etc. Used as label in later plots.")
     parser.add_argument("-s", "--sources", required=True, type=str,
                         help="Source directories for aggregated data. Writted as one string separated by commas. E.g. baseline,childUplift,povertyUplift")
     parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
-    parser.add_argument("-m", "--method", required=False, type=str, default="nanmean",
+    parser.add_argument("-a", "--aggregate_method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to nanmean. Any further aggregators must be added in and will throw errors.")
     parser.add_argument("-d", "--destination", required=False, type=str, default=None,
                         help="Where is the aggregated csv being saved to. Defaults to source directory (usually baseline).")
@@ -121,10 +123,11 @@ if __name__ == '__main__':
                         help="If using relative scaling. which source is used as reference. Usually baseline.")
 
     args = vars(parser.parse_args())
-    output_dir = args['output_dir']
+    mode = args['mode']
     sources = args['sources']
+    tags = args['tags'].split(',')
     v = args['variable']
-    method = args['method']
+    method = args['aggregate_method']
     destination = args['destination']
     ref = args['ref']
 
@@ -132,7 +135,7 @@ if __name__ == '__main__':
 
     for i, source in enumerate(sources):
         # Handle the datetime folder inside the output. Select most recent run
-        runtime = os.listdir(os.path.abspath(os.path.join(output_dir, source)))
+        runtime = os.listdir(os.path.abspath(os.path.join("output/", mode, source)))
         if len(runtime) > 1:
             runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
         elif len(runtime) == 1:
@@ -143,4 +146,4 @@ if __name__ == '__main__':
 
         sources[i] = os.path.join(source, runtime)
 
-    main(output_dir, sources, v, method, destination, ref)
+    main("output/" + mode, sources, tags, v, method, destination, ref)

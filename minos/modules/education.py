@@ -28,6 +28,8 @@ class Education(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
 
+        self.rpy2Modules = builder.data.load("rpy2_modules")
+
         # Assign randomness streams if necessary.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 

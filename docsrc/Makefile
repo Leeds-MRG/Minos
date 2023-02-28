@@ -11,20 +11,8 @@ BUILDDIR      = ../docs
 NOTEBOOKDIR = docsrc/documentation/notebooks/
 NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/
 
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-.PHONY: help Makefile
-
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-	
+# Render all Rmd, md, and rst files into rst files that sphinx can read.
 render_rmd:
-
 	# convert markdowns to rst.
 	pandoc --citeproc -s "documentation/notebooks/education.md" -o "documentation/modules/education.rst"
 	pandoc --citeproc -s "documentation/notebooks/replenishment.md" -o "documentation/modules/replenishment.rst"
@@ -56,7 +44,7 @@ render_rmd:
 	(cd ..; mv -f figure $(NOTEBOOKOUTPUTDIR)figure)
 	# probably a better way to do this in the compile_rmd_rst.sh replacing with pandoc --extract-media..
 
-github: render_rmd
+sphinx_github: render_rmd
 	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # build and write to /docs output directory or it defaults to /html.
 	@$(SPHINXAPIBUILD) -f -o $(SOURCEDIR) $(BUILDDIR) # likewise
 	#@cp -af _build/html/. "$(BUILDIR)"

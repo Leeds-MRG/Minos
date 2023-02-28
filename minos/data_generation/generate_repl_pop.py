@@ -18,6 +18,7 @@ import numpy as np
 from numpy.random import choice
 import argparse
 import os
+from rpy2.robjects.packages import importr
 
 import US_utils
 from minos.modules import r_utils
@@ -144,9 +145,14 @@ def predict_education(repl, transition_dir):
 
     # generate list of columns for prediction output (no educ==4 in Understanding Society)
     cols = ['0', '1', '2', '3', '5', '6', '7']
-
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", path=transition_dir)
-    prob_df = r_utils.predict_nnet(transition_model, repl, cols)
+    rpy2_modules = {"base": importr('base'),
+                    "stats": importr('stats'),
+                    "nnet": importr("nnet"),
+                    "ordinal": importr('ordinal'),
+                    "zeroinfl": importr("pscl")
+                    }
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
+    prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan
     for i, distribution in enumerate(prob_df.iterrows()):
