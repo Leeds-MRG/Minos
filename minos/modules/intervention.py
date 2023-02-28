@@ -543,7 +543,7 @@ class energyPoverty(Base):
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes no social change. just go very negative which has major detrimental effects.
-
+        # TODO add in reduction due to energy crisis that varies by year. 
 
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
