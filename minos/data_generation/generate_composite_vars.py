@@ -659,9 +659,10 @@ def generate_parents_education(data):
 
 
 def main():
+    maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
     print("Starting composite generation.")
-    years = np.arange(2009, 2020)
+    years = np.arange(2009, maxyr)
     file_names = [f"data/corrected_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
