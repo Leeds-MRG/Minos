@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 import json
+import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 
 
@@ -369,13 +370,56 @@ def inflation_adjustment(data, var):
     data = generate_interview_date_var(data)
     # Inflation adjustment using CPI
     # read in CPI dataset
-    cpi = pd.read_csv('persistent_data/CPI_201807.csv')
+    cpi = pd.read_csv('persistent_data/CPI_202010.csv')
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
     data = pd.merge(data, cpi, on='Date', how='left')
     data[var] = (data[var] / data['CPI']) * 100
-    data.drop(labels=['CPI'], axis=1, inplace=True)
+    data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
 
     return data
+
+
+def get_data_maxyr():
+    """
+    This function will calculate the final year of raw Understanding Society input data so we don't have to update
+    the value in every script every time we try to pull the newest wave of US.
+
+    Parameters
+    ----------
+    raw_US_dir : str
+        Path to raw Understanding Society directory (UKDA-6614-stata)
+
+    Returns
+    -------
+    maxyr : int
+        The final year of US data in the input data directory.
+    """
+    print('Calculating max year of data...')
+
+    # hardcoding this because its simpler than passing it as command line arg to each datagen script
+    # TODO: find a way to run this func once in US_format_raw.py and save somewhere for easy access
+    #   Maybe a Makefile arg would make more sense?
+    raw_US_dir = '../UKDA-6614-stata/stata/stata13_se/ukhls/'
+
+    # Get a list of the filenames in the raw US directory
+    #   drop the _indresp.dta suffix
+    #   convert the characters into numbers
+    #   calculate max year from max number
+
+    indresp_filelist = [os.path.basename(x) for x in glob.glob(raw_US_dir + '*_indresp.dta')]
+    wave_list = []
+    for string in indresp_filelist:
+        wave_list.append(string.replace("_indresp.dta", ""))
+    wave_list = sorted(wave_list)
+
+    # if letters == number from a=1 b=2 c=3 etc. then get number from wave letter
+    wave_numlist = [ord(char) - 96 for char in wave_list]
+
+    # now calculate max year
+    # first year of ukhls data is 2009
+    maxyr = 2009 + max(wave_numlist)
+
+    return maxyr
 
 
 def replace_missing_with_na(data, column_list):

@@ -107,13 +107,13 @@ class Neighbourhood(Base):
         year = max(self.year, 2011)
         mod = year % 3
         if mod == 0:
-            year -= 2 # e.g. 2013 moves back two years to 2011.
+            year -= 2  # e.g. 2013 moves back two years to 2011.
         elif mod == 1:
-            pass # e.g. 2011 is correct
+            pass  # e.g. 2011 is correct
         elif mod == 2:
-            year -= 1 # e.g. 2012 moves back one year to 2011.
+            year -= 1  # e.g. 2012 moves back one year to 2011.
 
-        year = min(year, 2014) # transitions only go up to 2014.
+        year = min(year, 2017) # transitions only go up to 2014.
         transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, pop, 'neighbourhood_safety')

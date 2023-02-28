@@ -218,8 +218,8 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       if(dependent == 'education_state' & year != 2018) { next }
       # loneliness only estimated for waves starting 2017 and 2018
       if(dependent == 'loneliness' & !year > 2016) { next }
-      # neighbourhood only estimated for wave 2011 and 2014
-      if(dependent == 'neighbourhood_safety' & !year %in% c(2011, 2014)) { next }
+      # neighbourhood only estimated for wave 2011, 2014, and 2017
+      if(dependent == 'neighbourhood_safety' & !year %in% c(2011, 2014, 2017)) { next }
       if(dependent == 'neighbourhood_safety'){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
@@ -260,7 +260,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
       # not present every year
       if(dependent == 'SF_12') {
-        if(!year %in% c(2011, 2014, 2017)) {
+        if(!year %in% c(2011, 2014, 2017, 2020)) {
           formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
         }
         if(!year > 2016) {
