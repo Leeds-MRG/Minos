@@ -1,0 +1,860 @@
+---
+title: "MINOS Debug"
+output: html_notebook
+---
+
+
+# Setup
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(purrr)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+Source utils for some functions.
+```{r}
+source('R_Scripts/utils.r')
+```
+
+
+Set up all the paths for the output directories and load in all waves of a single year of data.
+
+```{r}
+output.path <- 'Minos/output/default_config/'
+
+baseline.path <- paste0(output.path, 'baseline')
+allchild.path <- paste0(output.path, 'hhIncomeChildUplift')
+povertychild.path <- paste0(output.path, 'hhIncomePovertyLineChildUplift')
+
+# Handle the runtime subdirectory by selecting the most recent (utils.R func) 
+base.path <- get_runtime_subdirectory(baseline.path)
+#base.path <- baseline.path
+```
+
+
+```{r}
+# Read scot datafiles in
+scot.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/scotland_US/', full.names = TRUE)
+scot.dat <- do.call(rbind, lapply(scot.files, read.csv))
+
+# Replenishing data
+#repl <- read.csv('/home/luke/Documents/WORK/MINOS/Minos/data/replenishing/replenishing_pop_2019-2070.csv')
+#repl <- read.csv('/home/luke/Documents/WORK/MINOS/Minos/data/replenishing/replenishing_pop_2019-2070.csv')
+
+
+# read in all the output data files
+base.files <- list.files(base.path,
+                         pattern = '[0-9]{4}.csv',
+                         full.names = TRUE)
+data <- do.call(rbind, lapply(base.files, read.csv))
+```
+
+## Input data files
+```{r}
+# Read raw datafiles in
+raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/stock/', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+# Replenishing data
+repl <- read.csv('/home/luke/Documents/WORK/MINOS/Minos/data/replenishing/replenishing_pop_2019-2070.csv')
+```
+
+
+# REPLENISHING
+
+## EDUCATION
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+educ.state <- repl %>% 
+  group_by(time, education_state) %>%
+  count()
+
+# set column types
+educ.state$education_state <- as.factor(educ.state$education_state)
+
+ggplot(data = educ.state, mapping = aes(x = education_state, y = n, fill=education_state)) +
+  geom_col(position='dodge')
+```
+## Ethnicity
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+ethnic.state <- repl %>% 
+  group_by(time, ethnicity) %>%
+  count()
+
+# set column types
+ethnic.state$ethnicity <- as.factor(ethnic.state$ethnicity)
+
+ggplot(data = ethnic.state, mapping = aes(x = ethnicity, y = n, fill=ethnicity)) +
+  geom_col(position='dodge')
+
+ggplot(data = filter(ethnic.state, ethnicity != 'WBI'), mapping = aes(x = ethnicity, y = n, fill=ethnicity)) +
+  geom_col(position='dodge')
+```
+
+
+# MODEL OUTPUT
+
+## Handovers
+
+First get the final_US data, and baseline output.
+```{r}
+# Read raw datafiles in
+raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+base.path <- 'Minos/output/default_config/baseline/'
+base.path <- get_runtime_subdirectory(base.path)
+#base.testpath <- 'tmp/test_out/baseline/'
+base.files <- list.files(base.path,
+                         pattern = '[0-9]{4}.csv',
+                         full.names = TRUE)
+base.dat <- do.call(rbind, lapply(base.files, read.csv))
+```
+
+Now we want to plot these against the output data, so it would be useful to create a generic function that would do it for us. Something that accepts both final_US data and output as an argument, meaning we can do all the loading and processing of outputs before the function call. Saves repeated code and means we can stick it in the utils for later.
+
+```{r}
+raw.income <- raw.dat %>% 
+  select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = weighted.mean(hh_income, weight)) %>%
+  mutate(source = 'final_US')
+
+raw.income
+
+
+test <- raw.dat %>%
+  select(pidp, time, hh_income, weight)
+
+test
+
+#base.income <- base.dat %>%
+#  select(pidp, time, hh_income, weight) %>%
+#  group_by(time) %>%
+#  summarise(income = weighted.mean(hh_income, weight, na.rm = TRUE)) %>%
+#  mutate(source = 'baseline_output')#
+
+#base.income
+```
+
+
+### Income
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.income <- raw.dat %>% 
+  select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = weighted.mean(hh_income, weight)) %>%
+  mutate(source = 'final_US')
+
+base.income <- base.dat %>%
+  select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = weighted.mean(hh_income, weight, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+income <- rbind(raw.income, base.income)
+
+# Now plot
+ggplot(data = income, mapping = aes(x = time, y = income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.income.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.income2 <- raw.dat %>% 
+  select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.income2 <- base.dat %>%
+  select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+income2 <- rbind(raw.income2, base.income2)
+
+# Now plot
+ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+raw.income.check <- raw.dat %>% 
+  select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1)
+
+base.income.check <- base.dat %>%
+  select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1)
+
+#rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
+#   raw.income.check, base.income.check)
+```
+
+### SF12
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.sf12 <- raw.dat %>% 
+  select(pidp, time, SF_12) %>%
+  group_by(time) %>%
+  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.sf12 <- base.dat %>%
+  select(pidp, time, SF_12) %>%
+  group_by(time) %>%
+  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+sf12 <- rbind(raw.sf12, base.sf12)
+
+# Now plot
+ggplot(data = sf12, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.sf12.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.sf12.2 <- raw.dat %>% 
+  select(pidp, time, SF_12) %>%
+  filter(pidp %in% raw.sf12.wave1) %>%
+  group_by(time) %>%
+  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.sf12.2 <- base.dat %>%
+  select(pidp, time, SF_12) %>%
+  filter(pidp %in% raw.sf12.wave1) %>%
+  group_by(time) %>%
+  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
+
+# Now plot
+ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+```
+
+
+### Housing Quality
+```{r}
+raw.housing <- raw.dat %>% 
+  select(pidp, time, housing_quality) %>%
+  group_by(time, housing_quality) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.housing <- base.dat %>%
+  select(pidp, time, housing_quality) %>%
+  group_by(time, housing_quality) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+housing <- rbind(raw.housing, base.housing)
+housing$housing_quality <- as.factor(housing$housing_quality)
+
+# Now plot
+ggplot(data = housing, mapping = aes(x = time, y = n, group = housing_quality, colour = housing_quality)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+housing.norm <- housing %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=housing_quality)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+rm(raw.housing, base.housing, housing, housing.norm)
+```
+
+### Neighbourhood Safety
+
+```{r}
+raw.neighbour <- raw.dat %>% 
+  select(pidp, time, neighbourhood_safety) %>%
+  group_by(time, neighbourhood_safety) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.neighbour <- base.dat %>%
+  select(pidp, time, neighbourhood_safety) %>%
+  group_by(time, neighbourhood_safety) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+neighbour <- rbind(raw.neighbour, base.neighbour)
+neighbour$neighbourhood_safety <- as.factor(neighbour$neighbourhood_safety)
+
+# Now plot
+ggplot(data = neighbour, mapping = aes(x = time, y = n, group = neighbourhood_safety, colour = neighbourhood_safety)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+neighbour.norm <- neighbour %>%
+  group_by(time) %>%
+  filter(neighbourhood_safety != -9) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = neighbour.norm, mapping = aes(x = time, y = prct, fill=neighbourhood_safety)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+#rm(raw.neighbour, base.neighbour, neighbour, neighbour.norm)
+```
+
+### Loneliness
+
+```{r}
+raw.loneliness <- raw.dat %>% 
+  select(pidp, time, loneliness) %>%
+  group_by(time, loneliness) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.loneliness <- base.dat %>%
+  select(pidp, time, loneliness) %>%
+  group_by(time, loneliness) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+loneliness <- rbind(raw.loneliness, base.loneliness)
+loneliness$loneliness <- as.factor(loneliness$loneliness)
+
+# Now plot
+ggplot(data = loneliness, mapping = aes(x = time, y = n, group = loneliness, colour = loneliness)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+loneliness.norm <- loneliness %>%
+  group_by(time) %>%
+  filter(loneliness != -9) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = loneliness.norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
+```
+
+### Nutrition Quality
+
+TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.nut <- raw.dat %>% 
+  select(pidp, time, nutrition_quality) %>%
+  group_by(time) %>%
+  summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.nut <- base.dat %>%
+  select(pidp, time, nutrition_quality) %>%
+  group_by(time) %>%
+  summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+nutrition_quality <- rbind(raw.nut, base.nut)
+
+# Now plot
+ggplot(data = nutrition_quality, mapping = aes(x = time, y = nutrition_quality, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.nut2 <- raw.dat %>% 
+  select(pidp, time, nutrition_quality) %>%
+  filter(pidp %in% raw.wave1) %>%
+  filter(nutrition_quality >= 0) %>%
+  group_by(time) %>%
+  summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.nut2 <- base.dat %>%
+  select(pidp, time, nutrition_quality) %>%
+  filter(pidp %in% raw.wave1) %>%
+  group_by(time) %>%
+  summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+nutrition_quality2 <- rbind(raw.nut2, base.nut2)
+
+# Now plot
+ggplot(data = nutrition_quality2, mapping = aes(x = time, y = nutrition_quality, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+rm(raw.nut, base.nut, nutrition_quality, raw.wave1, raw.nut2, base.nut2, 
+    nutrition_quality2)
+```
+
+### Physical Health
+
+NOTE: At present, physical health is not predicted or transitioned.
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.phealth <- raw.dat %>% 
+  select(pidp, time, phealth) %>%
+  group_by(time) %>%
+  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.phealth <- base.dat %>%
+  select(pidp, time, phealth) %>%
+  group_by(time) %>%
+  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+phealth <- rbind(raw.phealth, base.phealth)
+
+# Now plot
+ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.phealth2 <- raw.dat %>% 
+  select(pidp, time, phealth) %>%
+  filter(pidp %in% raw.wave1) %>%
+  group_by(time) %>%
+  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.phealth2 <- base.dat %>%
+  select(pidp, time, phealth) %>%
+  filter(pidp %in% raw.wave1) %>%
+  group_by(time) %>%
+  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+phealth2 <- rbind(raw.phealth2, base.phealth2)
+
+# Now plot
+ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=2018, linetype='dotted')
+
+raw.phealth.check <- raw.dat %>% 
+  select(pidp, time, phealth) %>%
+  filter(pidp %in% raw.wave1)
+
+base.phealth.check <- base.dat %>%
+  select(pidp, time, phealth) %>%
+  filter(pidp %in% raw.wave1)
+
+rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, 
+   raw.phealth.check, base.phealth.check, phealth2)
+```
+
+
+
+## Demographics
+
+### Age
+
+DONE: Triple the number of 16 year olds in each replenishing cohort and look at this again.
+
+TODO: Look at the leading cause of attrition - disease? older ages more likely?
+In the raw data.
+
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+age.state <- data %>% 
+  group_by(time, age_bucket) %>%
+  count()
+
+# set column types
+age.state$age_bucket <- as.factor(age.state$age_bucket)
+age.state$time <- as.integer(age.state$time)
+
+ggplot(data = age.state, mapping = aes(x = time, y = n, group = age_bucket, color = age_bucket)) +
+  geom_line()
+```
+
+```{r}
+age.state2 <- data %>% 
+  group_by(time) %>%
+  summarise(age = mean(age))
+
+age.state2$time <- as.integer(age.state2$time)
+
+ggplot(data = age.state2, mapping = aes(x = time, y = age)) +
+  geom_line()
+
+```
+
+TODO: Look at average age at death
+
+```{r}
+died <- data %>% group_by(time, cause_of_death) %>%
+  summarise(mean_age = mean(age))
+
+ggplot(data = died, mapping = aes(x = time, y = mean_age, group = cause_of_death, color = cause_of_death)) +
+  geom_line()
+```
+
+```{r, include=FALSE}
+rm(age.state, age.state2, died)
+```
+
+
+### Sex
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+sex.state <- data %>% 
+  group_by(time, sex) %>%
+  count()
+
+# set column types
+sex.state$sex <- as.factor(sex.state$sex)
+
+ggplot(data = sex.state, mapping = aes(x = time, y = n, group = sex, color = sex)) +
+  geom_line()
+```
+Product of mortality and replenishment - older age groups increase in number and women live longer than men.
+
+### Education
+
+TODO: Make this same plot for just the replenishing population, and see if they are the sole cause of the large increase in level 2 education. It could just be them, or it could also be that more people from other groups are dying. Need to find out regardless.
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+educ.state <- data %>% 
+  group_by(time, education_state) %>%
+  count()
+
+# set column types
+educ.state$education_state <- as.factor(educ.state$education_state)
+
+ggplot(data = educ.state, mapping = aes(x = time, y = n, group = education_state, color = education_state)) +
+  geom_line()
+```
+
+See transition model summaries at the bottom for reference.
+
+### Ethnicity
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+ethnic.state <- data %>% 
+  group_by(time, ethnicity) %>%
+  count()
+
+# set column types
+ethnic.state$ethnicity <- as.factor(ethnic.state$ethnicity)
+
+ggplot(data = ethnic.state, mapping = aes(x = time, y = n, group = ethnicity, color = ethnicity)) +
+  geom_line()
+
+ggplot(data = filter(ethnic.state, ethnicity != 'WBI'), mapping = aes(x = time, y = n, group = ethnicity, color = ethnicity)) +
+  geom_line()
+```
+
+```{r}
+# CLEANUP
+#rm(age.state, educ.state, ethnic.state, sex.state)
+```
+
+
+## SF 12
+
+```{r}
+sf12 <- data %>% 
+  select(pidp, time, SF_12)
+
+# calculate and plot mean over time
+sf12.byyr <- data %>% group_by(time) %>%
+  summarise(SF_12 = mean(SF_12))
+
+ggplot(data = sf12.byyr, mapping = aes(x = time, y = SF_12)) +
+  geom_line()
+```
+
+```{r}
+# Lets overlay some histograms at 3 time points - 2018 (before model), 2020 (pathways kick in?), 2030 (long term)
+sf12.2018 <- sf12 %>% filter(time == 2018)
+sf12.2020 <- sf12 %>% filter(time == 2020)
+sf12.2030 <- sf12 %>% filter(time == 2030)
+
+sf12.joined <- rbind(sf12.2018, sf12.2020, sf12.2030)
+sf12.joined$time <- as.factor(sf12.joined$time)
+
+ggplot(data = sf12.joined, mapping = aes(x = SF_12, group = time, fill = time, color = time)) +
+  geom_histogram(position='dodge')
+```
+
+TODO: Why are we getting the same exact values from 2020 - 2030?
+
+```{r}
+print("2018:")
+sprintf("Min: %f", min(sf12.2018$SF_12))
+sprintf("Max: %f", max(sf12.2018$SF_12))
+sprintf("Mean: %f", mean(sf12.2018$SF_12))
+print("2020:")
+sprintf("Min: %f", min(sf12.2020$SF_12))
+sprintf("Max: %f", max(sf12.2020$SF_12))
+sprintf("Mean: %f", mean(sf12.2020$SF_12))
+print("2030:")
+sprintf("Min: %f", min(sf12.2030$SF_12))
+sprintf("Max: %f", max(sf12.2030$SF_12))
+sprintf("Mean: %f", mean(sf12.2030$SF_12))
+```
+
+## hh_income
+
+TODO: PLOT THE RAW DATA!!!
+
+```{r}
+income <- data %>% 
+  select(pidp, time, hh_income)
+
+# calculate and plot mean over time
+income.byyr <- data %>% group_by(time) %>%
+  summarise(hh_income = mean(hh_income))
+
+ggplot(data = income.byyr, mapping = aes(x = time, y = hh_income)) +
+  geom_line()
+```
+
+Again lets try overlaid histograms to see distributions over time.
+
+```{r}
+# Lets overlay some histograms at 3 time points - 2018 (before model), 2020 (pathways kick in?), 2030 (long term)
+income.2018 <- income %>% filter(time == 2018)
+income.2020 <- income %>% filter(time == 2020)
+income.2030 <- income %>% filter(time == 2030)
+
+income.joined <- rbind(income.2018, income.2020, income.2030)
+
+income.joined$time <- as.factor(income.joined$time)
+income.joined$hh_income <- as.numeric(income.joined$hh_income)
+
+ggplot(data = income.joined, mapping = aes(x = hh_income, group = time, fill = time, color = time)) +
+  geom_histogram(bins = 50, position='dodge')
+```
+
+
+Check out the min/max for each time point, looks like it spreads out massively.
+```{r}
+print("2018:")
+sprintf("Min: %f", min(income.2018$hh_income))
+sprintf("Max: %f", max(income.2018$hh_income))
+sprintf("Mean: %f", mean(income.2018$hh_income))
+print("2020:")
+sprintf("Min: %f", min(income.2020$hh_income))
+sprintf("Max: %f", max(income.2020$hh_income))
+sprintf("Mean: %f", mean(income.2020$hh_income))
+print("2030:")
+sprintf("Min: %f", min(income.2030$hh_income))
+sprintf("Max: %f", max(income.2030$hh_income))
+sprintf("Mean: %f", mean(income.2030$hh_income))
+```
+
+
+## Pathways
+
+### ncigs
+
+DONE: Fixed problem where the rescale factor was still being applied in prediction but not in the estimation of the model.
+DONE: Fixed line in the r_utils prediction method where the non-smokers were being predicted as smokers.
+TODO: Fix the input data issue where lots of these vars are being reported as missing still (negative numbers). This should be in the run script somewhere.
+
+```{r}
+ncigs <- data %>% 
+  select(pidp, time, ncigs)
+
+# calculate and plot mean over time
+ncigs.byyr <- data %>% group_by(time) %>%
+  summarise(ncigs = mean(ncigs))
+
+ggplot(data = ncigs.byyr, mapping = aes(x = time, y = ncigs)) +
+  geom_line()
+```
+
+```{r}
+# Lets overlay some histograms at 3 time points - 2018 (before model), 2020 (pathways kick in?), 2030 (long term)
+ncigs.2018 <- ncigs %>% filter(time == 2018)
+ncigs.2020 <- ncigs %>% filter(time == 2020)
+ncigs.2030 <- ncigs %>% filter(time == 2030)
+
+ncigs.joined <- rbind(ncigs.2018, ncigs.2020, ncigs.2030)
+ncigs.joined$time <- as.factor(ncigs.joined$time)
+
+ggplot(data = ncigs.joined, mapping = aes(x = ncigs, group = time, fill = time, color = time)) +
+  geom_histogram(position='dodge')
+```
+
+```{r}
+# Lets also look at the number of smokers vs non-smokers
+smokers.count <- ncigs %>% 
+  group_by(time) %>%
+  summarise(non.smoker = sum(ncigs == 0),
+            smoker = sum(ncigs > 0)) %>%
+  pivot_longer(cols = non.smoker:smoker,
+               names_to = 'smoking_status',
+               values_to = 'count')
+
+ggplot(data = smokers.count, mapping = aes(x = time, y = count, group = smoking_status, color = smoking_status)) +
+  geom_line()
+```
+
+### Housing Quality
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+housing.state <- data %>% 
+  group_by(time, housing_quality) %>%
+  count()
+
+# set column types
+housing.state$housing_quality <- as.factor(housing.state$housing_quality)
+
+ggplot(data = housing.state, mapping = aes(x = time, y = n, group = housing_quality, color = housing_quality)) +
+  geom_line()
+```
+
+### Neighbourhood Safety
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+neighbour.state <- data %>% 
+  group_by(time, neighbourhood_safety) %>%
+  count()
+
+# set column types
+neighbour.state$neighbourhood_safety <- as.factor(neighbour.state$neighbourhood_safety)
+
+ggplot(data = neighbour.state, mapping = aes(x = time, y = n, group = neighbourhood_safety, color = neighbourhood_safety)) +
+  geom_line()
+```
+
+### Loneliness
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+loneliness.state <- data %>% 
+  group_by(time, loneliness) %>%
+  count()
+
+# set column types
+loneliness.state$loneliness <- as.factor(loneliness.state$loneliness)
+
+ggplot(data = loneliness.state, mapping = aes(x = time, y = n, group = loneliness, color = loneliness)) +
+  geom_line()
+```
+
+# TRANSITION MODEL SUMMARIES
+
+```{r, include=FALSE}
+trans.path <- 'Minos/data/transitions/'
+
+educ.mod <- readRDS(paste0(trans.path, 'education_state/nnet/education_state_2018_2019.rds'))
+sf_12.mod <- readRDS(paste0(trans.path, 'SF_12/ols/SF_12_2018_2019.rds'))
+house.mod <- readRDS(paste0(trans.path, 'housing_quality/clm/housing_quality_2018_2019.rds'))
+income.mod <- readRDS(paste0(trans.path, 'hh_income/ols/hh_income_2018_2019.rds'))
+```
+
+
+## Education
+
+```{r}
+summary(income.mod)
+```
+
+
+
+
+# WIP NONSENSE
+
+```{r}
+# Read raw datafiles in
+raw.files <- list.files('/home/luke/Documents/MINOS/Minos/data/final_US/', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+correct.files <- list.files('/home/luke/Documents/MINOS/Minos/data/corrected_US/', full.names = TRUE)
+correct <- do.call(rbind, lapply(correct.files, read.csv))
+
+```
+
+```{r}
+f.sf12 <- raw.dat %>% select(pidp, time, SF_12)
+c.sf12 <- correct %>% select(pidp, time, SF_12)
+
+
+```
+
+Now see if any SF_12 values are missing in either the final data or corrected.
+
+```{r}
+sum(is.na(f.sf12$SF_12))
+sum(is.na(c.sf12$SF_12))
+
+sum(f.sf12$SF_12 == -9)
+sum(c.sf12$SF_12 == -9)
+
+f.drop <- f.sf12 %>% select(-pidp)
+c.drop <- c.sf12 %>% select(-pidp)
+
+# missing by year
+final.miss <- f.drop %>% 
+  group_by(time) %>%
+  summarise(final.missing = sum((SF_12 == -9)))
+
+correct.miss <- c.drop %>% 
+  group_by(time) %>%
+  summarise(correct.missing = sum((SF_12 == -9)))
+
+compare <- merge(final.miss, correct.miss, by='time')
+```
+
+
+

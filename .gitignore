@@ -60,8 +60,8 @@ Minos.Rproj
 .RData
 .Rhistory
 
-# Plots and stuff
-
+# Knitted R notebook files
+minos/validation/*.nb.html
 
 # rob phd data
 papers/phd1/data/*

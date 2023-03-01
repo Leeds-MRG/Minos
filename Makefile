@@ -102,10 +102,11 @@ scot_setup: install scot_data scot_transitions scot_replenishing
 ### ADDITIONAL MAKEFILES
 #####################################
 
-include minos/data_generation/Makefile #data generation Makefile. files paths need fixing do later.
+include minos/data_generation/Makefile # data generation Makefile. files paths need fixing do later.
 include minos/transitions/Makefile # transitions Makefile
 include scripts/Makefile # running minos Makefile
-include minos/validation/Makefile # plotting makefile
+include minos/outcomes/Makefile # plotting makefile
+include minos/validation/Makefile # validation scripts
 #include docsrc/Makefile # sphinx makefile
 
 

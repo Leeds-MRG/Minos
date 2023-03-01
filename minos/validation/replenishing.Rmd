@@ -1,0 +1,63 @@
+---
+title: "Assessing Replenishing Population"
+output: html_notebook
+---
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(purrr)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+Source utils for some functions.
+```{r}
+source('Minos/minos/validation/utils.r')
+```
+
+```{r}
+# Replenishing data
+repl <- read.csv('Minos/data/replenishing/replenishing_pop_2019-2070.csv')
+
+# scotland replenishing
+#scot.repl <- read.csv('Minos/data/replenishing/scotland/replenishing_pop_2019-2070.csv')
+```
+
+
+## EDUCATION
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+educ.state <- repl %>% 
+  group_by(time, education_state) %>%
+  count()
+
+# set column types
+educ.state$education_state <- as.factor(educ.state$education_state)
+
+ggplot(data = educ.state, mapping = aes(x = education_state, y = n, fill=education_state)) +
+  geom_col(position='dodge')
+```
+
+## ETHNICITY
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+ethnic.state <- repl %>% 
+  group_by(time, ethnicity) %>%
+  count()
+
+# set column types
+ethnic.state$ethnicity <- as.factor(ethnic.state$ethnicity)
+
+ggplot(data = ethnic.state, mapping = aes(x = ethnicity, y = n, fill=ethnicity)) +
+  geom_col(position='dodge')
+
+ggplot(data = filter(ethnic.state, ethnicity != 'WBI'), mapping = aes(x = ethnicity, y = n, fill=ethnicity)) +
+  geom_col(position='dodge')
+```
+
