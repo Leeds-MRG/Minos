@@ -135,7 +135,9 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
 
 ################# Plotting Pathway Comparisons #################
 
-compare_housing_out <- function(base, int) {
+#TODO: Print out what the values mean with each plot (i.e. housing quality 1,2,3 == ?)
+
+compare_housing_out <- function(base, int, int.name) {
   
   housing.base <- base %>% 
     select(pidp, time, housing_quality)
@@ -160,13 +162,13 @@ compare_housing_out <- function(base, int) {
   
   ggplot(data = housing.merged.byyr, mapping = aes(x = time, y = housing, color=scenario)) +
     geom_line() +
-    labs(title = 'Housing Quality') +
+    labs(title = 'Housing Quality', subtitle = int.name) +
     xlab('Year') +
     ylab('Average')
 }
 
 
-compare_neighbourhood_out <- function(base, int) {
+compare_neighbourhood_out <- function(base, int, int.name) {
   
   neighbourhood.base <- base %>% 
     select(pidp, time, neighbourhood_safety)
@@ -191,13 +193,13 @@ compare_neighbourhood_out <- function(base, int) {
   
   ggplot(data = neighbourhood.merged.byyr, mapping = aes(x = time, y = neighbourhood, color=scenario)) +
     geom_line() +
-    labs(title = 'Neighbourhood Safety') +
+    labs(title = 'Neighbourhood Safety', subtitle = int.name) +
     xlab('Year') +
     ylab('Average')
 }
 
 
-compare_ncigs_out <- function(base, int) {
+compare_ncigs_out <- function(base, int, int.name) {
   ncigs.base <- base %>% 
     select(pidp, time, ncigs)
   
@@ -221,13 +223,13 @@ compare_ncigs_out <- function(base, int) {
   
   ggplot(data = ncigs.merged.byyr, mapping = aes(x = time, y = ncigs, color=scenario)) +
     geom_line() +
-    labs(title = 'Tobacco Use', subtitle = 'Cigarettes per day') +
+    labs(title = 'Tobacco Use', subtitle = int.name) +
     xlab('Year') +
-    ylab('Average')
+    ylab('Average cigs/day')
 }
 
 
-compare_nutrition_out <- function(base, int) {
+compare_nutrition_out <- function(base, int, int.name) {
   nut.base <- base %>% 
     select(pidp, time, nutrition_quality)
   
@@ -251,13 +253,13 @@ compare_nutrition_out <- function(base, int) {
   
   ggplot(data = nut.merged.byyr, mapping = aes(x = time, y = nutrition, color=scenario)) +
     geom_line() +
-    labs(title = 'Nutrition Quality') +
+    labs(title = 'Nutrition Quality', subtitle = int.name) +
     xlab('Year') +
     ylab('Average')
 }
 
 
-compare_loneliness_out <- function(base, int) {
+compare_loneliness_out <- function(base, int, int.name) {
   lnly.base <- base %>% 
     select(pidp, time, loneliness)
   
@@ -281,7 +283,7 @@ compare_loneliness_out <- function(base, int) {
   
   ggplot(data = lnly.merged.byyr, mapping = aes(x = time, y = loneliness, color=scenario)) +
     geom_line() +
-    labs(title = 'Loneliness') +
+    labs(title = 'Loneliness', subtitle = int.name) +
     xlab('Year') +
     ylab('Average')
 }

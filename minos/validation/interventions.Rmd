@@ -113,31 +113,12 @@ ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenari
 ### Housing Quality
 
 ```{r}
-compare_housing_out(base, energy)
-```
-
-### Neighbourhood Safety
-
-```{r}
-compare_neighbourhood_out(base, energy)
-```
-
-### Tobacco Use
-
-```{r}
-compare_ncigs_out(base, energy)
-```
-
-### Nutrition Quality
-
-```{r}
-compare_nutrition_out(base, energy)
-```
-
-### Loneliness (NOT CURRENTLY IN SF12 MODEL)
-
-```{r}
-compare_loneliness_out(base, energy)
+int.name <- 'Energy'
+compare_housing_out(base, energy, int.name)
+compare_neighbourhood_out(base, energy, int.name)
+compare_ncigs_out(base, energy, int.name)
+compare_nutrition_out(base, energy, int.name)
+compare_loneliness_out(base, energy, int.name)
 ```
 
 ## Boost Amount
@@ -199,11 +180,12 @@ ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=s
 ## Pathways
 
 ```{r}
-compare_housing_out(base, wage)
-compare_neighbourhood_out(base, wage)
-compare_ncigs_out(base, wage)
-compare_nutrition_out(base, wage)
-compare_loneliness_out(base, wage)
+int.name <- 'Living Wage'
+compare_housing_out(base, wage, int.name)
+compare_neighbourhood_out(base, wage, int.name)
+compare_ncigs_out(base, wage, int.name)
+compare_nutrition_out(base, wage, int.name)
+compare_loneliness_out(base, wage, int.name)
 ```
 
 
@@ -268,11 +250,12 @@ ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=s
 ## Pathways
 
 ```{r}
-compare_housing_out(base, allchild)
-compare_neighbourhood_out(base, allchild)
-compare_ncigs_out(base, allchild)
-compare_nutrition_out(base, allchild)
-compare_loneliness_out(base, allchild)
+int.name <- 'All Child'
+compare_housing_out(base, allchild, int.name)
+compare_neighbourhood_out(base, allchild, int.name)
+compare_ncigs_out(base, allchild, int.name)
+compare_nutrition_out(base, allchild, int.name)
+compare_loneliness_out(base, allchild, int.name)
 ```
 
 
