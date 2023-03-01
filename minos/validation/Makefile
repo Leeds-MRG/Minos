@@ -5,6 +5,13 @@ VALIDATION = $(ROOT)/minos/validation
 # Better define Rscript variable for all the knitting
 RSCRIPT = Rscript
 
+########### COMBINED ###########
+
+debug: handovers debug_replenishing debug_mwb_pathways debug_interventions debug_debug
+
+
+########### Debug Scripts ###########
+
 # Unfortunately cant do dependencies properly as the runtime sub-directory changes too often. Possibly could use the
 # output/baseline directory as a target? Need to look into that. Won't matter much for now as these scripts run fast
 handovers:
@@ -12,19 +19,22 @@ handovers:
 	# open html file in firefox
 	firefox file://$(VALIDATION)/handovers.nb.html
 
-
-validation_replenishing:
+debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"
 	# open html file in firefox
 	firefox file://$(VALIDATION)/replenishing.nb.html
 
-
-validation_mwb_pathways:
+debug_mwb_pathways:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/mwb_pathways.Rmd')"
 	# open html file in firefox
 	firefox file://$(VALIDATION)/mwb_pathways.nb.html
 
-validation_debug:
+debug_debug:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/DEBUG.Rmd')"
 	# open html file in firefox
 	firefox file://$(VALIDATION)/DEBUG.nb.html
+
+debug_interventions:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/interventions.Rmd')"
+	# open html file in firefox
+	firefox file://$(VALIDATION)/interventions.nb.html
