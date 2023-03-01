@@ -246,7 +246,7 @@ def generate_composite_neighbourhood_safety(data):
     Returns
     -------
     data : Pd.DataFrame
-        The same DataFrame now containing a composite housing quality variable
+        The same DataFrame now containing a composite neighbourhood safety variable
     """
     print('Generating composite for neighbourhood_safety...')
 
