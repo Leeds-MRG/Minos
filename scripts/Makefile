@@ -32,7 +32,7 @@ test_scot_run: baseline intervention_livingWage
 ## Local single runs of MINOS interventions.
 ############################################
 
-all_scenarios: baseline intervention_hhIncome intervention_hhIncomeChildUplift
+all_scenarios: baseline intervention_hhIncomeChildUplift
 all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml

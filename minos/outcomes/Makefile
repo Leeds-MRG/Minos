@@ -4,6 +4,7 @@
 
 test_plot: MODE=default_config
 test_plot: ALIVE=who_alive
+test_plot: BOOSTED=who_boosted
 test_plot: aggregate_minos_output_energy
 
 #####################################

@@ -53,13 +53,13 @@ start.year <- 2020
 raw.income <- raw.dat %>% 
   select(pidp, time, hh_income, weight) %>%
   group_by(time) %>%
-  summarise(income = weighted.mean(hh_income, weight)) %>%
+  summarise(income = mean(hh_income, na.rm=TRUE)) %>%
   mutate(source = 'final_US')
 
 base.income <- base.dat %>%
   select(pidp, time, hh_income, weight) %>%
   group_by(time) %>%
-  summarise(income = weighted.mean(hh_income, weight, na.rm = TRUE)) %>%
+  summarise(income = mean(hh_income)) %>%
   mutate(source = 'baseline_output')
 
 # merge before plot
@@ -68,7 +68,10 @@ income <- rbind(raw.income, base.income)
 # Now plot
 ggplot(data = income, mapping = aes(x = time, y = income, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Household Income', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Income')
 
 ## Try a version where final_US is limited to only those present from wave 1 
 # onwards because the sample refreshments are messing with the plot
@@ -93,7 +96,10 @@ income2 <- rbind(raw.income2, base.income2)
 # Now plot
 ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Household Income', subtitle = 'Wave 1 Sample') +
+  xlab('Year') +
+  ylab('Income')
 
 raw.income.check <- raw.dat %>% 
   select(pidp, time, hh_income) %>%
@@ -131,7 +137,10 @@ sf12 <- rbind(raw.sf12, base.sf12)
 # Now plot
 ggplot(data = sf12, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Mental Wellbeing (SF12)', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('SF12')
 
 ## Try a version where final_US is limited to only those present from wave 1 
 # onwards because the sample refreshments are messing with the plot
@@ -156,7 +165,10 @@ sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
 # Now plot
 ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Mental Wellbeing (SF12)', subtitle = 'Wave 1 Sample') +
+  xlab('Year') +
+  ylab('SF12')
 ```
 
 
@@ -184,7 +196,10 @@ housing$housing_quality <- as.factor(housing$housing_quality)
 # Now plot
 ggplot(data = housing, mapping = aes(x = time, y = n, group = housing_quality, colour = housing_quality)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Quality', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
 
 housing.norm <- housing %>%
   group_by(time) %>%
@@ -193,7 +208,10 @@ housing.norm <- housing %>%
 
 ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=housing_quality)) +
   geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Quality', subtitle = 'Proportion') +
+  xlab('Year') +
+  ylab('Proportion')
 
 rm(raw.housing, base.housing, housing, housing.norm)
 ```
@@ -223,7 +241,10 @@ neighbour$neighbourhood_safety <- as.factor(neighbour$neighbourhood_safety)
 # Now plot
 ggplot(data = neighbour, mapping = aes(x = time, y = n, group = neighbourhood_safety, colour = neighbourhood_safety)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Neighbourhood Safety', subtitle = 'Counts by level') +
+  xlab('Year') +
+  ylab('Count')
 
 neighbour.norm <- neighbour %>%
   group_by(time) %>%
@@ -233,7 +254,10 @@ neighbour.norm <- neighbour %>%
 
 ggplot(data = neighbour.norm, mapping = aes(x = time, y = prct, fill=neighbourhood_safety)) +
   geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Quality', subtitle = 'Proportion') +
+  xlab('Year') +
+  ylab('Proportion')
 
 #rm(raw.neighbour, base.neighbour, neighbour, neighbour.norm)
 ```
@@ -263,7 +287,10 @@ loneliness$loneliness <- as.factor(loneliness$loneliness)
 # Now plot
 ggplot(data = loneliness, mapping = aes(x = time, y = n, group = loneliness, colour = loneliness)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Loneliness', subtitle = 'Counts by level') +
+  xlab('Year') +
+  ylab('Count')
 
 loneliness.norm <- loneliness %>%
   group_by(time) %>%
@@ -273,7 +300,10 @@ loneliness.norm <- loneliness %>%
 
 ggplot(data = loneliness.norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
   geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Loneliness', subtitle = 'Proportion') +
+  xlab('Year') +
+  ylab('Proportion')
 
 rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 ```
@@ -304,7 +334,10 @@ nutrition_quality <- rbind(raw.nut, base.nut)
 # Now plot
 ggplot(data = nutrition_quality, mapping = aes(x = time, y = nutrition_quality, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Nutrition Quality', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Nutrition Quality')
 
 ## Try a version where final_US is limited to only those present from wave 1 
 # onwards because the sample refreshments are messing with the plot
@@ -330,7 +363,10 @@ nutrition_quality2 <- rbind(raw.nut2, base.nut2)
 # Now plot
 ggplot(data = nutrition_quality2, mapping = aes(x = time, y = nutrition_quality, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Nutrition Quality', subtitle = 'Wave 1 Sample') +
+  xlab('Year') +
+  ylab('Nutrition Quality')
 
 rm(raw.nut, base.nut, nutrition_quality, raw.wave1, raw.nut2, base.nut2, 
     nutrition_quality2)
@@ -346,12 +382,14 @@ NOTE: At present, physical health is not predicted or transitioned.
 # start with hh_income
 raw.phealth <- raw.dat %>% 
   select(pidp, time, phealth) %>%
+  filter(time > 2009) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.phealth <- base.dat %>%
   select(pidp, time, phealth) %>%
+  filter(time > 2009) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
@@ -362,7 +400,10 @@ phealth <- rbind(raw.phealth, base.phealth)
 # Now plot
 ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Physical Health', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Average')
 
 ## Try a version where final_US is limited to only those present from wave 1 
 # onwards because the sample refreshments are messing with the plot
@@ -370,6 +411,7 @@ raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 
 raw.phealth2 <- raw.dat %>% 
   select(pidp, time, phealth) %>%
+  filter(time > 2009) %>%
   filter(pidp %in% raw.wave1) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
@@ -377,6 +419,7 @@ raw.phealth2 <- raw.dat %>%
 
 base.phealth2 <- base.dat %>%
   select(pidp, time, phealth) %>%
+  filter(time > 2009) %>%
   filter(pidp %in% raw.wave1) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
@@ -387,18 +430,23 @@ phealth2 <- rbind(raw.phealth2, base.phealth2)
 # Now plot
 ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
   geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted')
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Physical Health', subtitle = 'Wave 1 Sample') +
+  xlab('Year') +
+  ylab('Average')
 
-raw.phealth.check <- raw.dat %>% 
-  select(pidp, time, phealth) %>%
-  filter(pidp %in% raw.wave1)
+#raw.phealth.check <- raw.dat %>% 
+#  select(pidp, time, phealth) %>%
+#  filter(time > 2009) %>%
+#  filter(pidp %in% raw.wave1)
 
-base.phealth.check <- base.dat %>%
-  select(pidp, time, phealth) %>%
-  filter(pidp %in% raw.wave1)
+#base.phealth.check <- base.dat %>%
+#  select(pidp, time, phealth) %>%
+#  filter(time > 2009) %>%
+#  filter(pidp %in% raw.wave1)
 
-rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, 
-   raw.phealth.check, base.phealth.check, phealth2)
+rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, phealth2)
+#rm(raw.phealth.check, base.phealth.check)
 ```
 
 
