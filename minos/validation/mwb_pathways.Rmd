@@ -1,0 +1,135 @@
+---
+title: "Mental Wellbeing Pathways"
+output: html_notebook
+---
+
+# Setup
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(purrr)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+Source utils for some functions.
+```{r}
+source('R_Scripts/utils.r')
+```
+
+## Data
+
+```{r}
+output.path <- 'Minos/output/default_config/'
+baseline.path <- paste0(output.path, 'baseline')
+base.path <- get_runtime_subdirectory(baseline.path)
+
+# read in all the output data files
+base.files <- list.files(base.path,
+                         pattern = '[0-9]{4}.csv',
+                         full.names = TRUE)
+data <- do.call(rbind, lapply(base.files, read.csv))
+```
+
+# Analysis
+
+## ncigs
+
+DONE: Fixed problem where the rescale factor was still being applied in prediction but not in the estimation of the model.
+DONE: Fixed line in the r_utils prediction method where the non-smokers were being predicted as smokers.
+TODO: Fix the input data issue where lots of these vars are being reported as missing still (negative numbers). This should be in the run script somewhere.
+
+```{r}
+ncigs <- data %>% 
+  select(pidp, time, ncigs)
+
+# calculate and plot mean over time
+ncigs.byyr <- data %>% group_by(time) %>%
+  summarise(ncigs = mean(ncigs))
+
+ggplot(data = ncigs.byyr, mapping = aes(x = time, y = ncigs)) +
+  geom_line()
+```
+
+```{r}
+# Lets overlay some histograms at 3 time points - 2018 (before model), 2020 (pathways kick in?), 2030 (long term)
+ncigs.2018 <- ncigs %>% filter(time == 2018)
+ncigs.2020 <- ncigs %>% filter(time == 2020)
+ncigs.2030 <- ncigs %>% filter(time == 2030)
+
+ncigs.joined <- rbind(ncigs.2018, ncigs.2020, ncigs.2030)
+ncigs.joined$time <- as.factor(ncigs.joined$time)
+
+ggplot(data = ncigs.joined, mapping = aes(x = ncigs, group = time, fill = time, color = time)) +
+  geom_histogram(position='dodge')
+```
+
+```{r}
+# Lets also look at the number of smokers vs non-smokers
+smokers.count <- ncigs %>% 
+  group_by(time) %>%
+  summarise(non.smoker = sum(ncigs == 0),
+            smoker = sum(ncigs > 0)) %>%
+  pivot_longer(cols = non.smoker:smoker,
+               names_to = 'smoking_status',
+               values_to = 'count')
+
+ggplot(data = smokers.count, mapping = aes(x = time, y = count, group = smoking_status, color = smoking_status)) +
+  geom_line()
+```
+
+## Housing Quality
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+housing.state <- data %>% 
+  group_by(time, housing_quality) %>%
+  count()
+
+# set column types
+housing.state$housing_quality <- as.factor(housing.state$housing_quality)
+
+ggplot(data = housing.state, mapping = aes(x = time, y = n, group = housing_quality, color = housing_quality)) +
+  geom_line()
+```
+
+## Neighbourhood Safety
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+neighbour.state <- data %>% 
+  group_by(time, neighbourhood_safety) %>%
+  count()
+
+# set column types
+neighbour.state$neighbourhood_safety <- as.factor(neighbour.state$neighbourhood_safety)
+
+ggplot(data = neighbour.state, mapping = aes(x = time, y = n, group = neighbourhood_safety, color = neighbourhood_safety)) +
+  geom_line()
+```
+
+## Loneliness
+
+```{r}
+# plot counts of each state over time (will only change with the replenishing but good to see)
+loneliness.state <- data %>% 
+  group_by(time, loneliness) %>%
+  count()
+
+# set column types
+loneliness.state$loneliness <- as.factor(loneliness.state$loneliness)
+
+ggplot(data = loneliness.state, mapping = aes(x = time, y = n, group = loneliness, color = loneliness)) +
+  geom_line()
+```
+
+
+```{r}
+
+```
+
+
