@@ -21,10 +21,10 @@ source('R_Scripts/utils.r')
 
 ```{r}
 # Replenishing data
-repl <- read.csv('/home/luke/Documents/WORK/MINOS/Minos/data/replenishing/replenishing_pop_2019-2070.csv')
+repl <- read.csv('Minos/data/replenishing/replenishing_pop_2019-2070.csv')
 
 # scotland replenishing
-#scot.repl <- read.csv('/home/luke/Documents/WORK/MINOS/Minos/data/replenishing/scotland/replenishing_pop_2019-2070.csv')
+#scot.repl <- read.csv('Minos/data/replenishing/scotland/replenishing_pop_2019-2070.csv')
 ```
 
 
