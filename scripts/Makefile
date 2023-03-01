@@ -14,7 +14,7 @@ testRun: ### Start a test run of the microsimulation using configuration defined
 # Just test two baseline and living wage interventions locally before running big jobs on hpcs.
 test_run: MODE=default_config
 test_run: RUN_CONFIG=$(CONFIG)/default.yaml
-test_run: baseline intervention_livingWage
+test_run: baseline intervention_energyDownLift
 
 test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -40,19 +40,19 @@ baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
 intervention_hhIncome: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention()'
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
 intervention_hhIncomeChildUplift: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift()'
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
 intervention_PovertyLineChildUplift: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift()'
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 intervention_livingWage: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention()'
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
 intervention_energyDownLift: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift()'
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
@@ -74,19 +74,19 @@ arc4_baseline: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 arc4_intervention_hhIncome: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention()'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
 arc4_intervention_hhIncomeChildUplift: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift()'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
 arc4_intervention_PovertyLineChildUplift: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift()'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 arc4_intervention_livingWage: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention()'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
 arc4_intervention_energyDownLift: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift()'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
@@ -109,19 +109,19 @@ beefy_baseline: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE)
 
 beefy_intervention_hhIncome: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeIntervention()'
+	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeIntervention'
 
 beefy_intervention_hhIncomeChildUplift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeChildUplift()'
+	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeChildUplift'
 
 beefy_intervention_PovertyLineChildUplift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomePovertyLineChildUplift()'
+	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 beefy_intervention_livingWage: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'livingWageIntervention()'
+	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'livingWageIntervention'
 
 beefy_intervention_energyDownLift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownlift()'
+	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownlift'
 
 beefy_all_scenarios: MODE=default_config
 beefy_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml

@@ -37,7 +37,8 @@ from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift
 
 # for viz.
-from minos.validation.minos_distribution_visualisation import *
+from minos.outcomes.minos_distribution_visualisation import *
+
 
 def validate_components(config_components, intervention):
     """
@@ -78,11 +79,11 @@ def validate_components(config_components, intervention):
     }
 
     intervention_components_map = {        #Interventions
-        "hhIncomeIntervention()": hhIncomeIntervention(),
-        "hhIncomeChildUplift()": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift()": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention()": livingWageIntervention(),
-        "energyDownlift()": energyDownlift()
+        "hhIncomeIntervention": hhIncomeIntervention(),
+        "hhIncomeChildUplift": hhIncomeChildUplift(),
+        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
+        "livingWageIntervention": livingWageIntervention(),
+        "energyDownlift": energyDownlift()
     }
 
     replenishment_components_map = {
@@ -109,6 +110,7 @@ def validate_components(config_components, intervention):
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
     return component_list
+
 
 def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline

@@ -48,8 +48,8 @@ done
 AGG_METHOD="nanmean"
 AGG_VAR="SF_12"
 # custom baseline for living wage only.
-python3 minos/validation/aggregate_minos_output.py -m "$1" -d "$2" -t "$3" -a $AGG_METHOD -v $AGG_VAR -f "$4"
+python3 minos/outcomes/aggregate_minos_output.py -m "$1" -d "$2" -t "$3" -a $AGG_METHOD -v $AGG_VAR -f "$4"
 # stack aggregated files into one long array.
-python3 minos/validation/aggregate_long_stack.py -m "$1" -s "$2" -t "$3" -r Baseline -v $AGG_VAR -a $AGG_METHOD
+python3 minos/outcomes/aggregate_long_stack.py -m "$1" -s "$2" -t "$3" -r Baseline -v $AGG_VAR -a $AGG_METHOD
 # make line plot.
-python3 minos/validation/aggregate_lineplot.py -m "$1" -s "$2" -v $AGG_VAR -d "plots" -a $AGG_METHOD -p "$5"
+python3 minos/outcomes/aggregate_lineplot.py -m "$1" -s "$2" -v $AGG_VAR -d "plots" -a $AGG_METHOD -p "$5"

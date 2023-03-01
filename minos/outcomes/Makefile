@@ -2,6 +2,10 @@
 
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
 
+test_plot: MODE=default_config
+test_plot: ALIVE=who_alive
+test_plot: aggregate_minos_output_energy
+
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
