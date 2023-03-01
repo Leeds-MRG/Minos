@@ -113,141 +113,31 @@ ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenari
 ### Housing Quality
 
 ```{r}
-housing.base <- base %>% 
-  select(pidp, time, housing_quality)
-
-housing.energy <- energy %>% 
-  select(pidp, time, housing_quality, income_boosted)
-
-# first rename and cbind
-housing.b <- rename(housing.base, base = housing_quality)
-housing.e <- rename(housing.energy, energy = housing_quality)
-
-housing.merged <- merge(housing.b, housing.e, by=c('pidp', 'time'))
-
-housing.merged <- pivot_longer(data = housing.merged,
-                              cols = base:energy,
-                              names_to = 'scenario',
-                              values_to = 'housing')
-
-housing.merged.byyr <- housing.merged %>%
-  group_by(time, scenario) %>%
-  summarise(housing = mean(housing))
-
-ggplot(data = housing.merged.byyr, mapping = aes(x = time, y = housing, color=scenario)) +
-  geom_line()
+compare_housing_out(base, energy)
 ```
 
 ### Neighbourhood Safety
 
 ```{r}
-neighbourhood.base <- base %>% 
-  select(pidp, time, neighbourhood_safety)
-
-neighbourhood.energy <- energy %>% 
-  select(pidp, time, neighbourhood_safety, income_boosted)
-
-# first rename and cbind
-neighbourhood.b <- rename(neighbourhood.base, base = neighbourhood_safety)
-neighbourhood.e <- rename(neighbourhood.energy, energy = neighbourhood_safety)
-
-neighbourhood.merged <- merge(neighbourhood.b, neighbourhood.e, by=c('pidp', 'time'))
-
-neighbourhood.merged <- pivot_longer(data = neighbourhood.merged,
-                              cols = base:energy,
-                              names_to = 'scenario',
-                              values_to = 'neighbourhood')
-
-neighbourhood.merged.byyr <- neighbourhood.merged %>%
-  group_by(time, scenario) %>%
-  summarise(neighbourhood = mean(neighbourhood))
-
-ggplot(data = neighbourhood.merged.byyr, mapping = aes(x = time, y = neighbourhood, color=scenario)) +
-  geom_line()
+compare_neighbourhood_out(base, energy)
 ```
 
 ### Tobacco Use
 
 ```{r}
-ncigs.base <- base %>% 
-  select(pidp, time, ncigs)
-
-ncigs.energy <- energy %>% 
-  select(pidp, time, ncigs, income_boosted)
-
-# first rename and cbind
-ncigs.b <- rename(ncigs.base, base = ncigs)
-ncigs.e <- rename(ncigs.energy, energy = ncigs)
-
-ncigs.merged <- merge(ncigs.b, ncigs.e, by=c('pidp', 'time'))
-
-ncigs.merged <- pivot_longer(data = ncigs.merged,
-                              cols = base:energy,
-                              names_to = 'scenario',
-                              values_to = 'ncigs')
-
-ncigs.merged.byyr <- ncigs.merged %>%
-  group_by(time, scenario) %>%
-  summarise(ncigs = mean(ncigs))
-
-ggplot(data = ncigs.merged.byyr, mapping = aes(x = time, y = ncigs, color=scenario)) +
-  geom_line()
+compare_ncigs_out(base, energy)
 ```
 
 ### Nutrition Quality
 
 ```{r}
-nut.base <- base %>% 
-  select(pidp, time, nutrition_quality)
-
-nut.energy <- energy %>% 
-  select(pidp, time, nutrition_quality, income_boosted)
-
-# first rename and cbind
-nut.b <- rename(nut.base, base = nutrition_quality)
-nut.e <- rename(nut.energy, energy = nutrition_quality)
-
-nut.merged <- merge(nut.b, nut.e, by=c('pidp', 'time'))
-
-nut.merged <- pivot_longer(data = nut.merged,
-                              cols = base:energy,
-                              names_to = 'scenario',
-                              values_to = 'nutrition')
-
-nut.merged.byyr <- nut.merged %>%
-  group_by(time, scenario) %>%
-  summarise(nutrition = mean(nutrition))
-
-ggplot(data = nut.merged.byyr, mapping = aes(x = time, y = nutrition, color=scenario)) +
-  geom_line()
+compare_nutrition_out(base, energy)
 ```
 
 ### Loneliness (NOT CURRENTLY IN SF12 MODEL)
 
 ```{r}
-lnly.base <- base %>% 
-  select(pidp, time, loneliness)
-
-lnly.energy <- energy %>% 
-  select(pidp, time, loneliness, income_boosted)
-
-# first rename and cbind
-lnly.b <- rename(lnly.base, base = loneliness)
-lnly.e <- rename(lnly.energy, energy = loneliness)
-
-lnly.merged <- merge(lnly.b, lnly.e, by=c('pidp', 'time'))
-
-lnly.merged <- pivot_longer(data = lnly.merged,
-                              cols = base:energy,
-                              names_to = 'scenario',
-                              values_to = 'loneliness')
-
-lnly.merged.byyr <- lnly.merged %>%
-  group_by(time, scenario) %>%
-  summarise(loneliness = mean(loneliness))
-
-ggplot(data = lnly.merged.byyr, mapping = aes(x = time, y = loneliness, color=scenario)) +
-  geom_line()
+compare_loneliness_out(base, energy)
 ```
 
 ## Boost Amount
@@ -306,6 +196,17 @@ ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=s
   geom_line()
 ```
 
+## Pathways
+
+```{r}
+compare_housing_out(base, wage)
+compare_neighbourhood_out(base, wage)
+compare_ncigs_out(base, wage)
+compare_nutrition_out(base, wage)
+compare_loneliness_out(base, wage)
+```
+
+
 ## Boost Amount
 
 ```{r}
@@ -363,6 +264,17 @@ income.merged.byyr <- income.merged %>%
 ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
   geom_line()
 ```
+
+## Pathways
+
+```{r}
+compare_housing_out(base, allchild)
+compare_neighbourhood_out(base, allchild)
+compare_ncigs_out(base, allchild)
+compare_nutrition_out(base, allchild)
+compare_loneliness_out(base, allchild)
+```
+
 
 ## Boost Amount
 

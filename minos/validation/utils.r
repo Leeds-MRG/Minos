@@ -1,5 +1,6 @@
 # Utils functions for MINOS
 
+################# Reading output files #################
 
 read_output <- function(out.path, scenario) {
   ## Start with scenario name
@@ -132,9 +133,156 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
 }
 
 
+################# Plotting Pathway Comparisons #################
+
+compare_housing_out <- function(base, int) {
+  
+  housing.base <- base %>% 
+    select(pidp, time, housing_quality)
+  
+  housing.int <- int %>% 
+    select(pidp, time, housing_quality, income_boosted)
+  
+  # first rename and cbind
+  housing.b <- rename(housing.base, base = housing_quality)
+  housing.i <- rename(housing.int, int = housing_quality)
+  
+  housing.merged <- merge(housing.b, housing.i, by=c('pidp', 'time'))
+  
+  housing.merged <- pivot_longer(data = housing.merged,
+                                 cols = base:int,
+                                 names_to = 'scenario',
+                                 values_to = 'housing')
+  
+  housing.merged.byyr <- housing.merged %>%
+    group_by(time, scenario) %>%
+    summarise(housing = mean(housing))
+  
+  ggplot(data = housing.merged.byyr, mapping = aes(x = time, y = housing, color=scenario)) +
+    geom_line() +
+    labs(title = 'Housing Quality') +
+    xlab('Year') +
+    ylab('Average')
+}
 
 
+compare_neighbourhood_out <- function(base, int) {
+  
+  neighbourhood.base <- base %>% 
+    select(pidp, time, neighbourhood_safety)
+  
+  neighbourhood.int <- int %>% 
+    select(pidp, time, neighbourhood_safety, income_boosted)
+  
+  # first rename and cbind
+  neighbourhood.b <- rename(neighbourhood.base, base = neighbourhood_safety)
+  neighbourhood.i <- rename(neighbourhood.int, int = neighbourhood_safety)
+  
+  neighbourhood.merged <- merge(neighbourhood.b, neighbourhood.i, by=c('pidp', 'time'))
+  
+  neighbourhood.merged <- pivot_longer(data = neighbourhood.merged,
+                                 cols = base:int,
+                                 names_to = 'scenario',
+                                 values_to = 'neighbourhood')
+  
+  neighbourhood.merged.byyr <- neighbourhood.merged %>%
+    group_by(time, scenario) %>%
+    summarise(neighbourhood = mean(neighbourhood))
+  
+  ggplot(data = neighbourhood.merged.byyr, mapping = aes(x = time, y = neighbourhood, color=scenario)) +
+    geom_line() +
+    labs(title = 'Neighbourhood Safety') +
+    xlab('Year') +
+    ylab('Average')
+}
 
 
+compare_ncigs_out <- function(base, int) {
+  ncigs.base <- base %>% 
+    select(pidp, time, ncigs)
+  
+  ncigs.int <- int %>% 
+    select(pidp, time, ncigs, income_boosted)
+  
+  # first rename and cbind
+  ncigs.b <- rename(ncigs.base, base = ncigs)
+  ncigs.i <- rename(ncigs.int, int = ncigs)
+  
+  ncigs.merged <- merge(ncigs.b, ncigs.i, by=c('pidp', 'time'))
+  
+  ncigs.merged <- pivot_longer(data = ncigs.merged,
+                               cols = base:int,
+                               names_to = 'scenario',
+                               values_to = 'ncigs')
+  
+  ncigs.merged.byyr <- ncigs.merged %>%
+    group_by(time, scenario) %>%
+    summarise(ncigs = mean(ncigs))
+  
+  ggplot(data = ncigs.merged.byyr, mapping = aes(x = time, y = ncigs, color=scenario)) +
+    geom_line() +
+    labs(title = 'Tobacco Use', subtitle = 'Cigarettes per day') +
+    xlab('Year') +
+    ylab('Average')
+}
 
+
+compare_nutrition_out <- function(base, int) {
+  nut.base <- base %>% 
+    select(pidp, time, nutrition_quality)
+  
+  nut.int <- int %>% 
+    select(pidp, time, nutrition_quality, income_boosted)
+  
+  # first rename and cbind
+  nut.b <- rename(nut.base, base = nutrition_quality)
+  nut.i <- rename(nut.energy, int = nutrition_quality)
+  
+  nut.merged <- merge(nut.b, nut.i, by=c('pidp', 'time'))
+  
+  nut.merged <- pivot_longer(data = nut.merged,
+                             cols = base:int,
+                             names_to = 'scenario',
+                             values_to = 'nutrition')
+  
+  nut.merged.byyr <- nut.merged %>%
+    group_by(time, scenario) %>%
+    summarise(nutrition = mean(nutrition))
+  
+  ggplot(data = nut.merged.byyr, mapping = aes(x = time, y = nutrition, color=scenario)) +
+    geom_line() +
+    labs(title = 'Nutrition Quality') +
+    xlab('Year') +
+    ylab('Average')
+}
+
+
+compare_loneliness_out <- function(base, int) {
+  lnly.base <- base %>% 
+    select(pidp, time, loneliness)
+  
+  lnly.int <- int %>% 
+    select(pidp, time, loneliness, income_boosted)
+  
+  # first rename and cbind
+  lnly.b <- rename(lnly.base, base = loneliness)
+  lnly.i <- rename(lnly.energy, int = loneliness)
+  
+  lnly.merged <- merge(lnly.b, lnly.i, by=c('pidp', 'time'))
+  
+  lnly.merged <- pivot_longer(data = lnly.merged,
+                              cols = base:int,
+                              names_to = 'scenario',
+                              values_to = 'loneliness')
+  
+  lnly.merged.byyr <- lnly.merged %>%
+    group_by(time, scenario) %>%
+    summarise(loneliness = mean(loneliness))
+  
+  ggplot(data = lnly.merged.byyr, mapping = aes(x = time, y = loneliness, color=scenario)) +
+    geom_line() +
+    labs(title = 'Loneliness') +
+    xlab('Year') +
+    ylab('Average')
+}
 
