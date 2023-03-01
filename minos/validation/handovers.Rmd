@@ -22,9 +22,8 @@ rm(workingDir)
 Source utils for some functions.
 
 ```{r}
-source('R_Scripts/utils.r')
+source('Minos/minos/validation/utils.r')
 ```
-
 
 ## Data
 
@@ -33,15 +32,8 @@ source('R_Scripts/utils.r')
 raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
-
-# baseline path and output subdirectory
-base.path <- 'Minos/output/default_config/baseline/'
-base.path <- get_runtime_subdirectory(base.path)
-
-base.files <- list.files(base.path, 
-                         pattern = '[0-9]{4}.csv',
-                         full.names = TRUE)
-base.dat <- do.call(rbind, lapply(base.files, read.csv))
+out.path <- 'Minos/output/default_config/'
+base.dat <- read_output(out.path, 'baseline')
 ```
 
 ## Constants
