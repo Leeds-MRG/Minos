@@ -410,8 +410,10 @@ if(scotland.mode) {
 
 
 # Load input data (final_US/)
-filelist <- list.files(dataDir)
-filelist <- paste0(dataDir, filelist)
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')
 data <- do.call(rbind, lapply(filelist, read.csv))
 
 run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
