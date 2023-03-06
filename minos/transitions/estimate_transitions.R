@@ -349,12 +349,27 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 
 ## Argparse stuff
 parser = ArgumentParser()
-parser$add_argument('-s', '--scotland', action='store_true', dest='scotland', 
+parser$add_argument('-s', 
+                    '--scotland', 
+                    action='store_true', 
+                    dest='scotland', 
                     default=FALSE,
                     help='Run in Scotland mode - MORE HELP NEEDED HERE')
+
+parser$add_argument('-c', 
+                    '--cross_validation',
+                    action='store_true',
+                    dest='crossval',
+                    default=FALSE,
+                    help='Run in cross validation mode. Transition models are
+                    fitted to half the population, before running simulations
+                    with the other half.')
+
 args <- parser$parse_args()
 
 scotland.mode <- args$scotland
+
+cross_validation <- args$crossval
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
@@ -370,6 +385,11 @@ if(scotland.mode) {
   modDefFilename <- 'model_definitions_SCOTLAND.txt'
   transitionDir <- paste0(transitionDir, 'scotland/')
   create.if.not.exists(transitionDir)
+} else if(cross_validation) {
+  print('Estimating cross validation models')
+  dataDir <- 'data/final_US/cross_validation/transition/'
+  transitionDir <- paste0(transitionDir, 'cross_validation/')
+  create.if.not.exists(transitionDir)
 } else {
   print('Estimating transition models in whole population mode')
 }
@@ -382,4 +402,4 @@ data <- do.call(rbind, lapply(filelist, read.csv))
 
 run_yearly_models(transitionDir, transSourceDir, modDefFilename, data)
 
-print('Generated all transition models.')
+print('Generated transition models.')

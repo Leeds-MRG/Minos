@@ -32,7 +32,7 @@ spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
-cv_data: $(FINALDATA)/cross_validation/simulation/2020_US_cohort.csv
+cv_data: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv
 
 #####################################
 # Input Populations
@@ -65,5 +65,5 @@ $(SPATIALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/
 $(SCOTDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
-$(FINALDATA)/cross_validation/simulation/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
+$(FINALDATA)/cross_validation/transition/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_stock_pop.py --cross_validation
