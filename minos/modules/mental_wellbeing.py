@@ -77,7 +77,7 @@ class MWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -102,7 +102,6 @@ class MWB(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         self.population_view.update(newWaveMWB['SF_12'])
-
 
     def calculate_mwb(self, pop):
         """Calculate income transition distribution based on provided people/indices
