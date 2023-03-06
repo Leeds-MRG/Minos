@@ -168,7 +168,7 @@ def main():
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
                                      usage='use "%(prog)s --help" for more information')
 
-    parser.add_argument("-c", "--cross-validation", dest='crossval', action='store_true', default=False,
+    parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
                         help="Select cross-validation mode to produce cross-validation populations.")
 
     args = parser.parse_args()
