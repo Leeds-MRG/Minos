@@ -68,7 +68,7 @@ def reweight_stock(data, projections):
     return reweighted_data
 
 
-def wave_data_copy(data):
+def wave_data_copy(data, var, copy_year, paste_year):
     """
     Unfortunately due to some of the variables we rely on not being available in all waves, we have to take a copy of
     some information and paste it onto another year. Due to the current aim (24/02/23) being to include wave 12 of data
@@ -84,31 +84,35 @@ def wave_data_copy(data):
     -------
 
     """
-    print("Copying wave 11 nutrition_quality onto wave 12 sample...")
-    #tmp = data['nutrition_quality'][data['time'] == 2019]
+    print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
 
     ## get temp vector of pidp, time, and nutrition_quality from 2019
-    tmp = data[['pidp', 'time', 'nutrition_quality']][data['time'] == 2019]
+    tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
     # change time to 2018 for tmp
-    tmp['time'] = 2020
+    tmp['time'] = paste_year
 
     # replace -9 values in 2020 with Nonetype
-    data['nutrition_quality'][data['time'] == 2020] = None
+    data['nutrition_quality'][data['time'] == paste_year] = None
 
     # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
     data_merged = data.merge(right=tmp,
                              how='left',
                              on=['pidp', 'time'])
-    data_merged['nutrition_quality'] = -9
-    data_merged['nutrition_quality'][data_merged['time'] != 2020] = data_merged['nutrition_quality_x']
-    data_merged['nutrition_quality'][data_merged['time'] == 2020] = data_merged['nutrition_quality_y']
+
+    # set up merge labels
+    var_x = var + '_x'
+    var_y = var + '_y'
+
+    data_merged[var] = -9
+    data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
+    data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
     # drop intermediate columns
-    data_merged.drop(labels=['nutrition_quality_x', 'nutrition_quality_y'], axis=1, inplace=True)
+    data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
 
     # last step is to impute the still missing with the mean value. Without this we would have to drop all the
     # missing values, meaning anybody not in wave 11 would be removed. This is dodgy because we don't know who should be
     # missing, but I don't know what else to do
-    data_merged['nutrition_quality'][(data_merged['time'] == 2020) & (data_merged['nutrition_quality'].isna())] = round(data_merged['nutrition_quality'][data_merged['time'] == 2020].mean())
+    data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
 
     return data_merged
 
@@ -131,7 +135,15 @@ def generate_stock(projections, cross_validation):
     data['max_educ'] = data['education_state']
 
     # copy wave 11 nutrition_quality onto wave 12
-    data = wave_data_copy(data)
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020)
+    # copy wave 7 nutrition_quality onto wave 6
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2015,
+                          paste_year=2014)
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
