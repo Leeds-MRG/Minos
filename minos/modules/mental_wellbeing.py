@@ -114,8 +114,8 @@ class MWB(Base):
         Returns
         -------
         """
-        # year = min(self.year, 2018)
-        year = 2017  # 2017 is latest year with information on all SF_12 variables
+        # year can only be 2017 as its the only year with data for all vars
+        year = 2017
         transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
 
