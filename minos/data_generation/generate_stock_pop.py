@@ -15,6 +15,7 @@ sex and ethnicity to ensure representative populations into the future.
 
 import pandas as pd
 import numpy as np
+import argparse
 
 import US_utils
 
@@ -112,7 +113,7 @@ def wave_data_copy(data):
     return data_merged
 
 
-def generate_stock(projections):
+def generate_stock(projections, cross_validation):
     maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
@@ -141,8 +142,38 @@ def generate_stock(projections):
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
+    # Cross Validation stuff
+    # Split pop in half with rng - half to transitions to fit models, half to simulate
+    if cross_validation:
+        # grab all unique pidps and take half at random
+        # TODO: the sample() function can take weights to return equally weighted samples. Problem being that we use
+            # yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
+        all_pidp = pd.Series(data['pidp'].unique())
+        #trans_samp = all_pidp.sample(frac=0.5, random_state=1)  # random_state is for seeding and reproducibility
+
+        # Shuffle the pidps randomly and split in half
+        shuffled = all_pidp.sample(frac=1, random_state=1)
+        split = np.array_split(shuffled, 2)
+
+        # Now create separate transition and simulation datasets and save them in subfolders of final_US
+        trans = data[data['pidp'].isin(split[0])]
+        simul = data[data['pidp'].isin(split[1])]
+
+        US_utils.save_multiple_files(trans, years, "data/final_US/cross_validation/transition/", "")
+        US_utils.save_multiple_files(simul, years, "data/final_US/cross_validation/simulation/", "")
+
 
 def main():
+    # Use argparse to select between normal and cross-validation
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
+                                     usage='use "%(prog)s --help" for more information')
+
+    parser.add_argument("-c", "--cross-validation", dest='crossval', action='store_true', default=False,
+                        help="Select cross-validation mode to produce cross-validation populations.")
+
+    args = parser.parse_args()
+    cross_validation = args.crossval
+
     # read in projected population counts from 2011-2061
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
     projections = pd.read_csv(proj_file)
@@ -150,7 +181,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_stock(projections)
+    generate_stock(projections, cross_validation)
 
 
 if __name__ == "__main__":
