@@ -98,6 +98,8 @@ setup: install data transitions replenishing_data
 
 scot_setup: install scot_data scot_transitions scot_replenishing
 
+cv_setup: install cv_data cv_transitions cv_replenishing
+
 #####################################
 ### ADDITIONAL MAKEFILES
 #####################################

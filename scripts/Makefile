@@ -130,3 +130,10 @@ beefy_all_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy
 beefy_all_scot_scenarios: MODE=scotland_mode
 beefy_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervention_PovertyLineChildUplift beefy_intervention_livingWage beefy_intervention_energyDownLift
+
+#####################################
+# Validation runs
+#####################################
+
+cv_baseline:: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
