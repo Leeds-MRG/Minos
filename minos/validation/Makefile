@@ -38,3 +38,9 @@ debug_interventions:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/interventions.Rmd')"
 	# open html file in firefox
 	firefox file://$(VALIDATION)/interventions.nb.html
+
+########### Validation ###########
+
+cross_validation: cv_setup cv_baseline
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation.Rmd')"
+	firefox file://$(VALIDATION)/cross_validation.nb.html
