@@ -6,6 +6,7 @@ import numpy as np
 import US_utils
 import US_missing_description
 
+
 def det_missing(data, columns, conditioner, replacer):
     """Correct data that is deterministically missing.
     Requires a data frame, a column to correct, a condition function for correction,
@@ -74,6 +75,7 @@ def force_zero(data, index, column):
     data.loc[index, column] = 0
     return data
 
+
 def force_nine(data, index, column):
     """
     Parameters
@@ -86,6 +88,7 @@ def force_nine(data, index, column):
     """
     data.loc[index, column] = "-9.0"
     return data
+
 
 def force_minus_ten(data, index, column):
     """
@@ -100,8 +103,10 @@ def force_minus_ten(data, index, column):
     data.loc[index, column] = "-10.0"
     return data
 
+
 def doesnt_smoke(data):
     return data['smoker'] == 2
+
 
 def main(data):
     print("Before removing deterministically missing values.")
@@ -114,13 +119,14 @@ def main(data):
                            "job_sec",
                            "job_occupation"]
     # force unemployed people to have value 0 in unemployed_columns.
-    data = det_missing(data, unemployed_columns, is_unemployed, force_minus_ten)
+    data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
     # Anyone who doesn't smoke force ncigs to 0.
     data = det_missing(data, ['ncigs'], doesnt_smoke, force_zero)
     # table of missing values by row/column after correction.
     print("After removing deterministically missing values.")
     US_missing_description.missingness_table(data)
     return data
+
 
 if __name__ == "__main__":
     # Load in data.

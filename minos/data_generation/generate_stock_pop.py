@@ -76,17 +76,26 @@ def wave_data_copy(data, var, copy_year, paste_year):
     Nutrition_quality is available every second wave, so we will copy wave 11 data onto wave 12. I also don't want to
     lose any of the new respondents in wave 12 that don't have a nutrition_quality value, so I might impute those people
     with the mean of the population.
+
     Parameters
     ----------
-    data
+    data : pd.dataframe
+        Dataframe of all variables across all years
+    var : str
+        String variable we want to copy onto another year
+    copy_year : int
+        Year to copy data from
+    paste_year : int
+        Year to paste data to
 
     Returns
     -------
-
+    data_merged : pd.dataframe
+        Final dataset with {var} copied from {copy_year} to {paste_year}
     """
     print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
 
-    ## get temp vector of pidp, time, and nutrition_quality from 2019
+    # get temporary dataframe of pidp, time, and nutrition_quality from 2019
     tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
     # change time to 2018 for tmp
     tmp['time'] = paste_year
