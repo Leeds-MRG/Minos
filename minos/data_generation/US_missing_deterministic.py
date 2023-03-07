@@ -108,6 +108,10 @@ def doesnt_smoke(data):
     return data['smoker'] == 2
 
 
+def inapplicable_job_sector(data):
+    return data['job_sector'] == -8
+
+
 def main(data):
     print("Before removing deterministically missing values.")
 
@@ -122,6 +126,8 @@ def main(data):
     data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
     # Anyone who doesn't smoke force ncigs to 0.
     data = det_missing(data, ['ncigs'], doesnt_smoke, force_zero)
+    # anyone who has job_sector == -8 (inapplicable) should be forced to 0
+    data = det_missing(data, ['job_sector'], inapplicable_job_sector, force_zero)
     # table of missing values by row/column after correction.
     print("After removing deterministically missing values.")
     US_missing_description.missingness_table(data)
