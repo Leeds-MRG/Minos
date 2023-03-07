@@ -1,6 +1,8 @@
 # Utils functions for MINOS
 
 
+# TODO: Write function to read all input files in a directory (i.e. final_US) into a single dataframe
+
 read_output <- function(out.path, scenario) {
   ## Start with scenario name
   # attach full output path

@@ -1,0 +1,132 @@
+---
+title: "Cross Validation Analysis"
+output: html_notebook
+---
+
+This notebook will compare the results of the cross-validation simulation run with real data from Understanding Society, so that we can evaluate the transition models.
+
+### Method
+
+After generation of the final datasets (final_US), the respondents were separated into 2 roughly equal halves based on their pidp. One half was labelled as the transition dataset, and the other for simulation. Transition models were then fit using the transition dataset, with the other half then simulated with these models.
+
+The results of the simulation will now be compared to the simulation dataset to see how closely our models mimick reality.
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source('Minos/minos/validation/utils.r')
+```
+
+## Data
+
+```{r}
+# cross validation simulation output
+out.path <- 'Minos/output/cross_validation/'
+cv <- read_output(out.path, 'baseline')
+
+# cv simulation pop (not used for transitions)
+cv.simul.files <- list.files('Minos/data/final_US/cross_validation/simulation/',
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw <- do.call(rbind, lapply(cv.simul.files, read.csv))
+```
+
+# Analysis
+
+First things first, we need to make sure that we are comparing the exact same people from each dataset. Therefore, we need a step here to check the pidps from both, and remove anybody not in both datasets.
+
+```{r}
+cv.pidps <- cv %>% select(pidp) %>% unique()
+raw.pidps <- raw %>% select(pidp) %>% unique()
+
+both.pidps <- intersect(cv.pidps, raw.pidps)
+
+cv <- cv %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw %>% filter(pidp %in% both.pidps$pidp)
+
+#cv2 <- cv[cv$pidp %in% both.pidps]
+```
+
+## hh_income
+
+### Mean
+
+```{r}
+income.cv <- cv %>% 
+  select(pidp, time, hh_income)
+
+income.raw <- raw %>%
+  select(pidp, time, hh_income)
+
+# first rename and cbind
+income.cv <- rename(income.cv, simulation = hh_income)
+income.raw <- rename(income.raw, raw = hh_income)
+
+income.merged <- merge(income.cv, income.raw, by=c('pidp', 'time'))
+
+income.merged <- pivot_longer(data = income.merged,
+                              cols = simulation:raw,
+                              names_to = 'scenario',
+                              values_to = 'hh_income')
+
+income.merged.byyr <- income.merged %>%
+  group_by(time, scenario) %>%
+  summarise(hh_income = mean(hh_income))
+
+ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
+  geom_line()
+```
+
+### T-test
+
+```{r}
+
+```
+
+
+## SF12
+
+```{r}
+SF_12.cv <- cv %>% 
+  select(pidp, time, SF_12)
+
+SF_12.raw <- raw %>%
+  select(pidp, time, SF_12)
+
+# first rename and cbind
+SF_12.cv <- rename(SF_12.cv, simulation = SF_12)
+SF_12.raw <- rename(SF_12.raw, raw = SF_12)
+
+SF_12.merged <- merge(SF_12.cv, SF_12.raw, by=c('pidp', 'time'))
+
+SF_12.merged <- pivot_longer(data = SF_12.merged,
+                              cols = simulation:raw,
+                              names_to = 'scenario',
+                              values_to = 'SF_12')
+
+SF_12.merged.byyr <- SF_12.merged %>%
+  group_by(time, scenario) %>%
+  summarise(SF_12 = mean(SF_12))
+
+ggplot(data = SF_12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenario)) +
+  geom_line()
+```
+
+## Housing Quality
+
+```{r}
+
+```
+
