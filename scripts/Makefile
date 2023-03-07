@@ -39,6 +39,9 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
+baseline_default: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config
+
 intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
@@ -135,5 +138,5 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 # Validation runs
 #####################################
 
-cv_baseline:: cv_setup
+cv_baseline: cv_setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
