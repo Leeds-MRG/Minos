@@ -15,6 +15,7 @@ sex and ethnicity to ensure representative populations into the future.
 
 import pandas as pd
 import numpy as np
+import argparse
 
 import US_utils
 
@@ -67,7 +68,7 @@ def reweight_stock(data, projections):
     return reweighted_data
 
 
-def wave_data_copy(data):
+def wave_data_copy(data, var, copy_year, paste_year):
     """
     Unfortunately due to some of the variables we rely on not being available in all waves, we have to take a copy of
     some information and paste it onto another year. Due to the current aim (24/02/23) being to include wave 12 of data
@@ -75,44 +76,57 @@ def wave_data_copy(data):
     Nutrition_quality is available every second wave, so we will copy wave 11 data onto wave 12. I also don't want to
     lose any of the new respondents in wave 12 that don't have a nutrition_quality value, so I might impute those people
     with the mean of the population.
+
     Parameters
     ----------
-    data
+    data : pd.dataframe
+        Dataframe of all variables across all years
+    var : str
+        String variable we want to copy onto another year
+    copy_year : int
+        Year to copy data from
+    paste_year : int
+        Year to paste data to
 
     Returns
     -------
-
+    data_merged : pd.dataframe
+        Final dataset with {var} copied from {copy_year} to {paste_year}
     """
-    print("Copying wave 11 nutrition_quality onto wave 12 sample...")
-    #tmp = data['nutrition_quality'][data['time'] == 2019]
+    print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
 
-    ## get temp vector of pidp, time, and nutrition_quality from 2019
-    tmp = data[['pidp', 'time', 'nutrition_quality']][data['time'] == 2019]
+    # get temporary dataframe of pidp, time, and nutrition_quality from 2019
+    tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
     # change time to 2018 for tmp
-    tmp['time'] = 2020
+    tmp['time'] = paste_year
 
     # replace -9 values in 2020 with Nonetype
-    data['nutrition_quality'][data['time'] == 2020] = None
+    data['nutrition_quality'][data['time'] == paste_year] = None
 
     # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
     data_merged = data.merge(right=tmp,
                              how='left',
                              on=['pidp', 'time'])
-    data_merged['nutrition_quality'] = -9
-    data_merged['nutrition_quality'][data_merged['time'] != 2020] = data_merged['nutrition_quality_x']
-    data_merged['nutrition_quality'][data_merged['time'] == 2020] = data_merged['nutrition_quality_y']
+
+    # set up merge labels
+    var_x = var + '_x'
+    var_y = var + '_y'
+
+    data_merged[var] = -9
+    data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
+    data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
     # drop intermediate columns
-    data_merged.drop(labels=['nutrition_quality_x', 'nutrition_quality_y'], axis=1, inplace=True)
+    data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
 
     # last step is to impute the still missing with the mean value. Without this we would have to drop all the
     # missing values, meaning anybody not in wave 11 would be removed. This is dodgy because we don't know who should be
     # missing, but I don't know what else to do
-    data_merged['nutrition_quality'][(data_merged['time'] == 2020) & (data_merged['nutrition_quality'].isna())] = round(data_merged['nutrition_quality'][data_merged['time'] == 2020].mean())
+    data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
 
     return data_merged
 
 
-def generate_stock(projections):
+def generate_stock(projections, cross_validation):
     maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
@@ -130,7 +144,15 @@ def generate_stock(projections):
     data['max_educ'] = data['education_state']
 
     # copy wave 11 nutrition_quality onto wave 12
-    data = wave_data_copy(data)
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020)
+    # copy wave 7 nutrition_quality onto wave 6
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2015,
+                          paste_year=2014)
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
@@ -141,8 +163,38 @@ def generate_stock(projections):
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
+    # Cross Validation stuff
+    # Split pop in half with rng - half to transitions to fit models, half to simulate
+    if cross_validation:
+        # grab all unique pidps and take half at random
+        # TODO: the sample() function can take weights to return equally weighted samples. Problem being that we use
+            # yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
+        all_pidp = pd.Series(data['pidp'].unique())
+        #trans_samp = all_pidp.sample(frac=0.5, random_state=1)  # random_state is for seeding and reproducibility
+
+        # Shuffle the pidps randomly and split in half
+        shuffled = all_pidp.sample(frac=1, random_state=1)
+        split = np.array_split(shuffled, 2)
+
+        # Now create separate transition and simulation datasets and save them in subfolders of final_US
+        trans = data[data['pidp'].isin(split[0])]
+        simul = data[data['pidp'].isin(split[1])]
+
+        US_utils.save_multiple_files(trans, years, "data/final_US/cross_validation/transition/", "")
+        US_utils.save_multiple_files(simul, years, "data/final_US/cross_validation/simulation/", "")
+
 
 def main():
+    # Use argparse to select between normal and cross-validation
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
+                                     usage='use "%(prog)s --help" for more information')
+
+    parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
+                        help="Select cross-validation mode to produce cross-validation populations.")
+
+    args = parser.parse_args()
+    cross_validation = args.crossval
+
     # read in projected population counts from 2011-2061
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
     projections = pd.read_csv(proj_file)
@@ -150,7 +202,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_stock(projections)
+    generate_stock(projections, cross_validation)
 
 
 if __name__ == "__main__":

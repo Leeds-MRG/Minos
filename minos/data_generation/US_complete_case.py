@@ -76,7 +76,11 @@ if __name__ == "__main__":
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
 
-    drop_columns = ['financial_situation', # these are just SF12 MICE columns for now. see US_format_raw.py
+    # Complete case for some vars in 2014 as it was messing up the cross-validation runs
+    data = complete_case_custom_years(data, 'job_sector', years=[2014])
+    data = complete_case_custom_years(data, 'hh_income', years=[2014])
+
+    drop_columns = ['financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
                     'scsf1',
                     'clinical_depression',
@@ -87,8 +91,9 @@ if __name__ == "__main__":
                     'health_limits_social',
                     'future_financial_situation',
                     'behind_on_bills',
-                    'mhealth_limits_work'] # some columns are used in analyses elsewhere such as MICE and not featured in the final model.
-    # remove them here or as late as needed.
+                    'mhealth_limits_work']  # some columns are used in analyses elsewhere such as MICE and not
+                                            # featured in the final model.
+                                            # remove them here or as late as needed.
     data = data.drop(labels=drop_columns, axis=1)
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")

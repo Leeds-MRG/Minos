@@ -77,7 +77,7 @@ class MWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -103,7 +103,6 @@ class MWB(Base):
         # Update population with new income
         self.population_view.update(newWaveMWB['SF_12'])
 
-
     def calculate_mwb(self, pop):
         """Calculate income transition distribution based on provided people/indices
 
@@ -114,8 +113,8 @@ class MWB(Base):
         Returns
         -------
         """
-        # year = min(self.year, 2018)
-        year = 2017  # 2017 is latest year with information on all SF_12 variables
+        # year can only be 2017 as its the only year with data for all vars
+        year = 2017
         transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
 

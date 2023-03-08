@@ -76,7 +76,7 @@ class Income(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -99,7 +99,6 @@ class Income(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         self.population_view.update(newWaveIncome['hh_income'])
-
 
     def calculate_income(self, pop):
         """Calculate income transition distribution based on provided people/indices

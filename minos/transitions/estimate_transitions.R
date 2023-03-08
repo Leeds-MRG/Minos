@@ -160,7 +160,11 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 
 ################ Main Run Loop ################
 
-run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data) {
+run_yearly_models <- function(transitionDir_path, 
+                              transitionSourceDir_path, 
+                              mod_def_name, 
+                              data, 
+                              mode) {
   
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
@@ -184,8 +188,15 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
     formula.string.orig <- split1[2]
     
     ## Yearly model estimation loop
-    # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- seq(max(data$time)-5, (max(data$time) - 1))
+    
+    # Set the time span to estimate models for differently for cross_validation
+    # crossval needs all years, whereas default model can have reduced timespan
+    if(mode == 'cross_validation') {
+      year.range <- seq(min(data$time), (max(data$time) - 1))
+    } else {
+      year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
+    }
+    
     # set up output directory
     out.path1 <- paste0(transitionDir_path, dependent, '/')
     out.path2 <- paste0(out.path1, tolower(mod.type), '/')
@@ -349,26 +360,49 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 
 ## Argparse stuff
 parser = ArgumentParser()
-parser$add_argument('-s', '--scotland', action='store_true', dest='scotland', 
+parser$add_argument('-s', 
+                    '--scotland', 
+                    action='store_true', 
+                    dest='scotland', 
                     default=FALSE,
                     help='Run in Scotland mode - MORE HELP NEEDED HERE')
+
+parser$add_argument('-c', 
+                    '--cross_validation',
+                    action='store_true',
+                    dest='crossval',
+                    default=FALSE,
+                    help='Run in cross validation mode. Transition models are
+                    fitted to half the population, before running simulations
+                    with the other half.')
+
 args <- parser$parse_args()
 
 scotland.mode <- args$scotland
+
+cross_validation <- args$crossval
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
 dataDir <- 'data/final_US/'
 modDefFilename <- 'model_definitions.txt'
 transitionDir <- 'data/transitions/'
+mode <- 'default'
 
 
-# Set paths (handle scotland mode here)
+# Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {
   print('Estimating transition models in Scotland mode')
   dataDir <- 'data/scotland_US/'
   modDefFilename <- 'model_definitions_SCOTLAND.txt'
+  mode <- 'scotland'
   transitionDir <- paste0(transitionDir, 'scotland/')
+  create.if.not.exists(transitionDir)
+} else if(cross_validation) {
+  print('Estimating cross validation models')
+  dataDir <- 'data/final_US/cross_validation/transition/'
+  mode <- 'cross_validation'
+  transitionDir <- paste0(transitionDir, 'cross_validation/')
   create.if.not.exists(transitionDir)
 } else {
   print('Estimating transition models in whole population mode')
@@ -376,10 +410,12 @@ if(scotland.mode) {
 
 
 # Load input data (final_US/)
-filelist <- list.files(dataDir)
-filelist <- paste0(dataDir, filelist)
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')
 data <- do.call(rbind, lapply(filelist, read.csv))
 
-run_yearly_models(transitionDir, transSourceDir, modDefFilename, data)
+run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
 
-print('Generated all transition models.')
+print('Generated transition models.')
