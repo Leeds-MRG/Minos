@@ -23,15 +23,13 @@ knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
 
-Source utils for some functions.
-
-```{r}
+```{r, include=FALSE}
 source('Minos/minos/validation/utils.r')
 ```
 
 ## Data
 
-```{r}
+```{r, include=FALSE}
 # cross validation simulation output
 out.path <- 'Minos/output/cross_validation/'
 cv <- read_output(out.path, 'baseline')
@@ -59,91 +57,75 @@ raw <- raw %>% filter(pidp %in% both.pidps$pidp)
 
 ## hh_income
 
-### Mean
-
 ```{r}
-income.pivoted <- combine_and_pivot_long(cv, 'simulated', raw, 'raw', 'hh_income')
+income.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                         df1.name = 'simulated', 
+                                         df2 = raw, 
+                                         df2.name = 'raw', 
+                                         var = 'hh_income')
 
-income.merged.byyr <- income.pivoted %>%
-  group_by(time, scenario) %>%
-  summarise(hh_income = mean(hh_income))
+plot_mean_comparison(pivoted.df = income.pivoted, 
+                     var = 'hh_income', 
+                     group.var = 'scenario')
 
-ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
-  geom_line()
+compare_boxplot_long(pivoted.df = income.pivoted,
+                     var = 'hh_income',
+                     scen1 = 'raw',
+                     scen2 = 'simulation',
+                     subset.max = 5000,
+                     subset.min = -5000)
 ```
 
-### T-test
+### T-tests
 
 ```{r}
-qqnorm(cv$hh_income)
-qqnorm(raw$hh_income)
-
-# Check variance of both
-cv.inc.var <- var(cv$hh_income)
-raw.inc.var <- var(raw$hh_income, na.rm = TRUE)
-
-# if ratio of largest variance to smallest is less than 4 then assume variance is equal for t.test
-(raw.inc.var / cv.inc.var) < 4
-
-test.t <- t.test(cv$hh_income, raw$hh_income, var.equal = TRUE)
-
-for(year in unique(cv$time)) {
-  print(paste('T tests for year', year))
-  # filter the year
-  tmp.cv <- cv %>% filter(time == year)
-  tmp.raw <- raw %>% filter(time == year)
-  
-  # check variance and test for equal variance
-  var.tmp.cv <- var(tmp.cv$hh_income)
-  var.tmp.raw <- var(tmp.raw$hh_income, na.rm = TRUE)
-  
-  if(var.tmp.raw > var.tmp.cv) {
-    equal.var <- (var.tmp.cv / var.tmp.raw) < 4
-  } else {
-    equal.var <- (var.tmp.raw / var.tmp.cv) < 4
-  }
-  
-  print(t.test(tmp.cv$hh_income, tmp.raw$hh_income, var.equal = equal.var))
-}
+income.t.tests <- two_sample_t_test(cv, 'cv', raw, 'raw', 'hh_income')
+income.t.tests
 ```
 
 ```{r}
-compare_boxplot_long(income.pivoted,
-                    var = 'hh_income',
-                    scen1 = 'raw',
-                    scen2 = 'simulation',
-                    subset.max = 5000,
-                    subset.min = -5000)
+yearly_box_plots(pivoted.df = income.pivoted,
+                 var = 'hh_income',
+                 scen1 = 'raw',
+                 scen2 = 'simulation',
+                 subset.max = 5000,
+                 subset.min = -5000)
 ```
 
 
 ## SF12
 
 ```{r}
-SF_12.cv <- cv %>% 
-  select(pidp, time, SF_12)
+sf12.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'SF_12')
 
-SF_12.raw <- raw %>%
-  select(pidp, time, SF_12)
+plot_mean_comparison(pivoted.df = sf12.pivoted, 
+                     var = 'SF_12', 
+                     group.var = 'scenario')
 
-# first rename and cbind
-SF_12.cv <- rename(SF_12.cv, simulation = SF_12)
-SF_12.raw <- rename(SF_12.raw, raw = SF_12)
-
-SF_12.merged <- merge(SF_12.cv, SF_12.raw, by=c('pidp', 'time'))
-
-SF_12.merged <- pivot_longer(data = SF_12.merged,
-                              cols = simulation:raw,
-                              names_to = 'scenario',
-                              values_to = 'SF_12')
-
-SF_12.merged.byyr <- SF_12.merged %>%
-  group_by(time, scenario) %>%
-  summarise(SF_12 = mean(SF_12))
-
-ggplot(data = SF_12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenario)) +
-  geom_line()
+compare_boxplot_long(pivoted.df = sf12.pivoted,
+                     var = 'SF_12',
+                     scen1 = 'raw',
+                     scen2 = 'simulation')
 ```
+
+### T-Tests
+
+```{r}
+sf12.t.tests <- two_sample_t_test(cv, 'cv', raw, 'raw', 'hh_income')
+sf12.t.tests
+```
+
+```{r}
+yearly_box_plots(pivoted.df = sf12.pivoted,
+                 var = 'SF_12',
+                 scen1 = 'raw',
+                 scen2 = 'simulation')
+```
+
 
 ## Housing Quality
 
