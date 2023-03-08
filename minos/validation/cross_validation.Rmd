@@ -55,8 +55,6 @@ both.pidps <- intersect(cv.pidps, raw.pidps)
 
 cv <- cv %>% filter(pidp %in% both.pidps$pidp)
 raw <- raw %>% filter(pidp %in% both.pidps$pidp)
-
-#cv2 <- cv[cv$pidp %in% both.pidps]
 ```
 
 ## hh_income
@@ -64,24 +62,9 @@ raw <- raw %>% filter(pidp %in% both.pidps$pidp)
 ### Mean
 
 ```{r}
-income.cv <- cv %>% 
-  select(pidp, time, hh_income)
+income.pivoted <- combine_and_pivot_long(cv, 'simulated', raw, 'raw', 'hh_income')
 
-income.raw <- raw %>%
-  select(pidp, time, hh_income)
-
-# first rename and cbind
-income.cv <- rename(income.cv, simulation = hh_income)
-income.raw <- rename(income.raw, raw = hh_income)
-
-income.merged <- merge(income.cv, income.raw, by=c('pidp', 'time'))
-
-income.merged <- pivot_longer(data = income.merged,
-                              cols = simulation:raw,
-                              names_to = 'scenario',
-                              values_to = 'hh_income')
-
-income.merged.byyr <- income.merged %>%
+income.merged.byyr <- income.pivoted %>%
   group_by(time, scenario) %>%
   summarise(hh_income = mean(hh_income))
 
@@ -92,7 +75,45 @@ ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=s
 ### T-test
 
 ```{r}
+qqnorm(cv$hh_income)
+qqnorm(raw$hh_income)
 
+# Check variance of both
+cv.inc.var <- var(cv$hh_income)
+raw.inc.var <- var(raw$hh_income, na.rm = TRUE)
+
+# if ratio of largest variance to smallest is less than 4 then assume variance is equal for t.test
+(raw.inc.var / cv.inc.var) < 4
+
+test.t <- t.test(cv$hh_income, raw$hh_income, var.equal = TRUE)
+
+for(year in unique(cv$time)) {
+  print(paste('T tests for year', year))
+  # filter the year
+  tmp.cv <- cv %>% filter(time == year)
+  tmp.raw <- raw %>% filter(time == year)
+  
+  # check variance and test for equal variance
+  var.tmp.cv <- var(tmp.cv$hh_income)
+  var.tmp.raw <- var(tmp.raw$hh_income, na.rm = TRUE)
+  
+  if(var.tmp.raw > var.tmp.cv) {
+    equal.var <- (var.tmp.cv / var.tmp.raw) < 4
+  } else {
+    equal.var <- (var.tmp.raw / var.tmp.cv) < 4
+  }
+  
+  print(t.test(tmp.cv$hh_income, tmp.raw$hh_income, var.equal = equal.var))
+}
+```
+
+```{r}
+compare_boxplot_long(income.pivoted,
+                    var = 'hh_income',
+                    scen1 = 'raw',
+                    scen2 = 'simulation',
+                    subset.max = 5000,
+                    subset.min = -5000)
 ```
 
 

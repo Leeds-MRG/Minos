@@ -54,6 +54,44 @@ get_runtime_subdirectory <- function(path) {
 }
 
 
+# Function to combine two dataframes and pivot_longer for further processing 
+# with ggplot or ttests. Must be either simulation output or raw files
+combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
+  # get only the columns we want a rename
+  df1 <- df1 %>%
+    select('pidp', 'time', var) %>%
+    set_names(c('pidp', 'time', df1.name))
+  df2 <- df2 %>%
+    select('pidp', 'time', var) %>%
+    set_names(c('pidp', 'time', df2.name))
+  # merge on pidp and time
+  merged <- merge(df1, df2, by = c('pidp', 'time'))
+  pivoted <- pivot_longer(data = merged,
+                          cols = df1.name:df2.name,
+                          names_to = 'scenario',
+                          values_to = var)
+  return(pivoted)
+}
+
+
+compare_boxplot_long <- function(pivoted, var, scen1, scen2, subset.max = 1000000, subset.min = -1000000) {
+  # This chunk finds the mean to be plotted on the boxplot at the end. Not needed but leaving in case
+  #means <- c(mean(pivoted[[var]][pivoted[['scenario']] == scen1], na.rm = TRUE),
+  #           mean(pivoted[[var]][pivoted[['scenario']] == scen2], na.rm = TRUE))
+  
+  formula = as.formula(paste0(var, ' ~ scenario'))
+  
+  # create vectors for subsetting
+  pivoted$in.range <- (pivoted[[var]] < subset.max) & (pivoted[[var]] > subset.min)
+  
+  boxplot(formula,
+          data = pivoted,
+          col = 'lightgray',
+          subset = in.range)
+  #points(c(1,2), means, pch = 15, col = 'red')
+}
+
+
 read_and_collapse_MINOS_batch_output <- function(scenario_out_path, year, var.list) {
   # This function will read all files from a batch run of MINOS for a specific 
   # year, select only a list of variables we are interested in, and collapse
