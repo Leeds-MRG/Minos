@@ -89,6 +89,7 @@ def generate_composite_housing_quality(data):
     # Set to -9 if missing (currently when housing_quality == 0)
     data['housing_quality'][data['housing_quality'] == 0] = -9
 
+    print('Generating composite for SIPHER 7 housing_quality...')
     ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)
     data['S7_housing_quality'] = -9
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 6] = 'Yes to all'
@@ -213,6 +214,59 @@ def generate_hh_income(data):
     return data
 
 
+def generate_SIPHER_7_neighbourhood_safety(data):
+    """
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    print('Generating composite for SIPHER 7 neighbourhood_safety...')
+
+    # create an empty var to fill up
+    data['S7_safety'] = '-9'
+    # if all non-missing variables == 4, this is the best group (hardly ever have safety issues)
+    data.S7_safety[(data['burglaries'].isin([4, -10, -9, -2, -3])) &
+                   (data['car_crime'].isin([4, -10, -9, -2, -3])) &
+                   (data['drunks'].isin([4, -10, -9, -2, -3])) &
+                   (data['muggings'].isin([4, -10, -9, -2, -3])) &
+                   (data['teenagers'].isin([4, -10, -9, -2, -3])) &
+                   (data['vandalism'].isin([4, -10, -9, -2, -3]))] = 'Hardly ever'
+
+    # if all non-missing vars == 1, this is the worst group (often have safety issues)
+    data.S7_safety[(data['burglaries'].isin([1, -10, -9, -2, -3])) &
+                   (data['car_crime'].isin([1, -10, -9, -2, -3])) &
+                   (data['drunks'].isin([1, -10, -9, -2, -3])) &
+                   (data['muggings'].isin([1, -10, -9, -2, -3])) &
+                   (data['teenagers'].isin([1, -10, -9, -2, -3])) &
+                   (data['vandalism'].isin([1, -10, -9, -2, -3]))] = 'Often'
+
+    # if its neither of the extreme groups, it must be in the middle (missings dealt with next)
+    data.S7_safety[(data['S7_safety'] != 'Hardly ever') &
+                   (data['S7_safety'] != 'Often')] = 'Some of the time'
+
+
+    # If all missing then set back to -9
+    data.S7_safety[(data['burglaries'] < 0) &
+                   (data['car_crime'] < 0) &
+                   (data['drunks'] < 0) &
+                   (data['muggings'] < 0) &
+                   (data['teenagers'] < 0) &
+                   (data['vandalism'] < 0)] = '-9'
+
+    data['S7_neighbourhood_safety'] = data['S7_safety']
+
+    data.drop(labels=['S7_safety'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def generate_composite_neighbourhood_safety(data):
     """ Generate a composite neighbourhood safety value from 7 crime frequency variables found in Understanding Society.
 
@@ -267,20 +321,20 @@ def generate_composite_neighbourhood_safety(data):
     data['safety'] = -9
     # First do very safe neighbourhood. All vars == 3 (not at all common) OR missing == -9
     # data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
-    data.safety[(data['burglaries'].isin([3, -9, -2, -3])) &
-                (data['car_crime'].isin([3, -9, -2, -3])) &
-                (data['drunks'].isin([3, -9, -2, -3])) &
-                (data['muggings'].isin([3, -9, -2, -3])) &
-                (data['teenagers'].isin([3, -9, -2, -3])) &
-                (data['vandalism'].isin([3, -9, -2, -3]))] = 3
+    data.safety[(data['burglaries'].isin([3, -10, -9, -2, -3])) &
+                (data['car_crime'].isin([3, -10, -9, -2, -3])) &
+                (data['drunks'].isin([3, -10, -9, -2, -3])) &
+                (data['muggings'].isin([3, -10, -10, -9, -2, -3])) &
+                (data['teenagers'].isin([3, -10, -9, -2, -3])) &
+                (data['vandalism'].isin([3, -10, -9, -2, -3]))] = 3
 
     # Now safe neighbourhood. Any var == 2 (not very common) but no var == 1 (very or fairly common)
-    data.safety[((data['burglaries'].isin([2, -9, -2, -3])) |
-                 (data['car_crime'].isin([2, -9, -2, -3])) |
-                 (data['drunks'].isin([2, -9, -2, -3])) |
-                 (data['muggings'].isin([2, -9, -2, -3])) |
-                 (data['teenagers'].isin([2, -9, -2, -3])) |
-                 (data['vandalism'].isin([2, -9, -2, -3])))
+    data.safety[((data['burglaries'].isin([2, -10, -9, -2, -3])) |
+                 (data['car_crime'].isin([2, -10, -9, -2, -3])) |
+                 (data['drunks'].isin([2, -10, -9, -2, -3])) |
+                 (data['muggings'].isin([2, -10, -9, -2, -3])) |
+                 (data['teenagers'].isin([2, -10, -9, -2, -3])) |
+                 (data['vandalism'].isin([2, -10, -9, -2, -3])))
                 &
                 ((data['burglaries'] != 1) &
                  (data['car_crime'] != 1) &
@@ -289,12 +343,12 @@ def generate_composite_neighbourhood_safety(data):
                  (data['teenagers'] != 1) &
                  (data['vandalism'] != 1))] = 2
     # Now unsafe neighbourhood. Any var == 1 (very or fairly common)
-    data.safety[(data['burglaries'] == 1) |
-                (data['car_crime'] == 1) |
-                (data['drunks'] == 1) |
-                (data['muggings'] == 1) |
-                (data['teenagers'] == 1) |
-                (data['vandalism'] == 1)] = 1
+    data.safety[(data['burglaries'].isin([1, -10, -9, -2, -3])) |
+                (data['car_crime'].isin([1, -10, -9, -2, -3])) |
+                (data['drunks'].isin([1, -10, -9, -2, -3])) |
+                (data['muggings'].isin([1, -10, -9, -2, -3])) |
+                (data['teenagers'].isin([1, -10, -9, -2, -3])) |
+                (data['vandalism'].isin([1, -10, -9, -2, -3]))] = 1
     
     # If all missing then set back to -9
     data.safety[(data['burglaries'] < 0) &
@@ -305,26 +359,6 @@ def generate_composite_neighbourhood_safety(data):
                 (data['vandalism'] < 0)] = -9
 
     data['neighbourhood_safety'] = data.safety
-
-    ## ALSO generate SIPHER 7 version of this variable
-    # This is a sum of the values of each variable, then binned according to SIPHER 7 definition
-    # Often : sum == 7
-    # Some of the time : sum > 7 & sum < 28
-    # Hardly ever : sum == 28
-    # doing this one variable at a time instead of altogether to handle the missing values properly
-    data['neighbourhood_sum'] = 0
-    data['neighbourhood_sum'][data['burglaries'] > 0] = sum(data['burglaries'])
-    data['neighbourhood_sum'][data['car_crime'] > 0] += sum(data['car_crime'])
-    data['neighbourhood_sum'][data['drunks'] > 0] += sum(data['drunks'])
-    data['neighbourhood_sum'][data['muggings'] > 0] += sum(data['muggings'])
-    data['neighbourhood_sum'][data['teenagers'] > 0] += sum(data['teenagers'])
-    data['neighbourhood_sum'][data['vandalism'] > 0] += sum(data['vandalism'])
-
-    # now create S7 var
-    data['S7_neighbourhood_safety'] = -9
-    data['S7_neighbourhood_safety'][data['neighbourhood_sum'] == 7] = 'Often'
-    data['S7_neighbourhood_safety'][data['neighbourhood_sum'].isin(range(8, 28))] = 'Some of the time'
-    data['S7_neighbourhood_safety'][data['neighbourhood_sum'] == 28] = 'Hardly ever'
 
     # drop cols we don't need
     data.drop(labels=['safety'] + var_list,
@@ -747,6 +781,7 @@ def main():
     data = generate_composite_housing_quality(data)  # housing_quality.
     data = generate_hh_income(data)  # hh_income.
     data = calculate_hourly_wage(data)  # hourly_wage
+    data = generate_SIPHER_7_neighbourhood_safety(data)  # S7_neighbourhood_safety (MUST RUN BEFORE OTHER NEIGHBOURHOOD_SAFETY var
     data = generate_composite_neighbourhood_safety(data)  # safety.
     # NOTE: Switching off the old labour_state var so I can generate the SIPHER 7 version with no problems
     #data = generate_labour_composite(data)  # labour state.
