@@ -223,7 +223,7 @@ def format_ukhls_columns(year):
                       'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
                       # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
                       'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
-                      'jbstat': 'labour_state',  # labour state
+                      'jbstat': 'labour_state_raw',  # labour state
                       'smoker': 'smoker',
                       'ncigs': 'ncigs',  # typical daily cigarettes smoked.
                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
@@ -413,7 +413,7 @@ def format_ukhls_employment(data):
     For now just assume they are unemployed and assign their industries to 0."""
 
     # Remap job statuses.
-    data["labour_state"] = data["labour_state"].astype(str).map(labour_ukhls)
+    data["labour_state_raw"] = data["labour_state_raw"].astype(str).map(labour_ukhls)
     return data
 
 
