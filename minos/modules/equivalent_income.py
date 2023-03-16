@@ -53,6 +53,7 @@ class EquivalentIncome(Base):
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
         view_columns = ['pidp',
+                        'hh_income',
                         'S7_labour_state',
                         'S7_physical_health',
                         'S7_mental_health',
