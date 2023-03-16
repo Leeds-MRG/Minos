@@ -384,6 +384,10 @@ def generate_SIPHER_7_employment(data):
     # Set to -9 if missing (currently when labour_state == 0)
     data['labour_state'][data['labour_state'] == '0'] = -9
 
+    data.drop(labels=['labour_state_raw', 'emp_type'],
+              axis=1,
+              inplace=True)
+
     return data
 
 
