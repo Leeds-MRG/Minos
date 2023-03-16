@@ -89,6 +89,12 @@ def generate_composite_housing_quality(data):
     # Set to -9 if missing (currently when housing_quality == 0)
     data['housing_quality'][data['housing_quality'] == 0] = -9
 
+    ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)
+    data['S7_housing_quality'] = -9
+    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 6] = 'Yes to all'
+    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6))] = 'Yes to some'
+    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 0] = 'No to all'
+
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
                       'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
@@ -300,6 +306,26 @@ def generate_composite_neighbourhood_safety(data):
 
     data['neighbourhood_safety'] = data.safety
 
+    ## ALSO generate SIPHER 7 version of this variable
+    # This is a sum of the values of each variable, then binned according to SIPHER 7 definition
+    # Often : sum == 7
+    # Some of the time : sum > 7 & sum < 28
+    # Hardly ever : sum == 28
+    # doing this one variable at a time instead of altogether to handle the missing values properly
+    data['neighbourhood_sum'] = 0
+    data['neighbourhood_sum'][data['burglaries'] > 0] = sum(data['burglaries'])
+    data['neighbourhood_sum'][data['car_crime'] > 0] += sum(data['car_crime'])
+    data['neighbourhood_sum'][data['drunks'] > 0] += sum(data['drunks'])
+    data['neighbourhood_sum'][data['muggings'] > 0] += sum(data['muggings'])
+    data['neighbourhood_sum'][data['teenagers'] > 0] += sum(data['teenagers'])
+    data['neighbourhood_sum'][data['vandalism'] > 0] += sum(data['vandalism'])
+
+    # now create S7 var
+    data['S7_neighbourhood_safety'] = -9
+    data['S7_neighbourhood_safety'][data['neighbourhood_sum'] == 7] = 'Often'
+    data['S7_neighbourhood_safety'][data['neighbourhood_sum'].isin(range(8, 28))] = 'Some of the time'
+    data['S7_neighbourhood_safety'][data['neighbourhood_sum'] == 28] = 'Hardly ever'
+
     # drop cols we don't need
     data.drop(labels=['safety'] + var_list,
               axis=1,
@@ -380,9 +406,9 @@ def generate_SIPHER_7_employment(data):
     ]
     values = ['FT Employed', 'PT Employed', 'Job Seeking', 'FT Education', 'Family Care', 'Not Working']
 
-    data['labour_state'] = np.select(conditions, values)
+    data['S7_labour_state'] = np.select(conditions, values)
     # Set to -9 if missing (currently when labour_state == 0)
-    data['labour_state'][data['labour_state'] == '0'] = -9
+    data['S7_labour_state'][data['S7_labour_state'] == '0'] = -9
 
     data.drop(labels=['labour_state_raw', 'emp_type'],
               axis=1,
@@ -657,7 +683,7 @@ def generate_physical_health_score(data):
     data['phealth'] = 0
     data['phealth'][data['phealth_limits_modact'] > 0] += data['phealth_limits_modact']
     data['phealth'][data['phealth_limits_stairs'] > 0] += data['phealth_limits_stairs']
-    data['phealth'][data['phealth_limits_work'] > 0] += data['phealth_limits_work']
+    data['phealth'][data['S7_physical_health'] > 0] += data['S7_physical_health']  # formerly phealth_limits_work
     data['phealth'][data['phealth_limits_work_type'] > 0] += data['phealth_limits_work_type']
     data['phealth'][data['pain_interfere_work'] > 0] += data['pain_interfere_work']
 
@@ -665,7 +691,7 @@ def generate_physical_health_score(data):
     data['counter'] = 0
     data['counter'][data['phealth_limits_modact'] > 0] += 1
     data['counter'][data['phealth_limits_stairs'] > 0] += 1
-    data['counter'][data['phealth_limits_work'] > 0] += 1
+    data['counter'][data['S7_physical_health'] > 0] += 1  # formerly phealth_limits_work
     data['counter'][data['phealth_limits_work_type'] > 0] += 1
     data['counter'][data['pain_interfere_work'] > 0] += 1
 
