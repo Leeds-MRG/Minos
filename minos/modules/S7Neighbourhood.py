@@ -1,5 +1,5 @@
 """
-Module for neighbourhood in Minos.
+Module for SIPHER 7 neighbourhood in Minos.
 Calculation of change in neighbourhood quality in minos.
 """
 

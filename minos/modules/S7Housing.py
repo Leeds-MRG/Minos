@@ -1,5 +1,5 @@
 """
-Module for housing in Minos.
+Module for SIPHER 7 housing in Minos.
 Upgrade of household appliances
 Possible future work for moving households and changing household composition (e.g. marrying/births)
 """
