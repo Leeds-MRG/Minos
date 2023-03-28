@@ -116,7 +116,7 @@ class S7Labour(Base):
 
         # load transition model based on year.
         year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
-        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_nnet_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (9xn) of next ordinal state.
         prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
