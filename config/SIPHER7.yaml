@@ -26,7 +26,7 @@ replenishing_dir: 'data/replenishing'
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2+).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [EquivalentIncome(), Loneliness(), S7NeighbourhoodSafety(), S7HousingQuality(), S7PhysicalHealth(), S7MentalHealth(), S7LabourState(), Income(), Education(), Mortality(), Replenishment()]
+components : [EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7LabourState(), Income(), Education(), Mortality(), Replenishment()]
 
 
 scale_rates:

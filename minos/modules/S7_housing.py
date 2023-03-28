@@ -16,10 +16,10 @@ class Housing(Base):
 
     @property
     def name(self):
-        return "housing"
+        return "s7_housing"
 
     def __repr__(self):
-        return "Housing()"
+        return "S7_Housing()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
 
@@ -61,7 +61,7 @@ class Housing(Base):
                         "job_sec",
                         "ethnicity",
                         "age",
-                        "housing_quality",
+                        "S7_housing_quality",
                         "hh_income",]
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -91,7 +91,7 @@ class Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
+        housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index,
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
 
@@ -101,11 +101,11 @@ class Housing(Base):
         housing_factor_dict = {1: 'Low',
                                2: 'Medium',
                                3: 'High'}
-        housing_prob_df.replace({'housing_quality': housing_factor_dict},
+        housing_prob_df.replace({'S7_housing_quality': housing_factor_dict},
                                 inplace=True)
 
 
-        self.population_view.update(housing_prob_df["housing_quality"])
+        self.population_view.update(housing_prob_df["S7_housing_quality"])
 
     def calculate_housing(self, pop):
         """Calculate housing transition distribution based on provided people/indices.
@@ -119,18 +119,18 @@ class Housing(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"S7_housing_quality/clm/S7_housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'housing_quality')
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_housing_quality')
         return prob_df
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"housing_barplot_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"S7_housing_barplot_{self.year}.pdf"
         densities = pd.DataFrame(pop['housing_quality'].value_counts(normalize=True))
         densities.columns = ['densities']
         densities['housing_quality'] = densities.index
         f = plt.figure()
-        cat = catplot(data=densities, y='housing_quality', x='densities', kind='bar', orient='h')
+        cat = catplot(data=densities, y='S7_housing_quality', x='densities', kind='bar', orient='h')
         plt.savefig(file_name)
         plt.close()
