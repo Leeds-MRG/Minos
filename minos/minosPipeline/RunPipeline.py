@@ -32,7 +32,7 @@ from minos.modules.nutrition import Nutrition
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
 from minos.modules.S7Neighbourhood import S7Neighbourhood
-from minos.modules.S7MentalHealth import import S7MentalHealth
+from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 
