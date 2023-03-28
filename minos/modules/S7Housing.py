@@ -16,10 +16,10 @@ class Housing(Base):
 
     @property
     def name(self):
-        return "s7_housing"
+        return "s7housing"
 
     def __repr__(self):
-        return "S7_Housing()"
+        return "S7Housing()"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
 

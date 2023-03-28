@@ -16,10 +16,10 @@ class MWB(Base):
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'mwb'
+        return 's7mentalhealth'
 
     def __repr__(self):
-        return "MWB()"
+        return "S7MentalHealth()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

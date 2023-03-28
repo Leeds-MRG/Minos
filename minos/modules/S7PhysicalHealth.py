@@ -16,10 +16,10 @@ class MWB(Base):
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 's7_physical_health'
+        return 's7physicalhealth'
 
     def __repr__(self):
-        return "S7_Physical_Health()"
+        return "S7PhysicalHealth()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
