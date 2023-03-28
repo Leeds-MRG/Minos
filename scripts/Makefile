@@ -20,6 +20,14 @@ test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
 
+test_SIPHER7_run: MODE=SIPHER7
+test_SIPHER7_run: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+test_SIPHER7_run: SIPHER7_base
+SIPHER7_base: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+
+
+
 ###################
 ## Experiment Runs
 ###################
