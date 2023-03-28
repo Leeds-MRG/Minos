@@ -15,11 +15,11 @@ class S7EquivalentIncome(Base):
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'income'
+        return 's7equivalentincome'
 
 
     def __repr__(self):
-        return "Income()"
+        return "S7EquivalentIncome()"
 
 
     def setup(self, builder):

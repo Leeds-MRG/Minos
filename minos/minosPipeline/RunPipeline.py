@@ -85,12 +85,12 @@ def validate_components(config_components, intervention):
     }
 
     SIPHER7_components_map = {  # SIPHER7 stuff
-        "S7Labour" : S7Labour(),
-        "S7Housing" : S7Housing(),
-        "S7Neighbourhood": S7Neighbourhood(),
-        "S7MentalHealth" : S7MentalHealth(),
-        "S7PhysicalHealth": S7PhysicalHealth(),
-        "S7EquivalentIncome": S7EquivalentIncome()
+        "S7Labour()" : S7Labour(),
+        "S7Housing()" : S7Housing(),
+        "S7Neighbourhood()": S7Neighbourhood(),
+        "S7MentalHealth()" : S7MentalHealth(),
+        "S7PhysicalHealth()": S7PhysicalHealth(),
+        "S7EquivalentIncome()": S7EquivalentIncome()
     }
 
     intervention_components_map = {        #Interventions
