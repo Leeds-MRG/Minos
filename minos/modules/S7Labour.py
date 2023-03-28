@@ -1,7 +1,5 @@
 """
-Module for housing in Minos.
-Upgrade of household appliances
-Possible future work for moving households and changing household composition (e.g. marrying/births)
+Module for S7_labour_state in Minos.
 """
 
 import pandas as pd
@@ -16,10 +14,10 @@ class Labour(Base):
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'labour'
+        return 's7labour'
 
     def __repr__(self):
-        return "Labour()"
+        return "S7Labour()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -56,15 +54,15 @@ class Labour(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "labour_state",
-                        "SF_12",
-                        "job_sec",
+                        "S7_labour_state",
                         "ethnicity",
                         "age",
-                        "housing_quality",
+                        'region',
                         "hh_income",
                         "education_state",
-                        "alcohol_spending",]
+                        "S7_physical_health",
+                        'S7_mental_health']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -74,7 +72,7 @@ class Labour(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -97,10 +95,10 @@ class Labour(Base):
 
         labour_prob_df = self.calculate_labour(pop)
 
-        labour_prob_df["labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
+        labour_prob_df["S7_labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
         labour_prob_df.index = labour_prob_df.index.astype(int)
 
-        self.population_view.update(labour_prob_df["labour_state"])
+        self.population_view.update(labour_prob_df["S7_labour_state"])
 
 
     def calculate_labour(self, pop):
@@ -114,23 +112,22 @@ class Labour(Base):
         -------
         """
         # set up list of columns
-        cols = ["Employed", "Family Care", "Maternity Leave", "PT Employed", "Retired", "Self-employed",
-                "Sick/Disabled", "Student", "Unemployed"]
+        cols = ['FT Employed', 'PT Employed', 'Job Seeking', 'FT Education', 'Family Care', 'Not Working']
 
         # load transition model based on year.
         year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
-        transition_model = r_utils.load_transitions(f"labour/nnet/labour_nnet_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_nnet_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (9xn) of next ordinal state.
         prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"labour_barplot_{self.year}.pdf"
-        densities = pd.DataFrame(pop['labour_state'].value_counts(normalize=True))
+        file_name = config.output_plots_dir + f"S7_labour_state_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['S7_labour_state'].value_counts(normalize=True))
         densities.columns = ['densities']
-        densities['labour_state'] = densities.index
+        densities['S7_labour_state'] = densities.index
         f = plt.figure()
-        cat = catplot(data=densities, y='labour_state', x='densities', kind='bar', orient='h')
+        cat = catplot(data=densities, y='S7_labour_state', x='densities', kind='bar', orient='h')
         plt.savefig(file_name)
         plt.close()
