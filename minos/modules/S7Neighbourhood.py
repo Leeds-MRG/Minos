@@ -52,7 +52,7 @@ class S7Neighbourhood(Base):
                         'hh_income',
                         'S7_neighbourhood_safety',
                         'SF_12',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'housing_quality',
                         'job_sec']
@@ -88,6 +88,13 @@ class S7Neighbourhood(Base):
                                                                            neighbourhood_prob_df) + 1
 
         neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
+
+        # convert numeric prediction into string factors
+        neighbourhood_factor_dict = {1: 'Often',
+                                        2: 'Some of the time',
+                                        3: 'Hardly ever'}
+        neighbourhood_prob_df.replace({'S7_neighbourhood_safety': neighbourhood_factor_dict},
+                                inplace=True)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood

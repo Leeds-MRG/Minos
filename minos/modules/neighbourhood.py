@@ -51,7 +51,7 @@ class Neighbourhood(Base):
                         'hh_income',
                         'neighbourhood_safety',
                         'SF_12',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'housing_quality',
                         'job_sec']

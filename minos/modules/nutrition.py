@@ -48,7 +48,7 @@ class Nutrition(Base):
                         'hh_income',
                         'SF_12',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'hh_income',
                         'alcohol_spending',

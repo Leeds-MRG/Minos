@@ -48,7 +48,7 @@ class Loneliness(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "labour_state",
+                        "S7_labour_state",
                         "SF_12",
                         "job_sec",
                         "ethnicity",

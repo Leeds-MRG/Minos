@@ -59,7 +59,7 @@ class Tobacco(Base):
                         'hh_income',
                         'SF_12',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'alcohol_spending',
                         'ncigs']

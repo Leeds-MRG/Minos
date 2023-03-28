@@ -40,7 +40,6 @@ class Replenishment(Base):
                         'entrance_time',
                         'time',
                         'exit_time',
-                        'labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',
@@ -82,7 +81,12 @@ class Replenishment(Base):
                         'gross_paypm',
                         'phealth',
                         'marital_status',
-                        'hh_comp'
+                        'hh_comp',
+                        'S7_labour_state',
+                        'S7_housing_quality',
+                        'S7_neighbourhood_safety',
+                        'S7_physical_health',
+                        'S7_mental_health',
                         ]
 
         # Shorthand methods for readability.
@@ -252,7 +256,6 @@ class NoReplenishment(Base):
                         'entrance_time',
                         'time',
                         'exit_time',
-                        'labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',
@@ -294,7 +297,12 @@ class NoReplenishment(Base):
                         'gross_paypm',
                         'marital_status',
                         'phealth',
-                        'hh_comp']
+                        'hh_comp',
+                        'S7_labour_state',
+                        'S7_housing_quality',
+                        'S7_neighbourhood_safety',
+                        'S7_physical_health',
+                        'S7_mental_health',]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

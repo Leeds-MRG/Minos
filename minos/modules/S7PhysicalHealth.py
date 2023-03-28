@@ -89,17 +89,20 @@ class S7PhysicalHealth(Base):
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
-        ## Predict next income value
-        newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["S7_physical_health"])
-        # Set index type to int (instead of object as previous)
-        newWaveMWB.index = newWaveMWB.index.astype(int)
+        # Predict next neighbourhood value
+        phys_health_prob_df = self.calculate_S7_physical_health(pop)
+
+        phys_health_prob_df["S7_physical_health"] = self.random.choice(phys_health_prob_df.index,
+                                                                              list(phys_health_prob_df.columns),
+                                                                              phys_health_prob_df) + 1
+
+        phys_health_prob_df.index = phys_health_prob_df.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        self.population_view.update(newWaveMWB['S7_physical_health'])
+        self.population_view.update(phys_health_prob_df['S7_physical_health'])
 
-    def calculate_mwb(self, pop):
+    def calculate_S7_physical_health(self, pop):
         """Calculate income transition distribution based on provided people/indices
 
         Parameters
@@ -109,10 +112,10 @@ class S7PhysicalHealth(Base):
         Returns
         -------
         """
-        # year can only be 2017 as its the only year with data for all vars
-        year = 2017
-        transition_model = r_utils.load_transitions(f"S7_physical_health/ols/S7_physical_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'S7_physical_health')
+        # year
+        year = min(self.year, 2019)
+        transition_model = r_utils.load_transitions(f"S7_physical_health/clm/S7_physical_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        return r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_physical_health')
 
     def plot(self, pop, config):
 
