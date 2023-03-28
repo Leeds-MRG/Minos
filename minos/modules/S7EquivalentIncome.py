@@ -10,7 +10,7 @@ from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
 
-class Income(Base):
+class EquivalentIncome(Base):
 
     # Special methods used by vivarium.
     @property

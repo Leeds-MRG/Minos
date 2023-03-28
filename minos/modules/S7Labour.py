@@ -10,7 +10,7 @@ from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
 
-class Labour(Base):
+class S7Labour(Base):
     # Special methods used by vivarium.
     @property
     def name(self):

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from seaborn import catplot
 
 
-class Neighbourhood(Base):
+class S7Neighbourhood(Base):
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

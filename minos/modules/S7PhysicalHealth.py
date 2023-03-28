@@ -11,7 +11,7 @@ from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
 
-class MWB(Base):
+class S7PhysicalHealth(Base):
     """Mental Well-Being Module"""
     # Special methods used by vivarium.
     @property

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from seaborn import catplot
 from datetime import datetime as dt
 
-class Housing(Base):
+class S7Housing(Base):
 
     @property
     def name(self):
