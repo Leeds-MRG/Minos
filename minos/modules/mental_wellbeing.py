@@ -99,7 +99,8 @@ class MWB(Base):
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 
-        # Draw individuals next states randomly from this distribution.
+        # add Gaussian noise
+        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 10)
         # Update population with new income
         self.population_view.update(newWaveMWB['SF_12'])
 
