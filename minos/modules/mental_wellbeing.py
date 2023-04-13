@@ -8,8 +8,7 @@ import pandas as pd
 from pathlib import Path
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
-from seaborn import histplot
-import matplotlib.pyplot as plt
+import numpy as np
 
 class MWB(Base):
     """Mental Well-Being Module"""
@@ -100,7 +99,7 @@ class MWB(Base):
         newWaveMWB.index = newWaveMWB.index.astype(int)
 
         # add Gaussian noise
-        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 10)
+        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 10/np.sqrt(np.var(newWaveMWB["SF_12"])))
         # Update population with new income
         self.population_view.update(newWaveMWB['SF_12'])
 

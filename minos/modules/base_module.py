@@ -89,7 +89,7 @@ class Base():
 
 
     def generate_gaussian_noise(self, index, mu=0, sigma=1):
-        """ Generate Gaussian noise for continuous variables in MINOS
+        """ Generate Gaussian noise for continuous variables in MINOS with mean mu and standard devation sigma
 
         Parameters
         ----------
