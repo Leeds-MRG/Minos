@@ -31,28 +31,28 @@ PYTHON = python
 RSCRIPT = Rscript
 
 # COLORS
-GREEN  := $(shell tput -Txterm setaf 2)
-YELLOW := $(shell tput -Txterm setaf 3)
-WHITE  := $(shell tput -Txterm setaf 7)
-RESET  := $(shell tput -Txterm sgr0)
+#GREEN  := $(shell tput -Txterm setaf 2)
+#YELLOW := $(shell tput -Txterm setaf 3)
+#WHITE  := $(shell tput -Txterm setaf 7)
+#RESET  := $(shell tput -Txterm sgr0)
 
 ## Help
-.PHONY: help
+#.PHONY: help
 
-help: ### Show this help
-	@echo "$(GREEN)Minos Makefile help$(RESET):"
-	@echo
-	@echo "The Makefile is the primary method of interacting with the Minos project, and provides the ability to do all "
-	@echo "that is required to prepare and run the microsimulation."
-	@echo "Key steps to running the simulation from scratch are:"
-	@echo "    Installing the package and requirements"
-	@echo "    Input Data Generation"
-	@echo "    Producing transition models from input data"
-	@echo "    Running the microsimulation, requiring both input data and transition models"
-	@echo
-	@echo "The Makefile is set up to run any process that is required and has not already been completed."
-	@echo
-	@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
+#help: ### Show this help
+	#@echo "$(GREEN)Minos Makefile help$(RESET):"
+	#@echo
+	#@echo "The Makefile is the primary method of interacting with the Minos project, and provides the ability to do all "
+	#@echo "that is required to prepare and run the microsimulation."
+	#@echo "Key steps to running the simulation from scratch are:"
+	#@echo "    Installing the package and requirements"
+	#@echo "    Input Data Generation"
+	#@echo "    Producing transition models from input data"
+	#@echo "    Running the microsimulation, requiring both input data and transition models"
+	#@echo
+	#@echo "The Makefile is set up to run any process that is required and has not already been completed."
+	#@echo
+	#@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
 
 .PHONY: libpaths
 libpaths: ### Grab paths to Python and R libraries
@@ -111,3 +111,4 @@ include minos/outcomes/Makefile # plotting makefile
 include minos/validation/Makefile # validation scripts
 #include docsrc/Makefile # sphinx makefile
 include clean.makefile # cleaning
+include help.makefile # show help
