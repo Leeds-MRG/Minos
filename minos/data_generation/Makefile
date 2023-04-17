@@ -1,44 +1,44 @@
-#####################################
-### Data Generation
-#####################################
+#-------------- DATA GENERATION --------------#
 
-data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
-###	format with composite variables generated
+## Run all four levels of data generation from raw Understanding Society data to imputed data with composite variables
 data: raw_data corrected_data composite_data complete_data final_data
 
-raw_data: ### Generate starting data in the correct format from raw Understanding Society data
+## Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2020_US_cohort.csv
 
-corrected_data: ### Run a number of imputation procedures on the raw data to produce corrected data
+## Run a number of imputation procedures on the raw data to produce corrected data
 corrected_data: $(CORRECTDATA)/2020_US_cohort.csv
 
-composite_data: ### Generate composite variables
+## Generate composite variables
 composite_data: $(COMPOSITEDATA)/2020_US_cohort.csv
 
-complete_data: ### Generate a complete version of the data, after running complete case correction
+## Generate a complete version of the data, after running complete case correction
 complete_data: $(COMPLETEDATA)/2020_US_cohort.csv
 
-final_data: ### Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
+## Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
 final_data: $(FINALDATA)/2020_US_cohort.csv
 
-replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
+## Produce the replenishing population for full UK run
 replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
+## Produce the replenishing population for Scotland mode run
 scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
-spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
-### version of the final data to be used in spatial analyses (of Sheffield only)
+## Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
+## version of the final data to be used in spatial analyses (of Sheffield only)
 spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
 
+## Generate a subsetted version of the input dataset with only Scottish respondents
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
+## Generate a subsetted version of the input dataset, with only 1 half of the population for cross-validation
 cv_data: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv
 
+## Produce the replenishing population from the subsetted cross-vadliation input population
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
 
-#####################################
-# Input Populations
-#####################################
+
+#-------------- INPUT POPULATIONS --------------#
 
 $(RAWDATA)/2020_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py --source_dir $(USSOURCEDIR)

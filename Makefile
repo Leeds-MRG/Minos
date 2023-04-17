@@ -30,32 +30,9 @@ SITEPACKAGESR = $(shell Rscript -e '.libPaths()') | sed "s/^[^ ]* //"
 PYTHON = python
 RSCRIPT = Rscript
 
-# COLORS
-#GREEN  := $(shell tput -Txterm setaf 2)
-#YELLOW := $(shell tput -Txterm setaf 3)
-#WHITE  := $(shell tput -Txterm setaf 7)
-#RESET  := $(shell tput -Txterm sgr0)
-
-## Help
-#.PHONY: help
-
-#help: ### Show this help
-	#@echo "$(GREEN)Minos Makefile help$(RESET):"
-	#@echo
-	#@echo "The Makefile is the primary method of interacting with the Minos project, and provides the ability to do all "
-	#@echo "that is required to prepare and run the microsimulation."
-	#@echo "Key steps to running the simulation from scratch are:"
-	#@echo "    Installing the package and requirements"
-	#@echo "    Input Data Generation"
-	#@echo "    Producing transition models from input data"
-	#@echo "    Running the microsimulation, requiring both input data and transition models"
-	#@echo
-	#@echo "The Makefile is set up to run any process that is required and has not already been completed."
-	#@echo
-	#@fgrep -h "###" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/###//'
-
 .PHONY: libpaths
-libpaths: ### Grab paths to Python and R libraries
+## Print out the library paths for Python and R libraries in conda
+libpaths:
 	@echo "Default conda site-packages paths for Python and R modules:"
 	@echo $(SITEPACKAGES)
 	@echo $(SITEPACKAGESR)
@@ -70,12 +47,11 @@ libpaths: ### Grab paths to Python and R libraries
 # Clone minos git in. (contains this makefile)
 # git clone https://github.com/Leeds-MRG/Minos
 
-##########
-## Install
-##########
+
+#-------------- INSTALL --------------#
 
 # Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
-install: ### Install Minos and requirements (all except vivarium removed to conda env file)
+## Install Minos and requirements (all except vivarium removed to conda env file)
 install: $(SITEPACKAGES)/vivarium/__init__.py
 
 $(SITEPACKAGES)/vivarium/__init__.py:
@@ -88,21 +64,21 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 	@sed -i.backup 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
 	@echo "\nInstall complete!\n"
 
-#####################################
-### SETUP
-#####################################
 
-setup: ### Setup target to prepare everything required for simulation.
-### Runs install, prepares input data, estimates transition models, and generates input populations
+#-------------- SETUP --------------#
+
+## Prepare everything required for simulation.
+## Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions replenishing_data
 
+## Prepare everything for Scottish simulation
 scot_setup: install scot_data scot_transitions scot_replenishing
 
+## Prepare everything for Cross-validation
 cv_setup: install cv_data cv_transitions cv_replenishing
 
-#####################################
-### ADDITIONAL MAKEFILES
-#####################################
+
+#-------------- ADDITIONAL MAKEFILES --------------#
 
 include minos/data_generation/Makefile # data generation Makefile. files paths need fixing do later.
 include minos/transitions/Makefile # transitions Makefile
