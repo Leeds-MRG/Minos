@@ -98,9 +98,9 @@ class S7Housing(Base):
         housing_prob_df.index = housing_prob_df.index.astype(int)
 
         # convert numeric prediction into string factors (low, medium, high)
-        housing_factor_dict = {1: 'Low',
-                               2: 'Medium',
-                               3: 'High'}
+        housing_factor_dict = {1: 'No to all',
+                               2: 'Yes to some',
+                               3: 'Yes to all'}
         housing_prob_df.replace({'S7_housing_quality': housing_factor_dict},
                                 inplace=True)
 

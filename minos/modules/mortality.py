@@ -15,8 +15,8 @@ from vivarium.framework.utilities import rate_to_probability
 from minos.RateTables.MortalityRateTable import MortalityRateTable
 from minos.modules.base_module import Base
 
-class Mortality(Base):
 
+class Mortality(Base):
 
     # vivarium does allow for use of __init__ so use pre_setup instead.
     def pre_setup(self, config, simulation):
@@ -48,7 +48,6 @@ class Mortality(Base):
         simulation._data.write("cause.all_causes.cause_specific_mortality_rate",
                                asfr_mortality.rate_table)
         return simulation
-
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -100,7 +99,6 @@ class Mortality(Base):
         # No point becoming depressed if you're dead.
         builder.event.register_listener('time_step', self.on_time_step, priority=1)
 
-
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added.
 
@@ -120,7 +118,6 @@ class Mortality(Base):
                                    'exit_time': pd.NaT},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
-
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -152,7 +149,6 @@ class Mortality(Base):
             dead_pop['years_of_life_lost'] = self.life_expectancy(dead_pop.index) - pop.loc[dead_pop.index]['age']
             self.population_view.update(dead_pop[['alive', 'exit_time', 'cause_of_death', 'years_of_life_lost']])
 
-
     def calculate_mortality_rate(self, index):
         """ Calculate the rate of death for each individual.
 
@@ -170,12 +166,10 @@ class Mortality(Base):
         final_mortality_rates = pd.DataFrame({'all_causes': mortality_rate})
         return final_mortality_rates
 
-
     # Special methods used by vivarium.
     @property
     def name(self):
         return 'mortality'
-
 
     def __repr__(self):
         return "Mortality()"
