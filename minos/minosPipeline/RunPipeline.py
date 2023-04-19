@@ -40,6 +40,40 @@ from minos.modules.intervention import energyDownlift
 from minos.outcomes.minos_distribution_visualisation import *
 
 
+components_map = {
+    # Outcome module.
+    "MWB()": MWB(),
+    # Intermediary modules
+    "Tobacco()": Tobacco(),
+    "Alcohol()": Alcohol(),
+    "Neighbourhood()": Neighbourhood(),
+    "Labour()": Labour(),
+    "Housing()": Housing(),
+    "Income()": Income(),
+    "Loneliness()": Loneliness(),
+    "Nutrition()": Nutrition(),
+    "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
+    "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
+    "Mortality()": Mortality(),
+    "Education()": Education(),
+}
+
+intervention_components_map = {  # Interventions
+    "hhIncomeIntervention": hhIncomeIntervention(),
+    "hhIncomeChildUplift": hhIncomeChildUplift(),
+    "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
+    "livingWageIntervention": livingWageIntervention(),
+    "energyDownlift": energyDownlift()
+}
+
+replenishment_components_map = {
+    "Replenishment()": Replenishment(),
+    "NoReplenishment()": NoReplenishment(),
+    "ReplenishmentNowcast()": ReplenishmentNowcast(),
+    "ReplenishmentScotland()": ReplenishmentScotland(),
+}
+
+
 def validate_components(config_components, intervention):
     """
 
@@ -60,38 +94,38 @@ def validate_components(config_components, intervention):
     # last one in first one off. any module that requires another should be BELOW IT in this order.
     # Note priority in vivarium modules supercedes this. two
     # Outcome module goes first (last in sim)
-    components_map = {
-        # Outcome module.
-        "MWB()": MWB(),
-        #Intermediary modules
-        "Tobacco()": Tobacco(),
-        "Alcohol()": Alcohol(),
-        "Neighbourhood()": Neighbourhood(),
-        "Labour()": Labour(),
-        "Housing()": Housing(),
-        "Income()": Income(),
-        "Loneliness()": Loneliness(),
-        "Nutrition()": Nutrition(),
-        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
-        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
-        "Mortality()": Mortality(),
-        "Education()": Education(),
-    }
-
-    intervention_components_map = {        #Interventions
-        "hhIncomeIntervention": hhIncomeIntervention(),
-        "hhIncomeChildUplift": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift()
-    }
-
-    replenishment_components_map = {
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
-    }
+    # components_map = {
+    #     # Outcome module.
+    #     "MWB()": MWB(),
+    #     #Intermediary modules
+    #     "Tobacco()": Tobacco(),
+    #     "Alcohol()": Alcohol(),
+    #     "Neighbourhood()": Neighbourhood(),
+    #     "Labour()": Labour(),
+    #     "Housing()": Housing(),
+    #     "Income()": Income(),
+    #     "Loneliness()": Loneliness(),
+    #     "Nutrition()": Nutrition(),
+    #     "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
+    #     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
+    #     "Mortality()": Mortality(),
+    #     "Education()": Education(),
+    # }
+    #
+    # intervention_components_map = {        #Interventions
+    #     "hhIncomeIntervention": hhIncomeIntervention(),
+    #     "hhIncomeChildUplift": hhIncomeChildUplift(),
+    #     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
+    #     "livingWageIntervention": livingWageIntervention(),
+    #     "energyDownlift": energyDownlift()
+    # }
+    #
+    # replenishment_components_map = {
+    #     "Replenishment()": Replenishment(),
+    #     "NoReplenishment()": NoReplenishment(),
+    #     "ReplenishmentNowcast()": ReplenishmentNowcast(),
+    #     "ReplenishmentScotland()": ReplenishmentScotland(),
+    # }
 
     component_list = []
     replenishment_component = []
@@ -102,7 +136,7 @@ def validate_components(config_components, intervention):
         elif component in replenishment_components_map.keys():
             replenishment_component.append(replenishment_components_map[component])
         else:
-            print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
+            print("Warning! Component", component, "in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
 
     if intervention in intervention_components_map.keys():
         # add intervention components.
