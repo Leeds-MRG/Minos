@@ -105,6 +105,17 @@ def make_uniform_pop_data(age_bin_midpoint=False):
 REPLACEMENTS_DEFAULT = {"\n": "\n"} # i.e. do nothing
 
 
+def get_nearest(reference_list, value):
+    # HR 17/04/23 To grab nearest value in list of integers
+    if value in reference_list:
+        nearest = value
+    elif value < min(reference_list):
+        nearest = min(reference_list)
+    elif value > max(reference_list):
+        nearest = max(reference_list)
+    return nearest
+
+
 def replace_text(input_text, replacements=REPLACEMENTS_DEFAULT):
     num_rep = len(replacements)
     print('++ Total replacements:', num_rep)
