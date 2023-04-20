@@ -1,0 +1,88 @@
+---
+title: "Equivalent Income"
+output: html_notebook
+---
+
+
+This notebook will visualise the new equivalent income outcome, and do some comparisons to hh_income and potentially also some validation using values from the original spreadsheet created by Chris Wu (where it was first derived).
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source('Minos/minos/validation/utils.r')
+```
+
+# Data
+
+```{r}
+# set output path to SIPHER 7 experiment out
+out.path <- 'Minos/output/SIPHER7/'
+# read all files into dataframe (util function handles runtime subdirectory etc.)
+base.dat <- read_output(out.path, 'baseline')
+```
+
+# Visualise
+
+## Simple Lineplot
+
+Currently the calculation only happens at the end of a timestep, so the value is 0 in the first year.
+
+```{r}
+base.subset <- base.dat %>%
+  select(pidp, hidp, time, age, weight, hh_income, equivalent_income, starts_with('S7_'), loneliness) %>%
+  group_by(time) %>%
+  summarise(mean_household_income = weighted.mean(hh_income, w = weight, na.rm=TRUE),
+            mean_equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm=TRUE),
+            sd_household_income = sd(hh_income, na.rm=TRUE),
+            sd_equivalent_income = sd(equivalent_income, na.rm=TRUE)) %>%
+  pivot_longer(cols = mean_household_income:sd_equivalent_income,
+               names_sep = '_',
+               names_to = c('stat', 'var'),
+               values_to = 'value')
+
+## Not ideal pivot_longer as it cuts off everything after the second underscore, however we can still work with it
+```
+
+
+```{r}
+base.subset2 <- base.subset %>%
+  pivot_wider(names_from = 'stat') %>%
+  filter(time > 2020)
+```
+
+Now visualise.
+
+```{r}
+ggplot(data = base.subset2, aes(x = time, y = mean, group = var, color = var)) +
+  geom_line() +
+  xlab('Year') +
+  ylab('Mean income (£s)') +
+  ggtitle('Comparison of Household Income to Equivalent Income')
+```
+
+```{r}
+ggplot(data = base.subset2, aes(x = time, y = mean, group = var, color = var)) +
+  geom_line() +
+  geom_ribbon(aes(y = mean, ymin = mean - sd, ymax = mean + sd, fill = var), alpha = .2) +
+  xlab('Year') +
+  ylab('Mean income (£s)') +
+  ggtitle('Comparison of Household Income to Equivalent Income (with sd)')
+```
+
+## 
+
+
+
+
+
+

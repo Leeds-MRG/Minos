@@ -132,4 +132,3 @@ yearly_box_plots(pivoted.df = sf12.pivoted,
 ```{r}
 
 ```
-
