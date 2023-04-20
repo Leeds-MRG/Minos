@@ -91,7 +91,7 @@ def get_priorities():
     component_priorities.update({el:3 for el in intervention_components_map})
     everything_else = [el for el in list(components_map) if el not in list(component_priorities)]
     component_priorities.update({el:4 for el in everything_else})
-    [print(str(el)) for el in component_priorities.items()]
+    # [print(str(el)) for el in component_priorities.items()]
     return component_priorities, all_components_map
 
 
