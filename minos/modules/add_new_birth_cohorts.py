@@ -123,7 +123,7 @@ class FertilityAgeSpecificRates(Base):
         #    tracking metrics.
         # Do the naive thing, set so all women can have children
         # and none of them have had a child in the last year.
-        # TODO: alter this so newborns cant have children. It's wierd.
+        # TODO: alter this so newborns cant have children. It's weird.
         pop_update.loc[women, 'last_birth_time'] = pop_data.creation_time - pd.Timedelta(days=utilities.DAYS_PER_YEAR)
         # add new columns to population frame.
         self.population_view.update(pop_update)
@@ -293,7 +293,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         """
         # Get a view on all living people.
         population = self.population_view.get(event.index, query='alive == "alive"')
-        # not needed due to yearly incremenents.
+        # not needed due to yearly increments.
         #nine_months_ago = pd.Timestamp(event.time - PREGNANCY_DURATION)
         #can_have_children = population.last_birth_time < nine_months_ago
         #eligible_women = population[can_have_children]
@@ -303,7 +303,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         rate_series = self.fertility_rate(who_women)
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
-        # find everyone in a household who has had children by hidp and incremement nkids by 1.
+        # find everyone in a household who has had children by hidp and increment nkids by 1.
         had_children_hidps = population.loc[had_children, 'hidp']
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index
         population.loc[who_had_children_households, 'nkids'] += 1
