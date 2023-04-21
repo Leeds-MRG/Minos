@@ -14,7 +14,7 @@ Compress LAD rate tables into regional rate tables.
 """
 
 import pandas as pd
-from US_utils import load_json
+from minos.data_generation.US_utils import load_json
 import os
 from os.path import dirname as up
 from minos.utils import get_nearest
@@ -232,3 +232,5 @@ if __name__ == "__main__":
     ## Testing...
     # cache_fertility_by_region(year_range=[2011,2013], by_region=False)
     # cache_mortality_by_region(year_range=[2011,2013], by_region=False)
+    # cache_fertility_by_region()
+    # cache_mortality_by_region()
