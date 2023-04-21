@@ -2,7 +2,7 @@ randomness:
     key_columns: ['entrance_time', 'age']
 time:
     start: {year: 2020, month: 10, day: 15}
-    end:   {year: 2038, month: 10, day: 15}
+    end:   {year: 2023, month: 10, day: 15}
     step_size: 365.25  # Days
     num_years: 18
 population:
@@ -10,7 +10,9 @@ population:
     age_end: 100
 
 mortality_file: 'regional_mortality_2011_2061.csv'
-fertility_file: 'regional_Fertility_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+#mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
+#fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
 
 input_data_dir: "data/final_US"
 persistent_data_dir: "persistent_data"
