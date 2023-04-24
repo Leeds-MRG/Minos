@@ -19,9 +19,9 @@ class MortalityRateTable(BaseHandler):
         try:
             print("Trying to load from source file...")
             df = pd.read_csv(self.source_file)
-        except Exception as e:
-            print("Couldn't load from source file, exception follows")
-            print(e)
+        except FileNotFoundError as e:
+            print("Couldn't load from source file")
+            print("\n", e, "\n")
             print("Creating source file from primary data...")
             dump_path = cache_mortality_by_region()
             if dump_path:

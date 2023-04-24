@@ -175,25 +175,33 @@ def cache_fertility_by_region(stubs=FERT_STUBS,
                               output_prefix="regional_fertility_",
                               output_folder=PERSISTENT_DATA_DIR):
 
-    df, year_range_out = compile_years(stubs=stubs,
-                                       input_dir=input_dir,
-                                       year_range=year_range,
-                                       by_region=by_region)
+    # Grab all NewEthPop data and cache
+    try:
+        print("Trying to parse and cache intermediate fertility data to folder:", output_folder, "...")
+        df, year_range_out = compile_years(stubs=stubs,
+                                           input_dir=input_dir,
+                                           year_range=year_range,
+                                           by_region=by_region)
+
+    except FileNotFoundError as e:
+        print("Could not find NewEthPop data")
+        print("If you do not have the NewEthPop fertility data, download it from the following link and copy the folder to persistent_data/:")
+        print("https: // reshare.ukdataservice.ac.uk / 852508 /")
+        print("\n", e, "\n")
+        return None
 
     # Cache to CSV
     out_filename = output_prefix + str(year_range_out[0]) + "_" + str(year_range_out[1]) + ".csv"
     out_fullpath = os.path.join(output_folder, out_filename)
     print("Caching intermediate fertility data for year range", year_range_out, "to:", out_fullpath, "...")
-    try:
-        df.to_csv(out_fullpath, index=True)
-        print("Done")
-        return out_fullpath
-    except Exception as e:
-        print("Could not cache file, exception follows")
-        print(e)
-        print("If you do not have the NewEthPop mortality data, download it from the following link and copy the folder to persistent_data/:")
-        print("https: // reshare.ukdataservice.ac.uk / 852508 /")
-        return None
+    print("Year range may differ from those specified according to the degree of overlap with NewEthPop data")
+
+    if not os.path.exists(output_folder):
+        print("Output folder not present, creating...")
+        os.makedirs(output_folder)
+    df.to_csv(out_fullpath, index=True)
+    print("Done")
+    return out_fullpath
 
 
 # HR 19/04/23 Caching here so can be called from elsewhere
@@ -204,25 +212,33 @@ def cache_mortality_by_region(stubs=MORT_STUBS,
                               output_prefix="regional_mortality_",
                               output_folder=PERSISTENT_DATA_DIR):
 
-    df, year_range_out = compile_years(stubs=stubs,
-                                       input_dir=input_dir,
-                                       year_range=year_range,
-                                       by_region=by_region)
+    # Grab all NewEthPop data and cache
+    try:
+        print("Trying to parse and cache intermediate mortality data to folder:", output_folder, "...")
+        df, year_range_out = compile_years(stubs=stubs,
+                                           input_dir=input_dir,
+                                           year_range=year_range,
+                                           by_region=by_region)
+
+    except FileNotFoundError as e:
+        print("Could not find NewEthPop data")
+        print("If you do not have the NewEthPop mortality data, download it from the following link and copy the folder to persistent_data/:")
+        print("https: // reshare.ukdataservice.ac.uk / 852508 /")
+        print("\n", e, "\n")
+        return None
 
     # Cache to CSV
     out_filename = output_prefix + str(year_range_out[0]) + "_" + str(year_range_out[1]) + ".csv"
     out_fullpath = os.path.join(output_folder, out_filename)
     print("Caching intermediate mortality data for year range", year_range_out, "to:", out_fullpath, "...")
-    try:
-        df.to_csv(out_fullpath, index=True)
-        print("Done")
-        return out_fullpath
-    except Exception as e:
-        print("Could not cache file, exception follows")
-        print(e)
-        print("If you do not have the NewEthPop mortality data, download it from the following link and copy the folder to persistent_data/:")
-        print("https: // reshare.ukdataservice.ac.uk / 852508 /")
-        return None
+    print("Year range may differ from those specified according to the degree of overlap with NewEthPop data")
+
+    if not os.path.exists(output_folder):
+        print("Output folder not present, creating...")
+        os.makedirs(output_folder)
+    df.to_csv(out_fullpath, index=True)
+    print("Done")
+    return out_fullpath
 
 
 if __name__ == "__main__":
