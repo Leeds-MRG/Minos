@@ -63,7 +63,7 @@ all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLin
 
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
-all_scot_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 #####################################
 ## Running MINOS scenarios on Arc4
@@ -71,7 +71,7 @@ all_scot_scenarios: baseline intervention_hhIncomeChildUplift intervention_Pover
 
 .phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
 .phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
-.phony: arc4_all_scenarios arc4_all_scot_scenarios
+.phony: arc4_all_scenarios arc4_all_scot_scenarios arc4_cv_baseline
 
 arc4_baseline: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
@@ -98,6 +98,9 @@ arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_h
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+
+arc4_cv_baseline: cv_setup
+	$(PYTHON) scripts/arc_submit.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
