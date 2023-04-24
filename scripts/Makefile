@@ -39,7 +39,7 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
-baseline_default: setup
+baseline_default:
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config
 
 intervention_hhIncome: setup

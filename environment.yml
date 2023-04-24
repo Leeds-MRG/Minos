@@ -18,6 +18,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-sp
   - r-texreg
   - r-shadowtext
+  - r-bestNormalize
   - pandoc
   - sphinx
   - myst-parser

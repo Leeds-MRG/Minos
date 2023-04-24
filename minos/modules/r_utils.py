@@ -37,11 +37,10 @@ def load_transitions(component, rpy2_modules, path='data/transitions/'):
     return model
 
 
-def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
+def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform=False):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
-
     Parameters
     ----------
     model : R rds object
@@ -50,7 +49,6 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
         View including columns that are required for prediction
     dependent : str
         The independent variable we are trying to predict
-
     Returns:
     -------
     A prediction of the information for next timestep
@@ -64,17 +62,29 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
         currentRDF = ro.conversion.py2rpy(current)
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
-    prediction = stats.predict(model, currentRDF)
-    newRPopDF = base.cbind(currentRDF, predicted=prediction)
+    prediction = stats.predict(model, newdata=currentRDF)
+    if transform:
+        # Inverse yeojohnson transform.
+        # Stored in estimate_transitions.R.
+        # Note inverse=True arg is needed to get back to actual gross income.
+        yj = model.rx2('transform')
+        prediction = stats.predict(yj, newdata=prediction, inverse=True)
+
+    newRPopDF = base.cbind(currentRDF, predicted = prediction)
+
+
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
 
     # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    #newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
-    return newPandasPopDF[[dependent]]
+    output =  newPandasPopDF[dependent]
+    if transform:
+        output = output.clip(0, 150000)
+    return output
 
 
 def predict_next_timestep_clm(model, rpy2modules, current, dependent):

@@ -148,7 +148,8 @@ def RunPipeline(config, intervention=None):
                     "stats": importr('stats'),
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "zeroinfl": importr("pscl"),
+                    "best_normalise": importr("bestNormalize")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
