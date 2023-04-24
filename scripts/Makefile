@@ -100,7 +100,7 @@ arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
 arc4_cv_baseline: cv_setup
-	$(PYTHON) scripts/arc_submit.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
+	$(PYTHON) scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
