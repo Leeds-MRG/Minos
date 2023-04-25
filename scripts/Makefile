@@ -63,7 +63,7 @@ all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLin
 
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
-all_scot_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 #####################################
 ## Running MINOS scenarios on Arc4

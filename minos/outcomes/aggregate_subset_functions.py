@@ -16,6 +16,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
                     "who_below_living_wage": [who_alive, who_below_living_wage],
                     "who_kids": [who_alive, who_kids],
                     "who_below_poverty_line_and_kids": [who_alive, who_kids, who_below_poverty_line],
+                    "who_scottish": [who_alive, who_scottish],
                     #"who_bottom_income_quintile": who_bottom_income_quintile,
                     # Scottish gov sgugested vulnerable subgroups.
                     "who_disabled": [who_alive, who_kids, who_disabled],
