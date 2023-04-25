@@ -56,7 +56,7 @@ digest_params <- function(line) {
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
   
   if (transform){
-    yj <-  yeojohnson(data[, c(depend)], standardize=FALSE)
+    yj <-  yeojohnson(data[, c(depend)], standardize=TRUE)
     data[, c(depend)] <- predict(yj)
   }
   

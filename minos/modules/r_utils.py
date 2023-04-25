@@ -68,7 +68,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
         # Stored in estimate_transitions.R.
         # Note inverse=True arg is needed to get back to actual gross income.
         yj = model.rx2('transform') # use yj from fitted model for latest year.
-        #yj = bn.yeojohnson(currentRDF.rx2(dependent), standardize=True) # fit yj to current MINOS data. skews hard over time due to underdispersion. 
+        #yj = bn.yeojohnson(currentRDF.rx2(dependent), standardize=True) # fit yj to current MINOS data. skews hard over time due to underdispersion.
         currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
         ols_data = stats.predict(model, newdata=currentRDF)  # estimate next income using OLS.
         prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
