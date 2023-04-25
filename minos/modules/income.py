@@ -9,6 +9,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
+import numpy as np
 
 class Income(Base):
 
@@ -91,11 +92,12 @@ class Income(Base):
         self.year = event.time.year
 
         ## Predict next income value
-        newWaveIncome = self.calculate_income(pop)
-        newWaveIncome = pd.DataFrame(newWaveIncome, columns=["hh_income"])
+        newWaveIncome = pd.DataFrame(self.calculate_income(pop))
+        newWaveIncome.columns = ['hh_income']
+        #newWaveIncome = pd.DataFrame(newWaveIncome, columns=["hh_income"])
         # Set index type to int (instead of object as previous)
-        newWaveIncome.index = newWaveIncome.index.astype(int)
-
+        newWaveIncome.index = pop.index
+        print(np.nanmean(newWaveIncome['hh_income']))
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         self.population_view.update(newWaveIncome['hh_income'])

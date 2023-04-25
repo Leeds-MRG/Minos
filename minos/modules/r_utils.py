@@ -56,32 +56,36 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
+    bn = rpy2_modules['best_normalise']
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
-    prediction = stats.predict(model, newdata=currentRDF)
     if transform:
         # Inverse yeojohnson transform.
         # Stored in estimate_transitions.R.
         # Note inverse=True arg is needed to get back to actual gross income.
-        yj = model.rx2('transform')
-        prediction = stats.predict(yj, newdata=prediction, inverse=True)
+        yj = model.rx2('transform') # use yj from fitted model for latest year.
+        #yj = bn.yeojohnson(currentRDF.rx2(dependent), standardize=True) # fit yj to current MINOS data. skews hard over time due to underdispersion. 
+        currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
+        ols_data = stats.predict(model, newdata=currentRDF)  # estimate next income using OLS.
+        prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
+    else:
+        prediction = stats.predict(model, newdata=currentRDF)
 
-    newRPopDF = base.cbind(currentRDF, predicted = prediction)
-
+    newRPopDF = base.cbind(currentRDF, predicted=prediction)
 
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
 
     # Now rename the predicted var (have to drop original column first)
-    #newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    # newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    # newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
-    output =  newPandasPopDF[dependent]
+    output = newPandasPopDF["predicted"]
     if transform:
         output = output.clip(0, 150000)
     return output
@@ -153,8 +157,8 @@ def predict_nnet(model, rpy2Modules, current, columns):
     """
     # import R packages
     base = rpy2Modules['base']
-    stats =  rpy2Modules['stats']
-    nnet =  rpy2Modules['nnet']
+    stats = rpy2Modules['stats']
+    nnet = rpy2Modules['nnet']
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -199,7 +203,6 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     # zero determine probability of them not drinking
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
-
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         counts = ro.conversion.rpy2py(counts)
