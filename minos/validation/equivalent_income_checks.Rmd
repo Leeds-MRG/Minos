@@ -79,7 +79,49 @@ ggplot(data = base.subset2, aes(x = time, y = mean, group = var, color = var)) +
   ggtitle('Comparison of Household Income to Equivalent Income (with sd)')
 ```
 
-## 
+## Adapting Chris' Spreadsheet
+
+```{r}
+# Want to remove the one-hot encoding but finding it very difficult in Python
+
+df <- read_excel(path = 'EI_calculation.xlsx')
+```
+
+
+```{r}
+df2 <- df %>%
+  pivot_longer(cols = phy1:lone3,
+               names_to = 'variable',
+               values_to = 'level')
+```
+
+
+```{r}
+df3 <- df %>%
+  pivot_longer(cols = -c(pidp, i_hidp, dis_hcost, hh_size, Yc, EI)) %>%
+  filter(value > 0) %>%
+  mutate(level = readr::parse_number(as.character(name)))
+
+df3$name <- gsub("\\d+", "", df3$name)
+
+df3 <- df3 %>% 
+  select(-value) %>%
+  pivot_wider(names_from = 'name',
+              values_from = 'level') %>%
+  rename(S7_physical_health = phy,
+         S7_mental_health = men,
+         loneliness = lone,
+         S7_labour_state = em,
+         S7_housing_quality = hous,
+         S7_neighbourhood_safety = safe) %>%
+  
+
+write.csv(df3, 
+          file = '/home/luke/Documents/WORK/MINOS/EI_calc_prepared.csv')
+
+```
+
+
 
 
 
