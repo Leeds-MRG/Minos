@@ -138,6 +138,54 @@ This isn't a good outcome... We have absolutely tiny numbers of people in both t
 Going to go down a different route before I functionalise all the above code. I'm going to try to produce the plot that is associated with the Lord's paradox. I don't know the name of it so it might be quite difficult but we'll have a go with ggplot and ggextra.
 
 ```{r}
+# FUNCTION
+SF12_marg_dist_denigram_plot <- function(base, 
+                                         int, 
+                                         int.name, 
+                                         target.year = 2035,
+                                         save = FALSE,
+                                         path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
+  # get just one year
+  b.start <- base %>% filter(time == 2020, SF_12 != -8.0)
+  b.end <- base %>% filter(time == target.year, SF_12 != -8.0)
+  i.end <- int %>% filter(time == target.year, SF_12 != -8.0)
+  # get just the SF12 columns and rename for later
+  b.start <- b.start %>% select(pidp, SF_12) %>% rename(initial = SF_12)
+  b.end <- b.end %>% select(pidp, SF_12) %>% rename(end = SF_12)
+  i.end <- i.end %>% select(pidp, SF_12) %>% rename(end = SF_12)
+  
+  # combine before we plot
+  b.end$scen <- 'baseline'
+  i.end$scen <- int.name
+  combined <- rbind(b.end, i.end)
+  
+  # now merge with initial
+  merged <- merge(b.start, combined, by = 'pidp')
+  
+  p <- ggplot(data = merged, aes(x = initial, y = end, group = scen, color = scen)) +
+    geom_point(alpha = 0.6, size=0.1) +
+    geom_smooth() +
+    theme(legend.position = c(0.15, 0.9))
+  
+  p1 <- ggMarginal(p, type='densigram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+  p1
+  
+  plot.name <- paste0('scatter_marg_densigram_', int.name, '.png')
+  
+  if(save) {
+    ggsave(filename = plot.name,
+           plot = p1,
+           path = path)
+  }
+  
+  print(p1)
+  
+  return(p1)
+}
+```
+
+
+```{r}
 out.path <- 'Minos/output/default_config/'
 
 base <- read_singular_local_out(out.path, 'baseline')
@@ -205,6 +253,35 @@ ggsave(filename = 'scatter_marg_densigram_energy.png',
 ```
 
 ```{r}
+# Test out the new function above
+base <- read_singular_local_out(out.path, 'baseline')
+livWage <- read_singular_local_out(out.path, 'livingWageIntervention')
+energy <- read_singular_local_out(out.path, 'energyDownlift')
+poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift')
+allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift')
+```
 
+
+```{r}
+p.livWage <- SF12_marg_dist_denigram_plot(base, 
+                                        livWage, 
+                                        int.name = 'Living Wage',
+                                        target.year = 2030,
+                                        save=TRUE)
+p.energy <- SF12_marg_dist_denigram_plot(base, 
+                                        energy, 
+                                        int.name = 'Energy Downlift',
+                                        target.year = 2030,
+                                        save=TRUE)
+p.poverty <- SF12_marg_dist_denigram_plot(base, 
+                                        poverty, 
+                                        int.name = 'Poverty Child Uplift',
+                                        target.year = 2030,
+                                        save=TRUE)
+p.allchild <- SF12_marg_dist_denigram_plot(base, 
+                                        allchild, 
+                                        int.name = 'Child Uplift',
+                                        target.year = 2030,
+                                        save=TRUE)
 ```
 
