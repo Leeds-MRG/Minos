@@ -141,7 +141,8 @@ Going to go down a different route before I functionalise all the above code. I'
 out.path <- 'Minos/output/default_config/'
 
 base <- read_singular_local_out(out.path, 'baseline')
-int <- read_singular_local_out(out.path, 'livingWageIntervention')
+#int <- read_singular_local_out(out.path, 'livingWageIntervention')
+int <- read_singular_local_out(out.path, 'energyDownlift')
 ```
 
 ```{r}
@@ -163,7 +164,7 @@ i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
 ```{r}
 # combine before we plot
 b.2030$scen <- 'baseline'
-i.2030$scen <- 'living_wage'
+i.2030$scen <- 'energyDownlift'
 
 #combined <- merge(b.2030, i.2030, by = 'pidp')
 combined <- rbind(b.2030, i.2030)
@@ -174,20 +175,36 @@ merged <- merge(b.2020, combined, by = 'pidp')
 
 ```{r}
 p <- ggplot(data = merged, aes(x = initial, y = end, group = scen, color = scen)) +
-  geom_point() +
+  geom_point(alpha = 0.6, size=0.1) +
+  geom_smooth() +
   theme(legend.position = c(0.15, 0.9))
 
 p1 <- ggMarginal(p, type='density', groupColour = TRUE)
 p1
+
+ggsave(filename = 'scatter_marg_dens_energy.png',
+       plot = p1,
+       path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/')
 ```
 
 ```{r}
 p2 <- ggMarginal(p, type='histogram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
 p2
+
+ggsave(filename = 'scatter_marg_hist_energy.png',
+       plot = p2,
+       path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/')
 ```
 
 ```{r}
 p3 <- ggMarginal(p, type='densigram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
 p3
+ggsave(filename = 'scatter_marg_densigram_energy.png',
+       plot = p3,
+       path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/')
+```
+
+```{r}
+
 ```
 
