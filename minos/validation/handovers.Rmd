@@ -22,7 +22,7 @@ rm(workingDir)
 Source utils for some functions.
 
 ```{r}
-source('Minos/minos/validation/utils.r')
+source('Minos/minos/utils_datain.R')
 ```
 
 ## Data
@@ -33,7 +33,7 @@ raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', 
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
 out.path <- 'Minos/output/default_config/'
-base.dat <- read_output(out.path, 'baseline')
+base.dat <- read_singular_local_out(out.path, 'baseline')
 ```
 
 ## Constants

@@ -1,0 +1,193 @@
+---
+title: "Standard Deviation Outcome Change - DEVELOPMENT"
+output: html_notebook
+---
+
+In this notebook, we will attempt to create a new outcome metric to replace the current metric, which is mean change in SF12. The current metric is difficult to interpret, as we currently have no way to map SF12 to a tangible thing (eventually we should be able to map SF12 changes to QALE's, but this requires properly including SF12 PCS to the model which requires additional modules / pathway changes).
+
+The idea behind this new metric is to count the number of respondents that have a change in SF12 greater than 1 standard deviation, in either direction. We should be able to justify that a change of more than 1 SD is a significant change, and therefore we will have the number of people who had a significant positive response, those who had a significant negative response, and those who had no significant response. 
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(ggExtra)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source('Minos/minos/utils_datain.R')
+```
+
+# DATA
+
+For the prototyping phase, we can develop the outcome metric using non-batch runs. We only need 1 baseline run and 1 intervention run for now. To start with therefore, I will use baseline and living wage intervention.
+
+```{r}
+out.path <- 'Minos/output/default_config/'
+
+base <- read_singular_local_out(out.path, 'baseline')
+int <- read_singular_local_out(out.path, 'livingWageIntervention')
+```
+
+
+# BEGIN
+
+Right, what we want to do is calculate the difference in SF12 between individuals in each scenario. This calculation will have to happen in each year, and then we can calculate the standard deviation of SF12 in the baseline case for each year. After that, we create a simple ordinal variable to determine whether someone has had a significant reduction, significant increase, or no significant change.
+
+STEPS:
+- [x] Calculate difference in SF12 between individuals in both scenarios for every year
+- [x] Calculate standard deviation for SF12 in the baseline outputs for each year
+- [ ] Calculate increase, decrease, or no change
+- [ ] Plot
+
+```{r}
+# Calculate difference in SF12 between individuals in both scenarios for every year
+base.subset <- base %>% 
+  select(pidp, time, SF_12) %>%
+  rename(SF12.base = SF_12)
+int.subset <- int %>% 
+  select(pidp, time, income_boosted, SF_12) %>%
+  rename(SF12.int = SF_12,
+         boosted = income_boosted)
+
+combined <- merge(base.subset, int.subset, by = c('pidp', 'time'))
+
+# IMPORTANT - Must remove the missing values (-8) in both original and intervention
+combined <- combined %>% filter(SF12.base != -8.0,
+                                SF12.int != -8.0)
+
+# calculate the difference
+combined$SF12.diff <- combined$SF12.int - combined$SF12.base
+
+# Now some quick checks
+checks <- combined %>%
+  group_by(time) %>%
+  summarise(n = n(),
+            increase = sum(SF12.diff > 0),
+            decrease = sum(SF12.diff < 0),
+            nochange = sum(SF12.diff == 0))
+
+print(checks)
+```
+
+Looks like we have a similar number of people seeing an increase or decrease in SF12. Maybe the numbers for an SD change will be more like what we would expect?
+
+```{r}
+# Calculate standard deviation for SF12 in the baseline outputs for each year
+# should be easy
+
+sd <- combined %>%
+  group_by(time) %>%
+  mutate(sd = sd(SF12.base))
+
+#print(sd$sd)
+
+sd <- sd(combined$SF12.base)
+
+print(sd)
+```
+
+```{r}
+c <- combined
+
+# Calculate increase, decrease, or no change
+combined$change[(abs(combined$SF12.diff) > sd) & (combined$SF12.diff > 0)] <- 'increase'
+combined$change[(abs(combined$SF12.diff) > sd) & (combined$SF12.diff < 0)] <- 'decrease'
+combined$change[combined$SF12.diff < sd] <- 'nochange'
+
+# THINK THERE IS A PROBLEM WITH THE CHECKS2 STUFF BELOW. 
+
+# checks
+# Now some quick checks
+checks2 <- combined %>%
+  group_by(time, boosted) %>%
+  summarise(n = n(),
+            increase = sum(combined$change == 'increase'),
+            decrease = sum(combined$change == 'decrease'),
+            nochange = sum(combined$change == 'nochange'))
+
+#print(checks2)
+```
+
+```{r}
+# Calculate increase, decrease, or no change
+c$increase <- (abs(c$SF12.diff) > sd) & (c$SF12.diff > 0)
+c$decrease <- (abs(c$SF12.diff) > sd) & (c$SF12.diff < 0)
+c$nochange <- !(abs(c$SF12.diff) > sd)
+
+c2 <- c %>%
+  group_by(time) %>%
+  summarise(increase = sum(increase),
+            decrease = sum(decrease),
+            nochange = sum(nochange))
+
+print(c2)
+write.csv(c2, file = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/std_dev_change_living_wage.csv')
+```
+
+This isn't a good outcome... We have absolutely tiny numbers of people in both the increase and decrease box, because 1 standard deviation is so large. It also looks as though we'll see roughly equal numbers of people moving up and down, but maybe the group that move up move slightly higher on average? And this causes the mean increase we see? Either way not so pretty.
+
+# Scatterplot w/ Marginal Distributions
+
+Going to go down a different route before I functionalise all the above code. I'm going to try to produce the plot that is associated with the Lord's paradox. I don't know the name of it so it might be quite difficult but we'll have a go with ggplot and ggextra.
+
+```{r}
+out.path <- 'Minos/output/default_config/'
+
+base <- read_singular_local_out(out.path, 'baseline')
+int <- read_singular_local_out(out.path, 'livingWageIntervention')
+```
+
+```{r}
+# get just one year
+b.2020 <- base %>% filter(time == 2020, SF_12 != -8.0)
+b.2030 <- base %>% filter(time == 2030, SF_12 != -8.0)
+i.2030 <- int %>% filter(time == 2030, SF_12 != -8.0)
+```
+
+```{r}
+# get just the SF12 columns
+#b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(baseline = SF_12)
+#i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(intervention = SF_12)
+b.2020 <- b.2020 %>% select(pidp, SF_12) %>% rename(initial = SF_12)
+b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
+i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
+```
+
+```{r}
+# combine before we plot
+b.2030$scen <- 'baseline'
+i.2030$scen <- 'living_wage'
+
+#combined <- merge(b.2030, i.2030, by = 'pidp')
+combined <- rbind(b.2030, i.2030)
+
+# now merge with initial
+merged <- merge(b.2020, combined, by = 'pidp')
+```
+
+```{r}
+p <- ggplot(data = merged, aes(x = initial, y = end, group = scen, color = scen)) +
+  geom_point() +
+  theme(legend.position = c(0.15, 0.9))
+
+p1 <- ggMarginal(p, type='density', groupColour = TRUE)
+p1
+```
+
+```{r}
+p2 <- ggMarginal(p, type='histogram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+p2
+```
+
+```{r}
+p3 <- ggMarginal(p, type='densigram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+p3
+```
+
