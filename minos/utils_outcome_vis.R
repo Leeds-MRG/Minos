@@ -21,7 +21,7 @@
 #       target.year - 'end' year to plot
 #       save - Binary, save or not
 #       save.path - path to directory in which to save the plots
-SF12_marg_dist_denigram_plot <- function(base, 
+SF12_marg_dist_densigram_plot <- function(base, 
                                          int, 
                                          int.name, 
                                          target.year = 2035,
@@ -53,6 +53,46 @@ SF12_marg_dist_denigram_plot <- function(base,
   p1
   
   plot.name <- paste0('scatter_marg_densigram_', int.name, '.png')
+  
+  if(save) {
+    ggsave(filename = plot.name,
+           plot = p1,
+           path = save.path)
+  }
+  
+  print(p1)
+  
+  return(p1)
+}
+
+
+# DOCSTRING HERE
+SF12_marg_dist_densigram_plot_oneyear <- function(base, 
+                                                  int,
+                                                  int.name,
+                                                  target.year = 2035,
+                                                  save = FALSE,
+                                                  save.path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
+  # get just one year
+  b.end <- base %>% filter(time == target.year, SF_12 != -8.0)
+  i.end <- int %>% filter(time == target.year, SF_12 != -8.0)
+  # get just the SF12 columns and rename for later
+  b.end <- b.end %>% select(pidp, SF_12) %>% rename(baseline = SF_12)
+  i.end <- i.end %>% select(pidp, SF_12) %>% rename(intervention = SF_12)
+  
+  # combine before we plot
+  combined <- merge(b.end, i.end, by = 'pidp')
+  
+  p <- ggplot(data = combined, aes(x = baseline, y = intervention)) +
+    geom_point(alpha = 0.6, size=0.1) +
+    geom_smooth() +
+    theme(legend.position = c(0.15, 0.9)) +
+    labs(title = paste0(int.name, ' - ', target.year))
+  
+  p1 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+  p1
+  
+  plot.name <- paste0('scatter_marg_densigram_', int.name, '_ONEYEAR.png')
   
   if(save) {
     ggsave(filename = plot.name,

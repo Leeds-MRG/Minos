@@ -22,6 +22,7 @@ rm(workingDir)
 
 ```{r, include=FALSE}
 source('Minos/minos/utils_datain.R')
+source('Minos/minos/utils_outcome_vis.R')
 ```
 
 # DATA
@@ -137,53 +138,7 @@ This isn't a good outcome... We have absolutely tiny numbers of people in both t
 
 Going to go down a different route before I functionalise all the above code. I'm going to try to produce the plot that is associated with the Lord's paradox. I don't know the name of it so it might be quite difficult but we'll have a go with ggplot and ggextra.
 
-```{r}
-# FUNCTION
-SF12_marg_dist_denigram_plot <- function(base, 
-                                         int, 
-                                         int.name, 
-                                         target.year = 2035,
-                                         save = FALSE,
-                                         path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
-  # get just one year
-  b.start <- base %>% filter(time == 2020, SF_12 != -8.0)
-  b.end <- base %>% filter(time == target.year, SF_12 != -8.0)
-  i.end <- int %>% filter(time == target.year, SF_12 != -8.0)
-  # get just the SF12 columns and rename for later
-  b.start <- b.start %>% select(pidp, SF_12) %>% rename(initial = SF_12)
-  b.end <- b.end %>% select(pidp, SF_12) %>% rename(end = SF_12)
-  i.end <- i.end %>% select(pidp, SF_12) %>% rename(end = SF_12)
-  
-  # combine before we plot
-  b.end$scen <- 'baseline'
-  i.end$scen <- int.name
-  combined <- rbind(b.end, i.end)
-  
-  # now merge with initial
-  merged <- merge(b.start, combined, by = 'pidp')
-  
-  p <- ggplot(data = merged, aes(x = initial, y = end, group = scen, color = scen)) +
-    geom_point(alpha = 0.6, size=0.1) +
-    geom_smooth() +
-    theme(legend.position = c(0.15, 0.9))
-  
-  p1 <- ggMarginal(p, type='densigram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
-  p1
-  
-  plot.name <- paste0('scatter_marg_densigram_', int.name, '.png')
-  
-  if(save) {
-    ggsave(filename = plot.name,
-           plot = p1,
-           path = path)
-  }
-  
-  print(p1)
-  
-  return(p1)
-}
-```
-
+## Workings
 
 ```{r}
 out.path <- 'Minos/output/default_config/'
@@ -195,48 +150,54 @@ int <- read_singular_local_out(out.path, 'energyDownlift')
 
 ```{r}
 # get just one year
-b.2020 <- base %>% filter(time == 2020, SF_12 != -8.0)
+#b.2020 <- base %>% filter(time == 2020, SF_12 != -8.0)
 b.2030 <- base %>% filter(time == 2030, SF_12 != -8.0)
 i.2030 <- int %>% filter(time == 2030, SF_12 != -8.0)
 ```
 
 ```{r}
 # get just the SF12 columns
-#b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(baseline = SF_12)
-#i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(intervention = SF_12)
-b.2020 <- b.2020 %>% select(pidp, SF_12) %>% rename(initial = SF_12)
-b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
-i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
+b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(baseline = SF_12)
+i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(intervention = SF_12)
+#b.2020 <- b.2020 %>% select(pidp, SF_12) %>% rename(initial = SF_12)
+#b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
+#i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
 ```
 
 ```{r}
 # combine before we plot
-b.2030$scen <- 'baseline'
-i.2030$scen <- 'energyDownlift'
+#b.2030$scen <- 'baseline'
+#i.2030$scen <- 'energyDownlift'
 
-#combined <- merge(b.2030, i.2030, by = 'pidp')
-combined <- rbind(b.2030, i.2030)
+combined <- merge(b.2030, i.2030, by = 'pidp')
+#combined <- rbind(b.2030, i.2030)
 
 # now merge with initial
-merged <- merge(b.2020, combined, by = 'pidp')
+#merged <- merge(b.2020, combined, by = 'pidp')
 ```
 
 ```{r}
-p <- ggplot(data = merged, aes(x = initial, y = end, group = scen, color = scen)) +
+p <- ggplot(data = combined, aes(x = baseline, y = intervention)) +
   geom_point(alpha = 0.6, size=0.1) +
   geom_smooth() +
   theme(legend.position = c(0.15, 0.9))
 
-p1 <- ggMarginal(p, type='density', groupColour = TRUE)
+p1 <- ggMarginal(p, type='density')
 p1
 
-ggsave(filename = 'scatter_marg_dens_energy.png',
-       plot = p1,
-       path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/')
+#ggsave(filename = 'scatter_marg_dens_energy.png',
+#       plot = p1,
+#       path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/')
+
+
+#p5 <- SF12_marg_dist_densigram_plot_oneyear(base,
+#                                           int,
+#                                           int.name = 'Energy Downlift',
+#                                           target.year = 2030)
 ```
 
 ```{r}
-p2 <- ggMarginal(p, type='histogram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+p2 <- ggMarginal(p, type='histogram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
 p2
 
 ggsave(filename = 'scatter_marg_hist_energy.png',
@@ -245,14 +206,17 @@ ggsave(filename = 'scatter_marg_hist_energy.png',
 ```
 
 ```{r}
-p3 <- ggMarginal(p, type='densigram', groupColour = TRUE, xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+p3 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
 p3
 ggsave(filename = 'scatter_marg_densigram_energy.png',
        plot = p3,
        path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/')
 ```
 
+## Testing
+
 ```{r}
+out.path <- 'Minos/output/default_config/'
 # Test out the new function above
 base <- read_singular_local_out(out.path, 'baseline')
 livWage <- read_singular_local_out(out.path, 'livingWageIntervention')
@@ -261,27 +225,61 @@ poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift')
 allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift')
 ```
 
+### Initial -> 2030
 
 ```{r}
-p.livWage <- SF12_marg_dist_denigram_plot(base, 
+p.livWage <- SF12_marg_dist_densigram_plot(base, 
                                         livWage, 
                                         int.name = 'Living Wage',
                                         target.year = 2030,
                                         save=TRUE)
-p.energy <- SF12_marg_dist_denigram_plot(base, 
+p.energy <- SF12_marg_dist_densigram_plot(base, 
                                         energy, 
                                         int.name = 'Energy Downlift',
                                         target.year = 2030,
                                         save=TRUE)
-p.poverty <- SF12_marg_dist_denigram_plot(base, 
+p.poverty <- SF12_marg_dist_densigram_plot(base, 
                                         poverty, 
                                         int.name = 'Poverty Child Uplift',
                                         target.year = 2030,
                                         save=TRUE)
-p.allchild <- SF12_marg_dist_denigram_plot(base, 
+p.allchild <- SF12_marg_dist_densigram_plot(base, 
                                         allchild, 
                                         int.name = 'Child Uplift',
                                         target.year = 2030,
                                         save=TRUE)
+```
+
+### Single Year
+
+```{r}
+p2.livWage <- SF12_marg_dist_densigram_plot_oneyear(base, 
+                                        livWage,
+                                        int.name = 'Living Wage',
+                                        target.year = 2030,
+                                        save=TRUE)
+p2.energy <- SF12_marg_dist_densigram_plot_oneyear(base, 
+                                        energy, 
+                                        int.name = 'Energy Downlift',
+                                        target.year = 2030,
+                                        save=TRUE)
+p2.poverty <- SF12_marg_dist_densigram_plot_oneyear(base, 
+                                        poverty, 
+                                        int.name = 'Poverty Child Uplift',
+                                        target.year = 2030,
+                                        save=TRUE)
+p2.allchild <- SF12_marg_dist_densigram_plot_oneyear(base, 
+                                        allchild, 
+                                        int.name = 'Child Uplift',
+                                        target.year = 2030,
+                                        save=TRUE)
+```
+
+
+
+
+
+```{r}
+
 ```
 
