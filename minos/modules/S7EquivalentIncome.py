@@ -79,23 +79,6 @@ class S7EquivalentIncome(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for equivalent income when new simulants are added.
-
-        Parameters
-        ----------
-            pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        """
-        # Create frame with new 3 columns and add it to the main population frame.
-        # This is the same for both new cohorts and newborn babies.
-        # Neither should be dead yet.
-        pop_update = pd.DataFrame({'equivalent_income': 0.0},
-                                  index=pop_data.index)
-        self.population_view.update(pop_update)
-
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
 

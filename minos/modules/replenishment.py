@@ -86,7 +86,8 @@ class Replenishment(Base):
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
-                        'S7_mental_health']
+                        'S7_mental_health',
+                        'equivalent_income']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

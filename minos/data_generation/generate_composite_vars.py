@@ -782,6 +782,7 @@ def calculate_equivalent_income(data):
     nextWaveIncome: pd.Series
         Vector of new household incomes from OLS prediction.
     """
+    print('Calculating equivalent income...')
     # This is a deterministic calculation based on the values from each of the SIPHER7 variables
     # Each level of each variable is assigned a weight, which are then used to modify the value for disposable
     # income to generate a value that is based on both the income and characteristics of a persons life
@@ -799,19 +800,37 @@ def calculate_equivalent_income(data):
         4: -0.116/1.282,
         3: -0.135/1.282,
         2: -0.479/1.282,
-        1: -0.837/1.282
+        1: -0.837/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
     }
     men_health_dict = {
         5: 0,
         4: -0.14/1.282,
         3: -0.215/1.282,
         2: -0.656/1.282,
-        1: -0.877/1.282
+        1: -0.877/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
     }
     loneliness_dict = {
         1: 0,
         2: -0.186/1.282,
-        3: -0.591/1.282
+        3: -0.591/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
     }
     employment_dict = {
         'FT Employed': 0,
@@ -819,17 +838,35 @@ def calculate_equivalent_income(data):
         'Job Seeking': -0.283/1.282,
         'FT Education': -0.184/1.282,
         'Family Care': -0.755/1.282,
-        'Not Working': -0.221/1.282
+        'Not Working': -0.221/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
     }
     housing_dict = {
         'Yes to all': 0,
         'Yes to some': -0.235/1.282,
-        'No to all': -0.696/1.282
+        'No to all': -0.696/1.282,
+        '-9': -1,
+        '-8': -1,
+        '-7': -1,
+        '-1': -1,
+        '-2': -1,
+        '-10': -1
     }
     nh_safety_dict = {
         'Hardly ever': 0,
         'Some of the time': -0.291/1.282,
-        'Often': -0.599/1.282
+        'Often': -0.599/1.282,
+        '-9': -1,
+        '-8': -1,
+        '-7': -1,
+        '-1': -1,
+        '-2': -1,
+        '-10': -1
     }
 
     # Now we add together weights for each factor level to generate the exponent term
@@ -844,6 +881,17 @@ def calculate_equivalent_income(data):
 
     # finally do the calculation for equivalent income (EI = income^EI_exp_term)
     data['equivalent_income'] = data['hh_income'] * np.exp(data['EI_exp_term'])
+
+    # If any of the variables involved are missing, then can't do calculation for equivalent income
+    # These people will be removed in complete_case anyway so not having a value here won't matter
+    var_list_num = ['S7_physical_health',
+                    'S7_mental_health',
+                    'loneliness']
+    var_list_str = ['S7_labour_state',
+                    'S7_housing_quality',
+                    'S7_neighbourhood_safety']
+    data['equivalent_income'][(data[var_list_num] < 0).any(axis=1)] = -9
+    data['equivalent_income'][(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1)] = -9
 
     data.drop(labels=['EI_exp_term'],
               axis=1,
