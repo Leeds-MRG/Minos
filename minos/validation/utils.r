@@ -75,14 +75,31 @@ combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
 
 # Function to plot the means of a single variable from 2 different datasets
 # The 2 datasets must either be input data (i.e. final_US) or simulated output
-plot_mean_comparison <- function(pivoted.df, var, group.var) {
+plot_mean_comparison <- function(pivoted.df, var, group.var, save=FALSE, save.path=NULL) {
   merged.byyr <- pivoted.df %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time, .data[[group.var]]) %>%
     summarise(var = mean(.data[[var]]))
   
-  ggplot(data = merged.byyr, mapping = aes(x = time, y = var, color=scenario)) +
+  p <- ggplot(data = merged.byyr, mapping = aes(x = time, y = var, color=scenario)) +
     geom_line() +
-    ylab(var)
+    labs(title = paste0('Cross-Validation: ', var)) +
+    ylab('Mean') +
+    xlab('Year')
+  
+  print(p)
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    save.filename <- paste0('cv_', var, '_continuous.png')
+    ggsave(filename = save.filename,
+           plot = p,
+           path = save.path,
+           width = 9,
+           height = 5)
+  }
 }
 
 
@@ -170,6 +187,65 @@ two_sample_t_test <- function(df1, df1.name, df2, df2.name, var) {
     df <- rbind(df, new.df)
   }
   return(df)
+}
+
+# Function to plot both count and proportion comparisons between raw and 
+# simulated data using cross-validation outputs.
+cv_ordinal_plots <- function(pivoted.df, var, save=FALSE, save.path) {
+  df <- pivoted.df %>%
+    group_by(time, scenario, .data[[var]]) %>%
+    summarise(n = n())
+  
+  df$scenario <- factor(df$scenario)
+  df[[var]] <- factor(df[[var]])
+  
+  df <- df %>% filter(.data[[var]] != -9)
+  
+  p1 <- ggplot(data = df, aes(x = time, y = n, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+    geom_line() + 
+    geom_point() +
+    labs(title = paste0('Cross-Validation: ', var), subtitle = 'Count') +
+    xlab('Year') +
+    ylab('Count')
+  
+  print(p1)
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    save.filename <- paste0('cv_', var, '_count.png')
+    ggsave(filename = save.filename,
+           plot = p1,
+           path = save.path,
+           width = 9,
+           height = 5)
+  }
+  
+  df <- df %>%
+    group_by(time, scenario) %>%
+    mutate(prop = n / sum(n))
+  
+  p2 <- ggplot(data = df, aes(x = time, y = prop, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+    geom_line() + 
+    geom_point() +
+    labs(title = paste0('Cross-Validation: ', var), subtitle = 'Proportion') +
+    xlab('Year') +
+    ylab('Proportion')
+  
+  print(p2)
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    save.filename <- paste0('cv_', var, '_proportion.png')
+    ggsave(filename = save.filename,
+           plot = p2,
+           path = save.path,
+           width = 9,
+           height = 5)
+  }
 }
 
 
