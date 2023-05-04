@@ -168,7 +168,7 @@ def generate_stock(projections, cross_validation):
     if cross_validation:
         # grab all unique pidps and take half at random
         # TODO: the sample() function can take weights to return equally weighted samples. Problem being that we use
-            # yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
+        #   yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
         all_pidp = pd.Series(data['pidp'].unique())
         #trans_samp = all_pidp.sample(frac=0.5, random_state=1)  # random_state is for seeding and reproducibility
 
