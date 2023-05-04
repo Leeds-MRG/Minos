@@ -1,0 +1,259 @@
+---
+title: "Equivalent Income Outcome Visualisation"
+output: html_notebook
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+workingDir <- "/home/luke/Documents/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source('Minos/minos/validation/utils.r')
+```
+
+# Data
+
+```{r}
+# set output path to SIPHER 7 experiment out
+out.path <- 'Minos/output/SIPHER7/'
+# read all files into dataframe (util function handles runtime subdirectory etc.)
+base.dat <- read_output(out.path, 'baseline')
+allchild.dat <- read_output(out.path, 'hhIncomeChildUplift')
+pov.dat <- read_output(out.path, 'hhIncomePovertyLineChildUplift')
+wage.dat <- read_output(out.path, 'livingWageIntervention')
+energy.dat <- read_output(out.path, 'energyDownlift')
+```
+
+# Baseline
+
+```{r}
+base.subset <- base.dat %>%
+  select(pidp, time, equivalent_income) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income))
+
+base.subset$scenario <- 'Baseline'
+
+ggplot(data = base.subset, aes(x = time, y = equivalent_income)) +
+  geom_line()
+```
+
+# Comparisons
+
+## Function
+
+```{r}
+equivalent_income_comparison_fullpop <- function(base, int, int.name, save=FALSE, save.path=NULL) {
+  base.subset <- base %>%
+    select(pidp, time, equivalent_income, alive) %>%
+    filter(alive != 'dead') %>%
+    group_by(time) %>%
+    summarise(equivalent_income = mean(equivalent_income))
+  int.subset <- int %>%
+    select(pidp, time, equivalent_income, alive) %>%
+    filter(alive != 'dead') %>%
+    group_by(time) %>%
+    summarise(equivalent_income = mean(equivalent_income))
+  
+  base.subset$scenario <- 'Baseline'
+  int.subset$scenario <- int.name
+  
+  combined <- rbind(base.subset, int.subset)
+  
+  p <- ggplot(combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+    geom_line() +
+    labs(title = paste0('Equivalent Income: ', int.name), subtitle = 'Full Population') +
+    xlab('Year') +
+    ylab('Equivalent Income (£)')
+  
+  print(p)
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path cannot be missing if save=TRUE')
+    }
+    file.name <- paste0('EI_comp_', int.name, '_full.png')
+    ggsave(filename = file.name,
+           plot = p,
+           path = save.path)
+  }
+}
+```
+
+## Plots
+
+```{r}
+equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+```
+
+## Combined
+
+
+```{r}
+base.subset <- base.dat %>%
+  select(pidp, time, equivalent_income, alive) %>%
+  filter(alive != 'dead') %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income))
+base.subset$scenario <- 'Baseline'
+
+allchild.subset <- allchild.dat %>%
+  select(pidp, time, equivalent_income, alive) %>%
+  filter(alive != 'dead') %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income))
+allchild.subset$scenario <- 'AllChild'
+
+pov.subset <- pov.dat %>%
+  select(pidp, time, equivalent_income, alive) %>%
+  filter(alive != 'dead') %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income))
+pov.subset$scenario <- 'PovertyChild'
+
+wage.subset <- wage.dat %>%
+  select(pidp, time, equivalent_income, alive) %>%
+  filter(alive != 'dead') %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income))
+wage.subset$scenario <- 'LivingWage'
+
+energy.subset <- energy.dat %>%
+  select(pidp, time, equivalent_income, alive) %>%
+  filter(alive != 'dead') %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income))
+energy.subset$scenario <- 'EnergyDownlift'
+
+all.combined <- rbind(base.subset, allchild.subset, pov.subset, wage.subset, energy.subset)
+all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'AllChild', 'PovertyChild', 'LivingWage', 'EnergyDownlift'))
+
+ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+  geom_line() +
+  labs(title = 'Equivalent Income Comparison', subtitle = 'Whole Population') +
+  xlab('Year') +
+  ylab('Equivalent Income (£)')
+```
+
+# Treatment on the Treated
+
+## Function
+
+```{r}
+equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE, save.path=NULL) {
+  base.sub <- base.dat %>%
+    select(pidp, time, equivalent_income, alive) %>%
+    filter(alive != 'dead') %>%
+    select(-alive) %>%
+    rename(baseline = equivalent_income)
+  int.sub <- int %>%
+    select(pidp, time, equivalent_income, income_boosted, alive) %>%
+    filter(alive != 'dead') %>%
+    select(-alive) %>%
+    set_names(c('pidp', 'time', int.name, 'income_boosted'))
+  
+  merged <- merge(base.sub, int.sub, by = c('pidp', 'time'))
+  
+  boosted.pidps <- int.sub %>%
+    filter(income_boosted == 'True') %>%
+    select(pidp)
+  
+  boosted <- merged %>%
+    filter(pidp %in% boosted.pidps$pidp) %>%
+    filter(income_boosted == 'True' | time == 2020) %>%
+    select(-income_boosted) %>%
+    pivot_longer(cols = baseline:.data[[int.name]],
+                 names_to = 'scenario',
+                 values_to = 'equivalent_income') %>%
+    group_by(time, scenario) %>%
+    summarise(equivalent_income = mean(equivalent_income))
+    
+  
+  p <- ggplot(data = boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+    geom_line() +
+    labs(title = paste0('Equivalent Income: ', int.name), subtitle = 'Treated Population') +
+    xlab('Year') +
+    ylab('Equivalent Income (£)')
+  
+  print(p)
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path cannot be missing if save=TRUE')
+    }
+    file.name <- paste0('EI_comp_', int.name, '_treated.png')
+    ggsave(filename = file.name,
+           plot = p,
+           path = save.path)
+  }
+}
+```
+
+
+## AllChild
+
+```{r}
+equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+```
+
+# Remove Income Effect
+
+```{r}
+# THink about this...
+# We can use the income_boosted and boost_amount variables to remove the income boost from people and visualise that
+
+base.sub2 <- base.dat %>%
+  select(pidp, time, equivalent_income, alive) %>%
+  filter(alive != 'dead') %>%
+  select(-alive) %>%
+  rename(baseline = equivalent_income)
+
+allchild.sub2 <- allchild.dat %>%
+  select(pidp, time, equivalent_income, income_boosted, boost_amount, alive) %>%
+  filter(alive != 'dead') %>%
+  select(-alive) %>%
+  rename(allchild = equivalent_income)
+
+allchild.merged <- merge(base.sub2, allchild.sub2, by = c('pidp', 'time'))
+  
+boosted.pidps <- allchild.sub2 %>%
+  filter(income_boosted == 'True') %>%
+  select(pidp)
+
+allchild.boosted <- allchild.merged %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  filter(income_boosted == 'True' | time == 2020) %>%
+  mutate(adjusted_EI = allchild - boost_amount) %>%
+  select(-allchild, -income_boosted, -boost_amount) %>%
+  group_by(time) %>%
+  summarise(baseline = mean(baseline),
+            allchild_adj = mean(adjusted_EI)) %>%
+  pivot_longer(cols = baseline:allchild_adj,
+               names_to = 'scenario',
+               values_to = 'equivalent_income')
+
+ggplot(data = allchild.boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+  geom_line()
+
+
+```
+
+
+NOTE: Can we 'remove' the income effect?
+Use the boost amount and income_boosted variables to sort of 'undo' the intervention effect and then we are only visualising the difference from pathway changes and not just the income effect.
+
+ALSO: Difference plots.
