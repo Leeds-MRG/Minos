@@ -148,3 +148,32 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 
 cv_baseline: cv_setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
+
+
+
+
+#####################################
+# SIPHER7 - Equivalent Income
+#####################################
+
+S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
+S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
+
+S7_baseline: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
+
+S7_intervention_hhIncome: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeIntervention'
+
+S7_intervention_hhIncomeChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
+
+S7_intervention_PovertyLineChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
+
+S7_intervention_livingWage: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
+
+S7_intervention_energyDownLift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
+
