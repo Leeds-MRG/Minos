@@ -37,7 +37,7 @@ def load_transitions(component, rpy2_modules, path='data/transitions/'):
     return model
 
 
-def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform=False):
+def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform=False, reflect=False):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -58,11 +58,16 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
     stats = rpy2_modules['stats']
     bn = rpy2_modules['best_normalise']
 
+    if reflect:
+        max_depend = max(current[dependent])
+        current[dependent] =  max_depend - current[dependent]
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+
     if transform:
         # Inverse yeojohnson transform.
         # Stored in estimate_transitions.R.
@@ -87,7 +92,10 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
 
     output = newPandasPopDF["predicted"]
     if transform:
-        output = output.clip(0, 150000)
+        output = output.clip(-150000, 150000)
+
+    if reflect:
+        output =  max_depend - output
     return output
 
 

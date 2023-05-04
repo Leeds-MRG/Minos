@@ -53,7 +53,14 @@ digest_params <- function(line) {
 # to include the survey weights in estimation (only no for 2009 where no weight
 # information available)
 
-estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
+estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE, reflect=FALSE) {
+  
+  if (reflect) 
+  {
+    real_data <- data[, c(depend)]
+    max_value <- max(data[, c(depend)])
+    data[, c(depend)] <- max_value - data[, c(depend)]
+  }
   
   if (transform){
     yj <-  yeojohnson(data[, c(depend)], standardize=TRUE)
@@ -239,7 +246,7 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_yearly_model_types = c("NNET", "OLS", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
+  valid_yearly_model_types = c("NNET", "OLS", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ", "OLS_REFLECT_YJ")
   
   # read file
   repeat{
@@ -365,6 +372,15 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
                                      include_weights = use.weights,
                                      depend = next.dependent,
                                      transform=TRUE)
+        
+      } else if(tolower(mod.type) == 'ols_reflect_yj') {
+        
+        model <- estimate_yearly_ols(data = merged, 
+                                     formula = form, 
+                                     include_weights = use.weights,
+                                     depend = next.dependent,
+                                     transform=TRUE,
+                                     reflect=TRUE)
         
       } else if(tolower(mod.type) == 'clm') {
         

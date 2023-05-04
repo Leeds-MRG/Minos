@@ -115,8 +115,8 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
+        transition_model = r_utils.load_transitions(f"SF_12/ols_reflect_yj/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12', True, True)
 
     def plot(self, pop, config):
 
