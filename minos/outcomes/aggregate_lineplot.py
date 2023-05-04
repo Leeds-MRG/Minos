@@ -38,6 +38,7 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     df = pd.read_csv(source)
+    #df = df.loc[df['year']>=2021, ]
     df[v] -= 1  # set centre at 0.
 
     # set year to int for formatting purposes

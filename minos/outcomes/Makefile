@@ -1,113 +1,19 @@
-
-
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
-
-test_plot: MODE=default_config
-test_plot: ALIVE=who_alive
-test_plot: BOOSTED=who_boosted
-test_plot: aggregate_minos_output_energy
-
+#TODO: make bash functions for vulnerable subgroups in aggregated_lineplots.sh
+#TODO make bash script for maps.
+#TODO add bash script with 4 interventions (no poverty line).
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
 
-#TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
-scot_all_lineplots: MODE=scotland_mode
-scot_all_lineplots: ALIVE=who_alive
-scot_all_lineplots: BOOSTED=who_boosted
-scot_all_lineplots: LIVING_WAGE=who_below_living_wage
-scot_all_lineplots: POVERTY=who_below_poverty_line_and_kids
-scot_all_lineplots: CHILD=who_kids
-scot_all_lineplots: all_lineplots
+main_lineplots:
+	bash minos/outcomes/aggregated_plots.sh
 
-default_all_lineplots: MODE=default_config
-default_all_lineplots: ALIVE=who_alive
-default_all_lineplots: BOOSTED=who_boosted
-default_all_lineplots: LIVING_WAGE=who_below_living_wage
-default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
-default_all_lineplots: CHILD=who_kids
-default_all_lineplots: all_lineplots
+vulnerable_lineplots:
+	bash minos/outcomes/aggregated_vulnerable_lineplots.sh
 
-all_lineplots: aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
-vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
-
-
-aggregate_minos_output:
-aggregate_minos_output:	DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
-aggregate_minos_output:	DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
-aggregate_minos_output:	SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
-aggregate_minos_output:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(DIRECTORY_SUBSETS) "all"
-
-
-MODE=scotland_mode
-aggregate_minos_output_treated:	TREATED_DIRECTORIES = baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift
-aggregate_minos_output_treated:	TREATED_DIRECTORY_TAGS="Baseline,£25 All Child Uplift,£25 Poverty Line Child Uplift, Living Wage,Energy Downlift"
-aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),$(BOOSTED),$(BOOSTED),$(BOOSTED)
-aggregate_minos_output_treated:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated"
-
-aggregate_minos_output_living_wage:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"
-
-aggregate_minos_output_poverty_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
-
-aggregate_minos_output_all_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_kids "all_child_uplift"
-
-aggregate_minos_output_disabled_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift"
-
-aggregate_minos_output_minority_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift"
-
-aggregate_minos_output_three_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift"
-
-# omitted due to lack of sample size
-aggregate_minos_output_young_mother_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift"
-
-aggregate_minos_output_young_adult_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift"
-
-aggregate_minos_output_uneducated_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Uneducated Children Uplift" who_no_formal_education,who_no_formal_education "uneducated_child_uplift"
-
-
-aggregate_minos_output_scottish: MODE=default_config
-aggregate_minos_output_scottish: DIRECTORIES=baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
-aggregate_minos_output_scottish: DIRECTORY_TAGS="Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
-aggregate_minos_output_scottish: SUBSET_FUNCTIONS=who_scottish,who_scottish,who_scottish,who_scottish
-aggregate_minos_output_scottish:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(SUBSET_FUNCTIONS) "who_scottish?"
-
-aggregate_minos_output_living_wage_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_scottish,who_scottish "living_wage_treated"
-
-aggregate_minos_output_all_child_uplift_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_scottish,who_scottish "all_child_uplift"
-
-aggregate_minos_output_poverty_child_uplift_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_scottish,who_scottish "poverty_line_child_uplift"
-
-aggregate_minos_output_energy_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_scottish,who_scottish "energy_downlift"
-
-lineplots_national_scottish_subsample: aggregate_minos_output_living_wage_scot aggregate_minos_output_all_child_uplift_scot aggregate_minos_output_poverty_child_uplift_scot aggregate_minos_output_energy_scot aggregate_minos_output_scottish
-
-aggregate_combined_vulnerable:MODE=scotland_mode
-aggregate_combined_vulnerable:VULNERABLE_DIRECTORIES=baseline,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift
-aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_TAGS="Baseline,All Children Uplift,Disabled Children Uplift,Minority Children Uplift,Three Children Uplift,Young Single Parent Children Uplift,Uneducated Children Uplift"
-aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,who_disabled,who_ethnic_minority,who_three_kids,who_young_adults,who_no_formal_education
-aggregate_combined_vulnerable:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable"
-
-aggregate_minos_output_energy:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_alive,who_alive "energy_downlift"
-
-
+main_maps:
+	bash minos/outcomes/aggregated_maps.sh
 
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
