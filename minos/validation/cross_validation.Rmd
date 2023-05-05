@@ -24,6 +24,7 @@ rm(workingDir)
 ```
 
 ```{r, include=FALSE}
+source('Minos/minos/utils_datain.R')
 source('Minos/minos/validation/utils.r')
 ```
 
@@ -32,7 +33,7 @@ source('Minos/minos/validation/utils.r')
 ```{r, include=FALSE}
 # cross validation simulation output
 out.path <- 'Minos/output/cross_validation/'
-cv <- read_output(out.path, 'baseline')
+cv <- read_singular_local_out(out.path, 'baseline')
 
 # cv simulation pop (not used for transitions)
 cv.simul.files <- list.files('Minos/data/final_US/cross_validation/simulation/',
