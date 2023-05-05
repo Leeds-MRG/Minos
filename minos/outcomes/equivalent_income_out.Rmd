@@ -10,7 +10,7 @@ output: html_notebook
 require(tidyverse)
 require(ggplot2)
 
-workingDir <- "/home/luke/Documents/MINOS/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -146,7 +146,7 @@ ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenari
   ylab('Equivalent Income (£)')
 ```
 
-# Treatment on the Treated
+# Treated Population
 
 ## Function
 
@@ -201,7 +201,7 @@ equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE
 ```
 
 
-## AllChild
+## Plots
 
 ```{r}
 equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
@@ -212,7 +212,7 @@ equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift', sav
 
 # Remove Income Effect
 
-```{r}
+```{r, include=FALSE}
 # THink about this...
 # We can use the income_boosted and boost_amount variables to remove the income boost from people and visualise that
 
