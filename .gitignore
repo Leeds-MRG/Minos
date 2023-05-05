@@ -62,6 +62,7 @@ Minos.Rproj
 
 # Knitted R notebook files
 minos/validation/*.nb.html
+minos/outcomes/*.nb.html
 
 # rob phd data
 papers/phd1/data/*
