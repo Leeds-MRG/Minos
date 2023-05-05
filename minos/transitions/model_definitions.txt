@@ -1,5 +1,5 @@
 OLS : hh_income ~ hh_income + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
-OLS2 : hh_income ~ hh_income + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
+OLS2 : hh_income ~ age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
 OLS : nutrition_quality ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + relevel(factor(ethnicity), ref = 'WBI') + hh_income + ncigs
 OLS : SF_12 ~ age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + phealth + factor(neighbourhood_safety) + ncigs + nutrition_quality + SF_12
 CLM : housing_quality ~ age + factor(sex) + SF_12 + relevel(factor(ethnicity), ref = 'WBI') + hh_income

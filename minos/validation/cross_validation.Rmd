@@ -74,6 +74,11 @@ plot_mean_comparison(pivoted.df = income.pivoted,
 compare_boxplot_long(pivoted.df = income.pivoted,
                      var = 'hh_income',
                      scen1 = 'raw',
+                     scen2 = 'simulation')
+
+compare_boxplot_long(pivoted.df = income.pivoted,
+                     var = 'hh_income',
+                     scen1 = 'raw',
                      scen2 = 'simulation',
                      subset.max = 5000,
                      subset.min = -5000)
