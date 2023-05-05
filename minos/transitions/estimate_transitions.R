@@ -66,6 +66,33 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
+estimate_yearly_ols_diff <- function(data, formula, include_weights = FALSE, depend) {
+  
+  orig.depend <- gsub("^.*?_", "", depend)
+  
+  pred.var <- paste0(orig.depend, '_change')
+  
+  data[[pred.var]] <- data[[depend]] - data[[orig.depend]]
+  
+  #formula.preds <- gsub("^.*?~", "~", formula)
+  formula.right <- unlist(str_split(as.character(formula), pattern = '~')[3])
+  
+  formula2 <- paste0(pred.var, ' ~ ', formula.right)
+  
+  if(include_weights) {
+    # fit the model including weights (after 2009)
+    model <- lm(formula2,
+                data = data,
+                weights = weight)
+  } else {
+    # fit the model WITHOUT weights (2009)
+    model <- lm(formula2,
+                data = data)
+  }
+  model[[depend]] <- data[[depend]]
+  return(model)
+}
+
 estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
   
   # Sort out dependent type (factor)
@@ -294,6 +321,13 @@ run_yearly_models <- function(transitionDir_path,
       if(tolower(mod.type) == 'ols') {
         
         model <- estimate_yearly_ols(data = merged, 
+                                     formula = form, 
+                                     include_weights = use.weights,
+                                     depend = next.dependent)
+        
+      } else if(tolower(mod.type) == 'ols2') {
+        
+        model <- estimate_yearly_ols_diff(data = merged, 
                                      formula = form, 
                                      include_weights = use.weights,
                                      depend = next.dependent)
