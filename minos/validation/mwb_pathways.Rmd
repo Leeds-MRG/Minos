@@ -18,7 +18,7 @@ rm(workingDir)
 
 Source utils for some functions.
 ```{r}
-source('Minos/minos/validation/utils.r')
+source('Minos/minos/utils_datain.R')
 ```
 
 ## Data
@@ -26,7 +26,7 @@ source('Minos/minos/validation/utils.r')
 ```{r}
 output.path <- 'Minos/output/default_config/'
 baseline.path <- paste0(output.path, 'baseline')
-base.path <- get_runtime_subdirectory(baseline.path)
+base.path <- get_latest_runtime_subdirectory(baseline.path)
 
 # read in all the output data files
 base.files <- list.files(base.path,

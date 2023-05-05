@@ -42,6 +42,9 @@ baseline: setup
 baseline_default: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config
 
+intervention_livingWage_default: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'livingWageIntervention'
+
 intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
