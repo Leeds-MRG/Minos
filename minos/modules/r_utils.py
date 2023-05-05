@@ -77,6 +77,51 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
+def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    prediction = stats.predict(model, currentRDF)
+    newRPopDF = base.cbind(currentRDF, predicted=prediction)
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    #newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    # Now add the predicted value to hh_income and drop predicted
+    #newPandasPopDF[[dependent]] = newPandasPopDF[[dependent]] + newPandasPopDF['predicted']
+    newPandasPopDF['new_dependent'] = newPandasPopDF[[dependent, 'predicted']].sum(axis=1)
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    return newPandasPopDF['new_dependent']
+
+
 def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
@@ -143,8 +188,8 @@ def predict_nnet(model, rpy2Modules, current, columns):
     """
     # import R packages
     base = rpy2Modules['base']
-    stats =  rpy2Modules['stats']
-    nnet =  rpy2Modules['nnet']
+    stats = rpy2Modules['stats']
+    nnet = rpy2Modules['nnet']
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
