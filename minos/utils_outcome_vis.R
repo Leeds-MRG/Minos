@@ -1,13 +1,5 @@
 ### This utils file will contain functions purely for outcome visualisation.
 
-# Function to read all output files from a singular (non-batch) local simulation run
-# This will read output files for all years within the latest runtime subdirectory
-# (which is automatically determined)
-# Args: 
-#       out.path - path to top level output directory
-#       scenario - string scenario name of which output files to read
-
-
 
 # Function to generate scatterplots with marginal distributions included.
 # It compares two scenarios (intervention vs baseline most common) in a given

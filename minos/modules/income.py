@@ -119,7 +119,11 @@ class Income(Base):
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveIncome = r_utils.predict_next_timestep_ols_diff(transition_model, self.rpy2Modules, pop, dependent='hh_income')
+        nextWaveIncome = r_utils.predict_next_timestep_ols_diff(transition_model,
+                                                                self.rpy2Modules,
+                                                                pop,
+                                                                dependent='hh_income',
+                                                                year=self.year)
         return nextWaveIncome
 
     def plot(self, pop, config):
