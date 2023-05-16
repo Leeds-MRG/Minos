@@ -22,6 +22,7 @@ from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkids
 from minos.modules.housing import Housing
 from minos.modules.income import Income
 from minos.modules.mental_wellbeing import MWB
+from minos.modules.physical_wellbeing import SF_12_PCS
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -61,8 +62,9 @@ def validate_components(config_components, intervention):
     # Note priority in vivarium modules supercedes this. two
     # Outcome module goes first (last in sim)
     components_map = {
-        # Outcome module.
+        # Outcome modules.
         "MWB()": MWB(),
+        "SF_12_PCS()": SF_12_PCS(),
         #Intermediary modules
         "Tobacco()": Tobacco(),
         "Alcohol()": Alcohol(),
@@ -225,9 +227,6 @@ def RunPipeline(config, intervention=None):
             print('New children', len(pop[pop['parent_id'] != -1]))
             logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
 
-        #for component in components:
-        #    component.plot(pop, config)
-
     return simulation
 
 
@@ -244,4 +243,4 @@ def get_output_data_filename(config, year=0):
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"
 
-    return(output_data_filename)
+    return output_data_filename

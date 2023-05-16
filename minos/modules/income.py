@@ -63,7 +63,7 @@ class Income(Base):
                         'job_sec',
                         'labour_state',
                         'education_state',
-                        'SF_12',
+                        'SF_12_MCS',
                         'housing_quality',
                         'job_sector']
         #view_columns += self.transition_model.rx2('model').names

@@ -46,7 +46,7 @@ class Nutrition(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'education_state',
                         'labour_state',
                         'job_sec',

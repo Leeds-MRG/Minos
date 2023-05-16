@@ -50,7 +50,7 @@ class Neighbourhood(Base):
                         'region',
                         'hh_income',
                         'neighbourhood_safety',
-                        'SF_12',
+                        'SF_12_MCS',
                         'labour_state',
                         'education_state',
                         'housing_quality',

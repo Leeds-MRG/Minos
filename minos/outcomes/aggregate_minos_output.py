@@ -87,7 +87,7 @@ def main(source, mode, years, tag, v, method, subset_function_string):
     tag: list
         Corresponding name of the MINOS batch source. Usually what intervention was used. Baseline Uplift, etc..
     v: str
-        What variable to aggregate on. Defaults to SF_12
+        What variable to aggregate on. Defaults to SF_12_MCS
     method: func
         What function to aggregate over. Default np.nanmean.
     destination: str
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                         help="Subdirectories within source that are aggregated. Usually experiment names baseline childUplift etc.")
     parser.add_argument("-t", "--tags", required=True, type=str,
                         help="Corresponding name tags for which data is being processed. I.E which intervention Baseline/£20 Uplift etc. Used as label in later plots.")
-    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
+    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12_MCS',
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
     parser.add_argument("-a", "--aggregate_method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to np.nanmean.")

@@ -1,7 +1,6 @@
 """
-Module for income in Minos.
-Calculation of monthly household income
-Possible extension to interaction with employment/education and any spatial/interaction effects.
+Module for SF_12_MCS in Minos.
+Calculation of next mental wellbeing state
 """
 
 import pandas as pd
@@ -60,7 +59,7 @@ class MWB(Base):
                         'labour_state',
                         'job_sec',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'housing_quality',
                         'phealth',
                         'ncigs',
@@ -95,13 +94,13 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12_MCS"])
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        self.population_view.update(newWaveMWB['SF_12'])
+        self.population_view.update(newWaveMWB['SF_12_MCS'])
 
     def calculate_mwb(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -115,13 +114,13 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
+        transition_model = r_utils.load_transitions(f"SF_12_MCS/ols/SF_12_MCS_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12_MCS')
 
     def plot(self, pop, config):
 
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
         f = plt.figure()
-        histplot(pop, x = "SF_12", stat='density')
+        histplot(pop, x = "SF_12_MCS", stat='density')
         plt.savefig(file_name)
         plt.close('all')

@@ -124,6 +124,8 @@ clean_all: clean_data clean_out clean_transitions clean_logs
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
 	rm -f data/*/*.csv
+	rm -f data/*/*/*.csv
+	rm -f data/*/*/*/*.csv
 
 clean_out: ### Remove all output files
 clean_out:
@@ -140,6 +142,7 @@ clean_transitions:
 	rm -rf data/transitions/*/*.rds
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
 	rm -rf data/transitions/scotland/*/*.rds
 

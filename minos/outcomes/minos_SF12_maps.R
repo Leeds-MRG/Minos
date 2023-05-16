@@ -146,7 +146,7 @@ main.single <- function(geojson_file_name, plot_destination_file, mode, v){
   lsoa_subset_function <- choose_lsoa_function(mode)
   data <- load_geojson(geojson_file_name)
   data <- subset_geojson(data, lsoa_subset_function)
-  #data[which(data$SF_12 %in% head(sort(data$SF_12), 10)),] # ten worst performing areas by SF12.
+  #data[which(data$SF_12_MCS %in% head(sort(data$SF_12), 10)),] # ten worst performing areas by SF12.
   minos_map(data, v, plot_destination_file)
 }
 

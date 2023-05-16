@@ -121,8 +121,8 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   
   if(depend == 'next_ncigs' | depend == 'ncigs') {
     # first subset just the columns we want
-    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
-              'hh_income', 'ethnicity', 'weight')
+    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12_MCS', 'job_sec', 
+              'hh_income', 'ethnicity', 'weight', 'SF_12_PCS')
     dat.subset <- data[, cols]
     
     # Replace missing values with NA (util func)
@@ -236,7 +236,7 @@ run_yearly_models <- function(transitionDir_path,
       if(dependent == 'ncigs' & year < 2013) { next }
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
-      if(dependent == 'SF_12' & year == 2009) { next }
+      if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
       
       print(paste0('Starting estimation for ', dependent, ' in ', year))
       
@@ -267,10 +267,10 @@ run_yearly_models <- function(transitionDir_path,
       }
       
       #print(formula.string)
-      ## For the SF_12 model alone, we need to modify the formula on the fly
+      ## For the SF_12 models (MCS & PCS), we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
       # not present every year
-      if(dependent == 'SF_12') {
+      if(dependent %in% c('SF_12_MCS', 'SF_12_PCS')) {
         if(!year %in% c(2011, 2014, 2017, 2020)) {
           formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
         }

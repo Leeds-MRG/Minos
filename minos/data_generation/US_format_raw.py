@@ -237,8 +237,8 @@ def format_ukhls_columns(year):
                       'sclonely': 'loneliness',  # is lonely.
                       # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                       'sex': 'sex',  # biological sex.
-                      'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                      'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
+                      'sf12mcs_dv': 'SF_12_MCS',  # SF12 mental component summary
+                      'sf12pcs_dv': 'SF_12_PCS',  # SF12 physical component summary
                       'smoker': 'smoker',  # Currently smokes.
                       # TODO waves present roughly matches ncigs. no data for waves 1-5.
                       # for waves 2 and 5 similar variable 'smnow' could be used.

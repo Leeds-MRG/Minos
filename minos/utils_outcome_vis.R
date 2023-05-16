@@ -28,13 +28,13 @@ SF12_marg_dist_densigram_plot <- function(base,
                                          save = FALSE,
                                          save.path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
   # get just one year
-  b.start <- base %>% filter(time == 2020, SF_12 != -8.0)
-  b.end <- base %>% filter(time == target.year, SF_12 != -8.0)
-  i.end <- int %>% filter(time == target.year, SF_12 != -8.0)
+  b.start <- base %>% filter(time == 2020, SF_12_MCS != -8.0)
+  b.end <- base %>% filter(time == target.year, SF_12_MCS != -8.0)
+  i.end <- int %>% filter(time == target.year, SF_12_MCS != -8.0)
   # get just the SF12 columns and rename for later
-  b.start <- b.start %>% select(pidp, SF_12) %>% rename(initial = SF_12)
-  b.end <- b.end %>% select(pidp, SF_12) %>% rename(end = SF_12)
-  i.end <- i.end %>% select(pidp, SF_12) %>% rename(end = SF_12)
+  b.start <- b.start %>% select(pidp, SF_12_MCS) %>% rename(initial = SF_12_MCS)
+  b.end <- b.end %>% select(pidp, SF_12_MCS) %>% rename(end = SF_12_MCS)
+  i.end <- i.end %>% select(pidp, SF_12_MCS) %>% rename(end = SF_12_MCS)
   
   # combine before we plot
   b.end$scen <- 'baseline'
@@ -74,11 +74,11 @@ SF12_marg_dist_densigram_plot_oneyear <- function(base,
                                                   save = FALSE,
                                                   save.path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
   # get just one year
-  b.end <- base %>% filter(time == target.year, SF_12 != -8.0)
-  i.end <- int %>% filter(time == target.year, SF_12 != -8.0)
+  b.end <- base %>% filter(time == target.year, SF_12_MCS != -8.0)
+  i.end <- int %>% filter(time == target.year, SF_12_MCS != -8.0)
   # get just the SF12 columns and rename for later
-  b.end <- b.end %>% select(pidp, SF_12) %>% rename(baseline = SF_12)
-  i.end <- i.end %>% select(pidp, SF_12) %>% rename(intervention = SF_12)
+  b.end <- b.end %>% select(pidp, SF_12_MCS) %>% rename(baseline = SF_12_MCS)
+  i.end <- i.end %>% select(pidp, SF_12_MCS) %>% rename(intervention = SF_12_MCS)
   
   # combine before we plot
   combined <- merge(b.end, i.end, by = 'pidp')

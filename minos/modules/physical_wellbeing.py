@@ -1,24 +1,26 @@
 """
-Module for tobacco in Minos.
-Calculation of monthly household tobacco
+Module for income in Minos.
+Calculation of monthly household income
 Possible extension to interaction with employment/education and any spatial/interaction effects.
 """
 
 import pandas as pd
+from pathlib import Path
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
-import matplotlib.pyplot as plt
 from seaborn import histplot
+import matplotlib.pyplot as plt
 
-class Tobacco(Base):
 
+class SF_12_PCS(Base):
+    """Physical Well-Being Module"""
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'tobacco'
+        return 'sf_12_pcs'
 
     def __repr__(self):
-        return "Tobacco()"
+        return "SF_12_PCS()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -26,7 +28,7 @@ class Tobacco(Base):
         Notes
         -----
         - Load in data from pre_setup
-        - Register any value producers/modifiers for tobacco
+        - Register any value producers/modifiers for income
         - Add required columns to population data frame
         - Update other required items such as randomness stream.
 
@@ -45,25 +47,28 @@ class Tobacco(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("tobacco")
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
         view_columns = ['pidp',
-                        'age',
                         'sex',
                         'ethnicity',
-                        'region',
-                        'hh_income',
-                        'SF_12_MCS',
+                        'age',
                         'education_state',
                         'labour_state',
                         'job_sec',
-                        'alcohol_spending',
-                        'ncigs']
-        #view_columns += self.transition_model.rx2('model').names
+                        'hh_income',
+                        'SF_12_PCS',
+                        'housing_quality',
+                        'phealth',
+                        'ncigs',
+                        'nutrition_quality',
+                        'neighbourhood_safety',
+                        'loneliness']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -73,7 +78,7 @@ class Tobacco(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=9)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -83,22 +88,24 @@ class Tobacco(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-        # Get living people to update their tobacco
-        pop = self.population_view.get(event.index, query="alive =='alive'")
+
         self.year = event.time.year
 
-        # Predict next tobacco value
-        newWaveTobacco = self.calculate_tobacco(pop)
-        newWaveTobacco = pd.DataFrame(newWaveTobacco, columns=["ncigs"])
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        ## Predict next income value
+        newWavePCS = self.calculate_pcs(pop)
+        newWavePCS = pd.DataFrame(newWavePCS, columns=["SF_12_PCS"])
         # Set index type to int (instead of object as previous)
-        newWaveTobacco.index = newWaveTobacco.index.astype(int)
+        newWavePCS.index = newWavePCS.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
-        # Update population with new tobacco
-        self.population_view.update(newWaveTobacco['ncigs'].astype(int))
+        # Update population with new income
+        self.population_view.update(newWavePCS['SF_12_PCS'])
 
-    def calculate_tobacco(self, pop):
-        """Calculate tobacco transition distribution based on provided people/indices
+    def calculate_pcs(self, pop):
+        """Calculate income transition distribution based on provided people/indices
 
         Parameters
         ----------
@@ -107,21 +114,17 @@ class Tobacco(Base):
         Returns
         -------
         """
-        # load transition model based on year.
-        year = max(self.year, 2014)
-        year = min(year, 2018)
-        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
-        # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
-                                                            rpy2Modules= self.rpy2Modules,
-                                                            current=pop,
-                                                            dependent='ncigs')
-        return nextWaveTobacco
+        # year can only be 2017 as its the only year with data for all vars
+        year = 2017
+        transition_model = r_utils.load_transitions(f"SF_12_PCS/ols/SF_12_PCS_{year}_{year+1}",
+                                                    self.rpy2Modules,
+                                                    path=self.transition_dir)
+        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12_PCS')
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"tobacco_hist_{self.year}.pdf"
+        file_name = config.output_plots_dir + f"pcs_hist_{self.year}.pdf"
         f = plt.figure()
-        histplot(pop, x="ncigs", stat='density')
+        histplot(pop, x="SF_12_PCS", stat='density')
         plt.savefig(file_name)
-        plt.close()
+        plt.close('all')
