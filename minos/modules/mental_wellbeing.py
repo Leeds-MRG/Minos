@@ -115,13 +115,20 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
+        transition_model = r_utils.load_transitions(f"SF_12/ols2/SF_12_{year}_{year+1}",
+                                                    self.rpy2Modules,
+                                                    path=self.transition_dir)
+
+        return r_utils.predict_next_timestep_ols_diff(transition_model,
+                                                      self.rpy2Modules,
+                                                      pop,
+                                                      'SF_12',
+                                                      year=self.year)
 
     def plot(self, pop, config):
 
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
         f = plt.figure()
-        histplot(pop, x = "SF_12", stat='density')
+        histplot(pop, x="SF_12", stat='density')
         plt.savefig(file_name)
         plt.close('all')

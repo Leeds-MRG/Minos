@@ -10,6 +10,7 @@ from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.vectors import FactorVector
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as pl
 
 
 def load_transitions(component, rpy2_modules, path='data/transitions/'):
@@ -77,7 +78,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent):
+def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -95,6 +96,9 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent):
     -------
     A prediction of the information for next timestep
     """
+
+    print(f"Running prediction step for {dependent} in year {year}...")
+
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
@@ -117,7 +121,16 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent):
     # Now add the predicted value to hh_income and drop predicted
     #newPandasPopDF[[dependent]] = newPandasPopDF[[dependent]] + newPandasPopDF['predicted']
     newPandasPopDF['new_dependent'] = newPandasPopDF[[dependent, 'predicted']].sum(axis=1)
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    #newPandasPopDF = newPandasPopDF['new_dependent'] - newPandasPopDF[[dependent]]
+
+    fig = pl.hist(newPandasPopDF['predicted'])
+    pl.title(f"Difference: {dependent} - {year}")
+    pl.xlabel('Value')
+    pl.ylabel('Frequency')
+    pl.savefig(f"/home/luke/Documents/WORK/MINOS/tmp/rate_diff_hist/{dependent}/{year}.png")
+    pl.close()
 
     return newPandasPopDF['new_dependent']
 
