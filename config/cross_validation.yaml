@@ -26,7 +26,7 @@ replenishing_dir: 'data/replenishing/cross_validation'
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Income(), Housing(), Nutrition(), Education(), Mortality(), Replenishment()]
+components : [MWB(), SF_12_PCS(), Loneliness(), Tobacco(), Neighbourhood(), Income(), Housing(), Nutrition(), Education(), Mortality(), Replenishment()]
 
 
 scale_rates:
