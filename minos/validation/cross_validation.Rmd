@@ -160,7 +160,7 @@ sf12.p.t.tests
 
 ```{r}
 yearly_box_plots(pivoted.df = sf12.p.pivoted,
-                 var = 'nutrition_quality',
+                 var = 'SF_12_PCS',
                  scen1 = 'raw',
                  scen2 = 'simulation')
 ```
