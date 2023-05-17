@@ -140,6 +140,8 @@ base.sf12.m <- base.dat %>%
 # merge before plot
 sf12.m <- rbind(raw.sf12.m, base.sf12.m)
 
+print(sum(sf12.m$SF_12_MCS < 0))
+
 # Now plot
 ggplot(data = sf12.m, mapping = aes(x = time, y = sf12.m, group = source, colour = source)) +
   geom_line() +
@@ -302,12 +304,14 @@ rm(raw.housing, base.housing, housing, housing.norm)
 ```{r}
 raw.neighbour <- raw.dat %>% 
   dplyr::select(pidp, time, neighbourhood_safety) %>%
+  filter(neighbourhood_safety > 0) %>%
   group_by(time, neighbourhood_safety) %>%
   count() %>%
   mutate(source = 'final_US')
 
 base.neighbour <- base.dat %>%
   dplyr::select(pidp, time, neighbourhood_safety) %>%
+  filter(neighbourhood_safety > 0) %>%
   group_by(time, neighbourhood_safety) %>%
   count() %>%
   mutate(source = 'baseline_output')
@@ -352,12 +356,14 @@ ggsave(filename = 'neighbourhood_safety.png',
 ```{r}
 raw.loneliness <- raw.dat %>% 
   dplyr::select(pidp, time, loneliness) %>%
+  filter(loneliness > 0) %>%
   group_by(time, loneliness) %>%
   count() %>%
   mutate(source = 'final_US')
 
 base.loneliness <- base.dat %>%
   dplyr::select(pidp, time, loneliness) %>%
+  filter(loneliness > 0) %>%
   group_by(time, loneliness) %>%
   count() %>%
   mutate(source = 'baseline_output')
@@ -406,6 +412,7 @@ TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 # start with hh_income
 raw.nut <- raw.dat %>% 
   dplyr::select(pidp, time, nutrition_quality) %>%
+  filter(nutrition_quality >= 0) %>%
   group_by(time) %>%
   summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
@@ -474,6 +481,7 @@ NOTE: At present, physical health is not predicted or transitioned.
 # start with hh_income
 raw.phealth <- raw.dat %>% 
   dplyr::select(pidp, time, phealth) %>%
+  filter(phealth >= 0) %>%
   filter(time > 2009) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
