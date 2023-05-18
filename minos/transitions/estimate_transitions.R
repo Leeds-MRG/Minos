@@ -21,8 +21,8 @@ require(ordinal) # CLMs
 require(nnet) # multinomial regression
 require(stringr) #String parsing.
 require(pscl) # ZIPs
-require(lme4) # GLMMs
-require(geepack) #GEEs
+# require(lme4) # GLMMs
+# require(geepack) #GEEs
 require(bestNormalize) #yeo johnson Normalise
 
 # Take the line from the model_definitions.txt and pull out what we need
@@ -57,13 +57,12 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, 
   
   if (reflect) 
   {
-    real_data <- data[, c(depend)]
     max_value <- max(data[, c(depend)])
     data[, c(depend)] <- max_value - data[, c(depend)]
   }
   
   if (transform){
-    yj <-  yeojohnson(data[, c(depend)], standardize=TRUE)
+    yj <-  yeojohnson(data[, c(depend)], standardize=FALSE)
     data[, c(depend)] <- predict(yj)
   }
   
@@ -444,93 +443,96 @@ run_yearly_models <- function(transitionDir_path, transitionSourceDir_path, mod_
 # Main loop for longitudinal models 
 ###################################
 
-run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data)
-{
-  # process is much simpler here than the yearly models. 
-  # get model type and some data frame containing X years of data.
-  # fit models to this grand data frame.
-  modDef_path = paste0(transitionSourceDir_path, mod_def_name)
-  modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
-  valid_longitudnial_model_types = c("GEE", "GLMM")
-  
-  repeat{
-    def = readLines(modDefs, n = 1) # Read one line from the connection.
-    if(identical(def, character(0))){break} # If the line is empty, exit.
-    
-    # Get model type
-    split1 <- str_split(def, pattern = " : ")[[1]]
-    mod.type <- split1[1]
-    if(!is.element(mod.type, valid_longitudnial_model_types)){next} # break if not in valid list of longitudinal models. e.g. OLS.
-    
-    # Get dependent and independents
-    split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
-    dependent <- split2[1]
-    independents <- split2[2]
-    
-    ## Yearly model estimation loop
-    # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- seq(max(data$time)-5, (max(data$time) - 1))
-    # set up output directory
-    out.path1 <- paste0(transitionDir_path, dependent, '/')
-    out.path2 <- paste0(out.path1, tolower(mod.type), '/')
-    create.if.not.exists(out.path1)
-    create.if.not.exists(out.path2)
-    
-    print(paste0('Starting for ', dependent, '...'))
-    
-    # no weight var in 2009 (wave 1)
-    use.weights <- FALSE
-    # TODO strange behaviour using weights for gees/glmms. Needs scaling? disabling for now..
-    #if(year == 2009) {
-    #  use.weights <- FALSE
-    #} else {
-    #  use.weights <- TRUE
-    #}
-    
-    if (dependent == "SF_12" && mod.type == "GEE"){
-      temp.dependent <- "I(max(SF_12) - SF_12 + 0.001)"
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)     
-    } else{
-      formula.string <- paste0(dependent, " ~ ", independents)
-      form <- as.formula(formula.string)
-    }
-    
-    # data frame needs sorting by pidp and time for gee to work.
-    
-    
-    
-    # get columns used by formula and sort them by pidp and time. 
-    df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
-    sorted_df <- df[order(df$pidp, df$time),]
-    
-    if(tolower(mod.type) == 'glmm') {
-      
-      # set ordinal dependent to factor
-      model <- estimate_longitudnial_glmm(data = sorted_df,
-                                          formula = form, 
-                                          include_weights = use.weights, 
-                                          depend = dependent)
-      
-    } else if(tolower(mod.type) == 'gee') {
-      
-      # set ordinal dependent to factor
-      model <- estimate_longitudnial_gamma_gee(data = sorted_df,
-                                               formula = form, 
-                                               include_weights = use.weights, 
-                                               depend = dependent)
-      
-    } 
-    
-    saveRDS(model, file=paste0(out.path2, dependent, "_", mod.type, '.rds')) # shorter file name with no years..
-    print(paste0(mod.type, ' model for ', dependent, ' generated for years ', min(year.range), ' - ', max(year.range)))
-    print(paste0("Finished for ", dependent, ", mod type ", mod.type, '.'))
-  }
-  # close and remove connection object from memory
-  close(modDefs)
-  rm(modDefs)
-}
+# run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data)
+# {
+#   # process is much simpler here than the yearly models. 
+#   # get model type and some data frame containing X years of data.
+#   # fit models to this grand data frame.
+#   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
+#   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
+#   
+#   valid_longitudnial_model_types = c("GEE", "GLMM")
+#   
+#   repeat{
+#     def = readLines(modDefs, n = 1) # Read one line from the connection.
+#     if(identical(def, character(0))){break} # If the line is empty, exit.
+#     
+#     # Get model type
+#     split1 <- str_split(def, pattern = " : ")[[1]]
+#     mod.type <- split1[1]
+#     if(!is.element(mod.type, valid_longitudnial_model_types)){next} # break if not in valid list of longitudinal models. e.g. OLS.
+#     
+#     # Get dependent and independents
+#     split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
+#     dependent <- split2[1]
+#     independents <- split2[2]
+#     
+#     ## Yearly model estimation loop
+#     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
+#     year.range <- seq(max(data$time)-5, (max(data$time) - 1))
+#     # set up output directory
+#     out.path1 <- paste0(transitionDir_path, dependent, '/')
+#     out.path2 <- paste0(out.path1, tolower(mod.type), '/')
+#     create.if.not.exists(out.path1)
+#     create.if.not.exists(out.path2)
+#     
+#     print(paste0('Starting for ', dependent, '...'))
+#     
+#     # no weight var in 2009 (wave 1)
+#     use.weights <- FALSE
+#     # TODO strange behaviour using weights for gees/glmms. Needs scaling? disabling for now..
+#     #if(year == 2009) {
+#     #  use.weights <- FALSE
+#     #} else {
+#     #  use.weights <- TRUE
+#     #}
+#     
+#     if (dependent == "SF_12" && mod.type == "GEE"){
+#       temp.dependent <- "I(max(SF_12) - SF_12 + 0.001)"
+#       formula.string <- paste0(temp.dependent, " ~ ", independents)
+#       form <- as.formula(formula.string)     
+#     } else{
+#       formula.string <- paste0(dependent, " ~ ", independents)
+#       form <- as.formula(formula.string)
+#     }
+#     
+#     # data frame needs sorting by pidp and time for gee to work.
+#     
+#     
+#     
+#     # get columns used by formula and sort them by pidp and time. 
+#     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
+#     sorted_df <- df[order(df$pidp, df$time),]
+#     
+#     if(tolower(mod.type) == 'glmm') {
+#       
+#       # set ordinal dependent to factor
+#       model <- estimate_longitudnial_glmm(data = sorted_df,
+#                                           formula = form, 
+#                                           include_weights = use.weights, 
+#                                           depend = dependent)
+#       
+#     } else if(tolower(mod.type) == 'gee') {
+#       
+#       # set ordinal dependent to factor
+#       model <- estimate_longitudnial_gamma_gee(data = sorted_df,
+#                                                formula = form, 
+#                                                include_weights = use.weights, 
+#                                                depend = dependent)
+#       
+#     } 
+#     
+#     saveRDS(model, file=paste0(out.path2, dependent, "_", mod.type, '.rds')) # shorter file name with no years..
+#     print(paste0(mod.type, ' model for ', dependent, ' generated for years ', min(year.range), ' - ', max(year.range)))
+#     print(paste0("Finished for ", dependent, ", mod type ", mod.type, '.'))
+#   }
+#   # close and remove connection object from memory
+#   close(modDefs)
+#   rm(modDefs)
+# }
+
+
+
 ################ Last Minute Data Prep & Execute Script ################
 
 

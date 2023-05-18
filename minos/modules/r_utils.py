@@ -49,6 +49,8 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
         View including columns that are required for prediction
     dependent : str
         The independent variable we are trying to predict
+    reflect, transform : bool
+        Do left reflection and yj transform?
     Returns:
     -------
     A prediction of the information for next timestep
@@ -60,7 +62,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
 
     if reflect:
         max_depend = max(current[dependent])
-        current[dependent] =  max_depend - current[dependent]
+        current[dependent] = max_depend - current[dependent]
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -73,7 +75,8 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
         # Stored in estimate_transitions.R.
         # Note inverse=True arg is needed to get back to actual gross income.
         yj = model.rx2('transform') # use yj from fitted model for latest year.
-        #yj = bn.yeojohnson(currentRDF.rx2(dependent), standardize=True) # fit yj to current MINOS data. skews hard over time due to underdispersion.
+        if reflect:
+            yj = bn.yeojohnson(currentRDF.rx2(dependent), standardize=True) # fit yj to current MINOS data. skews hard over time due to underdispersion.
         currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
         ols_data = stats.predict(model, newdata=currentRDF)  # estimate next income using OLS.
         prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
@@ -94,8 +97,8 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, transform
     if transform:
         output = output.clip(-150000, 150000)
 
-    if reflect:
-        output =  max_depend - output
+    #if reflect:
+    #    output = max_depend - output
     return output
 
 
