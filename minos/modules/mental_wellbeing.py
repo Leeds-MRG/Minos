@@ -95,7 +95,8 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        #newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 

@@ -68,6 +68,8 @@ ggplot(data = raw.sum, aes(x = time, y = diff.sd)) +
   geom_line()
 
 # Why wont this work with time as a factor?! Annoying!
+
+rm(raw.sum)
 ```
 
 So that is the mean rate of change and sd for the whole population. Now to do the same by income quintile.
@@ -98,7 +100,8 @@ ggplot(data = raw.quintile.sum, aes(x = quintile, y = diff.mean, group=quintile,
 
 ggplot(data = raw.quintile.sum, aes(x = quintile, y = diff.sd, group=quintile, fill = quintile)) +
   geom_col()
-  
+
+rm(raw.quintile.sum)
 ```
 
 ```{r}
@@ -113,6 +116,8 @@ ggplot(data = raw.quintile.sum.time, aes(x = time, y = diff.mean, group=quintile
 
 ggplot(data = raw.quintile.sum.time, aes(x = time, y = diff.sd, group=quintile, color = quintile)) +
   geom_line()
+
+rm(raw.quintile.sum.time)
 ```
 
 ### Whole Period Quintile Assignment
@@ -156,6 +161,8 @@ ggplot(data = raw.quintile.sum2, aes(x = income.quint, y = diff.mean, group=inco
 
 ggplot(data = raw.quintile.sum2, aes(x = income.quint, y = diff.sd, group=income.quint, fill = income.quint)) +
   geom_col()
+
+rm(raw.time.quint, raw.quint2, raw.quintile.sum2)
 ```
 
 ## SF12
@@ -225,11 +232,12 @@ diff_by_year1_quintile <- function(raw, var) {
     group_by(pidp) %>%
     mutate(diff.var = .data[[var]] - lag(.data[[var]], order_by = time))
   
-  return(raw)
+  #return(raw)
   
   raw.time.quint <- raw %>%
     filter(time == 2009) %>%
-    mutate(var.quint = cut(.data[[var]], breaks = unique(quantile(x = .data[[var]], prob = c(0:5)/5)), include.lowest = TRUE))# %>% , labels = c(1:5)
+    mutate(varx = .data[[var]],
+           var.quint = cut(varx, breaks = unique(quantile(x = varx, prob = c(0:5)/5)), include.lowest = TRUE))# %>% , labels = c(1:5)
     #select(-var.mean)
   
   return(raw.time.quint)
@@ -260,7 +268,7 @@ diff_by_year1_quintile <- function(raw, var) {
   return(raw.quint.sum)
 }
 
-hh_income.stats.yr1 <- diff_by_year1_quintile(raw.dat, 'hh_income')
+#hh_income.stats.yr1 <- diff_by_year1_quintile(raw.dat, 'hh_income')
 ```
 
 
@@ -270,18 +278,110 @@ hh_income.stats.yr1 <- diff_by_year1_quintile(raw.dat, 'hh_income')
 
 
 ```{r}
-test <- hh_income.stats.yr1
+#test <- hh_income.stats.yr1
 
-test2 <- test %>%
-  filter(time == 2009)
+#test2 <- test %>%
+#  filter(time == 2009)
 
-print(sum(is.na(test2$hh_income)))
-print(sum(test2$hh_income == -9))
+#print(sum(is.na(test2$hh_income)))
+#print(sum(test2$hh_income == -9))
 
-print(min(test2$hh_income))
-print(sum(test2$hh_income == 0))
+#print(min(test2$hh_income))
+#print(sum(test2$hh_income == 0))
 
-ggplot(data = test2, aes(x = hh_income)) +
-  geom_histogram()
+#ggplot(data = test2, aes(x = hh_income)) +
+#  geom_histogram()
+```
+
+# Comparing SF12_MCS Diff
+
+```{r}
+cv.path <- 'Minos/data/final_US/cross_validation/simulation/'
+cv.outpath <- 'Minos/output/cross_validation/'
+
+raw.files <- list.files(cv.path, pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.cv <- do.call(rbind, lapply(raw.files, read.csv))
+
+base.cv <- read_singular_local_out(cv.outpath, 'baseline')
+
+## MODELS
+mod.path <- 'Minos/data/transitions/cross_validation/'
+sf12.mod <- readRDS(paste0(mod.path, 'SF_12/ols2/SF_12_2017_2018.rds'))
+income.mod <- readRDS(paste0(mod.path, 'hh_income/ols2/hh_income_2019_2020.rds'))
+
+```
+
+## Model Summaries
+
+```{r}
+summary(sf12.mod)
+```
+```{r}
+summary(income.mod)
+```
+
+
+```{r}
+miss.values <- c(-9, -8, -7, -3, -2, -1, -10)
+raw <- raw.cv %>%
+  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+  group_by(pidp) %>%
+  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
+         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+  filter(time != 2009)
+
+base <- base.cv %>%
+  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+  group_by(pidp) %>%
+  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
+         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+  filter(time != 2014)
+```
+
+```{r}
+raw.sub <- raw %>%
+  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
+  mutate(source = 'raw')
+base.sub <- base %>%
+  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
+  mutate(source = 'output')
+
+combined <- rbind(raw.sub, base.sub)
+
+combined.sum <- combined %>%
+  group_by(time, source) %>%
+  summarise(hh_income = mean(diff.hh_income, na.rm = TRUE),
+            SF12_MCS = mean(diff.SF12_MCS, na.rm = TRUE))
+
+ggplot(combined.sum, aes(x = time, y = hh_income, group = source, color = source)) +
+  geom_line()
+
+ggplot(combined.sum, aes(x = time, y = SF12_MCS, group = source, color = source)) +
+  geom_line()
+```
+
+
+
+
+
+```{r}
+test <- base.cv %>%
+  group_by(time) %>%
+  summarise(mean.income = mean(hh_income, na.rm = TRUE),
+            mean.SF12 = mean(SF_12, na.rm = TRUE))
+
+ggplot(test, aes(x = time, y = mean.income)) +
+  geom_line()
+
+ggplot(test, aes(x = time, y = mean.SF12)) +
+  geom_line()
+```
+
+
+
+
+
+```{r}
+
 ```
 
