@@ -1,0 +1,242 @@
+---
+title: "'Model of Models' stuff"
+output: html_notebook
+---
+
+This is an investigation recommended by Robin Pursehouse from a meeting on 5/5/23.
+
+We want to investigate the coefficients of our models over time, and from this investigation we can do a couple of things. For example, there are 2 possible good outcomes from this work (and one very bad outcome):
+1. If we identify that our model coefficients are fairly steady over time, then we can assume that our coefficients are time invariant. This would mean that the influence of the predictors on the outcome doesn't change over time, and that these models will be able to successfully predict the outcome into the future. We would also be able to use multiple years of data for a single model instead of the yearly models we generate now.
+2. If model coefficients trend in a predictable way, we can fit another regression model to this longitudinal set of coefficients. We can then use this model to predict future states of the coefficients, and generate transition models for future years where data is not available.
+3. This is a possible outcome that should be mentioned, but we hope to not see it. If the coefficient trends are arbitrary, we will not be able to predict the future of the models, and would have no confidence that this set of predictors can predict the response in any year. This is the worst outcome, as it essentially means that the task is not possible or just not worth trying.
+
+Rob also found [this paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6599683/) on the multinomial fused lasso technique, which is a data driven method of picking the correct set of predictors for a regression model that either are time-invariant or trend in a predictable way over the length of a longitudinal dataset. This is what we want, so is probably a good place to start trying to do this.
+
+To start with,  we'll look at the hh_income variable, which has good (relatively complete) data over the length of Understanding Society. When some prototype code has been developed, we'll look at automation and expanding to the rest of the key variables.
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(tibble)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source('Minos/minos/utils_datain.R')
+source('Minos/minos/validation/utils.r')
+source('Minos/minos/utils_outcome_vis.R')
+```
+
+## Models
+
+```{r}
+# note this is the path to the rate of change models, NOT the regenerative mean effects
+mod.path <- 'Minos/data/transitions/hh_income/ols2/'
+m1 <- readRDS(paste0(mod.path, 'hh_income_2009_2010.rds'))
+m2 <- readRDS(paste0(mod.path, 'hh_income_2010_2011.rds'))
+m3 <- readRDS(paste0(mod.path, 'hh_income_2011_2012.rds'))
+m4 <- readRDS(paste0(mod.path, 'hh_income_2012_2013.rds'))
+m5 <- readRDS(paste0(mod.path, 'hh_income_2013_2014.rds'))
+m6 <- readRDS(paste0(mod.path, 'hh_income_2014_2015.rds'))
+m7 <- readRDS(paste0(mod.path, 'hh_income_2015_2016.rds'))
+m8 <- readRDS(paste0(mod.path, 'hh_income_2016_2017.rds'))
+m9 <- readRDS(paste0(mod.path, 'hh_income_2017_2018.rds'))
+m10 <- readRDS(paste0(mod.path, 'hh_income_2018_2019.rds'))
+m11 <- readRDS(paste0(mod.path, 'hh_income_2019_2020.rds'))
+```
+
+## Coefficients
+
+```{r}
+c1 <- data.frame(m1$coefficients)
+c2 <- data.frame(m2$coefficients)
+c3 <- data.frame(m3$coefficients)
+c4 <- data.frame(m4$coefficients)
+c5 <- data.frame(m5$coefficients)
+c6 <- data.frame(m6$coefficients)
+c7 <- data.frame(m7$coefficients)
+c8 <- data.frame(m8$coefficients)
+c9 <- data.frame(m9$coefficients)
+c10 <- data.frame(m10$coefficients)
+c11 <- data.frame(m11$coefficients)
+
+names(c1) <- 'y1'
+names(c2) <- 'y2'
+names(c3) <- 'y3'
+names(c4) <- 'y4'
+names(c5) <- 'y5'
+names(c6) <- 'y6'
+names(c7) <- 'y7'
+names(c8) <- 'y8'
+names(c9) <- 'y9'
+names(c10) <- 'y10'
+names(c11) <- 'y11'
+
+#c1$pred <- rownames(c1)
+#c2$pred <- rownames(c2)
+#c3$pred <- rownames(c3)
+#c4$pred <- rownames(c4)
+#c5$pred <- rownames(c5)
+#c6$pred <- rownames(c6)
+#c7$pred <- rownames(c7)
+#c8$pred <- rownames(c8)
+#c9$pred <- rownames(c9)
+#c10$pred <- rownames(c10)
+#c11$pred <- rownames(c11)
+
+c1 <- tibble::rownames_to_column(c1, "Predictor")
+c2 <- tibble::rownames_to_column(c2, "Predictor")
+c3 <- tibble::rownames_to_column(c3, "Predictor")
+c4 <- tibble::rownames_to_column(c4, "Predictor")
+c5 <- tibble::rownames_to_column(c5, "Predictor")
+c6 <- tibble::rownames_to_column(c6, "Predictor")
+c7 <- tibble::rownames_to_column(c7, "Predictor")
+c8 <- tibble::rownames_to_column(c8, "Predictor")
+c9 <- tibble::rownames_to_column(c9, "Predictor")
+c10 <- tibble::rownames_to_column(c10, "Predictor")
+c11 <- tibble::rownames_to_column(c11, "Predictor")
+
+rm(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11)
+```
+
+```{r}
+# now merge them all together in a bit rbind
+#all.years <- merge(c(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11), by='Predictor')
+
+merge.list <- list(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11)
+
+all.years <- merge.list %>% reduce(full_join, by='Predictor')
+```
+
+
+```{r}
+# now pivot_longer before plotting with ggplot
+all.years.long <- pivot_longer(data = all.years,
+                               cols = y1:y11,
+                               names_to = 'year',
+                               values_to = 'coefficient')
+all.years.long$year <- factor(all.years.long$year, levels = c('y1', 'y2', 'y3', 'y4', 'y5', 'y6', 'y7', 'y8', 'y9', 'y10', 'y11'))
+```
+
+
+
+```{r}
+ggplot(data = all.years.long, aes(x = year, y = coefficient, group = Predictor, color = Predictor)) +
+  geom_line()
+```
+
+Too many point to plot so we can't see a thing! Separate out into the individual variables, so for example all regions on one plot, all ethnicities on another etc.
+
+Print predictors so I don't have to keep opening the df to see them. 
+
+```{r}
+print(all.years$Predictor)
+```
+
+# Intercept
+
+First lets look at the intercept.
+
+```{r}
+intercept <- all.years.long %>%
+  filter(grepl("Intercept", Predictor))
+
+ggplot(intercept, aes(x = year, y = coefficient, group=1)) +
+  geom_line() +
+  labs(title = 'Intercept')
+```
+
+# Gender
+
+```{r}
+gender <- all.years.long %>%
+  filter(grepl("sex", Predictor))
+
+ggplot(gender, aes(x = year, y = coefficient, group=1)) +
+  geom_line() +
+  labs(title = 'Gender - Male', subtitle = 'Ref: Female')
+```
+
+# Ethnicity
+
+```{r}
+ethnicity <- all.years.long %>%
+  filter(grepl("ethnicity", Predictor)) %>%
+  mutate(ethnicity = str_extract(Predictor, pattern = '[^)]+$'))
+
+ggplot(ethnicity, aes(x = year, y = coefficient, group = ethnicity, color = ethnicity)) +
+  geom_line() +
+  labs(title = 'Ethnicity', subtitle = 'Ref: WBI')
+```
+
+# Region
+
+```{r}
+region <- all.years.long %>%
+  filter(grepl("region", Predictor)) %>%
+  mutate(region = str_extract(Predictor, pattern = '[^)]+$'))
+
+ggplot(region, aes(x = year, y = coefficient, group = region, color = region)) +
+  geom_line() +
+  labs(title = 'Region', subtitle = 'Ref: South East')
+```
+
+# Education State
+
+```{r}
+educ <- all.years.long %>%
+  filter(grepl("education", Predictor)) %>%
+  mutate(education = str_extract(Predictor, pattern = '[^)]+$'))
+
+ggplot(educ, aes(x = year, y = coefficient, group = education, color = education)) +
+  geom_line() +
+  labs(title = 'Education State', subtitle = 'Ref: 1 - ')
+```
+
+# Job Sec
+
+```{r}
+jobsec <- all.years.long %>%
+  filter(grepl("job_sec", Predictor)) %>%
+  filter(!grepl("job_sector", Predictor)) %>%
+  mutate(job_sec = str_extract(Predictor, pattern = '[^)]+$'))
+
+ggplot(jobsec, aes(x = year, y = coefficient, group = job_sec, color = job_sec)) +
+  geom_line() +
+  labs(title = 'Job NSSEC')
+```
+
+# Job Sector
+
+```{r}
+jobsector <- all.years.long %>%
+  filter(grepl("job_sector", Predictor)) %>%
+  mutate(job_sector = str_extract(Predictor, pattern = '[^)]+$'))
+
+ggplot(jobsector, aes(x = year, y = coefficient, group = job_sector, color = job_sector)) +
+  geom_line() +
+  labs(title = 'Job Sector (Public/Private)')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
