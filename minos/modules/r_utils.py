@@ -97,8 +97,6 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     A prediction of the information for next timestep
     """
 
-    print(f"Running prediction step for {dependent} in year {year}...")
-
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
@@ -125,7 +123,7 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
 
     #newPandasPopDF = newPandasPopDF['new_dependent'] - newPandasPopDF[[dependent]]
 
-    fig = pl.hist(newPandasPopDF['predicted'])
+    fig = pl.hist(newPandasPopDF['predicted'], bins=40)
     pl.title(f"Difference: {dependent} - {year}")
     pl.xlabel('Value')
     pl.ylabel('Frequency')
