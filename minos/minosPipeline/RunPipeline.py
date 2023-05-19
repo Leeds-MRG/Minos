@@ -34,7 +34,7 @@ from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift
+from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -83,7 +83,9 @@ def validate_components(config_components, intervention):
         "hhIncomeChildUplift": hhIncomeChildUplift(),
         "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
         "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift()
+        "energyDownlift": energyDownlift(),
+        "EPCG": energyPriceCapGuarantee(),
+        "EBSS": energyBillSupportScheme(),
     }
 
     replenishment_components_map = {

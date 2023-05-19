@@ -28,7 +28,7 @@ class Replenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
-
+        config = builder.configuration
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
         view_columns = ['pidp',
@@ -82,8 +82,14 @@ class Replenishment(Base):
                         'gross_paypm',
                         'phealth',
                         'marital_status',
-                        'hh_comp'
+                        'hh_comp',
+                        'universal_income',
+                        'new_pidp',
+                        'council_tax'
                         ]
+
+        if config.input_data_dir == "data/scaled_glasgow_US": # only have spatial column for synthpop.
+            view_columns += ["ZoneID"]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

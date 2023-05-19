@@ -453,13 +453,29 @@ class energyDownlift(Base):
 
 # island households fund. spatial policy should be easy to cut by island super outputs but need a list of them from somewhere (spatial policy...).
 
-class energyPriceCap(Base):
+# subtract income based on yearly energy.
+# change by year according to EPG caps.
+# Apr 2021 - £1138
+# Oct 2021 - £1277
+# Apr 2022 - £1971
+# Oct 2022 - £2500
+# Apr 2023 - £3000
+# TODO this is a bit naive. can it be improved? see broadbent paper.
+energy_cap_prices = {2017: 1300, #TODO could be refined tobe more precise
+                     2018: 1300,
+                     2019: 1308,
+                     2020: 1286,
+                     2021: 1333,
+                     2022: 2316,
+                     2023: 3500}
+
+class energyPriceCapGuarantee(Base):
     @property
     def name(self):
-        return "energy_downlift"
+        return "energyPriceCapGuarantee"
 
     def __repr__(self):
-        return "energyDownlift()"
+        return "energyPriceCapGuarantee()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -483,7 +499,7 @@ class energyPriceCap(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["gross_hh_income", 'yearly_energy']
+        view_columns = ["hh_income", 'yearly_energy']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -509,7 +525,7 @@ class energyPriceCap(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['net_hh_income'] -= pop['boost_amount']
+        #pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -521,18 +537,18 @@ class energyPriceCap(Base):
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
-        pop['gross_hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['net_hh_income'])) # for debugging.
+        pop['hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
-        self.population_view.update(pop[['gross_hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
-class energyPoverty(Base):
+class energyBillSupportScheme(Base):
     @property
     def name(self):
-        return "energyPoverty"
+        return "energyBillSupportScheme"
 
     def __repr__(self):
-        return "energyPoverty()"
+        return "energyBillSupportScheme()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -553,12 +569,13 @@ class energyPoverty(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["net_hh_income",
-                        'yearly_energy',
+        view_columns = ['yearly_energy',
                         "region",
                         "hidp",
                         "labour_state",
-                        'gross_hh_income']
+                        'hh_income',
+                        "universal_income",
+                        "council_tax"]
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -584,7 +601,7 @@ class energyPoverty(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
         # DONT SUBTRACT FROM INCOME AS IT SEEMS TO UNDO ITSELF AAAAAAAAA.
-        #pop['net_hh_income'] -= pop['boost_amount']
+        #pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -605,10 +622,18 @@ class energyPoverty(Base):
             # £300 for households with pensioners (labour states)
             pensioner_houses = pop.loc[pop['labour_state']=="Retired", 'hidp']
             pop.loc[pop['hidp'].isin(pensioner_houses), 'boost_amount'] += 300
-            # £150 for households with disabled individuals.
-            pensioner_houses = pop.loc[pop['labour_state']=="Sick/Disabled", 'hidp']
-            pop.loc[pop['hidp'].isin(pensioner_houses), 'boost_amount'] += 150
-            # discounting based on tariff type (prepayment meters/fixed rate tariffs/ all different (cant do this..)
+            # £150 for households with long term sick/disabled individuals.
+            disability_houses = pop.loc[pop['labour_state']=="Sick/Disabled", 'hidp']
+            pop.loc[pop['hidp'].isin(disability_houses), 'boost_amount'] += 150
+            # £650 for those on universal credit
+            universal_credit_houses = pop.loc[pop['universal_income']==1, 'hidp']
+            pop.loc[pop['hidp'].isin(universal_credit_houses), 'boost_amount'] += 650
+            # £150 for council tax bands A-D. Work out who has council_tax value between 1 and 4 in two stages.
+            ct_band_D_houses = pop.loc[pop['council_tax']<=4, ['council_tax', 'hidp']]
+            ct_band_A_D_houses = ct_band_D_houses.loc[ct_band_D_houses['council_tax']>=1, 'hidp']
+            pop.loc[pop['hidp'].isin(ct_band_A_D_houses), 'boost_amount'] += 150
+
+        # discounting based on tariff type (prepayment meters/fixed rate tariffs/ all different (cant do this..)
             # TODO see elecpay/gaspay.
             # Long term government net zero plans. estimating 15% reduction in household energy bills
             # for now assume linear reduction in energy costs from 0% to 15% by 2030.
@@ -616,12 +641,11 @@ class energyPoverty(Base):
             # TODO any other boosts suggested by new gov plans. any specifically by subgroups?
         pop['boost_amount'] = pop['boost_amount'].clip(upper=0.001)
         pop['income_boosted'] = pop['boost_amount'] != 0
-        #pop['net_hh_income'] += pop['boost_amount']
-        pop['gross_hh_income'] += pop['boost_amount']
+        pop['hh_income'] += pop['boost_amount']
 
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes no social change. just go very negative which has major detrimental effects.
         # TODO add in reduction due to energy crisis that varies by year.
 
-        self.population_view.update(pop[['gross_hh_income', 'income_boosted', 'boost_amount']])
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
