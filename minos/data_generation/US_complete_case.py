@@ -60,7 +60,7 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age"]  # many of these
+                          "education_state", 'region', "age", "job_sector"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
 
     # Complete case for some vars in 2014 as it was messing up the cross-validation runs
-    data = complete_case_custom_years(data, 'job_sector', years=[2014])
+    #data = complete_case_custom_years(data, 'job_sector', years=[2014])
     data = complete_case_custom_years(data, 'hh_income', years=[2014])
 
     drop_columns = ['financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
