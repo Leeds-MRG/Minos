@@ -2,6 +2,8 @@
 ### Data Generation
 #####################################
 
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
 data: raw_data corrected_data composite_data complete_data final_data
@@ -31,6 +33,8 @@ spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all 
 spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
+
+glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
 
 cv_data: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv
 
@@ -72,3 +76,7 @@ $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv: $(COMPLETEDATA)/202
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation
+
+# synthetic input for glasgow with spatial component.
+$(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/US_upscaling.py
