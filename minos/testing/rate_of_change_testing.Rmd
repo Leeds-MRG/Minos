@@ -18,6 +18,7 @@ rm(workingDir)
 ```{r, include=FALSE}
 source('Minos/minos/utils_datain.R')
 source('Minos/minos/validation/utils.r')
+source('Minos/minos/utils_outcome_vis.R')
 ```
 
 ## Data
@@ -378,10 +379,55 @@ ggplot(test, aes(x = time, y = mean.SF12)) +
 ```
 
 
+## Marginal Distribtion Plots
 
-
+These plots are quite good at showing regression to the mean (and also sometimes nicer than looking at the mean lineplots even though differences are harder to spot) so lets plot them too just for fun.
 
 ```{r}
+# need baseline and interventions to compare with
+out.path <- 'Minos/output/default_config/'
+baseline <- read_singular_local_out(out.path, 'baseline')
+allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift')
+poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift')
+livwage <- read_singular_local_out(out.path, 'livingWageIntervention')
+energy <- read_singular_local_out(out.path, 'energyDownlift')
+```
 
+```{r}
+alchild.plot <- SF12_marg_dist_densigram_plot(baseline,
+                              allchild,
+                              'All Child Uplift',
+                              target.year = 2030)
+pov.plot <- SF12_marg_dist_densigram_plot(baseline,
+                              poverty,
+                              'Poverty Child Uplift',
+                              target.year = 2030)
+livwage.plot <- SF12_marg_dist_densigram_plot(baseline,
+                              livwage,
+                              'Living Wage Uplift',
+                              target.year = 2030)
+energy.p <- SF12_marg_dist_densigram_plot(baseline,
+                              energy,
+                              'Energy Downlift',
+                              target.year = 2030)
+```
+
+```{r}
+alchild.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+                              allchild,
+                              'All Child Uplift',
+                              target.year = 2030)
+pov.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+                              poverty,
+                              'Poverty Child Uplift',
+                              target.year = 2030)
+livwage.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+                              livwage,
+                              'Living Wage Uplift',
+                              target.year = 2030)
+energy.p2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+                              energy,
+                              'Energy Downlift',
+                              target.year = 2030)
 ```
 
