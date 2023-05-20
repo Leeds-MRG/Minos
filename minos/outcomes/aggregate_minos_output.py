@@ -106,6 +106,7 @@ def main(source, mode, years, tag, v, method, subset_function_string):
     print(f"Saved file to {destination}")
 
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Aggregate output data from a MINOS batch run directory.")
