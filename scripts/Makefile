@@ -57,6 +57,12 @@ intervention_livingWage: setup
 intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
+intervention_EPCG:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
+
+intervention_EBSS:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
+
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
@@ -90,6 +96,12 @@ arc4_intervention_livingWage: setup
 
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+
+arc4_EBCG:
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
+
+arc4_EBSS:
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
 
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
