@@ -34,6 +34,9 @@ data/transitions/*
 data/transitions/*/*
 data/transitions/*/*/*
 
+# chris data
+persistent_data/spatial_data/ADULT* 
+
 # build stuff
 build/
 dist/

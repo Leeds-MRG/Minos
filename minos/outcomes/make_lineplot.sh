@@ -5,6 +5,11 @@
 # $1 minos mode. default_config or scotland_mode for now
 # $2 A list of directories. Where are the data for required interventions stored. For example. baseline,livingWageIntervention will pull files from
 # 2 baseline,livingWageIntervention
+# $3 Contains the names for each source file in the legend of the final lineplot. E.g. the baseline has label Baseline.
+# livingWageIntervention source has name Living Wage Intervention.
+# $4 subset functions for each source. Which data from this source are used to calculate change in SF_12.
+# For example using the function who_alive would specify which
+# $5 Prefix for the output plot file name. Used to differentiate different results.
 #who_alive,who_below_living_wage
 
 Help()
