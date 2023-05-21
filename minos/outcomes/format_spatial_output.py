@@ -11,6 +11,7 @@ import os
 from datetime import datetime
 from aggregate_subset_functions import dynamic_subset_function
 from multiprocessing import Pool
+from itertools import repeat
 
 """
 Get spatial data.
@@ -27,6 +28,7 @@ save to geojson.
 This reformat has a number of advantages
 
 """
+
 
 # def eightyTwenty(income):
 #
@@ -48,8 +50,10 @@ def get_latest_minos_files(source):
                            "aggregate. Please check the output directory.")
     return os.path.join(source, runtime)
 
+
 def get_minos_files(source):
     return glob.glob(source + f"/*{year}.csv")
+
 
 def get_spatial_data():
     """ Get WS3 spatial data for UK
@@ -72,14 +76,15 @@ def get_spatial_data():
         raise
     return spatial_data
 
-def get_region_lsoas(region):
 
-    region_file_name_dict = {"manchester" : "manchester_lsoas.csv",
+def get_region_lsoas(region):
+    region_file_name_dict = {"manchester": "manchester_lsoas.csv",
                              "scotland": "scotland_data_zones.csv",
-                             "sheffield" : "sheffield_lsoas.csv",
-                             "glasgow" : "glasgow_data_zones.csv"}
+                             "sheffield": "sheffield_lsoas.csv",
+                             "glasgow": "glasgow_data_zones.csv"}
     lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
     return pd.read_csv(lsoas_file_path)
+
 
 def group_by_and_aggregate(data, group_column, v, method):
     """ Aggregate values by
@@ -101,6 +106,7 @@ def group_by_and_aggregate(data, group_column, v, method):
     data[group_column] = data.index
     data.reset_index(drop=True, inplace=True)
     return data
+
 
 def subset_lsoas_by_region(spatial_data, region_data):
     """ Find lsoas within a certain region e.g. scotland, manchester.
@@ -164,6 +170,7 @@ def subset_geojson(geojson_data, subset):
     geojson_data['features'] = [geojson_data['features'][i] for i in keep]
     return geojson_data
 
+
 def load_geojson(source_file_name):
     """ Load a geojson file.
 
@@ -201,8 +208,56 @@ def save_geojson(geojson_data, file_name):
         geojson.dump(geojson_data, outfile)
 
 
-def main(source, year, region, subset_function, v = "SF_12", method = np.nanmean):
+def attach_spatial_component(minos_data, spatial_data, v="SF_12", method=np.nanmean):
+    # if the MINOS input is just pure Understanding Society data it needs a spatial component adding.
+    # Do this by taking
+    common_pidps = spatial_data.loc[spatial_data["pidp"].isin(minos_data["pidp"]), 'pidp']
+    minos_data = minos_data.loc[minos_data["pidp"].isin(common_pidps), ["pidp", v]]
+    minos_data = spatial_data.loc[spatial_data["pidp"].isin(common_pidps),].merge(minos_data, how='left', on='pidp')
+    return minos_data
 
+
+def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmean):
+    minos_data = pd.read_csv(minos_file)
+    if subset_function:
+        minos_data = dynamic_subset_function(minos_data, subset_function)
+    minos_data = minos_data[['pidp', "ZoneID", v]]
+    minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
+    return minos_data
+def load_data_and_attach_spatial_component(minos_file, spatial_data, v="SF_12", method=np.nanmean):
+    minos_data = pd.read_csv(minos_file)
+    if subset_function:
+        minos_data = dynamic_subset_function(minos_data, subset_function)
+    minos_data = minos_data[['pidp', v]]
+    minos_data = attach_spatial_component(minos_data, spatial_data)
+    minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
+    return minos_data
+
+
+def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glasgow', v="SF_12", method=np.nanmean):
+    # Get spatial data and subset LSOAs for desired region.
+    # Pooled as there can be hundreds of datasets here and it gets silly.
+    with Pool() as pool:
+        if is_synthetic_pop:
+            aggregated_spatial_data = pool.starmap(load_synthetic_data,
+                                            zip(minos_files, repeat("who_alive")))
+        else:
+            spatial_data = get_spatial_data()
+            region_lsoas = get_region_lsoas(region)
+            spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
+            # is this the best way to do this? Dont want to load in spatial data 1000 times.
+            # Are these hard copies or just refs?
+            aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,
+                                            zip(minos_files, spatial_data, repeat(subset_function)))
+
+    # loop over minos files for given year. merge with spatial data and aggregate by LSOA.
+    total_minos_data = pd.concat(aggregated_spatial_data)
+
+    #total_minos_data = pd.concat([total_minos_data, minos_data])
+    return total_minos_data
+
+
+def main(source, year, region, subset_function, is_synthetic_pop, v="SF_12", method=np.nanmean):
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
     - Merge minos data onto spatially weighted LSOAs.
@@ -226,26 +281,8 @@ def main(source, year, region, subset_function, v = "SF_12", method = np.nanmean
     None
     """
     print(f"Aggregating MINOS data at {source} for {year} and {region} region.")
-
-    # Get spatial data and subset LSOAs for desired region.
-    spatial_data = get_spatial_data()
-    region_lsoas = get_region_lsoas(region)
-    spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
-
-    #loop over minos files for given year. merge with spatial data and aggregate by LSOA.
-    total_minos_data = pd.DataFrame()
     minos_files = get_minos_files(source)
-    for file in minos_files:
-        minos_data = pd.read_csv(file)
-        if subset_function:
-            minos_data = dynamic_subset_function(minos_data, subset_function)
-        minos_data = minos_data[['pidp', v]]
-
-        common_pidps = spatial_data.loc[spatial_data["pidp"].isin(minos_data["pidp"]),'pidp']
-        minos_data = minos_data.loc[minos_data["pidp"].isin(common_pidps),["pidp", v]]
-        minos_data = spatial_data.loc[spatial_data["pidp"].isin(common_pidps),].merge(minos_data, how='left', on='pidp')
-        minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
-        total_minos_data = pd.concat([total_minos_data, minos_data])
+    total_minos_data = load_minos_data(minos_files, subset_function, is_synthetic_pop)
 
     # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
     total_minos_data = group_by_and_aggregate(total_minos_data, "ZoneID", v, method)
@@ -254,11 +291,14 @@ def main(source, year, region, subset_function, v = "SF_12", method = np.nanmean
     # convert
     spatial_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data[v]))
     # Load in national LSOA geojson map data from ONS.
-    #https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
+    # https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
     json_source = "persistent_data/spatial_data/UK_super_outputs.geojson"
-    #json_source = "persistent_data/spatial_data/SG_DataZone_Bdry_2011.json" # scottish data has slightly nicer looking geometries with annoyingly different column names.
+    # json_source = "persistent_data/spatial_data/SG_DataZone_Bdry_2011.json" # scottish data has slightly nicer looking geometries with annoyingly different column names.
     json_data = load_geojson(json_source)
-    json_data = subset_geojson(json_data, spatial_data["ZoneID"])
+    if not is_synthetic_pop:
+        json_data = subset_geojson(json_data, get_spatial_data()["ZoneID"])
+    else:
+        json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
     json_data = edit_geojson(json_data, spatial_dict, "SF_12")
 
     # save updated geojson for use in map plots.
@@ -266,6 +306,7 @@ def main(source, year, region, subset_function, v = "SF_12", method = np.nanmean
     fname = os.path.join(source, f"{region}_{method.__name__}_{v}_{year}.geojson")
     save_geojson(json_data, fname)
     print("Done!")
+
 
 if __name__ == "__main__":
     # parse inputs from bash script. not meant to be run directly.
@@ -281,6 +322,8 @@ if __name__ == "__main__":
                         help="What region of geojson data is being generated.")
     parser.add_argument("-s", "--subset_function", default="", type=str,
                         help="What subset function is used for data frame. Usually none or who_boosted/intervened on.")
+    parser.add_argument("-p", "--synthetic_pop", default="", type=str,
+                        help="Is this a synthetic population? If yes it has a spatial component that can be used directly.")
 
     # get args an
     args = vars(parser.parse_args())
@@ -290,8 +333,13 @@ if __name__ == "__main__":
     year = args['year']
     region = args['region']
     subset_function = args['subset_function']
+    is_synthetic_pop = args['synthetic_pop']
+    if is_synthetic_pop == "true":
+        is_synthetic_pop = True
+    else:
+        is_synthetic_pop = False
 
     # get subset function from specified subset function string.
     source = get_latest_minos_files(os.path.join("output", mode, intervention))
 
-    main(source, year, region, subset_function)
+    main(source, year, region, subset_function, is_synthetic_pop)
