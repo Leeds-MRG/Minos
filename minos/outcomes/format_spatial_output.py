@@ -10,6 +10,7 @@ import glob
 import os
 from datetime import datetime
 from aggregate_subset_functions import dynamic_subset_function
+from multiprocessing import Pool
 
 """
 Get spatial data.

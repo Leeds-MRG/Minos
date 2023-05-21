@@ -103,7 +103,7 @@ arc4_intervention_energyDownLift: setup
 arc4_glasgow_baseline:
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
-arc4_EBCG:
+arc4_EPCG:
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
 
 arc4_EBSS:
