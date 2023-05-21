@@ -136,7 +136,8 @@ minos_diff_map <- function(data, destination_file_name, do_save=T){
   diff.map <- ggplot(data = data, aes(geometry = geometry, fill=diff)) + 
     geom_sf(color='black', lwd=0.01) + # add black borders to lsoas for clarity
     # Add split colour scheme.
-    scale_fill_distiller(palette = "PuOr", limits=c(-scale_limit, scale_limit), direction=-1) + 
+    scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+    #scale_fill_distiller(palette = "PuOr", limits=c(-scale_limit, scale_limit), direction=-1) + 
     labs(fill='Absolute Difference')  + # label colour bar
     theme(aspect.ratio=9/16) +
     #ggtitle("Difference in SF12 spatial distribution for minos vs real US data in Sheffield.") +
@@ -218,10 +219,13 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name){
   data1 <- calculate_diff(data1, data2, "SF_12")
   minos_diff_map(data1, destination_file_name)
   
-  #browser()
-  #imd_ranks <- read.csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")
-  #imd_ranks <- subset(imd_ranks, DZ %in% lsoas$lsoa11cd)
-  #imd_ranks <- imd_ranks[, c("DZ", "SIMD2020v2_Rank")]
-  #colnames(imd_ranks) <- c("DataZone", "IMDRank")
-  
+  # imd_ranks <- read.csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")
+  # imd_ranks <- subset(imd_ranks, DZ %in% data1$ZoneID)
+  # imd_ranks <- imd_ranks[, c("DZ", "SIMD2020v2_Rank")]
+  # colnames(imd_ranks) <- c("ZoneID", "IMDRank")
+  # imd_ranks$local_IMD_Ranks <- rank(imd_ranks$IMDRank)
+  # 
+  # data1 <- merge(data1, imd_ranks, by=(c("ZoneID")))
+  # data1$local_sf12_ranks <- rank(data1$SF_12)
+  # print(corr(data1$local_sf12_ranks, data1$local_IMD_ranks))
 }

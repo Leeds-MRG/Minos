@@ -42,24 +42,24 @@ main <- function(){
   parser$add_argument("-r", "--region", dest='region', help="What spatial region to use. sheffield, manchester, scotland(not yet)")
   parser$add_argument("-d", "--destination", dest='destination', help="Where to save to.")
   parser$add_argument("-y", "--year", dest='year', help="What year of MINOS data to map.")
-  
-  
+
+
   args <- parser$parse_args()
-  
+
   mode <- args$mode
   intervention1 <- args$intervention
   intervention2 <- args$second_intervention
   region <- args$region
-  year <- args$year 
+  year <- args$year
   destination_file_name <- args$destination
   
-  #mode <- "default_config"
-  #intervention2 <- "baseline"
-  #intervention1 <- "livingWageIntervention"
-  #region <- "glasgow"
-  #year <- 2025
-  #v <- "SF_12"
-  
+  # mode <- "default_config"
+  # intervention2 <- "EBSS"
+  # intervention1 <- "EPCG"
+  # region <- "glasgow"
+  # year <- 2025
+  # v <- "SF_12"
+
   geojson_file_name1 <- get_geojson_file_name(mode, intervention1, region, year)
   geojson_file_name2 <- get_geojson_file_name(mode, intervention2, region, year)
   print(geojson_file_name1)
