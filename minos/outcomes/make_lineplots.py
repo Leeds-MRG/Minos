@@ -104,12 +104,16 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(subset_func_string), repeat(v), repeat(method),
                                                 repeat(mode)))
+        if aggregated_means == []: # if no datasets found for given year supply a dummy row.
+            print(f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
+            aggregated_means = [None]
 
         single_year_aggregates = pd.DataFrame(aggregated_means)
         single_year_aggregates.columns = [v]
         single_year_aggregates['year'] = year
         single_year_aggregates['tag'] = tag
         aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
+
     return aggregated_data
 
 def relative_scaling(df, v, ref):
@@ -203,6 +207,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     df.rename(columns={"year": "Year",
                        "tag": "Legend"},
               inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
     f = plt.figure()
     sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
@@ -215,7 +220,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     # Sort out axis labels
     if v == 'SF_12':
         v = 'SF12 MCS'
-    plt.ylabel(f"{v} {method}")
+    plt.ylabel(f"{v} nanmean")
     plt.tight_layout()
 
     dir_name = os.path.dirname(file_name)
@@ -296,12 +301,17 @@ if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
 
     # define test parameters and run.
-    directories = "baseline,povertyLineChildUplift,livingWageIntervention"
-    tags = "Baseline,Poverty Line Child Uplift,Living Wage Intervention"
-    subset_function_strings = "who_below_living_wage,who_boosted,who_boosted"
-    prefix = "baseline_living_wage_"
-    mode = 'default_config'
+    #directories = "baseline,povertyLineChildUplift,livingWageIntervention"
+    #tags = "Baseline,Poverty Line Child Uplift,Living Wage Intervention"
+    #subset_function_strings = "who_below_living_wage,who_boosted,who_boosted"
+    #prefix = "baseline_living_wage_"
+    #mode = 'default_config'
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    main(directories, tags, subset_function_strings, prefix, mode, ref, method)
+    mode="glasgow_scaled"
+    directories="baseline,EPCG,EBSS"
+    tags="Baseline,Energy Price Cap Guarantee,Energy Bill Support Scheme"
+    subset_function_strings="who_uses_energy,who_boosted,who_boosted"
+    prefix="epcg_ebss_baseline"
+    main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
