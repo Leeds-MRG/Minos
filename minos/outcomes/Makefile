@@ -85,7 +85,7 @@ aggregate_baseline_poverty_uplift_map:
 epcg_ebss_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -i "EPCG" -j "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
 
 
 
