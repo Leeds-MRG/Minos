@@ -19,6 +19,7 @@ rm(workingDir)
 source('Minos/minos/utils_datain.R')
 source('Minos/minos/validation/utils.r')
 source('Minos/minos/utils_outcome_vis.R')
+source('Minos/minos/utils_validation_vis.R')
 ```
 
 ## Data
@@ -429,5 +430,15 @@ energy.p2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
                               energy,
                               'Energy Downlift',
                               target.year = 2030)
+```
+
+## Spaghetti Plots
+
+Final plot type we can use to investigate the rate of change models (or just trajectories in general) are Spaghetti plots (lovingly created an titled by Rob - more evidence as to why he was banned from naming things).
+
+These plots show trajectories of single variable for individuals over the length of simulation, and are very useful for making sure people are not just bouncing around the mean which would be impossible to see from mean or otherwise aggregated plots.
+
+```{r}
+
 ```
 
