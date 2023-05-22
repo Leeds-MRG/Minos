@@ -51,6 +51,19 @@ m10 <- readRDS(paste0(mod.path, 'hh_income_2018_2019.rds'))
 m11 <- readRDS(paste0(mod.path, 'hh_income_2019_2020.rds'))
 ```
 
+```{r}
+mod.list <- list.files(mod.path, pattern = '.+.rds', full.names = TRUE)
+
+mod.models <- lapply(mod.list, FUN=readRDS)
+
+mod.coefs <- as.data.frame(sapply(mod.models, function(x) return(coefficients(x))))
+
+
+
+mod.coefs <- tibble::rownames_to_column(mod.coefs, 'predictor')
+```
+
+
 ## Coefficients
 
 ```{r}
@@ -224,6 +237,31 @@ ggplot(jobsector, aes(x = year, y = coefficient, group = job_sector, color = job
   labs(title = 'Job Sector (Public/Private)')
 ```
 
+# Function
+
+```{r}
+
+
+## Function to collect coefficients from a set of models into a dataframe
+collect_coefficients_to_df <- function(trans.path, var, mod.type) {
+  
+  #TODO: find a way to write these as os agnostic paths instead of just pasting
+  # https://stackoverflow.com/questions/8197027/raw-text-strings-for-file-paths-in-r
+  mod.path <- paste0(trans.path, '/', var, '/', mod.type, '/')
+  # list all rds files in dir
+  file.list <- list.files(mod.path, pattern = ".+.rds", full.names = TRUE)
+  # read all .rds models into a list
+  mod.list <- lapply(mod.list, FUN=readRDS)
+  # Now collect all coefficients into a dataframe, each column is 1 year
+  mod.coefs <- sapply(mod.list, function(x) return(coefficients(x)))
+  
+  return(mod.coefs)
+}
+
+
+
+
+```
 
 
 
