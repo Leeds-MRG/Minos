@@ -20,3 +20,22 @@ spaghetti_plot <- function(data, v)
   
   return (output_plot)
 }
+
+
+violin_plot <- function(data, v)
+{
+  # plot violins (similar to boxplots) over time for continuous variable v
+  # data: list Some dataset to plot. Needs v, time and pidp variables.
+  # v : some continuous variable to plot. 
+  data <- data[, c("time", "pidp", v)]
+  data <- data[order(data$pidp, data$time),]
+  data$time <- factor(data$time)
+  
+  violin_long <- ggplot(data, aes_string(x = 'time', y = v)) +
+    geom_violin() +
+    geom_boxplot(width = 0.1, outlier.colour = "blue") +
+    theme_classic() + 
+    scale_y_continuous(limits = quantile(data[, c(v)], c(0.001, 0.999), na.rm =TRUE))
+  return(violin_long)
+}
+

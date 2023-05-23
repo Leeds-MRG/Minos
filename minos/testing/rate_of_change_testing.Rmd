@@ -438,7 +438,59 @@ Final plot type we can use to investigate the rate of change models (or just tra
 
 These plots show trajectories of single variable for individuals over the length of simulation, and are very useful for making sure people are not just bouncing around the mean which would be impossible to see from mean or otherwise aggregated plots.
 
-```{r}
+### hh_income
 
+```{r}
+income.spag.base <- spaghetti_plot(base.dat, 'hh_income')
+income.spag.base
 ```
+
+This one actually looks worse I think... Might need to have a look at subsetting to see the tight band in the middle in more detail. Also worth using the same plot on raw data to see how that looks:
+
+```{r}
+income.spag.raw <- spaghetti_plot(raw.dat, 'hh_income')
+income.spag.raw
+```
+
+Very useful plot! Much more variability in the raw data that we don't keep hold of in the simulation. Also shows that the spike in 2015 is mostly due to about 5-6 data points by the looks of things. Again worth a chat with the group to figure out where our acceptable thresholds are, as we are unlikely to be able to capture all of the heterogeneity in such a varied and skewed variable like hh_income.
+
+### SF_12_MCS
+
+Quick look at SF_12_MCS also.
+
+```{r}
+sf12.spag.base <- spaghetti_plot(base.dat, 'SF_12')
+sf12.spag.base
+
+sf12.spag.raw <- spaghetti_plot(raw.dat, 'SF_12')
+sf12.spag.raw
+```
+Need to remove missing values.
+
+## Violin Plots
+
+### hh_income
+
+```{r}
+income.violin.base <- violin_plot(base.dat, 'hh_income')
+income.violin.base
+
+income.violin.raw <- violin_plot(raw.dat, 'hh_income')
+income.violin.raw
+```
+
+### SF12
+
+```{r}
+sf12.violin.base <- violin_plot(base.dat, 'SF_12')
+sf12.violin.base
+
+sf12.violin.raw <- violin_plot(raw.dat, 'SF_12')
+sf12.violin.raw
+```
+
+
+
+
+
 
