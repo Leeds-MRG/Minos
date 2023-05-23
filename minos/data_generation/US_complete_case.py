@@ -60,7 +60,7 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector"]  # many of these
+                          "education_state", 'region', "age", "job_sector", 'SF_12']  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
