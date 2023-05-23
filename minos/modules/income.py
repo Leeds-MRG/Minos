@@ -10,6 +10,7 @@ from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
 
+
 class Income(Base):
 
     # Special methods used by vivarium.
@@ -17,10 +18,8 @@ class Income(Base):
     def name(self):
         return 'income'
 
-
     def __repr__(self):
         return "Income()"
-
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -66,7 +65,7 @@ class Income(Base):
                         'SF_12',
                         'housing_quality',
                         'job_sector']
-        #view_columns += self.transition_model.rx2('model').names
+        # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -115,7 +114,8 @@ class Income(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2019)
-        #transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        #transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules,
+        #                                            path=self.transition_dir)
         transition_model = r_utils.load_transitions(f"hh_income/ols2/hh_income_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
@@ -125,10 +125,13 @@ class Income(Base):
                                                                 pop,
                                                                 dependent='hh_income',
                                                                 year=self.year)
+        #nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
+        #                                                   self.rpy2Modules,
+        #                                                   pop,
+        #                                                   dependent='hh_income')
         return nextWaveIncome
 
     def plot(self, pop, config):
-
         file_name = config.output_plots_dir + f"income_hist_{self.year}.pdf"
         f = plt.figure()
         histplot(pop, x="hh_income", stat='density')

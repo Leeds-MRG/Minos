@@ -11,8 +11,10 @@ from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
 
+
 class MWB(Base):
     """Mental Well-Being Module"""
+
     # Special methods used by vivarium.
     @property
     def name(self):
@@ -43,7 +45,7 @@ class MWB(Base):
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
-        #self.transition_coefficients = builder.
+        # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
@@ -116,7 +118,7 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols2/SF_12_{year}_{year+1}",
+        transition_model = r_utils.load_transitions(f"SF_12/ols2/SF_12_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
 
@@ -126,8 +128,12 @@ class MWB(Base):
                                                       'SF_12',
                                                       year=self.year)
 
-    def plot(self, pop, config):
+        #return r_utils.predict_next_timestep_ols(transition_model,
+        #                                         self.rpy2Modules,
+        #                                         pop,
+        #                                         'SF_12')
 
+    def plot(self, pop, config):
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
         f = plt.figure()
         histplot(pop, x="SF_12", stat='density')
