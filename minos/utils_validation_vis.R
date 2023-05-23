@@ -1,6 +1,7 @@
 ## Validation plotting functions for MINOS
 
-
+miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
+                 -10., -9., -8., -7., -3., -2., -1.)
 
 spaghetti_plot <- function(data, v)
 {
@@ -9,6 +10,10 @@ spaghetti_plot <- function(data, v)
   # v : some continuous variable to plot. 
   #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
   data_plot <- data[, c("time", "pidp", v)]
+  # Remove missing values
+  data_plot <- data_plot %>%
+    filter(!.data[[v]] %in% miss.values)
+  
   output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) + 
     ggplot2::labs(x = "time", y = v) + 
     ggplot2::theme_classic() + 
@@ -30,6 +35,8 @@ violin_plot <- function(data, v)
   data <- data[, c("time", "pidp", v)]
   data <- data[order(data$pidp, data$time),]
   data$time <- factor(data$time)
+  data <- data %>%
+    filter(!.data[[v]] %in% miss.values)
   
   violin_long <- ggplot(data, aes_string(x = 'time', y = v)) +
     geom_violin() +
