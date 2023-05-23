@@ -29,8 +29,9 @@ source('Minos/minos/utils_validation_vis.R')
 raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
+# read output and remove dead people
 out.path <- 'Minos/output/default_config/'
-base.dat <- read_singular_local_out(out.path, 'baseline')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
 The purpose of this notebook will be to test rate of change models for use in Minos. Early attempts at the rate of change models have been relatively successful, seeing vast improvements in the regression to the mean issue that has been a problem for a while. However, even with the new rate of change models we are seeing some regression to the mean (or something that looks like it at least), with those earning the highest amounts seeing massive decreases and those earning very little or negative values seeing larger increases. What I think we need to do, is to investigate the actual rate of change across different income groups, as well as fitting these models here and seeing what a prediction looks like where we can actually investigate it. We can also plot some handovers of the rate of change from raw US to baseline outputs.
@@ -324,42 +325,42 @@ summary(income.mod)
 
 
 ```{r}
-miss.values <- c(-9, -8, -7, -3, -2, -1, -10)
-raw <- raw.cv %>%
-  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
-  group_by(pidp) %>%
-  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
-         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
-  filter(time != 2009)
+#miss.values <- c(-9, -8, -7, -3, -2, -1, -10)
+#raw <- raw.cv %>%
+#  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+#  group_by(pidp) %>%
+#  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
+#         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+#  filter(time != 2009)
 
-base <- base.cv %>%
-  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
-  group_by(pidp) %>%
-  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
-         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
-  filter(time != 2014)
+#base <- base.cv %>%
+#  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+#  group_by(pidp) %>%
+#  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
+#         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+#  filter(time != 2014)
 ```
 
 ```{r}
-raw.sub <- raw %>%
-  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
-  mutate(source = 'raw')
-base.sub <- base %>%
-  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
-  mutate(source = 'output')
+#raw.sub <- raw %>%
+#  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
+#  mutate(source = 'raw')
+#base.sub <- base %>%
+#  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
+#  mutate(source = 'output')
 
-combined <- rbind(raw.sub, base.sub)
+#combined <- rbind(raw.sub, base.sub)
 
-combined.sum <- combined %>%
-  group_by(time, source) %>%
-  summarise(hh_income = mean(diff.hh_income, na.rm = TRUE),
-            SF12_MCS = mean(diff.SF12_MCS, na.rm = TRUE))
+#combined.sum <- combined %>%
+#  group_by(time, source) %>%
+#  summarise(hh_income = mean(diff.hh_income, na.rm = TRUE),
+#            SF12_MCS = mean(diff.SF12_MCS, na.rm = TRUE))
 
-ggplot(combined.sum, aes(x = time, y = hh_income, group = source, color = source)) +
-  geom_line()
+#ggplot(combined.sum, aes(x = time, y = hh_income, group = source, color = source)) +
+#  geom_line()
 
-ggplot(combined.sum, aes(x = time, y = SF12_MCS, group = source, color = source)) +
-  geom_line()
+#ggplot(combined.sum, aes(x = time, y = SF12_MCS, group = source, color = source)) +
+#  geom_line()
 ```
 
 
@@ -367,16 +368,16 @@ ggplot(combined.sum, aes(x = time, y = SF12_MCS, group = source, color = source)
 
 
 ```{r}
-test <- base.cv %>%
-  group_by(time) %>%
-  summarise(mean.income = mean(hh_income, na.rm = TRUE),
-            mean.SF12 = mean(SF_12, na.rm = TRUE))
+#test <- base.cv %>%
+#  group_by(time) %>%
+#  summarise(mean.income = mean(hh_income, na.rm = TRUE),
+#            mean.SF12 = mean(SF_12, na.rm = TRUE))
 
-ggplot(test, aes(x = time, y = mean.income)) +
-  geom_line()
+#ggplot(test, aes(x = time, y = mean.income)) +
+#  geom_line()
 
-ggplot(test, aes(x = time, y = mean.SF12)) +
-  geom_line()
+#ggplot(test, aes(x = time, y = mean.SF12)) +
+#  geom_line()
 ```
 
 
@@ -386,50 +387,50 @@ These plots are quite good at showing regression to the mean (and also sometimes
 
 ```{r}
 # need baseline and interventions to compare with
-out.path <- 'Minos/output/default_config/'
-baseline <- read_singular_local_out(out.path, 'baseline')
-allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift')
-poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift')
-livwage <- read_singular_local_out(out.path, 'livingWageIntervention')
-energy <- read_singular_local_out(out.path, 'energyDownlift')
+#out.path <- 'Minos/output/default_config/'
+#baseline <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+#allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
+#poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
+#livwage <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
+#energy <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TRUE)
 ```
 
 ```{r}
-alchild.plot <- SF12_marg_dist_densigram_plot(baseline,
-                              allchild,
-                              'All Child Uplift',
-                              target.year = 2030)
-pov.plot <- SF12_marg_dist_densigram_plot(baseline,
-                              poverty,
-                              'Poverty Child Uplift',
-                              target.year = 2030)
-livwage.plot <- SF12_marg_dist_densigram_plot(baseline,
-                              livwage,
-                              'Living Wage Uplift',
-                              target.year = 2030)
-energy.p <- SF12_marg_dist_densigram_plot(baseline,
-                              energy,
-                              'Energy Downlift',
-                              target.year = 2030)
+#allchild.plot <- SF12_marg_dist_densigram_plot(baseline,
+#                              allchild,
+#                              'All Child Uplift',
+#                              target.year = 2030)
+#pov.plot <- SF12_marg_dist_densigram_plot(baseline,
+#                              poverty,
+#                              'Poverty Child Uplift',
+#                              target.year = 2030)
+#livwage.plot <- SF12_marg_dist_densigram_plot(baseline,
+#                              livwage,
+#                              'Living Wage Uplift',
+#                              target.year = 2030)
+#energy.p <- SF12_marg_dist_densigram_plot(baseline,
+#                              energy,
+#                              'Energy Downlift',
+#                              target.year = 2030)
 ```
 
 ```{r}
-alchild.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
-                              allchild,
-                              'All Child Uplift',
-                              target.year = 2030)
-pov.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
-                              poverty,
-                              'Poverty Child Uplift',
-                              target.year = 2030)
-livwage.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
-                              livwage,
-                              'Living Wage Uplift',
-                              target.year = 2030)
-energy.p2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
-                              energy,
-                              'Energy Downlift',
-                              target.year = 2030)
+#alchild.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              allchild,
+#                              'All Child Uplift',
+#                              target.year = 2030)
+#pov.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              poverty,
+#                              'Poverty Child Uplift',
+#                              target.year = 2030)
+#livwage.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              livwage,
+#                              'Living Wage Uplift',
+#                              target.year = 2030)
+#energy.p2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              energy,
+#                              'Energy Downlift',
+#                              target.year = 2030)
 ```
 
 ## Spaghetti Plots
@@ -443,16 +444,34 @@ These plots show trajectories of single variable for individuals over the length
 ```{r}
 income.spag.base <- spaghetti_plot(base.dat, 'hh_income')
 income.spag.base
-```
 
-This one actually looks worse I think... Might need to have a look at subsetting to see the tight band in the middle in more detail. Also worth using the same plot on raw data to see how that looks:
-
-```{r}
 income.spag.raw <- spaghetti_plot(raw.dat, 'hh_income')
 income.spag.raw
 ```
 
-Very useful plot! Much more variability in the raw data that we don't keep hold of in the simulation. Also shows that the spike in 2015 is mostly due to about 5-6 data points by the looks of things. Again worth a chat with the group to figure out where our acceptable thresholds are, as we are unlikely to be able to capture all of the heterogeneity in such a varied and skewed variable like hh_income.
+Much more variability in the raw data that we don't keep hold of in the simulation. Also shows that the spike in 2015 is mostly due to about 5-6 data points by the looks of things. Again worth a chat with the group to figure out where our acceptable thresholds are, as we are unlikely to be able to capture all of the heterogeneity in such a varied and skewed variable like hh_income.
+
+#### Comparison
+
+The base spaghetti plot doesn't look very good actually... I think I need a version using the previous models so I'll do a baseline run and save the data somewhere for testing purposes.
+
+```{r}
+old.files <- list.files('/home/luke/Documents/WORK/MINOS/PREVIOUS_OUTPUTS/mean_regen_income_sf12/', pattern='[0-9]{4}.csv', full.names = TRUE)
+old.dat <- do.call(rbind, lapply(old.files, read.csv))
+# remove dead people
+old.dat <- old.dat %>%
+  filter(alive != 'dead')
+
+income.spag.base <- spaghetti_plot(base.dat, 'hh_income')
+income.spag.base
+
+income.spag.old <- spaghetti_plot(old.dat, 'hh_income')
+income.spag.old
+```
+
+Almost no change. The only noticeable change at this resolution is a small shift up? Where some people who were below the zero line previously seem to have shifted up, and there are some trajectories that have been seemingly raised out of the main group and lie slightly above the average spread. Need to figure out why this is still happening with a completely different set of models...
+
+Very useful plot! 
 
 ### SF_12_MCS
 
@@ -466,6 +485,17 @@ sf12.spag.raw <- spaghetti_plot(raw.dat, 'SF_12')
 sf12.spag.raw
 ```
 Need to remove missing values.
+
+#### Comparison
+
+```{r}
+sf12.spag.base <- spaghetti_plot(base.dat, 'SF_12')
+sf12.spag.base
+
+sf12.spag.old <- spaghetti_plot(old.dat, 'SF_12')
+sf12.spag.old
+```
+
 
 ## Violin Plots
 
@@ -493,4 +523,8 @@ sf12.violin.raw
 
 
 
+
+```{r}
+
+```
 
