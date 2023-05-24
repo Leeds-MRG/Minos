@@ -16,6 +16,10 @@ test_run: MODE=default_config
 test_run: RUN_CONFIG=$(CONFIG)/default.yaml
 test_run: baseline intervention_energyDownLift
 
+test_run_all: MODE=default_config
+test_run_all: RUN_CONFIG=$(CONFIG)/default.yaml
+test_run_all: baseline intervention_hhIncome intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+
 test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
