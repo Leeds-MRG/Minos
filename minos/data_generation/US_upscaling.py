@@ -73,7 +73,7 @@ def main():
     #synthpop_file_name = "../HH2011PopEst2020S_population.csv"
     synthpop_data = pd.read_csv("../data/Ind2011PopEst2020S_population.csv") # this is individual population weighted data.
     #synthpop_data = pd.read_csv("../data/HH2011PopEst2020S_population.csv") # this is household weighted data. not working atm. need to investigate.
-    glasgow_data_zones = pd.read_csv("persistent_data/glasgow_data_zones.csv")["lsoa11cd"] # glasgow data zone IDs.
+    glasgow_data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"] # glasgow data zone IDs.
     US_data = pd.read_csv("data/final_US/2020_US_cohort.csv") # only expanding on one year of US data for 2020.
 
     # merge spatial and US data.

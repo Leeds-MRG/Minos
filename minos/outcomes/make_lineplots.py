@@ -18,7 +18,7 @@ import yaml
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
-from aggregate_subset_functions import dynamic_subset_function
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 
 
 def subset_minos_data(data, subset_func_string, mode):
@@ -212,9 +212,9 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     f = plt.figure()
     sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
-        file_name = f"{prefix}_{v}_aggs_by_year.pdf"
+        file_name = f"{prefix}_{v}_aggs_by_year.png"
     else:
-        file_name = f"{v}_aggs_by_year.pdf"
+        file_name = f"{v}_aggs_by_year.png"
     file_name = os.path.join(destination, file_name)
 
     # Sort out axis labels
@@ -229,7 +229,6 @@ def aggregate_lineplot(df, destination, prefix, v, method):
         os.mkdir(dir_name)
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
-    plt.show()
 
 def find_MINOS_years_range(file_path):
     """ Calculate the number of years in MINOS output data.
@@ -295,7 +294,6 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     scaled_data = relative_scaling(aggregate_long_stack, v, ref)
     print("relative scaling done. plotting.. ")
     aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-
 
 if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
