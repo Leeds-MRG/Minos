@@ -84,12 +84,11 @@ class Replenishment(Base):
                         'marital_status',
                         'hh_comp',
                         'universal_income',
-                        'new_pidp',
                         'council_tax'
                         ]
 
-        if config.input_data_dir == "data/scaled_glasgow_US": # only have spatial column for synthpop.
-            view_columns += ["ZoneID"]
+        if config.input_data_dir == "data/scaled_glasgow_US": # only have spatial column and new pidp for synthpop.
+            view_columns += ["ZoneID", "new_pidp"]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

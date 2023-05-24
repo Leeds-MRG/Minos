@@ -1,21 +1,116 @@
 ---
-title: "Untitled"
+title: "R MINOS Lineplot notebooks noice"
 output: html_document
 date: "2023-05-20"
 ---
 
+# MINOS Lineplot Outputs
+
+IMPORTANT NOTE TO RUN PYTHON YOU NEED TO SET THE PYTHON INTERPRETER 
+IN TOOLS>GLOBAL_OPTIIONS>PYTHON>CONDA_INTERPRETERS.
+
+Can just use minos_conda or create a miniconda env using reticulate package. 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(reticulate)
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '../..')
+knitr::knit_engines$set(python = reticulate::eng_python)
 ```
 
-```{python}
+# Baseline vs All Child Uplift
+
+
+```{python all_child_uplift_SF_12, fig.path="plots/"}
+# packages need installing in R using py_install("package"). honestly this seems not worth it..
+from minos.outcomes.make_lineplots import main as lineplot_main
+# define test parameters and run.
+directories = "baseline,hhIncomeIntervention"
+tags = "Baseline,All Child Uplift"
+subset_function_strings = "who_kids,who_boosted"
+prefix="baseline_all_child_uplift"
+config_mode = "default_config"
+lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
+```
+
+```{r }
+knitr::include_graphics("../../plots/baseline_all_child_uplift_SF_12_aggs_by_year.png", error=FALSE)
+```
+
+
+# Baseline vs Poverty Child Uplift
+
+
+```{python poverty_line_child_uplift_SF_12, fig.path="plots/"}
+# packages need installing in R using py_install("package"). honestly this seems not worth it..
+from minos.outcomes.make_lineplots import main as lineplot_main
+# define test parameters and run.
+directories = "baseline,hhIncomePovertyLineChildUplift"
+tags = "Baseline,Poverty Line Child Uplift"
+subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
+prefix="baseline_poverty_child_uplift"
+config_mode = "default_config"
+lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
+```
+
+```{r }
+knitr::include_graphics("../../plots/baseline_poverty_child_uplift_SF_12_aggs_by_year.png", error=FALSE)
+```
+
+# Baseline vs Living Wage
+
+```{python living_wage_SF_12, fig.path="plots/"}
 # packages need installing in R using py_install("package"). honestly this seems not worth it..
 from minos.outcomes.make_lineplots import main as lineplot_main
 # define test parameters and run.
 directories = "baseline,livingWageIntervention"
 tags = "Baseline,Living Wage Intervention"
 subset_function_strings = "who_below_living_wage,who_boosted"
-prefix="baseline_living_wage_"
-lineplot_main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12", method='nanmean')
+prefix="baseline_living_wage"
+config_mode = "default_config"
+lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 ```
+
+```{r }
+knitr::include_graphics("../../plots/baseline_living_wage_SF_12_aggs_by_year.png", error=FALSE)
+```
+
+# Baseline vs Energy Downlift
+
+```{python energy_downlift_SF_12, fig.path="plots/"}
+# packages need installing in R using py_install("package"). honestly this seems not worth it..
+from minos.outcomes.make_lineplots import main as lineplot_main
+# define test parameters and run.
+directories = "baseline,energyDownlift"
+tags = "Baseline,Energy Downlift"
+subset_function_strings = "who_uses_energy,who_boosted"
+prefix="baseline_energy_downlift"
+config_mode = "default_config"
+lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
+```
+
+```{r }
+knitr::include_graphics("../../plots/baseline_energy_downlift_SF_12_aggs_by_year.png", error=FALSE)
+```
+
+
+# All Five combined
+
+```{python all_five_SF_12, fig.path="plots/"}
+# packages need installing in R using py_install("package"). honestly this seems not worth it..
+from minos.outcomes.make_lineplots import main as lineplot_main
+# define test parameters and run.
+directories = "baseline,hhIncomeIntervention,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift"
+tags = "Baseline,All Child Uplift,Poverty Line Child Uplift,Living Wage Intervention,Energy Downlift"
+subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
+prefix="all_five_combined"
+config_mode = "default_config"
+lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
+```
+
+```{r }
+knitr::include_graphics("../../plots/all_five_combined_SF_12_aggs_by_year.png", error=FALSE)
+```
+
