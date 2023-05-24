@@ -21,7 +21,7 @@ require(ordinal)
 require(nnet)
 require(stringr)
 require(pscl)
-
+#a
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
   # Get model type

@@ -1,13 +1,14 @@
 # This file aims to transpose minos outputs onto Chris' spatially weighted GB data
 #library(geojsonio) # spatial_data in R. not used any more it sucks to install.
-library(geojsonsf)
+#library(geojsonsf)
 library(ggplot2) # plots
 library(broom) # spatial data manipulation
 library(sp) # ^
-library(sf) # ^ Also sucks to install. 
-library(tibble) # ^
+#library(sf) # ^ Also sucks to install. no longer used for geojsonio. 
+library(tibble) # converting spatial objects to data frames.
 # library(ggrepel) # for geom_text_repel labels
 library(argparse) # for argument parsing from bash shell.
+library(geojsonio) # lightweight geojson loader.
 
 get_latest_file <-function(path){
   # find last file lexicographically in a given path.
@@ -134,6 +135,7 @@ minos_diff_map <- function(data, destination_file_name, do_save=T){
   c.max <- max(data$diff)
   scale_limit <- max(abs(c.min), abs(c.max)) 
   diff.map <- ggplot(data = data, aes(geometry = geometry, fill=diff)) + 
+    #geom_polygon() +
     geom_sf(color='black', lwd=0.01) + # add black borders to lsoas for clarity
     # Add split colour scheme.
     scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
@@ -176,7 +178,7 @@ imd_map <- function(){
   mdi_data$local_rank <- rank(mdi_data$IMDRank)
   
   mdi.map <- ggplot(data = mdi_data, aes(geometry = geometry, fill=local_rank)) + 
-    geom_sf(color='black', lwd=0.00001) +
+    #geom_sf(color='black', lwd=0.00001) +
     scale_fill_viridis_c(alpha = 1.0, direction=-1) +
     labs(fill='SIMD Rank')  +
     theme(aspect.ratio=9/16) +
@@ -200,7 +202,8 @@ main.single <- function(geojson_file_name, destination_file_name){
   # Not doing subsetting anymore. just generate geojsons at desired spatial level beforehand. 
   # load data. subset it. plot as map.
   #lsoa_subset_function <- choose_lsoa_function(mode)
-  data <- load_geojson(geojson_file_name)
+  data <- geojson_read(geojson_file_name, what='sp')
+  #data <- load_geojson(geojson_file_name)
   data <- geojson_to_tibble(data)
   #data <- subset_geojson(data, lsoa_subset_function)
   #data[which(data$SF_12 %in% head(sort(data$SF_12), 10)),] # ten worst performing areas by SF12.
@@ -210,12 +213,19 @@ main.single <- function(geojson_file_name, destination_file_name){
 main.diff <- function(geojson_file1, geojson_file2, destination_file_name){
   # load 2 data sets. subset. find difference in v. plot difference as map. 
   #lsoa_subset_function <- choose_lsoa_function(mode)
-  data1 <- load_geojson(geojson_file1)
-  data2 <- load_geojson(geojson_file2)
-  #data1 <- subset_geojson(data1, lsoa_subset_function)
-  #data2 <- subset_geojson(data2, lsoa_subset_function)
+
+  data1 <- geojson_read(geojson_file1, what='sp')
+  data2 <- geojson_read(geojson_file2, what='sp')
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
+
+  #data1 <- load_geojson(geojson_file1)
+  #data2 <- load_geojson(geojson_file2)
+  #data1 <- subset_geojson(data1, lsoa_subset_function)
+  #data2 <- subset_geojson(data2, lsoa_subset_function)
+  #data1 <- geojson_to_tibble(data1)
+  #data2 <- geojson_to_tibble(data2)
+  
   data1 <- calculate_diff(data1, data2, "SF_12")
   minos_diff_map(data1, destination_file_name)
   

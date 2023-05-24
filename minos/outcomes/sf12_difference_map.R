@@ -35,31 +35,32 @@ get_geojson_file_name <- function(mode, intervention, region, year) {
 
 main <- function(){
 
-  parser <- ArgumentParser(description="Plot a map of some MINOS geojson.")
-  parser$add_argument("-m", "--mode", dest='mode', help="What source to use. e.g. defualt_config")
-  parser$add_argument("-i", "--int", dest='intervention', help="What inteverntion to map. usually baseline. ")
-  parser$add_argument("-j", "--int2", dest='second_intervention', help="What inteverntion to compare against. e.g. livingWageIntervention")
-  parser$add_argument("-r", "--region", dest='region', help="What spatial region to use. sheffield, manchester, scotland(not yet)")
-  parser$add_argument("-d", "--destination", dest='destination', help="Where to save to.")
-  parser$add_argument("-y", "--year", dest='year', help="What year of MINOS data to map.")
-
-
-  args <- parser$parse_args()
-
-  mode <- args$mode
-  intervention1 <- args$intervention
-  intervention2 <- args$second_intervention
-  region <- args$region
-  year <- args$year
-  destination_file_name <- args$destination
+  # parser <- ArgumentParser(description="Plot a map of some MINOS geojson.")
+  # parser$add_argument("-m", "--mode", dest='mode', help="What source to use. e.g. defualt_config")
+  # parser$add_argument("-i", "--int", dest='intervention', help="What inteverntion to map. usually baseline. ")
+  # parser$add_argument("-j", "--int2", dest='second_intervention', help="What inteverntion to compare against. e.g. livingWageIntervention")
+  # parser$add_argument("-r", "--region", dest='region', help="What spatial region to use. sheffield, manchester, scotland(not yet)")
+  # parser$add_argument("-d", "--destination", dest='destination', help="Where to save to.")
+  # parser$add_argument("-y", "--year", dest='year', help="What year of MINOS data to map.")
+  # 
+  # 
+  # args <- parser$parse_args()
+  # 
+  # mode <- args$mode
+  # intervention1 <- args$intervention
+  # intervention2 <- args$second_intervention
+  # region <- args$region
+  # year <- args$year
+  # destination_file_name <- args$destination
   
-  # mode <- "default_config"
-  # intervention2 <- "EBSS"
-  # intervention1 <- "EPCG"
-  # region <- "glasgow"
-  # year <- 2025
-  # v <- "SF_12"
-
+  mode <- "glasgow_scaled"
+  intervention2 <- "EBSS"
+  intervention1 <- "EPCG"
+  region <- "glasgow"
+  year <- 2025
+  v <- "SF_12"
+  destination_file_name <- "plots/test.pdf"
+  
   geojson_file_name1 <- get_geojson_file_name(mode, intervention1, region, year)
   geojson_file_name2 <- get_geojson_file_name(mode, intervention2, region, year)
   print(geojson_file_name1)
