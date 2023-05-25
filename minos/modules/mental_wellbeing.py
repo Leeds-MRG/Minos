@@ -97,7 +97,7 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        #newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        # newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
         newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
@@ -128,10 +128,10 @@ class MWB(Base):
                                                       'SF_12',
                                                       year=self.year)
 
-        #return r_utils.predict_next_timestep_ols(transition_model,
-        #                                         self.rpy2Modules,
-        #                                         pop,
-        #                                         'SF_12')
+        # return r_utils.predict_next_timestep_ols(transition_model,
+        #                                          self.rpy2Modules,
+        #                                          pop,
+        #                                          'SF_12')
 
     def plot(self, pop, config):
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
