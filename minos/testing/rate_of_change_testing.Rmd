@@ -277,9 +277,6 @@ diff_by_year1_quintile <- function(raw, var) {
 
 
 
-
-
-
 ```{r}
 #test <- hh_income.stats.yr1
 
@@ -295,6 +292,70 @@ diff_by_year1_quintile <- function(raw, var) {
 #ggplot(data = test2, aes(x = hh_income)) +
 #  geom_histogram()
 ```
+
+# Spaghetti Plots
+
+## Data
+```{r}
+old.files <- list.files('/home/luke/Documents/WORK/MINOS/PREVIOUS_OUTPUTS/mean_regen_income_sf12/', pattern='[0-9]{4}.csv', full.names = TRUE)
+old.dat <- do.call(rbind, lapply(old.files, read.csv))
+# remove dead people
+old.dat <- old.dat %>%
+  filter(alive != 'dead')
+
+new.files <- list.files('/home/luke/Documents/WORK/MINOS/PREVIOUS_OUTPUTS/diff_income_sf12/', pattern='[0-9]{4}.csv', full.names = TRUE)
+new.dat <- do.call(rbind, lapply(new.files, read.csv))
+new.dat <- new.dat %>%
+  filter(alive != 'dead')
+```
+
+
+Final plot type we can use to investigate the rate of change models (or just trajectories in general) are Spaghetti plots (lovingly created an titled by Rob - more evidence as to why he was banned from naming things).
+
+These plots show trajectories of single variable for individuals over the length of simulation, and are very useful for making sure people are not just bouncing around the mean which would be impossible to see from mean or otherwise aggregated plots.
+
+## hh_income
+
+```{r}
+spaghetti_plot(old.dat, 'hh_income')
+spaghetti_plot(new.dat, 'hh_income')
+spaghetti_plot(raw.dat, 'hh_income')
+```
+
+Much more variability in the raw data that we don't keep hold of in the simulation. Also shows that the spike in 2015 is mostly due to about 5-6 data points by the looks of things. Again worth a chat with the group to figure out where our acceptable thresholds are, as we are unlikely to be able to capture all of the heterogeneity in such a varied and skewed variable like hh_income.
+
+Almost no change. The only noticeable change at this resolution is a small shift up? Where some people who were below the zero line previously seem to have shifted up, and there are some trajectories that have been seemingly raised out of the main group and lie slightly above the average spread. Need to figure out why this is still happening with a completely different set of models...
+
+Very useful plot! 
+
+## SF_12_MCS
+
+Quick look at SF_12_MCS also.
+
+```{r}
+spaghetti_plot(old.dat, 'SF_12')
+spaghetti_plot(new.dat, 'SF_12')
+spaghetti_plot(raw.dat, 'SF_12')
+```
+
+# Violin Plots
+
+## hh_income
+
+```{r}
+violin_plot(old.dat, 'hh_income')
+violin_plot(new.dat, 'hh_income')
+violin_plot(raw.dat, 'hh_income')
+```
+
+## SF12
+
+```{r}
+violin_plot(old.dat, 'SF_12')
+violin_plot(new.dat, 'SF_12')
+violin_plot(raw.dat, 'SF_12')
+```
+
 
 # Comparing SF12_MCS Diff
 
@@ -431,92 +492,6 @@ These plots are quite good at showing regression to the mean (and also sometimes
 #                              energy,
 #                              'Energy Downlift',
 #                              target.year = 2030)
-```
-
-## Spaghetti Plots
-
-Final plot type we can use to investigate the rate of change models (or just trajectories in general) are Spaghetti plots (lovingly created an titled by Rob - more evidence as to why he was banned from naming things).
-
-These plots show trajectories of single variable for individuals over the length of simulation, and are very useful for making sure people are not just bouncing around the mean which would be impossible to see from mean or otherwise aggregated plots.
-
-### hh_income
-
-```{r}
-income.spag.base <- spaghetti_plot(base.dat, 'hh_income')
-income.spag.base
-
-income.spag.raw <- spaghetti_plot(raw.dat, 'hh_income')
-income.spag.raw
-```
-
-Much more variability in the raw data that we don't keep hold of in the simulation. Also shows that the spike in 2015 is mostly due to about 5-6 data points by the looks of things. Again worth a chat with the group to figure out where our acceptable thresholds are, as we are unlikely to be able to capture all of the heterogeneity in such a varied and skewed variable like hh_income.
-
-#### Comparison
-
-The base spaghetti plot doesn't look very good actually... I think I need a version using the previous models so I'll do a baseline run and save the data somewhere for testing purposes.
-
-```{r}
-old.files <- list.files('/home/luke/Documents/WORK/MINOS/PREVIOUS_OUTPUTS/mean_regen_income_sf12/', pattern='[0-9]{4}.csv', full.names = TRUE)
-old.dat <- do.call(rbind, lapply(old.files, read.csv))
-# remove dead people
-old.dat <- old.dat %>%
-  filter(alive != 'dead')
-
-income.spag.base <- spaghetti_plot(base.dat, 'hh_income')
-income.spag.base
-
-income.spag.old <- spaghetti_plot(old.dat, 'hh_income')
-income.spag.old
-```
-
-Almost no change. The only noticeable change at this resolution is a small shift up? Where some people who were below the zero line previously seem to have shifted up, and there are some trajectories that have been seemingly raised out of the main group and lie slightly above the average spread. Need to figure out why this is still happening with a completely different set of models...
-
-Very useful plot! 
-
-### SF_12_MCS
-
-Quick look at SF_12_MCS also.
-
-```{r}
-sf12.spag.base <- spaghetti_plot(base.dat, 'SF_12')
-sf12.spag.base
-
-sf12.spag.raw <- spaghetti_plot(raw.dat, 'SF_12')
-sf12.spag.raw
-```
-Need to remove missing values.
-
-#### Comparison
-
-```{r}
-sf12.spag.base <- spaghetti_plot(base.dat, 'SF_12')
-sf12.spag.base
-
-sf12.spag.old <- spaghetti_plot(old.dat, 'SF_12')
-sf12.spag.old
-```
-
-
-## Violin Plots
-
-### hh_income
-
-```{r}
-income.violin.base <- violin_plot(base.dat, 'hh_income')
-income.violin.base
-
-income.violin.raw <- violin_plot(raw.dat, 'hh_income')
-income.violin.raw
-```
-
-### SF12
-
-```{r}
-sf12.violin.base <- violin_plot(base.dat, 'SF_12')
-sf12.violin.base
-
-sf12.violin.raw <- violin_plot(raw.dat, 'SF_12')
-sf12.violin.raw
 ```
 
 

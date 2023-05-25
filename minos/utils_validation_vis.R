@@ -3,16 +3,24 @@
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
 
-spaghetti_plot <- function(data, v)
+spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
 {
   # spaghetti plot displaying trajectories over time for continuous variable v
   # data: list Some dataset to plot. Needs v, time and pidp variables.
   # v : some continuous variable to plot. 
+  # save : whether to save the plot
+  # save.path : path to save plot at, must be defined if save == TRUE
+  
   #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
   data_plot <- data[, c("time", "pidp", v)]
   # Remove missing values
   data_plot <- data_plot %>%
     filter(!.data[[v]] %in% miss.values)
+  
+  # get range of years to figure out if this is handover or not
+  if (min(data_plot$time) < 2020) {
+    handover <- TRUE
+  }
   
   output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) + 
     ggplot2::labs(x = "time", y = v) + 
@@ -22,6 +30,26 @@ spaghetti_plot <- function(data, v)
     #ggplot2::geom_smooth(colour="blue") +
     ggplot2::geom_line(colour="blue", alpha=0.2) +
     ggplot2::geom_point()
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    # add handover to filename if handover
+    if (handover) {
+      save.filename <- paste0('spaghetti_handover_', v, '.png')
+    } else {
+      save.filename <- paste0('spaghetti_output_', v, '.png')
+    }
+    # add tag to filename if provided
+    if (!is.null(filename.tag)) {
+      save.filename <- paste0(filename.tag, '_', save.filename)
+    }
+    
+    ggsave(filename = save.filename,
+           plot = output_plot,
+           path = save.path)
+  }
   
   return (output_plot)
 }
