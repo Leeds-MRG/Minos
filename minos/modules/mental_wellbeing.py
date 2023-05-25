@@ -118,7 +118,7 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols2/SF_12_{year}_{year + 1}",
+        transition_model = r_utils.load_transitions(f"SF_12/ols_diff/SF_12_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
 

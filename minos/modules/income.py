@@ -116,7 +116,7 @@ class Income(Base):
         year = min(self.year, 2019)
         # transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules,
         #                                            path=self.transition_dir)
-        transition_model = r_utils.load_transitions(f"hh_income/ols2/hh_income_{year}_{year + 1}",
+        transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified

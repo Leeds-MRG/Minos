@@ -66,29 +66,33 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
-estimate_yearly_ols_diff <- function(data, formula, include_weights = FALSE, depend) {
+estimate_yearly_ols_diff <- function(data, formula, depend) {
   
-  orig.depend <- gsub("^.*?_", "", depend)
-  
-  pred.var <- paste0(orig.depend, '_change')
-  
-  data[[pred.var]] <- data[[depend]] - data[[orig.depend]]
-  
+  #orig.depend <- gsub("^.*?_", "", depend)
+  #pred.var <- paste0(orig.depend, '_change')
+  #data[[pred.var]] <- data[[depend]] - data[[orig.depend]]
   #formula.preds <- gsub("^.*?~", "~", formula)
+  
+  # Split string on the tilda and keep the right hand side (predictors)
   formula.right <- unlist(str_split(as.character(formula), pattern = '~')[3])
+  # Add diff to the formula now using the depend argument
+  formula2 <- paste0(depend, ' ~ ', formula.right)
+  # Now we have the original right hand side of the formula, and the diff as the
+  # dependent variable
   
-  formula2 <- paste0(pred.var, ' ~ ', formula.right)
+  # diff models are much more likely to have missing data if respondent wasn't
+  # in previous wave, so have to do some more null handling here
+  #data <- data[!is.na(data[[depend]])]
   
-  if(include_weights) {
-    # fit the model including weights (after 2009)
-    model <- lm(formula2,
-                data = data,
-                weights = weight)
-  } else {
-    # fit the model WITHOUT weights (2009)
-    model <- lm(formula2,
-                data = data)
-  }
+  data <- data %>%
+    drop_na(.data[[depend]])
+    
+  
+  # no need to worry about weights as we can't fit this model in first year (2009)
+  model <- lm(formula2,
+              data = data,
+              weights = weight)
+  
   model[[depend]] <- data[[depend]]
   return(model)
 }
@@ -183,6 +187,12 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
+calculate_diff <- function(data, cont.var) {
+  data <- data %>%
+    group_by(pidp) %>%
+    mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time))
+}
+
 
 
 ################ Main Run Loop ################
@@ -213,6 +223,14 @@ run_yearly_models <- function(transitionDir_path,
     
     # formula
     formula.string.orig <- split1[2]
+    
+    ## Calculate diff for rate of change models
+    # only applicable to hh_income and SF_12 for now
+    if (tolower(mod.type) == 'ols_diff') {
+      data <- data %>%
+        group_by(pidp) %>%
+        mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time))
+    }
     
     ## Yearly model estimation loop
     
@@ -265,12 +283,13 @@ run_yearly_models <- function(transitionDir_path,
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
       if(dependent == 'SF_12' & year == 2009) { next }
+      # OLS_DIFF models can only start from wave 2 (no diff in first wave)
+      if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
       
       print(paste0('Starting estimation for ', dependent, ' in ', year))
       
       # set up new dependent var name
       next.dependent <- paste0('next_', dependent)
-      #next.dependent <- dependent
 
       # independents from time T (current)
       indep.df <- data %>% 
@@ -326,12 +345,11 @@ run_yearly_models <- function(transitionDir_path,
                                      include_weights = use.weights,
                                      depend = next.dependent)
         
-      } else if(tolower(mod.type) == 'ols2') {
+      } else if(tolower(mod.type) == 'ols_diff') {
         
         model <- estimate_yearly_ols_diff(data = merged, 
-                                     formula = form, 
-                                     include_weights = use.weights,
-                                     depend = next.dependent)
+                                     formula = form,
+                                     depend = 'diff')
         
       } else if(tolower(mod.type) == 'clm') {
         
