@@ -37,7 +37,7 @@ source('Minos/minos/utils_outcome_vis.R')
 
 ```{r}
 # note this is the path to the rate of change models, NOT the regenerative mean effects
-mod.path <- 'Minos/data/transitions/hh_income/ols2/'
+mod.path <- 'Minos/data/transitions/hh_income/ols/'
 m1 <- readRDS(paste0(mod.path, 'hh_income_2009_2010.rds'))
 m2 <- readRDS(paste0(mod.path, 'hh_income_2010_2011.rds'))
 m3 <- readRDS(paste0(mod.path, 'hh_income_2011_2012.rds'))
@@ -164,6 +164,18 @@ ggplot(intercept, aes(x = year, y = coefficient, group=1)) +
   geom_line() +
   labs(title = 'Intercept')
 ```
+
+# hh_income
+
+```{r}
+income <- all.years.long %>%
+  filter(grepl("hh_income", Predictor))
+
+ggplot(income, aes(x = year, y = coefficient, group=1)) +
+  geom_line() +
+  labs(title = 'Household Income')
+```
+
 
 # Gender
 
