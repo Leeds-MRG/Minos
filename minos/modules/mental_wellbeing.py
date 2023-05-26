@@ -68,7 +68,8 @@ class MWB(Base):
                         'ncigs',
                         'nutrition_quality',
                         'neighbourhood_safety',
-                        'loneliness']
+                        'loneliness',
+                        'SF_12_diff']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -80,6 +81,24 @@ class MWB(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
+
+    def on_initialize_simulants(self, pop_data):
+        """  Initiate columns for hh_income when new simulants are added.
+        Only column needed is the diff column for rate of change model predictions.
+
+        Parameters
+        ----------
+            pop_data: vivarium.framework.population.SimulantData
+            Custom vivarium class for interacting with the population data frame.
+            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+            creation_window, and current simulation state (setup/running/etc.).
+        """
+        # Create frame with new 3 columns and add it to the main population frame.
+        # This is the same for both new cohorts and newborn babies.
+        # Neither should be dead yet.
+        pop_update = pd.DataFrame({'SF_12_diff': 0},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -97,8 +116,10 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        # newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
-        newWaveMWB = newWaveMWB.to_frame(name='SF_12')
+        #newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12", 'SF_12_diff'])
+        newWaveMWB = newWaveMWB.rename(columns={"new_dependent": "SF_12",
+                                                "predicted": "SF_12_diff"})
+        # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 

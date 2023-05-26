@@ -130,7 +130,8 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     pl.savefig(f"/home/luke/Documents/WORK/MINOS/tmp/rate_diff_hist/{dependent}/{year}.png")
     pl.close()
 
-    return newPandasPopDF['new_dependent']
+    # new_dependent is module var, predicted is module_diff var
+    return newPandasPopDF[['new_dependent', 'predicted']]
 
 
 def predict_next_timestep_clm(model, rpy2modules, current, dependent):

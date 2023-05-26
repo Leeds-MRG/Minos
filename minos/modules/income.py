@@ -64,7 +64,8 @@ class Income(Base):
                         'education_state',
                         'SF_12',
                         'housing_quality',
-                        'job_sector']
+                        'job_sector',
+                        'hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -76,6 +77,24 @@ class Income(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
+
+    def on_initialize_simulants(self, pop_data):
+        """  Initiate columns for hh_income when new simulants are added.
+        Only column needed is the diff column for rate of change model predictions.
+
+        Parameters
+        ----------
+            pop_data: vivarium.framework.population.SimulantData
+            Custom vivarium class for interacting with the population data frame.
+            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+            creation_window, and current simulation state (setup/running/etc.).
+        """
+        # Create frame with new 3 columns and add it to the main population frame.
+        # This is the same for both new cohorts and newborn babies.
+        # Neither should be dead yet.
+        pop_update = pd.DataFrame({'hh_income_diff': 0},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -91,8 +110,9 @@ class Income(Base):
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
-        # newWaveIncome = pd.DataFrame(newWaveIncome, columns=["hh_income"])
-        newWaveIncome = newWaveIncome.to_frame(name='hh_income')
+        newWaveIncome = newWaveIncome.rename(columns={"new_dependent": "hh_income",
+                                                      "predicted": "hh_income_diff"})
+        # newWaveIncome = newWaveIncome.to_frame(name='hh_income')
         # Set index type to int (instead of object as previous)
         newWaveIncome.index = newWaveIncome.index.astype(int)
 

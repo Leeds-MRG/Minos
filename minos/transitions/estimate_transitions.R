@@ -82,8 +82,6 @@ estimate_yearly_ols_diff <- function(data, formula, depend) {
   
   # diff models are much more likely to have missing data if respondent wasn't
   # in previous wave, so have to do some more null handling here
-  #data <- data[!is.na(data[[depend]])]
-  
   data <- data %>%
     drop_na(.data[[depend]])
     
@@ -229,7 +227,8 @@ run_yearly_models <- function(transitionDir_path,
     if (tolower(mod.type) == 'ols_diff') {
       data <- data %>%
         group_by(pidp) %>%
-        mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time))
+        mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
     }
     
     ## Yearly model estimation loop
@@ -348,8 +347,8 @@ run_yearly_models <- function(transitionDir_path,
       } else if(tolower(mod.type) == 'ols_diff') {
         
         model <- estimate_yearly_ols_diff(data = merged, 
-                                     formula = form,
-                                     depend = 'diff')
+                                          formula = form,
+                                          depend = paste0(dependent, '_diff'))
         
       } else if(tolower(mod.type) == 'clm') {
         
