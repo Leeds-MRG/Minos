@@ -116,9 +116,10 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=['SF_12'])
         # newWaveMWB = newWaveMWB.rename(columns={"new_dependent": "SF_12",
         #                                         "predicted": "SF_12_diff"})
-        newWaveMWB = newWaveMWB.to_frame(name='SF_12')
+        # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 
@@ -142,11 +143,10 @@ class MWB(Base):
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
 
-        return r_utils.predict_next_timestep_ols_diff(transition_model,
+        return r_utils.predict_next_timestep_ols(transition_model,
                                                       self.rpy2Modules,
                                                       pop,
-                                                      'SF_12',
-                                                      year=self.year)
+                                                      'SF_12')
 
     def calculate_mwb_rateofchange(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -164,10 +164,11 @@ class MWB(Base):
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
 
-        return r_utils.predict_next_timestep_ols(transition_model,
+        return r_utils.predict_next_timestep_ols_diff(transition_model,
                                                  self.rpy2Modules,
                                                  pop,
-                                                 'SF_12')
+                                                 'SF_12',
+                                                 year=self.year)
 
     def plot(self, pop, config):
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"

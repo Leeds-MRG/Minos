@@ -110,9 +110,10 @@ class Income(Base):
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
+        newWaveIncome = pd.DataFrame(newWaveIncome, columns=['hh_income'])
         # newWaveIncome = newWaveIncome.rename(columns={"new_dependent": "hh_income",
         #                                               "predicted": "hh_income_diff"})
-        newWaveIncome = newWaveIncome.to_frame(name='hh_income')
+        # newWaveIncome = newWaveIncome.to_frame(name='hh_income')
         # Set index type to int (instead of object as previous)
         newWaveIncome.index = newWaveIncome.index.astype(int)
 

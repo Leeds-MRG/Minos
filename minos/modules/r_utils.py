@@ -117,18 +117,8 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     # Now add the predicted value to hh_income and drop predicted
-    #newPandasPopDF[[dependent]] = newPandasPopDF[[dependent]] + newPandasPopDF['predicted']
     newPandasPopDF['new_dependent'] = newPandasPopDF[[dependent, 'predicted']].sum(axis=1)
-    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    #newPandasPopDF = newPandasPopDF['new_dependent'] - newPandasPopDF[[dependent]]
-
-    fig = pl.hist(newPandasPopDF['predicted'], bins=40)
-    pl.title(f"Difference: {dependent} - {year}")
-    pl.xlabel('Value')
-    pl.ylabel('Frequency')
-    pl.savefig(f"/home/luke/Documents/WORK/MINOS/tmp/rate_diff_hist/{dependent}/{year}.png")
-    pl.close()
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     # new_dependent is module var, predicted is module_diff var
     return newPandasPopDF[['new_dependent', 'predicted']]
