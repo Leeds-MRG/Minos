@@ -149,7 +149,8 @@ def predict_education(repl, transition_dir):
                     "stats": importr('stats'),
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "zeroinfl": importr("pscl"),
+                    "geepack": importr("geepack"),
                     }
     transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)

@@ -14,13 +14,11 @@
 ################ Utilities ################
 
 source("minos/transitions/utils.R")
+source("minos/transitions/transition_model_functions.R")
 
 require(argparse)
 require(tidyverse)
-require(ordinal)
-require(nnet)
 require(stringr)
-require(pscl)
 
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
@@ -41,122 +39,6 @@ digest_params <- function(line) {
   
   return(return.list)
 }
-
-
-################ Model Specific Functions ################
-
-# We can keep these really simple, all they need to do is run the model so
-# in most cases will only require the data, the formula, and a flag for whether
-# to include the survey weights in estimation (only no for 2009 where no weight
-# information available)
-
-estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) {
-  
-  if(include_weights) {
-    # fit the model including weights (after 2009)
-    model <- lm(formula,
-                data = data,
-                weights = weight)
-  } else {
-    # fit the model WITHOUT weights (2009)
-    model <- lm(formula,
-                data = data)
-  }
-  model[[depend]] <- data[[depend]]
-  return(model)
-}
-
-estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
-  
-  # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
-  
-  data = replace.missing(data)
-  # replace missing ncigs values (if still missing)
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
-  
-  if(include_weights) {
-    model <- clm(formula,
-                 data = data,
-                 link = "logit",
-                 threshold = "flexible",
-                 Hess=T,
-                 weights = weight)
-  } else {
-    model <- clm(formula,
-                 data = data,
-                 link = "logit",
-                 threshold = "flexible",
-                 Hess=T)
-  }
-  model[[depend]] <- data[[depend]]
-  data[[depend]] <- NULL
-  model$class_preds <- predict(model, newdata = data, type='class')
-  return(model)
-}
-
-estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
-  
-  data = replace.missing(data)
-  # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
-  
-  if(include_weights) {
-    model <- multinom(formula = formula,
-                      data = data,
-                      MaxNWts = 10000,
-                      maxit = 1000,
-                      weights = weight)
-  } else {
-    model <- multinom(formula = formula,
-                      data = data,
-                      MaxNWts = 10000,
-                      maxit = 1000)
-  model[[depend]] <- data[[depend]]
-  }
-  return(model)
-}
-
-estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  
-  if(depend == 'next_ncigs' | depend == 'ncigs') {
-    # first subset just the columns we want
-    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
-              'hh_income', 'ethnicity', 'weight')
-    dat.subset <- data[, cols]
-    
-    # Replace missing values with NA (util func)
-    dat.subset = replace.missing(dat.subset)
-    
-    # now set NA to 0
-    dat.subset[[depend]][is.na(dat.subset[[depend]])] <- 0
-    
-    # finally run complete cases
-    dat.subset <- dat.subset[complete.cases(dat.subset),]
-  }
-  
-  if(include_weights) {
-    model <- zeroinfl(formula = formula,
-                      data = dat.subset,
-                      dist = 'pois',
-                      weights = weight,
-                      link='logit')
-  } else {
-    model <- zeroinfl(formula = formula,
-                      data = dat.subset,
-                      dist = 'pois', 
-                      link='logit')
-  model[[depend]] <- data[[depend]]
-  }
-  
-  #print(summary(model))
-  #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
-  #print(prs)
-  
-  return(model)
-}
-
-
 
 ################ Main Run Loop ################
 
@@ -209,7 +91,14 @@ run_yearly_models <- function(transitionDir_path,
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
     
+    valid_yearly_model_types = c("NNET", "OLS", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
+    
     for(year in year.range) {
+      if(!is.element(mod.type, valid_yearly_model_types))
+        {
+        print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
+        next
+        }# skip this iteration if model not in valid types. 
       
       # reset the formula string for each year
       formula.string <- formula.string.orig

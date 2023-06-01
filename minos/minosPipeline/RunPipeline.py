@@ -21,7 +21,7 @@ from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income
-from minos.modules.mental_wellbeing import MWB
+from minos.modules.mental_wellbeing import MWB, geeMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -62,6 +62,7 @@ def validate_components(config_components, intervention):
     # Outcome module goes first (last in sim)
     components_map = {
         # Outcome module.
+        "geeMWB()": geeMWB(),
         "MWB()": MWB(),
         #Intermediary modules
         "Tobacco()": Tobacco(),
@@ -148,7 +149,8 @@ def RunPipeline(config, intervention=None):
                     "stats": importr('stats'),
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "zeroinfl": importr("pscl"),
+                    "geepack": importr("geepack"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
