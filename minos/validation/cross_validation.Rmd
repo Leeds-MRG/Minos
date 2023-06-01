@@ -18,7 +18,7 @@ The results of the simulation will now be compared to the simulation dataset to 
 require(tidyverse)
 require(ggplot2)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- "/home/luke/Documents/MINOS/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
