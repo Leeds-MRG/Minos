@@ -110,9 +110,9 @@ class Income(Base):
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
-        newWaveIncome = newWaveIncome.rename(columns={"new_dependent": "hh_income",
-                                                      "predicted": "hh_income_diff"})
-        # newWaveIncome = newWaveIncome.to_frame(name='hh_income')
+        # newWaveIncome = newWaveIncome.rename(columns={"new_dependent": "hh_income",
+        #                                               "predicted": "hh_income_diff"})
+        newWaveIncome = newWaveIncome.to_frame(name='hh_income')
         # Set index type to int (instead of object as previous)
         newWaveIncome.index = newWaveIncome.index.astype(int)
 
@@ -134,8 +134,28 @@ class Income(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2019)
-        # transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules,
-        #                                            path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules,
+                                                   path=self.transition_dir)
+        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
+                                                           self.rpy2Modules,
+                                                           pop,
+                                                           dependent='hh_income')
+        return nextWaveIncome
+
+    def calculate_income_rateofchange(self, pop):
+        """Calculate income transition with rate of change (diff) models
+
+        Parameters
+        ----------
+            pop: PopulationView
+                Population from MINOS to calculate next income for.
+        Returns
+        -------
+        nextWaveIncome: pd.Dataframe
+            Dataframe of new predicted hh_income value and difference from previous year.
+        """
+        # load transition model based on year.
+        year = min(self.year, 2019)
         transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
@@ -145,10 +165,6 @@ class Income(Base):
                                                                 pop,
                                                                 dependent='hh_income',
                                                                 year=self.year)
-        # nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
-        #                                                    self.rpy2Modules,
-        #                                                    pop,
-        #                                                    dependent='hh_income')
         return nextWaveIncome
 
     def plot(self, pop, config):
