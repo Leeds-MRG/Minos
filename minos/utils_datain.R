@@ -7,7 +7,7 @@
 # Args: 
 #       out.path - path to top level output directory
 #       scenario - string scenario name of which output files to read
-read_singular_local_out <- function(out.path, scenario) {
+read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   ## Start with scenario name
   # attach full output path
   # get runtime directory
@@ -20,7 +20,15 @@ read_singular_local_out <- function(out.path, scenario) {
   files <- list.files(scen.path,
                       pattern = '[0-9]{4}.csv',
                       full.names = TRUE)
-  return(do.call(rbind, lapply(files, read.csv)))
+  dat <- do.call(rbind, lapply(files, read.csv))
+  
+  # remove dead people
+  if(drop.dead) {
+    dat <- dat %>%
+      filter(alive != 'dead')
+  }
+  
+  return(dat)
 }
 
 

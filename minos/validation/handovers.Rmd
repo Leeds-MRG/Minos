@@ -14,7 +14,8 @@ Handover plots are not strictly statistical validation, but more a type of 'sani
 require(tidyverse)
 require(ggplot2)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- "/home/luke/Documents/MINOS/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -23,17 +24,18 @@ Source utils for some functions.
 
 ```{r}
 source('Minos/minos/utils_datain.R')
+source('Minos/minos/utils_validation_vis.R')
 ```
 
 ## Data
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files('/home/luke/Documents/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
 out.path <- 'Minos/output/default_config/'
-base.dat <- read_singular_local_out(out.path, 'baseline')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
 ## Constants
@@ -41,7 +43,7 @@ base.dat <- read_singular_local_out(out.path, 'baseline')
 ```{r}
 start.year <- 2020
 
-save.path <- '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Handovers/'
+save.path <- '/home/luke/Documents/MINOS/VALIDATION_PLOTS/Handovers/'
 ```
 
 
@@ -115,8 +117,25 @@ base.income.check <- base.dat %>%
   dplyr::select(pidp, time, hh_income) %>%
   filter(pidp %in% raw.income.wave1)
 
-#rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
-#   raw.income.check, base.income.check)
+rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
+   raw.income.check, base.income.check)
+```
+
+### Spaghetti
+
+```{r}
+raw.inc <- raw.dat %>%
+  select(pidp, age, time, hh_income)
+base.inc <- base.dat %>%
+  select(pidp, age, time, hh_income)
+
+income.spag <- rbind(raw.inc, base.inc)
+
+spaghetti_plot(income.spag, 'hh_income',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.inc, base.inc, income.spag)
 ```
 
 
@@ -179,8 +198,26 @@ ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour =
 ggsave(filename = 'SF12_wav1.png',
        plot = last_plot(),
        path = save.path)
+
+rm(raw.sf12, base.sf12, sf12, raw.sf12.wave1, raw.sf12.2, base.sf12.2, sf12.2)
 ```
 
+### Spaghetti
+
+```{r}
+raw.sf12 <- raw.dat %>%
+  select(pidp, age, time, SF_12)
+base.sf12 <- base.dat %>%
+  select(pidp, age, time, SF_12)
+
+sf12.spag <- rbind(raw.sf12, base.sf12)
+
+spaghetti_plot(sf12.spag, 'SF_12',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.sf12, base.sf12, sf12.spag)
+```
 
 ## Housing Quality
 

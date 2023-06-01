@@ -9,10 +9,10 @@
 combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
   # get only the columns we want a rename
   df1 <- df1 %>%
-    select('pidp', 'time', var) %>%
+    select('pidp', 'time', all_of(var)) %>%
     set_names(c('pidp', 'time', df1.name))
   df2 <- df2 %>%
-    select('pidp', 'time', var) %>%
+    select('pidp', 'time', all_of(var)) %>%
     set_names(c('pidp', 'time', df2.name))
   # merge on pidp and time
   merged <- merge(df1, df2, by = c('pidp', 'time'))

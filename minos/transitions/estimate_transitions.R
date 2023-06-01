@@ -5,9 +5,9 @@
 # This script will be responsible for estimating any and all transition models
 # for use in the MINOS microsimulation.
 # At the time of writing we estimate 4 different model types (OLS, CLM, NNET, ZIP)
-# and each of these will require some specific processing. Therefore each 
+# and each of these will require some specific processing. Therefore each
 # model type will have its own function for the preprocessing, and we will have
-# a main function to read in the parameters from model_definitions.txt and 
+# a main function to read in the parameters from model_definitions.txt and
 # execute the loop.
 ########################################################################
 
@@ -27,18 +27,18 @@ digest_params <- function(line) {
   # Get model type
   split1 <- str_split(line, pattern = " : ")[[1]]
   mod.type <- split1[1]
-  
+
   # Get dependent and independents
   split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
   dependent <- split2[1]
   independents <- split2[2]
-  
+
   # formula
   form <- as.formula(split1[2])
   #print(form)
-  
+
   return.list <- c(dependent, independents, form)
-  
+
   return(return.list)
 }
 
@@ -51,7 +51,7 @@ digest_params <- function(line) {
 # information available)
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   if(include_weights) {
     # fit the model including weights (after 2009)
     model <- lm(formula,
@@ -66,15 +66,44 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
+estimate_yearly_ols_diff <- function(data, formula, depend) {
+
+  #orig.depend <- gsub("^.*?_", "", depend)
+  #pred.var <- paste0(orig.depend, '_change')
+  #data[[pred.var]] <- data[[depend]] - data[[orig.depend]]
+  #formula.preds <- gsub("^.*?~", "~", formula)
+
+  # Split string on the tilda and keep the right hand side (predictors)
+  formula.right <- unlist(str_split(as.character(formula), pattern = '~')[3])
+  # Add diff to the formula now using the depend argument
+  formula2 <- paste0(depend, ' ~ ', formula.right)
+  # Now we have the original right hand side of the formula, and the diff as the
+  # dependent variable
+
+  # diff models are much more likely to have missing data if respondent wasn't
+  # in previous wave, so have to do some more null handling here
+  data <- data %>%
+    drop_na(.data[[depend]])
+
+
+  # no need to worry about weights as we can't fit this model in first year (2009)
+  model <- lm(formula2,
+              data = data,
+              weights = weight)
+
+  model[[depend]] <- data[[depend]]
+  return(model)
+}
+
 estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   data = replace.missing(data)
   # replace missing ncigs values (if still missing)
   data[which(data$ncigs==-8), 'ncigs'] <- 0
-  
+
   if(include_weights) {
     model <- clm(formula,
                  data = data,
@@ -96,11 +125,11 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
 }
 
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   if(include_weights) {
     model <- multinom(formula = formula,
                       data = data,
@@ -118,23 +147,23 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   if(depend == 'next_ncigs' | depend == 'ncigs') {
     # first subset just the columns we want
-    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec', 
+    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec',
               'hh_income', 'ethnicity', 'weight')
     dat.subset <- data[, cols]
-    
+
     # Replace missing values with NA (util func)
     dat.subset = replace.missing(dat.subset)
-    
+
     # now set NA to 0
     dat.subset[[depend]][is.na(dat.subset[[depend]])] <- 0
-    
+
     # finally run complete cases
     dat.subset <- dat.subset[complete.cases(dat.subset),]
   }
-  
+
   if(include_weights) {
     model <- zeroinfl(formula = formula,
                       data = dat.subset,
@@ -144,84 +173,100 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   } else {
     model <- zeroinfl(formula = formula,
                       data = dat.subset,
-                      dist = 'pois', 
+                      dist = 'pois',
                       link='logit')
   model[[depend]] <- data[[depend]]
   }
-  
+
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
-  
+
   return(model)
+}
+
+calculate_diff <- function(data, cont.var) {
+  data <- data %>%
+    group_by(pidp) %>%
+    mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time))
 }
 
 
 
 ################ Main Run Loop ################
 
-run_yearly_models <- function(transitionDir_path, 
-                              transitionSourceDir_path, 
-                              mod_def_name, 
-                              data, 
+run_yearly_models <- function(transitionDir_path,
+                              transitionSourceDir_path,
+                              mod_def_name,
+                              data,
                               mode) {
-  
+
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
+
   # read file
   repeat{
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
-    
+
     # Get model type
     split1 <- str_split(def, pattern = " : ")[[1]]
     mod.type <- split1[1]
-    
+
     # Get dependent and independents
     split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
     dependent <- split2[1]
     independents <- split2[2]
-    
+
     # formula
     formula.string.orig <- split1[2]
-    
+
+    ## Calculate diff for rate of change models
+    # only applicable to hh_income and SF_12 for now
+    if (tolower(mod.type) == 'ols_diff') {
+      data <- data %>%
+        group_by(pidp) %>%
+        mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
+    }
+
     ## Yearly model estimation loop
-    
+
     # Set the time span to estimate models for differently for cross_validation
     # crossval needs all years, whereas default model can have reduced timespan
     if(mode == 'cross_validation') {
       year.range <- seq(min(data$time), (max(data$time) - 1))
     } else {
       year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
+      #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
-    
+
     # set up output directory
     out.path1 <- paste0(transitionDir_path, dependent, '/')
     out.path2 <- paste0(out.path1, tolower(mod.type), '/')
     create.if.not.exists(out.path1)
     create.if.not.exists(out.path2)
-    
+
     print(paste0('Starting for ', dependent, '...'))
-    
+
     ## Implement the 'next_' functionality to male sure were not doing dodgy prediction when using lags
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
-    
+
     for(year in year.range) {
-      
+
       # reset the formula string for each year
       formula.string <- formula.string.orig
-      
+
       ## dependent year data is always year + 1 unless data requires something different
       # (as in neighbourhood estimation, does a t+3 model due to data)
       depend.year <- year + 1
-      
+
       #TODO: Replace all these if statements with a check for data in that year
-      #   i.e. if colsum == (-9 * length(column)) 
+      #   i.e. if colsum == (-9 * length(column))
       #   then all elements == -9 as they would have been assigned that due to missing
-      
+
       ## Some models don't run in certain years (data issues) so break here
       # nutrition_quality only estimated for 2018
       if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
@@ -237,38 +282,39 @@ run_yearly_models <- function(transitionDir_path,
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
       if(dependent == 'SF_12' & year == 2009) { next }
-      
+      # OLS_DIFF models can only start from wave 2 (no diff in first wave)
+      if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
+
       print(paste0('Starting estimation for ', dependent, ' in ', year))
-      
+
       # set up new dependent var name
       next.dependent <- paste0('next_', dependent)
-      #next.dependent <- dependent
 
       # independents from time T (current)
-      indep.df <- data %>% 
+      indep.df <- data %>%
         filter(time == year)
       # dependent from T+1 (rename to 'next_{dependent}' soon)
-      depen.df <- data %>% 
-        filter(time == depend.year) %>% 
+      depen.df <- data %>%
+        filter(time == depend.year) %>%
         select(pidp, .data[[dependent]])
-      
+
       # rename to next_{dependent}
       next.colnames <- c('pidp', paste0('next_', dependent))
       colnames(depen.df) <- next.colnames
-      
+
       # smash them together
       merged <- merge(depen.df, indep.df, by='pidp')
-      
+
       # no weight var in 2009 (wave 1)
       if(year == 2009) {
         use.weights <- FALSE
       } else {
         use.weights <- TRUE
       }
-      
+
       #print(formula.string)
       ## For the SF_12 model alone, we need to modify the formula on the fly
-      # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
+      # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
       if(dependent == 'SF_12') {
         if(!year %in% c(2011, 2014, 2017, 2020)) {
@@ -287,44 +333,50 @@ run_yearly_models <- function(transitionDir_path,
       #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
-      
-      
-      
+
+
+
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
-        
-        model <- estimate_yearly_ols(data = merged, 
-                                     formula = form, 
+
+        model <- estimate_yearly_ols(data = merged,
+                                     formula = form,
                                      include_weights = use.weights,
                                      depend = next.dependent)
-        
+
+      } else if(tolower(mod.type) == 'ols_diff') {
+
+        model <- estimate_yearly_ols_diff(data = merged,
+                                          formula = form,
+                                          depend = paste0(dependent, '_diff'))
+
       } else if(tolower(mod.type) == 'clm') {
-        
+
         # set ordinal dependent to factor
         model <- estimate_yearly_clm(data = merged,
-                                     formula = form, 
-                                     include_weights = use.weights, 
+                                     formula = form,
+                                     include_weights = use.weights,
                                      depend = next.dependent)
-        
+
       } else if(tolower(mod.type) == 'nnet') {
-        
-        model <- estimate_yearly_nnet(data = merged, 
-                                      formula = form, 
-                                      include_weights = use.weights, 
+
+        model <- estimate_yearly_nnet(data = merged,
+                                      formula = form,
+                                      include_weights = use.weights,
                                       depend = next.dependent)
-        
+
       } else if(tolower(mod.type) == 'zip') {
-        
+
         model <- estimate_yearly_zip(data = merged,
                                      formula = form,
                                      include_weights = use.weights,
                                      depend = next.dependent)
-        
+
       }
-      
-      
+
+
       #return(model)
-      
+
       #print(typeof(model$coefficients))
       #print(model$coefficients)
       #return(model$coefficients)
@@ -332,13 +384,13 @@ run_yearly_models <- function(transitionDir_path,
       #coefs <- as.data.frame(model$coefficients)
       #coefs <- data.frame(Variables=row.names(coefs), coefs)
       #rownames(coefs) <- NULL
-      
+
       # save model & coefficients to file (in their own folder)
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
       saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
-      
+
     }
     print(paste0("Finished for ", dependent, '.'))
   }
@@ -360,14 +412,14 @@ run_yearly_models <- function(transitionDir_path,
 
 ## Argparse stuff
 parser = ArgumentParser()
-parser$add_argument('-s', 
-                    '--scotland', 
-                    action='store_true', 
-                    dest='scotland', 
+parser$add_argument('-s',
+                    '--scotland',
+                    action='store_true',
+                    dest='scotland',
                     default=FALSE,
                     help='Run in Scotland mode - MORE HELP NEEDED HERE')
 
-parser$add_argument('-c', 
+parser$add_argument('-c',
                     '--cross_validation',
                     action='store_true',
                     dest='crossval',

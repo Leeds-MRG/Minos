@@ -102,7 +102,10 @@ class Nutrition(Base):
         """
         #year = min(self.year, 2018)
         transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'nutrition_quality')
+        return r_utils.predict_next_timestep_ols(transition_model,
+                                                      self.rpy2Modules,
+                                                      pop,
+                                                      'nutrition_quality')
 
 
     # Special methods used by vivarium.
