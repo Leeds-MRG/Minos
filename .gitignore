@@ -48,8 +48,8 @@ output/*/*/*
 test.log
 
 # testing
-testing/
-testing/*
+#testing/
+#testing/*
 # just for time being remove the tests and data (not in use currently)
 tests/
 tests/data/*
@@ -63,6 +63,7 @@ Minos.Rproj
 # Knitted R notebook files
 minos/validation/*.nb.html
 minos/outcomes/*.nb.html
+minos/testing/*.nb.html
 
 # rob phd data
 papers/phd1/data/*

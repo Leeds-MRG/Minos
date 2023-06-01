@@ -18,7 +18,7 @@ The results of the simulation will now be compared to the simulation dataset to 
 require(tidyverse)
 require(ggplot2)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- "/home/luke/Documents/MINOS/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -70,6 +70,11 @@ plot_mean_comparison(pivoted.df = income.pivoted,
                      group.var = 'scenario',
                      save = TRUE,
                      save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+
+compare_boxplot_long(pivoted.df = income.pivoted,
+                     var = 'hh_income',
+                     scen1 = 'raw',
+                     scen2 = 'simulation')
 
 compare_boxplot_long(pivoted.df = income.pivoted,
                      var = 'hh_income',
