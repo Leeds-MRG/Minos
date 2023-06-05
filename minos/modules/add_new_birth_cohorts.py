@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import minos.utils as utilities
+from minos.utils import dump_parity
+from os.path import dirname as up
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
 from minos.modules.base_module import Base
@@ -269,6 +271,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         # Add listener event to check who has given birth on each time step using the on_time_step function below.
         builder.event.register_listener('time_step', self.on_time_step, priority=1)
 
+
     def on_initialize_simulants(self, pop_data):
         """ Adds the required columns for the module to run to the population data frame.
 
@@ -309,6 +312,13 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_households, 'nkids'] += 1
         self.population_view.update(population[['nkids']])
 
+        # # HR 24/05/23 To grab parity for testing
+        # y = int(str(event.time).split("-")[0])
+        # # print("\n##Event time:", y, "##\n")
+        # outpath = up(up(up(up(__file__)))) # Waaaay out of the way, above the project folder
+        # dump_parity(pop=population, year=y)
+
+
     @staticmethod
     def load_age_specific_fertility_rate_data(builder):
         """I have no idea what this is. loads in rate table taking subset for women and specific columns.
@@ -318,9 +328,11 @@ class nkidsFertilityAgeSpecificRates(Base):
         asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
         return asfr_data
 
+
     @property
     def name(self):
         return 'nkids_age_specific_fertility'
+
 
     def __repr__(self):
         return "nkidsFertilityAgeSpecificRates()"
