@@ -7,6 +7,7 @@ from minos.modules.base_module import Base
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 class Education(Base):
 
@@ -69,6 +70,9 @@ class Education(Base):
         event : vivarium.population.PopulationEvent
             The `event` that triggered the function call.
         """
+
+        logging.info("EDUCATION")
+
         self.year = event.time.year
 
         # Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17

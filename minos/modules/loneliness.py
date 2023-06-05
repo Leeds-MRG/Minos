@@ -6,6 +6,7 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 
 class Loneliness(Base):
@@ -69,7 +70,7 @@ class Loneliness(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -105,6 +106,9 @@ class Loneliness(Base):
         Returns
         -------
         """
+
+        logging.info("LONELINESS")
+
         # load transition model based on year.
         if self.year < 2018:
             year = 2018

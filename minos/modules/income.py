@@ -9,6 +9,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
+import logging
 
 
 class Income(Base):
@@ -104,6 +105,9 @@ class Income(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("INCOME")
+
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year

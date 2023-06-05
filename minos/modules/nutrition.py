@@ -6,6 +6,7 @@ Calculation of weekly consumption of fruit and veg.
 import pandas as pd
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
+import logging
 
 class Nutrition(Base):
 
@@ -64,7 +65,7 @@ class Nutrition(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -74,6 +75,9 @@ class Nutrition(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("NUTRITION QUALITY")
+
         self.year = event.time.year
 
         # Get living people to update their income
