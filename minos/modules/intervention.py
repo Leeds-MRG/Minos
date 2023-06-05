@@ -1,10 +1,10 @@
 """Module for applying any interventions to the base population from replenishment."""
 import itertools
 import sys
-
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import logging
 from minos.modules.base_module import Base
 
 class hhIncomeIntervention():
@@ -101,6 +101,9 @@ class hhIncomeIntervention():
 
     def on_time_step(self, event):
 
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the hh_income intervention in year {event.time.year}...")
+
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
         pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
@@ -112,6 +115,11 @@ class hhIncomeIntervention():
         # print(np.mean(pop['hh_income'])) for debugging. to ensure mean value is feasible. errors can hugely inflate it.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(who_uplifted)}")
+        logging.info(f"\t...which is {(sum(who_uplifted) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'].mean()}")
 
 
 ####################################################################################################################
@@ -169,6 +177,10 @@ class hhIncomeChildUplift(Base):
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the hh_income child uplift intervention in year {event.time.year}...")
+
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # print(np.mean(pop['hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
@@ -179,6 +191,11 @@ class hhIncomeChildUplift(Base):
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
 
 
 ########################################################################################################################
@@ -235,6 +252,10 @@ class hhIncomePovertyLineChildUplift(Base):
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the hh_income poverty line child uplift intervention in year {event.time.year}...")
+
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
@@ -251,6 +272,11 @@ class hhIncomePovertyLineChildUplift(Base):
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
 
 
 class livingWageIntervention(Base):
@@ -319,6 +345,11 @@ class livingWageIntervention(Base):
         Returns
         -------
         """
+
+        logging.info("INTERVENTION:")
+        logging.info(
+            f"\tApplying effects of the living wage intervention in year {event.time.year}...")
+
         pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
@@ -342,6 +373,20 @@ class livingWageIntervention(Base):
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of household composition.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(who_uplifted_London) + sum(who_uplifted_notLondon)}")
+        logging.info(
+            f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
+        logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
+        logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
+        logging.info(f"\t\tNot London %: {(sum(who_uplifted_notLondon) / len(pop[pop['region'] != 'London'])) * 100}")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'][pop['income_boosted'] == True].sum()}")
+        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
+        logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].sum()}")
+        logging.info(f"\tMean weekly boost amount: {pop['boost_amount'][pop['income_boosted'] == True].mean()}")
+        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
+        logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
 
 
 class energyDownlift(Base):
@@ -397,6 +442,10 @@ class energyDownlift(Base):
 
 
     def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the energy downlift intervention in year {event.time.year}...")
+
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
@@ -413,6 +462,11 @@ class energyDownlift(Base):
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people downlifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
 
 
 ### some test on time steps for variious scotland interventions
