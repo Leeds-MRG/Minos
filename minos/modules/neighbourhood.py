@@ -9,6 +9,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 class Neighbourhood(Base):
 
@@ -75,6 +76,9 @@ class Neighbourhood(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("NEIGHBOURHOOD SAFETY")
+
         # Get living people to update their neighbourhood
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year

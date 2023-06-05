@@ -11,6 +11,7 @@ import random
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 class Labour(Base):
     # Special methods used by vivarium.
@@ -84,6 +85,9 @@ class Labour(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("LABOUR STATE")
+
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.

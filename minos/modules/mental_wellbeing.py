@@ -10,6 +10,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
+import logging
 
 
 class MWB(Base):
@@ -108,6 +109,8 @@ class MWB(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("MENTAL WELLBEING (SF12 MCS)")
 
         self.year = event.time.year
 

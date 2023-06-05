@@ -6,6 +6,7 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 
 class Loneliness(Base):
@@ -105,6 +106,9 @@ class Loneliness(Base):
         Returns
         -------
         """
+
+        logging.info("LONELINESS")
+
         # load transition model based on year.
         if self.year < 2018:
             year = 2018

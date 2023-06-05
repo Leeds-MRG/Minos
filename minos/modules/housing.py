@@ -10,6 +10,7 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 from datetime import datetime as dt
 
 class Housing(Base):
@@ -82,6 +83,9 @@ class Housing(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("HOUSING QUALITY")
+
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
