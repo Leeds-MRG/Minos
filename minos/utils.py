@@ -11,6 +11,8 @@ import pandas as pd
 import datetime
 from itertools import product
 import scipy
+from math import sqrt, log, ceil, floor
+from random import random
 
 import sys
 import importlib
@@ -219,3 +221,239 @@ def dump_parity(pop,
     except Exception as e:
         print("Couldn't dump data, exception follows")
         print(e)
+
+
+## SERIES SOLVER FUNCTIONS BELOW, FOR FERTILITY/PARITY
+## FEB 23 ONWARDS
+
+# HR 20/02/23 To solve a geometric series for the ratio r
+# Adapted from this: https://math.stackexchange.com/questions/3473457/how-to-find-r-in-a-finite-geometric-series
+# Required for:
+# 1. Estimating fertility rates by parity to data binned into N+ births
+# 2. Breaking up fertility/parity when given in age group (i.e <14y and >44y) into individual years
+
+
+TOL_DEFAULT = 1e-6
+MAX_ITER_DEFAULT = 50
+FACTOR_DEFAULT = 0.2 # Very important! Test case 1 blows up if this is close to unity
+ROUND_DEFAULT = "up"
+
+
+def f0(a, r, n, s):
+    f = a * (1 - r ** n) - s * (1 - r)
+    return f
+
+
+def f1(a, r, n, s):
+    f = -a * n * (r ** (n - 1)) + s
+    return f
+
+
+def f2(a, r, n, s):
+    f = -a * n * (n - 1) * (r ** (n - 2))
+    return f
+
+
+def get_guess_infinite(a, s):
+    r0 = 1 - a / s
+    return r0
+
+
+def get_r_star(a, n, s):
+    r_s = (s / (a * n)) ** (1 / (n - 1))
+    return r_s
+
+
+def get_guess_taylor(a, r_s, n, s):
+    upper = f0(a, r_s, n, s)
+    lower = f2(a, r_s, n, s)
+    # print(upper,lower)
+    try:
+        r0 = r_s + sqrt(-2 * upper / lower)
+    except:
+        lower += (random.random() - 0.5) / 100  # Introduce perturbation to avoid division by zero
+        r0 = r_s + sqrt(-2 * upper / lower)
+    return r0
+
+
+def get_next_value(a, r_old, n, s):
+    upper = f0(a, r_old, n, s)
+    lower = f1(a, r_old, n, s)
+    # print(upper,lower)
+    try:
+        r_new = r_old - upper / lower
+    except:
+        print(lower)
+        lower += (random() - 0.5) / 100  # Introduce perturbation to avoid division by zero
+        print(lower)
+        r_new = r_old - upper / lower
+    return r_new
+
+
+def solve(a, n, s, r0=None, tol=TOL_DEFAULT, imax=MAX_ITER_DEFAULT):
+    # Initialise list of estimates
+    r_star = get_r_star(a, n, s)
+    # print("r_star:", r_star)
+
+    if not r0:
+        r0 = get_guess_taylor(a, r_star, n, s)
+        # r0 = get_guess_infinite(a, s)
+
+    print("\nRunning 'solve' with a,n,s =", a, n, s)
+    print("r0, tol, imax: ", r0, tol, imax)
+
+    print("Initial guess:", r0)
+    r = [r0]
+    r1 = get_next_value(a, r0, n, s)
+    r.append(r1)
+
+    while abs(r[-1] - r[-2]) > tol:
+        if len(r) > imax:
+            # print("Max. iterations reached in 'solve'; aborting at iteration", len(r), imax)
+            # print("tol =", tol, "; abs(diff) =", abs(r[-1] - r[-2]))
+            # print("r = ", r[-1])
+            return r
+        r_old = r[-1]
+        r_new = get_next_value(a, r_old, n, s)
+        r.append(r_new)
+
+    print("Tolerance reached in 'solve' after iteration", len(r) - 1, ", abs(diff) =", abs(r[-1] - r[-2]))
+    print("r = ", r[-1])
+    return r
+
+
+def get_sum(a, r, n):
+    s = a * (1 - r ** n) / (1 - r)
+    return s
+
+
+def generate_series(a, r, n):
+    series = [a * r ** (i - 1) for i in range(1, n + 1)]
+    return series
+
+
+def series_ok(a, r, n, series, tol=TOL_DEFAULT):
+    sum_calc = get_sum(a, r, n)
+    sum_series = sum(series)
+    d = abs(sum_calc - sum_series) / abs(sum_series)
+    if d < tol:
+        print("Series correct, tol, d =", tol, d)
+        return True
+    else:
+        print("Series NOT correct, tol, d =", tol, d)
+        return False
+
+
+def test_r(a, r, n, s):
+    try:
+        sum = get_sum(a, r, n)
+    except:
+        r += r * (random() - 0.5) / 100  # Introduce perturbation to avoid division by zero
+        sum = get_sum(a, r, n)
+    difference = abs(sum - s)
+    return difference
+
+
+def get_series_for_n(a, r, s, round=ROUND_DEFAULT, vary="r"):
+    round_dict = {"up": ceil,
+                  "down": floor, }
+
+    # Get estimate for n, which may not be an integer value
+    n = solve_for_n(a, r, s)
+    if not n:
+        print("Could not find n; returning None")
+
+    # Check if integer, else round up/down and create new series with integer-valued n
+    if not n.is_integer():
+        print("n is not an integer")
+        round_method = round_dict.get(round, ROUND_DEFAULT)
+        n = round_method(n)
+
+    r_new = search(a, n, s)
+    series_n = generate_series(a, r_new, n)
+    return series_n, r_new, n
+
+
+def solve_for_n(a, r, s):
+    r_check = 1 - (a / s)
+    print("r_check:", r_check)
+    if not r > r_check:
+        print("No solution exists; must satisfy r > 1 - a/s; returning None")
+        return None
+
+    n = log(1 - (s / a) * (1 - r)) / log(r)
+    print("Solved for n =", n)
+    return n
+
+
+def search(a, n, s, r0=None, tol=1e-8, iters=100, factor=FACTOR_DEFAULT, return_r=False):
+    '''
+    To search through starting values for r
+    '''
+    if not r0:
+        r_star = get_r_star(a, n, s)
+        r0 = get_guess_taylor(a, r_star, n, s)
+        # r0 = get_guess_infinite(a, s)
+
+    # print("\nRunning 'search' with a,n,s =", a,n,s)
+    # print("r0, tol, iters, factor: ", r0, tol, iters, factor)
+
+    r = solve(a, n, s, r0)[-1]
+    d = test_r(a, r, n, s)
+
+    i = 0
+    while abs(d) > tol:
+        i += 1
+        if i > iters:
+            # print("Max. iterations reached in 'search'; aborting at iteration", i+1, iters)
+            # print("r = ", r)
+            return r
+        power = (-factor * i) ** i  # Power index toggling between r^i and r^(-i), to cause to stray from unity
+        r0 = r0 ** power
+        # print("i, r, power =", i, r, power)
+
+        r = solve(a, n, s, r0)[-1]
+        d = test_r(a, r, n, s)
+
+    # print("\nTolerance reached in 'search' after iteration ", i+1)
+    # print("r =", r)
+    # print("abs(d) =", abs(d))
+    return r
+
+
+# # HR 01/03/23 To get first term of series with three known ratios
+# # First and second apply to t2/t1 and t3/t2; third applies to all higher terms
+# # S is sum to N terms
+# def get_first_term(S, N, r1, r2, r3):
+#     t1 = T * (1 + r1 + r1 * r2 * ((1 - r3 ** (N - 3)) / (1 - r3))) ** (-1)
+#
+#     return t1
+
+
+# HR 03/03/23 Take truncated series (i.e. one with N terms, the last of which is a sum of N+ terms)...
+# and return expanded series following a geometric progression, i.e. without truncation
+# Just specify how many terms to expand final term into
+# Basic wrapper for "search"
+def extend_series(series_in, n, return_r=False, **kwargs):
+    # Return series of zeroes if either of the last two entries is zero:
+    # 1. If last entry, then obvs later ones will be zero
+    # 2. If second to last entry, then r will be positive -> not desired; also most likely when numbers are very small
+    if series_in[-1] in [0, 0.0] or series_in[-2] in [0, 0.0]:
+        series_out = series_in
+        series_in.extend([0] * (n - 1))
+        if return_r:
+            return series_out, 0
+        else:
+            return series_out
+
+    # Main functionality, assuming data are good (i.e. no zeroes in last two entries)S
+    r = search(series_in[-2], n + 1, sum(series_in[-2:]), **kwargs)  # n+1 important here!
+    new_series = generate_series(series_in[-2], r, n + 1)  # n+1 very important here!
+    # print(new_series)
+    series_out = series_in[:-2]
+    series_out.extend(new_series[:])
+
+    if return_r:
+        return series_out, r
+    else:
+        return series_out
