@@ -747,7 +747,7 @@ def search(a, n, s, r0=None, tol=1e-8, iters=100, factor=FACTOR_DEFAULT):
 #     return t1
 
 
-def extend_series(series_in, n, return_r=False, **kwargs):
+def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     """
     HR 03/03/23 Take truncated series (i.e. one with n terms, the last of which is a sum of n+ terms)...
     and return expanded series following a geometric progression, i.e. without truncation
@@ -760,6 +760,9 @@ def extend_series(series_in, n, return_r=False, **kwargs):
         Series to be extended
     n :
         Number of terms by which series will be extended
+    reverse : bool
+        True if series is to be prepended, rather than extended
+        False if series is to be extended
     return_r : bool
         True if r is to be returned
         False otherwise
@@ -774,6 +777,11 @@ def extend_series(series_in, n, return_r=False, **kwargs):
         Common ratio of series
 
     """
+    # HR 06/06/23 Adding functionality to prepend series rather than extend
+    # Logic is just to reverse series before and after extending
+    if reverse:
+        series_in = series_in[::-1]
+
     # Return series of zeroes if either of the last two entries is zero:
     # 1. If last entry, then obvs later ones will be zero
     # 2. If second to last entry, then r will be positive -> not desired; also most likely when numbers are very small
@@ -791,6 +799,9 @@ def extend_series(series_in, n, return_r=False, **kwargs):
     # print(new_series)
     series_out = series_in[:-2]
     series_out.extend(new_series[:])
+
+    if reverse:
+        series_out = series_out[::-1]
 
     if return_r:
         return series_out, r
