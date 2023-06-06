@@ -232,6 +232,10 @@ def dump_parity(pop,
 # 1. Estimating fertility rates by parity to data binned into N+ births
 # 2. Breaking up fertility/parity when given in age group (i.e <14y and >44y) into individual years
 
+# HR 05/06/23 Update for readability
+# Functionality is implementation of Newton method and contains some tweaks using perturbations to avoid blow-up
+# Also adding more documentation to make it more obvious how to use it
+
 
 TOL_DEFAULT = 1e-6
 MAX_ITER_DEFAULT = 50
@@ -240,43 +244,181 @@ ROUND_DEFAULT = "up"
 
 
 def f0(a, r, n, s):
+    """
+    Function for which root is sought
+    Ultimately a rearrangement of expression for finite geometric series
+    i.e. s = a * (1 - r^n) / (1 - r)
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio of series
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    f : float
+
+    """
     f = a * (1 - r ** n) - s * (1 - r)
     return f
 
 
 def f1(a, r, n, s):
+    """
+    First derivative of f0 w.r.t common ratio r
+    Used in Newton solution (i.e. "solve" method)
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio of series
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    f : float
+
+    """
     f = -a * n * (r ** (n - 1)) + s
     return f
 
 
 def f2(a, r, n, s):
+    """
+    Second derivative of f0 w.r.t common ratio r
+    Used in Newton solution (i.e. "solve" method)
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio of series
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    f : float
+
+    """
     f = -a * n * (n - 1) * (r ** (n - 2))
     return f
 
 
 def get_guess_infinite(a, s):
+    """
+    Get initial guess for common ratio of geometric series
+    by approximating series as infinite
+    Ultimately rearrangement of s = a / (1 - r)
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    r0 : float
+        Common ratio for infinite geometric series
+
+    """
     r0 = 1 - a / s
     return r0
 
 
 def get_r_star(a, n, s):
+    """
+    Get initial estimate of common ratio using
+    Used to generate first guess r0, see "get_guess_taylor"
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    r_s : float
+        Value of r at which f0 is minimum
+
+    """
     r_s = (s / (a * n)) ** (1 / (n - 1))
     return r_s
 
 
 def get_guess_taylor(a, r_s, n, s):
+    """
+    Get starting guess for common ratio, r
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r_s : float
+        Estimate for common ratio from "get_r_star"
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    r0 : float
+        First guess for common ratio, r
+
+    """
     upper = f0(a, r_s, n, s)
     lower = f2(a, r_s, n, s)
     # print(upper,lower)
     try:
         r0 = r_s + sqrt(-2 * upper / lower)
     except:
-        lower += (random.random() - 0.5) / 100  # Introduce perturbation to avoid division by zero
+        lower += (random() - 0.5) / 100  # Introduce perturbation to avoid division by zero
         r0 = r_s + sqrt(-2 * upper / lower)
     return r0
 
 
 def get_next_value(a, r_old, n, s):
+    """
+    Get next iteration of common ratio, r
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r_old : float
+        Value of common ratio from previous iteration
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    r_new : float
+        Next value of common ratio, r
+
+    """
     upper = f0(a, r_old, n, s)
     lower = f1(a, r_old, n, s)
     # print(upper,lower)
@@ -291,6 +433,30 @@ def get_next_value(a, r_old, n, s):
 
 
 def solve(a, n, s, r0=None, tol=TOL_DEFAULT, imax=MAX_ITER_DEFAULT):
+    """
+    Seek common ratio of finite geometric series
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    n : int
+        Number of terms in series
+    s : float
+        Sum of series
+    r0 : float
+        Initial guess for common ratio
+    tol : float
+        Tolerance for convergence
+    imax : int
+        Maximum number of iterations
+
+    Returns
+    -------
+    r : float
+        Common ratio of finite geometric series
+
+    """
     # Initialise list of estimates
     r_star = get_r_star(a, n, s)
     # print("r_star:", r_star)
@@ -323,16 +489,76 @@ def solve(a, n, s, r0=None, tol=TOL_DEFAULT, imax=MAX_ITER_DEFAULT):
 
 
 def get_sum(a, r, n):
+    """
+    Calculate sum of finite geometric series
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio
+    n : int
+        Number of terms in series
+
+    Returns
+    -------
+    s : float
+        Sum of finite geometric series
+
+    """
     s = a * (1 - r ** n) / (1 - r)
     return s
 
 
 def generate_series(a, r, n):
+    """
+    Generate finite geometric series
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio
+    n : int
+        Number of terms in series
+
+    Returns
+    -------
+    series : list of float
+        Geometric series
+
+    """
     series = [a * r ** (i - 1) for i in range(1, n + 1)]
     return series
 
 
 def series_ok(a, r, n, series, tol=TOL_DEFAULT):
+    """
+    Check if sum of series passed as argument matches
+    sum of series generated from parameters a, r, n
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio
+    n : int
+        Number of terms in series
+    series : list of float
+        Pre-calculated series to be compared
+    tol : float
+        Tolerance for comparison of two series
+
+    Returns
+    -------
+    bool
+        True if two series are equal (within tolerance)
+        False otherwise
+
+    """
     sum_calc = get_sum(a, r, n)
     sum_series = sum(series)
     d = abs(sum_calc - sum_series) / abs(sum_series)
@@ -345,6 +571,28 @@ def series_ok(a, r, n, series, tol=TOL_DEFAULT):
 
 
 def test_r(a, r, n, s):
+    """
+    Calculate difference between calculated and correct sum
+    with common ratio r
+    Used in wrapper function "search" to check for convergence
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio
+    n : int
+        Number of terms in series
+    s : float
+        Pre-calculated sum of series
+
+    Returns
+    -------
+    difference : float
+        Difference between correct and calculated sums of series
+
+    """
     try:
         sum = get_sum(a, r, n)
     except:
@@ -354,7 +602,33 @@ def test_r(a, r, n, s):
     return difference
 
 
-def get_series_for_n(a, r, s, round=ROUND_DEFAULT, vary="r"):
+def get_series_for_n(a, r, s, round=ROUND_DEFAULT):
+    """
+    Wrapper for "solve_for_n" to recalculate series
+    so that n is an integer as "solve_for_n"
+    generally returns a non-integer value for n
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio of series
+    s : float
+        Sum of series
+    round : str
+        String used as switch to determine rounding method
+
+    Returns
+    -------
+    series_n : list of float
+        Resulting series
+    r_new : int
+        Common ratio of series
+    n : int
+        Number of terms in resulting series
+
+    """
     round_dict = {"up": ceil,
                   "down": floor, }
 
@@ -375,6 +649,25 @@ def get_series_for_n(a, r, s, round=ROUND_DEFAULT, vary="r"):
 
 
 def solve_for_n(a, r, s):
+    """
+    Solve for number of terms, n, given a, r, s
+    Note that n is not generally an integer
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    r : float
+        Common ratio of series
+    s : float
+        Sum of series
+
+    Returns
+    -------
+    n : float
+        Number of terms in series
+
+    """
     r_check = 1 - (a / s)
     print("r_check:", r_check)
     if not r > r_check:
@@ -386,10 +679,34 @@ def solve_for_n(a, r, s):
     return n
 
 
-def search(a, n, s, r0=None, tol=1e-8, iters=100, factor=FACTOR_DEFAULT, return_r=False):
-    '''
-    To search through starting values for r
-    '''
+def search(a, n, s, r0=None, tol=1e-8, iters=100, factor=FACTOR_DEFAULT):
+    """
+    Wrapper for "solve" function to avoid numerical instabilities
+
+    Parameters
+    ----------
+    a : float
+        First term of series
+    n : int
+        Number of terms in series
+    s : float
+        Pre-calculated sum of series
+    r0 : float
+        Initial guess for r
+    tol : float
+        Tolerance for convergence
+    iters : int
+        Maximum number of iterations
+    factor : float
+
+
+    Returns
+    -------
+    r : float
+        Common ratio of series
+
+    """
+
     if not r0:
         r_star = get_r_star(a, n, s)
         r0 = get_guess_taylor(a, r_star, n, s)
@@ -430,11 +747,33 @@ def search(a, n, s, r0=None, tol=1e-8, iters=100, factor=FACTOR_DEFAULT, return_
 #     return t1
 
 
-# HR 03/03/23 Take truncated series (i.e. one with N terms, the last of which is a sum of N+ terms)...
-# and return expanded series following a geometric progression, i.e. without truncation
-# Just specify how many terms to expand final term into
-# Basic wrapper for "search"
 def extend_series(series_in, n, return_r=False, **kwargs):
+    """
+    HR 03/03/23 Take truncated series (i.e. one with n terms, the last of which is a sum of n+ terms)...
+    and return expanded series following a geometric progression, i.e. without truncation
+    Just specify how many terms to expand final term into
+    Basic wrapper for "search"
+
+    Parameters
+    ----------
+    series_in : list of float
+        Series to be extended
+    n :
+        Number of terms by which series will be extended
+    return_r : bool
+        True if r is to be returned
+        False otherwise
+    kwargs : kwargs
+        Any keyword arguments to be passed to "solve"
+
+    Returns
+    -------
+    series_out : list of float
+        Series
+    r : float
+        Common ratio of series
+
+    """
     # Return series of zeroes if either of the last two entries is zero:
     # 1. If last entry, then obvs later ones will be zero
     # 2. If second to last entry, then r will be positive -> not desired; also most likely when numbers are very small
@@ -446,7 +785,7 @@ def extend_series(series_in, n, return_r=False, **kwargs):
         else:
             return series_out
 
-    # Main functionality, assuming data are good (i.e. no zeroes in last two entries)S
+    # Main functionality, assuming data are good (i.e. no zeroes in last two entries)
     r = search(series_in[-2], n + 1, sum(series_in[-2:]), **kwargs)  # n+1 important here!
     new_series = generate_series(series_in[-2], r, n + 1)  # n+1 very important here!
     # print(new_series)
