@@ -57,7 +57,6 @@ class Housing(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "labour_state",
                         "SF_12",
                         "job_sec",
                         "ethnicity",
@@ -100,6 +99,14 @@ class Housing(Base):
                                                                 housing_prob_df) + 1
 
         housing_prob_df.index = housing_prob_df.index.astype(int)
+
+        # convert numeric prediction into string factors (low, medium, high)
+        housing_factor_dict = {1: 'Low',
+                               2: 'Medium',
+                               3: 'High'}
+        housing_prob_df.replace({'housing_quality': housing_factor_dict},
+                                inplace=True)
+
 
         self.population_view.update(housing_prob_df["housing_quality"])
 

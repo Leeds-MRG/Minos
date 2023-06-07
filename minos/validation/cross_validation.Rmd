@@ -251,4 +251,3 @@ cv_ordinal_plots(pivoted.df = lnly.pivoted,
 ```{r}
 
 ```
-

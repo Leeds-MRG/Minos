@@ -1,5 +1,5 @@
 """
-Module for neighbourhood in Minos.
+Module for SIPHER 7 neighbourhood in Minos.
 Calculation of change in neighbourhood quality in minos.
 """
 
@@ -9,9 +9,9 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
-import logging
 
-class Neighbourhood(Base):
+
+class S7Neighbourhood(Base):
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -35,7 +35,7 @@ class Neighbourhood(Base):
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
-        #self.transition_coefficients = builder.
+        # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
@@ -50,13 +50,13 @@ class Neighbourhood(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'neighbourhood_safety',
+                        'S7_neighbourhood_safety',
                         'SF_12',
                         'S7_labour_state',
                         'education_state',
                         'housing_quality',
                         'job_sec']
-        #view_columns += self.transition_model.rx2('model').names
+        # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -66,7 +66,7 @@ class Neighbourhood(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -76,9 +76,6 @@ class Neighbourhood(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
-        logging.info("NEIGHBOURHOOD SAFETY")
-
         # Get living people to update their neighbourhood
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
@@ -86,16 +83,22 @@ class Neighbourhood(Base):
         # Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
-        neighbourhood_prob_df["neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
+        neighbourhood_prob_df["S7_neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
                                                                            list(neighbourhood_prob_df.columns),
                                                                            neighbourhood_prob_df) + 1
 
         neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
 
+        # convert numeric prediction into string factors
+        neighbourhood_factor_dict = {1: 'Often',
+                                        2: 'Some of the time',
+                                        3: 'Hardly ever'}
+        neighbourhood_prob_df.replace({'S7_neighbourhood_safety': neighbourhood_factor_dict},
+                                inplace=True)
+
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood
-        self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'])
-
+        self.population_view.update(neighbourhood_prob_df['S7_neighbourhood_safety'])
 
     def calculate_neighbourhood(self, pop):
         """Calculate neighbourhood transition distribution based on provided people/indices
@@ -117,21 +120,22 @@ class Neighbourhood(Base):
             pass  # e.g. 2011 is correct
         elif mod == 2:
             year -= 1  # e.g. 2012 moves back one year to 2011.
-            
-        year = min(year, 2017) # transitions only go up to 2014.
-        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
+
+        year = min(year, 2017)  # transitions only go up to 2014.
+        transition_model = r_utils.load_transitions(f"S7_neighbourhood_safety/clm/S7_neighbourhood_safety_{year}_{year + 3}",
+                                                    self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
+        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop,
+                                                                  'S7_neighbourhood_safety')
         return nextWaveNeighbourhood
 
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'neighbourhood'
-
+        return 's7neighbourhood'
 
     def __repr__(self):
-        return "Neighbourhood()"
+        return "S7Neighbourhood()"
 
     def plot(self, pop, config):
 

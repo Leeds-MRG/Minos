@@ -159,7 +159,7 @@ def generate_stock(projections, cross_validation):
     data['ncigs'] = data['ncigs'].astype('int64')
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
-    data['housing_quality'] = data['housing_quality'].astype('int64')
+    #data['housing_quality'] = data['housing_quality'].astype('int64')
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
@@ -168,7 +168,7 @@ def generate_stock(projections, cross_validation):
     if cross_validation:
         # grab all unique pidps and take half at random
         # TODO: the sample() function can take weights to return equally weighted samples. Problem being that we use
-            # yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
+        #   yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
         all_pidp = pd.Series(data['pidp'].unique())
         #trans_samp = all_pidp.sample(frac=0.5, random_state=1)  # random_state is for seeding and reproducibility
 

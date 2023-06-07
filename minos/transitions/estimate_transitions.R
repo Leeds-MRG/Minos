@@ -234,9 +234,10 @@ run_yearly_models <- function(transitionDir_path,
     ## Yearly model estimation loop
 
     # Set the time span to estimate models for differently for cross_validation
-    # crossval needs all years, whereas default model can have reduced timespan
+    # crossval needs to start in 2010, whereas default model can have reduced timespan
+    # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(min(data$time), (max(data$time) - 1))
+      year.range <- seq(min(data$time) + 1, (max(data$time) - 1))
     } else {
       year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
@@ -275,8 +276,9 @@ run_yearly_models <- function(transitionDir_path,
       # loneliness only estimated for waves starting 2017 and 2018
       if(dependent == 'loneliness' & !year > 2016) { next }
       # neighbourhood only estimated for wave 2011, 2014, and 2017
-      if(dependent == 'neighbourhood_safety' & !year %in% c(2011, 2014, 2017)) { next }
-      if(dependent == 'neighbourhood_safety'){ depend.year <- year + 3 } # set up 3 year horizon
+      #if(dependent == 'neighbourhood_safety' & !year %in% c(2011, 2014, 2017)) { next }
+      if(grepl('neighbourhood_safety', dependent) & !year %in% c(2011, 2014, 2017)) { next }
+      if(grepl('neighbourhood_safety', dependent)){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
@@ -294,9 +296,9 @@ run_yearly_models <- function(transitionDir_path,
       indep.df <- data %>%
         filter(time == year)
       # dependent from T+1 (rename to 'next_{dependent}' soon)
-      depen.df <- data %>%
-        filter(time == depend.year) %>%
-        select(pidp, .data[[dependent]])
+      depen.df <- data %>% 
+        filter(time == depend.year) %>% 
+        select(pidp, all_of(dependent))
 
       # rename to next_{dependent}
       next.colnames <- c('pidp', paste0('next_', dependent))
@@ -316,19 +318,17 @@ run_yearly_models <- function(transitionDir_path,
       ## For the SF_12 model alone, we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
-      if(dependent == 'SF_12') {
-        if(!year %in% c(2011, 2014, 2017, 2020)) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
-        }
-        if(!year > 2016) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
-        }
-        if(!year %in% c(2015, 2017, 2019)) {
-          formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
-        }
-        if(year < 2013) {
-          formula.string <- str_remove(formula.string, " \\+ ncigs")
-        }
+      if(!year %in% c(2011, 2014, 2017, 2020)) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+      }
+      if(!year > 2016) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+      }
+      if(!year %in% c(2015, 2017, 2019)) {
+        formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
+      }
+      if(year < 2013) {
+        formula.string <- str_remove(formula.string, " \\+ ncigs")
       }
       #print(formula.string)
       # Now make string into formula

@@ -1,4 +1,8 @@
-"""Loneliness Module for MINOS. Primarily estimates sclonely."""
+"""
+Module for SIPHER 7 housing in Minos.
+Upgrade of household appliances
+Possible future work for moving households and changing household composition (e.g. marrying/births)
+"""
 
 import pandas as pd
 from pathlib import Path
@@ -6,17 +10,18 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
-import logging
+from datetime import datetime as dt
 
+class S7Housing(Base):
 
-class Loneliness(Base):
-    # Special methods used by vivarium.
     @property
     def name(self):
-        return 'loneliness'
+        return "s7housing"
 
     def __repr__(self):
-        return "Loneliness()"
+        return "S7Housing()"
+
+    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -42,8 +47,10 @@ class Loneliness(Base):
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
-        # Assign randomness streams if necessary.
+        # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+
+
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
@@ -53,14 +60,9 @@ class Loneliness(Base):
                         "SF_12",
                         "job_sec",
                         "ethnicity",
-                        "education_state",
                         "age",
-                        "housing_quality",
-                        "hh_income",
-                        "loneliness",
-                        "hh_comp",
-                        "marital_status",
-                        "ncigs"]
+                        "S7_housing_quality",
+                        "hh_income",]
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -70,7 +72,7 @@ class Loneliness(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -87,17 +89,26 @@ class Loneliness(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
-        loneliness_prob_df = self.calculate_loneliness(pop)
+        housing_prob_df = self.calculate_housing(pop)
 
-        loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
-                                                              list(loneliness_prob_df.columns),
-                                                              loneliness_prob_df) + 1
-        loneliness_prob_df.index = pop.index
+        housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index,
+                                                                list(housing_prob_df.columns),
+                                                                housing_prob_df) + 1
 
-        self.population_view.update(loneliness_prob_df["loneliness"])
+        housing_prob_df.index = housing_prob_df.index.astype(int)
 
-    def calculate_loneliness(self, pop):
-        """Calculate loneliness transition distribution based on provided people/indices.
+        # convert numeric prediction into string factors (low, medium, high)
+        housing_factor_dict = {1: 'No to all',
+                               2: 'Yes to some',
+                               3: 'Yes to all'}
+        housing_prob_df.replace({'S7_housing_quality': housing_factor_dict},
+                                inplace=True)
+
+
+        self.population_view.update(housing_prob_df["S7_housing_quality"])
+
+    def calculate_housing(self, pop):
+        """Calculate housing transition distribution based on provided people/indices.
 
         Parameters
         ----------
@@ -106,27 +117,20 @@ class Loneliness(Base):
         Returns
         -------
         """
-
-        logging.info("LONELINESS")
-
         # load transition model based on year.
-        if self.year < 2018:
-            year = 2018
-        else:
-            year = self.year
-        year = min(year, 2019)
-        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        year = min(self.year, 2019)
+        transition_model = r_utils.load_transitions(f"S7_housing_quality/clm/S7_housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'loneliness')
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_housing_quality')
         return prob_df
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"loneliness_barplot_{self.year}.pdf"
-        densities = pd.DataFrame(pop['loneliness'].value_counts(normalize=True))
+        file_name = config.output_plots_dir + f"S7_housing_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['housing_quality'].value_counts(normalize=True))
         densities.columns = ['densities']
-        densities['loneliness'] = densities.index
+        densities['housing_quality'] = densities.index
         f = plt.figure()
-        cat = catplot(data=densities, y='loneliness', x='densities', kind='bar', orient='h')
+        cat = catplot(data=densities, y='S7_housing_quality', x='densities', kind='bar', orient='h')
         plt.savefig(file_name)
         plt.close()

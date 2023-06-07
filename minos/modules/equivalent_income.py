@@ -1,14 +1,25 @@
 """
-Module for nutrition in Minos.
-Calculation of weekly consumption of fruit and veg.
+Module for equivalent income in Minos.
+Equivalent income is a weighted combination of the SIPHER 7 variables based on feedback from the public about
+    how important each factor is. It is a deterministic calculation and does not depend on regression model predictions.
 """
 
 import pandas as pd
+from pathlib import Path
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
-import logging
+from seaborn import histplot
+import matplotlib.pyplot as plt
 
-class Nutrition(Base):
+class EquivalentIncome(Base):
+    """Equivalent Income Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'EquivalentIncome'
+
+    def __repr__(self):
+        return "EquivalentIncome()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -16,7 +27,7 @@ class Nutrition(Base):
         Notes
         -----
         - Load in data from pre_setup
-        - Register any value producers/modifiers for tobacco
+        - Register any value producers/modifiers for income
         - Add required columns to population data frame
         - Update other required items such as randomness stream.
 
@@ -42,20 +53,14 @@ class Nutrition(Base):
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
         view_columns = ['pidp',
-                        'age',
-                        'sex',
-                        'ethnicity',
-                        'region',
                         'hh_income',
-                        'SF_12',
-                        'education_state',
                         'S7_labour_state',
-                        'job_sec',
-                        'hh_income',
-                        'alcohol_spending',
-                        'ncigs',
-                        'nutrition_quality']
-        #view_columns += self.transition_model.rx2('model').names
+                        'S7_physical_health',
+                        'S7_mental_health',
+                        'S7_neighbourhood_safety',
+                        'S7_housing_quality',
+                        'loneliness']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -65,7 +70,7 @@ class Nutrition(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=8)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -76,47 +81,13 @@ class Nutrition(Base):
             The event time_step that called this function.
         """
 
-        logging.info("NUTRITION QUALITY")
 
-        self.year = event.time.year
 
-        # Get living people to update their income
-        pop = self.population_view.get(event.index, query="alive =='alive'")
+    def calculate_equivalent_income(self):
+        """
 
-        ## Predict next income value
-        newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
-        newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
-        # Set index type to int (instead of object as previous)
-        newWaveNutrition.index = (newWaveNutrition.index.astype(int))
-        #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
-
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-        self.population_view.update(newWaveNutrition['nutrition_quality'])
-
-    def calculate_nutrition(self, pop):
-        """Calculate loneliness transition distribution based on provided people/indices.
-
-        Parameters
-        ----------
-            pop : pd.DataFrame
-                The population dataframe.
         Returns
         -------
+
         """
-        #year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model,
-                                                      self.rpy2Modules,
-                                                      pop,
-                                                      'nutrition_quality')
-
-
-    # Special methods used by vivarium.
-    @property
-    def name(self):
-        return 'nutrition'
-
-
-    def __repr__(self):
-        return "Nutrition()"
+        # We'll do the calculation here just to keep with the format in other modules

@@ -20,6 +20,14 @@ test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
 
+test_SIPHER7_run: MODE=SIPHER7
+test_SIPHER7_run: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+test_SIPHER7_run: SIPHER7_base
+SIPHER7_base: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+
+
+
 ###################
 ## Experiment Runs
 ###################
@@ -141,5 +149,37 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 # Validation runs
 #####################################
 
-cv_baseline: cv_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
+cv_default: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation_default.yaml -o cross_validation_default
+
+cv_SIPHER7: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation_S7.yaml -o cross_validation_SIPHER7
+
+
+
+
+#####################################
+# SIPHER7 - Equivalent Income
+#####################################
+
+S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
+S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
+
+S7_baseline: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
+
+S7_intervention_hhIncome: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeIntervention'
+
+S7_intervention_hhIncomeChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
+
+S7_intervention_PovertyLineChildUplift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
+
+S7_intervention_livingWage: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
+
+S7_intervention_energyDownLift: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
+

@@ -61,7 +61,7 @@ class Income(Base):
                         'region',
                         'hh_income',
                         'job_sec',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'SF_12',
                         'housing_quality',

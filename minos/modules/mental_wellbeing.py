@@ -60,7 +60,7 @@ class MWB(Base):
                         'ethnicity',
                         'age',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'hh_income',
                         'SF_12',
