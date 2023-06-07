@@ -190,9 +190,10 @@ run_yearly_models <- function(transitionDir_path,
     ## Yearly model estimation loop
     
     # Set the time span to estimate models for differently for cross_validation
-    # crossval needs all years, whereas default model can have reduced timespan
+    # crossval needs to start in 2010, whereas default model can have reduced timespan
+    # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(min(data$time), (max(data$time) - 1))
+      year.range <- seq(min(data$time) + 1, (max(data$time) - 1))
     } else {
       year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
     }
@@ -251,7 +252,7 @@ run_yearly_models <- function(transitionDir_path,
       # dependent from T+1 (rename to 'next_{dependent}' soon)
       depen.df <- data %>% 
         filter(time == depend.year) %>% 
-        select(pidp, .data[[dependent]])
+        select(pidp, all_of(dependent))
       
       # rename to next_{dependent}
       next.colnames <- c('pidp', paste0('next_', dependent))
@@ -382,6 +383,7 @@ args <- parser$parse_args()
 scotland.mode <- args$scotland
 
 cross_validation <- args$crossval
+cross_validation <- TRUE
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'

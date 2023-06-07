@@ -61,7 +61,8 @@ class S7MentalHealth(Base):
                         'region',
                         'housing_quality',
                         'S7_physical_health',
-                        'S7_mental_health']
+                        'S7_mental_health',
+                        'loneliness']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
