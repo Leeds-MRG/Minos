@@ -6,6 +6,7 @@ easier to build.
 """
 
 from datetime import datetime as dt
+from scipy.special import ndtri  # very fast standard normal sampler.
 
 class Base():
 
@@ -88,6 +89,22 @@ class Base():
         pass
 
 
+    def generate_gaussian_noise(self, index, mu=0, sigma=1):
+        """ Generate Gaussian noise for continuous variables in MINOS
+        Parameters
+        ----------
+        n: int
+            How many observations to generate. should match number of rows from minos dataframe
+        mu, sigma: float
+            Mean and standard deviation of desired Gaussian data. Defaults to 0 and 1 (I.E. the standard Normal distribution).
+        Returns
+        -------
+        data: np.array
+            1xn vector of n samples from the Gaussian distribution N(mu, sigma^2).
+        """
+        u = self.random.get_draw(index)
+        return (sigma*ndtri(u)) + mu
+
 class Intervention:
 
     # Generic intervention class to reduce boilerplate.
@@ -122,3 +139,4 @@ class Intervention:
         None
         """
         pass
+

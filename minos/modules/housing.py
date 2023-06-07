@@ -95,7 +95,7 @@ class Housing(Base):
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
 
-        housing_prob_df.index = housing_prob_df.index.astype(int)
+        housing_prob_df.index = pop.index
 
         self.population_view.update(housing_prob_df["housing_quality"])
 

@@ -83,7 +83,7 @@ class Nutrition(Base):
         newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
         newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
         # Set index type to int (instead of object as previous)
-        newWaveNutrition.index = (newWaveNutrition.index.astype(int))
+        newWaveNutrition.index = pop.index
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
 
         # Draw individuals next states randomly from this distribution.

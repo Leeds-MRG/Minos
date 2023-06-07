@@ -84,8 +84,6 @@ class ReplenishmentScotland(Base):
                         'phealth',
                         'marital_status',
                         'hh_comp',
-                        'hh_income_diff',
-                        'SF_12_diff'
                         ]
 
         # Shorthand methods for readability.

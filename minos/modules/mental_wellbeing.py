@@ -77,7 +77,7 @@ class MWB(Base):
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
-        builder.population.initializes_simulants(self.on_initialize_simulants)
+        # builder.population.initializes_simulants(self.on_initialize_simulants)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
@@ -122,10 +122,13 @@ class MWB(Base):
         #                                         "predicted": "SF_12_diff"})
         # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
-        newWaveMWB.index = newWaveMWB.index.astype(int)
-
+        newWaveMWB.index = pop.index
+        SF_12var = np.var(newWaveMWB["SF_12"])
+        #add noise to force variance to 100.
+        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 100/SF_12var)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
+
         self.population_view.update(newWaveMWB['SF_12'])
 
     def calculate_mwb(self, pop):

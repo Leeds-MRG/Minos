@@ -82,9 +82,7 @@ class Replenishment(Base):
                         'gross_paypm',
                         'phealth',
                         'marital_status',
-                        'hh_comp',
-                        'hh_income_diff',
-                        'SF_12_diff'
+                        'hh_comp'
                         ]
 
         # Shorthand methods for readability.

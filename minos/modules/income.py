@@ -64,15 +64,14 @@ class Income(Base):
                         'education_state',
                         'SF_12',
                         'housing_quality',
-                        'job_sector',
-                        'hh_income_diff']
+                        'job_sector']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
-        builder.population.initializes_simulants(self.on_initialize_simulants)
+        # builder.population.initializes_simulants(self.on_initialize_simulants)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
@@ -114,8 +113,8 @@ class Income(Base):
         # newWaveIncome = newWaveIncome.rename(columns={"new_dependent": "hh_income",
         #                                               "predicted": "hh_income_diff"})
         # newWaveIncome = newWaveIncome.to_frame(name='hh_income')
-        # Set index type to int (instead of object as previous)
-        newWaveIncome.index = newWaveIncome.index.astype(int)
+        # Set index back to population of interest.
+        newWaveIncome.index = pop.index
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
@@ -157,11 +156,11 @@ class Income(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
+        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveIncome = r_utils.predict_next_timestep_ols_diff(transition_model,
+        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
                                                                 self.rpy2Modules,
                                                                 pop,
                                                                 dependent='hh_income',

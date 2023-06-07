@@ -91,7 +91,7 @@ class Loneliness(Base):
         loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
                                                               list(loneliness_prob_df.columns),
                                                               loneliness_prob_df) + 1
-        loneliness_prob_df.index = loneliness_prob_df.index.astype(int)
+        loneliness_prob_df.index = pop.index
 
         self.population_view.update(loneliness_prob_df["loneliness"])
 
