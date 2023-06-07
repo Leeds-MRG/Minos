@@ -101,7 +101,7 @@ run_yearly_models <- function(transitionDir_path,
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
     
-    valid_yearly_model_types = c("NNET", "OLS", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
+    valid_yearly_model_types = c("NNET", "OLS", "OLS_DIFF", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
     
     for(year in year.range) {
       if(!is.element(mod.type, valid_yearly_model_types))
