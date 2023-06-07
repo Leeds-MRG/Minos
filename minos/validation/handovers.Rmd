@@ -14,7 +14,8 @@ Handover plots are not strictly statistical validation, but more a type of 'sani
 require(tidyverse)
 require(ggplot2)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- "/home/luke/Documents/MINOS/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -22,24 +23,27 @@ rm(workingDir)
 Source utils for some functions.
 
 ```{r}
-source('Minos/minos/validation/utils.r')
+source('Minos/minos/utils_datain.R')
+source('Minos/minos/utils_validation_vis.R')
 ```
 
 ## Data
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files('/home/luke/Documents/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
 out.path <- 'Minos/output/default_config/'
-base.dat <- read_output(out.path, 'baseline')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
 ## Constants
 
 ```{r}
 start.year <- 2020
+
+save.path <- '/home/luke/Documents/MINOS/VALIDATION_PLOTS/Handovers/'
 ```
 
 
@@ -51,13 +55,13 @@ start.year <- 2020
 # first figure out how to plot final_US
 # start with hh_income
 raw.income <- raw.dat %>% 
-  select(pidp, time, hh_income, weight) %>%
+  dplyr::select(pidp, time, hh_income, weight) %>%
   group_by(time) %>%
   summarise(income = mean(hh_income, na.rm=TRUE)) %>%
   mutate(source = 'final_US')
 
 base.income <- base.dat %>%
-  select(pidp, time, hh_income, weight) %>%
+  dplyr::select(pidp, time, hh_income, weight) %>%
   group_by(time) %>%
   summarise(income = mean(hh_income)) %>%
   mutate(source = 'baseline_output')
@@ -78,14 +82,14 @@ ggplot(data = income, mapping = aes(x = time, y = income, group = source, colour
 raw.income.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 
 raw.income2 <- raw.dat %>% 
-  select(pidp, time, hh_income) %>%
+  dplyr::select(pidp, time, hh_income) %>%
   filter(pidp %in% raw.income.wave1) %>%
   group_by(time) %>%
   summarise(income = mean(hh_income, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.income2 <- base.dat %>%
-  select(pidp, time, hh_income) %>%
+  dplyr::select(pidp, time, hh_income) %>%
   filter(pidp %in% raw.income.wave1) %>%
   group_by(time) %>%
   summarise(income = mean(hh_income, na.rm = TRUE)) %>%
@@ -97,20 +101,41 @@ income2 <- rbind(raw.income2, base.income2)
 ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colour = source)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Household Income', subtitle = 'Wave 1 Sample') +
+  labs(title = 'Household Income') +
   xlab('Year') +
   ylab('Income')
 
+ggsave(filename = 'hh_income_wav1.png',
+       plot = last_plot(),
+       path = save.path)
+
 raw.income.check <- raw.dat %>% 
-  select(pidp, time, hh_income) %>%
+  dplyr::select(pidp, time, hh_income) %>%
   filter(pidp %in% raw.income.wave1)
 
 base.income.check <- base.dat %>%
-  select(pidp, time, hh_income) %>%
+  dplyr::select(pidp, time, hh_income) %>%
   filter(pidp %in% raw.income.wave1)
 
-#rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
-#   raw.income.check, base.income.check)
+rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
+   raw.income.check, base.income.check)
+```
+
+### Spaghetti
+
+```{r}
+raw.inc <- raw.dat %>%
+  select(pidp, age, time, hh_income)
+base.inc <- base.dat %>%
+  select(pidp, age, time, hh_income)
+
+income.spag <- rbind(raw.inc, base.inc)
+
+spaghetti_plot(income.spag, 'hh_income',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.inc, base.inc, income.spag)
 ```
 
 
@@ -120,13 +145,13 @@ base.income.check <- base.dat %>%
 # first figure out how to plot final_US
 # start with hh_income
 raw.sf12 <- raw.dat %>% 
-  select(pidp, time, SF_12) %>%
+  dplyr::select(pidp, time, SF_12) %>%
   group_by(time) %>%
   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.sf12 <- base.dat %>%
-  select(pidp, time, SF_12) %>%
+  dplyr::select(pidp, time, SF_12) %>%
   group_by(time) %>%
   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
@@ -147,14 +172,14 @@ ggplot(data = sf12, mapping = aes(x = time, y = sf12, group = source, colour = s
 raw.sf12.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 
 raw.sf12.2 <- raw.dat %>% 
-  select(pidp, time, SF_12) %>%
+  dplyr::select(pidp, time, SF_12) %>%
   filter(pidp %in% raw.sf12.wave1) %>%
   group_by(time) %>%
   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.sf12.2 <- base.dat %>%
-  select(pidp, time, SF_12) %>%
+  dplyr::select(pidp, time, SF_12) %>%
   filter(pidp %in% raw.sf12.wave1) %>%
   group_by(time) %>%
   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
@@ -166,23 +191,45 @@ sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
 ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Mental Wellbeing (SF12)', subtitle = 'Wave 1 Sample') +
+  labs(title = 'Mental Wellbeing (SF12 MCS)') +
   xlab('Year') +
   ylab('SF12')
+
+ggsave(filename = 'SF12_wav1.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(raw.sf12, base.sf12, sf12, raw.sf12.wave1, raw.sf12.2, base.sf12.2, sf12.2)
 ```
 
+### Spaghetti
+
+```{r}
+raw.sf12 <- raw.dat %>%
+  select(pidp, age, time, SF_12)
+base.sf12 <- base.dat %>%
+  select(pidp, age, time, SF_12)
+
+sf12.spag <- rbind(raw.sf12, base.sf12)
+
+spaghetti_plot(sf12.spag, 'SF_12',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.sf12, base.sf12, sf12.spag)
+```
 
 ## Housing Quality
 
 ```{r}
 raw.housing <- raw.dat %>% 
-  select(pidp, time, housing_quality) %>%
+  dplyr::select(pidp, time, housing_quality) %>%
   group_by(time, housing_quality) %>%
   count() %>%
   mutate(source = 'final_US')
 
 base.housing <- base.dat %>%
-  select(pidp, time, housing_quality) %>%
+  dplyr::select(pidp, time, housing_quality) %>%
   group_by(time, housing_quality) %>%
   count() %>%
   mutate(source = 'baseline_output')
@@ -209,9 +256,13 @@ housing.norm <- housing %>%
 ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=housing_quality)) +
   geom_bar(stat = 'identity') +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Housing Quality', subtitle = 'Proportion') +
+  labs(title = 'Housing Quality') +
   xlab('Year') +
   ylab('Proportion')
+
+ggsave(filename = 'housing_quality.png',
+       plot = last_plot(),
+       path = save.path)
 
 rm(raw.housing, base.housing, housing, housing.norm)
 ```
@@ -221,13 +272,13 @@ rm(raw.housing, base.housing, housing, housing.norm)
 
 ```{r}
 raw.neighbour <- raw.dat %>% 
-  select(pidp, time, neighbourhood_safety) %>%
+  dplyr::select(pidp, time, neighbourhood_safety) %>%
   group_by(time, neighbourhood_safety) %>%
   count() %>%
   mutate(source = 'final_US')
 
 base.neighbour <- base.dat %>%
-  select(pidp, time, neighbourhood_safety) %>%
+  dplyr::select(pidp, time, neighbourhood_safety) %>%
   group_by(time, neighbourhood_safety) %>%
   count() %>%
   mutate(source = 'baseline_output')
@@ -255,9 +306,13 @@ neighbour.norm <- neighbour %>%
 ggplot(data = neighbour.norm, mapping = aes(x = time, y = prct, fill=neighbourhood_safety)) +
   geom_bar(stat = 'identity') +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Housing Quality', subtitle = 'Proportion') +
+  labs(title = 'Neighbourhood Safety') +
   xlab('Year') +
   ylab('Proportion')
+
+ggsave(filename = 'neighbourhood_safety.png',
+       plot = last_plot(),
+       path = save.path)
 
 #rm(raw.neighbour, base.neighbour, neighbour, neighbour.norm)
 ```
@@ -267,13 +322,13 @@ ggplot(data = neighbour.norm, mapping = aes(x = time, y = prct, fill=neighbourho
 
 ```{r}
 raw.loneliness <- raw.dat %>% 
-  select(pidp, time, loneliness) %>%
+  dplyr::select(pidp, time, loneliness) %>%
   group_by(time, loneliness) %>%
   count() %>%
   mutate(source = 'final_US')
 
 base.loneliness <- base.dat %>%
-  select(pidp, time, loneliness) %>%
+  dplyr::select(pidp, time, loneliness) %>%
   group_by(time, loneliness) %>%
   count() %>%
   mutate(source = 'baseline_output')
@@ -301,9 +356,13 @@ loneliness.norm <- loneliness %>%
 ggplot(data = loneliness.norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
   geom_bar(stat = 'identity') +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Loneliness', subtitle = 'Proportion') +
+  labs(title = 'Loneliness') +
   xlab('Year') +
   ylab('Proportion')
+
+ggsave(filename = 'loneliness.png',
+       plot = last_plot(),
+       path = save.path)
 
 rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 ```
@@ -317,13 +376,13 @@ TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 # first figure out how to plot final_US
 # start with hh_income
 raw.nut <- raw.dat %>% 
-  select(pidp, time, nutrition_quality) %>%
+  dplyr::select(pidp, time, nutrition_quality) %>%
   group_by(time) %>%
   summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.nut <- base.dat %>%
-  select(pidp, time, nutrition_quality) %>%
+  dplyr::select(pidp, time, nutrition_quality) %>%
   group_by(time) %>%
   summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
@@ -344,7 +403,7 @@ ggplot(data = nutrition_quality, mapping = aes(x = time, y = nutrition_quality, 
 raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 
 raw.nut2 <- raw.dat %>% 
-  select(pidp, time, nutrition_quality) %>%
+  dplyr::select(pidp, time, nutrition_quality) %>%
   filter(pidp %in% raw.wave1) %>%
   filter(nutrition_quality >= 0) %>%
   group_by(time) %>%
@@ -352,7 +411,7 @@ raw.nut2 <- raw.dat %>%
   mutate(source = 'final_US')
 
 base.nut2 <- base.dat %>%
-  select(pidp, time, nutrition_quality) %>%
+  dplyr::select(pidp, time, nutrition_quality) %>%
   filter(pidp %in% raw.wave1) %>%
   group_by(time) %>%
   summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
@@ -364,9 +423,13 @@ nutrition_quality2 <- rbind(raw.nut2, base.nut2)
 ggplot(data = nutrition_quality2, mapping = aes(x = time, y = nutrition_quality, group = source, colour = source)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Nutrition Quality', subtitle = 'Wave 1 Sample') +
+  labs(title = 'Nutrition Quality') +
   xlab('Year') +
   ylab('Nutrition Quality')
+
+ggsave(filename = 'nutrition_quality_wav1.png',
+       plot = last_plot(),
+       path = save.path)
 
 rm(raw.nut, base.nut, nutrition_quality, raw.wave1, raw.nut2, base.nut2, 
     nutrition_quality2)
@@ -381,14 +444,14 @@ NOTE: At present, physical health is not predicted or transitioned.
 # first figure out how to plot final_US
 # start with hh_income
 raw.phealth <- raw.dat %>% 
-  select(pidp, time, phealth) %>%
+  dplyr::select(pidp, time, phealth) %>%
   filter(time > 2009) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.phealth <- base.dat %>%
-  select(pidp, time, phealth) %>%
+  dplyr::select(pidp, time, phealth) %>%
   filter(time > 2009) %>%
   group_by(time) %>%
   summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
@@ -410,7 +473,7 @@ ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colo
 raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 
 raw.phealth2 <- raw.dat %>% 
-  select(pidp, time, phealth) %>%
+  dplyr::select(pidp, time, phealth) %>%
   filter(time > 2009) %>%
   filter(pidp %in% raw.wave1) %>%
   group_by(time) %>%
@@ -418,7 +481,7 @@ raw.phealth2 <- raw.dat %>%
   mutate(source = 'final_US')
 
 base.phealth2 <- base.dat %>%
-  select(pidp, time, phealth) %>%
+  dplyr::select(pidp, time, phealth) %>%
   filter(time > 2009) %>%
   filter(pidp %in% raw.wave1) %>%
   group_by(time) %>%
@@ -431,9 +494,13 @@ phealth2 <- rbind(raw.phealth2, base.phealth2)
 ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health', subtitle = 'Wave 1 Sample') +
+  labs(title = 'Physical Health') +
   xlab('Year') +
   ylab('Average')
+
+ggsave(filename = 'physical_health_wav1.png',
+       plot = last_plot(),
+       path = save.path)
 
 #raw.phealth.check <- raw.dat %>% 
 #  select(pidp, time, phealth) %>%

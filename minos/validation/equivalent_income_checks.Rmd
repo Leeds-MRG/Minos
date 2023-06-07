@@ -12,6 +12,8 @@ This notebook will visualise the new equivalent income outcome, and do some comp
 
 require(tidyverse)
 require(ggplot2)
+require(readxl)
+require(stringr)
 
 workingDir <- "/home/luke/Documents/WORK/MINOS/"
 knitr::opts_knit$set(root.dir = workingDir)
@@ -120,11 +122,4 @@ write.csv(df3,
           file = '/home/luke/Documents/WORK/MINOS/EI_calc_prepared.csv')
 
 ```
-
-
-
-
-
-
-
 

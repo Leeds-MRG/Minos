@@ -9,6 +9,7 @@ This module contains tools modeling all cause mortality.
 import pandas as pd
 from pathlib import Path
 import random
+import logging
 
 # Required rate conversion and rate table creation functions.
 from vivarium.framework.utilities import rate_to_probability
@@ -127,6 +128,9 @@ class Mortality(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("MORTALITY")
+
         # Get everyone who is alive and calculate their rate of death.
         pop = self.population_view.get(event.index, query="alive =='alive' and sex != 'nan'")
         # Convert these rates to probabilities of death or not death.

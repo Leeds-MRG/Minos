@@ -121,6 +121,10 @@ def validate_components(config_components, intervention):
         else:
             print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
 
+    # TODO: include some error handling for choosing interventions
+    # Can do this using assertions
+    # i.e. try { AssertThat(intervention is in list(<int1>, <int2>) ...
+    # or even cleverer if we can get the repr()'s from the intervention classes to automate this step
     if intervention in intervention_components_map.keys():
         # add intervention components.
         component_list.append(intervention_components_map[intervention])

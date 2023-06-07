@@ -58,7 +58,8 @@ def aggregate_variables_by_year(source, mode, years, tag, v, method, subset_func
 
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
-        if year == years[0]:
+        # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
+        if year == 2020:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(v), repeat(method), repeat("who_alive"), repeat(mode)))
