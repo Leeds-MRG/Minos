@@ -88,9 +88,9 @@ class Replenishment(Base):
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
                         'S7_mental_health',
-                        'equivalent_income']
+                        'equivalent_income'
                         'hh_income_diff',
-                        'SF_12_diff'
+                        'SF_12_diff',
                         ]
 
         # Shorthand methods for readability.
