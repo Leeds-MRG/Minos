@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ This file formats Understanding Society variables for using in a microsimulation.
 It DOES NOT handle missing data. see US_missing.py.
@@ -231,6 +230,7 @@ def format_ukhls_columns(year):
                       'pidp': 'pidp',  # personal identifier
                       'qfhigh_dv': 'education_state',  # highest education state
                       'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
+                      # TODO another ethnicity var seems to have fewer missing? https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ethn_dv
                       'racel_dv': 'ethnicity',  # ethnicity derived.
                       'rentgrs_dv': 'hh_rent',  # household monthly rent.
                       #'scghqi': 'depression_change',  # depression change GHQ.
