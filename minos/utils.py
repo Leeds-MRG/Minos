@@ -788,20 +788,22 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     if series_in[-1] in [0, 0.0] or series_in[-2] in [0, 0.0]:
         series_out = series_in
         series_out.extend([0] * (n - 1))
+        r = 0
 
-        if reverse:
-            series_out = series_out[::-1]
+        # if reverse:
+        #     series_out = series_out[::-1]
+        #
+        # if return_r:
+        #     return series_out, 0
+        # else:
+        #     return series_out
 
-        if return_r:
-            return series_out, 0
-        else:
-            return series_out
-
-    # Main functionality, assuming data are good (i.e. no zeroes in last two entries)
-    r = search(series_in[-2], n + 1, sum(series_in[-2:]), **kwargs)  # n+1 important here!
-    new_series = generate_series(series_in[-2], r, n + 1)  # n+1 very important here!
-    series_out = series_in[:-2]
-    series_out.extend(new_series[:])
+    else:
+        # Main functionality, assuming data are good (i.e. no zeroes in last two entries)
+        r = search(series_in[-2], n + 1, sum(series_in[-2:]), **kwargs)  # n+1 important here!
+        new_series = generate_series(series_in[-2], r, n + 1)  # n+1 very important here!
+        series_out = series_in[:-2]
+        series_out.extend(new_series[:])
 
     if reverse:
         series_out = series_out[::-1]
