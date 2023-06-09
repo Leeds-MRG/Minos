@@ -465,10 +465,10 @@ def solve(a, n, s, r0=None, tol=TOL_DEFAULT, imax=MAX_ITER_DEFAULT):
         r0 = get_guess_taylor(a, r_star, n, s)
         # r0 = get_guess_infinite(a, s)
 
-    print("\nRunning 'solve' with a,n,s =", a, n, s)
-    print("r0, tol, imax: ", r0, tol, imax)
-
-    print("Initial guess:", r0)
+    # print("\nRunning 'solve' with a,n,s =", a, n, s)
+    # print("r0, tol, imax: ", r0, tol, imax)
+    #
+    # print("Initial guess:", r0)
     r = [r0]
     r1 = get_next_value(a, r0, n, s)
     r.append(r1)
@@ -483,8 +483,8 @@ def solve(a, n, s, r0=None, tol=TOL_DEFAULT, imax=MAX_ITER_DEFAULT):
         r_new = get_next_value(a, r_old, n, s)
         r.append(r_new)
 
-    print("Tolerance reached in 'solve' after iteration", len(r) - 1, ", abs(diff) =", abs(r[-1] - r[-2]))
-    print("r = ", r[-1])
+    # print("Tolerance reached in 'solve' after iteration", len(r) - 1, ", abs(diff) =", abs(r[-1] - r[-2]))
+    # print("r = ", r[-1])
     return r
 
 
@@ -758,7 +758,7 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     ----------
     series_in : list of float
         Series to be extended
-    n :
+    n : int
         Number of terms by which series will be extended
     reverse : bool
         True if series is to be prepended, rather than extended
@@ -787,7 +787,11 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     # 2. If second to last entry, then r will be positive -> not desired; also most likely when numbers are very small
     if series_in[-1] in [0, 0.0] or series_in[-2] in [0, 0.0]:
         series_out = series_in
-        series_in.extend([0] * (n - 1))
+        series_out.extend([0] * (n - 1))
+
+        if reverse:
+            series_out = series_out[::-1]
+
         if return_r:
             return series_out, 0
         else:
@@ -796,7 +800,6 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     # Main functionality, assuming data are good (i.e. no zeroes in last two entries)
     r = search(series_in[-2], n + 1, sum(series_in[-2:]), **kwargs)  # n+1 important here!
     new_series = generate_series(series_in[-2], r, n + 1)  # n+1 very important here!
-    # print(new_series)
     series_out = series_in[:-2]
     series_out.extend(new_series[:])
 
