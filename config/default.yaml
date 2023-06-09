@@ -27,7 +27,7 @@ replenishing_dir: 'data/replenishing'
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [geeMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
+components : [geeMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), geeIncome(), Education(), Mortality(), Replenishment()]
 
 
 scale_rates:

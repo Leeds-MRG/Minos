@@ -20,7 +20,7 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income
+from minos.modules.income import Income, geeIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
@@ -70,6 +70,7 @@ def validate_components(config_components, intervention):
         "Neighbourhood()": Neighbourhood(),
         "Labour()": Labour(),
         "Housing()": Housing(),
+        "geeIncome()": geeIncome(),
         "Income()": Income(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),

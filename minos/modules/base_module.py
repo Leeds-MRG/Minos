@@ -88,7 +88,6 @@ class Base():
         """
         pass
 
-
     def generate_gaussian_noise(self, index, mu=0, sigma=1):
         """ Generate Gaussian noise for continuous variables in MINOS
         Parameters
@@ -102,6 +101,7 @@ class Base():
         data: np.array
             1xn vector of n samples from the Gaussian distribution N(mu, sigma^2).
         """
+
         u = self.random.get_draw(index)
         return (sigma*ndtri(u)) + mu
 

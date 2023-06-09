@@ -123,9 +123,9 @@ class MWB(Base):
         # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = pop.index
-        SF_12var = np.var(newWaveMWB["SF_12"])
+        SF_12sd = np.std(newWaveMWB["SF_12"])
         #add noise to force variance to 100.
-        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 100/SF_12var)
+        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 10/SF_12sd)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
 
@@ -248,6 +248,8 @@ class geeMWB(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=9)
 
         self.max_sf12 = None
+        #only need to load this once for now.
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee/SF_12_GEE", self.rpy2_modules)
 
     def update_prediction_population(self, current_pop):
         """ Update longitudinal data frame of past observations with current information.
@@ -276,12 +278,17 @@ class geeMWB(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         if self.max_sf12 == None:
             self.max_sf12 = np.max(pop["SF_12"])
+            self.SF12_std = np.std(pop["SF_12"])
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
         newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = pop.index
+
+        SF12_mean = np.mean(newWaveMWB["SF_12"])
+        # scale SF12 to have standard deviation 10.
+        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, (self.SF12_std/np.std(newWaveMWB["SF_12"]))**2)
 
         #print(np.mean(newWaveMWB["SF_12"]))
         # Draw individuals next states randomly from this distribution.
@@ -299,5 +306,4 @@ class geeMWB(Base):
         -------
         """
         year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"SF_12/gee/SF_12_GEE", self.rpy2_modules)
-        return self.max_sf12 - r_utils.predict_next_timestep_gee(transition_model, self.rpy2_modules, pop, 'SF_12')
+        return self.max_sf12 - r_utils.predict_next_timestep_gee(self.gee_transition_model, self.rpy2_modules, pop, 'SF_12')

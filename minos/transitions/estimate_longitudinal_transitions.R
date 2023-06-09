@@ -30,7 +30,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("GEE", "GLMM")
+  valid_longitudnial_model_types <- c("GEE", "GLMM", "GEE_YJ")
   
   repeat{
     def = readLines(modDefs, n = 1) # Read one line from the connection.
@@ -74,7 +74,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       temp.dependent <- "I(max(SF_12) - SF_12 + 0.001)"
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)     
-    } else{
+    } else if (dependent == "hh_income" && mod.type == "GEE") {
+      temp.dependent <- "I(hh_income - min(hh_income) + 0.001)" # shift income to left to avoid negative values.
+      formula.string <- paste0(temp.dependent, " ~ ", independents)
+      form <- as.formula(formula.string)      
+    }
+    else{
       formula.string <- paste0(dependent, " ~ ", independents)
       form <- as.formula(formula.string)
     }
@@ -89,7 +94,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     if(tolower(mod.type) == 'glmm') {
       
-      # set ordinal dependent to factor
       model <- estimate_longitudnial_glmm(data = sorted_df,
                                           formula = form, 
                                           include_weights = use.weights, 
@@ -97,13 +101,19 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       
     } else if(tolower(mod.type) == 'gee') {
       
-      # set ordinal dependent to factor
       model <- estimate_longitudnial_gamma_gee(data = sorted_df,
                                                formula = form, 
-                                               include_weights = use.weights, 
+                                               include_weights = FALSE, 
                                                depend = dependent)
       
-    } 
+    } else if (tolower(mod.type) == "gee_yj") {
+      
+      model <- estimate_longitudnial_yj_gaussian_gee(data = sorted_df,
+                                               formula = form, 
+                                               include_weights = FALSE, 
+                                               depend = dependent)
+      
+    }
     
     saveRDS(model, file=paste0(out.path2, dependent, "_", mod.type, '.rds')) # shorter file name with no years..
     print(paste0(mod.type, ' model for ', dependent, ' generated for years ', min(year.range), ' - ', max(year.range)))
