@@ -292,8 +292,10 @@ def format_ukhls_columns(year):
                       'scsf5': 'pain_interfere_work',  # pain interfered with work
                       'scsf7': 'health_limits_social',  # health limits social life.
                       'hhtype_dv': 'hh_composition',  # household composition
-                      'mastat_dv': 'marstat'  # marital status
-                      ''
+                      'mastat_dv': 'marstat',  # marital status
+                      'hhsize': 'hhsize', # number of people in household
+                      'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
+                      'urban_dv': 'urban', # urban or rural household.
                       }
 
     # Some variables change names halfway through UKHLS.

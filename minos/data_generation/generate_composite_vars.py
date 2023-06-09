@@ -98,7 +98,7 @@ def generate_composite_housing_quality(data):
 
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
-                      'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
+                      'tumble_dryer', 'dishwasher', 'microwave',],# 'heating'],
               axis=1,
               inplace=True)
 

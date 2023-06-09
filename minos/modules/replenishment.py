@@ -88,7 +88,12 @@ class Replenishment(Base):
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
                         'S7_mental_health',
-                        'equivalent_income'
+                        'equivalent_income',
+                        'heating',
+                        'hhsize',
+                        'financial_situation',
+                        'housing_tenure',
+                        'urban',
                         ]
 
         # Shorthand methods for readability.
