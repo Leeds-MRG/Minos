@@ -1,0 +1,293 @@
+---
+title: "Handovers - SIPHER 7 Equivalent Income"
+output: html_notebook
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source('Minos/minos/utils_datain.R')
+source('Minos/minos/utils_validation_vis.R')
+```
+
+## Data
+
+```{r}
+# Read raw datafiles in
+raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+out.path <- 'Minos/output/SIPHER7/'
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+```
+
+## Constants
+
+```{r}
+start.year <- 2020
+
+save.path <- '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/SIPHER7/Handovers/'
+```
+
+# INPUTS
+
+## Income
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.income <- raw.dat %>% 
+  dplyr::select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm=TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.income <- base.dat %>%
+  dplyr::select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+income <- rbind(raw.income, base.income)
+
+# Now plot
+ggplot(data = income, mapping = aes(x = time, y = income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Household Income', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Income')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.income.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.income2 <- raw.dat %>% 
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.income2 <- base.dat %>%
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+income2 <- rbind(raw.income2, base.income2)
+
+# Now plot
+ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Household Income') +
+  xlab('Year') +
+  ylab('Income')
+
+ggsave(filename = 'hh_income_wav1.png',
+       plot = last_plot(),
+       path = save.path)
+
+raw.income.check <- raw.dat %>% 
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1)
+
+base.income.check <- base.dat %>%
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1)
+
+rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
+   raw.income.check, base.income.check)
+```
+
+### Spaghetti
+
+```{r}
+raw.inc <- raw.dat %>%
+  select(pidp, age, time, hh_income)
+base.inc <- base.dat %>%
+  select(pidp, age, time, hh_income)
+
+income.spag <- rbind(raw.inc, base.inc)
+
+spaghetti_plot(income.spag, 'hh_income',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.inc, base.inc, income.spag)
+```
+
+
+# OUTCOMES
+
+## Equivalent Income
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.ei <- raw.dat %>% 
+  dplyr::select(pidp, time, equivalent_income) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.ei <- base.dat %>%
+  dplyr::select(pidp, time, equivalent_income) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+ei <- rbind(raw.ei, base.ei)
+# drop -9 values (missing)
+ei <- ei %>%
+  filter(equivalent_income != -9)
+
+# Now plot
+ggplot(data = ei, mapping = aes(x = time, y = equivalent_income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Equivalent Income', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('EI')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.ei.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.ei.2 <- raw.dat %>% 
+  dplyr::select(pidp, time, equivalent_income) %>%
+  filter(pidp %in% raw.ei.wave1) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.ei.2 <- base.dat %>%
+  dplyr::select(pidp, time, equivalent_income) %>%
+  filter(pidp %in% raw.ei.wave1) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+ei.2 <- rbind(raw.ei.2, base.ei.2)
+# drop -9 values (missing)
+ei.2 <- ei.2 %>%
+  filter(equivalent_income != -9)
+
+# Now plot
+ggplot(data = ei.2, mapping = aes(x = time, y = equivalent_income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Equivalent Income') +
+  xlab('Year') +
+  ylab('EI')
+
+ggsave(filename = 'EI_wav1.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(raw.ei, base.ei, ei, raw.ei.wave1, raw.ei.2, base.ei.2, ei.2)
+```
+
+### Spaghetti
+
+```{r}
+raw.ei <- raw.dat %>%
+  select(pidp, age, time, equivalent_income)
+base.ei <- base.dat %>%
+  select(pidp, age, time, equivalent_income)
+
+ei.spag <- rbind(raw.ei, base.ei)
+
+spaghetti_plot(ei.spag, 'equivalent_income',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.ei, base.ei, ei.spag)
+```
+
+# PATHWAYS
+
+## Housing Quality
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw <- raw.dat %>% 
+  dplyr::select(pidp, time, S7_housing_quality, weight) %>%
+  group_by(time) %>%
+  summarise(housing_quality = mean(S7_housing_quality, na.rm=TRUE)) %>%
+  mutate(source = 'final_US')
+
+base <- base.dat %>%
+  dplyr::select(pidp, time, S7_housing_quality, weight) %>%
+  group_by(time) %>%
+  summarise(housing_quality = mean(S7_housing_quality)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+housing_quality <- rbind(raw, base)
+
+# Now plot
+ggplot(data = housing_quality, mapping = aes(x = time, y = housing_quality, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Quality', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Income')
+```
+
+TODO: Make these ordinal plots as handovers (might just need to change cv to baseline?)
+
+```{r}
+hous.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_housing_quality')
+
+cv_ordinal_plots(pivoted.df = hous.pivoted, 
+                 var = 'housing_quality',
+                 save = TRUE,
+                 save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_housing_quality)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_housing_quality)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_housing_quality',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+
+
+
+```{r}
+
+```
+
