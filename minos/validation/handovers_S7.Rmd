@@ -29,7 +29,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
 #out.path <- 'Minos/output/SIPHER7/'
@@ -41,8 +41,10 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 
 ```{r}
 start.year <- 2020
+save.path <- here::here("plots", "handovers", 'SIPHER7')
+create.if.not.exists(save.path)
 
-save.path <- '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/SIPHER7/Handovers/'
+shall.we.save <- TRUE
 ```
 
 # INPUTS
@@ -271,7 +273,7 @@ hous.pivoted <- combine_and_pivot_long(df1 = base.dat,
 cv_ordinal_plots(pivoted.df = hous.pivoted, 
                  var = 'S7_housing_quality',
                  save = TRUE,
-                 save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+                 save.path = save.path)
 ```
 
 ### Spaghetti
@@ -324,16 +326,16 @@ rm(prepped.list, nh_safety, nh_safety.norm)
 
 
 ```{r}
-hous.pivoted <- combine_and_pivot_long(df1 = base.dat, 
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
                                        df1.name = 'simulated', 
                                        df2 = raw.dat, 
                                        df2.name = 'raw', 
                                        var = 'S7_neighbourhood_safety')
 
-cv_ordinal_plots(pivoted.df = hous.pivoted, 
+cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'S7_neighbourhood_safety',
                  save = FALSE,
-                 save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+                 save.path = save.path)
 ```
 
 ### Spaghetti
@@ -352,6 +354,198 @@ spaghetti_plot(spag, 'S7_neighbourhood_safety',
 
 rm(raw.s, base.s, spag)
 ```
+
+
+## S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
+
+lab.state <- prepped.list$var
+lab.state.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State') +
+  xlab('Year') +
+  ylab('Proportion')
+
+ggsave(filename = 'S7_labour_state.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_labour_state',
+                 save = FALSE,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_labour_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_labour_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_labour_state',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## S7 Physical Health
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_physical_health')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'S7 Physical Health'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = S7_physical_health, colour = S7_physical_health)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=S7_physical_health)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+ggsave(filename = 'S7_physical_health.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_physical_health')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_physical_health',
+                 save = FALSE,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_physical_health)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_physical_health)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_physical_health',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## S7 Mental Health
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_mental_health')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'S7 Mental Health'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = S7_mental_health, colour = S7_mental_health)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=S7_mental_health)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+ggsave(filename = 'S7_mental_health.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_mental_health')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_mental_health',
+                 save = FALSE,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_mental_health)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_mental_health)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_mental_health',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
 
 
 ```{r}
