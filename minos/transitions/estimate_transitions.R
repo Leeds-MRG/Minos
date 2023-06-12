@@ -209,9 +209,9 @@ run_yearly_models <- function(transitionDir_path,
   data$housing_quality <- factor(data$housing_quality, 
                                  levels = c('Low', 'Medium', 'High'))
   data$S7_housing_quality <- factor(data$S7_housing_quality,
-                                    levels = c('No to all', 
-                                               'Yes to some', 
-                                               'Yes to all'))
+                                    levels = c('Hardly ever', 
+                                               'Some of the time', 
+                                               'Often'))
 
   # read file
   repeat{
