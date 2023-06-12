@@ -46,8 +46,8 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 
 ```{r}
 start.year <- 2020
-save.path <- here::here("plots", "handovers")
-#create.if.not.exists(save.path)
+save.path <- here::here("plots", "handovers", 'default')
+create.if.not.exists(save.path)
 ```
 
 
