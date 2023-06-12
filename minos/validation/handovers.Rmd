@@ -322,6 +322,22 @@ ggsave(filename = 'housing_quality.png',
 rm(raw.housing, base.housing, housing, housing.norm)
 ```
 
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, housing_quality)
+base.s <- base.dat %>%
+  select(pidp, age, time, housing_quality)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'housing_quality',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
 
 ## Neighbourhood Safety
 
@@ -372,6 +388,22 @@ ggsave(filename = 'neighbourhood_safety.png',
 #rm(raw.neighbour, base.neighbour, neighbour, neighbour.norm)
 ```
 
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, neighbourhood_safety)
+base.s <- base.dat %>%
+  select(pidp, age, time, neighbourhood_safety)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'neighbourhood_safety',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
 
 ## Loneliness
 
@@ -422,6 +454,22 @@ ggsave(filename = 'loneliness.png',
 rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 ```
 
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, loneliness)
+base.s <- base.dat %>%
+  select(pidp, age, time, loneliness)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'loneliness',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
 
 ## Nutrition Quality
 
@@ -490,6 +538,22 @@ rm(raw.nut, base.nut, nutrition_quality, raw.wave1, raw.nut2, base.nut2,
     nutrition_quality2)
 ```
 
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, nutrition_quality)
+base.s <- base.dat %>%
+  select(pidp, age, time, nutrition_quality)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'nutrition_quality',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
 
 ## Physical Health
 
@@ -571,7 +635,22 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 #rm(raw.phealth.check, base.phealth.check)
 ```
 
+### Spaghetti
 
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, phealth)
+base.s <- base.dat %>%
+  select(pidp, age, time, phealth)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'phealth',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
 
 ```{r}
 

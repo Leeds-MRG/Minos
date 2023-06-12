@@ -224,6 +224,10 @@ run_yearly_models <- function(transitionDir_path,
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
+  
+  ## Set some factor levels because R defaults to using alphabetical ordering
+  data$housing_quality <- factor(data$housing_quality, 
+                                 levels = c('Low', 'Medium', 'High'))
 
   # read file
   repeat{

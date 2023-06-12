@@ -107,7 +107,6 @@ class Housing(Base):
         housing_prob_df.replace({'housing_quality': housing_factor_dict},
                                 inplace=True)
 
-
         self.population_view.update(housing_prob_df["housing_quality"])
 
     def calculate_housing(self, pop):
