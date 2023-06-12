@@ -35,6 +35,8 @@ from minos.modules.S7Neighbourhood import S7Neighbourhood
 from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
+from minos.modules.heating import Heating
+from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -74,8 +76,10 @@ def validate_components(config_components, intervention):
         "Alcohol()": Alcohol(),
         "Neighbourhood()": Neighbourhood(),
         "Labour()": Labour(),
+        "Heating()": Heating(),
         "Housing()": Housing(),
         "Income()": Income(),
+        "financialSituation()": financialSituation(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),
         "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),

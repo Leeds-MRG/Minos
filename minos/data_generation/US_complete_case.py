@@ -60,7 +60,8 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'SF_12']  # many of these
+                          "education_state", 'region', "age", "job_sector", 'SF_12', 'financial_situation',
+                          "housing_tenure"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
 
-    drop_columns = ['financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
+    drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
                     'scsf1',
                     'clinical_depression',

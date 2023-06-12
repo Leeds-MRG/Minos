@@ -185,6 +185,26 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
+
+estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
+  
+  # Sort out dependent type (factor)
+  data[[depend]] <- as.factor(data[[depend]])
+  
+  data = replace.missing(data)
+  
+  if(include_weights) {
+    model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
+  } else {
+    model <- glm(formula, family=binomial(link="logit"), data=data)
+  }
+  # add obs and preds to model object for any later plotting.
+  # This is mildly stupid.. 
+  model[[depend]] <- data[[depend]]
+  model$class_preds <- predict(model)
+  return(model)
+}
+
 calculate_diff <- function(data, cont.var) {
   data <- data %>%
     group_by(pidp) %>%
@@ -369,6 +389,12 @@ run_yearly_models <- function(transitionDir_path,
                                       include_weights = use.weights,
                                       depend = next.dependent)
 
+      } else if (tolower(mod.type)=="logit") {
+        model <- estimate_yearly_logit(data = merged,
+                                       formula = form,
+                                       include_weights = use.weights,
+                                       depend = next.dependent)
+        
       } else if(tolower(mod.type) == 'zip') {
 
         model <- estimate_yearly_zip(data = merged,
