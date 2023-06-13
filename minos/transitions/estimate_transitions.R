@@ -454,7 +454,8 @@ run_yearly_models <- function(transitionDir_path,
 ## We need to check when we are in the correct years, and remove a string subset from the formula
 ## i.e. in 2015 no neighbourhood_safety, so remove 'relevel(factor(neighbourhood_safety), ref = '1')'
 
-
+#TODO: Refactor all this stuff into a single string argument. Can avoid a bit of
+# boilerplate and make further development easier.
 ## Argparse stuff
 parser = ArgumentParser()
 parser$add_argument('-s',
@@ -473,18 +474,44 @@ parser$add_argument('-c',
                     fitted to half the population, before running simulations
                     with the other half.')
 
+parser$add_argument('-d',
+                    '--default',
+                    action='store_true',
+                    dest='default',
+                    default=FALSE,
+                    help='Run in default mode. This is the default MINOS 
+                    experiment, where the models estimated in this mode 
+                    include hh_income as the policy lever, SF12 MCS and
+                    PCS as the outcomes of interest, and a series of pathways
+                    from hh_income to both outcomes.')
+
+parser$add_argument('-s7',
+                    '--sipher7',
+                    action='store_true',
+                    dest='SIPHER7',
+                    default=FALSE,
+                    help='Run the SIPHER7 experiment models. In this mode, 
+                    only the transition models needed to run the SIPHER7
+                    equivalent income experiment are estimated. This includes
+                    hh_income as the policy lever, then all the SIPHER7
+                    variable models, as well as some demographic models such
+                    as education state.')
+
 args <- parser$parse_args()
 
 scotland.mode <- args$scotland
-
 cross_validation <- args$crossval
+default <- args$default
+sipher7 <- args$SIPHER7
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
 dataDir <- 'data/final_US/'
-modDefFilename <- 'model_definitions.txt'
+modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
+
+create.if.not.exists(transitionDir)
 
 
 # Set different paths for scotland mode, cross-validation etc.
@@ -501,7 +528,10 @@ if(scotland.mode) {
   mode <- 'cross_validation'
   transitionDir <- paste0(transitionDir, 'cross_validation/')
   create.if.not.exists(transitionDir)
-} else {
+} else if(sipher7) {
+  print('Estimating models for SIPHER7 Equivalent Income experiment')
+  modDefFilename <- 'model_definitions_S7.txt'
+} else if(default) {
   print('Estimating transition models in whole population mode')
 }
 
