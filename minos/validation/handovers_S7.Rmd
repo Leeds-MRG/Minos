@@ -105,9 +105,11 @@ ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colou
   xlab('Year') +
   ylab('Income')
 
-ggsave(filename = 'hh_income_wav1.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'hh_income_wav1.png',
+         plot = last_plot(),
+         path = save.path)
+}
 
 raw.income.check <- raw.dat %>% 
   dplyr::select(pidp, time, hh_income) %>%
@@ -132,7 +134,7 @@ base.inc <- base.dat %>%
 income.spag <- rbind(raw.inc, base.inc)
 
 spaghetti_plot(income.spag, 'hh_income',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
@@ -203,9 +205,12 @@ ggplot(data = ei.2, mapping = aes(x = time, y = equivalent_income, group = sourc
   xlab('Year') +
   ylab('EI')
 
-ggsave(filename = 'EI_wav1.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'EI_wav1.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(raw.ei, base.ei, ei, raw.ei.wave1, raw.ei.2, base.ei.2, ei.2)
 ```
@@ -223,7 +228,7 @@ ei.spag <- rbind(raw.ei, base.ei)
 spaghetti_plot(base.ei, 'equivalent_income')
 
 spaghetti_plot(ei.spag, 'equivalent_income',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.ei, base.ei, ei.spag)
@@ -254,9 +259,12 @@ ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=S7_housing_qu
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'S7_housing_quality.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'S7_housing_quality.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, housing, housing.norm)
 ```
@@ -272,7 +280,7 @@ hous.pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = hous.pivoted, 
                  var = 'S7_housing_quality',
-                 save = TRUE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -287,7 +295,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'S7_housing_quality',
-               save = FALSE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -316,9 +324,12 @@ ggplot(data = nh_safety.norm, mapping = aes(x = time, y = prct, fill=S7_neighbou
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'S7_neighbourhood_safety.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'S7_neighbourhood_safety.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, nh_safety, nh_safety.norm)
 ```
@@ -334,7 +345,7 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'S7_neighbourhood_safety',
-                 save = FALSE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -349,7 +360,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'S7_neighbourhood_safety',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -379,9 +390,12 @@ ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_s
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'S7_labour_state.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'S7_labour_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, lab.state, lab.state.norm)
 ```
@@ -397,7 +411,7 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'S7_labour_state',
-                 save = FALSE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -412,7 +426,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'S7_labour_state',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -443,9 +457,12 @@ ggplot(data = norm, mapping = aes(x = time, y = prct, fill=S7_physical_health)) 
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'S7_physical_health.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'S7_physical_health.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -461,7 +478,7 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'S7_physical_health',
-                 save = FALSE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -476,7 +493,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'S7_physical_health',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -507,9 +524,12 @@ ggplot(data = norm, mapping = aes(x = time, y = prct, fill=S7_mental_health)) +
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'S7_mental_health.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'S7_mental_health.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -525,7 +545,7 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'S7_mental_health',
-                 save = FALSE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -540,7 +560,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'S7_mental_health',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -571,9 +591,12 @@ ggplot(data = norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'loneliness.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'loneliness.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -589,7 +612,7 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'loneliness',
-                 save = FALSE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -604,7 +627,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'loneliness',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -636,9 +659,12 @@ ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'education_state.png',
-       plot = last_plot(),
-       path = save.path)
+if (shall.we.save) {
+  ggsave(filename = 'education_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -654,7 +680,7 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'education_state',
-                 save = FALSE,
+                 save = shall.we.save,
                  save.path = save.path)
 ```
 
@@ -669,7 +695,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'education_state',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
