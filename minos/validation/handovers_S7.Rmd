@@ -199,7 +199,7 @@ ei.2 <- ei.2 %>%
 ggplot(data = ei.2, mapping = aes(x = time, y = equivalent_income, group = source, colour = source)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Equivalent Income') +
+  labs(title = 'Equivalent Income', subtitle = 'Wave 1 sample') +
   xlab('Year') +
   ylab('EI')
 
@@ -545,6 +545,144 @@ spaghetti_plot(spag, 'S7_mental_health',
 
 rm(raw.s, base.s, spag)
 ```
+
+## Loneliness
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'loneliness')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Loneliness'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = loneliness, colour = loneliness)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+ggsave(filename = 'loneliness.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'loneliness')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'loneliness',
+                 save = FALSE,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, loneliness)
+base.s <- base.dat %>%
+  select(pidp, age, time, loneliness)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'loneliness',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+
+## Education
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Education State'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+ggsave(filename = 'education_state.png',
+       plot = last_plot(),
+       path = save.path)
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'education_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'education_state',
+                 save = FALSE,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, education_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, education_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'education_state',
+               save = TRUE,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+
+
+
+
+
+
+
+
 
 
 
