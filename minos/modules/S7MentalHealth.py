@@ -92,7 +92,7 @@ class S7MentalHealth(Base):
         # Predict next neighbourhood value
         men_health_prob_df = self.calculate_S7_mental_health(pop)
 
-        men_health_prob_df["S7_physical_health"] = self.random.choice(men_health_prob_df.index,
+        men_health_prob_df["S7_mental_health"] = self.random.choice(men_health_prob_df.index,
                                                                        list(men_health_prob_df.columns),
                                                                        men_health_prob_df) + 1
 
@@ -100,7 +100,7 @@ class S7MentalHealth(Base):
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        self.population_view.update(men_health_prob_df['S7_physical_health'])
+        self.population_view.update(men_health_prob_df['S7_mental_health'])
 
     def calculate_S7_mental_health(self, pop):
         """Calculate income transition distribution based on provided people/indices

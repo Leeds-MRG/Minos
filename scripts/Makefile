@@ -23,7 +23,7 @@ test_scot_run: baseline intervention_livingWage
 test_SIPHER7_run: MODE=SIPHER7
 test_SIPHER7_run: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
 test_SIPHER7_run: SIPHER7_base
-SIPHER7_base: setup
+SIPHER7_base: setup_S7
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
 
@@ -165,21 +165,21 @@ cv_SIPHER7: cv_setup
 S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
 S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
 
-S7_baseline: setup
+S7_baseline: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
 
-S7_intervention_hhIncome: setup
+S7_intervention_hhIncome: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeIntervention'
 
-S7_intervention_hhIncomeChildUplift: setup
+S7_intervention_hhIncomeChildUplift: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
 
-S7_intervention_PovertyLineChildUplift: setup
+S7_intervention_PovertyLineChildUplift: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
 
-S7_intervention_livingWage: setup
+S7_intervention_livingWage: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
 
-S7_intervention_energyDownLift: setup
+S7_intervention_energyDownLift: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
 
