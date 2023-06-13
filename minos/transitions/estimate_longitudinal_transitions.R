@@ -69,25 +69,26 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #} else {
     #  use.weights <- TRUE
     #}
-    
+    do.reflect=FALSE
     if (dependent == "SF_12" && mod.type == "GEE"){
       temp.dependent <- "I(max(SF_12) - SF_12 + 0.001)"
       formula.string <- paste0(temp.dependent, " ~ ", independents)
+      form <- as.formula(formula.string)     
+    } else if (dependent == "SF_12" && mod.type == "GEE_YJ"){
+      do.reflect=TRUE
+      formula.string <- paste0(dependent, " ~ ", independents)
       form <- as.formula(formula.string)     
     } else if (dependent == "hh_income" && mod.type == "GEE") {
       temp.dependent <- "I(hh_income - min(hh_income) + 0.001)" # shift income to left to avoid negative values.
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
-    }
+    } 
     else{
       formula.string <- paste0(dependent, " ~ ", independents)
       form <- as.formula(formula.string)
     }
     
     # data frame needs sorting by pidp and time for gee to work.
-    
-    
-    
     # get columns used by formula and sort them by pidp and time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
@@ -104,14 +105,16 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_longitudnial_gamma_gee(data = sorted_df,
                                                formula = form, 
                                                include_weights = FALSE, 
-                                               depend = dependent)
+                                               depend = dependent,
+                                               reflect = do.reflect)
       
     } else if (tolower(mod.type) == "gee_yj") {
       
       model <- estimate_longitudnial_yj_gaussian_gee(data = sorted_df,
                                                formula = form, 
                                                include_weights = FALSE, 
-                                               depend = dependent)
+                                               depend = dependent,
+                                               reflect = do.reflect)
       
     }
     

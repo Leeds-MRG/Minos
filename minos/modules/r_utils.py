@@ -287,3 +287,55 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent):
     newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     return newPandasPopDF[[dependent]]
+
+
+def predict_next_timestep_yj_gaussian_gee(model, rpy2_modules, current, dependent, noise_std = 1):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2_modules['base']
+    geepack = rpy2_modules['geepack']
+    stats = rpy2_modules['stats']
+    bestNormalize = rpy2_modules['bestNormalize']
+    n = current.shape[0]
+
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+
+    # Inverse yeojohnson transform.
+    # Stored in estimate_transitions.R.
+    # Note inverse=True arg is needed to get back to actual gross income.
+    yj = model.rx2('transform') # use yj from fitted model for latest year.
+    currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
+    ols_data = stats.predict(model, newdata=currentRDF)  # estimate next income using OLS.
+
+    ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise with variance 10.
+    prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    newRPopDF = base.cbind(currentRDF, predicted = prediction)
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    return newPandasPopDF[[dependent]]

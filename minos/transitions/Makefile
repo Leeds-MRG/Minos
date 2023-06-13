@@ -10,11 +10,12 @@
 #transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds $(TRANSITION_DATA)/nutrition/ols/nutrition_ols_2018_2019.rds
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
-transitions: | $(TRANSITION_DATA)
-transitions: final_data $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+longitudinal_transitions: | $(TRANSITION_DATA)
+longitudinal_transitions: final_data $(TRANSITION_DATA)/SF_12/gee_yj/SF_12_GEE_YJ.rds
 
-longitudinal_transitions: | $(TRANSITION_DATA))
-longitudinal_transitions: final_data $(TRANSITION_DATA)/SF_12/gee/SF_12_gee.rds
+transitions: | $(TRANSITION_DATA)
+transitions: final_data longitudinal_transitions $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
+
 
 scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds
 

@@ -20,8 +20,8 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome
-from minos.modules.mental_wellbeing import MWB, geeMWB
+from minos.modules.income import Income, geeIncome, geeYJIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -63,6 +63,7 @@ def validate_components(config_components, intervention):
     components_map = {
         # Outcome module.
         "geeMWB()": geeMWB(),
+        "geeYJMWB()": geeYJMWB(),
         "MWB()": MWB(),
         #Intermediary modules
         "Tobacco()": Tobacco(),
@@ -71,6 +72,7 @@ def validate_components(config_components, intervention):
         "Labour()": Labour(),
         "Housing()": Housing(),
         "geeIncome()": geeIncome(),
+        "geeYJIncome()": geeYJIncome(),
         "Income()": Income(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),
@@ -152,6 +154,7 @@ def RunPipeline(config, intervention=None):
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
                     "geepack": importr("geepack"),
+                    "bestNormalize": importr("bestNormalize"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

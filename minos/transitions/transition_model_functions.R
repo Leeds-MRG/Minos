@@ -171,18 +171,20 @@ estimate_longitudnial_gamma_gee <- function(data, formula, include_weights = FAL
 
 
 
-estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights = FALSE, depend) {
+estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights = FALSE, depend, reflect) {
   
   data = replace.missing(data)
   data <- drop_na(data)
+  if (reflect) {
+    data[, c(depend)] <- max(data[, c(depend)]) -  data[, c(depend)]
+  }
   yj <- yeojohnson(data[,c(depend)])
-  #browser()
   data[, c(depend)] <- predict(yj)
   if(include_weights) {
     model <- geeglm(formula,
                     id = pidp,
                     waves = time,
-                    family = gaussian, # canonical inverse gamma link. Could use log link instead..
+                    family = gaussian, # gaussian GEE uses canonical identity link.
                     data = data,
                     weights = weight,
                     corstr="ar1") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
@@ -198,7 +200,7 @@ estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights
   # This is mildly stupid.. 
   #model[[depend]] <- data[[depend]]
   #model$class_preds <- predict(model)
-  model$transform <- yj
+  model$transform <- yj    
   return(model)
 }
 
