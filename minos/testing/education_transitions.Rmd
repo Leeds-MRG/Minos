@@ -1,0 +1,217 @@
+---
+title: "Testing Education State Transitions"
+output: html_notebook
+---
+
+Currently, a respondents max education state is predicted before the pipeline begins, during production of the stock and replenishing populations (after estimating the education state model). Individuals are then deterministically transitioned to higher education states at specific ages. This is a big assumption in and of itself, but more work to get this closer to reality would most likely have a negligible effect on our population and even smaller on the outcomes.
+
+The issue with this is to handle the move from deterministic transitions to the model based predictions in the S7_labour_state variable. The labour state variable has a factor level for full time education, which needs to work in partnership with the education_state variable and the education module. What we can do is force the labour state variable to FT education until a respondent reaches their max education level, and then move to transitioning their labour state based on the transition model. This will probably mean some people are transitioned back into FT education throughout the model, but hopefully this number will be small enough to be negligible (fewer numbers still in education as age increases in raw data).
+
+Tasks:
+
+- [ ] Check what age people achieve each level of education
+- [ ] Average age plot (see if change over time in raw)
+  - [ ] Histograms
+  - [ ] Animated histograms?
+- [ ] Force labour_state to FT education until max_educ has been reached (this might already have been done)
+- [ ] Change labour_state prediction to only run for those who have reached max_educ
+- [ ] Check how many people move into FT education after age of 30
+- [ ] Make sure stock population is doing max_educ prediction
+
+IF all the above goes well, add S7_labour_state variable into the default income -> SF12 experiment, so we can use the same education functionality in there also. Plus labour_state is an important variable there that is currently missing.
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(here)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+## Data
+
+```{r}
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+#out.path <- 'Minos/output/SIPHER7/'
+out.path <- here::here('output', 'SIPHER7/')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+```
+
+## Constants
+
+```{r}
+start.year <- 2020
+save.path <- here::here("plots", "handovers", 'SIPHER7')
+create.if.not.exists(save.path)
+
+shall.we.save <- TRUE
+```
+
+# Raw Testing
+
+What age do people generally transition into each education level? 
+
+```{r}
+
+```
+
+
+# S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
+
+lab.state <- prepped.list$var
+lab.state.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_labour_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_labour_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+## Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_labour_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_labour_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_labour_state',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+# Education
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Education State'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'education_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'education_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'education_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+## Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, education_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, education_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'education_state',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+
+
+
+
+
+
+```{r}
+
+```
+
