@@ -10,15 +10,18 @@ output: html_notebook
 require(tidyverse)
 require(ggplot2)
 require(purrr)
+require(here)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
 
 Source utils for some functions.
 ```{r}
-source('Minos/minos/validation/utils.r')
+#source('Minos/minos/validation/utils.r')
+source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 ## Data
@@ -26,12 +29,13 @@ source('Minos/minos/validation/utils.r')
 ```{r}
 out.path <- 'Minos/output/default_config/'
 #out.path <- 'Minos/output/scotland_mode/'
+out.path <- here::here('minos', 'default_config/')
 
-base <- read_output(out.path, 'baseline')
-allchild <- read_output(out.path, 'hhIncomeChildUplift')
-poverty <- read_output(out.path, 'hhIncomePovertyLineChildUplift')
-wage <- read_output(out.path, 'livingWageIntervention')
-energy <- read_output(out.path, 'energyDownlift')
+base <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
+poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
+wage <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
+energy <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TRUE)
 
 ```
 
