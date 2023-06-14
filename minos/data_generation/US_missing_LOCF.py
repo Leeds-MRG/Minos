@@ -68,6 +68,26 @@ def fbfill_groupby(pid_groupby):
     """
     return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
 
+
+def mffill_groupby(pid_groupby):
+    """
+    Forward fill the maximum observation in groupby object. The filled variable would only be able to increase over
+    time.
+    At time of writing this is only used for education_state, as we have the weird problem that some individuals seem to
+    bounce between defined education states and lower levels (often 0).
+
+    Parameters
+    ----------
+    pid_groupby : pandas.groupby
+        Pandas groupby object with data sorted by some set of variables. pidp and interview year (time) usually.
+    Returns
+    -------
+    pid_groupby : Object with maximum observation forward filled objects
+    """
+    return pid_groupby.apply(
+        lambda x: pd.DataFrame.cummax(x))
+
+
 def interpolate(data, interpolate_columns, type='linear'):
     """ Interpolate column based on year time index.
 
@@ -92,11 +112,12 @@ def interpolate(data, interpolate_columns, type='linear'):
     data_groupby = data.groupby('pidp', sort=False, as_index=False)
     new_columns = data_groupby[interpolate_columns].apply(lambda x: x.interpolate(method=type, limit_direction='both', axis=0))
     new_columns = new_columns.reset_index(drop=True)
-    data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+    data = data.reset_index(drop=True)  # groupby messes with the index. make them unique again.
 
     new_columns.columns = interpolate_columns
     data[interpolate_columns] = new_columns
     return data
+
 
 def linear_interpolator_groupby(pid_groupby, type="forward"):
     """ Linear interpolation for deterministic increases like age.
@@ -131,6 +152,7 @@ def linear_interpolator_groupby(pid_groupby, type="forward"):
     return pid_groupby.apply(lambda x: x.interpolate(method="linear", limit_direction=type))
     #return pid_groupby.apply(lambda x: interpolate.interp1d(x["time"], x["age"])(x["age"]))
 
+
 def locf_sort(data, sort_vars, group_vars):
     """ Put data into pandas groupby for LOCF interpolation
 
@@ -155,7 +177,8 @@ def locf_sort(data, sort_vars, group_vars):
     pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
     return pid_groupby
 
-def locf(data, f_columns = None, b_columns = None, fb_columns = None):
+
+def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns = None):
     """ Last observation carrying for correcting missing data.
 
     Data is often only recorded when someone either enters the study for
@@ -206,8 +229,12 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None):
         # forwards and backwards fill. again immutables only.
         fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
         data[fb_columns] = fill[fb_columns]
-    data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+    if mf_columns:
+        fill = applyParallelLOCF(pid_groupby[mf_columns], mffill_groupby)
+        data[mf_columns] = fill[mf_columns]
+    data = data.reset_index(drop=True)  # groupby messes with the index. make them unique again.
     return data
+
 
 def main(data, save=False):
 
@@ -222,7 +249,9 @@ def main(data, save=False):
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker'] # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     li_columns = ["age"]
-    data = locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    ## Maximum fill columns
+    mf_columns = ['education_state']
+    data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
     US_missing_description.missingness_table(data)
     data = interpolate(data, li_columns)
@@ -233,6 +262,7 @@ def main(data, save=False):
         US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
     return data
 
+
 if __name__ == "__main__":
     # Load in data.
     # Process data by year and pidp.
@@ -240,4 +270,4 @@ if __name__ == "__main__":
     years = np.arange(2009, 2020)
     file_names = [f"data/deterministic_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-    data =  main(data)
+    data = main(data)
