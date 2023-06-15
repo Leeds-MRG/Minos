@@ -4,7 +4,6 @@ require(nnet)
 require(pscl)
 require(geepack)
 require(bestNormalize)
-require(gee)
 
 ################ Model Specific Functions ################
 
