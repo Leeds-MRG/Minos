@@ -61,7 +61,9 @@ class S7Labour(Base):
                         "hh_income",
                         "education_state",
                         "S7_physical_health",
-                        'S7_mental_health']
+                        'S7_mental_health',
+                        'pidp',
+                        'max_educ']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -90,7 +92,8 @@ class S7Labour(Base):
         # Separate the population into current students and everyone else. Then see if students max_educ is larger than
         # current education_state, if yes maintain student, if no predict new labour_state
 
-        pop = self.population_view.get(event.index, query="alive=='alive'")
+        #pop = self.population_view.get(event.index, query="alive=='alive'")
+        pop = self.population_view.get(event.index, query="alive=='alive' & education_state != max_educ")
         self.year = event.time.year
 
         labour_prob_df = self.calculate_labour(pop)
