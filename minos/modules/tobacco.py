@@ -88,9 +88,10 @@ class Tobacco(Base):
         self.year = event.time.year
 
         # Predict next tobacco value
-        newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop), columns=['ncigs'], dtype=int)
+        newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop), columns=['ncigs'])
         newWaveTobacco.index = pop.index
-        print(newWaveTobacco)
+        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+        #print(newWaveTobacco)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
         self.population_view.update(newWaveTobacco["ncigs"])
@@ -106,8 +107,9 @@ class Tobacco(Base):
         -------
         """
         # load transition model based on year.
-        year = max(self.year, 2014)
-        year = min(year, 2018)
+        #year = max(self.year, 2014)
+        #year = min(year, 2020)
+        year = 2019
         transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
