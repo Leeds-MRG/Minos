@@ -73,8 +73,35 @@ raw <- raw.dat %>%
   select(pidp, time, age, education_state) %>%
   arrange(pidp, time) %>%
   group_by(pidp) %>%
-  mutate(levelUp = ifelse(education_state != dplyr::lag(education_state, order_by=time), TRUE, FALSE))# %>%
-  #filter(!is.na(levelUp))
+  mutate(levelUp = ifelse(education_state != dplyr::lag(education_state, order_by=time), TRUE, FALSE)) %>%
+  filter(!is.na(levelUp)) %>%
+  filter(levelUp == TRUE)
+
+ggplot(data = filter(raw, education_state == 2), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 2')
+
+ggplot(data = filter(raw, education_state == 3), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 3')
+
+ggplot(data = filter(raw, education_state == 5), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 5')
+
+ggplot(data = filter(raw, education_state == 6), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 6')
+
+ggplot(data = filter(raw, education_state == 7), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 7')
+
+raw$education_state <- factor(raw$education_state)
+
+ggplot(data = raw, aes(x = age, group = education_state, fill = education_state)) +
+  geom_histogram()
+  labs(title = 'Education state')
 
 ```
 
