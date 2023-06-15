@@ -30,7 +30,7 @@ $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2
 $(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --cross_validation
 
-$(TRANSITION_DATA)/SF_12/gee/SF_12_gee.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
+$(TRANSITION_DATA)/SF_12/gee_yj/SF_12_GEE_YJ.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R
 
 $(TRANSITION_DATA):
