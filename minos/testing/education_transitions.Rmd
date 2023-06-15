@@ -69,6 +69,12 @@ shall.we.save <- TRUE
 What age do people generally transition into each education level? 
 
 ```{r}
+raw <- raw.dat %>%
+  select(pidp, time, age, education_state) %>%
+  arrange(pidp, time) %>%
+  group_by(pidp) %>%
+  mutate(levelUp = ifelse(education_state != dplyr::lag(education_state, order_by=time), TRUE, FALSE))# %>%
+  #filter(!is.na(levelUp))
 
 ```
 
