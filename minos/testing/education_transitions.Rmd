@@ -77,6 +77,14 @@ raw <- raw.dat %>%
   filter(!is.na(levelUp)) %>%
   filter(levelUp == TRUE)
 
+ggplot(data = filter(raw, education_state == 0), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 0')
+
+ggplot(data = filter(raw, education_state == 1), aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Education State == 1')
+
 ggplot(data = filter(raw, education_state == 2), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 2')
@@ -102,6 +110,19 @@ raw$education_state <- factor(raw$education_state)
 ggplot(data = raw, aes(x = age, group = education_state, fill = education_state)) +
   geom_histogram()
   labs(title = 'Education state')
+
+```
+
+Mean ages.
+
+```{r}
+
+raw.meanAge <- raw %>%
+  group_by(education_state) %>%
+  summarise(age = mean(age))
+
+ggplot(data = raw.meanAge, aes(x = education_state, y = age)) +
+  geom_col()
 
 ```
 
