@@ -7,19 +7,20 @@ date: "2023-05-20"
 # MINOS Lineplot Outputs
 
 IMPORTANT NOTE TO RUN PYTHON YOU NEED TO SET THE PYTHON INTERPRETER 
-IN TOOLS>GLOBAL_OPTIIONS>PYTHON>CONDA_INTERPRETERS.
+IN TOOLS>GLOBAL_OPTIIONS>PYTHON>CONDA_INTERPRETERS. 
+NOT SURE THIS IS NEEDED ANYMORE GIVEN WE'RE SETTING THE CONDA ENV MANUALLY. 
 
 Can just use minos_conda or create a miniconda env using reticulate package. 
 
 ```{r setup, include=FALSE}
-library(reticulate) # for python in Rmd. 
-library(knitr)
+require(reticulate) # for python in Rmd. 
+require(knitr)
 require(here)
 
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = here::here())
 knitr::knit_engines$set(python = reticulate::eng_python)
-reticulate::use_condaenv("minos_conda", required = TRUE)
+reticulate::use_condaenv("minos_conda", required = FALSE)
 ```
 
 # Baseline vs All Child Uplift
@@ -29,7 +30,7 @@ reticulate::use_condaenv("minos_conda", required = TRUE)
 # packages need installing in R using py_install("package"). honestly this seems not worth it..
 from minos.outcomes.make_lineplots import main as lineplot_main
 # define test parameters and run.
-directories = "baseline,hhIncomeIntervention"
+directories = "baseline,hhIncomeChildUplift"
 tags = "Baseline,All Child Uplift"
 subset_function_strings = "who_kids,who_boosted"
 prefix="baseline_all_child_uplift"
@@ -104,7 +105,7 @@ knitr::include_graphics(here::here("plots", "baseline_energy_downlift_SF_12_aggs
 # packages need installing in R using py_install("package"). honestly this seems not worth it..
 from minos.outcomes.make_lineplots import main as lineplot_main
 # define test parameters and run.
-directories = "baseline,hhIncomeIntervention,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift"
+directories = "baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift"
 tags = "Baseline,All Child Uplift,Poverty Line Child Uplift,Living Wage Intervention,Energy Downlift"
 subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
 prefix="all_five_combined"
