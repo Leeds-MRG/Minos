@@ -4,6 +4,7 @@ require(nnet)
 require(pscl)
 require(geepack)
 require(bestNormalize)
+require(gee)
 
 ################ Model Specific Functions ################
 
@@ -195,12 +196,14 @@ estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights
                     family = gaussian,
                     data = data,
                     corstr="ar1")
+    #browser()
   }
   # add obs and preds to model object for any later plotting.
   # This is mildly stupid.. 
   #model[[depend]] <- data[[depend]]
   #model$class_preds <- predict(model)
   model$transform <- yj    
+  #browser()
   return(model)
 }
 

@@ -327,7 +327,6 @@ def predict_next_timestep_yj_gaussian_gee(model, rpy2_modules, current, dependen
 
     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise with variance 10.
     prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
-
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     newRPopDF = base.cbind(currentRDF, predicted = prediction)
     # Convert back to pandas

@@ -218,6 +218,7 @@ class geeIncome(Base):
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
         view_columns = ['pidp',
+                        'weight',
                         'age',
                         'sex',
                         'ethnicity',
@@ -387,18 +388,32 @@ class geeYJIncome(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp',
-                        'age',
-                        'sex',
-                        'ethnicity',
-                        'region',
-                        'hh_income',
-                        'job_sec',
-                        'labour_state',
-                        'education_state',
-                        'SF_12',
-                        'housing_quality',
-                        'job_sector']
+        #view_columns = ['pidp',
+        #                'age',
+        #                'sex',
+        #                'ethnicity',
+        #                'region',
+        #                'hh_income',
+        #                'job_sec',
+        #                #'labour_state',
+        #                'education_state',
+        #                'SF_12',
+        #                'weight',
+        #                #'housing_quality',
+        #                'job_sector']
+        view_columns = [
+            'hh_income',
+            'age',
+            'sex',
+            'ethnicity',
+            'region',
+            'education_state',
+            'job_sec',
+            'job_sector',
+            'time',
+            'pidp',
+            'weight'
+        ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -414,6 +429,7 @@ class geeYJIncome(Base):
         # just load this once.
         self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
                                                              path=self.transition_dir)
+        self.history_data = self.generate_history_dataframe("final_US", [2014, 2017, 2020], view_columns)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -472,13 +488,15 @@ class geeYJIncome(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-
+        if self.year != 2020:
+            self.update_history_dataframe(pop, self.year)
         nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,
                                                            self.rpy2Modules,
-                                                           pop,
+                                                           self.history_data,
                                                            dependent='hh_income',
-                                                           noise_std=2)
-        return nextWaveIncome
+                                                           noise_std=2)#1
+
+        return nextWaveIncome.iloc[self.history_data.loc[self.history_data['time']==self.year].index]
 
     def plot(self, pop, config):
         file_name = config.output_plots_dir + f"income_hist_{self.year}.pdf"

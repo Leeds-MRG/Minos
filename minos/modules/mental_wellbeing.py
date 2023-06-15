@@ -5,13 +5,11 @@ Possible extension to interaction with employment/education and any spatial/inte
 """
 
 import pandas as pd
-from pathlib import Path
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 class MWB(Base):
     """Mental Well-Being Module"""
@@ -82,6 +80,7 @@ class MWB(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
+
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -360,9 +359,9 @@ class geeYJMWB(Base):
                         'SF_12',
                         'housing_quality',
                         #'phealth',
-                        #'ncigs',
-                        #'nutrition_quality',
-                        #'neighbourhood_safety',
+                        'ncigs',
+                        'nutrition_quality',
+                        'neighbourhood_safety',
                         'loneliness']
 
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -379,6 +378,8 @@ class geeYJMWB(Base):
         self.max_sf12 = None
         #only need to load this once for now.
         self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2_modules)
+
+        self.history_data = self.generate_history_dataframe("final_US", [2014, 2017, 2020], view_columns)
 
     def update_prediction_population(self, current_pop):
         """ Update longitudinal data frame of past observations with current information.
@@ -410,10 +411,8 @@ class geeYJMWB(Base):
 
         ## Predict next income value
         # reflect SF_12 so right skewed and yj transform works.
-        pop["SF_12"] = self.max_sf12 - pop["SF_12"]
         newWaveMWB = self.calculate_mwb(pop)
         newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
-        newWaveMWB["SF_12"] = self.max_sf12 - newWaveMWB["SF_12"] # reflect SF_12 back to being left skewed.
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = pop.index
@@ -434,4 +433,9 @@ class geeYJMWB(Base):
         Returns
         -------
         """
-        return r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model, self.rpy2_modules, pop, 'SF_12', 0.5)
+        if self.year != 2020:
+            self.update_history_dataframe(pop, self.year)
+        self.history_data["SF_12"] = self.max_sf12 - self.history_data["SF_12"]
+        out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model, self.rpy2_modules, self.history_data, 'SF_12', 0.75)#0.5
+        self.history_data["SF_12"] = self.max_sf12 - self.history_data["SF_12"]
+        return self.max_sf12 - out_data.iloc[self.history_data.loc[self.history_data['time']==self.year].index]

@@ -28,6 +28,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
                     "who_no_formal_education": [who_alive, who_kids, who_no_formal_education],
                      # Not sure about this one? single parent may not be primrary caregiver. e.g. divorced dad without custody.
                     "who_lone_parent_families": [who_alive, who_single, who_kids],
+                    "who_uses_energy": [who_alive, who_uses_energy],
                     # NOT IMPLEMENTED BELOW HERE YET. NO SUFFICIENT DATA IN UNDERSTANDING SOCIETY.
                     #"who_complex_needs": None,
                     #"who_babies_under_one": None,
@@ -135,3 +136,6 @@ def who_young_adults(df):
     # who aged between 16 and 25.
     df =  df.loc[df["age"] <= 25, ]
     return df.loc[df["age"] >= 16, ]
+
+def who_uses_energy(df):
+    return df.loc[df['yearly_energy'] > 0]

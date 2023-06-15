@@ -7,6 +7,8 @@ easier to build.
 
 from datetime import datetime as dt
 from scipy.special import ndtri  # very fast standard normal sampler.
+from minos.data_generation.US_utils import load_multiple_data
+import pandas as pd
 
 class Base():
 
@@ -104,6 +106,21 @@ class Base():
 
         u = self.random.get_draw(index)
         return (sigma*ndtri(u)) + mu
+
+
+    def generate_history_dataframe(self, source, years, variables):
+        file_names = [f"data/{source}/{year}_US_cohort.csv" for year in years]
+        data = load_multiple_data(file_names)
+        data = data[variables]
+        data = data.sort_values(by=["pidp", "time"])
+        return data
+
+    def update_history_dataframe(self, new_data, year):
+        self.history_data = pd.concat([self.history_data, new_data])
+        self.history_data = self.history_data.loc[self.history_data["time"] > year-5]
+        self.history_data = self.history_data.sort_values(by=['pidp', 'time'])
+        self.history_data.reset_index(inplace=True, drop=True)
+
 
 class Intervention:
 
