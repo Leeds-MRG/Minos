@@ -6,8 +6,11 @@
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
 
+
 main_lineplots:
-	bash minos/outcomes/aggregated_plots.sh
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/make_lineplots_all.Rmd')"
+	# open html file in firefox
+	firefox file://$(OUTCOMES)/make_lineplots_all.html
 
 vulnerable_lineplots:
 	bash minos/outcomes/aggregated_vulnerable_lineplots.sh

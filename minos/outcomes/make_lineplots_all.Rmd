@@ -1,5 +1,5 @@
 ---
-title: "R MINOS Lineplot notebooks noice"
+title: "R MINOS Lineplot Notebooks"
 output: html_document
 date: "2023-05-20"
 ---
@@ -12,12 +12,14 @@ IN TOOLS>GLOBAL_OPTIIONS>PYTHON>CONDA_INTERPRETERS.
 Can just use minos_conda or create a miniconda env using reticulate package. 
 
 ```{r setup, include=FALSE}
-library(reticulate)
+library(reticulate) # for python in Rmd. 
 library(knitr)
+require(here)
 
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = '../..')
+knitr::opts_knit$set(root.dir = here::here())
 knitr::knit_engines$set(python = reticulate::eng_python)
+reticulate::use_condaenv("minos_conda", required = TRUE)
 ```
 
 # Baseline vs All Child Uplift
@@ -36,7 +38,7 @@ lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mo
 ```
 
 ```{r }
-knitr::include_graphics("../../plots/baseline_all_child_uplift_SF_12_aggs_by_year.png", error=FALSE)
+knitr::include_graphics(here::here("plots", "baseline_all_child_uplift_SF_12_aggs_by_year.png"), error=FALSE)
 ```
 
 
@@ -56,7 +58,7 @@ lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mo
 ```
 
 ```{r }
-knitr::include_graphics("../../plots/baseline_poverty_child_uplift_SF_12_aggs_by_year.png", error=FALSE)
+knitr::include_graphics(here::here("plots", "baseline_poverty_child_uplift_SF_12_aggs_by_year.png"), error=FALSE)
 ```
 
 # Baseline vs Living Wage
@@ -74,7 +76,7 @@ lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mo
 ```
 
 ```{r }
-knitr::include_graphics("../../plots/baseline_living_wage_SF_12_aggs_by_year.png", error=FALSE)
+knitr::include_graphics(here::here("plots", "baseline_living_wage_SF_12_aggs_by_year.png"), error=FALSE)
 ```
 
 # Baseline vs Energy Downlift
@@ -92,7 +94,7 @@ lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mo
 ```
 
 ```{r }
-knitr::include_graphics("../../plots/baseline_energy_downlift_SF_12_aggs_by_year.png", error=FALSE)
+knitr::include_graphics(here::here("plots", "baseline_energy_downlift_SF_12_aggs_by_year.png"), error=FALSE)
 ```
 
 
@@ -111,6 +113,6 @@ lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mo
 ```
 
 ```{r }
-knitr::include_graphics("../../plots/all_five_combined_SF_12_aggs_by_year.png", error=FALSE)
+knitr::include_graphics(here::here("plots", "all_five_combined_SF_12_aggs_by_year.png"), error=FALSE)
 ```
 
