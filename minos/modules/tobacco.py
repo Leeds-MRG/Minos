@@ -88,12 +88,12 @@ class Tobacco(Base):
         self.year = event.time.year
 
         # Predict next tobacco value
-        pop["ncigs"] = self.calculate_tobacco(pop).astype(int)
-
-
+        newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop), columns=['ncigs'], dtype=int)
+        newWaveTobacco.index = pop.index
+        print(newWaveTobacco)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
-        self.population_view.update(pop["ncigs"])
+        self.population_view.update(newWaveTobacco["ncigs"])
 
     def calculate_tobacco(self, pop):
         """Calculate tobacco transition distribution based on provided people/indices
