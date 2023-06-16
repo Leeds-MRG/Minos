@@ -93,7 +93,7 @@ class S7Labour(Base):
         # current education_state, if yes maintain student, if no predict new labour_state
 
         #pop = self.population_view.get(event.index, query="alive=='alive'")
-        pop = self.population_view.get(event.index, query="alive=='alive' & education_state != max_educ")
+        pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
         labour_prob_df = self.calculate_labour(pop)
