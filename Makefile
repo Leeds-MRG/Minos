@@ -8,6 +8,7 @@ CORRECTDATA = $(DATADIR)/corrected_US
 COMPOSITEDATA = $(DATADIR)/composite_US
 COMPLETEDATA = $(DATADIR)/complete_US
 FINALDATA = $(DATADIR)/final_US
+STOCKDATA = $(DATADIR)/stock_US
 SPATIALDATA = $(DATADIR)/spatial_US
 SCOTDATA = $(DATADIR)/scotland_US
 PERSISTDATA = $(CURDIR)/persistent_data
@@ -94,13 +95,13 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
-setup: install data transitions_default replenishing_data
+setup: install data transitions_default stock_data replenishing_data
 
-setup_S7: install data transitions_SIPHER7 replenishing_data
+setup_S7: install data transitions_SIPHER7 stock_data replenishing_data
 
 scot_setup: install scot_data scot_transitions scot_replenishing
 
-cv_setup: install cv_data cv_transitions cv_replenishing
+cv_setup: install cv_data cv_transitions cv_stock cv_replenishing
 
 #####################################
 ### ADDITIONAL MAKEFILES

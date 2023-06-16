@@ -4,7 +4,7 @@ Mostly reusing Luke's work in generate_repl_pop.py
 """
 
 import pandas as pd
-from minos.data_generation.generate_stock_pop import reweight_stock
+from minos.data_generation.generate_final_pop import reweight_stock
 import numpy as np
 
 def main(years, save):

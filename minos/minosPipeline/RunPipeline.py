@@ -7,8 +7,6 @@ from rpy2.robjects.packages import importr
 
 # Do this to suppress warnings from Vivariums code...
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
 from vivarium import InteractiveContext
 
 import minos.utils as utils
@@ -46,6 +44,8 @@ from minos.modules.intervention import energyDownlift
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def validate_components(config_components, intervention):

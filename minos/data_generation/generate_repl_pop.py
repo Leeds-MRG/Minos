@@ -23,7 +23,6 @@ from rpy2.robjects.packages import importr
 import US_utils
 from minos.modules import r_utils
 
-
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
@@ -31,7 +30,7 @@ pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWith
 def expand_repl(US_2018):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
-    
+
     Parameters
     ----------
     US_2018 : pandas.DataFrame
@@ -67,7 +66,7 @@ def expand_repl(US_2018):
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
         new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
 
-        #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
+        # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
         ## Previously tried duplicating the 16 year olds but this is hard in Scotland mode as there are only 3 people
         # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
@@ -82,15 +81,15 @@ def expand_repl(US_2018):
 
 def reweight_repl(expanded_repl, projections):
     """
-    
+
     Parameters
     ----------
     expanded_repl
     projections
-    
+
     Returns
     -------
-    
+
     """
     ## Now reweight by sex and year
     print('Reweighting by sex, ethnic group, and year...')
@@ -98,9 +97,9 @@ def reweight_repl(expanded_repl, projections):
     ## SCOTLAND MODE FORCED A CHANGE IN ETHNICITY
     # People categorised as white vs non-white instead of all ethnic groups due to small numbers
     # Re-categorise the projections and sum across ethnic groups
-    #projections['ethnicity'][~projections['ethnicity'].isin(['WBI', 'WHO'])] = 'Non-White'
-    #projections['ethnicity'][projections['ethnicity'].isin(['WBI', 'WHO'])] = 'White'
-    #projections = projections.groupby(['sex', 'age', 'time', 'ethnicity'])['count'].sum().reset_index()
+    # projections['ethnicity'][~projections['ethnicity'].isin(['WBI', 'WHO'])] = 'Non-White'
+    # projections['ethnicity'][projections['ethnicity'].isin(['WBI', 'WHO'])] = 'White'
+    # projections = projections.groupby(['sex', 'age', 'time', 'ethnicity'])['count'].sum().reset_index()
 
     # first group_by sex and year and sum weight for totals, then rename before merge
     summed_weights = expanded_repl.groupby(['sex', 'time', 'ethnicity'])['weight'].sum().reset_index()
@@ -121,7 +120,7 @@ def reweight_repl(expanded_repl, projections):
     expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
             max(expanded_repl['weight']) - min(expanded_repl['weight']))
 
-    return(expanded_repl)
+    return (expanded_repl)
 
 
 def predict_education(repl, transition_dir):
@@ -147,11 +146,10 @@ def predict_education(repl, transition_dir):
     cols = ['0', '1', '2', '3', '5', '6', '7']
     rpy2_modules = {"base": importr('base'),
                     "stats": importr('stats'),
-                    "nnet": importr("nnet"),
-                    "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "nnet": importr("nnet")
                     }
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules,
+                                                path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan
@@ -162,7 +160,6 @@ def predict_education(repl, transition_dir):
 
 
 def generate_replenishing(projections, scotland_mode, cross_validation):
-
     output_dir = 'data/replenishing'
     data_source = 'final_US'
     transition_dir = 'data/transitions'
@@ -194,7 +191,6 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
 
 
 def main():
-
     # Use argparse to select between normal and scotland mode
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
                                      usage='use "%(prog)s --help" for more information')
@@ -207,7 +203,6 @@ def main():
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
-
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"

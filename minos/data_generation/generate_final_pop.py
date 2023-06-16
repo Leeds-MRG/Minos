@@ -16,10 +16,8 @@ sex and ethnicity to ensure representative populations into the future.
 import pandas as pd
 import numpy as np
 import argparse
-from numpy.random import choice
 
 import US_utils
-from minos.modules import r_utils
 
 
 # suppressing a warning that isn't a problem
@@ -128,66 +126,6 @@ def wave_data_copy(data, var, copy_year, paste_year):
     return data_merged
 
 
-def predict_education(data, transition_dir):
-    """
-    This function predicts the highest level of education that will be attained by simulants in the model.
-    There are 2 steps to this process:
-        1. First the highest education will be predicted for all 16 year olds in the replenishing population, which
-            will then be used in the simulation to decide who and when to change their education.
-        2. Predict education for all 16-25 year olds, as they may not have finished education and can still improve.
-    Parameters
-    ----------
-    repl
-    Returns
-    -------
-    """
-    print("Predicting max education level for replenishing populations...")
-
-    # TODO: Update this to 2020 when this is merged with the new wave 12 code in development
-    start_year = 2020
-
-    # Doing max_educ prediction here.
-    # Using the transition model in transition_dir
-    # We will only do prediction for 16-25 YO's in the kick off year, as educ states will change a lot so makes more sense
-    # to do a single snapshot
-
-    # get the 16-25 year olds in 2020 (current kick off year)
-    dat_youth = data[(data['time'] == start_year) & (data['age'] > 15) & (data['age'] < 26)].reset_index()
-
-    # generate list of columns for prediction output (no educ==4 in Understanding Society)
-    cols = ['0', '1', '2', '3', '5', '6', '7']
-
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", path=transition_dir)
-    prob_df = r_utils.predict_nnet(transition_model, dat_youth, cols)
-
-    dat_youth['max_educ'] = np.nan
-    for i, distribution in enumerate(prob_df.iterrows()):
-        dat_youth.loc[i, 'max_educ'] = choice(a=prob_df.columns, size=1, p=distribution[1])[0]
-
-    # Now handle the situation where current educ is higher than max_educ
-    # first copy education state onto another var and convert to int
-    dat_youth['max_educ'] = dat_youth['max_educ'].astype(int)
-    dat_youth['max_educ'][dat_youth['education_state'] > dat_youth['max_educ']] = dat_youth['education_state']
-
-    dat_youth = dat_youth[['pidp', 'time', 'education_state', 'max_educ']]
-
-    # Finally merge dat_youth back onto data
-    data = data.merge(dat_youth, on=['pidp', 'time'], how='left')
-    # handle duplicated columns
-    data['education_state'] = -9
-    data['education_state'][data['time'] != start_year] = data['education_state_x']
-    data['education_state'][data['time'] == start_year] = data['education_state_y']
-    data['max_educ'] = -9
-    data['max_educ'][data['time'] != start_year] = data['max_educ_x']
-    data['max_educ'][data['time'] == start_year] = data['max_educ_y']
-
-    data.drop(labels=['education_state_x', 'education_state_y', 'max_educ_x', 'max_educ_y'],
-              axis=1,
-              inplace=True)
-
-    return data
-
-
 def generate_stock(projections, cross_validation):
     maxyr = US_utils.get_data_maxyr()
 
@@ -195,9 +133,6 @@ def generate_stock(projections, cross_validation):
     years = np.arange(2009, maxyr)
     file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-
-    # set up some paths
-    transition_dir = 'data/transitions'
 
     # TODO: We reweight the stock population only because reweighting the repl generates very different values to those
     #   we started with (started with mean ~1, ended with mean in the thousands). We could however trust the analysis
