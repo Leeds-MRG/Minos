@@ -7,7 +7,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
 
     if subset_chain_string == None:
         function_string = "who_alive"
-        print("No subset defined. Defaulting to who_alive..")
+        prinxt("No subset defined. Defaulting to who_alive..")
 
     subset_chains = {"who": [],
                      # Original intervention subgroups.
@@ -130,7 +130,6 @@ def who_three_kids(df):
 def who_unemployed(df):
     # who unemployed
     return df.loc[df["labour_state"] == "Unemployed", ]
-
 
 def who_young_adults(df):
     # who aged between 16 and 25.
