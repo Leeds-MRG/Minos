@@ -58,10 +58,8 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 
 ```{r}
 start.year <- 2020
-save.path <- here::here("plots", "handovers", 'SIPHER7')
+save.path <- here::here("plots", "education")
 create.if.not.exists(save.path)
-
-shall.we.save <- TRUE
 ```
 
 # Raw Testing
@@ -81,29 +79,50 @@ ggplot(data = filter(raw, education_state == 0), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 0')
 
+ggsave(filename = 'education_state_0.png',
+       path = save.path)
+
 ggplot(data = filter(raw, education_state == 1), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 1')
+
+ggsave(filename = 'education_state_1.png',
+       path = save.path)
 
 ggplot(data = filter(raw, education_state == 2), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 2')
 
+ggsave(filename = 'education_state_2.png',
+       path = save.path)
+
 ggplot(data = filter(raw, education_state == 3), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 3')
+
+ggsave(filename = 'education_state_3.png',
+       path = save.path)
 
 ggplot(data = filter(raw, education_state == 5), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 5')
 
+ggsave(filename = 'education_state_5.png',
+       path = save.path)
+
 ggplot(data = filter(raw, education_state == 6), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 6')
 
+ggsave(filename = 'education_state_6.png',
+       path = save.path)
+
 ggplot(data = filter(raw, education_state == 7), aes(x = age)) +
   geom_histogram() +
   labs(title = 'Education State == 7')
+
+ggsave(filename = 'education_state_7.png',
+       path = save.path)
 
 raw$education_state <- factor(raw$education_state)
 
@@ -111,6 +130,9 @@ ggplot(data = raw, aes(x = age, group = education_state, fill = education_state)
   geom_histogram()
   labs(title = 'Education state')
 
+ggsave(filename = 'education_state_overlaid.png',
+       path = save.path)
+  
 ```
 
 Mean ages.
@@ -123,6 +145,9 @@ raw.meanAge <- raw %>%
 
 ggplot(data = raw.meanAge, aes(x = education_state, y = age)) +
   geom_col()
+
+ggsave(filename = 'mean_age_achieved_educ.png',
+       path = save.path)
 
 ```
 
