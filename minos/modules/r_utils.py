@@ -237,10 +237,8 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
 
-
     with localconverter(ro.default_converter + pandas2ri.converter):
         counts = ro.conversion.rpy2py(counts)
-    with localconverter(ro.default_converter + pandas2ri.converter):
         zeros = ro.conversion.rpy2py(zeros)
 
     # draw randomly if a person drinks

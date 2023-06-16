@@ -494,7 +494,7 @@ class geeYJIncome(Base):
                                                            self.rpy2Modules,
                                                            self.history_data,
                                                            dependent='hh_income',
-                                                           noise_std=2)#1
+                                                           noise_std=0.4)#2
 
         return nextWaveIncome.iloc[self.history_data.loc[self.history_data['time']==self.year].index]
 

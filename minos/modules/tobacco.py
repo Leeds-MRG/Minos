@@ -9,6 +9,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
+import numpy as np
 
 class Tobacco(Base):
 
@@ -88,10 +89,10 @@ class Tobacco(Base):
         self.year = event.time.year
 
         # Predict next tobacco value
-        newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop), columns=['ncigs'])
+        newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop))
+        newWaveTobacco.columns = ['ncigs']
         newWaveTobacco.index = pop.index
         newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
-        #print(newWaveTobacco)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
         self.population_view.update(newWaveTobacco["ncigs"])

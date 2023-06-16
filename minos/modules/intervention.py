@@ -243,7 +243,7 @@ class hhIncomePovertyLineChildUplift(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         who_uplifted = (pop['hh_income'] <= np.nanmedian(pop['hh_income']) * 0.6) #
-        pop['boost_amount'] = (who_uplifted * 20 * 30.436875 / 7) # £20 per child per week uplift for everyone under poverty line.
+        pop['boost_amount'] = (who_uplifted * 25 * 30.436875 / 7) # £20 per child per week uplift for everyone under poverty line.
 
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         pop['income_boosted'] = who_uplifted
@@ -405,7 +405,7 @@ class energyDownlift(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
         #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
@@ -441,7 +441,7 @@ class energyDownlift(Base):
 
 # Doubling briding payment from 130 to 260 per month per child. analogous to child uplift.
 
-# fuel insecurity fund to 20 million. most interesting one here in my opinion for my PhD. particularly in terms of defining a set fund and how to optimally apply it.
+# fuel insecurity fund to 20 million.
 # constraining scotland to only use 20 million for energy expenditure.
 # requires full scale population or reduction of money to be proportional.
 

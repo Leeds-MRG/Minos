@@ -436,6 +436,6 @@ class geeYJMWB(Base):
         if self.year != 2020:
             self.update_history_dataframe(pop, self.year)
         self.history_data["SF_12"] = self.max_sf12 - self.history_data["SF_12"]
-        out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model, self.rpy2_modules, self.history_data, 'SF_12', 0.75)#0.5
+        out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model, self.rpy2_modules, self.history_data, 'SF_12', 0.75)#0.75
         self.history_data["SF_12"] = self.max_sf12 - self.history_data["SF_12"]
         return self.max_sf12 - out_data.iloc[self.history_data.loc[self.history_data['time']==self.year].index]
