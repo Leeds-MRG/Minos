@@ -459,6 +459,7 @@ class geeYJIncome(Base):
         """
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = pop.sort_values('pidp')
         self.year = event.time.year
 
         ## Predict next income value
@@ -494,7 +495,7 @@ class geeYJIncome(Base):
                                                            self.rpy2Modules,
                                                            self.history_data,
                                                            dependent='hh_income',
-                                                           noise_std=0.4)#2
+                                                           noise_std=0.5)#2
 
         return nextWaveIncome.iloc[self.history_data.loc[self.history_data['time']==self.year].index]
 

@@ -172,11 +172,10 @@ estimate_longitudnial_gamma_gee <- function(data, formula, include_weights = FAL
 
 
 estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights = FALSE, depend, reflect) {
-  
   data = replace.missing(data)
   data <- drop_na(data)
   if (reflect) {
-    data[, c(depend)] <- max(data[, c(depend)]) -  data[, c(depend)]
+    data[, c(depend)] <- -data[, c(depend)] 
   }
   yj <- yeojohnson(data[,c(depend)])
   data[, c(depend)] <- predict(yj)

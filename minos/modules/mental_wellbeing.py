@@ -375,11 +375,9 @@ class geeYJMWB(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=9)
 
-        self.max_sf12 = None
         #only need to load this once for now.
         self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2_modules)
-
-        self.history_data = self.generate_history_dataframe("final_US", [2014, 2017, 2020], view_columns)
+        self.history_data = self.generate_history_dataframe("final_US", [2017, 2020], view_columns)
 
     def update_prediction_population(self, current_pop):
         """ Update longitudinal data frame of past observations with current information.
@@ -406,20 +404,17 @@ class geeYJMWB(Base):
 
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        if self.max_sf12 == None:
-            self.max_sf12 = np.max(pop["SF_12"])
+        pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
 
         ## Predict next income value
-        # reflect SF_12 so right skewed and yj transform works.
         newWaveMWB = self.calculate_mwb(pop)
         newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        newWaveMWB.index = pop.index # aligning index to vivarium builder dataframe. ensures assignment of new values to correct individuals.
+        newWaveMWB["SF_12"] = -newWaveMWB["SF_12"] # make sure to reflect SF_12 back to being positive.
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)
-        # Set index type to int (instead of object as previous)
-        newWaveMWB.index = pop.index
-
-
+        #newWaveMWB.sort_index(inplace=True)
         #print(np.mean(newWaveMWB["SF_12"]))
-        # Draw individuals next states randomly from this distribution.
+
         # Update population with new income
         self.population_view.update(newWaveMWB['SF_12'])
 
@@ -433,9 +428,8 @@ class geeYJMWB(Base):
         Returns
         -------
         """
-        if self.year != 2020:
-            self.update_history_dataframe(pop, self.year)
-        self.history_data["SF_12"] = self.max_sf12 - self.history_data["SF_12"]
-        out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model, self.rpy2_modules, self.history_data, 'SF_12', 0.75)#0.75
-        self.history_data["SF_12"] = self.max_sf12 - self.history_data["SF_12"]
-        return self.max_sf12 - out_data.iloc[self.history_data.loc[self.history_data['time']==self.year].index]
+        self.update_history_dataframe(pop, self.year)
+        self.history_data["SF_12"] = - self.history_data["SF_12"] # flip sign to negative to ensure
+        out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model, self.rpy2_modules, self.history_data, 'SF_12', 0.2)#0.5
+        self.history_data["SF_12"] = - self.history_data["SF_12"]
+        return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]

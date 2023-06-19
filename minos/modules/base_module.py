@@ -94,7 +94,7 @@ class Base():
         """ Generate Gaussian noise for continuous variables in MINOS
         Parameters
         ----------
-        n: int
+        index: pandas.Index
             How many observations to generate. should match number of rows from minos dataframe
         mu, sigma: float
             Mean and standard deviation of desired Gaussian data. Defaults to 0 and 1 (I.E. the standard Normal distribution).
