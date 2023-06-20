@@ -46,7 +46,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'stock_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
 #out.path <- 'Minos/output/SIPHER7/'
@@ -144,11 +144,40 @@ raw.meanAge <- raw %>%
   summarise(age = mean(age))
 
 ggplot(data = raw.meanAge, aes(x = education_state, y = age)) +
-  geom_col()
+  geom_col() +
+  geom_text(aes(label = format(round(age, 2), nsmall = 2)), vjust = -0.5)
 
 ggsave(filename = 'mean_age_achieved_educ.png',
        path = save.path)
 
+```
+
+## Summary stats by educ_state
+
+```{r}
+raw.by.educ <- raw.dat %>%
+  group_by(education_state) %>%
+  summarise(hh_income = mean(hh_income, na.rm = TRUE),
+            SF12 = mean(SF_12, na.rm = TRUE))
+
+raw.by.educ$education_state <- as.factor(raw.by.educ$education_state)
+
+ggplot(raw.by.educ, aes(x = education_state, y = hh_income)) +
+  geom_col()
+
+ggplot(raw.by.educ, aes(x = education_state, y = SF12)) +
+  geom_col()
+```
+
+## Max Education Predictions
+
+```{r}
+raw.maxEduc <- raw.dat %>%
+  dplyr::filter(age < 31) %>%
+  dplyr::select(pidp, time, age, education_state, max_educ, S7_labour_state)
+
+raw.maxEducDiff <- raw.maxEduc %>%
+  dplyr::filter(max_educ != education_state)
 ```
 
 
@@ -274,6 +303,9 @@ base.s <- base.dat %>%
   select(pidp, age, time, education_state)
 
 spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(raw.s, 'education_state',
+               save = FALSE)
 
 spaghetti_plot(spag, 'education_state',
                save = TRUE,
