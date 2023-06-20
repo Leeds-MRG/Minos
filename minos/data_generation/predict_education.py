@@ -16,7 +16,7 @@ import US_utils
 from minos.modules import r_utils
 
 
-def predict_education(data, transition_dir):
+def predict_education(data, transition_dir, predict_yr):
     """
     This function predicts the highest level of education that will be attained by simulants in the model.
     There are 2 steps to this process:
@@ -36,18 +36,27 @@ def predict_education(data, transition_dir):
     """
     print("Predicting max education level for replenishing populations...")
 
-    # TODO: Find a way to NOT hardcode this. Probably with some Makefile variable.
-    start_year = 2020
+    # Set min and max ages for prediction. Max age to transition into an education level is 30, so stop predicting as 29
+    age_min = 16
+    age_max = 29
 
-    print(f"Start year in predict_education is set to {start_year}.")
+    print(f"Start year in predict_education is set to {predict_yr}.")
+
+    #dat_predict = data[data['time'] == predict_yr]
+    dat_predict = data.sort_values(['pidp', 'time']).groupby('pidp').tail(1)
+    #dat_predict = data.loc[data.groupby('pidp')['max_educ'].idxmax()]
+
+    # get the last record for each individual
+    #dat_predict = data.sort_values(['pidp', 'time']).groupby(['pidp']).last()
+    # also get the pidp's of all predicted individuals so we know who to replace at the end
+    predicted_pidps = dat_predict['pidp']
 
     # Doing max_educ prediction here.
     # Using the transition model in transition_dir
-    # We will only do prediction for 16-25 YO's in the kick off year, as educ states will change a lot so makes more sense
-    # to do a single snapshot
+    # We will only do prediction for 16-30 YO's in the kick off year, as educ states can only change within these ages
 
     # get the 16-25 year olds in 2020 (current kick off year)
-    dat_youth = data[(data['time'] == start_year) & (data['age'] > 15) & (data['age'] < 26)].reset_index()
+    dat_youth = dat_predict[(dat_predict['age'] >= age_min) & (dat_predict['age'] <= age_max)].reset_index()
 
     # generate list of columns for prediction output (no educ==4 in Understanding Society)
     cols = ['0', '1', '2', '3', '5', '6', '7']
@@ -72,21 +81,51 @@ def predict_education(data, transition_dir):
     dat_youth['max_educ'] = dat_youth['max_educ'].astype(int)
     dat_youth['max_educ'][dat_youth['education_state'] > dat_youth['max_educ']] = dat_youth['education_state']
 
-    dat_youth = dat_youth[['pidp', 'time', 'education_state', 'max_educ']]
+    # dat_youth = dat_youth[['pidp', 'time', 'education_state', 'max_educ']]
+    dat_youth = dat_youth[['pidp', 'education_state', 'max_educ']]
 
     # Finally merge dat_youth back onto data
-    data = data.merge(dat_youth, on=['pidp', 'time'], how='left')
+    # data = data.merge(dat_youth, on=['pidp', 'time'], how='left', suffixes=('_data', '_youth'))
+    dat_predict = dat_predict.merge(dat_youth, on=['pidp'], how='left', suffixes=('_data', '_youth'))
     # handle duplicated columns
-    data['education_state'] = -9
-    data['education_state'][data['time'] != start_year] = data['education_state_x']
-    data['education_state'][data['time'] == start_year] = data['education_state_y']
-    data['max_educ'] = -9
-    data['max_educ'][data['time'] != start_year] = data['max_educ_x']
-    data['max_educ'][data['time'] == start_year] = data['max_educ_y']
+    dat_predict['education_state'] = -9
+    dat_predict['education_state'][dat_predict['age'] > age_max] = dat_predict['education_state_data']
+    dat_predict['education_state'][dat_predict['age'] <= age_max] = dat_predict['education_state_youth']
+    dat_predict['max_educ'] = -9
+    dat_predict['max_educ'][dat_predict['age'] > age_max] = dat_predict['max_educ_data']
+    dat_predict['max_educ'][dat_predict['age'] <= age_max] = dat_predict['max_educ_youth']
 
-    data.drop(labels=['education_state_x', 'education_state_y', 'max_educ_x', 'max_educ_y'],
+    dat_predict.drop(labels=['education_state_data', 'education_state_youth', 'max_educ_data', 'max_educ_youth'],
               axis=1,
               inplace=True)
+
+    # set people back to FT education if max_educ > education_state (i.e. haven't yet reached highest qualification)
+    dat_predict['S7_labour_state'][dat_predict['max_educ'] > dat_predict['education_state']] = 'FT Education'
+
+    # final step is to attach dat_predict back to data (replace the max_educ column essentially) and backward fill
+    # within pidp groups
+    dat_predict = dat_predict[['pidp', 'time', 'max_educ']]
+    data = data.merge(dat_predict, on=['pidp', 'time'], how='left')
+    # Now replace all
+    data['max_educ'] = np.nan
+    #data['max_educ'][[data['pidp'] not in predicted_pidps]] = data['max_educ_x']
+    #data['max_educ'][[data['pidp'] in predicted_pidps]] = data['max_educ_y']
+
+    data['max_educ'][~data['pidp'].isin(predicted_pidps)] = data['max_educ_x']
+    data['max_educ'][data['pidp'].isin(predicted_pidps)] = data['max_educ_y']
+
+
+
+
+    #data['max_educ'][data['time'] != predict_yr] = data['max_educ_x']
+    #data['max_educ'][data['time'] == predict_yr] = data['max_educ_y']
+    #data[data.sort_values(['pidp', 'time']).groupby('pidp').tail(1)] = data['max_educ_y']
+    #data.loc[data.groupby('pidp').max_educ.idxmax()] = data['max_educ_y']
+
+    # now groupby and bfill max_educ
+    #data['max_educ'] = data[['pidp', 'max_educ']].groupby(by=["pidp"], sort=False, as_index=False).bfill()
+    data.sort_values('time', inplace=True)
+    data['max_educ'] = data.groupby(by=['pidp'], sort=False)['max_educ'].bfill()
 
     return data
 
@@ -108,13 +147,20 @@ def main(cross_validation):
     file_names = [f"data/{source}/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
+    # first collect and load the datafile for 2020
+    # file_name = f"data/{source}/2020_US_cohort.csv"
+    # data = pd.read_csv(file_name)
+
     # Needs a max_educ column despite it not being important for the majority of people
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
 
-    data = predict_education(data, transition_dir)
+    data = predict_education(data, transition_dir, predict_yr=maxyr-1)
 
     US_utils.save_multiple_files(data, years, f"data/{out_dir}/", "")
+
+    #US_utils.check_output_dir(out_dir)
+    #data.to_csv(f'data/{out_dir}/2020_US_cohort.csv', index=False)
 
 
 if __name__ == '__main__':
