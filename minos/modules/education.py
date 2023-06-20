@@ -105,7 +105,7 @@ class Education(Base):
 
         # Level 1 is equivalent to GCSEs with grades 3,2,1 (D,E,F,G)
         level1 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 17 and S7_labour_state=='FT Education' and max_educ == 1")
+                                          query="alive=='alive' and age >= 17 and S7_labour_state=='FT Education' and max_educ == 1")
         # Update education state and apply back to population view
         level1['education_state'][level1['education_state'] < 1] = 1
         self.population_view.update(level1['education_state'])
@@ -113,32 +113,32 @@ class Education(Base):
         # Level 2 is equivalent to GCSEs with grades 9,8,7,6,5,4 (A*,A,B,C)
         # No need to test max_educ for this one, everyone stays in education to 16 now minimum
         level2 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 17 and S7_labour_state=='FT Education' and max_educ >= 2")
+                                          query="alive=='alive' and age >= 17 and S7_labour_state=='FT Education' and max_educ >= 2")
         # Update education state and apply back to population view
         level2['education_state'][level2['education_state'] < 2] = 2
         self.population_view.update(level2['education_state'])
 
         # Level 3 is equivalent to A-level, so make this change by age 19 if max_educ is 3 or larger
         level3 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 19 and S7_labour_state=='FT Education' and max_educ >= 3")
+                                          query="alive=='alive' and age >= 19 and S7_labour_state=='FT Education' and max_educ >= 3")
         level3['education_state'][level3['education_state'] < 3] = 3
         self.population_view.update(level3['education_state'])
 
         # Level 6 is 1st degree or teaching qual (not PGCE), so make this change by age 26 if max_educ is 6 or larger
         level6 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 27 and S7_labour_state=='FT Education' and max_educ >= 6")
+                                          query="alive=='alive' and age >= 27 and S7_labour_state=='FT Education' and max_educ >= 6")
         level6['education_state'][level6['education_state'] < 6] = 6
         self.population_view.update(level6['education_state'])
 
         # Level 5 is nursing/medical and HE diploma, so make this change by age 30 if max_educ is 5
         level5 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 30 and S7_labour_state=='FT Education' and max_educ == 5")
+                                          query="alive=='alive' and age >= 30 and S7_labour_state=='FT Education' and max_educ == 5")
         level5['education_state'][level5['education_state'] < 5] = 5
         self.population_view.update(level5['education_state'])
 
         # Level 7 is higher degree (masters/PhD), so make this change by age 30 if max_educ is 7
         level7 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 30 and S7_labour_state=='FT Education' and max_educ == 7")
+                                          query="alive=='alive' and age >= 30 and S7_labour_state=='FT Education' and max_educ == 7")
         level7['education_state'][level7['education_state'] < 7] = 7
         self.population_view.update(level7['education_state'])
 
