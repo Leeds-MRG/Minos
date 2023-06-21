@@ -29,7 +29,7 @@ $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds: $(FINALD
 $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
 
-$(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
+$(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --cross_validation
 
 $(TRANSITION_DATA):
