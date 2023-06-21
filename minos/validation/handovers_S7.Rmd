@@ -133,9 +133,9 @@ base.inc <- base.dat %>%
 
 income.spag <- rbind(raw.inc, base.inc)
 
-spaghetti_plot(income.spag, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(income.spag, 'hh_income',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
 ```
@@ -225,11 +225,11 @@ base.ei <- base.dat %>%
 
 ei.spag <- rbind(raw.ei, base.ei)
 
-spaghetti_plot(base.ei, 'equivalent_income')
+#spaghetti_plot(base.ei, 'equivalent_income')
 
-spaghetti_plot(ei.spag, 'equivalent_income',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(ei.spag, 'equivalent_income',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.ei, base.ei, ei.spag)
 ```
@@ -294,9 +294,9 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'S7_housing_quality',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(spag, 'S7_housing_quality',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
@@ -359,9 +359,9 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'S7_neighbourhood_safety',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(spag, 'S7_neighbourhood_safety',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
@@ -492,9 +492,9 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'S7_physical_health',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(spag, 'S7_physical_health',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
@@ -559,9 +559,9 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'S7_mental_health',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(spag, 'S7_mental_health',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
@@ -626,9 +626,9 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'loneliness',
-               save = shall.we.save,
-               save.path = save.path)
+#spaghetti_plot(spag, 'loneliness',
+#               save = shall.we.save,
+#               save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```

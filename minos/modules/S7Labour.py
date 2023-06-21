@@ -88,13 +88,19 @@ class S7Labour(Base):
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
+        self.year = event.time.year
+
         #TODO: Handle students properly now that max education is predicted.
         # Separate the population into current students and everyone else. Then see if students max_educ is larger than
         # current education_state, if yes maintain student, if no predict new labour_state
 
+        # Treat retirement as deterministic. For ages 65+, set all to not working
+        retired_pop = self.population_view.get(event.index, query="alive=='alive' and age>=65")
+        retired_pop['S7_labour_state'] = 'Not Working'
+        self.population_view.update(retired_pop['S7_labour_state'])
+
         #pop = self.population_view.get(event.index, query="alive=='alive'")
-        pop = self.population_view.get(event.index, query="alive=='alive' & education_state!=max_educ")
-        self.year = event.time.year
+        pop = self.population_view.get(event.index, query="alive=='alive' and age<65 and education_state!=max_educ")
 
         labour_prob_df = self.calculate_labour(pop)
 

@@ -104,7 +104,7 @@ class Education(Base):
         #   but that would be very complex to implement.
 
         # First make sure those who are not at max_educ are still in education in S7_labour_state
-        pop = self.population_view.get(event.index, query="alive=='alive' & education_state!=max_educ")
+        pop = self.population_view.get(event.index, query="alive=='alive' and education_state!=max_educ")
         pop['S7_labour_state'] = 'FT Education'
 
         # Level 1 is equivalent to GCSEs with grades 3,2,1 (D,E,F,G)
@@ -130,7 +130,7 @@ class Education(Base):
 
         # Level 6 is 1st degree or teaching qual (not PGCE), so make this change by age 26 if max_educ is 6 or larger
         level6 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age >= 27 and S7_labour_state=='FT Education' and max_educ >= 6")
+                                          query="alive=='alive' and age >= 26 and S7_labour_state=='FT Education' and max_educ >= 6")
         level6['education_state'][level6['education_state'] < 6] = 6
         self.population_view.update(level6['education_state'])
 

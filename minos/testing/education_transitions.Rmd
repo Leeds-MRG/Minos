@@ -9,14 +9,14 @@ The issue with this is to handle the move from deterministic transitions to the 
 
 Tasks:
 
-- [ ] Check what age people achieve each level of education
-- [ ] Average age plot (see if change over time in raw)
-  - [ ] Histograms
+- [x] Check what age people achieve each level of education
+  - [x] Average age plot (see if change over time in raw)
+  - [x] Histograms
   - [ ] Animated histograms?
 - [ ] Force labour_state to FT education until max_educ has been reached (this might already have been done)
 - [ ] Change labour_state prediction to only run for those who have reached max_educ
 - [ ] Check how many people move into FT education after age of 30
-- [ ] Make sure stock population is doing max_educ prediction
+- [x] Make sure stock population is doing max_educ prediction
 
 IF all the above goes well, add S7_labour_state variable into the default income -> SF12 experiment, so we can use the same education functionality in there also. Plus labour_state is an important variable there that is currently missing.
 
@@ -135,7 +135,7 @@ ggsave(filename = 'education_state_overlaid.png',
   
 ```
 
-Mean ages.
+## Mean ages
 
 ```{r}
 
@@ -168,6 +168,22 @@ ggplot(raw.by.educ, aes(x = education_state, y = hh_income)) +
 ggplot(raw.by.educ, aes(x = education_state, y = SF12)) +
   geom_col()
 ```
+
+## Transition into FT Education
+
+How many people transition into full time education? How many do this after the age of 30?
+
+```{r}
+raw.eductrans <- raw.dat %>%
+  select(pidp, time, age, education_state, max_educ, S7_labour_state) %>%
+  mutate(backInEduc = (S7_labour_state == 'FT Education') & (lag(S7_labour_state, order_by = time) != 'FT Education')) %>%
+  filter(backInEduc == TRUE)
+
+ggplot(raw.eductrans, aes(x = age)) +
+  geom_histogram() +
+  labs(title = 'Age came back to FT Education')
+```
+
 
 ## Max Education Predictions
 
@@ -244,6 +260,33 @@ spaghetti_plot(spag, 'S7_labour_state',
 
 rm(raw.s, base.s, spag)
 ```
+
+## Retirement
+
+Test that retirement is working as planned. Make sure that all 65+ are in the not working category in outputs.
+
+```{r}
+retired <- base.dat %>%
+  select(pidp, time, age, S7_labour_state) %>%
+  filter(age >= 65) %>%
+  group_by(S7_labour_state) %>%
+  count()
+
+ggplot(retired, aes(x = S7_labour_state, y = n)) +
+  geom_col()
+
+retired.by.ageGroup <- base.dat %>%
+  select(pidp, time, age, S7_labour_state) %>%
+  filter(age >= 65) %>%
+  mutate(age.group = cut(age, breaks = 0,65,70,75,80,85,90,120)) %>%
+  group_by(age.group, S7_labour_state) %>%
+  count()
+
+#ggplot(retired, aes(x = S7_labour_state, y = n)) +
+#  geom_col()
+
+```
+
 
 # Education
 
