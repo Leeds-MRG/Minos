@@ -175,6 +175,7 @@ def patch(module, modification_function=replace_text, *args, **kwargs):
 
 
 # HR 26/05/23 To dump some population data for fertility/parity development testing
+# Grabs population at runtime, currently in block in add_new_birth_cohorts.nkidsFertilityAgeSpecificRates.on_time_step
 def dump_parity(pop,
                 year,
                 outpath=OUTPATH_DEFAULT,
@@ -785,18 +786,11 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     # Return series of zeroes if either of the last two entries is zero:
     # 1. If last entry, then obvs later ones will be zero
     # 2. If second to last entry, then r will be positive -> not desired; also most likely when numbers are very small
-    if series_in[-1] in [0, 0.0] or series_in[-2] in [0, 0.0]:
+    # if series_in[-1] in [0, 0.0] or series_in[-2] in [0, 0.0]:
+    if series_in[-1] <= 0.0 or series_in[-2] <= 0.0:
         series_out = series_in
         series_out.extend([0] * (n - 1))
         r = 0
-
-        # if reverse:
-        #     series_out = series_out[::-1]
-        #
-        # if return_r:
-        #     return series_out, 0
-        # else:
-        #     return series_out
 
     else:
         # Main functionality, assuming data are good (i.e. no zeroes in last two entries)
