@@ -103,6 +103,10 @@ class Education(Base):
         #   not realistic. I think these individuals would most likely have some time in employment between these ages
         #   but that would be very complex to implement.
 
+        # First make sure those who are not at max_educ are still in education in S7_labour_state
+        pop = self.population_view.get(event.index, query="alive=='alive' & education_state!=max_educ")
+        pop['S7_labour_state'] = 'FT Education'
+
         # Level 1 is equivalent to GCSEs with grades 3,2,1 (D,E,F,G)
         level1 = self.population_view.get(event.index,
                                           query="alive=='alive' and age >= 17 and S7_labour_state=='FT Education' and max_educ == 1")

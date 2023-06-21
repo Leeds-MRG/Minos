@@ -93,7 +93,7 @@ class S7Labour(Base):
         # current education_state, if yes maintain student, if no predict new labour_state
 
         #pop = self.population_view.get(event.index, query="alive=='alive'")
-        pop = self.population_view.get(event.index, query="alive=='alive'")
+        pop = self.population_view.get(event.index, query="alive=='alive' & education_state!=max_educ")
         self.year = event.time.year
 
         labour_prob_df = self.calculate_labour(pop)
@@ -102,7 +102,6 @@ class S7Labour(Base):
         labour_prob_df.index = labour_prob_df.index.astype(int)
 
         self.population_view.update(labour_prob_df["S7_labour_state"])
-
 
     def calculate_labour(self, pop):
         """Calculate labour transition distribution based on provided people/indices.

@@ -42,12 +42,8 @@ def predict_education(data, transition_dir, predict_yr):
 
     print(f"Start year in predict_education is set to {predict_yr}.")
 
-    #dat_predict = data[data['time'] == predict_yr]
-    dat_predict = data.sort_values(['pidp', 'time']).groupby('pidp').tail(1)
-    #dat_predict = data.loc[data.groupby('pidp')['max_educ'].idxmax()]
-
     # get the last record for each individual
-    #dat_predict = data.sort_values(['pidp', 'time']).groupby(['pidp']).last()
+    dat_predict = data.sort_values(['pidp', 'time']).groupby('pidp').tail(1)
     # also get the pidp's of all predicted individuals so we know who to replace at the end
     predicted_pidps = dat_predict['pidp']
 
@@ -81,11 +77,9 @@ def predict_education(data, transition_dir, predict_yr):
     dat_youth['max_educ'] = dat_youth['max_educ'].astype(int)
     dat_youth['max_educ'][dat_youth['education_state'] > dat_youth['max_educ']] = dat_youth['education_state']
 
-    # dat_youth = dat_youth[['pidp', 'time', 'education_state', 'max_educ']]
     dat_youth = dat_youth[['pidp', 'education_state', 'max_educ']]
 
-    # Finally merge dat_youth back onto data
-    # data = data.merge(dat_youth, on=['pidp', 'time'], how='left', suffixes=('_data', '_youth'))
+    # Finally merge back onto data
     dat_predict = dat_predict.merge(dat_youth, on=['pidp'], how='left', suffixes=('_data', '_youth'))
     # handle duplicated columns
     dat_predict['education_state'] = -9
@@ -108,24 +102,17 @@ def predict_education(data, transition_dir, predict_yr):
     data = data.merge(dat_predict, on=['pidp', 'time'], how='left')
     # Now replace all
     data['max_educ'] = np.nan
-    #data['max_educ'][[data['pidp'] not in predicted_pidps]] = data['max_educ_x']
-    #data['max_educ'][[data['pidp'] in predicted_pidps]] = data['max_educ_y']
-
     data['max_educ'][~data['pidp'].isin(predicted_pidps)] = data['max_educ_x']
     data['max_educ'][data['pidp'].isin(predicted_pidps)] = data['max_educ_y']
-
-
-
-
-    #data['max_educ'][data['time'] != predict_yr] = data['max_educ_x']
-    #data['max_educ'][data['time'] == predict_yr] = data['max_educ_y']
-    #data[data.sort_values(['pidp', 'time']).groupby('pidp').tail(1)] = data['max_educ_y']
-    #data.loc[data.groupby('pidp').max_educ.idxmax()] = data['max_educ_y']
 
     # now groupby and bfill max_educ
     #data['max_educ'] = data[['pidp', 'max_educ']].groupby(by=["pidp"], sort=False, as_index=False).bfill()
     data.sort_values('time', inplace=True)
     data['max_educ'] = data.groupby(by=['pidp'], sort=False)['max_educ'].bfill()
+
+    data.drop(labels=['max_educ_x', 'max_educ_y'],
+              axis=1,
+              inplace=True)
 
     return data
 
