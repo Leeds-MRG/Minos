@@ -42,9 +42,6 @@ baseline: setup
 baseline_default: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config
 
-fertility_testing: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/fertility_default.yaml -o default_config -i 'hhIncomeIntervention'
-
 intervention_livingWage_default: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'livingWageIntervention'
 
