@@ -100,14 +100,23 @@ class S7Labour(Base):
         self.population_view.update(retired_pop['S7_labour_state'])
 
         #pop = self.population_view.get(event.index, query="alive=='alive'")
-        pop = self.population_view.get(event.index, query="alive=='alive' and age<65 and education_state!=max_educ")
+        pop = self.population_view.get(event.index, query="alive=='alive' and age<65 and education_state==max_educ")
 
         labour_prob_df = self.calculate_labour(pop)
 
-        labour_prob_df["S7_labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
+        labour_prob_df["S7_labour_state_choice"] = self.random.choice(labour_prob_df.index,
+                                                               list(labour_prob_df.columns),
+                                                               labour_prob_df)
         labour_prob_df.index = labour_prob_df.index.astype(int)
 
-        self.population_view.update(labour_prob_df["S7_labour_state"])
+        # We want to set anyone over age 30 from FT education to FT employment
+        # to do this we need to concat the labour_prob_df back to pop and change some things
+        pop2 = pd.concat([pop.reset_index(drop=True), labour_prob_df], axis=1)
+        pop2['S7_labour_state'] = pop2['S7_labour_state_choice']
+        pop2['S7_labour_state'][(pop2['education_state'] == pop2['max_educ']) &
+                                (pop2['S7_labour_state'] == 'FT Education')] = 'FT Employed'
+
+        self.population_view.update(pop2["S7_labour_state"])
 
     def calculate_labour(self, pop):
         """Calculate labour transition distribution based on provided people/indices.
