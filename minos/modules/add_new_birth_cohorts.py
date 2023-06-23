@@ -251,13 +251,13 @@ class nkidsFertilityAgeSpecificRates(Base):
         # Load in birth rate lookup table data and build lookup table.
         age_specific_fertility_rate = builder.data.load("covariate.age_specific_fertility_rate.estimate")
         fertility_rate = builder.lookup.build_table(age_specific_fertility_rate,
-                                                    key_columns=['sex', 'region', 'ethnicity'],
+                                                    key_columns=['sex', 'region', 'ethnicity', 'nkids'],
                                                     parameter_columns=['age', 'year'])
         # Register rate producer for birth rates by
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity'])
+                                                                   requires_columns=['sex', 'ethnicity', 'nkids'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
@@ -319,14 +319,14 @@ class nkidsFertilityAgeSpecificRates(Base):
         # dump_parity(pop=population, year=y)
 
 
-    @staticmethod
-    def load_age_specific_fertility_rate_data(builder):
-        """I have no idea what this is. loads in rate table taking subset for women and specific columns.
-        I think its been deprecated by the Ratetables.FertilityRateTable file."""
-        asfr_data = builder.data.load("covariate.age_specific_fertility_rate.estimate")
-        columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
-        asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
-        return asfr_data
+    # @staticmethod
+    # def load_age_specific_fertility_rate_data(builder):
+    #     """I have no idea what this is. loads in rate table taking subset for women and specific columns.
+    #     I think its been deprecated by the Ratetables.FertilityRateTable file."""
+    #     asfr_data = builder.data.load("covariate.age_specific_fertility_rate.estimate")
+    #     columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
+    #     asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
+    #     return asfr_data
 
 
     @property
