@@ -319,14 +319,14 @@ class nkidsFertilityAgeSpecificRates(Base):
         # dump_parity(pop=population, year=y)
 
 
-    # @staticmethod
-    # def load_age_specific_fertility_rate_data(builder):
-    #     """I have no idea what this is. loads in rate table taking subset for women and specific columns.
-    #     I think its been deprecated by the Ratetables.FertilityRateTable file."""
-    #     asfr_data = builder.data.load("covariate.age_specific_fertility_rate.estimate")
-    #     columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
-    #     asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
-    #     return asfr_data
+    @staticmethod
+    def load_age_specific_fertility_rate_data(builder):
+        """I have no idea what this is. loads in rate table taking subset for women and specific columns.
+        I think its been deprecated by the Ratetables.FertilityRateTable file."""
+        asfr_data = builder.data.load("covariate.age_specific_fertility_rate.estimate")
+        columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
+        asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
+        return asfr_data
 
 
     @property
