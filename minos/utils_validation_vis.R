@@ -3,6 +3,7 @@
 require(ggplot2)
 require(ggExtra)
 require(here)
+require(scales)
 
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
@@ -127,13 +128,33 @@ marg_dist_densigram_plot_oneyear <- function(observed,
   # combine before we plot
   combined <- merge(o.end, p.end, by = 'pidp')
   
-  p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
-    geom_point(alpha = 0.6, size=0.1) +
-    geom_smooth() +
-    geom_abline(intercept = 0, scale=1) +
-    stat_ellipse(color = 'red') +
-    theme(legend.position = c(0.15, 0.9)) +
-    labs(title = paste0(var, ' - ', target.year))
+  if (var == 'hh_income') {
+    # do inverse hyperbolic sine transformation for hh_income
+    asinh_trans <- scales::trans_new(
+      "inverse_hyperbolic_sine",
+      transform = function(x) {asinh(x)},
+      inverse = function(x) {sinh(x)}
+    )
+    
+    p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
+      geom_point(alpha = 0.6, size=0.1) +
+      geom_smooth() +
+      scale_y_continuous(trans=asinh_trans) +
+      scale_x_continuous(trans=asinh_trans) +
+      geom_abline(intercept = 0, scale=1) +
+      stat_ellipse(color = 'red') +
+      theme(legend.position = c(0.15, 0.9)) +
+      labs(title = paste0(var, ' - ', target.year))
+  } else {
+    # no transformation for other vars
+    p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
+      geom_point(alpha = 0.6, size=0.1) +
+      geom_smooth() +
+      geom_abline(intercept = 0, scale=1) +
+      stat_ellipse(color = 'red') +
+      theme(legend.position = c(0.15, 0.9)) +
+      labs(title = paste0(var, ' - ', target.year))
+  }
   
   p1 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
   

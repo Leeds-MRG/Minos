@@ -18,6 +18,7 @@ The results of the simulation will now be compared to the simulation dataset to 
 require(tidyverse)
 require(ggplot2)
 require(here)
+require(scales)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -100,8 +101,6 @@ compare_boxplot_long(pivoted.df = income.pivoted,
 
 Going to produce some comparison plots for snapshots throughout the simulation. 
 
-NOTE: LOG SCALE!
-
 ```{r}
 snap.timelist <- c(2014, 2016, 2018, 2020)
 
@@ -118,11 +117,21 @@ raw.snap <- raw %>%
 snap <- merge(cv.snap, raw.snap,
                    by = c('pidp', 'time'))
 
+asinh_trans <- scales::trans_new(
+  "inverse_hyperbolic_sine",
+  transform = function(x) {asinh(x)},
+  inverse = function(x) {sinh(x)}
+)
+
 ggplot(snap, aes(x = observed, y = predicted)) +
   geom_point() +
+  scale_y_continuous(trans=asinh_trans) +
+  scale_x_continuous(trans=asinh_trans) +
   geom_abline(slope=1, intercept=0) +
+  stat_ellipse(color='red') +
   facet_wrap(~time) +
-  labs(title = 'hh_income observed vs predicted')
+  labs(title = 'hh_income observed vs predicted',
+       subtitle = 'inverse hyperbolic sine transformation')
 
 rm(snap.timelist, cv.snap, raw.snap, snap)
 ```
@@ -232,31 +241,11 @@ snap <- merge(cv.snap, raw.snap,
                    by = c('pidp', 'time'))
 snap$time <- as.factor(snap$time)
 
-ggplot(filter(snap, time == 2014), aes(x = observed, y = predicted)) +
-  geom_point() +
-  geom_abline(slope=1, intercept=0) +
-  stat_ellipse(color='green') +
-  labs(title = 'SF_12 : 2014')
-
-ggplot(filter(snap, time == 2016), aes(x = observed, y = predicted)) +
-  geom_point() +
-  geom_abline(slope=1, intercept=0) +
-  stat_ellipse(color='green') +
-  labs(title = 'SF_12 : 2016')
-
-ggplot(filter(snap, time == 2018), aes(x = observed, y = predicted)) +
-  geom_point() +
-  geom_abline(slope=1, intercept=0) +
-  labs(title = 'SF_12 : 2018')
-
-ggplot(filter(snap, time == 2020), aes(x = observed, y = predicted)) +
-  geom_point() +
-  geom_abline(slope=1, intercept=0) +
-  labs(title = 'SF_12 : 2020')
-
-ggplot(snap, aes(x = observed, y = predicted, group = time, color = time, shape = time)) +
+ggplot(snap, aes(x = observed, y = predicted, group = time)) +
   geom_point(size = 1) +
   geom_abline(slope=1, intercept=0) +
+  stat_ellipse(color='red') +
+  facet_wrap(~time) +
   labs(title = 'SF_12')
 
 rm(snap.timelist, cv.snap, raw.snap, snap)
