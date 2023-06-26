@@ -172,16 +172,22 @@ def generate_stock(projections, cross_validation):
         all_pidp = pd.Series(data['pidp'].unique())
         #trans_samp = all_pidp.sample(frac=0.5, random_state=1)  # random_state is for seeding and reproducibility
 
-        # Shuffle the pidps randomly and split in half
+        # Shuffle the pidps randomly and split into 5 chunks
         shuffled = all_pidp.sample(frac=1, random_state=1)
-        split = np.array_split(shuffled, 2)
+        split = np.array_split(shuffled, 5)
 
         # Now create separate transition and simulation datasets and save them in subfolders of final_US
-        trans = data[data['pidp'].isin(split[0])]
-        simul = data[data['pidp'].isin(split[1])]
+        bat1 = data[data['pidp'].isin(split[0])]
+        bat2 = data[data['pidp'].isin(split[1])]
+        bat3 = data[data['pidp'].isin(split[2])]
+        bat4 = data[data['pidp'].isin(split[3])]
+        bat5 = data[data['pidp'].isin(split[4])]
 
-        US_utils.save_multiple_files(trans, years, "data/final_US/cross_validation/transition/", "")
-        US_utils.save_multiple_files(simul, years, "data/final_US/cross_validation/simulation/", "")
+        US_utils.save_multiple_files(bat1, years, "data/final_US/cross_validation/batch1/", "")
+        US_utils.save_multiple_files(bat2, years, "data/final_US/cross_validation/batch2/", "")
+        US_utils.save_multiple_files(bat3, years, "data/final_US/cross_validation/batch3/", "")
+        US_utils.save_multiple_files(bat4, years, "data/final_US/cross_validation/batch4/", "")
+        US_utils.save_multiple_files(bat5, years, "data/final_US/cross_validation/batch5/", "")
 
 
 def main():
