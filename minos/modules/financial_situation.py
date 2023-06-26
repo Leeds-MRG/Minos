@@ -1,14 +1,21 @@
-"""
-Module for nutrition in Minos.
-Calculation of weekly consumption of fruit and veg.
-"""
-
 import pandas as pd
-import minos.modules.r_utils as r_utils
+from pathlib import Path
+from minos.modules import r_utils
 from minos.modules.base_module import Base
 import logging
+from datetime import datetime as dt
 
-class Nutrition(Base):
+
+class financialSituation(Base):
+
+
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'financial_situation'
+
+    def __repr__(self):
+        return "financialSituation()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -16,7 +23,7 @@ class Nutrition(Base):
         Notes
         -----
         - Load in data from pre_setup
-        - Register any value producers/modifiers for tobacco
+        - Register any value producers/modifiers for income
         - Add required columns to population data frame
         - Update other required items such as randomness stream.
 
@@ -28,11 +35,12 @@ class Nutrition(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        # self.transition_model = builder.data.load("income_transition")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
-        #self.transition_coefficients = builder.
+        # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
@@ -46,16 +54,20 @@ class Nutrition(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income',
-                        'SF_12',
-                        'education_state',
-                        'S7_labour_state',
                         'job_sec',
+                        #'labour_state',
+                        'education_state',
+                        'SF_12',
+                        'housing_quality',
+                        'job_sector',
                         'hh_income',
-                        'alcohol_spending',
-                        'ncigs',
-                        'nutrition_quality']
-        #view_columns += self.transition_model.rx2('model').names
+                        'housing_tenure',
+                        'yearly_energy',
+                        'financial_situation',
+                        'marital_status',
+                        'hhsize'
+                        ]
+        # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -65,58 +77,32 @@ class Nutrition(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_time_step(self, event):
-        """Produces new children and updates parent status on time steps.
+        """ Predicts the hh_income for the next timestep.
 
         Parameters
         ----------
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
-        logging.info("NUTRITION QUALITY")
-
-        self.year = event.time.year
-
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        self.year = event.time.year
 
-        ## Predict next income value
-        newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
-        newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
-        # Set index type to int (instead of object as previous)
-        newWaveNutrition.index = (newWaveNutrition.index.astype(int))
-        #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
-
+        nextWaveFinancialPerception = self.calculate_financial_situation(pop)
+        nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
+                                                                list(nextWaveFinancialPerception.columns+1),
+                                                                nextWaveFinancialPerception).astype(float)
+        nextWaveFinancialPerception.index = pop.index
+        #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-        self.population_view.update(newWaveNutrition['nutrition_quality'])
+        # Update population with new income.
+        self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
-    def calculate_nutrition(self, pop):
-        """Calculate loneliness transition distribution based on provided people/indices.
-
-        Parameters
-        ----------
-            pop : pd.DataFrame
-                The population dataframe.
-        Returns
-        -------
-        """
-        #year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model,
-                                                      self.rpy2Modules,
-                                                      pop,
-                                                      'nutrition_quality')
-
-
-    # Special methods used by vivarium.
-    @property
-    def name(self):
-        return 'nutrition'
-
-
-    def __repr__(self):
-        return "Nutrition()"
+    def calculate_financial_situation(self, pop):
+        year = 2019
+        transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='financial_situation')
+        return nextWaveFinancialPerception

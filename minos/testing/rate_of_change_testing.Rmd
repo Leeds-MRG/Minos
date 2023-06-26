@@ -1,0 +1,505 @@
+---
+title: "Testing Rate of Change Transition models"
+output: html_notebook
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source('Minos/minos/utils_datain.R')
+source('Minos/minos/validation/utils.r')
+source('Minos/minos/utils_outcome_vis.R')
+source('Minos/minos/utils_validation_vis.R')
+```
+
+## Data
+
+```{r, include=FALSE}
+# Read raw datafiles in
+raw.files <- list.files('/home/luke/Documents/WORK/MINOS/Minos/data/final_US/', pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
+
+# read output and remove dead people
+out.path <- 'Minos/output/default_config/'
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+```
+
+The purpose of this notebook will be to test rate of change models for use in Minos. Early attempts at the rate of change models have been relatively successful, seeing vast improvements in the regression to the mean issue that has been a problem for a while. However, even with the new rate of change models we are seeing some regression to the mean (or something that looks like it at least), with those earning the highest amounts seeing massive decreases and those earning very little or negative values seeing larger increases. What I think we need to do, is to investigate the actual rate of change across different income groups, as well as fitting these models here and seeing what a prediction looks like where we can actually investigate it. We can also plot some handovers of the rate of change from raw US to baseline outputs.
+
+# Raw Data Analysis
+
+## hh_income
+
+First stop here will be to test the rate of change in raw understanding Society data across varying income levels.
+
+```{r}
+# difference between rows by group is more complicated than it sounds
+# see https://stackoverflow.com/questions/14846547/calculate-difference-between-values-in-consecutive-rows-by-group for info
+# appears dplyr::lag function could be the solution
+
+# Can we just remove the first year? Nobody has a difference for first year obvs
+
+raw <- raw.dat %>%
+  group_by(pidp) %>%
+  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time)) %>%
+  filter(time != 2009)
+
+print(mean(raw$diff.hh_income, na.rm=TRUE))
+print(sd(raw$diff.hh_income, na.rm=TRUE))
+
+raw.sum <- raw %>%
+  group_by(time) %>%
+  summarise(diff.mean = mean(diff.hh_income, na.rm=TRUE),
+            diff.sd = sd(diff.hh_income, na.rm=TRUE))
+
+#raw.sum$time <- as.factor(raw.sum$time)
+
+ggplot(data = raw.sum, aes(x = time, y = diff.mean)) +
+  geom_line()
+
+ggplot(data = raw.sum, aes(x = time, y = diff.sd)) +
+  geom_line()
+
+# Why wont this work with time as a factor?! Annoying!
+
+rm(raw.sum)
+```
+
+So that is the mean rate of change and sd for the whole population. Now to do the same by income quintile.
+
+QUESTION: Should I separate people into quintiles based on their average hh_income over all years? Or is it ok to stick with quintiles based on each year?
+We are fitting one yearly models still (which is what need to be investi), so the rate of change per quintile per year is still valid I think.
+
+### Yearly Quintile Assignment
+
+```{r}
+#raw.quintile <- raw %>%
+#  mutate(rank = rank(hh_income, ties.method = "first"),
+#         income.quint = cut(hh_income, breaks=quantile(rank, prob=c(0:5)/5, na.rm=TRUE), labels = c(1, 2, 3, 4, 5), include_lowest = TRUE))
+
+# This is a pain in the arse
+raw.quintile <- raw
+raw.quintile$quintile <- cut(raw.quintile$hh_income, breaks=quantile(raw.quintile$hh_income, prob=c(0:5)/5, na.rm=TRUE), labels = c(1, 2, 3, 4, 5), include_lowest = TRUE)
+# FINALLY
+
+raw.quintile.sum <- raw.quintile %>%
+  group_by(quintile) %>%
+  summarise(diff.mean = mean(diff.hh_income, na.rm=TRUE),
+            diff.sd = sd(diff.hh_income, na.rm=TRUE)) %>%
+  filter(!is.na(quintile))
+
+ggplot(data = raw.quintile.sum, aes(x = quintile, y = diff.mean, group=quintile, fill = quintile)) +
+  geom_col()
+
+ggplot(data = raw.quintile.sum, aes(x = quintile, y = diff.sd, group=quintile, fill = quintile)) +
+  geom_col()
+
+rm(raw.quintile.sum)
+```
+
+```{r}
+raw.quintile.sum.time <- raw.quintile %>%
+  group_by(quintile, time) %>%
+  summarise(diff.mean = mean(diff.hh_income, na.rm=TRUE),
+            diff.sd = sd(diff.hh_income, na.rm=TRUE)) %>%
+  filter(!is.na(quintile))
+
+ggplot(data = raw.quintile.sum.time, aes(x = time, y = diff.mean, group=quintile, color = quintile)) +
+  geom_line()
+
+ggplot(data = raw.quintile.sum.time, aes(x = time, y = diff.sd, group=quintile, color = quintile)) +
+  geom_line()
+
+rm(raw.quintile.sum.time)
+```
+
+### Whole Period Quintile Assignment
+
+NOW CATEGORISE BY HH_INCOME QUINTILE ACROSS THE WHOLE TIME PERIOD.
+
+```{r}
+# Group people into income quintiles based on their mean income across the whole period
+raw.time.quint <- raw %>%
+  group_by(pidp) %>%
+  summarise(hh_income = mean(hh_income, na.rm=TRUE)) %>%
+  mutate(income.quint = cut(hh_income, breaks = quantile(x = hh_income, prob = c(0:5)/5), labels = c(1:5), include.lowest = TRUE)) %>%
+  select(-hh_income)
+
+# Add the income quintiles to the original raw data
+raw.quint2 <- merge(raw, raw.time.quint, by='pidp')
+
+# Now sort the data by time 
+raw.quint2 <- raw.quint2 %>%
+  select(pidp, time, age, sex, education_state, hh_income, diff.hh_income, income.quint) %>%
+  group_by(pidp) %>%
+  arrange(time, .by_group = TRUE)
+
+#raw.quint2[order(raw.quint2$pidp, -raw.quint2$time), ]
+
+raw.quintile.sum2 <- raw.quint2 %>%
+  group_by(income.quint) %>%
+  summarise(diff.mean = mean(diff.hh_income, na.rm = TRUE),
+            diff.sd = sd(diff.hh_income, na.rm=TRUE))
+
+#raw.quintile.sum2 <- raw.quint2 %>%
+#  group_by(pidp) %>%
+#  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time)) %>%
+#  group_by(income.quint) %>%
+#  summarise(diff.mean = mean(diff.hh_income, na.rm=TRUE),
+#            diff.sd = sd(diff.hh_income, na.rm=TRUE)) %>%
+#  filter(!is.na(income.quint))
+
+ggplot(data = raw.quintile.sum2, aes(x = income.quint, y = diff.mean, group=income.quint, fill = income.quint)) +
+  geom_col()
+
+ggplot(data = raw.quintile.sum2, aes(x = income.quint, y = diff.sd, group=income.quint, fill = income.quint)) +
+  geom_col()
+
+rm(raw.time.quint, raw.quint2, raw.quintile.sum2)
+```
+
+## SF12
+
+```{r}
+
+diff_by_whole_period_quintile <- function(raw, var) {
+  # first calculate diffs 
+  raw <- raw %>%
+    filter(!is.na(.data[[var]])) %>%  # remove missing
+    filter(.data[[var]] >= 0) %>%  # remove negative missing codes
+    group_by(pidp) %>%
+    mutate(diff.var = .data[[var]] - lag(.data[[var]], order_by = time)) %>%
+    filter(time != 2009) # remove 2009 as we can't have a diff in the first year
+  
+  #return(raw)
+  
+  raw.time.quint <- raw %>%
+    group_by(pidp) %>%
+    summarise(var.mean = mean(.data[[var]], na.rm = TRUE)) %>%
+    mutate(var.quint = cut(var.mean, breaks = quantile(x = var.mean, prob = c(0:5)/5), labels = c(1:5), include.lowest = TRUE)) %>%
+    select(-var.mean)
+  
+  #return(raw.time.quint)
+  
+  raw.quint <- merge(raw, raw.time.quint, by = 'pidp')
+  
+  raw.quint <- raw.quint %>%
+    select(pidp, time, age, sex, education_state, hh_income, diff.var, var.quint) %>%
+    group_by(pidp) %>%
+    arrange(time, .by_group = TRUE)
+  
+  raw.quint.sum <- raw.quint %>%
+    group_by(var.quint) %>%
+    summarise(diff.mean = mean(diff.var, na.rm = TRUE),
+              diff.sd = sd(diff.var, na.rm = TRUE),
+              min = min(diff.var, na.rm = TRUE),
+              max = max(diff.var, na.rm = TRUE))
+  
+  p1 <-ggplot(data = raw.quint.sum, aes(x = var.quint, y = diff.mean, group=var.quint, fill = var.quint)) +
+    geom_col()
+
+  p2 <- ggplot(data = raw.quint.sum, aes(x = var.quint, y = diff.sd, group=var.quint, fill = var.quint)) +
+    geom_col()
+  
+  print(p1)
+  print(p2)
+  
+  return(raw.quint.sum)
+}
+
+SF_12.stats <- diff_by_whole_period_quintile(raw.dat, 'SF_12')
+```
+
+
+
+```{r}
+hh_income.stats <- diff_by_whole_period_quintile(raw.dat, 'hh_income')
+```
+
+```{r}
+diff_by_year1_quintile <- function(raw, var) {
+  # first calculate diffs 
+  raw <- raw %>%
+    filter(!is.na(.data[[var]])) %>%  # remove missing
+    filter(.data[[var]] >= 0) %>%  # remove negative missing codes
+    group_by(pidp) %>%
+    mutate(diff.var = .data[[var]] - lag(.data[[var]], order_by = time))
+  
+  #return(raw)
+  
+  raw.time.quint <- raw %>%
+    filter(time == 2009) %>%
+    mutate(varx = .data[[var]],
+           var.quint = cut(varx, breaks = unique(quantile(x = varx, prob = c(0:5)/5)), include.lowest = TRUE))# %>% , labels = c(1:5)
+    #select(-var.mean)
+  
+  return(raw.time.quint)
+  
+  raw.quint <- merge(raw, raw.time.quint, by = 'pidp')
+  
+  raw.quint <- raw.quint %>%
+    select(pidp, time, age, sex, education_state, hh_income, diff.var, var.quint) %>%
+    group_by(pidp) %>%
+    arrange(time, .by_group = TRUE)
+  
+  raw.quint.sum <- raw.quint %>%
+    group_by(var.quint) %>%
+    summarise(diff.mean = mean(diff.var, na.rm = TRUE),
+              diff.sd = sd(diff.var, na.rm = TRUE),
+              min = min(diff.var, na.rm = TRUE),
+              max = max(diff.var, na.rm = TRUE))
+  
+  p1 <-ggplot(data = raw.quint.sum, aes(x = var.quint, y = diff.mean, group=var.quint, fill = var.quint)) +
+    geom_col()
+
+  p2 <- ggplot(data = raw.quint.sum, aes(x = var.quint, y = diff.sd, group=var.quint, fill = var.quint)) +
+    geom_col()
+  
+  print(p1)
+  print(p2)
+  
+  return(raw.quint.sum)
+}
+
+#hh_income.stats.yr1 <- diff_by_year1_quintile(raw.dat, 'hh_income')
+```
+
+
+
+
+```{r}
+#test <- hh_income.stats.yr1
+
+#test2 <- test %>%
+#  filter(time == 2009)
+
+#print(sum(is.na(test2$hh_income)))
+#print(sum(test2$hh_income == -9))
+
+#print(min(test2$hh_income))
+#print(sum(test2$hh_income == 0))
+
+#ggplot(data = test2, aes(x = hh_income)) +
+#  geom_histogram()
+```
+
+# Spaghetti Plots
+
+## Data
+```{r}
+old.files <- list.files('/home/luke/Documents/WORK/MINOS/PREVIOUS_OUTPUTS/mean_regen_income_sf12/', pattern='[0-9]{4}.csv', full.names = TRUE)
+old.dat <- do.call(rbind, lapply(old.files, read.csv))
+# remove dead people
+old.dat <- old.dat %>%
+  filter(alive != 'dead')
+
+new.files <- list.files('/home/luke/Documents/WORK/MINOS/PREVIOUS_OUTPUTS/diff_income_sf12/', pattern='[0-9]{4}.csv', full.names = TRUE)
+new.dat <- do.call(rbind, lapply(new.files, read.csv))
+new.dat <- new.dat %>%
+  filter(alive != 'dead')
+```
+
+
+Final plot type we can use to investigate the rate of change models (or just trajectories in general) are Spaghetti plots (lovingly created an titled by Rob - more evidence as to why he was banned from naming things).
+
+These plots show trajectories of single variable for individuals over the length of simulation, and are very useful for making sure people are not just bouncing around the mean which would be impossible to see from mean or otherwise aggregated plots.
+
+## hh_income
+
+```{r}
+spaghetti_plot(old.dat, 'hh_income')
+spaghetti_plot(new.dat, 'hh_income')
+spaghetti_plot(raw.dat, 'hh_income')
+```
+
+Much more variability in the raw data that we don't keep hold of in the simulation. Also shows that the spike in 2015 is mostly due to about 5-6 data points by the looks of things. Again worth a chat with the group to figure out where our acceptable thresholds are, as we are unlikely to be able to capture all of the heterogeneity in such a varied and skewed variable like hh_income.
+
+Almost no change. The only noticeable change at this resolution is a small shift up? Where some people who were below the zero line previously seem to have shifted up, and there are some trajectories that have been seemingly raised out of the main group and lie slightly above the average spread. Need to figure out why this is still happening with a completely different set of models...
+
+Very useful plot! 
+
+## SF_12_MCS
+
+Quick look at SF_12_MCS also.
+
+```{r}
+spaghetti_plot(old.dat, 'SF_12')
+spaghetti_plot(new.dat, 'SF_12')
+spaghetti_plot(raw.dat, 'SF_12')
+```
+
+# Violin Plots
+
+## hh_income
+
+```{r}
+violin_plot(old.dat, 'hh_income')
+violin_plot(new.dat, 'hh_income')
+violin_plot(raw.dat, 'hh_income')
+```
+
+## SF12
+
+```{r}
+violin_plot(old.dat, 'SF_12')
+violin_plot(new.dat, 'SF_12')
+violin_plot(raw.dat, 'SF_12')
+```
+
+
+# Comparing SF12_MCS Diff
+
+```{r}
+cv.path <- 'Minos/data/final_US/cross_validation/simulation/'
+cv.outpath <- 'Minos/output/cross_validation/'
+
+raw.files <- list.files(cv.path, pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.cv <- do.call(rbind, lapply(raw.files, read.csv))
+
+base.cv <- read_singular_local_out(cv.outpath, 'baseline')
+
+## MODELS
+mod.path <- 'Minos/data/transitions/cross_validation/'
+sf12.mod <- readRDS(paste0(mod.path, 'SF_12/ols2/SF_12_2017_2018.rds'))
+income.mod <- readRDS(paste0(mod.path, 'hh_income/ols2/hh_income_2019_2020.rds'))
+
+```
+
+## Model Summaries
+
+```{r}
+summary(sf12.mod)
+```
+```{r}
+summary(income.mod)
+```
+
+
+```{r}
+#miss.values <- c(-9, -8, -7, -3, -2, -1, -10)
+#raw <- raw.cv %>%
+#  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+#  group_by(pidp) %>%
+#  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
+#         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+#  filter(time != 2009)
+
+#base <- base.cv %>%
+#  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+#  group_by(pidp) %>%
+#  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
+#         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+#  filter(time != 2014)
+```
+
+```{r}
+#raw.sub <- raw %>%
+#  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
+#  mutate(source = 'raw')
+#base.sub <- base %>%
+#  select(pidp, time, diff.hh_income, diff.SF12_MCS) %>%
+#  mutate(source = 'output')
+
+#combined <- rbind(raw.sub, base.sub)
+
+#combined.sum <- combined %>%
+#  group_by(time, source) %>%
+#  summarise(hh_income = mean(diff.hh_income, na.rm = TRUE),
+#            SF12_MCS = mean(diff.SF12_MCS, na.rm = TRUE))
+
+#ggplot(combined.sum, aes(x = time, y = hh_income, group = source, color = source)) +
+#  geom_line()
+
+#ggplot(combined.sum, aes(x = time, y = SF12_MCS, group = source, color = source)) +
+#  geom_line()
+```
+
+
+
+
+
+```{r}
+#test <- base.cv %>%
+#  group_by(time) %>%
+#  summarise(mean.income = mean(hh_income, na.rm = TRUE),
+#            mean.SF12 = mean(SF_12, na.rm = TRUE))
+
+#ggplot(test, aes(x = time, y = mean.income)) +
+#  geom_line()
+
+#ggplot(test, aes(x = time, y = mean.SF12)) +
+#  geom_line()
+```
+
+
+## Marginal Distribtion Plots
+
+These plots are quite good at showing regression to the mean (and also sometimes nicer than looking at the mean lineplots even though differences are harder to spot) so lets plot them too just for fun.
+
+```{r}
+# need baseline and interventions to compare with
+#out.path <- 'Minos/output/default_config/'
+#baseline <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+#allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
+#poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
+#livwage <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
+#energy <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TRUE)
+```
+
+```{r}
+#allchild.plot <- SF12_marg_dist_densigram_plot(baseline,
+#                              allchild,
+#                              'All Child Uplift',
+#                              target.year = 2030)
+#pov.plot <- SF12_marg_dist_densigram_plot(baseline,
+#                              poverty,
+#                              'Poverty Child Uplift',
+#                              target.year = 2030)
+#livwage.plot <- SF12_marg_dist_densigram_plot(baseline,
+#                              livwage,
+#                              'Living Wage Uplift',
+#                              target.year = 2030)
+#energy.p <- SF12_marg_dist_densigram_plot(baseline,
+#                              energy,
+#                              'Energy Downlift',
+#                              target.year = 2030)
+```
+
+```{r}
+#alchild.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              allchild,
+#                              'All Child Uplift',
+#                              target.year = 2030)
+#pov.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              poverty,
+#                              'Poverty Child Uplift',
+#                              target.year = 2030)
+#livwage.plot2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              livwage,
+#                              'Living Wage Uplift',
+#                              target.year = 2030)
+#energy.p2 <- SF12_marg_dist_densigram_plot_oneyear(baseline,
+#                              energy,
+#                              'Energy Downlift',
+#                              target.year = 2030)
+```
+
+
+
+
+
+
+```{r}
+
+```
+

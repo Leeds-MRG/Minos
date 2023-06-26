@@ -20,6 +20,14 @@ test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
 
+test_SIPHER7_run: MODE=SIPHER7
+test_SIPHER7_run: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+test_SIPHER7_run: SIPHER7_base
+SIPHER7_base: setup_S7
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+
+
+
 ###################
 ## Experiment Runs
 ###################
@@ -31,9 +39,6 @@ test_scot_run: baseline intervention_livingWage
 ############################################
 ## Local single runs of MINOS interventions.
 ############################################
-
-all_scenarios: baseline intervention_hhIncomeChildUplift
-all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 baseline: setup
@@ -69,7 +74,7 @@ all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLin
 
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
-all_scot_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 #####################################
 ## Running MINOS scenarios on Arc4
@@ -77,7 +82,7 @@ all_scot_scenarios: baseline intervention_hhIncomeChildUplift intervention_Pover
 
 .phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
 .phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
-.phony: arc4_all_scenarios arc4_all_scot_scenarios
+.phony: arc4_all_scenarios arc4_all_scot_scenarios arc4_cv_baseline
 
 arc4_baseline: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
@@ -104,6 +109,9 @@ arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_h
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+
+arc4_cv_baseline: cv_setup
+	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
@@ -144,5 +152,37 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 # Validation runs
 #####################################
 
-cv_baseline: cv_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
+cv_default: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation_default.yaml -o cross_validation_default
+
+cv_SIPHER7: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation_S7.yaml -o cross_validation_SIPHER7
+
+
+
+
+#####################################
+# SIPHER7 - Equivalent Income
+#####################################
+
+S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
+S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
+
+S7_baseline: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
+
+S7_intervention_hhIncome: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeIntervention'
+
+S7_intervention_hhIncomeChildUplift: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
+
+S7_intervention_PovertyLineChildUplift: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
+
+S7_intervention_livingWage: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
+
+S7_intervention_energyDownLift: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
+

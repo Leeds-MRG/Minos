@@ -1,28 +1,23 @@
 """
-Module for housing in Minos.
-Upgrade of household appliances
-Possible future work for moving households and changing household composition (e.g. marrying/births)
+Module for S7_labour_state in Minos.
 """
 
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
+import random
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
-import logging
-from datetime import datetime as dt
 
-class Housing(Base):
-
+class S7Labour(Base):
+    # Special methods used by vivarium.
     @property
     def name(self):
-        return "housing"
+        return 's7labour'
 
     def __repr__(self):
-        return "Housing()"
-
-    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
+        return "S7Labour()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -42,27 +37,32 @@ class Housing(Base):
 
         """
 
-        # Load in inputs from pre-setup.
+        # Load in any inputs from pre-setup.
         self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
-        # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
+        # Assign randomness streams. Keeps aspects of the msim the same on repeat runs to reduce uncertainty.
+        # same CRN seed for every run.
+        #self.random = builder.randomness.get_stream(f"labour")
+        # random CRN seed for every run.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
-
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "SF_12",
-                        "job_sec",
+                        "S7_labour_state",
                         "ethnicity",
                         "age",
-                        "housing_quality",
-                        "hh_income",]
+                        'region',
+                        "hh_income",
+                        "education_state",
+                        "S7_physical_health",
+                        'S7_mental_health']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -72,7 +72,7 @@ class Housing(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -82,35 +82,27 @@ class Housing(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
-        logging.info("HOUSING QUALITY")
-
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
+        #TODO: Handle students properly now that max education is predicted.
+        # Separate the population into current students and everyone else. Then see if students max_educ is larger than
+        # current education_state, if yes maintain student, if no predict new labour_state
+
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
-        housing_prob_df = self.calculate_housing(pop)
+        labour_prob_df = self.calculate_labour(pop)
 
-        housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
-                                                                list(housing_prob_df.columns),
-                                                                housing_prob_df) + 1
+        labour_prob_df["S7_labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
+        labour_prob_df.index = labour_prob_df.index.astype(int)
 
-        housing_prob_df.index = housing_prob_df.index.astype(int)
+        self.population_view.update(labour_prob_df["S7_labour_state"])
 
-        # convert numeric prediction into string factors (low, medium, high)
-        housing_factor_dict = {1: 'Low',
-                               2: 'Medium',
-                               3: 'High'}
-        housing_prob_df.replace({'housing_quality': housing_factor_dict},
-                                inplace=True)
 
-        self.population_view.update(housing_prob_df["housing_quality"])
-
-    def calculate_housing(self, pop):
-        """Calculate housing transition distribution based on provided people/indices.
+    def calculate_labour(self, pop):
+        """Calculate labour transition distribution based on provided people/indices.
 
         Parameters
         ----------
@@ -119,20 +111,23 @@ class Housing(Base):
         Returns
         -------
         """
+        # set up list of columns
+        cols = ['FT Employed', 'PT Employed', 'Job Seeking', 'FT Education', 'Family Care', 'Not Working']
+
         # load transition model based on year.
-        year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'housing_quality')
+        year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
+        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        # returns probability matrix (9xn) of next ordinal state.
+        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"housing_barplot_{self.year}.pdf"
-        densities = pd.DataFrame(pop['housing_quality'].value_counts(normalize=True))
+        file_name = config.output_plots_dir + f"S7_labour_state_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['S7_labour_state'].value_counts(normalize=True))
         densities.columns = ['densities']
-        densities['housing_quality'] = densities.index
+        densities['S7_labour_state'] = densities.index
         f = plt.figure()
-        cat = catplot(data=densities, y='housing_quality', x='densities', kind='bar', orient='h')
+        cat = catplot(data=densities, y='S7_labour_state', x='densities', kind='bar', orient='h')
         plt.savefig(file_name)
         plt.close()

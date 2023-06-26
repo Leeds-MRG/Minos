@@ -10,9 +10,12 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
+import logging
+
 
 class MWB(Base):
     """Mental Well-Being Module"""
+
     # Special methods used by vivarium.
     @property
     def name(self):
@@ -43,7 +46,7 @@ class MWB(Base):
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
-        #self.transition_coefficients = builder.
+        # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
@@ -57,7 +60,7 @@ class MWB(Base):
                         'ethnicity',
                         'age',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'hh_income',
                         'SF_12',
@@ -66,7 +69,8 @@ class MWB(Base):
                         'ncigs',
                         'nutrition_quality',
                         'neighbourhood_safety',
-                        'loneliness']
+                        'loneliness',
+                        'SF_12_diff']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -79,6 +83,24 @@ class MWB(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
+    def on_initialize_simulants(self, pop_data):
+        """  Initiate columns for hh_income when new simulants are added.
+        Only column needed is the diff column for rate of change model predictions.
+
+        Parameters
+        ----------
+            pop_data: vivarium.framework.population.SimulantData
+            Custom vivarium class for interacting with the population data frame.
+            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+            creation_window, and current simulation state (setup/running/etc.).
+        """
+        # Create frame with new 3 columns and add it to the main population frame.
+        # This is the same for both new cohorts and newborn babies.
+        # Neither should be dead yet.
+        pop_update = pd.DataFrame({'SF_12_diff': 0},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -88,6 +110,8 @@ class MWB(Base):
             The event time_step that called this function.
         """
 
+        logging.info("MENTAL WELLBEING (SF12 MCS)")
+
         self.year = event.time.year
 
         # Get living people to update their income
@@ -95,7 +119,10 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=['SF_12'])
+        # newWaveMWB = newWaveMWB.rename(columns={"new_dependent": "SF_12",
+        #                                         "predicted": "SF_12_diff"})
+        # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = newWaveMWB.index.astype(int)
 
@@ -115,13 +142,40 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, 'SF_12')
+        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year + 1}",
+                                                    self.rpy2Modules,
+                                                    path=self.transition_dir)
+
+        return r_utils.predict_next_timestep_ols(transition_model,
+                                                      self.rpy2Modules,
+                                                      pop,
+                                                      'SF_12')
+
+    def calculate_mwb_rateofchange(self, pop):
+        """Calculate income transition distribution based on provided people/indices
+
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        # year can only be 2017 as its the only year with data for all vars
+        year = 2017
+        transition_model = r_utils.load_transitions(f"SF_12/ols_diff/SF_12_{year}_{year + 1}",
+                                                    self.rpy2Modules,
+                                                    path=self.transition_dir)
+
+        return r_utils.predict_next_timestep_ols_diff(transition_model,
+                                                 self.rpy2Modules,
+                                                 pop,
+                                                 'SF_12',
+                                                 year=self.year)
 
     def plot(self, pop, config):
-
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
         f = plt.figure()
-        histplot(pop, x = "SF_12", stat='density')
+        histplot(pop, x="SF_12", stat='density')
         plt.savefig(file_name)
         plt.close('all')

@@ -9,6 +9,8 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
+import logging
+
 
 class Income(Base):
 
@@ -17,10 +19,8 @@ class Income(Base):
     def name(self):
         return 'income'
 
-
     def __repr__(self):
         return "Income()"
-
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -61,12 +61,13 @@ class Income(Base):
                         'region',
                         'hh_income',
                         'job_sec',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'SF_12',
                         'housing_quality',
-                        'job_sector']
-        #view_columns += self.transition_model.rx2('model').names
+                        'job_sector',
+                        'hh_income_diff']
+        # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -78,6 +79,24 @@ class Income(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
+    def on_initialize_simulants(self, pop_data):
+        """  Initiate columns for hh_income when new simulants are added.
+        Only column needed is the diff column for rate of change model predictions.
+
+        Parameters
+        ----------
+            pop_data: vivarium.framework.population.SimulantData
+            Custom vivarium class for interacting with the population data frame.
+            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+            creation_window, and current simulation state (setup/running/etc.).
+        """
+        # Create frame with new 3 columns and add it to the main population frame.
+        # This is the same for both new cohorts and newborn babies.
+        # Neither should be dead yet.
+        pop_update = pd.DataFrame({'hh_income_diff': 0},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
 
@@ -86,13 +105,19 @@ class Income(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("INCOME")
+
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
         ## Predict next income value
         newWaveIncome = self.calculate_income(pop)
-        newWaveIncome = pd.DataFrame(newWaveIncome, columns=["hh_income"])
+        newWaveIncome = pd.DataFrame(newWaveIncome, columns=['hh_income'])
+        # newWaveIncome = newWaveIncome.rename(columns={"new_dependent": "hh_income",
+        #                                               "predicted": "hh_income_diff"})
+        # newWaveIncome = newWaveIncome.to_frame(name='hh_income')
         # Set index type to int (instead of object as previous)
         newWaveIncome.index = newWaveIncome.index.astype(int)
 
@@ -114,13 +139,40 @@ class Income(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules,
+                                                   path=self.transition_dir)
+        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
+                                                           self.rpy2Modules,
+                                                           pop,
+                                                           dependent='hh_income')
+        return nextWaveIncome
+
+    def calculate_income_rateofchange(self, pop):
+        """Calculate income transition with rate of change (diff) models
+
+        Parameters
+        ----------
+            pop: PopulationView
+                Population from MINOS to calculate next income for.
+        Returns
+        -------
+        nextWaveIncome: pd.Dataframe
+            Dataframe of new predicted hh_income value and difference from previous year.
+        """
+        # load transition model based on year.
+        year = min(self.year, 2019)
+        transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
+                                                    self.rpy2Modules,
+                                                    path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model, self.rpy2Modules, pop, dependent='hh_income')
+        nextWaveIncome = r_utils.predict_next_timestep_ols_diff(transition_model,
+                                                                self.rpy2Modules,
+                                                                pop,
+                                                                dependent='hh_income',
+                                                                year=self.year)
         return nextWaveIncome
 
     def plot(self, pop, config):
-
         file_name = config.output_plots_dir + f"income_hist_{self.year}.pdf"
         f = plt.figure()
         histplot(pop, x="hh_income", stat='density')
