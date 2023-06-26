@@ -1,5 +1,9 @@
 ## Validation plotting functions for MINOS
 
+require(ggplot2)
+require(ggExtra)
+require(here)
+
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
 
@@ -106,3 +110,43 @@ violin_plot <- function(data, v)
   return(violin_long)
 }
 
+# 
+marg_dist_densigram_plot_oneyear <- function(observed, 
+                                             predicted,
+                                             var,
+                                             target.year = 2020,
+                                             save = FALSE,
+                                             save.path = here::here('plots')) {
+  # get just one year
+  o.end <- observed %>% filter(time == target.year, .data[[var]] != -8.0)
+  p.end <- predicted %>% filter(time == target.year, .data[[var]] != -8.0)
+  # get just the SF12 columns and rename for later
+  o.end <- o.end %>% select(pidp, .data[[var]]) %>% rename(observed = var)
+  p.end <- p.end %>% select(pidp, .data[[var]]) %>% rename(predicted = var)
+  
+  # combine before we plot
+  combined <- merge(o.end, p.end, by = 'pidp')
+  
+  p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
+    geom_point(alpha = 0.6, size=0.1) +
+    geom_smooth() +
+    geom_abline(intercept = 0, scale=1) +
+    stat_ellipse(color = 'red') +
+    theme(legend.position = c(0.15, 0.9)) +
+    labs(title = paste0(var, ' - ', target.year))
+  
+  p1 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+  
+  
+  plot.name <- paste0('scatter_marg_densigram_', var, '_', target.year, '.png')
+  
+  if(save) {
+    ggsave(filename = plot.name,
+           plot = p1,
+           path = save.path)
+  }
+  
+  #print(p1)
+  
+  return(p1)
+}

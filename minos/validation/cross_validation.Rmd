@@ -29,6 +29,7 @@ rm(workingDir)
 source(here::here('minos', 'utils_datain.R'))
 source(here::here('minos', 'utils_validation_vis.R'))
 source(here::here('minos', 'validation', 'utils.r'))
+#source(here::here('minos', 'utils_outcome_vis.R'))
 ```
 
 ## Data
@@ -37,27 +38,34 @@ source(here::here('minos', 'validation', 'utils.r'))
 # cross validation simulation output
 #out.path <- 'Minos/output/cross_validation/'
 out.path <- here::here('output', 'cross_validation_default/')
-cv <- read_singular_local_out(out.path, 'baseline')
+cv.dat <- read_singular_local_out(out.path, 'baseline')
 
 # cv simulation pop (not used for transitions)
 cv.simul.files <- list.files(here::here('data', 'final_US', 'cross_validation', 'simulation'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
-raw <- do.call(rbind, lapply(cv.simul.files, read.csv))
+raw.dat <- do.call(rbind, lapply(cv.simul.files, read.csv))
 ```
 
 # Analysis
 
-First things first, we need to make sure that we are comparing the exact same people from each dataset. Therefore, we need a step here to check the pidps from both, and remove anybody not in both datasets.
+First things first, we need to make sure that we are comparing the exact same people from each dataset. Therefore, we need a step here to check the pidps from both, and remove anybody not in both datasets. We can also filter the years out of the raw data here, as we only care about years that have been simulated for comparison.
 
 ```{r}
-cv.pidps <- cv %>% select(pidp) %>% unique()
-raw.pidps <- raw %>% select(pidp) %>% unique()
-
+# pidp filter
+cv.pidps <- cv.dat %>% select(pidp) %>% unique()
+raw.pidps <- raw.dat %>% select(pidp) %>% unique()
 both.pidps <- intersect(cv.pidps, raw.pidps)
 
-cv <- cv %>% filter(pidp %in% both.pidps$pidp)
-raw <- raw %>% filter(pidp %in% both.pidps$pidp)
+# year filter
+cv.years <- cv.dat %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(pidp %in% both.pidps$pidp, 
+                      time %in% cv.years)
+
+rm(cv.pidps, raw.pidps, both.pidps, cv.years)
 ```
 
 ## hh_income
@@ -87,6 +95,57 @@ compare_boxplot_long(pivoted.df = income.pivoted,
                      subset.max = 5000,
                      subset.min = -5000)
 ```
+
+### Snapshots
+
+Going to produce some comparison plots for snapshots throughout the simulation. 
+
+NOTE: LOG SCALE!
+
+```{r}
+snap.timelist <- c(2014, 2016, 2018, 2020)
+
+cv.snap <- cv %>%
+  select(pidp, time, hh_income) %>%
+  filter(time %in% snap.timelist) %>%
+  rename(predicted = hh_income)
+
+raw.snap <- raw %>%
+  select(pidp, time, hh_income) %>%
+  filter(time %in% snap.timelist) %>%
+  rename(observed = hh_income)
+
+snap <- merge(cv.snap, raw.snap,
+                   by = c('pidp', 'time'))
+
+ggplot(snap, aes(x = observed, y = predicted)) +
+  geom_point() +
+  geom_abline(slope=1, intercept=0) +
+  facet_wrap(~time) +
+  labs(title = 'hh_income observed vs predicted')
+
+rm(snap.timelist, cv.snap, raw.snap, snap)
+```
+
+```{r}
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'hh_income', 
+                                 target.year = 2014)
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'hh_income', 
+                                 target.year = 2016)
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'hh_income', 
+                                 target.year = 2018)
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'hh_income', 
+                                 target.year = 2020)
+```
+
 
 ### T-tests
 
@@ -124,6 +183,104 @@ compare_boxplot_long(pivoted.df = sf12.pivoted,
                      scen1 = 'raw',
                      scen2 = 'simulation')
 ```
+
+### Snapshots
+
+```{r}
+observed <- raw
+predicted <- cv
+var <- 'SF_12'
+target.year <- 2020
+
+# get just one year
+o.end <- observed %>% filter(time == target.year, .data[[var]] != -8.0)
+p.end <- predicted %>% filter(time == target.year, .data[[var]] != -8.0)
+# get just the SF12 columns and rename for later
+o.end <- o.end %>% select(pidp, .data[[var]]) %>% rename(observed = var)
+p.end <- p.end %>% select(pidp, .data[[var]]) %>% rename(predicted = var)
+
+# combine before we plot
+combined <- merge(o.end, p.end, by = 'pidp')
+
+p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
+  geom_point(alpha = 0.6, size=0.1) +
+  geom_smooth() +
+  geom_abline(intercept = 0, scale=1) +
+  theme(legend.position = c(0.15, 0.9)) +
+  labs(title = paste0(var, ' - ', target.year))
+p
+
+p1 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
+p1
+```
+
+
+```{r}
+snap.timelist <- c(2014, 2016, 2018, 2020)
+
+cv.snap <- cv %>%
+  select(pidp, time, SF_12) %>%
+  filter(time %in% snap.timelist) %>%
+  rename(predicted = SF_12)
+
+raw.snap <- raw %>%
+  select(pidp, time, SF_12) %>%
+  filter(time %in% snap.timelist) %>%
+  rename(observed = SF_12)
+
+snap <- merge(cv.snap, raw.snap,
+                   by = c('pidp', 'time'))
+snap$time <- as.factor(snap$time)
+
+ggplot(filter(snap, time == 2014), aes(x = observed, y = predicted)) +
+  geom_point() +
+  geom_abline(slope=1, intercept=0) +
+  stat_ellipse(color='green') +
+  labs(title = 'SF_12 : 2014')
+
+ggplot(filter(snap, time == 2016), aes(x = observed, y = predicted)) +
+  geom_point() +
+  geom_abline(slope=1, intercept=0) +
+  stat_ellipse(color='green') +
+  labs(title = 'SF_12 : 2016')
+
+ggplot(filter(snap, time == 2018), aes(x = observed, y = predicted)) +
+  geom_point() +
+  geom_abline(slope=1, intercept=0) +
+  labs(title = 'SF_12 : 2018')
+
+ggplot(filter(snap, time == 2020), aes(x = observed, y = predicted)) +
+  geom_point() +
+  geom_abline(slope=1, intercept=0) +
+  labs(title = 'SF_12 : 2020')
+
+ggplot(snap, aes(x = observed, y = predicted, group = time, color = time, shape = time)) +
+  geom_point(size = 1) +
+  geom_abline(slope=1, intercept=0) +
+  labs(title = 'SF_12')
+
+rm(snap.timelist, cv.snap, raw.snap, snap)
+```
+
+```{r}
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12', 
+                                 target.year = 2014)
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12', 
+                                 target.year = 2016)
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12', 
+                                 target.year = 2018)
+marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12', 
+                                 target.year = 2020)
+```
+
 
 ### T-Tests
 
