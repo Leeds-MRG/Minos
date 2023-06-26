@@ -48,9 +48,9 @@ from minos.modules.intervention import energyDownlift
 from minos.outcomes.minos_distribution_visualisation import *
 
 
-# components = [eval(x) for x in config.components] # more adapative way but security issues.
+# components = [eval(x) for x in config.components] # more adaptive way but security issues.
 # last one in first one off. any module that requires another should be BELOW IT in this order.
-# Note priority in vivarium modules supercedes this. two
+# Note priority in vivarium modules supersedes this. two
 # Outcome module goes first (last in sim)
 
 components_map = {
@@ -61,14 +61,25 @@ components_map = {
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
+    "Heating()": Heating(),
     "Housing()": Housing(),
     "Income()": Income(),
+    "financialSituation()": financialSituation(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+}
+
+SIPHER7_components_map = {  # SIPHER7 stuff
+    "S7Labour()": S7Labour(),
+    "S7Housing()": S7Housing(),
+    "S7Neighbourhood()": S7Neighbourhood(),
+    "S7MentalHealth()": S7MentalHealth(),
+    "S7PhysicalHealth()": S7PhysicalHealth(),
+    "S7EquivalentIncome()": S7EquivalentIncome()
 }
 
 intervention_components_map = {  # Interventions
@@ -90,14 +101,14 @@ replenishment_components_map = {
 # HR 19/04/23 Rough definition of component priorities
 # Replenishment component first, then intervention(s), then fert/mort, then everything else
 def get_priorities():
-    all_components_map = components_map | intervention_components_map | replenishment_components_map
+    all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
     component_priorities.update({el:0 for el in replenishment_components_map})
     component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
     component_priorities.update({el:3 for el in intervention_components_map})
-    everything_else = [el for el in list(components_map) if el not in list(component_priorities)]
+    everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
     component_priorities.update({el:4 for el in everything_else})
     # [print(str(el)) for el in component_priorities.items()]
     return component_priorities, all_components_map
@@ -146,54 +157,7 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
-    #components = [eval(x) for x in config.components] # more adapative way but security issues.
-    # last one in first one off. any module that requires another should be BELOW IT in this order.
-    # Note priority in vivarium modules supercedes this. two
-    # Outcome module goes first (last in sim)
-    components_map = {
-        # Outcome module.
-        "MWB()": MWB(),
-        #Intermediary modules
-        "Tobacco()": Tobacco(),
-        "Alcohol()": Alcohol(),
-        "Neighbourhood()": Neighbourhood(),
-        "Labour()": Labour(),
-        "Heating()": Heating(),
-        "Housing()": Housing(),
-        "Income()": Income(),
-        "financialSituation()": financialSituation(),
-        "Loneliness()": Loneliness(),
-        "Nutrition()": Nutrition(),
-        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
-        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
-        "Mortality()": Mortality(),
-        "Education()": Education(),
-    }
 
-    SIPHER7_components_map = {  # SIPHER7 stuff
-        "S7Labour()" : S7Labour(),
-        "S7Housing()" : S7Housing(),
-        "S7Neighbourhood()": S7Neighbourhood(),
-        "S7MentalHealth()" : S7MentalHealth(),
-        "S7PhysicalHealth()": S7PhysicalHealth(),
-        "S7EquivalentIncome()": S7EquivalentIncome()
-    }
-
-    intervention_components_map = {        #Interventions
-        "hhIncomeIntervention": hhIncomeIntervention(),
-        "hhIncomeChildUplift": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift()
-    }
-
-    replenishment_components_map = {
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
-    }
-    
     component_list = []
     replenishment_component = []
     print("Initial components list:", config_components)
