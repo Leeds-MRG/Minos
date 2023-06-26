@@ -32,7 +32,7 @@ spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
-cv_data: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv
+cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
 
