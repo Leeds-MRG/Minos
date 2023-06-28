@@ -160,7 +160,12 @@ class Income(Base):
             Dataframe of new predicted hh_income value and difference from previous year.
         """
         # load transition model based on year.
-        year = min(self.year, 2019)
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
+
         transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)

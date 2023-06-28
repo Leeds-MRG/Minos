@@ -114,7 +114,12 @@ class S7PhysicalHealth(Base):
         -------
         """
         # year
-        year = min(self.year, 2019)
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
+
         transition_model = r_utils.load_transitions(f"S7_physical_health/clm/S7_physical_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         return r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_physical_health')
 
