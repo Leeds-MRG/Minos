@@ -150,7 +150,11 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 #####################################
 
 cv_default: cv_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation_default.yaml -o cross_validation_default
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default1.yaml -o cv/default1
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default2.yaml -o cv/default2
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default3.yaml -o cv/default3
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default4.yaml -o cv/default4
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default5.yaml -o cv/default5
 
 cv_SIPHER7: cv_setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation_S7.yaml -o cross_validation_SIPHER7
