@@ -171,3 +171,108 @@ marg_dist_densigram_plot_oneyear <- function(observed,
   
   return(p1)
 }
+
+cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
+  cv1.inc <- cv1 %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
+  cv1.inc$source <- 'cv1'
+  cv1.inc$mode <- 'cross-validation'
+  cv2.inc <- cv2 %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
+  cv2.inc$source <- 'cv2'
+  cv2.inc$mode <- 'cross-validation'
+  cv3.inc <- cv3 %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
+  cv3.inc$source <- 'cv3'
+  cv3.inc$mode <- 'cross-validation'
+  cv4.inc <- cv4 %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
+  cv4.inc$source <- 'cv4'
+  cv4.inc$mode <- 'cross-validation'
+  cv5.inc <- cv5 %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
+  cv5.inc$source <- 'cv5'
+  cv5.inc$mode <- 'cross-validation'
+  
+  raw.inc <- raw %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
+  raw.inc$source <- 'raw'
+  raw.inc$mode <- 'raw'
+  
+  cv.list <- list(cv1.inc, cv2.inc, cv3.inc, cv4.inc, cv5.inc)
+  cv.inc <- do.call(rbind, cv.list)
+  
+  df.list <- list(cv.inc, raw.inc)
+  combined <- do.call(rbind, df.list)
+  
+  # First plot all cv runs separately
+  p1 <- ggplot(combined, aes(x = time, y = mean.var, group = source, color = source, linetype = mode)) +
+    geom_line() +
+    labs(title = paste0(var, ': CV vs raw'), subtitle = 'Individual CV runs') +
+    ylab(var)
+  print(p1)
+  
+  cv.inc2 <- cv.inc %>%
+    group_by(time) %>%
+    summarise(mean.var = mean(mean.var))
+  cv.inc2$source <- 'cross-validation'
+  
+  raw.inc <- raw.inc %>%
+    select(-mode)
+  
+  combined2 <- rbind(cv.inc2, raw.inc)
+  
+  p2 <- ggplot(combined2, aes(x = time, y = mean.var, group = source, color = source)) +
+    geom_line() +
+    labs(title = paste0(var, ': CV vs raw'), subtitle = 'Combined CV runs') +
+    ylab(var)
+  print(p2)
+}
+
+snapshot_OP_plots <- function(raw, cv, var) {
+  snap.timelist <- c(2014, 2016, 2018, 2020)
+  
+  cv.snap <- cv %>%
+    select(pidp, time, all_of(var)) %>%
+    filter(time %in% snap.timelist) %>%
+    rename(predicted = .data[[var]])
+  
+  raw.snap <- raw %>%
+    select(pidp, time, all_of(var)) %>%
+    filter(time %in% snap.timelist) %>%
+    rename(observed = .data[[var]])
+  
+  snap <- merge(cv.snap, raw.snap,
+                by = c('pidp', 'time'))
+  
+  asinh_trans <- scales::trans_new(
+    "inverse_hyperbolic_sine",
+    transform = function(x) {asinh(x)},
+    inverse = function(x) {sinh(x)}
+  )
+  
+  if (var == 'hh_income') {
+    ggplot(snap, aes(x = observed, y = predicted)) +
+      geom_point() +
+      scale_y_continuous(trans=asinh_trans) +
+      scale_x_continuous(trans=asinh_trans) +
+      geom_abline(slope=1, intercept=0) +
+      stat_ellipse(color='red') +
+      facet_wrap(~time) +
+      labs(title = paste0(var, ': observed vs predicted'),
+           subtitle = 'inverse hyperbolic sine transformation')
+  } else {
+    ggplot(snap, aes(x = observed, y = predicted)) +
+      geom_point() +
+      geom_abline(slope=1, intercept=0) +
+      stat_ellipse(color='red') +
+      facet_wrap(~time) +
+      labs(title = paste0(var, ': observed vs predicted'))
+  }
+}
