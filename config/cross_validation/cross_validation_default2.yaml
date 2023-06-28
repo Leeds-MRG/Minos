@@ -9,6 +9,9 @@ population:
     age_start: 0
     age_end: 100
 
+## NOTE: If you modify this file, you MUST modify the remaining cross_validation_default.yaml files within the
+# config/cross_validation directory.
+
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
 input_data_dir: "data/final_US/cross_validation/batch2"
