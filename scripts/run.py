@@ -156,10 +156,8 @@ def run(args):
     # Different call for intervention or cross_validation
     if args.intervention:
         RunPipeline(config, intervention=args.intervention)
-    elif config.mode == 'cross_validation':
-        RunPipeline(config)
     else:
-        RunPipeline(config, run_output_dir)
+        RunPipeline(config)
 
     print('Finished running the full simulation')
 
