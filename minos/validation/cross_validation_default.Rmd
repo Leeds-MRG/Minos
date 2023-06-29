@@ -9,6 +9,7 @@ output: html_notebook
 
 require(tidyverse)
 require(ggplot2)
+require(ggExtra)
 require(here)
 require(scales)
 
@@ -241,8 +242,7 @@ nut.pivoted <- combine_and_pivot_long(df1 = cv,
 plot_mean_comparison(pivoted.df = nut.pivoted, 
                      var = 'nutrition_quality', 
                      group.var = 'scenario',
-                     save = TRUE,
-                     save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+                     save = FALSE)
 
 compare_boxplot_long(pivoted.df = nut.pivoted,
                      var = 'nutrition_quality',
@@ -262,8 +262,7 @@ tobacco.pivoted <- combine_and_pivot_long(df1 = cv,
 plot_mean_comparison(pivoted.df = tobacco.pivoted, 
                      var = 'ncigs', 
                      group.var = 'scenario',
-                     save = TRUE,
-                     save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+                     save = FALSE)
 
 compare_boxplot_long(pivoted.df = tobacco.pivoted,
                      var = 'ncigs',
