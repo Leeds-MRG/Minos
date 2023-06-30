@@ -20,6 +20,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-shadowtext
   - r-here
   - r-scales
+  - r-ggextra
   - pandoc
   - sphinx
   - myst-parser
