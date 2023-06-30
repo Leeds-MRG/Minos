@@ -276,3 +276,27 @@ snapshot_OP_plots <- function(raw, cv, var) {
       labs(title = paste0(var, ': observed vs predicted'))
   }
 }
+
+
+## Yearly box plots for multiple years, compared between raw and cv runs
+multi_year_boxplots <- function(raw, cv, var) {
+  raw.var <- raw %>%
+    dplyr::select(pidp, time, all_of(var))
+  raw.var$source <- 'raw'
+  
+  cv.var <- cv %>%
+    dplyr::select(pidp, time, all_of(var))
+  cv.var$source <- 'cross-validation'
+  
+  combined <- rbind(raw.var, cv.var)
+  combined$time <- as.factor(combined$time)
+  combined <- drop_na(combined)
+  if (var == 'hh_income') {
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
+  } else if (var == 'ncigs') {
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
+  }
+  
+  ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
+    geom_boxplot(notch=TRUE)
+}
