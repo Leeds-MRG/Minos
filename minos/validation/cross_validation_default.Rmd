@@ -95,23 +95,7 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
 ```
 
 ```{r}
-income.pivoted <- combine_and_pivot_long(df1 = cv, 
-                                         df1.name = 'simulated', 
-                                         df2 = raw, 
-                                         df2.name = 'raw', 
-                                         var = 'hh_income')
-
-compare_boxplot_long(pivoted.df = income.pivoted,
-                     var = 'hh_income',
-                     scen1 = 'raw',
-                     scen2 = 'simulation')
-
-compare_boxplot_long(pivoted.df = income.pivoted,
-                     var = 'hh_income',
-                     scen1 = 'raw',
-                     scen2 = 'simulation',
-                     subset.max = 5000,
-                     subset.min = -5000)
+multi_year_boxplots(raw, cv, 'hh_income')
 ```
 
 ```{r}
@@ -124,14 +108,17 @@ marg_dist_densigram_plot_oneyear(observed = raw,
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2014)
+
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2016)
+
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2018)
+
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
@@ -145,23 +132,7 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
 ```
 
 ```{r}
-income.pivoted <- combine_and_pivot_long(df1 = cv, 
-                                         df1.name = 'simulated', 
-                                         df2 = raw, 
-                                         df2.name = 'raw', 
-                                         var = 'SF_12')
-
-compare_boxplot_long(pivoted.df = income.pivoted,
-                     var = 'SF_12',
-                     scen1 = 'raw',
-                     scen2 = 'simulation')
-
-compare_boxplot_long(pivoted.df = income.pivoted,
-                     var = 'SF_12',
-                     scen1 = 'raw',
-                     scen2 = 'simulation',
-                     subset.max = 5000,
-                     subset.min = -5000)
+multi_year_boxplots(raw, cv, 'SF_12')
 ```
 
 ```{r}
@@ -233,21 +204,7 @@ cv_ordinal_plots(pivoted.df = lnly.pivoted,
 ## Nutrition Quality
 
 ```{r}
-nut.pivoted <- combine_and_pivot_long(df1 = cv, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw, 
-                                       df2.name = 'raw', 
-                                       var = 'nutrition_quality')
-
-plot_mean_comparison(pivoted.df = nut.pivoted, 
-                     var = 'nutrition_quality', 
-                     group.var = 'scenario',
-                     save = FALSE)
-
-compare_boxplot_long(pivoted.df = nut.pivoted,
-                     var = 'nutrition_quality',
-                     scen1 = 'raw',
-                     scen2 = 'simulation')
+multi_year_boxplots(raw, cv, 'nutrition_quality')
 ```
 
 ## Tobacco Use
@@ -264,18 +221,10 @@ plot_mean_comparison(pivoted.df = tobacco.pivoted,
                      group.var = 'scenario',
                      save = FALSE)
 
-compare_boxplot_long(pivoted.df = tobacco.pivoted,
-                     var = 'ncigs',
-                     scen1 = 'raw',
-                     scen2 = 'simulation')
-
-compare_boxplot_long(pivoted.df = tobacco.pivoted,
-                     var = 'ncigs',
-                     scen1 = 'raw',
-                     scen2 = 'simulation',
-                     subset.max = 100,
-                     subset.min = 0)
+multi_year_boxplots(raw, cv, 'ncigs')
 ```
+
+
 
 
 

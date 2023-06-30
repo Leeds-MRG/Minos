@@ -294,7 +294,8 @@ multi_year_boxplots <- function(raw, cv, var) {
   if (var == 'hh_income') {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var == 'ncigs') {
-    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
+    #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }
   
   ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
