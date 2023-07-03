@@ -128,7 +128,7 @@ marg_dist_densigram_plot_oneyear <- function(observed,
   # combine before we plot
   combined <- merge(o.end, p.end, by = 'pidp')
   
-  if (var == 'hh_income') {
+  if (var %in% c('hh_income', 'equivalent_income')) {
     # do inverse hyperbolic sine transformation for hh_income
     asinh_trans <- scales::trans_new(
       "inverse_hyperbolic_sine",
@@ -264,13 +264,13 @@ snapshot_OP_plots <- function(raw, cv, var) {
   snap <- merge(cv.snap, raw.snap,
                 by = c('pidp', 'time'))
   
-  asinh_trans <- scales::trans_new(
-    "inverse_hyperbolic_sine",
-    transform = function(x) {asinh(x)},
-    inverse = function(x) {sinh(x)}
-  )
-  
-  if (var == 'hh_income') {
+  if (var %in% c('hh_income', 'equivalent_income')) {
+    asinh_trans <- scales::trans_new(
+      "inverse_hyperbolic_sine",
+      transform = function(x) {asinh(x)},
+      inverse = function(x) {sinh(x)}
+    )
+    
     ggplot(snap, aes(x = observed, y = predicted)) +
       geom_point() +
       scale_y_continuous(trans=asinh_trans) +

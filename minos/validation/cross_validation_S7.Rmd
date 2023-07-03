@@ -131,12 +131,7 @@ marg_dist_densigram_plot_oneyear(observed = raw,
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'equivalent_income', 
-                                 target.year = 2016)
-
-marg_dist_densigram_plot_oneyear(observed = raw, 
-                                 predicted = cv, 
-                                 var = 'equivalent_income', 
-                                 target.year = 2018)
+                                 target.year = 2017)
 
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
