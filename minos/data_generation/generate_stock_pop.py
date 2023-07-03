@@ -143,6 +143,11 @@ def generate_stock(projections, cross_validation):
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
 
+    # copy 2017 loneliness data onto 2014 for cross-validation runs
+    data = wave_data_copy(data,
+                          var='loneliness',
+                          copy_year=2017,
+                          paste_year=2014)
     # copy wave 11 nutrition_quality onto wave 12
     data = wave_data_copy(data,
                           var='nutrition_quality',
