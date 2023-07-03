@@ -159,7 +159,7 @@ marg_dist_densigram_plot_oneyear(observed = raw,
                                  target.year = 2020)
 ```
 
-## Housing Quality
+# Housing Quality
 
 ```{r}
 hous.pivoted <- combine_and_pivot_long(df1 = cv, 
@@ -173,7 +173,7 @@ cv_ordinal_plots(pivoted.df = hous.pivoted,
                  save = FALSE)
 ```
 
-## Neighbourhood Safety
+# Neighbourhood Safety
 
 ```{r}
 nhsafe.pivoted <- combine_and_pivot_long(df1 = cv, 
@@ -187,7 +187,7 @@ cv_ordinal_plots(pivoted.df = nhsafe.pivoted,
                  save = FALSE)
 ```
 
-## Loneliness
+# Loneliness
 
 ```{r}
 lnly.pivoted <- combine_and_pivot_long(df1 = cv, 
@@ -201,14 +201,14 @@ cv_ordinal_plots(pivoted.df = lnly.pivoted,
                  save = FALSE)
 ```
 
-## Nutrition Quality
+# Nutrition Quality
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'nutrition_quality')
 multi_year_boxplots(raw, cv, 'nutrition_quality')
 ```
 
-## Tobacco Use
+# Tobacco Use
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'ncigs')
@@ -216,6 +216,99 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'ncigs')
 multi_year_boxplots(raw, cv, 'ncigs')
 ```
 
+# Financial Situation
+
+```{r}
+fsit.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'financial_situation')
+
+cv_ordinal_plots(pivoted.df = fsit.pivoted, 
+                 var = 'financial_situation',
+                 save = FALSE)
+
+rm(fsit.pivoted)
+```
+
+# Heating
+
+```{r}
+heat.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'heating')
+
+cv_ordinal_plots(pivoted.df = heat.pivoted, 
+                 var = 'heating',
+                 save = FALSE)
+```
+
+# SECONDARY VARS
+
+## Marital Status
+
+```{r}
+mstat.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'marital_status')
+
+cv_ordinal_plots(pivoted.df = mstat.pivoted, 
+                 var = 'marital_status',
+                 save = FALSE)
+
+rm(mstat.pivoted)
+```
+
+## hhsize
+
+```{r}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hhsize')
+
+multi_year_boxplots(raw, cv, 'hhsize')
+```
+
+## housing tenure
+
+```{r}
+tenure.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'housing_tenure')
+
+cv_ordinal_plots(pivoted.df = tenure.pivoted, 
+                 var = 'housing_tenure',
+                 save = FALSE)
+
+rm(tenure.pivoted)
+```
+
+## Ethnicity
+
+```{r}
+ethnic.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'ethnicity')
+
+cv_ordinal_plots(pivoted.df = ethnic.pivoted, 
+                 var = 'ethnicity',
+                 save = FALSE)
+
+ethnic.piv.nowhite <- filter(ethnic.pivoted, ethnicity != 'WBI')
+
+cv_ordinal_plots(pivoted.df = ethnic.piv.nowhite, 
+                 var = 'ethnicity',
+                 save = FALSE)
+
+rm(ethnic.pivoted, ethnic.piv.nowhite)
+```
 
 
 
