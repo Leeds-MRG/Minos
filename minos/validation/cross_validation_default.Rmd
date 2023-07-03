@@ -32,11 +32,11 @@ source(here::here('minos', 'validation', 'utils.r'))
 # cross validation simulation output
 #out.path <- 'Minos/output/cross_validation/'
 out.path <- here::here('output', 'cv')
-cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline')
-cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline')
-cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline')
-cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline')
-cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
 
 cvlist <- list(cv1, cv2, cv3, cv4, cv5)
 cv <- do.call(rbind, cvlist)
@@ -204,22 +204,14 @@ cv_ordinal_plots(pivoted.df = lnly.pivoted,
 ## Nutrition Quality
 
 ```{r}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'nutrition_quality')
 multi_year_boxplots(raw, cv, 'nutrition_quality')
 ```
 
 ## Tobacco Use
 
 ```{r}
-tobacco.pivoted <- combine_and_pivot_long(df1 = cv, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw, 
-                                       df2.name = 'raw', 
-                                       var = 'ncigs')
-
-plot_mean_comparison(pivoted.df = tobacco.pivoted, 
-                     var = 'ncigs', 
-                     group.var = 'scenario',
-                     save = FALSE)
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'ncigs')
 
 multi_year_boxplots(raw, cv, 'ncigs')
 ```

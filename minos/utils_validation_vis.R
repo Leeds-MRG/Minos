@@ -167,39 +167,43 @@ marg_dist_densigram_plot_oneyear <- function(observed,
            path = save.path)
   }
   
-  #print(p1)
-  
-  return(p1)
+  print(p1)
 }
 
 cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
   cv1.inc <- cv1 %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   cv1.inc$source <- 'cv1'
   cv1.inc$mode <- 'cross-validation'
   cv2.inc <- cv2 %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   cv2.inc$source <- 'cv2'
   cv2.inc$mode <- 'cross-validation'
   cv3.inc <- cv3 %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   cv3.inc$source <- 'cv3'
   cv3.inc$mode <- 'cross-validation'
   cv4.inc <- cv4 %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   cv4.inc$source <- 'cv4'
   cv4.inc$mode <- 'cross-validation'
   cv5.inc <- cv5 %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   cv5.inc$source <- 'cv5'
   cv5.inc$mode <- 'cross-validation'
   
   raw.inc <- raw %>%
+    filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   raw.inc$source <- 'raw'
@@ -220,16 +224,25 @@ cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
   
   cv.inc2 <- cv.inc %>%
     group_by(time) %>%
-    summarise(mean.var = mean(mean.var))
+    summarise(var = mean(mean.var),
+              min = min(mean.var),
+              max = max(mean.var))
   cv.inc2$source <- 'cross-validation'
   
   raw.inc <- raw.inc %>%
-    select(-mode)
+    select(-mode) %>%
+    mutate(var = mean.var,
+           min = mean.var,
+           max = mean.var) %>%
+    select(-mean.var)
   
   combined2 <- rbind(cv.inc2, raw.inc)
   
-  p2 <- ggplot(combined2, aes(x = time, y = mean.var, group = source, color = source)) +
+  p2 <- ggplot(combined2, aes(x = time, y = var, group = source, color = source)) +
     geom_line() +
+    geom_ribbon(aes(ymin = min, ymax = max, fill = source), 
+                alpha = 0.1,
+                linetype = 'dashed') +
     labs(title = paste0(var, ': CV vs raw'), subtitle = 'Combined CV runs') +
     ylab(var)
   print(p2)
@@ -291,6 +304,8 @@ multi_year_boxplots <- function(raw, cv, var) {
   combined <- rbind(raw.var, cv.var)
   combined$time <- as.factor(combined$time)
   combined <- drop_na(combined)
+  combined <- filter(combined, .data[[var]] != -9)
+  
   if (var == 'hh_income') {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var == 'ncigs') {
