@@ -92,18 +92,9 @@ For all analyses, results will be calculated on each output separately and poole
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
-```
-
-```{r}
 multi_year_boxplots(raw, cv, 'hh_income')
-```
-
-```{r}
 snapshot_OP_plots(raw, cv, 'hh_income')
-```
 
-
-```{r}
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
@@ -129,18 +120,9 @@ marg_dist_densigram_plot_oneyear(observed = raw,
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
-```
-
-```{r}
 multi_year_boxplots(raw, cv, 'SF_12')
-```
-
-```{r}
 snapshot_OP_plots(raw, cv, 'SF_12')
-```
 
-
-```{r}
 marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
@@ -268,7 +250,6 @@ rm(mstat.pivoted)
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hhsize')
-
 multi_year_boxplots(raw, cv, 'hhsize')
 ```
 
