@@ -14,11 +14,11 @@ population:
 
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/final_US/cross_validation/batch1"
+input_data_dir: "data/final_US/cross_validation/batch5"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
-transition_dir: 'data/transitions/cross_validation/version1'
+transition_dir: 'data/transitions/cross_validation/version5'
 replenishing_dir: 'data/replenishing/cross_validation'
 cross_validation: TRUE
 

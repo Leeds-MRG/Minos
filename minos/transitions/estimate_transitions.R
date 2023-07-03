@@ -530,11 +530,13 @@ if(scotland.mode) {
   mode <- 'cross_validation'
   transitionDir <- paste0(transitionDir, 'cross_validation/')
   create.if.not.exists(transitionDir)
-} else if(sipher7) {
-  print('Estimating models for SIPHER7 Equivalent Income experiment')
-  modDefFilename <- 'model_definitions_S7.txt'
 } else if(default) {
   print('Estimating transition models in whole population mode')
+}
+
+if(sipher7) {
+  print('Estimating models for SIPHER7 Equivalent Income experiment')
+  modDefFilename <- 'model_definitions_S7.txt'
 }
 
 
