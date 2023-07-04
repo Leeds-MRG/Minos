@@ -122,8 +122,8 @@ marg_dist_densigram_plot_oneyear <- function(observed,
   o.end <- observed %>% filter(time == target.year, .data[[var]] != -8.0)
   p.end <- predicted %>% filter(time == target.year, .data[[var]] != -8.0)
   # get just the SF12 columns and rename for later
-  o.end <- o.end %>% select(pidp, .data[[var]]) %>% rename(observed = var)
-  p.end <- p.end %>% select(pidp, .data[[var]]) %>% rename(predicted = var)
+  o.end <- o.end %>% select(pidp, all_of(var)) %>% rename(observed = var)
+  p.end <- p.end %>% select(pidp, all_of(var)) %>% rename(predicted = var)
   
   # combine before we plot
   combined <- merge(o.end, p.end, by = 'pidp')
@@ -141,23 +141,24 @@ marg_dist_densigram_plot_oneyear <- function(observed,
       geom_smooth() +
       scale_y_continuous(trans=asinh_trans) +
       scale_x_continuous(trans=asinh_trans) +
-      geom_abline(intercept = 0, scale=1) +
+      geom_abline(intercept = 0) +
       stat_ellipse(color = 'red') +
       theme(legend.position = c(0.15, 0.9)) +
-      labs(title = paste0(var, ' - ', target.year))
+      labs(title = paste0(var, ' - ', target.year),
+           subtitle = 'Marginal Distributions - Inverse Hyperbolic Sine transformation')
   } else {
     # no transformation for other vars
     p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
       geom_point(alpha = 0.6, size=0.1) +
       geom_smooth() +
-      geom_abline(intercept = 0, scale=1) +
+      geom_abline(intercept = 0) +
       stat_ellipse(color = 'red') +
       theme(legend.position = c(0.15, 0.9)) +
-      labs(title = paste0(var, ' - ', target.year))
+      labs(title = paste0(var, ' - ', target.year),
+           subtitle = 'Marginal Distributions')
   }
   
   p1 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
-  
   
   plot.name <- paste0('scatter_marg_densigram_', var, '_', target.year, '.png')
   
@@ -247,17 +248,15 @@ cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
   print(p2)
 }
 
-snapshot_OP_plots <- function(raw, cv, var) {
-  snap.timelist <- c(2014, 2016, 2018, 2020)
-  
+snapshot_OP_plots <- function(raw, cv, var, target.years) {
   cv.snap <- cv %>%
     select(pidp, time, all_of(var)) %>%
-    filter(time %in% snap.timelist) %>%
+    filter(time %in% target.years) %>%
     rename(predicted = .data[[var]])
   
   raw.snap <- raw %>%
     select(pidp, time, all_of(var)) %>%
-    filter(time %in% snap.timelist) %>%
+    filter(time %in% target.years) %>%
     rename(observed = .data[[var]])
   
   snap <- merge(cv.snap, raw.snap,
@@ -278,7 +277,7 @@ snapshot_OP_plots <- function(raw, cv, var) {
       stat_ellipse(color='red') +
       facet_wrap(~time) +
       labs(title = paste0(var, ': observed vs predicted'),
-           subtitle = 'inverse hyperbolic sine transformation')
+           subtitle = 'Inverse Hyperbolic Sine transformation')
   } else {
     ggplot(snap, aes(x = observed, y = predicted)) +
       geom_point() +
