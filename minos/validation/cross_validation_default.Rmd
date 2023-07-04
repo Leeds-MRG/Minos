@@ -100,22 +100,22 @@ inc.14 <- marg_dist_densigram_plot_oneyear(observed = raw,
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2014)
-
+print(inc.14)
 inc.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2016)
-
+print(inc.16)
 inc.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2018)
-
+print(inc.18)
 inc.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2020)
-
+print(inc.20)
 rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
@@ -131,19 +131,22 @@ sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw,
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2014)
+print(sf12.14)
 sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2016)
+print(sf12.16)
 sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2018)
+print(sf12.18)
 sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2020)
-
+print(sf12.20)
 rm(sf12.14, sf12.16, sf12.18, sf12.20)
 ```
 

@@ -166,8 +166,6 @@ marg_dist_densigram_plot_oneyear <- function(observed,
            plot = p1,
            path = save.path)
   }
-  
-  print(p1)
   return(p1)
 }
 
@@ -318,3 +316,25 @@ multi_year_boxplots <- function(raw, cv, var) {
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
 }
+
+q_q_comparison <- function(raw, cv, var) {
+  raw.inc <- raw %>%
+    select(pidp, time, any_of(var))
+  raw.inc$source <- 'raw'
+  cv.inc <- cv %>%
+    select(pidp, time, any_of(var))
+  cv.inc$source <- 'cross-validation'
+  
+  combined <- rbind(raw.inc, cv.inc)
+  combined <- filter(combined, .data[[var]] != -9)
+  
+  if (var == 'ncigs') {
+    print('Removing ncigs == 0 values for this plot')
+    combined <- filter(combined, .data[[var]] != 0)
+  }
+  
+  ggplot(combined, aes(sample = .data[[var]], group = source, color = source)) +
+    stat_qq() +
+    labs(title = paste0(var, ': Q-Q'))
+}
+

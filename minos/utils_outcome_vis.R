@@ -101,18 +101,3 @@ SF12_marg_dist_densigram_plot_oneyear <- function(base,
   
   return(p1)
 }
-
-q_q_comparisons <- function(raw, cv, var) {
-  raw.inc <- raw %>%
-    select(pidp, time, any_of(var))
-  raw.inc$source <- 'raw'
-  cv.inc <- cv %>%
-    select(pidp, time, any_of(var))
-  cv.inc$source <- 'cross-validation'
-  
-  combined <- rbind(raw.inc, cv.inc)
-  
-  ggplot(combined, aes(sample = .data[[var]], group = source, color = source)) +
-    stat_qq() +
-    labs(title = paste0(var, ': Q-Q'))
-}
