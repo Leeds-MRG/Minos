@@ -94,6 +94,7 @@ For all analyses, results will be calculated on each output separately and poole
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
 multi_year_boxplots(raw, cv, 'hh_income')
 snapshot_OP_plots(raw, cv, 'hh_income')
+q_q_comparison(raw, cv, 'hh_income')
 
 inc.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
@@ -117,12 +118,14 @@ inc.20 <- marg_dist_densigram_plot_oneyear(observed = raw,
 rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
+
 # Equivalent Income
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'equivalent_income')
 multi_year_boxplots(raw, cv, 'equivalent_income')
 snapshot_OP_plots(raw, cv, 'equivalent_income')
+q_q_comparison(raw, cv, 'equivalent_income')
 
 ei.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 

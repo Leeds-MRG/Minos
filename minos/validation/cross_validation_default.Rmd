@@ -94,6 +94,7 @@ For all analyses, results will be calculated on each output separately and poole
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
 multi_year_boxplots(raw, cv, 'hh_income')
 snapshot_OP_plots(raw, cv, 'hh_income')
+q_q_comparison(raw, cv, 'hh_income')
 
 inc.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
@@ -124,6 +125,7 @@ rm(inc.14, inc.16, inc.18, inc.20)
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
 multi_year_boxplots(raw, cv, 'SF_12')
 snapshot_OP_plots(raw, cv, 'SF_12')
+q_q_comparison(raw, cv, 'SF_12')
 
 sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
@@ -195,14 +197,15 @@ rm(lnly.pivoted)
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'nutrition_quality')
 multi_year_boxplots(raw, cv, 'nutrition_quality')
+q_q_comparison(raw, cv, 'nutrition_quality')
 ```
 
 # Tobacco Use
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'ncigs')
-
 multi_year_boxplots(raw, cv, 'ncigs')
+q_q_comparison(raw, cv, 'ncigs')
 ```
 
 # Financial Situation
@@ -257,6 +260,7 @@ rm(mstat.pivoted)
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hhsize')
 multi_year_boxplots(raw, cv, 'hhsize')
+q_q_comparison(raw, cv, 'hhsize')
 ```
 
 ## housing tenure
