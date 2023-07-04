@@ -95,25 +95,26 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
 multi_year_boxplots(raw, cv, 'hh_income')
 snapshot_OP_plots(raw, cv, 'hh_income')
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2014)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2016)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2018)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2020)
+rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
 # Equivalent Income
@@ -123,20 +124,21 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'equivalent_income')
 multi_year_boxplots(raw, cv, 'equivalent_income')
 snapshot_OP_plots(raw, cv, 'equivalent_income')
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+ei.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'equivalent_income', 
                                  target.year = 2014)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+ei.17 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'equivalent_income', 
                                  target.year = 2017)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+ei.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'equivalent_income', 
                                  target.year = 2020)
+rm(ei.14, ei.17, ei.20)
 ```
 
 # S7 Housing Quality
@@ -151,6 +153,7 @@ hous.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = hous.pivoted, 
                  var = 'S7_housing_quality',
                  save = FALSE)
+rm(hous.pivoted)
 ```
 
 # S7 Neighbourhood Safety
@@ -165,6 +168,7 @@ nhsafe.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = nhsafe.pivoted, 
                  var = 'S7_neighbourhood_safety',
                  save = FALSE)
+rm(nhsafe.pivoted)
 ```
 
 # S7 Physical Health
@@ -179,6 +183,7 @@ physhealth.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = physhealth.pivoted, 
                  var = 'S7_physical_health',
                  save = FALSE)
+rm(physhealth.pivoted)
 ```
 
 # S7 Mental Health
@@ -193,6 +198,7 @@ menhealth.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = menhealth.pivoted, 
                  var = 'S7_mental_health',
                  save = FALSE)
+rm(menhealth.pivoted)
 ```
 
 # S7 Labour State
@@ -207,6 +213,7 @@ labstate.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = labstate.pivoted, 
                  var = 'S7_labour_state',
                  save = FALSE)
+rm(labstate.pivoted)
 ```
 
 # Loneliness
@@ -221,6 +228,7 @@ lon.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = lon.pivoted, 
                  var = 'loneliness',
                  save = FALSE)
+rm(lon.pivoted)
 ```
 
 # Education
@@ -235,6 +243,7 @@ educ.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = educ.pivoted, 
                  var = 'education_state',
                  save = FALSE)
+rm(educ.pivoted)
 ```
 
 

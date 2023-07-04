@@ -95,25 +95,27 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
 multi_year_boxplots(raw, cv, 'hh_income')
 snapshot_OP_plots(raw, cv, 'hh_income')
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2014)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2016)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2018)
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+inc.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
                                  target.year = 2020)
+
+rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
 # SF_12
@@ -123,22 +125,24 @@ cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
 multi_year_boxplots(raw, cv, 'SF_12')
 snapshot_OP_plots(raw, cv, 'SF_12')
 
-marg_dist_densigram_plot_oneyear(observed = raw, 
+sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2014)
-marg_dist_densigram_plot_oneyear(observed = raw, 
+sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2016)
-marg_dist_densigram_plot_oneyear(observed = raw, 
+sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2018)
-marg_dist_densigram_plot_oneyear(observed = raw, 
+sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
                                  target.year = 2020)
+
+rm(sf12.14, sf12.16, sf12.18, sf12.20)
 ```
 
 # Housing Quality
@@ -153,6 +157,7 @@ hous.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = hous.pivoted, 
                  var = 'housing_quality',
                  save = FALSE)
+rm(hous.pivoted)
 ```
 
 # Neighbourhood Safety
@@ -167,6 +172,7 @@ nhsafe.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = nhsafe.pivoted, 
                  var = 'neighbourhood_safety',
                  save = FALSE)
+rm(nhsafe.pivoted)
 ```
 
 # Loneliness
@@ -181,6 +187,7 @@ lnly.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = lnly.pivoted, 
                  var = 'loneliness',
                  save = FALSE)
+rm(lnly.pivoted)
 ```
 
 # Nutrition Quality
@@ -210,7 +217,6 @@ fsit.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = fsit.pivoted, 
                  var = 'financial_situation',
                  save = FALSE)
-
 rm(fsit.pivoted)
 ```
 
@@ -226,6 +232,7 @@ heat.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = heat.pivoted, 
                  var = 'heating',
                  save = FALSE)
+rm(heat.pivoted)
 ```
 
 # SECONDARY VARS
@@ -242,7 +249,6 @@ mstat.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = mstat.pivoted, 
                  var = 'marital_status',
                  save = FALSE)
-
 rm(mstat.pivoted)
 ```
 
@@ -265,7 +271,6 @@ tenure.pivoted <- combine_and_pivot_long(df1 = cv,
 cv_ordinal_plots(pivoted.df = tenure.pivoted, 
                  var = 'housing_tenure',
                  save = FALSE)
-
 rm(tenure.pivoted)
 ```
 

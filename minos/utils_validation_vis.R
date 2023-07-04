@@ -168,6 +168,7 @@ marg_dist_densigram_plot_oneyear <- function(observed,
   }
   
   print(p1)
+  return(p1)
 }
 
 cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
@@ -306,7 +307,7 @@ multi_year_boxplots <- function(raw, cv, var) {
   combined <- drop_na(combined)
   combined <- filter(combined, .data[[var]] != -9)
   
-  if (var == 'hh_income') {
+  if (var %in% c('hh_income', 'equivalent_income')) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var == 'ncigs') {
     #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
@@ -314,5 +315,6 @@ multi_year_boxplots <- function(raw, cv, var) {
   }
   
   ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
-    geom_boxplot(notch=TRUE)
+    geom_boxplot(notch=TRUE) +
+    labs(title = paste0(var, ': Yearly box plots'))
 }
