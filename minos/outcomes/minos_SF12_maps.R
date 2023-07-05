@@ -147,7 +147,7 @@ minos_diff_map <- function(data, destination_file_name, do_save=T){
     # Add split colour scheme.
     scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
     #scale_fill_distiller(palette = "PuOr", limits=c(-scale_limit, scale_limit), direction=-1) + 
-    labs(fill='Absolute Difference')  + # label colour bar
+    labs(fill='Relative SF12-MCS Difference (%)')  + # label colour bar
     theme(aspect.ratio=9/16) +
     #ggtitle("Difference in SF12 spatial distribution for minos vs real US data in Sheffield.") +
     xlab("Longitude") + # axis labels
