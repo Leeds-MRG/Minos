@@ -10,16 +10,12 @@
 #transitions: $(TRANSITION_DATA)/alcohol/zip/alcohol_zip_2018_2019.rds $(TRANSITION_DATA)/nutrition/ols/nutrition_ols_2018_2019.rds
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
-longitudinal_transitions: | $(TRANSITION_DATA)
-longitudinal_transitions: final_data $(TRANSITION_DATA)/SF_12/gee_yj/SF_12_GEE_YJ.rds
-
 transitions: | $(TRANSITION_DATA)
-transitions: final_data longitudinal_transitions $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
-
+transitions: final_data $(TRANSITION_DATA)/SF_12/gee_yj/SF_12_GEE_YJ.rds $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds
 
 scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds
 
-cv_transitions: $(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds
+cv_transitions: cv_data $(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds $(TRANSITION_DATA)/cross_validation/SF_12/gee_yj/SF_12_GEE_YJ.rds
 
 $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R
@@ -32,6 +28,9 @@ $(TRANSITION_DATA)/cross_validation/hh_income/ols/hh_income_2018_2019.rds: $(FIN
 
 $(TRANSITION_DATA)/SF_12/gee_yj/SF_12_GEE_YJ.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R
+
+$(TRANSITION_DATA)/cross_validation/SF_12/gee_yj/SF_12_GEE_YJ.rds: $(FINALDATA)/2019_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions.txt
+	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --cross_validation
 
 $(TRANSITION_DATA):
 	@echo "Creating transition data directory"

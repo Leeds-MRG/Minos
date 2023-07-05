@@ -19,6 +19,7 @@ source("minos/transitions/transition_model_functions.R")
 require(argparse)
 require(tidyverse)
 require(stringr)
+require(texreg)
 
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
@@ -242,6 +243,13 @@ run_yearly_models <- function(transitionDir_path,
       # save model & coefficients to file (in their own folder)
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
+      # writing tex table of coefficients. easy writing for papers and documentation. 
+      write_coefs <- F
+      if (write_coefs)
+      {
+        texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.rds')
+        texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
+      }
       saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
 

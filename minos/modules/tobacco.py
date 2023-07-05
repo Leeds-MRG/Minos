@@ -95,6 +95,7 @@ class Tobacco(Base):
         newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
+        newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
         self.population_view.update(newWaveTobacco["ncigs"])
 
     def calculate_tobacco(self, pop):

@@ -5,7 +5,7 @@ R utility functions. These are currently all related to the use of transition mo
 # TODO: Rewrite all these functions to generalise more. Lots of duplicated code
 
 import rpy2.robjects as ro
-from rpy2.robjects import pandas2ri
+from rpy2.robjects import pandas2ri, r
 from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.vectors import FactorVector
 import pandas as pd
@@ -248,7 +248,7 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     return np.ceil(preds)
 
 
-def predict_next_timestep_gee(model, rpy2_modules, current, dependent):
+def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -269,12 +269,19 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent):
     geepack = rpy2_modules['geepack']
     stats = rpy2_modules['stats']
 
+    current["pidp"] = -current["pidp"]
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     prediction = stats.predict(model, currentRDF, type='response', allow_new_levels=True)
+
+    if noise_std:
+        VGAM = rpy2_modules["VGAM"]
+        prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
+
     newRPopDF = base.cbind(currentRDF, predicted = prediction)
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -287,7 +294,158 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_yj_gaussian_gee(model, rpy2_modules, current, dependent, noise_std = 1):
+def predict_next_timestep_yj_gaussian_gee(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2_modules['base']
+    geepack = rpy2_modules['geepack']
+    stats = rpy2_modules['stats']
+    bestNormalize = rpy2_modules['bestNormalize']
+    lme4 = rpy2_modules["lme4"]
+
+    current["pidp"] = -current["pidp"]
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+
+    # Inverse yeojohnson transform.
+    # Stored in estimate_transitions.R.
+    # Note inverse=True arg is needed to get back to actual gross income.
+    if reflect:
+        currentRDF[currentRDF.names.index(dependent)] = model.rx2("max_value").ro - currentRDF.rx2(dependent)
+
+    if yeo_johnson:
+        yj = model.rx2('transform') # use yj from fitted model for latest year.
+        currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
+    ols_data = stats.predict(model, newdata=currentRDF)  # estimate next income using OLS.
+
+    # if dependent == "SF_12":
+    #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+    # elif dependent == "nutrition_quality":
+    #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+    # elif dependent == 'hh_income' and noise_std:
+    #     #VGAM = rpy2_modules["VGAM"]
+    #     #ols_data = ols_data.ro + VGAM.rlaplace(n, 0, noise_std) # add gaussian noise.
+    #     #ols_data = ols_data.ro + stats.rcauchy(n, 0, noise_std)
+    #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+
+    if noise_std:
+        ols_data = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+        #VGAM = rpy2_modules["VGAM"]
+        #ols_data = ols_data.ro + VGAM.rlaplace(n, 0, noise_std) # add gaussian noise.
+
+    if yeo_johnson:
+        prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
+
+    if reflect:
+        prediction = model.rx2("max_value").ro - prediction
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        #ols_data = ro.conversion.rpy2py(ols_data)
+        prediction_output = ro.conversion.rpy2py(prediction)
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
+
+
+
+def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2_modules['base']
+    #geepack = rpy2_modules['geepack']
+    stats = rpy2_modules['stats']
+    bestNormalize = rpy2_modules['bestNormalize']
+    lme4 = rpy2_modules["lme4"]
+
+    #current = current.drop([dependent, 'time'], axis=1)
+    #current["pidp"] = -current["pidp"]
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+
+    # Inverse yeojohnson transform.
+    # Stored in estimate_transitions.R.
+    # Note inverse=True arg is needed to get back to actual gross income.
+    if reflect:
+        max_value = model.do_slot("max_value")
+        currentRDF[currentRDF.names.index(dependent)] = max_value.ro - currentRDF.rx2(dependent)
+
+    if yeo_johnson:
+        # stupid workaround to get attributes from R S4 type objects. Replaces rx2.
+        yj = model.do_slot("transform")
+        #yj = model.rx2('transform') # use yj from fitted model for latest year.
+        #currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
+
+    ols_data = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)  # estimate next income using OLS.
+
+    # if dependent == "SF_12":
+    #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+    # elif dependent == "nutrition_quality":
+    #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+    # elif dependent == 'hh_income' and noise_std:
+    #     #VGAM = rpy2_modules["VGAM"]
+    #     #ols_data = ols_data.ro + VGAM.rlaplace(n, 0, noise_std) # add gaussian noise.
+    #     #ols_data = ols_data.ro + stats.rcauchy(n, 0, noise_std)
+    #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+
+    #if dependent == "SF_12" and noise_std:
+    #    ols_data = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+    #elif dependent == "hh_income" and noise_std:
+    VGAM = rpy2_modules["VGAM"]
+    ols_data = ols_data.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
+
+
+    if yeo_johnson:
+        prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
+
+
+    if reflect:
+        prediction = max_value.ro - prediction
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        #ols_data = ro.conversion.rpy2py(ols_data)
+        prediction_output = ro.conversion.rpy2py(prediction)
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
+
+
+
+def predict_next_timestep_yj_gamma_gee(model, rpy2_modules, current, dependent, reflect, noise_std = 1):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -310,24 +468,37 @@ def predict_next_timestep_yj_gaussian_gee(model, rpy2_modules, current, dependen
     bestNormalize = rpy2_modules['bestNormalize']
     n = current.shape[0]
 
-
+    #current["pidp"] = -current["pidp"] # making new unique pidps for prediction so it doesn't use old training values.
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
+    if reflect:
+        currentRDF[currentRDF.names.index(dependent)] = model.rx2("max_value").ro - currentRDF.rx2(dependent)
 
-    # Inverse yeojohnson transform.
-    # Stored in estimate_transitions.R.
-    # Note inverse=True arg is needed to get back to actual gross income.
+    # Apply yeo johnson transform and make values strictly positive.
     yj = model.rx2('transform') # use yj from fitted model for latest year.
     currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
-    ols_data = stats.predict(model, newdata=currentRDF)  # estimate next income using OLS.
+    currentRDF[currentRDF.names.index(dependent)] = currentRDF.rx2(dependent).ro - model.rx2("min_value") + 0.001 # shift to strictly positive values for gamma distribution
+
+    ols_data = stats.predict(model, newdata=currentRDF, type='response')  # estimate next income using gamma GEE.
+    # Inverting transforms to get back to true income values.
+
+    ols_data = ols_data.ro + (model.rx2("min_value").ro - 0.001) # invert shift to strictly positive values.
 
     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise with variance 10.
+    #VGAM = rpy2_modules["VGAM"]
+    #ols_data = ols_data.ro + VGAM.rlaplace(n, 0, noise_std) # add gaussian noise with variance 10.
+
     prediction = stats.predict(yj, newdata=ols_data, inverse=True)  # invert yj transform.
+
+    if reflect:
+        prediction = model.rx2("max_value").ro - prediction
+
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
+        #ols_data = ro.conversion.rpy2py(ols_data)
         prediction_output = ro.conversion.rpy2py(prediction)
 
     return pd.DataFrame(prediction_output, columns=[dependent])

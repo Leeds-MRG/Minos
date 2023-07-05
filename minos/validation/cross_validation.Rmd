@@ -1,6 +1,8 @@
 ---
 title: "Cross Validation Analysis"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 This notebook will compare the results of the cross-validation simulation run with real data from Understanding Society, so that we can evaluate the transition models.
@@ -17,26 +19,27 @@ The results of the simulation will now be compared to the simulation dataset to 
 
 require(tidyverse)
 require(ggplot2)
+require(here)
 
-workingDir <- "/home/luke/Documents/MINOS/"
+workingDir <- here::here()
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
 
 ```{r, include=FALSE}
-source('Minos/minos/utils_datain.R')
-source('Minos/minos/validation/utils.r')
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 ## Data
 
 ```{r, include=FALSE}
 # cross validation simulation output
-out.path <- 'Minos/output/cross_validation/'
-cv <- read_singular_local_out(out.path, 'baseline')
+out.path <- here::here("output", "cross_validation")
+cv <- read_singular_local_out(out.path, '/baseline')
 
 # cv simulation pop (not used for transitions)
-cv.simul.files <- list.files('Minos/data/final_US/cross_validation/simulation/',
+cv.simul.files <- list.files(here::here('data', 'final_US', 'cross_validation', 'simulation/'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
 raw <- do.call(rbind, lapply(cv.simul.files, read.csv))

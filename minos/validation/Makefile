@@ -17,7 +17,7 @@ debug: handovers debug_replenishing debug_mwb_pathways debug_interventions debug
 handovers:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd')"
 	# open html file in firefox
-	firefox file://$(VALIDATION)/handovers.nb.html
+	firefox file://$(VALIDATION)/handovers.html
 
 debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"

@@ -110,14 +110,17 @@ class Base():
 
     def generate_history_dataframe(self, source, years, variables):
         file_names = [f"data/{source}/{year}_US_cohort.csv" for year in years]
-        data = load_multiple_data(file_names)
-        data = data[variables]
-        data = data.sort_values(by=["pidp", "time"])
+        if file_names:
+            data = load_multiple_data(file_names)
+            data = data[variables]
+            data = data.sort_values(by=["pidp", "time"])
+        else:
+            data = pd.DataFrame()
         return data
 
-    def update_history_dataframe(self, new_data, year):
+    def update_history_dataframe(self, new_data, year, lag=5):
         self.history_data = pd.concat([self.history_data, new_data])
-        self.history_data = self.history_data.loc[self.history_data["time"] > year-5]
+        self.history_data = self.history_data.loc[self.history_data["time"] > year-lag]
         self.history_data = self.history_data.sort_values(by=['pidp', 'time'])
         self.history_data.reset_index(inplace=True, drop=True)
 

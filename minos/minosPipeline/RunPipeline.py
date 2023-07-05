@@ -20,15 +20,15 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome
-from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
-from minos.modules.nutrition import Nutrition
+from minos.modules.nutrition import Nutrition, geeYJNutrition
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -64,6 +64,8 @@ def validate_components(config_components, intervention):
         # Outcome module.
         "geeMWB()": geeMWB(),
         "geeYJMWB()": geeYJMWB(),
+        "lmmYJMWB()": lmmYJMWB(),
+        "lmmDiffMWB()": lmmDiffMWB(),
         "MWB()": MWB(),
         #Intermediary modules
         "Tobacco()": Tobacco(),
@@ -73,9 +75,12 @@ def validate_components(config_components, intervention):
         "Housing()": Housing(),
         "geeIncome()": geeIncome(),
         "geeYJIncome()": geeYJIncome(),
+        "lmmDiffIncome()": lmmDiffIncome(),
+        "lmmYJIncome()": lmmYJIncome(),
         "Income()": Income(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),
+        "geeYJNutrition()": geeYJNutrition(),
         "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
         "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
         "Mortality()": Mortality(),
@@ -155,6 +160,8 @@ def RunPipeline(config, intervention=None):
                     "zeroinfl": importr("pscl"),
                     "geepack": importr("geepack"),
                     "bestNormalize": importr("bestNormalize"),
+                    "VGAM": importr("VGAM"),
+                    "lme4": importr("lme4"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

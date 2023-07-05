@@ -4,6 +4,7 @@ require(nnet)
 require(pscl)
 require(geepack)
 require(bestNormalize)
+require(lme4)
 
 ################ Model Specific Functions ################
 
@@ -141,10 +142,19 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 
 
 
-estimate_longitudnial_gamma_gee <- function(data, formula, include_weights = FALSE, depend) {
+estimate_longitudnial_yj_gamma_gee <- function(data, formula, include_weights = FALSE, depend, reflect) {
   
-  data = replace.missing(data)
+  data <- replace.missing(data)
   data <- drop_na(data)
+  max_value <- max(data[[depend]])
+  if (reflect) {
+    data[, c(depend)] <- max_value - data[, c(depend)] 
+  }
+  yj <- yeojohnson(data[[depend]])
+  data[[depend]] <- predict(yj)
+  min_value <- min(data[[depend]])
+  data[[depend]] <- data[[depend]] - min_value + 0.001 # shift so values are strictly positive
+  
   if(include_weights) {
     model <- geeglm(formula,
                     id = pidp,
@@ -163,19 +173,48 @@ estimate_longitudnial_gamma_gee <- function(data, formula, include_weights = FAL
   }
   # add obs and preds to model object for any later plotting.
   # This is mildly stupid.. 
-  model[[depend]] <- data[[depend]]
-  model$class_preds <- predict(model)
-  if(depend == "SF_12"){model$class_preds <- max(data$SF_12) - model$class_preds} # flip SF_12 back from right to left skew. 
+  #model[[depend]] <- data[[depend]]
+  #model$class_preds <- predict(model)
+  model$transform <- yj
+  model$min_value <- min_value
+  model$max_value <- max_value
   return(model)
 }
 
 
+estimate_longitudnial_gaussian_gee_diff <- function(data, formula, include_weights=FALSE, depend) {
+    data <- replace.missing(data)
+    data <- drop_na(data)
+    if(include_weights) {
+      model <- geeglm(formula,
+                      id = pidp,
+                      waves = time,
+                      family = gaussian, # gaussian GEE uses canonical identity link.
+                      #family=Gamma(link='log'),
+                      data = data,
+                      weights = weight,
+                      corstr="ar1") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+    } else {
+      model <- geeglm(formula,
+                      id = pidp,
+                      waves = time,
+                      family = gaussian,
+                      #family=Gamma(link='log'),
+                      data = data,
+                      corstr="ar1")
+    }
+    #browser()
+    return(model)
+}
+
 
 estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights = FALSE, depend, reflect) {
-  data = replace.missing(data)
+  data <- replace.missing(data)
   data <- drop_na(data)
+  max_value <- max(data[[depend]])
+  min_value <- max(data[[depend]])
   if (reflect) {
-    data[, c(depend)] <- -data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)] 
   }
   yj <- yeojohnson(data[,c(depend)])
   data[, c(depend)] <- predict(yj)
@@ -200,18 +239,80 @@ estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights
   # This is mildly stupid.. 
   #model[[depend]] <- data[[depend]]
   #model$class_preds <- predict(model)
-  model$transform <- yj    
+  model$transform <- yj  
+  model$min_value <- min_value
+  model$max_value <- max_value
+  return(model)
+}
+
+
+nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
+nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
+
+estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, reflect) {
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  max_value <- nanmax(data[[depend]])
+  min_value <- nanmin(data[[depend]])
+  if (reflect) {
+    data[, c(depend)] <- max_value - data[, c(depend)] 
+  }
+  yj <- yeojohnson(data[,c(depend)])
+  data[, c(depend)] <- predict(yj)
+  
+  if(include_weights) {
+    model <- lmer(formula,  
+                  weights=weight, 
+                  data = data)
+  } else {
+    model <- lmer(formula, 
+                  data = data)
+  }
+  #browser()
+  attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+  attr(model,"max_value") <- max_value # Works though.
+  attr(model,"min_value") <- min_value
+
+  #model@transform <- yj 
+  #model@min_value <- min_value
+  #model@max_value <- max_value
   #browser()
   return(model)
 }
 
 
+estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALSE, depend, reflect) {
+  
+  data <- replace.missing(data)
+  #data <- drop_na(data)
+  yj <- yeojohnson(data[,c(depend)])
+  data[, c(depend)] <- predict(yj)
+  
+  if(include_weights) {
+    model <- lmer(formula,  
+                   weights=weight, 
+                   data = data)
+  } else {
+    model <- lmer(formula, 
+                   data = data)
+  }
+  #browser()
+  attr(model,"transform") <- yj
+  #attr(model,"max_value") <- max_value
+  #attr(model,"min_value") <- min_value
+  
+  #model@transform <- yj # S4 class uses @ rather than $ for assignment. y tho?
+  #model@min_value <- min_value
+  #model@max_value <- max_value
+  return(model)
+}
+
 estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend) {
   
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
-  data = replace.missing(data)
+  data <- replace.missing(data)
   
   if(include_weights) {
     model <- glmer(formula,  
@@ -230,4 +331,43 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   model[[depend]] <- data[[depend]]
   model$class_preds <- predict(model)
   return(model)
+}
+
+estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend) 
+{
+  #data[[depend]] <- as.factor(data[[depend]])
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  if(include_weights) {
+    model <- ordgee(formula,
+                   id = pidp,
+                   waves = time,
+                   mean.link = 'logit', # gaussian GEE uses canonical identity link.
+                   data = data,
+                   weights = weight,
+                   corstr="exchangeable") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+  } else {
+    model <- ordgee(formula,
+                      id = pidp,
+                      waves = time,
+                      mean.link = 'logit', # logistic link function (can use probit or cloglog as well.)
+                      data = head(data, 100),
+                      corstr="independence") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+  }
+  browser()
+  return (model)
+}
+
+estimate_longitudinal_clmm <- function(data, formula, depend) 
+{
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  data[, c(depend)] <- factor(data[, c(depend)])
+  model <- clmm2(formula,
+                random=factor(pidp),
+                link='probit', # logistic link function (can use probit or cloglog as well.)
+                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
+                threshold="flexible",
+                nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+  return (model)
 }
