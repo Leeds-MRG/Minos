@@ -2,7 +2,12 @@
 title: "MINOS Handover Plots"
 output:
   html_document:
+    toc: true
+    toc_float: true
+      collapsed: false
+    number_sections: true
     df_print: paged
+    code_folding: hide
 ---
 
 This notebook shows the handover plots for all pathways in the MINOS microsimulation model.
@@ -132,7 +137,7 @@ rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2,
 
 ### Spaghetti
 
-```{r}
+```{r, warning=FALSE}
 raw.inc <- raw.dat %>%
   select(pidp, age, time, hh_income)
 base.inc <- base.dat %>%
@@ -278,7 +283,7 @@ if (shall.we.save) {
        path = save.path)
 }
 
-rm(raw.housing, base.housing, housing, housing.norm)
+rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
 ## Housing Quality
@@ -656,11 +661,9 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-if (shall.we.save) {
-  spaghetti_plot(spag, 'phealth',
-               save = shall.we.save,
-               save.path = save.path)
-}
+spaghetti_plot(spag, 'phealth',
+             save = shall.we.save,
+             save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
@@ -702,7 +705,7 @@ rm(prepped.list, var, norm, tit)
 
 
 
-```{r}
+```{r, warning=FALSE}
 pivoted <- combine_and_pivot_long(df1 = base.dat, 
                                        df1.name = 'simulated', 
                                        df2 = raw.dat, 

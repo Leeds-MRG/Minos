@@ -17,12 +17,12 @@ debug: handovers debug_replenishing debug_mwb_pathways debug_interventions debug
 handovers:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd')"
 	# open html file in firefox
-	firefox file://$(VALIDATION)/handovers.nb.html
+	firefox file://$(VALIDATION)/handovers.html
 
 handovers_S7:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers_S7.Rmd')"
 	# open html file in firefox
-	firefox file://$(VALIDATION)/handovers_S7.nb.html
+	firefox file://$(VALIDATION)/handovers_S7.html
 
 debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"
@@ -48,8 +48,8 @@ debug_interventions:
 
 cross_validation_default: cv_setup cv_default
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_default.Rmd')"
-	firefox file://$(VALIDATION)/cross_validation_default.nb.html
+	firefox file://$(VALIDATION)/cross_validation_default.html
 
 cross_validation_S7: cv_S7_setup cv_SIPHER7
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_S7.Rmd')"
-	firefox file://$(VALIDATION)/cross_validation_S7.nb.html
+	firefox file://$(VALIDATION)/cross_validation_S7.html

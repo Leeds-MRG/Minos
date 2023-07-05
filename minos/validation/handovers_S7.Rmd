@@ -1,6 +1,13 @@
 ---
 title: "Handovers - SIPHER 7 Equivalent Income"
-output: html_notebook
+output:
+  html_document:
+    toc: true
+    toc_float: true
+      collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
 ---
 
 # SETUP

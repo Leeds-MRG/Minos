@@ -227,7 +227,9 @@ run_yearly_models <- function(transitionDir_path,
   
   ## Set some factor levels because R defaults to using alphabetical ordering
   data$housing_quality <- factor(data$housing_quality, 
-                                 levels = c('Low', 'Medium', 'High'))
+                                 levels = c('Low',
+                                            'Medium',
+                                            'High'))
   data$S7_housing_quality <- factor(data$S7_housing_quality, 
                                  levels = c('No to all', 
                                             'Yes to some', 
