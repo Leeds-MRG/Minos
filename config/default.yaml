@@ -17,6 +17,7 @@ output_data_dir: "output"
 
 transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing'
+cross_validation: FALSE
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
