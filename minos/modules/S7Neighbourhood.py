@@ -112,16 +112,20 @@ class S7Neighbourhood(Base):
         """
         # load transition model based on year.
         # get the nearest multiple of 3+1 year. Data occur every 2011,2014,2017 ...
-        year = max(self.year, 2011)
-        mod = year % 3
-        if mod == 0:
-            year -= 2  # e.g. 2013 moves back two years to 2011.
-        elif mod == 1:
-            pass  # e.g. 2011 is correct
-        elif mod == 2:
-            year -= 1  # e.g. 2012 moves back one year to 2011.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2017
+        else:
+            year = max(self.year, 2011)
+            mod = year % 3
+            if mod == 0:
+                year -= 2  # e.g. 2013 moves back two years to 2011.
+            elif mod == 1:
+                pass  # e.g. 2011 is correct
+            elif mod == 2:
+                year -= 1  # e.g. 2012 moves back one year to 2011.
+            year = min(year, 2017)  # transitions only go up to 2017.
 
-        year = min(year, 2017)  # transitions only go up to 2014.
         transition_model = r_utils.load_transitions(f"S7_neighbourhood_safety/clm/S7_neighbourhood_safety_{year}_{year + 3}",
                                                     self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified

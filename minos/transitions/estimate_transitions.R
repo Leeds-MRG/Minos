@@ -504,6 +504,8 @@ cross_validation <- args$crossval
 default <- args$default
 sipher7 <- args$SIPHER7
 
+cross_validation <- TRUE
+
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
 dataDir <- 'data/final_US/'
@@ -524,25 +526,59 @@ if(scotland.mode) {
   create.if.not.exists(transitionDir)
 } else if(cross_validation) {
   print('Estimating cross validation models')
-  dataDir <- 'data/final_US/cross_validation/transition/'
+  dataDir <- 'data/final_US/cross_validation/'
   mode <- 'cross_validation'
   transitionDir <- paste0(transitionDir, 'cross_validation/')
   create.if.not.exists(transitionDir)
-} else if(sipher7) {
-  print('Estimating models for SIPHER7 Equivalent Income experiment')
-  modDefFilename <- 'model_definitions_S7.txt'
 } else if(default) {
   print('Estimating transition models in whole population mode')
 }
 
+if(sipher7) {
+  print('Estimating models for SIPHER7 Equivalent Income experiment')
+  modDefFilename <- 'model_definitions_S7.txt'
+}
 
-# Load input data (final_US/)
-filelist <- list.files(dataDir,
-                       include.dirs = FALSE,
-                       full.names = TRUE,
-                       pattern = '[0-9]{4}_US_cohort.csv')
-data <- do.call(rbind, lapply(filelist, read.csv))
 
-run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
+
+# we need to generate 5 sets of transition models, based on 4/5 batches of data
+# so version 1 uses batches 2,3,4, and 5 for trans models and simulates using batch 1
+if (mode == 'cross_validation') {
+  print("Estimating transitions in batch mode")
+  for (i in 1:5) {
+    print(paste0("Creating version ", i, " transition models"))
+    # set up batch vector and remove one element each loop
+    batch.vec <- c(1,2,3,4,5)
+    batch.vec <- batch.vec[!batch.vec %in% i]
+    
+    # now start new loop to list files in each batch and read data into a single object.
+    # open a dataframe for collecting up multiple batches together
+    combined.data <- data.frame()
+    for (j in batch.vec) {
+      batch.path <- paste0(dataDir, 'batch', j, '/')
+      batch.filelist <- list.files(batch.path,
+                                   include.dirs = FALSE,
+                                   full.names = TRUE,
+                                   pattern = '[0-9]{4}_US_cohort.csv')
+      batch.dat <- do.call(rbind, lapply(batch.filelist, read.csv))
+      combined.data <- rbind(combined.data, batch.dat)
+    }
+    rm(batch.dat, batch.path, batch.filelist)
+    
+    out.dir <- paste0(transitionDir, 'version', i, '/')
+    create.if.not.exists(out.dir)
+    
+    run_yearly_models(out.dir, transSourceDir, modDefFilename, combined.data, mode)
+  }
+} else {
+  # Load input data depending on mode and previously set params (final_US/)
+  filelist <- list.files(dataDir,
+                         include.dirs = FALSE,
+                         full.names = TRUE,
+                         pattern = '[0-9]{4}_US_cohort.csv')
+  data <- do.call(rbind, lapply(filelist, read.csv))
+  
+  run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
+}
 
 print('Generated transition models.')
