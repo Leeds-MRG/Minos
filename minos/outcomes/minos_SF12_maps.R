@@ -89,6 +89,13 @@ calculate_diff <-function(data1, data2, v){
   return(data1)
 }
 
+calculate_relative_diff <-function(data1, data2, v){
+  # for two data frames with some shared column v.
+  # add data1$v - data2$v to data1 as diff.
+  data1$diff <- ((data1[[v]] - data2[[v]]) / data1[[v]])
+  return(data1)
+}
+
 minos_map <- function(data, destination_file, do_save=T){
   # plot map of minos results from a geojson data.  
   browser()
@@ -226,7 +233,8 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name){
   #data1 <- geojson_to_tibble(data1)
   #data2 <- geojson_to_tibble(data2)
   
-  data1 <- calculate_diff(data1, data2, "SF_12")
+  #data1 <- calculate_diff(data1, data2, "SF_12")
+  data1 <- calculate_relative_diff(data1, data2, "SF_12")
   minos_diff_map(data1, destination_file_name)
   
   # imd_ranks <- read.csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")
