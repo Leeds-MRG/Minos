@@ -4,7 +4,7 @@ output:
   html_document:
     toc: true
     toc_float: true
-      collapsed: false
+    collapsed: false
     number_sections: true
     df_print: paged
     code_folding: hide
@@ -26,6 +26,10 @@ require(here)
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
 knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
 rm(workingDir)
 ```
 
@@ -137,7 +141,7 @@ rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2,
 
 ### Spaghetti
 
-```{r, warning=FALSE}
+```{r}
 raw.inc <- raw.dat %>%
   select(pidp, age, time, hh_income)
 base.inc <- base.dat %>%
@@ -705,7 +709,7 @@ rm(prepped.list, var, norm, tit)
 
 
 
-```{r, warning=FALSE}
+```{r}
 pivoted <- combine_and_pivot_long(df1 = base.dat, 
                                        df1.name = 'simulated', 
                                        df2 = raw.dat, 

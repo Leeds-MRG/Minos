@@ -4,7 +4,7 @@ output:
   html_document:
     toc: true
     toc_float: true
-      collapsed: false
+    collapsed: false
     number_sections: true
     df_print: paged
     code_folding: hide
@@ -23,6 +23,10 @@ require(scales)
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
 knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
 rm(workingDir)
 ```
 
@@ -76,7 +80,7 @@ raw.dat <- do.call(rbind, rawlist)
 
 First things first, we need to make sure that we are comparing the exact same people from each dataset. Therefore, we need a step here to check the pidps from both, and remove anybody not in both datasets. We can also filter the years out of the raw data here, as we only care about years that have been simulated for comparison.
 
-```{r}
+```{r, include=FALSE}
 # pidp filter
 #cv.pidps <- cv %>% select(pidp) %>% unique()
 #raw.pidps <- raw %>% select(pidp) %>% unique()
@@ -130,8 +134,6 @@ inc.20 <- marg_dist_densigram_plot_oneyear(observed = raw,
                                  var = 'hh_income', 
                                  target.year = 2020)
 print(inc.20)
-```
-```{r}
 rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
