@@ -48,6 +48,8 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
+
+shall.we.save <- FALSE
 ```
 
 
@@ -109,9 +111,11 @@ ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colou
   xlab('Year') +
   ylab('Income')
 
-ggsave(filename = 'hh_income_wav1.png',
+if (shall.we.save) {
+  ggsave(filename = 'hh_income_wav1.png',
        plot = last_plot(),
        path = save.path)
+}
 
 raw.income.check <- raw.dat %>% 
   dplyr::select(pidp, time, hh_income) %>%
@@ -136,7 +140,7 @@ base.inc <- base.dat %>%
 income.spag <- rbind(raw.inc, base.inc)
 
 spaghetti_plot(income.spag, 'hh_income',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
@@ -199,9 +203,11 @@ ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour =
   xlab('Year') +
   ylab('SF12')
 
-ggsave(filename = 'SF12_wav1.png',
+if (shall.we.save) {
+  ggsave(filename = 'SF12_wav1.png',
        plot = last_plot(),
        path = save.path)
+}
 
 rm(raw.sf12, base.sf12, sf12, raw.sf12.wave1, raw.sf12.2, base.sf12.2, sf12.2)
 ```
@@ -217,7 +223,7 @@ base.sf12 <- base.dat %>%
 sf12.spag <- rbind(raw.sf12, base.sf12)
 
 spaghetti_plot(sf12.spag, 'SF_12',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.sf12, base.sf12, sf12.spag)
@@ -225,8 +231,6 @@ rm(raw.sf12, base.sf12, sf12.spag)
 
 
 ## Financial Situation
-
-## Housing Quality
 
 ```{r}
 raw.financial_situation <- raw.dat %>% 
@@ -267,9 +271,11 @@ ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=f
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'financial_situation.png',
+if (shall.we.save) {
+  ggsave(filename = 'financial_situation.png',
        plot = last_plot(),
        path = save.path)
+}
 
 rm(raw.housing, base.housing, housing, housing.norm)
 ```
@@ -288,8 +294,6 @@ base.housing <- base.dat %>%
   group_by(time, housing_quality) %>%
   count() %>%
   mutate(source = 'baseline_output')
-
-
 
 # merge before plot
 housing <- rbind(raw.housing, base.housing)
@@ -315,9 +319,11 @@ ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=housing_quali
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'housing_quality.png',
+if (shall.we.save) {
+  ggsave(filename = 'housing_quality.png',
        plot = last_plot(),
        path = save.path)
+}
 
 rm(raw.housing, base.housing, housing, housing.norm)
 ```
@@ -333,7 +339,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'housing_quality',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -353,8 +359,6 @@ base.neighbour <- base.dat %>%
   group_by(time, neighbourhood_safety) %>%
   count() %>%
   mutate(source = 'baseline_output')
-
-
 
 # merge before plot
 neighbour <- rbind(raw.neighbour, base.neighbour)
@@ -381,9 +385,11 @@ ggplot(data = neighbour.norm, mapping = aes(x = time, y = prct, fill=neighbourho
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'neighbourhood_safety.png',
+if (shall.we.save) {
+  ggsave(filename = 'neighbourhood_safety.png',
        plot = last_plot(),
        path = save.path)
+}
 
 #rm(raw.neighbour, base.neighbour, neighbour, neighbour.norm)
 ```
@@ -399,7 +405,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'neighbourhood_safety',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -419,8 +425,6 @@ base.loneliness <- base.dat %>%
   group_by(time, loneliness) %>%
   count() %>%
   mutate(source = 'baseline_output')
-
-
 
 # merge before plot
 loneliness <- rbind(raw.loneliness, base.loneliness)
@@ -447,9 +451,11 @@ ggplot(data = loneliness.norm, mapping = aes(x = time, y = prct, fill=loneliness
   xlab('Year') +
   ylab('Proportion')
 
-ggsave(filename = 'loneliness.png',
+if (shall.we.save) {
+  ggsave(filename = 'loneliness.png',
        plot = last_plot(),
        path = save.path)
+}
 
 rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 ```
@@ -465,7 +471,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'loneliness',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -530,9 +536,11 @@ ggplot(data = nutrition_quality2, mapping = aes(x = time, y = nutrition_quality,
   xlab('Year') +
   ylab('Nutrition Quality')
 
-ggsave(filename = 'nutrition_quality_wav1.png',
+if (shall.we.save) {
+  ggsave(filename = 'nutrition_quality_wav1.png',
        plot = last_plot(),
        path = save.path)
+}
 
 rm(raw.nut, base.nut, nutrition_quality, raw.wave1, raw.nut2, base.nut2, 
     nutrition_quality2)
@@ -549,7 +557,7 @@ base.s <- base.dat %>%
 spag <- rbind(raw.s, base.s)
 
 spaghetti_plot(spag, 'nutrition_quality',
-               save = TRUE,
+               save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
@@ -617,9 +625,11 @@ ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, col
   xlab('Year') +
   ylab('Average')
 
-ggsave(filename = 'physical_health_wav1.png',
+if (shall.we.save) {
+  ggsave(filename = 'physical_health_wav1.png',
        plot = last_plot(),
        path = save.path)
+}
 
 #raw.phealth.check <- raw.dat %>% 
 #  select(pidp, time, phealth) %>%
@@ -645,9 +655,11 @@ base.s <- base.dat %>%
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'phealth',
-               save = TRUE,
+if (shall.we.save) {
+  spaghetti_plot(spag, 'phealth',
+               save = shall.we.save,
                save.path = save.path)
+}
 
 rm(raw.s, base.s, spag)
 ```
