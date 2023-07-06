@@ -41,12 +41,6 @@ source(here::here('minos', 'utils_validation_vis.R'))
 source(here::here('minos', 'validation', 'utils.r'))
 ```
 
-```{r, include=FALSE}
-start.year <- 2020
-
-save.path <- '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Handovers/'
-```
-
 ## Data
 
 ```{r}
@@ -58,8 +52,6 @@ out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
-<<<<<<< HEAD
-=======
 ## Constants
 
 ```{r}
@@ -69,8 +61,6 @@ create.if.not.exists(save.path)
 
 shall.we.save <- FALSE
 ```
-
->>>>>>> development
 
 # PATHWAYS
 
@@ -228,12 +218,8 @@ ggplot(data = sf12.m.2, mapping = aes(x = time, y = sf12.m, group = source, colo
   xlab('Year') +
   ylab('SF12_MCS')
 
-<<<<<<< HEAD
-ggsave(filename = 'SF12_MCS_wav1.png',
-=======
 if (shall.we.save) {
-  ggsave(filename = 'SF12_wav1.png',
->>>>>>> development
+  ggsave(filename = 'SF12_MCS_wav1.png',
        plot = last_plot(),
        path = save.path)
 }
@@ -241,7 +227,23 @@ if (shall.we.save) {
 rm(raw.sf12, base.sf12, sf12, raw.sf12.wave1, raw.sf12.2, base.sf12.2, sf12.2)
 ```
 
-<<<<<<< HEAD
+### Spaghetti
+
+```{r}
+raw.sf12.m <- raw.dat %>%
+  select(pidp, age, time, SF_12_MCS)
+base.sf12.m <- base.dat %>%
+  select(pidp, age, time, SF_12_MCS)
+
+sf12.m.spag <- rbind(raw.sf12.m, base.sf12.m)
+
+spaghetti_plot(sf12.m.spag, 'SF_12_MCS',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.sf12.m, base.sf12.m, sf12.m.spag)
+```
+
 ## SF_12_PCS
 
 ```{r}
@@ -305,24 +307,24 @@ ggplot(data = sf12.p.2, mapping = aes(x = time, y = sf12.p, group = source, colo
 ggsave(filename = 'SF12_PCS_wav1.png',
        plot = last_plot(),
        path = save.path)
-=======
+```
+
 ### Spaghetti
 
 ```{r}
-raw.sf12 <- raw.dat %>%
-  select(pidp, age, time, SF_12)
-base.sf12 <- base.dat %>%
-  select(pidp, age, time, SF_12)
+raw.sf12.p <- raw.dat %>%
+  select(pidp, age, time, SF_12_PCS)
+base.sf12.p <- base.dat %>%
+  select(pidp, age, time, SF_12_PCS)
 
-sf12.spag <- rbind(raw.sf12, base.sf12)
+sf12.p.spag <- rbind(raw.sf12.p, base.sf12.p)
 
-spaghetti_plot(sf12.spag, 'SF_12',
+spaghetti_plot(sf12.m.spag, 'SF_12_PCS',
                save = shall.we.save,
                save.path = save.path)
 
-rm(raw.sf12, base.sf12, sf12.spag)
+rm(raw.sf12.p, base.sf12.p, sf12.p.spag)
 ```
-
 
 ## Financial Situation
 
@@ -372,7 +374,6 @@ if (shall.we.save) {
 }
 
 rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
->>>>>>> development
 ```
 
 ## Housing Quality
