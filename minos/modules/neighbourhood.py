@@ -55,7 +55,8 @@ class Neighbourhood(Base):
                         'S7_labour_state',
                         'education_state',
                         'housing_quality',
-                        'job_sec']
+                        'job_sec',
+                        'urban']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

@@ -1,4 +1,8 @@
-"""Loneliness Module for MINOS. Primarily estimates sclonely."""
+"""
+Module for housing tenure in Minos.
+Type of housing i.e. social rented, private rented, owned with mortgage, owned outright etc.
+Possible future work for moving households and changing household composition (e.g. marrying/births)
+"""
 
 import pandas as pd
 from pathlib import Path
@@ -7,16 +11,19 @@ from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
 import logging
+from datetime import datetime as dt
 
 
-class Loneliness(Base):
-    # Special methods used by vivarium.
+class Housing(Base):
+
     @property
     def name(self):
-        return 'loneliness'
+        return "housing_tenure"
 
     def __repr__(self):
-        return "Loneliness()"
+        return "HousingTenure()"
+
+    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -42,26 +49,20 @@ class Loneliness(Base):
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
-        # Assign randomness streams if necessary.
+        # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "S7_labour_state",
-                        "SF_12_MCS",
-                        "SF_12_PCS",
-                        "job_sec",
                         "ethnicity",
-                        "education_state",
                         "age",
-                        "housing_quality",
                         "hh_income",
-                        "loneliness",
-                        "hh_comp",
-                        "marital_status",
-                        "ncigs"]
+                        'housing_tenure',
+                        'urban',
+                        'financial_situation']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -81,6 +82,9 @@ class Loneliness(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("HOUSING TENURE")
+
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
@@ -88,17 +92,25 @@ class Loneliness(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
-        loneliness_prob_df = self.calculate_loneliness(pop)
+        housing_tenure_prob_df = self.calculate_housing_tenure(pop)
 
-        loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
-                                                              list(loneliness_prob_df.columns),
-                                                              loneliness_prob_df) + 1
-        loneliness_prob_df.index = pop.index
+        housing_tenure_prob_df["housing_tenure"] = self.random.choice(housing_tenure_prob_df.index,
+                                                               list(housing_tenure_prob_df.columns),
+                                                               housing_tenure_prob_df)
 
-        self.population_view.update(loneliness_prob_df["loneliness"])
+        housing_tenure_prob_df.index = housing_tenure_prob_df.index.astype(int)
 
-    def calculate_loneliness(self, pop):
-        """Calculate loneliness transition distribution based on provided people/indices.
+        # convert numeric prediction into string factors (low, medium, high)
+        #housing_tenure_factor_dict = {1: 'Low',
+        #                              2: 'Medium',
+        #                              3: 'High'}
+        #housing_tenure_prob_df.replace({'housing_quality': housing_tenure_factor_dict},
+        #                        inplace=True)
+
+        self.population_view.update(housing_tenure_prob_df["housing_tenure"])
+
+    def calculate_housing_tenure(self, pop):
+        """Calculate housing tenure transition distribution based on provided people/indices.
 
         Parameters
         ----------
@@ -107,33 +119,47 @@ class Loneliness(Base):
         Returns
         -------
         """
-
-        logging.info("LONELINESS")
-
         # load transition model based on year.
-        if self.year < 2018:
-            year = 2018
-        else:
-            year = self.year
-
         if self.cross_validation:
             # if cross-val, fix year to final year model
             year = 2019
         else:
-            year = min(year, 2019)
+            year = min(self.year, 2019)
 
-        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"housing_tenure/clm/housing_tenure_{year}_{year+1}",
+                                                    self.rpy2Modules,
+                                                    path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'loneliness')
+        prob_df = r_utils.predict_next_timestep_clm(transition_model,
+                                                    self.rpy2Modules,
+                                                    pop,
+                                                    'housing_tenure')
+        return prob_df
+
+        # set up list of columns
+        cols = ['FT Employed', 'PT Employed', 'Job Seeking', 'FT Education', 'Family Care', 'Not Working']
+
+        # load transition model based on year.
+        # year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
+
+        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year + 1}",
+                                                    self.rpy2Modules, path=self.transition_dir)
+        # returns probability matrix (9xn) of next ordinal state.
+        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"loneliness_barplot_{self.year}.pdf"
-        densities = pd.DataFrame(pop['loneliness'].value_counts(normalize=True))
+        file_name = config.output_plots_dir + f"housing_tenure_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['housing_tenure'].value_counts(normalize=True))
         densities.columns = ['densities']
-        densities['loneliness'] = densities.index
+        densities['housing_tenure'] = densities.index
         f = plt.figure()
-        cat = catplot(data=densities, y='loneliness', x='densities', kind='bar', orient='h')
+        cat = catplot(data=densities, y='housing_tenure', x='densities', kind='bar', orient='h')
         plt.savefig(file_name)
         plt.close()

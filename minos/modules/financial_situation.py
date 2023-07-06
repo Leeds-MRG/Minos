@@ -15,7 +15,7 @@ class financialSituation(Base):
         return 'financial_situation'
 
     def __repr__(self):
-        return "financialSituation()"
+        return "FinancialSituation()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -57,7 +57,8 @@ class financialSituation(Base):
                         'job_sec',
                         #'labour_state',
                         'education_state',
-                        'SF_12',
+                        'SF_12_MCS',
+                        'SF_12_PCS',
                         'housing_quality',
                         'job_sector',
                         'hh_income',

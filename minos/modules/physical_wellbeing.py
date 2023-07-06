@@ -58,7 +58,7 @@ class SF_12_PCS(Base):
                         'ethnicity',
                         'age',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'hh_income',
                         'SF_12_PCS',
@@ -67,7 +67,8 @@ class SF_12_PCS(Base):
                         'ncigs',
                         'nutrition_quality',
                         'neighbourhood_safety',
-                        'loneliness']
+                        'loneliness',
+                        'financial_situation']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

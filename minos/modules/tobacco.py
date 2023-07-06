@@ -59,6 +59,7 @@ class Tobacco(Base):
                         'region',
                         'hh_income',
                         'SF_12_MCS',
+                        'SF_12_PCS',
                         'education_state',
                         'S7_labour_state',
                         'job_sec',

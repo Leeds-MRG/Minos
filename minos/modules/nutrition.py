@@ -54,7 +54,8 @@ class Nutrition(Base):
                         'hh_income',
                         'alcohol_spending',
                         'ncigs',
-                        'nutrition_quality']
+                        'nutrition_quality',
+                        'financial_situation']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

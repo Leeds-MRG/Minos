@@ -50,7 +50,8 @@ class Heating(Base):
         # transition models and any outputs.
         view_columns = ["sex",
                         #"labour_state",
-                        "SF_12",
+                        "SF_12_MCS",
+                        'SF_12_PCS',
                         "job_sec",
                         "ethnicity",
                         "age",

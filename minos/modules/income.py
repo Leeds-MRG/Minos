@@ -64,6 +64,7 @@ class Income(Base):
                         'S7_labour_state',
                         'education_state',
                         'SF_12_MCS',
+                        'SF_12_PCS',
                         'housing_quality',
                         'job_sector',
                         'hh_income_diff']
