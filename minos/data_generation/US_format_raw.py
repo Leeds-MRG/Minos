@@ -61,6 +61,8 @@ depression_change = US_utils.load_json(json_source, "depression_change.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 ## Location
 region_dict = US_utils.load_json(json_source, "region.json")
+## Housing Tenure
+housing_tenure_dict = US_utils.load_json(json_source, 'housing_tenure.json')
 
 
 def format_sex(data):
@@ -328,7 +330,7 @@ def format_housing_tenure(data):
     -------
 
     """
-    data["housing_tenure"] = data["housing_tenure"].astype(str).map(labour_ukhls)
+    data["housing_tenure"] = data["housing_tenure"].astype(str).map(housing_tenure_dict)
     return data
 
 

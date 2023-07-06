@@ -319,7 +319,7 @@ base.sf12.p <- base.dat %>%
 
 sf12.p.spag <- rbind(raw.sf12.p, base.sf12.p)
 
-spaghetti_plot(sf12.m.spag, 'SF_12_PCS',
+spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
                save = shall.we.save,
                save.path = save.path)
 
