@@ -321,6 +321,16 @@ def format_ukhls_columns(year):
 def format_council_tax(data):
     """Format any council tax data for calculation of monthly overheads."""
 
+def format_housing_tenure(data):
+    """
+
+    Returns
+    -------
+
+    """
+    data["housing_tenure"] = data["housing_tenure"].astype(str).map(labour_ukhls)
+    return data
+
 
 def format_ukhls_ethnicity(data):
     """ Format ethnicity variables.
@@ -516,6 +526,7 @@ def format_data(year, data):
     data = format_ukhls_employment(data)
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
+    data = format_housing_tenure(data)
 
     data = format_analysis_weight(data)
 
