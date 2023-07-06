@@ -9,6 +9,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
+import logging
 
 class Tobacco(Base):
 
@@ -59,7 +60,7 @@ class Tobacco(Base):
                         'hh_income',
                         'SF_12_MCS',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'alcohol_spending',
                         'ncigs']
@@ -73,7 +74,7 @@ class Tobacco(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -83,6 +84,9 @@ class Tobacco(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("TOBACCO")
+
         # Get living people to update their tobacco
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
@@ -108,8 +112,13 @@ class Tobacco(Base):
         -------
         """
         # load transition model based on year.
-        year = max(self.year, 2014)
-        year = min(year, 2018)
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = max(self.year, 2014)
+            year = min(year, 2018)
+
         transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,

@@ -1,13 +1,8 @@
 ### This utils file will contain functions purely for outcome visualisation.
 
-# Function to read all output files from a singular (non-batch) local simulation run
-# This will read output files for all years within the latest runtime subdirectory
-# (which is automatically determined)
-# Args: 
-#       out.path - path to top level output directory
-#       scenario - string scenario name of which output files to read
-
-
+require(ggplot2)
+require(ggExtra)
+require(here)
 
 # Function to generate scatterplots with marginal distributions included.
 # It compares two scenarios (intervention vs baseline most common) in a given
@@ -26,7 +21,7 @@ SF12_marg_dist_densigram_plot <- function(base,
                                          int.name, 
                                          target.year = 2035,
                                          save = FALSE,
-                                         save.path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
+                                         save.path = here::here('plots')) {
   # get just one year
   b.start <- base %>% filter(time == 2020, SF_12_MCS != -8.0)
   b.end <- base %>% filter(time == target.year, SF_12_MCS != -8.0)
@@ -72,7 +67,7 @@ SF12_marg_dist_densigram_plot_oneyear <- function(base,
                                                   int.name,
                                                   target.year = 2035,
                                                   save = FALSE,
-                                                  save.path = '/home/luke/Documents/WORK/MINOS/TEST_PLOTS/') {
+                                                  save.path = here::here('plots')) {
   # get just one year
   b.end <- base %>% filter(time == target.year, SF_12_MCS != -8.0)
   i.end <- int %>% filter(time == target.year, SF_12_MCS != -8.0)
@@ -86,6 +81,8 @@ SF12_marg_dist_densigram_plot_oneyear <- function(base,
   p <- ggplot(data = combined, aes(x = baseline, y = intervention)) +
     geom_point(alpha = 0.6, size=0.1) +
     geom_smooth() +
+    geom_abline(intercept = 0, scale=1) +
+    stat_ellipse(color = 'red') +
     theme(legend.position = c(0.15, 0.9)) +
     labs(title = paste0(int.name, ' - ', target.year))
   

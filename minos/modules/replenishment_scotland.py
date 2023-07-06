@@ -41,7 +41,7 @@ class ReplenishmentScotland(Base):
                         'entrance_time',
                         'time',
                         'exit_time',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',
@@ -83,7 +83,9 @@ class ReplenishmentScotland(Base):
                         'gross_paypm',
                         'phealth',
                         'marital_status',
-                        'hh_comp'
+                        'hh_comp',
+                        'hh_income_diff',
+                        'SF_12_diff'
                         ]
 
         # Shorthand methods for readability.

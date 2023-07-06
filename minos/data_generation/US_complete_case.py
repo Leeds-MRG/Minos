@@ -60,7 +60,8 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age"]  # many of these
+                          "education_state", 'region', "age", "job_sector", 'SF_12', 'financial_situation',
+                          "housing_tenure"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -71,29 +72,35 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
     # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
+    data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     # ncigs missing for wave 1 only
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
 
     # Complete case for some vars in 2014 as it was messing up the cross-validation runs
-    data = complete_case_custom_years(data, 'job_sector', years=[2014])
+    #data = complete_case_custom_years(data, 'job_sector', years=[2014])
     data = complete_case_custom_years(data, 'hh_income', years=[2014])
 
-    drop_columns = ['financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
+    # SIPHER 7 complete case stuff
+    data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2021, 1)))
+    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    data = complete_case_custom_years(data, 'S7_mental_health', years=list(range(2010, 2021, 1)))
+    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
+    data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
+
+    drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
                     'scsf1',
                     'clinical_depression',
                     'ghq_happiness',
-                    'phealth_limits_work',
                     'likely_move',
                     'newest_education_state',
                     'health_limits_social',
                     'future_financial_situation',
-                    'behind_on_bills',
-                    'mhealth_limits_work']  # some columns are used in analyses elsewhere such as MICE and not
-                                            # featured in the final model.
-                                            # remove them here or as late as needed.
+                    'behind_on_bills']  # some columns are used in analyses elsewhere such as MICE and not
+                                        # featured in the final model.
+                                        # remove them here or as late as needed.
     data = data.drop(labels=drop_columns, axis=1)
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")

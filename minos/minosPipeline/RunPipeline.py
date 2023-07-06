@@ -30,6 +30,14 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition
+from minos.modules.S7Labour import S7Labour
+from minos.modules.S7Housing import S7Housing
+from minos.modules.S7Neighbourhood import S7Neighbourhood
+from minos.modules.S7MentalHealth import S7MentalHealth
+from minos.modules.S7PhysicalHealth import S7PhysicalHealth
+from minos.modules.S7EquivalentIncome import S7EquivalentIncome
+from minos.modules.heating import Heating
+from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -70,14 +78,25 @@ def validate_components(config_components, intervention):
         "Alcohol()": Alcohol(),
         "Neighbourhood()": Neighbourhood(),
         "Labour()": Labour(),
+        "Heating()": Heating(),
         "Housing()": Housing(),
         "Income()": Income(),
+        "financialSituation()": financialSituation(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),
         "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
         "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
         "Mortality()": Mortality(),
         "Education()": Education(),
+    }
+
+    SIPHER7_components_map = {  # SIPHER7 stuff
+        "S7Labour()" : S7Labour(),
+        "S7Housing()" : S7Housing(),
+        "S7Neighbourhood()": S7Neighbourhood(),
+        "S7MentalHealth()" : S7MentalHealth(),
+        "S7PhysicalHealth()": S7PhysicalHealth(),
+        "S7EquivalentIncome()": S7EquivalentIncome()
     }
 
     intervention_components_map = {        #Interventions
@@ -101,11 +120,17 @@ def validate_components(config_components, intervention):
         if component in components_map.keys():
             # add non intervention components
             component_list.append(components_map[component])
+        elif component in SIPHER7_components_map.keys():
+            component_list.append(SIPHER7_components_map[component])
         elif component in replenishment_components_map.keys():
             replenishment_component.append(replenishment_components_map[component])
         else:
             print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
 
+    # TODO: include some error handling for choosing interventions
+    # Can do this using assertions
+    # i.e. try { AssertThat(intervention is in list(<int1>, <int2>) ...
+    # or even cleverer if we can get the repr()'s from the intervention classes to automate this step
     if intervention in intervention_components_map.keys():
         # add intervention components.
         component_list.append(intervention_components_map[intervention])

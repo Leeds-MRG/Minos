@@ -163,6 +163,6 @@ if __name__ == '__main__':
             config = yaml.safe_load(stream)
             start_year = config['time']['start']['year']
             end_year = config['time']['end']['year']
-            years = np.arange(start_year+1, end_year)
+            years = np.arange(start_year, end_year)
         #print(batch_source, years)
         df = main(batch_source, mode, years, tag, v, method, subset_function_string)

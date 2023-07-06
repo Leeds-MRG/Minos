@@ -1,0 +1,13 @@
+CLM : financial_situation ~ factor(financial_situation) + scale(SF_12) + factor(job_sec)+ scale(hh_income)+ I(scale(hh_income)**2) + factor(marital_status) + hhsize + factor(housing_tenure)
+LOGIT : heating ~ factor(heating) + scale(SF_12)+ relevel(factor(ethnicity), ref='WBI') + hh_income + factor(marital_status)+ ncigs+ hhsize + factor(urban) + factor(housing_tenure) + factor(financial_situation)
+OLS : hh_income ~ hh_income + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
+OLS_DIFF : hh_income ~ hh_income_diff + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
+OLS : nutrition_quality ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + relevel(factor(ethnicity), ref = 'WBI') + hh_income + ncigs
+CLM : housing_quality ~ age + factor(sex) + SF_12_MCS + relevel(factor(ethnicity), ref = 'WBI') + hh_income
+CLM : loneliness ~ age + factor(sex) + SF_12_MCS + relevel(factor(education_state), ref = '3') + relevel(factor(job_sec), ref = '3') + hh_income + relevel(factor(hh_comp), ref = '3') + relevel(factor(marital_status), ref = 'Partnered') + relevel(factor(ethnicity), ref = 'WBI') + SF_12_PCS
+CLM : neighbourhood_safety ~ age + factor(sex) + factor(job_sec) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + relevel(factor(region), ref = 'South East')
+NNET : education_state ~ factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East')
+ZIP : ncigs ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + SF_12_MCS + relevel(factor(job_sec), ref = '3') + hh_income + relevel(factor(ethnicity), ref = 'WBI') | relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(job_sec), ref = '3') + hh_income + SF_12_MCS + SF_12_PCS
+OLS : SF_12_PCS ~ age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + factor(neighbourhood_safety) + ncigs + nutrition_quality + SF_12_PCS
+OLS : SF_12_MCS ~ SF_12_MCS + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + phealth + factor(neighbourhood_safety) + ncigs + nutrition_quality + factor(loneliness)
+OLS_DIFF : SF_12_MCS ~ SF_12_MCS_diff + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + hh_income + factor(housing_quality) + phealth + factor(neighbourhood_safety) + ncigs + nutrition_quality + factor(loneliness)

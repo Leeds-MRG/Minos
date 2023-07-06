@@ -30,7 +30,7 @@ def fix_leading_entries(data):
     fb_columns = ["ethnicity",
                   "education_state", 
                   "depression_state", 
-                  "labour_state",
+                  "labour_state_raw",
                   "sex"]
     data = data.sort_values(by=["pidp", "time"])
     # divide data into individuals to alter seperately.

@@ -82,16 +82,23 @@ def generate_composite_housing_quality(data):
         # all core some bonus
         (data["housing_core_sum"] == 3) & (data["housing_bonus_sum"] == 3),  # all core all bonus
     ]
-    values = [3, 2, 1]
+    values = ['Low', 'Medium', 'High']
 
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
     # Set to -9 if missing (currently when housing_quality == 0)
     data['housing_quality'][data['housing_quality'] == 0] = -9
 
+    print('Generating composite for SIPHER 7 housing_quality...')
+    ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)
+    data['S7_housing_quality'] = -9
+    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 6] = 'Yes to all'
+    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6))] = 'Yes to some'
+    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 0] = 'No to all'
+
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
-                      'tumble_dryer', 'dishwasher', 'microwave', 'heating'],
+                      'tumble_dryer', 'dishwasher', 'microwave',],# 'heating'],
               axis=1,
               inplace=True)
 
@@ -154,14 +161,14 @@ def calculate_hourly_wage(data):
     # data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
 
     # add in missing codes for known missings
-    data["hourly_wage"][data["labour_state"] == "Unemployed"] = -1
-    data["hourly_wage"][data["labour_state"] == "Retired"] = -2
-    data["hourly_wage"][data["labour_state"] == "Sick/Disabled"] = -3
-    data["hourly_wage"][data["labour_state"] == "Student"] = -4
-    data["hourly_wage"][data["labour_state"].isin(["Government Training",
-                                                   "Maternity Leave",
-                                                   "Family Care",
-                                                   "Other"])] = -5
+    data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = -1
+    data["hourly_wage"][data["labour_state_raw"] == "Retired"] = -2
+    data["hourly_wage"][data["labour_state_raw"] == "Sick/Disabled"] = -3
+    data["hourly_wage"][data["labour_state_raw"] == "Student"] = -4
+    data["hourly_wage"][data["labour_state_raw"].isin(["Government Training",
+                                                       "Maternity Leave",
+                                                       "Family Care",
+                                                       "Other"])] = -5
     # now replace all still nan with -9
     data["hourly_wage"].fillna(-9, inplace=True)
 
@@ -201,6 +208,59 @@ def generate_hh_income(data):
 
     # now drop the intermediates
     data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_SIPHER_7_neighbourhood_safety(data):
+    """
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    print('Generating composite for SIPHER 7 neighbourhood_safety...')
+
+    # create an empty var to fill up
+    data['S7_safety'] = '-9'
+    # if all non-missing variables == 4, this is the best group (hardly ever have safety issues)
+    data.S7_safety[(data['burglaries'].isin([4, -10, -9, -2, -3])) &
+                   (data['car_crime'].isin([4, -10, -9, -2, -3])) &
+                   (data['drunks'].isin([4, -10, -9, -2, -3])) &
+                   (data['muggings'].isin([4, -10, -9, -2, -3])) &
+                   (data['teenagers'].isin([4, -10, -9, -2, -3])) &
+                   (data['vandalism'].isin([4, -10, -9, -2, -3]))] = 'Hardly ever'
+
+    # if all non-missing vars == 1, this is the worst group (often have safety issues)
+    data.S7_safety[(data['burglaries'].isin([1, -10, -9, -2, -3])) &
+                   (data['car_crime'].isin([1, -10, -9, -2, -3])) &
+                   (data['drunks'].isin([1, -10, -9, -2, -3])) &
+                   (data['muggings'].isin([1, -10, -9, -2, -3])) &
+                   (data['teenagers'].isin([1, -10, -9, -2, -3])) &
+                   (data['vandalism'].isin([1, -10, -9, -2, -3]))] = 'Often'
+
+    # if its neither of the extreme groups, it must be in the middle (missings dealt with next)
+    data.S7_safety[(data['S7_safety'] != 'Hardly ever') &
+                   (data['S7_safety'] != 'Often')] = 'Some of the time'
+
+
+    # If all missing then set back to -9
+    data.S7_safety[(data['burglaries'] < 0) &
+                   (data['car_crime'] < 0) &
+                   (data['drunks'] < 0) &
+                   (data['muggings'] < 0) &
+                   (data['teenagers'] < 0) &
+                   (data['vandalism'] < 0)] = '-9'
+
+    data['S7_neighbourhood_safety'] = data['S7_safety']
+
+    data.drop(labels=['S7_safety'],
               axis=1,
               inplace=True)
 
@@ -261,20 +321,20 @@ def generate_composite_neighbourhood_safety(data):
     data['safety'] = -9
     # First do very safe neighbourhood. All vars == 3 (not at all common) OR missing == -9
     # data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
-    data.safety[(data['burglaries'].isin([3, -9, -2, -3])) &
-                (data['car_crime'].isin([3, -9, -2, -3])) &
-                (data['drunks'].isin([3, -9, -2, -3])) &
-                (data['muggings'].isin([3, -9, -2, -3])) &
-                (data['teenagers'].isin([3, -9, -2, -3])) &
-                (data['vandalism'].isin([3, -9, -2, -3]))] = 3
+    data.safety[(data['burglaries'].isin([3, -10, -9, -2, -3])) &
+                (data['car_crime'].isin([3, -10, -9, -2, -3])) &
+                (data['drunks'].isin([3, -10, -9, -2, -3])) &
+                (data['muggings'].isin([3, -10, -10, -9, -2, -3])) &
+                (data['teenagers'].isin([3, -10, -9, -2, -3])) &
+                (data['vandalism'].isin([3, -10, -9, -2, -3]))] = 3
 
     # Now safe neighbourhood. Any var == 2 (not very common) but no var == 1 (very or fairly common)
-    data.safety[((data['burglaries'].isin([2, -9, -2, -3])) |
-                 (data['car_crime'].isin([2, -9, -2, -3])) |
-                 (data['drunks'].isin([2, -9, -2, -3])) |
-                 (data['muggings'].isin([2, -9, -2, -3])) |
-                 (data['teenagers'].isin([2, -9, -2, -3])) |
-                 (data['vandalism'].isin([2, -9, -2, -3])))
+    data.safety[((data['burglaries'].isin([2, -10, -9, -2, -3])) |
+                 (data['car_crime'].isin([2, -10, -9, -2, -3])) |
+                 (data['drunks'].isin([2, -10, -9, -2, -3])) |
+                 (data['muggings'].isin([2, -10, -9, -2, -3])) |
+                 (data['teenagers'].isin([2, -10, -9, -2, -3])) |
+                 (data['vandalism'].isin([2, -10, -9, -2, -3])))
                 &
                 ((data['burglaries'] != 1) &
                  (data['car_crime'] != 1) &
@@ -283,12 +343,12 @@ def generate_composite_neighbourhood_safety(data):
                  (data['teenagers'] != 1) &
                  (data['vandalism'] != 1))] = 2
     # Now unsafe neighbourhood. Any var == 1 (very or fairly common)
-    data.safety[(data['burglaries'] == 1) |
-                (data['car_crime'] == 1) |
-                (data['drunks'] == 1) |
-                (data['muggings'] == 1) |
-                (data['teenagers'] == 1) |
-                (data['vandalism'] == 1)] = 1
+    data.safety[(data['burglaries'].isin([1, -10, -9, -2, -3])) |
+                (data['car_crime'].isin([1, -10, -9, -2, -3])) |
+                (data['drunks'].isin([1, -10, -9, -2, -3])) |
+                (data['muggings'].isin([1, -10, -9, -2, -3])) |
+                (data['teenagers'].isin([1, -10, -9, -2, -3])) |
+                (data['vandalism'].isin([1, -10, -9, -2, -3]))] = 1
     
     # If all missing then set back to -9
     data.safety[(data['burglaries'] < 0) &
@@ -334,9 +394,60 @@ def generate_labour_composite(data):
     # Other and gov training are tiny classes (<50 per year) so just bin them into employed.
     data["labour_state"] = data["labour_state"].replace(["Government Training", "Other"], "Employed")
     # remove no longer needed variables.
-    data.drop(labels=['emp_type'],
+    #data.drop(labels=['emp_type'],
+    #          axis=1,
+    #          inplace=True)
+    return data
+
+
+def generate_SIPHER_7_employment(data):
+    """
+    Based on SIPHER 7 guidelines, the employment variable should have 6 levels:
+    1) FT employed
+    2) PT employed
+    3) job seeking
+    4) FT education
+    5) taking care of a family member with chronic illness or disability
+    6) not working
+
+    These can be generated by recoding 2 variables from Understanding Society:
+    - jbstat : current labour force status
+    - jbft_dv : full or part-time employee
+
+    Some assumptions:
+    - Unemployed from US (labour_state == 3) are job_seeking
+    - Government training scheme (labour_state == 9) are full time education
+    - Furloughed (labour_state == 12, only wave 11 onwards) are full time employed
+    - Temporarily laid off / short-term working (== 13) are job_seeking
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    # set up conditions for each employment type
+    # NOTE: Some conditions are based on assumptions, see docstring above for some details
+    conditions = [
+        (data['labour_state_raw'].isin(['Employed', 'Self-employed'])) & (data['emp_type'].isin([1, -7, -9])),  # FT employed (assuming here that those without some missing values for emp_type are FT)
+        (data['labour_state_raw'].isin(['Employed', 'Self-employed'])) & (data['emp_type'] == 2),  # PT employed
+        (data['labour_state_raw'].isin(['Unemployed', 'Short-term Working'])),  # Job Seeking
+        (data['labour_state_raw'].isin(['Student', 'Government Training'])),  # FT education
+        (data['labour_state_raw'].isin(['Family Care'])),  # Family Care
+        (data['labour_state_raw'].isin(['Retired', 'Maternity Leave', 'Sick/Disabled'])),  # Not working
+    ]
+    values = ['FT Employed', 'PT Employed', 'Job Seeking', 'FT Education', 'Family Care', 'Not Working']
+
+    data['S7_labour_state'] = np.select(conditions, values)
+    # Set to -9 if missing (currently when labour_state == 0)
+    data['S7_labour_state'][data['S7_labour_state'] == '0'] = -9
+
+    data.drop(labels=['labour_state_raw', 'emp_type'],
               axis=1,
               inplace=True)
+
     return data
 
 
@@ -606,7 +717,7 @@ def generate_physical_health_score(data):
     data['phealth'] = 0
     data['phealth'][data['phealth_limits_modact'] > 0] += data['phealth_limits_modact']
     data['phealth'][data['phealth_limits_stairs'] > 0] += data['phealth_limits_stairs']
-    data['phealth'][data['phealth_limits_work'] > 0] += data['phealth_limits_work']
+    data['phealth'][data['S7_physical_health'] > 0] += data['S7_physical_health']  # formerly phealth_limits_work
     data['phealth'][data['phealth_limits_work_type'] > 0] += data['phealth_limits_work_type']
     data['phealth'][data['pain_interfere_work'] > 0] += data['pain_interfere_work']
 
@@ -614,7 +725,7 @@ def generate_physical_health_score(data):
     data['counter'] = 0
     data['counter'][data['phealth_limits_modact'] > 0] += 1
     data['counter'][data['phealth_limits_stairs'] > 0] += 1
-    data['counter'][data['phealth_limits_work'] > 0] += 1
+    data['counter'][data['S7_physical_health'] > 0] += 1  # formerly phealth_limits_work
     data['counter'][data['phealth_limits_work_type'] > 0] += 1
     data['counter'][data['pain_interfere_work'] > 0] += 1
 
@@ -634,6 +745,7 @@ def generate_physical_health_score(data):
     return data
 
 
+#TODO: Complete this function. Collect information on parents education (where available) and use to predict educ
 def generate_parents_education(data):
     """
     For predicting the highest education a 16 will attain in their life, we can use information on the parents
@@ -658,6 +770,136 @@ def generate_parents_education(data):
     return data
 
 
+def calculate_equivalent_income(data):
+    """Calculate equivalent income based on provided SIPHER 7 variables
+
+    Parameters
+    ----------
+        pop: PopulationView
+            Population from MINOS to calculate next income for.
+    Returns
+    -------
+    nextWaveIncome: pd.Series
+        Vector of new household incomes from OLS prediction.
+    """
+    print('Calculating equivalent income...')
+    # This is a deterministic calculation based on the values from each of the SIPHER7 variables
+    # Each level of each variable is assigned a weight, which are then used to modify the value for disposable
+    # income to generate a value that is based on both the income and characteristics of a persons life
+
+    # This was first done by one-hot encoding each of the S7 variables, but this would be clunky and inefficient
+    # I'm going to try and do it slightly more efficiently
+
+    # The goal here is to calculate an exponent term for modifying income to equivalent income:
+    #   EquivalentIncome = Income*EXP(X)
+    # Each weighting applies to the level
+
+    # First set up dictionaries for each variable to hold its factor weights
+    phys_health_dict = {
+        5: 0,
+        4: -0.116/1.282,
+        3: -0.135/1.282,
+        2: -0.479/1.282,
+        1: -0.837/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
+    }
+    men_health_dict = {
+        5: 0,
+        4: -0.14/1.282,
+        3: -0.215/1.282,
+        2: -0.656/1.282,
+        1: -0.877/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
+    }
+    loneliness_dict = {
+        1: 0,
+        2: -0.186/1.282,
+        3: -0.591/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
+    }
+    employment_dict = {
+        'FT Employed': 0,
+        'PT Employed': 0.033/1.282,
+        'Job Seeking': -0.283/1.282,
+        'FT Education': -0.184/1.282,
+        'Family Care': -0.755/1.282,
+        'Not Working': -0.221/1.282,
+        -9: -1,
+        -8: -1,
+        -7: -1,
+        -1: -1,
+        -2: -1,
+        -10: -1
+    }
+    housing_dict = {
+        'Yes to all': 0,
+        'Yes to some': -0.235/1.282,
+        'No to all': -0.696/1.282,
+        '-9': -1,
+        '-8': -1,
+        '-7': -1,
+        '-1': -1,
+        '-2': -1,
+        '-10': -1
+    }
+    nh_safety_dict = {
+        'Hardly ever': 0,
+        'Some of the time': -0.291/1.282,
+        'Often': -0.599/1.282,
+        '-9': -1,
+        '-8': -1,
+        '-7': -1,
+        '-1': -1,
+        '-2': -1,
+        '-10': -1
+    }
+
+    # Now we add together weights for each factor level to generate the exponent term
+    data['EI_exp_term'] = 0
+    #pop['EI_exp_term'] = pop['EI_exp_term'] + phys_health_dict.get(pop['S7_physical_health'])
+    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: phys_health_dict[x['S7_physical_health']], axis=1)
+    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: men_health_dict[x['S7_mental_health']], axis=1)
+    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: loneliness_dict[x['loneliness']], axis=1)
+    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: employment_dict[x['S7_labour_state']], axis=1)
+    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: housing_dict[x['S7_housing_quality']], axis=1)
+    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: nh_safety_dict[x['S7_neighbourhood_safety']], axis=1)
+
+    # finally do the calculation for equivalent income (EI = income^EI_exp_term)
+    data['equivalent_income'] = data['hh_income'] * np.exp(data['EI_exp_term'])
+
+    # If any of the variables involved are missing, then can't do calculation for equivalent income
+    # These people will be removed in complete_case anyway so not having a value here won't matter
+    var_list_num = ['S7_physical_health',
+                    'S7_mental_health',
+                    'loneliness']
+    var_list_str = ['S7_labour_state',
+                    'S7_housing_quality',
+                    'S7_neighbourhood_safety']
+    data['equivalent_income'][(data[var_list_num] < 0).any(axis=1)] = -9
+    data['equivalent_income'][(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1)] = -9
+
+    data.drop(labels=['EI_exp_term'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -670,13 +912,17 @@ def main():
     data = generate_composite_housing_quality(data)  # housing_quality.
     data = generate_hh_income(data)  # hh_income.
     data = calculate_hourly_wage(data)  # hourly_wage
+    data = generate_SIPHER_7_neighbourhood_safety(data)  # S7_neighbourhood_safety (MUST RUN BEFORE OTHER NEIGHBOURHOOD_SAFETY var
     data = generate_composite_neighbourhood_safety(data)  # safety.
-    data = generate_labour_composite(data)  # labour state.
+    # NOTE: Switching off the old labour_state var so I can generate the SIPHER 7 version with no problems
+    #data = generate_labour_composite(data)  # labour state.
+    data = generate_SIPHER_7_employment(data)  # SIPHER 7 employment status
     data = generate_energy_composite(data)  # energy consumption.
     data = generate_nutrition_composite(data)  # nutrition
     data = generate_hh_structure(data)  # household structure
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
+    data = calculate_equivalent_income(data)  # equivalent income
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
