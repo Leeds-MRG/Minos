@@ -20,7 +20,7 @@ PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
 
 NEWETHPOP_FOLDER_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, "Fertility")
 
-N_DEFAULT = 12
+PARITY_MAX_DEFAULT = 10
 AGE_RANGE_DEFAULT = [10,49]
 YEAR_RANGE_DEFAULT = [2011,2021]
 
@@ -29,12 +29,13 @@ PARITY_HEADER = 6
 PARITY_END = 2294
 
 THRESHOLD_DEFAULT = 1000
+APPLY_MAX_PARITY_DEFAULT = True
 
 # Generate all column headers
 pop_headers = ["p" + str(i + 1) for i in range(5)]
 births_headers = ["b" + str(i + 1) for i in range(5)]
 fert_headers = ["f" + str(i + 1) for i in range(5)]
-common_headers = ['year', 'age', 'nkids']
+# common_headers = ['year', 'age', 'nkids']
 
 # Valid ages in ONS data before extension
 AGE1, AGE2 = 15, 44
@@ -81,9 +82,9 @@ def parse_parity_ons(parity_file=PARITY_DEFAULT,
 
 
 def extend_parity_ons(df_parity,
+                      n,
                       age_range=AGE_RANGE_DEFAULT,
-                      year_range=YEAR_RANGE_DEFAULT,
-                      n=N_DEFAULT):
+                      year_range=YEAR_RANGE_DEFAULT):
     """
     To extend parity data to wider range of ages and greater parity
 
@@ -118,7 +119,7 @@ def extend_parity_ons(df_parity,
     # fert_dict = {}
 
     cols = [col for col in year_dict[min(year_dict.keys())].columns if col in pop_headers]
-    to_extend_by = n - len(pop_headers) + 1
+    to_extend_by = n - len(pop_headers) + 2
     # print(to_extend_by)
 
     for year,year_data in year_dict.items():
@@ -227,7 +228,7 @@ def extend_parity_ons(df_parity,
 def apply_parity_to_newethpop(births_ons,
                               pop_ons,
                               nep,
-                              # newethpop_file=RATETABLE_DEFAULT,
+                              apply_max_parity=APPLY_MAX_PARITY_DEFAULT,
                               ):
     """
     To add parity as variable to NewEthPop fertility data
@@ -283,6 +284,11 @@ def apply_parity_to_newethpop(births_ons,
         factor = f_nep/f_ons
         f_corr = factor*b_ons/p_ons
         f_trunc = [el if el <= 1.0 else 1.0 for el in f_corr]
+
+        # HR 30/06/23 Set last value to zero to enforce max. value
+        if apply_max_parity:
+            f_trunc[-1] = 0
+
         if AGE1 <= age <= AGE2:
             f_simple = f_trunc
         else:
@@ -290,8 +296,7 @@ def apply_parity_to_newethpop(births_ons,
 
         f_block = pd.concat([data]*n, axis=1).T # Duplicate and stack n rows
         # print(f_trunc)
-        f_block['nkids'] = range(n)
-        # f_block['fertility_all'] = f_trunc
+        f_block['nkids_ind'] = range(n)
         f_block['fertility'] = f_simple
 
         # TESTING: Some optional columns
@@ -317,6 +322,11 @@ class FertilityRateTable(BaseHandler):
         self.filename = f'fertility_rate_table_{self.configuration["scale_rates"][self.scaling_method]["fertility"]}.csv'
         self.rate_table_path = self.rate_table_dir + self.filename
         self.source_file = self.configuration.path_to_fertility_file
+        if "parity_max" in self.configuration:
+            self.parity_max = self.configuration["parity_max"]
+        else:
+            self.parity_max = PARITY_MAX_DEFAULT
+        print("Max. parity:", self.parity_max)
         self._parity_added = False
 
     def _build(self):
@@ -324,7 +334,7 @@ class FertilityRateTable(BaseHandler):
         try:
             print("Trying to load from source file...")
             df = pd.read_csv(self.source_file)
-            self._parity_added = True
+            # self._parity_added = True
             print("Found rate table file at", self.source_file)
         except FileNotFoundError as e:
             print("Couldn't load from source file")
@@ -365,7 +375,8 @@ class FertilityRateTable(BaseHandler):
         rt = self.rate_table
 
         df_parity = parse_parity_ons()
-        pop_concat, births_concat = extend_parity_ons(df_parity)
+        pop_concat, births_concat = extend_parity_ons(df_parity,
+                                                      self.parity_max)
         print("Extending NewEthPop data with parity...")
         rt_parity = apply_parity_to_newethpop(births_ons=births_concat,
                                               pop_ons=pop_concat,
