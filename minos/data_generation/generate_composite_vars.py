@@ -9,6 +9,7 @@ these functions entirely into R. Some variables are imputed then combined and vi
 
 import pandas as pd
 import numpy as np
+import sys
 
 import US_utils
 import US_missing_description as USmd
@@ -900,6 +901,49 @@ def calculate_equivalent_income(data):
     return data
 
 
+def calculate_children(data):
+    """
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        A DataFrame containing corrected Understanding Society data
+    Returns
+    -------
+    data : pd.DataFrame
+        The same DataFrame containing a composite variable for number of children an individual has ever had
+
+    """
+    print('Generating composite for children per individual...')
+
+    # data.to_csv("datadump.csv")
+    pidps_all = data['pidp'].unique()
+    pidps = data[data['sex'] == 'Female']['pidp'].unique()
+    print("No. of pidps (all):", len(pidps_all))
+    print("No. of pidps (females only):", len(pidps))
+
+    # Initialise new column
+    data['nkids_ind'] = data['nkids_ind_raw']
+
+    for i,pidp in enumerate(pidps):
+        sys.stdout.write("\rProcessing pidp " + str(i+1) + " of " + str(len(pidps)) + " (females only)")
+        subframe = data[data['pidp'] == pidp][['pidp', 'nkids_ind_raw', 'nkids_ind_new', 'time']]
+        # Calculate number of children if:
+        # 1. Any pregnancies present (i.e. nkids_ind_new == 2)
+        # 2. There are no negative values in nkids_ind_raw (indicating invalid values)
+        if (2 in subframe['nkids_ind_new'].values) and not (subframe['nkids_ind_raw'].lt(0).any()):
+            # Increment values according to cumulative sum
+            # Note specific method avoids Pandas SettingWithCopyWarning
+            # See here: https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
+            data.loc[subframe.index, 'nkids_ind'] = subframe['nkids_ind_raw'] + (subframe['nkids_ind_new'] == 2).astype(int).cumsum()
+            # print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+        # elif (subframe['nkids_ind_raw'].lt(0).any()):
+        #     print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+
+    return data
+
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -923,6 +967,7 @@ def main():
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
+    data = calculate_children(data)  # total number of biological children
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
