@@ -230,6 +230,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         asfr_fertility.set_rate_table()
         simulation._data.write("covariate.age_specific_fertility_rate.estimate",
                                asfr_fertility.rate_table)
+        simulation._data.write("parity_max", asfr_fertility.parity_max)
+        print("Max. parity successfully passed to ANBC:", asfr_fertility.parity_max)
 
         return simulation
 
@@ -249,20 +251,21 @@ class nkidsFertilityAgeSpecificRates(Base):
 
         """
         # Load in birth rate lookup table data and build lookup table.
+        self.parity_max = builder.data.load("parity_max")
         age_specific_fertility_rate = builder.data.load("covariate.age_specific_fertility_rate.estimate")
         fertility_rate = builder.lookup.build_table(age_specific_fertility_rate,
-                                                    key_columns=['sex', 'region', 'ethnicity', 'nkids'],
+                                                    key_columns=['sex', 'region', 'ethnicity', 'nkids_ind'],
                                                     parameter_columns=['age', 'year'])
         # Register rate producer for birth rates by
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity', 'nkids'])
+                                                                   requires_columns=['sex', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'hidp']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids_ind', 'hidp', 'pidp']
         # Add new columns to population required for module using build in sim creator.
         self.population_view = builder.population.get_view(view_columns)
 
@@ -304,13 +307,30 @@ class nkidsFertilityAgeSpecificRates(Base):
         # filter_for_rate simply takes the subset of women who have given birth generated via the CRN stream.
         who_women = population.loc[population['sex']=='Female',].index
         rate_series = self.fertility_rate(who_women)
+
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
-        # find everyone in a household who has had children by hidp and increment nkids by 1.
+
+        # 1. Find everyone in a household who has had children by hidp and increment nkids by 1.
         had_children_hidps = population.loc[had_children, 'hidp']
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index
         population.loc[who_had_children_households, 'nkids'] += 1
-        self.population_view.update(population[['nkids']])
+
+        # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
+        had_children_pidps = population.loc[had_children, 'pidp']
+        who_had_children_individual = population.loc[population['pidp'].isin(had_children_pidps),].index
+        population.loc[who_had_children_individual, 'nkids_ind'] += 1
+
+        # # HR 03/07/23 Temporary workaround to reset all values of nkids above max. value
+        # # b/c if multiple women live in a household, nkids may increase beyond n_max => causes key error in Vivarium
+        # who_above_nmax_index = population.loc[population['nkids'].gt(self.parity_max)].index
+        # who_above_nmax = population.loc[population['nkids'].gt(self.parity_max)]
+        # if len(who_above_nmax) > 0:
+        #     print("Entries/counts above parity_max ({}):".format(self.parity_max))
+        #     print(who_above_nmax)
+        #     print(who_above_nmax['hidp'].value_counts(sort=True))
+        # population.loc[who_above_nmax_index, 'nkids'] = self.parity_max
+        # self.population_view.update(population[['nkids']])
 
         # # HR 24/05/23 To grab parity for testing
         # y = int(str(event.time).split("-")[0])
