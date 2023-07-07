@@ -34,8 +34,9 @@ data/transitions/*
 data/transitions/*/*
 data/transitions/*/*/*
 
-# chris data
-persistent_data/spatial_data/ADULT* 
+# spatial synthetic population data.
+persistent_data/spatial_data/ADULT*
+persistent_data/spatial_data/*_population.csv
 
 # build stuff
 build/

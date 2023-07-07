@@ -6,10 +6,7 @@ date: "2023-05-20"
 
 # MINOS Lineplot Outputs
 
-IMPORTANT NOTE TO RUN PYTHON YOU NEED TO SET THE PYTHON INTERPRETER 
-IN TOOLS>GLOBAL_OPTIIONS>PYTHON>CONDA_INTERPRETERS. 
-NOT SURE THIS IS NEEDED ANYMORE GIVEN WE'RE SETTING THE CONDA ENV MANUALLY. 
-
+IMPORTANT NOTE TO RUN THIS NOTEBOOK YOU NEED TO INSTALL THE MINOS_CONDA conda environment for MINOS. 
 Can just use minos_conda or create a miniconda env using reticulate package. 
 
 ```{r setup, include=FALSE}
@@ -19,8 +16,10 @@ require(here)
 
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = here::here())
-knitr::knit_engines$set(python = reticulate::eng_python)
-reticulate::use_condaenv("minos_conda", required = FALSE)
+reticulate::use_condaenv("minos_conda", required = TRUE)
+#knitr::knit_engines$set(python = reticulate::eng_python)
+#reticulate::py_config()
+
 ```
 
 # Baseline vs All Child Uplift
@@ -38,8 +37,8 @@ config_mode = "default_config"
 lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 ```
 
-```{r }
-knitr::include_graphics(here::here("plots", "baseline_all_child_uplift_SF_12_aggs_by_year.png"), error=FALSE)
+```{r out.height = "600px", out.width='800px', include=TRUE, fig.align="center", fig.cap=c("your caption"), echo=FALSE}
+knitr::include_graphics(here::here("plots", "baseline_all_child_uplift_SF_12_aggs_by_year.pdf"), error=FALSE)
 ```
 
 
@@ -58,8 +57,8 @@ config_mode = "default_config"
 lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 ```
 
-```{r }
-knitr::include_graphics(here::here("plots", "baseline_poverty_child_uplift_SF_12_aggs_by_year.png"), error=FALSE)
+```{r out.height = "600px", out.width='800px', include=TRUE, fig.align="center", fig.cap=c("your caption"), echo=FALSE}
+knitr::include_graphics(here::here("plots", "baseline_poverty_child_uplift_SF_12_aggs_by_year.pdf"), error=FALSE)
 ```
 
 # Baseline vs Living Wage
@@ -76,8 +75,8 @@ config_mode = "default_config"
 lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 ```
 
-```{r }
-knitr::include_graphics(here::here("plots", "baseline_living_wage_SF_12_aggs_by_year.png"), error=FALSE)
+```{r out.height = "600px", out.width='800px', include=TRUE, fig.align="center", fig.cap=c("your caption"), echo=FALSE}
+knitr::include_graphics(here::here("plots", "baseline_living_wage_SF_12_aggs_by_year.pdf"), error=FALSE)
 ```
 
 # Baseline vs Energy Downlift
@@ -94,8 +93,8 @@ config_mode = "default_config"
 lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 ```
 
-```{r }
-knitr::include_graphics(here::here("plots", "baseline_energy_downlift_SF_12_aggs_by_year.png"), error=FALSE)
+```{r out.height = "600px", out.width='800px', include=TRUE, fig.align="center", fig.cap=c("your caption"), echo=FALSE}
+knitr::include_graphics(here::here("plots", "baseline_energy_downlift_SF_12_aggs_by_year.pdf"), error=FALSE)
 ```
 
 
@@ -113,7 +112,7 @@ config_mode = "default_config"
 lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 ```
 
-```{r }
-knitr::include_graphics(here::here("plots", "all_five_combined_SF_12_aggs_by_year.png"), error=FALSE)
+```{r out.height = "600px", out.width='800px', include=TRUE, fig.align="center", fig.cap=c("your caption"), echo=FALSE}
+knitr::include_graphics(here::here("plots", "all_five_combined_SF_12_aggs_by_year.pdf"), error=FALSE)
 ```
 

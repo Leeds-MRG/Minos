@@ -61,13 +61,13 @@ intervention_livingWage: setup
 intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
-glasgow_baseline:
+glasgow_baseline: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
-intervention_EPCG:
+intervention_EPCG: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
 
-intervention_EBSS:
+intervention_EBSS: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
 
 all_scenarios: MODE = default_config
@@ -104,13 +104,13 @@ arc4_intervention_livingWage: setup
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
-arc4_glasgow_baseline:
+arc4_glasgow_baseline: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
-arc4_EPCG:
+arc4_EPCG: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
 
-arc4_EBSS:
+arc4_EBSS: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
 
 arc4_all_scenarios: MODE=default_config

@@ -35,5 +35,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
       - seaborn
       - matplotlib
       #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
-
+      - sphinx-rtd-theme
+      - sphinxcontrib-bibtex
+      - nbsphinx
 prefix:
