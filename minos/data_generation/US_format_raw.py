@@ -297,6 +297,12 @@ def format_ukhls_columns(year):
                       'hhsize': 'hhsize', # number of people in household
                       'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban', # urban or rural household.
+                      # Alcohol Use Disorder Variables (auditc)
+                      'auditc1': 'auditc1',  # Past 12 months alcohol drink?
+                      'auditc2': 'auditc2',  # Always been non-drinker
+                      'auditc3': 'auditc3',  # Alcohol frequency past 12 months
+                      'auditc4': 'auditc4',  # Drinks on typical day
+                      'auditc5': 'auditc5',  # Six or more drinks frequency
                       }
 
     # Some variables change names halfway through UKHLS.
