@@ -323,12 +323,15 @@ def format_ukhls_columns(year):
 def format_council_tax(data):
     """Format any council tax data for calculation of monthly overheads."""
 
+
 def format_housing_tenure(data):
     """
+    Format housing tenure variable
 
     Returns
     -------
-
+    data : pd.DataFrame
+        Data with housing_tenure formatted to strings
     """
     data["housing_tenure"] = data["housing_tenure"].astype(str).map(housing_tenure_dict)
     return data
