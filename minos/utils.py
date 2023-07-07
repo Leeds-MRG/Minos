@@ -13,6 +13,8 @@ from itertools import product
 import scipy
 from math import sqrt, log, ceil, floor
 from random import random
+from numpy.random import choice
+
 
 import sys
 import importlib
@@ -123,6 +125,29 @@ def get_nearest(reference_list, value):
     elif value > max(reference_list):
         nearest = max(reference_list)
     return nearest
+
+
+def sample_discrete(dict_in, n_samples=1):
+    """
+    Get sample(s) from discrete distribution
+
+    Parameters
+    ----------
+    dict_in : dict
+        Dict of values and number of occurrences of each
+    n_samples
+        Number of samples to be returned
+
+    Returns
+    -------
+    samples : list of float
+        n_samples x values sampled from input distribution
+
+    """
+    _sum = sum(dict_in.values())
+    occurrences = [el/_sum for el in dict_in.values()]
+    samples = choice(list(dict_in.keys()), size=n_samples, p=occurrences)
+    return samples
 
 
 def replace_text(input_text, replacements=REPLACEMENTS_DEFAULT):
