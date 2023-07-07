@@ -57,9 +57,12 @@ intervention_livingWage: setup
 intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
+intervention_energyDownLiftNoSupport: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
+
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift intervention_energyDownLiftNoSupport
 
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -91,9 +94,12 @@ arc4_intervention_livingWage: setup
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
+arc4_intervention_energyDownLiftNoSupport: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift, arc4_intervention_energyDownLiftNoSupport
 
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -129,9 +135,12 @@ beefy_intervention_livingWage: setup
 beefy_intervention_energyDownLift: setup
 	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownlift'
 
+beefy_intervention_energyDownLiftNoSupport: setup
+	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownliftNoSupport'
+
 beefy_all_scenarios: MODE=default_config
 beefy_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-beefy_all_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervention_PovertyLineChildUplift beefy_intervention_livingWage beefy_intervention_energyDownLift
+beefy_all_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervention_PovertyLineChildUplift beefy_intervention_livingWage beefy_intervention_energyDownLift, beefy_intervention_energyDownLiftNoSupport
 
 beefy_all_scot_scenarios: MODE=scotland_mode
 beefy_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
