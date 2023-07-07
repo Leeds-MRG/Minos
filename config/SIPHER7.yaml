@@ -9,8 +9,11 @@ population:
     age_start: 0
     age_end: 100
 
-mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
-fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
+#mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
+#fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+
 input_data_dir: "data/final_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
@@ -26,7 +29,7 @@ replenishing_dir: 'data/replenishing'
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2+).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), Income(), Education(), Mortality(), Replenishment()]
+components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), Income(), Education(), Mortality(), Replenishment(), nkidsFertilityAgeSpecificRates()]
 
 
 scale_rates:
