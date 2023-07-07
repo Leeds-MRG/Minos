@@ -14,7 +14,7 @@ import logging
 from datetime import datetime as dt
 
 
-class Housing(Base):
+class HousingTenure(Base):
 
     @property
     def name(self):
@@ -95,16 +95,14 @@ class Housing(Base):
         housing_tenure_prob_df = self.calculate_housing_tenure(pop)
 
         housing_tenure_prob_df["housing_tenure"] = self.random.choice(housing_tenure_prob_df.index,
-                                                               list(housing_tenure_prob_df.columns),
-                                                               housing_tenure_prob_df)
+                                                                      list(housing_tenure_prob_df.columns),
+                                                                      housing_tenure_prob_df)
 
         housing_tenure_prob_df.index = housing_tenure_prob_df.index.astype(int)
 
         # convert numeric prediction into string factors (low, medium, high)
-        #housing_tenure_factor_dict = {1: 'Low',
-        #                              2: 'Medium',
-        #                              3: 'High'}
-        #housing_tenure_prob_df.replace({'housing_quality': housing_tenure_factor_dict},
+        #housing_tenure_factor_dict = {}
+        #housing_tenure_prob_df.replace({'housing_tenure': housing_tenure_factor_dict},
         #                        inplace=True)
 
         self.population_view.update(housing_tenure_prob_df["housing_tenure"])
@@ -126,31 +124,22 @@ class Housing(Base):
         else:
             year = min(self.year, 2019)
 
-        transition_model = r_utils.load_transitions(f"housing_tenure/clm/housing_tenure_{year}_{year+1}",
+        # 2019 model doesn't have the 'Rented private furnished' category. Set differently for years before this
+        if year == 2019:
+            cols = ['Owned outright', 'Owned with mortgage', 'Local authority rent', 'Housing assoc rented',
+                    'Rented from employer', 'Rented private unfurnished', 'Other']
+        elif year < 2019:
+            cols = ['Owned outright', 'Owned with mortgage', 'Local authority rent', 'Housing assoc rented',
+                    'Rented from employer', 'Rented private unfurnished', 'Rented private furnished', 'Other']
+
+        transition_model = r_utils.load_transitions(f"housing_tenure/nnet/housing_tenure_{year}_{year+1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model,
-                                                    self.rpy2Modules,
-                                                    pop,
-                                                    'housing_tenure')
-        return prob_df
-
-        # set up list of columns
-        cols = ['FT Employed', 'PT Employed', 'Job Seeking', 'FT Education', 'Family Care', 'Not Working']
-
-        # load transition model based on year.
-        # year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2019
-        else:
-            year = min(self.year, 2019)
-
-        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year + 1}",
-                                                    self.rpy2Modules, path=self.transition_dir)
-        # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_nnet(transition_model,
+                                       self.rpy2Modules,
+                                       pop,
+                                       cols)
         return prob_df
 
     def plot(self, pop, config):
