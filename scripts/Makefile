@@ -94,8 +94,10 @@ arc4_intervention_livingWage: setup
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
+arc4_intervention_energyDownLiftNoSupport:  MODE=default_config
+arc4_intervention_energyDownLiftNoSupport: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_intervention_energyDownLiftNoSupport: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
