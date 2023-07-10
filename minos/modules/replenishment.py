@@ -94,7 +94,7 @@ class Replenishment(Base):
                         'financial_situation',
                         'housing_tenure',
                         'urban',
-                        ]
+                        'auditc']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

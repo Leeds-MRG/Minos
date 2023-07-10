@@ -39,6 +39,7 @@ class Alcohol(Base):
         """
 
         # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -59,7 +60,8 @@ class Alcohol(Base):
                         'SF_12_MCS',
                         'SF_12_PCS',
                         'education_state',
-                        'financial_situation']
+                        'financial_situation',
+                        'auditc']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
