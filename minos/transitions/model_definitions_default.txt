@@ -1,3 +1,4 @@
+NNET : auditc ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + scale(SF_12_MCS) + scale(SF_12_PCS) + hh_income + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + factor(financial_situation)
 CLM : financial_situation ~ factor(financial_situation) + scale(SF_12_MCS) + scale(SF_12_PCS) + factor(job_sec)+ scale(hh_income)+ I(scale(hh_income)**2) + factor(marital_status) + hhsize + factor(housing_tenure)
 LOGIT : heating ~ factor(heating) + scale(SF_12_MCS) + scale(SF_12_PCS) + relevel(factor(ethnicity), ref='WBI') + hh_income + factor(marital_status)+ ncigs + hhsize + factor(urban) + factor(housing_tenure) + factor(financial_situation)
 LOGIT : urban ~ age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1")
