@@ -297,8 +297,9 @@ spaghetti_plot(spag, 'education_state',
 rm(raw.s, base.s, spag)
 ```
 
+## Alcohol (AUDITC)
 
 ```{r}
-
+handover_ordinal(raw.dat, base.dat, var = 'auditc', save = shall.we.save)
 ```
 
