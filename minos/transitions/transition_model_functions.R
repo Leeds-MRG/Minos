@@ -252,7 +252,7 @@ nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, reflect) {
   
   data <- replace.missing(data)
-  data <- drop_na(data)
+  #data <- drop_na(data)
   max_value <- nanmax(data[[depend]])
   min_value <- nanmin(data[[depend]])
   if (reflect) {
@@ -308,11 +308,19 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   return(model)
 }
 
-estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend) {
+estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend, reflect) {
   
   # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
   data <- replace.missing(data)
+  #data <- drop_na(data)
+  max_value <- nanmax(data[[depend]])
+  if (reflect) {
+    data[, c(depend)] <- max_value - data[, c(depend)] 
+  }
+  yj <- yeojohnson(data[,c(depend)])
+  data[, c(depend)] <- predict(yj)
+  min_value <- nanmin(data[[depend]])
+  data[[depend]] <- data[[depend]] - min_value + 0.001
   
   if(include_weights) {
     model <- glmer(formula,  
@@ -326,10 +334,10 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    family=Gamma(link='log'),
                    data = data)
   }
-  # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
-  model[[depend]] <- data[[depend]]
-  model$class_preds <- predict(model)
+  attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+  attr(model,"max_value") <- max_value # Works though.
+  attr(model,"min_value") <- min_value
+
   return(model)
 }
 

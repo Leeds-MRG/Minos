@@ -492,7 +492,8 @@ class lmmYJMWB(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=9)
 
         #only need to load this once for now.
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -524,12 +525,13 @@ class lmmYJMWB(Base):
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
+        pop["SF_12_last"] = pop["SF_12"]
 
         # Predict next mwb value
         newWaveMWB = pd.DataFrame(columns=['SF_12'])
-        pop["SF_12_last"] = pop["SF_12"]
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
+        newWaveMWB["SF_12"] -= 2
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         # Update population with new SF12
         print(np.mean(newWaveMWB["SF_12"]))
@@ -546,13 +548,20 @@ class lmmYJMWB(Base):
         -------
         """
         #self.update_history_dataframe(pop, self.year, lag=10)
-        out_data = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                 self.rpy2_modules,
-                                                                 current= pop,
-                                                                 dependent='SF_12',
-                                                                 reflect=True,
-                                                                 yeo_johnson=True,
-                                                                 noise_std= 0.38)#0.35 for laplace
+        # out_data = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
+        #                                                          self.rpy2_modules,
+        #                                                          current= pop,
+        #                                                          dependent='SF_12',
+        #                                                          reflect=True,
+        #                                                          yeo_johnson=True,
+        #                                                          noise_std= 0.35)#0.35 for laplace
+        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
+                                                               self.rpy2_modules,
+                                                               current= pop,
+                                                               dependent='SF_12',
+                                                               reflect=True,
+                                                               yeo_johnson=True,
+                                                               noise_std= 0.25)#1
         #return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
         return out_data
 
@@ -666,6 +675,7 @@ class lmmDiffMWB(Base):
         newWaveMWB['SF_12_diff'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
         newWaveMWB['SF_12'] = pop['SF_12'] + newWaveMWB['SF_12_diff']
+
         # newWaveMWB = newWaveMWB.rename(columns={"new_dependent": "SF_12",
         #                                               "predicted": "SF_12_diff"})
         # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
@@ -692,6 +702,6 @@ class lmmDiffMWB(Base):
                                                                  dependent='SF_12_diff',
                                                                  reflect=False,
                                                                  yeo_johnson=True,
-                                                                 noise_std= 0.25)#1
+                                                                 noise_std= 0.35)#1
         #return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
         return out_data

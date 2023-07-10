@@ -138,7 +138,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         mutate(new = lead(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
     }
-    if (tolower(mod.type) == "lmm" && dependent == "SF_12")  {
+    if (dependent == "SF_12")  {
       data <- data %>%
         group_by(pidp) %>%
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
@@ -151,10 +151,11 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     if(tolower(mod.type) == 'glmm') {
       
-      model <- estimate_longitudnial_glmm(data = sorted_df,
+      model <- estimate_longitudinal_glmm(data = sorted_df,
                                           formula = form, 
                                           include_weights = use.weights, 
-                                          depend = dependent)
+                                          depend = dependent,
+                                          reflect=do.reflect)
       
     } else if(tolower(mod.type) == 'lmm') {
       if ( dependent == "hh_income") {

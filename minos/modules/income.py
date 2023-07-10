@@ -685,7 +685,7 @@ class lmmYJIncome(Base):
                                                                        dependent='hh_income',
                                                                        yeo_johnson = True,
                                                                        reflect=False,
-                                                                       noise_std= 0.9)#2
+                                                                       noise_std= 0.65)#2
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -788,8 +788,8 @@ class lmmDiffIncome(Base):
         #                                                     path=self.transition_dir)
         self.gee_transition_model = r_utils.load_transitions(f"hh_income/lmm_diff/hh_income_LMM_DIFF", self.rpy2Modules,
                                                              path=self.transition_dir)
-        self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
-        self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
+        #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
+        #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
