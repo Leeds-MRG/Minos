@@ -245,6 +245,11 @@ run_yearly_models <- function(transitionDir_path,
                                             'FT Education',
                                             'Family Care',
                                             'Not Working'))
+  data$auditc <- factor(data$auditc,
+                        levels = c('Non-drinker',
+                                   'Low Risk',
+                                   'Increased Risk', 
+                                   'High Risk'))
 
   # read file
   repeat{
