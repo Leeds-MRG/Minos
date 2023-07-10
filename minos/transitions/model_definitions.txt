@@ -1,5 +1,5 @@
 OLS : hh_income ~ hh_income + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
-LMM : hh_income ~ scale(hh_income) + scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + (1|pidp)
+LMM_DIFF : hh_income ~ scale(hh_income) + scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + (1|pidp)
 GEE_YJ : nutrition_quality ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + relevel(factor(ethnicity), ref = 'WBI') + hh_income + ncigs + SF_12
 GLMM : SF_12 ~ scale(SF_12_last) + factor(sex) + factor(ethnicity) + scale(age) + factor(housing_quality) + scale(hh_income) + factor(neighbourhood_safety) + nutrition_quality + I(factor(ncigs>0)) + (1|pidp)
 CLM : housing_quality ~ factor(housing_quality) + age + factor(sex) + SF_12 + relevel(factor(ethnicity), ref = 'WBI') + hh_income
