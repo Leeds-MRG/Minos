@@ -970,19 +970,27 @@ def calculate_auditc_score(data):
     data['temp_auditc3'][data['auditc5'] == 5] = 4  # Six or more drinks frequency: Daily or almost daily
 
     # Combined score
-    data['auditc'] = 0
-    data['auditc'][data['temp_auditc1'] >= 0] = data['auditc'] + data['temp_auditc1']
-    data['auditc'][data['temp_auditc2'] >= 0] = data['auditc'] + data['temp_auditc2']
-    data['auditc'][data['temp_auditc3'] >= 0] = data['auditc'] + data['temp_auditc3']
+    data['auditc_score'] = 0
+    data['auditc_score'][data['temp_auditc1'] >= 0] += data['temp_auditc1']
+    data['auditc_score'][data['temp_auditc2'] >= 0] += data['temp_auditc2']
+    data['auditc_score'][data['temp_auditc3'] >= 0] += data['temp_auditc3']
     # if any of the components are missing, set the final value as missing also
-    data['auditc'][(data['temp_auditc1'] == -9) |
+    data['auditc_score'][(data['temp_auditc1'] == -9) |
                    (data['temp_auditc2'] == -9) |
                    (data['temp_auditc3'] == -9)] = -9
 
-    #data.drop(labels=['auditc1', 'auditc2', 'auditc3', 'auditc4', 'auditc5',
-    #                  'temp_auditc1', 'temp_auditc2', 'temp_auditc3'],
-    #          axis=1,
-    #          inplace=True)
+    # Ordinal values
+    data['auditc'] = '-9'
+    data['auditc'][data['auditc_score'] == 0] = 'Non-drinker'  # 0 score is non-drinker
+    data['auditc'][data['auditc_score'].isin(range(1, 5))] = 'Low Risk'  # 1-4 is sensible
+    data['auditc'][data['auditc_score'].isin(range(5, 8))] = 'Increased Risk'  # 5-7 is hazardous
+    data['auditc'][data['auditc_score'] >= 8] = 'High Risk'  # 8-12 is harmful
+
+    data.drop(labels=['auditc1', 'auditc2', 'auditc3', 'auditc4', 'auditc5',
+                      'temp_auditc1', 'temp_auditc2', 'temp_auditc3',
+                      'auditc_score'],
+              axis=1,
+              inplace=True)
 
     return data
 
