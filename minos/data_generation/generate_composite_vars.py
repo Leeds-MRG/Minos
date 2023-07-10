@@ -766,6 +766,7 @@ def generate_parents_education(data):
     # Groupby hid then filter to make sure there is a 16 year old in the house
     grouped_dat = data.groupby(['hidp'], axis=1).filter(lambda d: (d.age != 16.0), axis=0)
     # filtered_dat = grouped_dat.filter(lambda d: (d['age'] != 16))
+    # TODO: FINISH THIS!
 
     return data
 
@@ -775,12 +776,12 @@ def calculate_equivalent_income(data):
 
     Parameters
     ----------
-        pop: PopulationView
-            Population from MINOS to calculate next income for.
+        data: pd.DataFrame
+            US data
     Returns
     -------
-    nextWaveIncome: pd.Series
-        Vector of new household incomes from OLS prediction.
+        data : pd.DataFrame
+            US data with variable for equivalent income
     """
     print('Calculating equivalent income...')
     # This is a deterministic calculation based on the values from each of the SIPHER7 variables
@@ -900,6 +901,92 @@ def calculate_equivalent_income(data):
     return data
 
 
+def calculate_auditc_score(data):
+    """
+    Alcohol use disorders can be assessed via the AUDITC score. This score is derived from 3 questions that form part of
+    the full 10 question AUDIT screening test, where AUDITC specifically focuses on consumption. The 3 questions are:
+
+    1. How often do you have a drink containing alcohol?
+    2. How many units of alcohol do you drink on a typical day when you are drinking?
+    3. How often have you had 6 or more units if female, or 8 or more if male, on a single occasion in the last year?
+
+    Each question is ordinal with 5 levels, depending on the 'severity' of the answer. We then score each question from
+    0-4, with higher scores meaning higher 'severity'. The total across the 3 questions then creates a score from 0-12,
+    with 0-4 meaning sensible drinking, 5-7 meaning hazardous drinking, and 8+ meaning harmful drinking.
+    See following link for information on scoring:
+    https://www.drinktalkingportal.co.uk/clinical-guidance/alcohol-abuse-screening/alcohol-audit-audit-c
+
+    To calculate this score, we rely on 4 variables in Understanding Society shown at the following link:
+    https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation?search_api_views_fulltext=auditc
+
+    Question 1 above relies on auditc1 & auditc3, question 2 relies on auditc4, and question 3 uses auditc5.
+
+    NOTE: The final variable used (auditc5) specifically mentions 6 or more drink frequency, rather than 6+/8+ units.
+            This could be a mistake in the description or the actual question asked being incorrect (not the true AUDITC
+            question). There's no information about which one it is, so I'm treating it the same as the AUDITC3 question
+            for our purposes. Added benefit that this is simpler to code without checking for gender also.
+
+    Parameters
+    ----------
+        data: pd.DataFrame
+            US data
+    Returns
+    -------
+        data : pd.DataFrame
+            US data with variable for equivalent income
+    """
+    print('Calculating AUDITC score (alcohol use disorder)...')
+
+    # AUDITC1 - How often do you have a drink containing alcohol
+    data['temp_auditc1'] = -9
+    data['temp_auditc1'][data['auditc1'] == 2] = 0  # no alcoholic drink in past 12 months
+    data['temp_auditc1'][data['auditc2'] == 1] = 0  # always been non-drinker (maybe not necessary but thorough)
+    data['temp_auditc1'][data['auditc3'] == 1] = 0  # Never drank in past 12 months (again might be doubling up)
+    data['temp_auditc1'][data['auditc3'] == 2] = 1  # Drank in past 12 months: monthly or less
+    data['temp_auditc1'][data['auditc3'] == 3] = 2  # Drank in past 12 months: 2-4 times per month
+    data['temp_auditc1'][data['auditc3'] == 4] = 3  # Drank in past 12 months: 2-3 times per week
+    data['temp_auditc1'][data['auditc3'] == 5] = 4  # Drank in past 12 months: 4+ times per week
+
+    # AUDITC2 - How many units drank on typical day
+    data['temp_auditc2'] = -9
+    data['temp_auditc2'][data['auditc1'] == 2] = 0  # no alcoholic drink in past 12 months
+    data['temp_auditc2'][data['auditc2'] == 1] = 0  # always been non-drinker (maybe not necessary but thorough)
+    data['temp_auditc2'][data['auditc3'] == 1] = 0  # Never drank in past 12 months (again might be doubling up)
+    data['temp_auditc2'][data['auditc4'] == 1] = 0  # Drinks on typical day: 1-2
+    data['temp_auditc2'][data['auditc4'] == 2] = 1  # Drinks on typical day: 3-4
+    data['temp_auditc2'][data['auditc4'] == 3] = 2  # Drinks on typical day: 5-6
+    data['temp_auditc2'][data['auditc4'] == 4] = 3  # Drinks on typical day: 7-9
+    data['temp_auditc2'][data['auditc4'] == 5] = 4  # Drinks on typical day: 10+
+
+    # AUDITC3 - Six or more drinks frequency
+    data['temp_auditc3'] = -9
+    data['temp_auditc3'][data['auditc1'] == 2] = 0  # no alcoholic drink in past 12 months
+    data['temp_auditc3'][data['auditc2'] == 1] = 0  # always been non-drinker (maybe not necessary but thorough)
+    data['temp_auditc3'][data['auditc3'] == 1] = 0  # Never drank in past 12 months (again might be doubling up)
+    data['temp_auditc3'][data['auditc5'] == 1] = 0  # Six or more drinks frequency: Never
+    data['temp_auditc3'][data['auditc5'] == 2] = 1  # Six or more drinks frequency: Less than monthly
+    data['temp_auditc3'][data['auditc5'] == 3] = 2  # Six or more drinks frequency: Monthly
+    data['temp_auditc3'][data['auditc5'] == 4] = 3  # Six or more drinks frequency: Weekly
+    data['temp_auditc3'][data['auditc5'] == 5] = 4  # Six or more drinks frequency: Daily or almost daily
+
+    # Combined score
+    data['auditc'] = 0
+    data['auditc'][data['temp_auditc1'] >= 0] = data['auditc'] + data['temp_auditc1']
+    data['auditc'][data['temp_auditc2'] >= 0] = data['auditc'] + data['temp_auditc2']
+    data['auditc'][data['temp_auditc3'] >= 0] = data['auditc'] + data['temp_auditc3']
+    # if any of the components are missing, set the final value as missing also
+    data['auditc'][(data['temp_auditc1'] == -9) |
+                   (data['temp_auditc2'] == -9) |
+                   (data['temp_auditc3'] == -9)] = -9
+
+    #data.drop(labels=['auditc1', 'auditc2', 'auditc3', 'auditc4', 'auditc5',
+    #                  'temp_auditc1', 'temp_auditc2', 'temp_auditc3'],
+    #          axis=1,
+    #          inplace=True)
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -923,6 +1010,7 @@ def main():
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
+    data = calculate_auditc_score(data)
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

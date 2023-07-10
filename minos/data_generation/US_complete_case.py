@@ -89,6 +89,10 @@ if __name__ == "__main__":
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
 
+    # PCS Vars
+    # AUDITC (alcohol) - present in 2015, 2017, 2019, 2020
+    data = complete_case_custom_years(data, 'auditc', years=[2015, 2017, 2019, 2020])
+
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
                     'scsf1',
