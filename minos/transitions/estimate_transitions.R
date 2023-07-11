@@ -379,6 +379,9 @@ run_yearly_models <- function(transitionDir_path,
         if(year < 2013) {
           formula.string <- str_remove(formula.string, " \\+ ncigs")
         }
+        if(!year %in% c(2015, 2017, 2019, 2020)) {
+          formula.string <- str_remove(formula.string, " \\+ factor\\(auditc\\)")
+        }
       }
       #print(formula.string)
       # Now make string into formula

@@ -68,7 +68,7 @@ def reweight_stock(data, projections):
     return reweighted_data
 
 
-def wave_data_copy(data, var, copy_year, paste_year):
+def wave_data_copy(data, var, copy_year, paste_year, var_type):
     """
     Unfortunately due to some of the variables we rely on not being available in all waves, we have to take a copy of
     some information and paste it onto another year. Due to the current aim (24/02/23) being to include wave 12 of data
@@ -118,10 +118,17 @@ def wave_data_copy(data, var, copy_year, paste_year):
     # drop intermediate columns
     data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
 
-    # last step is to impute the still missing with the mean value. Without this we would have to drop all the
-    # missing values, meaning anybody not in wave 11 would be removed. This is dodgy because we don't know who should be
-    # missing, but I don't know what else to do
-    data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
+    # last step is to impute the still missing with the median value (code is different for continuous vs ordinal vars).
+    # Without this we would have to drop all the missing values, meaning anybody not in wave 11 would be removed.
+    # This is dodgy because we don't know who should actually be missing, but I don't know what else to do
+    #data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
+    if var_type == 'continuous':
+        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
+            data_merged[var][data_merged['time'] == paste_year].median()
+    elif var_type == 'ordinal':
+        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
+            data_merged[var][data_merged['time'] == paste_year].value_counts().index[0]
+
 
     return data_merged
 
@@ -143,21 +150,30 @@ def generate_stock(projections, cross_validation):
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
 
+    # copy 2015 alcohol data onto 2014 for cross-validation runs
+    data = wave_data_copy(data,
+                          var='auditc',
+                          copy_year=2015,
+                          paste_year=2014,
+                          var_type='ordinal')
     # copy 2017 loneliness data onto 2014 for cross-validation runs
     data = wave_data_copy(data,
                           var='loneliness',
                           copy_year=2017,
-                          paste_year=2014)
+                          paste_year=2014,
+                          var_type='ordinal')
     # copy wave 11 nutrition_quality onto wave 12
     data = wave_data_copy(data,
                           var='nutrition_quality',
                           copy_year=2019,
-                          paste_year=2020)
+                          paste_year=2020,
+                          var_type='continuous')
     # copy wave 7 nutrition_quality onto wave 6
     data = wave_data_copy(data,
                           var='nutrition_quality',
                           copy_year=2015,
-                          paste_year=2014)
+                          paste_year=2014,
+                          var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')

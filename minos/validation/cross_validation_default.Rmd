@@ -137,39 +137,77 @@ print(inc.20)
 rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
-# SF_12
+# SF_12_MCS
 
 ```{r}
-cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
-multi_year_boxplots(raw, cv, 'SF_12')
-snapshot_OP_plots(raw, cv, 'SF_12', target.years = c(2014, 2016, 2018, 2020))
-q_q_comparison(raw, cv, 'SF_12')
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12_MCS')
+multi_year_boxplots(raw, cv, 'SF_12_MCS')
+snapshot_OP_plots(raw, cv, 'SF_12_MCS', target.years = c(2014, 2016, 2018, 2020))
+q_q_comparison(raw, cv, 'SF_12_MCS')
 ```
 ```{r}
 sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
                                  target.year = 2014)
 print(sf12.14)
 ```
 ```{r}
 sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
                                  target.year = 2016)
 print(sf12.16)
 ```
 ```{r}
 sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
                                  target.year = 2018)
 print(sf12.18)
 ```
 ```{r}
 sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
+                                 target.year = 2020)
+print(sf12.20)
+rm(sf12.14, sf12.16, sf12.18, sf12.20)
+```
+
+# SF_12_PCS
+
+```{r}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12_PCS')
+multi_year_boxplots(raw, cv, 'SF_12_PCS')
+snapshot_OP_plots(raw, cv, 'SF_12_PCS', target.years = c(2014, 2016, 2018, 2020))
+q_q_comparison(raw, cv, 'SF_12_PCS')
+```
+```{r}
+sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
+                                 target.year = 2014)
+print(sf12.14)
+```
+```{r}
+sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
+                                 target.year = 2016)
+print(sf12.16)
+```
+```{r}
+sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
+                                 target.year = 2018)
+print(sf12.18)
+```
+```{r}
+sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
                                  target.year = 2020)
 print(sf12.20)
 rm(sf12.14, sf12.16, sf12.18, sf12.20)

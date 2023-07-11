@@ -45,7 +45,10 @@ comp.files <- list.files(here::here('data', 'composite_US'), pattern='[0-9]{4}_U
 comp.dat <- do.call(rbind, lapply(comp.files, read.csv)) 
 
 final.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
-final.dat <- do.call(rbind, lapply(final.files, read.csv)) 
+final.dat <- do.call(rbind, lapply(final.files, read.csv))
+
+cv.files <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+cv.dat <- do.call(rbind, lapply(final.files, read.csv))
 ```
 
 # Analysis
@@ -81,6 +84,22 @@ final$auditc <- as.factor(final$auditc)
 ggplot(final, aes(x = time, y = n, group = auditc, color = auditc)) +
   geom_line() +
   labs(title = 'AUDITC - Final Data') +
+  ylab('Counts')
+```
+
+```{r}
+cv <- cv.dat %>%
+  dplyr::select(pidp, time, auditc) %>%
+  dplyr::filter(time >= 2015) %>%
+  dplyr::filter(time != 2016, time != 2018) %>%
+  group_by(time, auditc) %>%
+  count()
+
+cv$auditc <- as.factor(cv$auditc)
+
+ggplot(cv, aes(x = time, y = n, group = auditc, color = auditc)) +
+  geom_line() +
+  labs(title = 'AUDITC - Cross-Validation Batch 1') +
   ylab('Counts')
 ```
 
