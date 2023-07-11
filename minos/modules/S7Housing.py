@@ -118,7 +118,11 @@ class S7Housing(Base):
         -------
         """
         # load transition model based on year.
-        year = min(self.year, 2019)
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
         transition_model = r_utils.load_transitions(f"S7_housing_quality/clm/S7_housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_housing_quality')

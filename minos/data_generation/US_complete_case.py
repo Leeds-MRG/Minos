@@ -74,6 +74,7 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
     # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
+    data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     # ncigs missing for wave 1 only
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
     # Nutrition only present in 2014

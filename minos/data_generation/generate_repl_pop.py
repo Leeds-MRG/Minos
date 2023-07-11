@@ -172,9 +172,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/simulation'
+        data_source = 'final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
-        transition_dir = 'data/transitions/cross_validation'
+        transition_dir = 'data/transitions/cross_validation/version1'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"

@@ -1,23 +1,26 @@
 randomness:
     key_columns: ['entrance_time', 'age']
 time:
-    start: {year: 2020, month: 10, day: 15}
-    end:   {year: 2038, month: 10, day: 15}
+    start: {year: 2014, month: 10, day: 15}
+    end:   {year: 2020, month: 10, day: 15}
     step_size: 365.25  # Days
-    num_years: 19
+    num_years: 6
 population:
     age_start: 0
     age_end: 100
 
-mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
-fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/scotland_US"
+## NOTE: If you modify this file, you MUST modify the remaining cross_validation_S7_#.yaml files within the
+# config/cross_validation directory.
+
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+input_data_dir: "data/final_US/cross_validation/batch5"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
-transition_dir: 'data/transitions/scotland'
-replenishing_dir: 'data/replenishing/scotland'
-cross_validation: FALSE
+transition_dir: 'data/transitions/cross_validation/version5'
+replenishing_dir: 'data/replenishing/cross_validation'
+cross_validation: TRUE
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
@@ -27,7 +30,7 @@ cross_validation: FALSE
 # Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Income(), Housing(), Nutrition(), Education(), Mortality(), Replenishment()]
+components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), Income(), Education(), Mortality(), Replenishment()]
 
 
 scale_rates:
