@@ -9,6 +9,8 @@ from minos.modules.base_module import Base
 from seaborn import histplot
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
+
 
 class MWB(Base):
     """Mental Well-Being Module"""
@@ -57,7 +59,7 @@ class MWB(Base):
                         'ethnicity',
                         'age',
                         'education_state',
-                        'labour_state',
+                        'S7_labour_state',
                         'job_sec',
                         'hh_income',
                         'SF_12',
@@ -107,6 +109,8 @@ class MWB(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("MENTAL WELLBEING (SF12 MCS)")
 
         self.year = event.time.year
 

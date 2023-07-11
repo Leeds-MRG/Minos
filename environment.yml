@@ -21,6 +21,9 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-geepack
   - r-lme4
   - r-VGAM
+  - r-here
+  - r-scales
+  - r-ggextra
   - pandoc
   - sphinx
   - myst-parser

@@ -1,6 +1,12 @@
 ### This utilities file deals only with reading in and formatting input and output data files
 
 
+create.if.not.exists <- function(path) {
+  if(!file.exists(path)) {
+    dir.create(path = path)
+  }
+}
+
 # Function to read all output files from a singular (non-batch) local simulation run
 # This will read output files for all years within the latest runtime subdirectory
 # (which is automatically determined)

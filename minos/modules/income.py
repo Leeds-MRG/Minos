@@ -10,6 +10,8 @@ from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
 import numpy as np
+import logging
+
 
 class Income(Base):
 
@@ -60,7 +62,7 @@ class Income(Base):
                         'region',
                         'hh_income',
                         'job_sec',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'SF_12',
                         'housing_quality',
@@ -103,6 +105,9 @@ class Income(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("INCOME")
+
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
@@ -155,8 +160,13 @@ class Income(Base):
             Dataframe of new predicted hh_income value and difference from previous year.
         """
         # load transition model based on year.
-        year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}",
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
+
+        transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
