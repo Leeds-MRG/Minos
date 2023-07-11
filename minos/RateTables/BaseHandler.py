@@ -26,7 +26,7 @@ class BaseHandler:
     def cache(self, overwrite=False):
         if not exists(self.rate_table_path) or overwrite:
             print('Caching rate table...')
-            self.rate_table.to_csv(self.rate_table_path)
+            self.rate_table.to_csv(self.rate_table_path, index=False)
             print('Cached to {}'.format(self.rate_table_path))
         else:
             print('File already exists at {}'.format(self.rate_table_path))
@@ -67,7 +67,7 @@ class BaseHandler:
 
         # HR 20/04/23 Get all years from year_start and year_end
         unique_years = np.unique(df['year'])
-        print("\n## Running transform_rate_table, checking years... ##\n")
+        print("\n## Running transform_rate_table, checking years... ##")
         years = list(range(year_start, year_end))
         print("\n## years before checking:", years)
 

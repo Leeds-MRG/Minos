@@ -8,6 +8,7 @@ from os.path import exists
 from os import remove
 import numpy as np
 from minos.utils import extend_series, get_nearest
+from minos.data_generation import generate_composite_vars
 
 
 RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
@@ -20,7 +21,7 @@ PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
 
 NEWETHPOP_FOLDER_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, "Fertility")
 
-PARITY_MAX_DEFAULT = 10
+PARITY_MAX_DEFAULT = generate_composite_vars.PARITY_MAX_DEFAULT
 AGE_RANGE_DEFAULT = [10,49]
 YEAR_RANGE_DEFAULT = [2011,2021]
 
@@ -377,7 +378,8 @@ class FertilityRateTable(BaseHandler):
         df_parity = parse_parity_ons()
         pop_concat, births_concat = extend_parity_ons(df_parity,
                                                       self.parity_max)
-        print("Extending NewEthPop data with parity...")
+        print("Extending NewEthPop data with parity")
+        print("This may take several minutes, depending on the number of years covered...")
         rt_parity = apply_parity_to_newethpop(births_ons=births_concat,
                                               pop_ons=pop_concat,
                                               nep=self.rate_table)

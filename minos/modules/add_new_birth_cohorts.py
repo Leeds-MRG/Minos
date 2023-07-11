@@ -265,7 +265,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids_ind', 'hidp', 'pidp']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp']
         # Add new columns to population required for module using build in sim creator.
         self.population_view = builder.population.get_view(view_columns)
 
@@ -320,17 +320,6 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children_pidps = population.loc[had_children, 'pidp']
         who_had_children_individual = population.loc[population['pidp'].isin(had_children_pidps),].index
         population.loc[who_had_children_individual, 'nkids_ind'] += 1
-
-        # # HR 03/07/23 Temporary workaround to reset all values of nkids above max. value
-        # # b/c if multiple women live in a household, nkids may increase beyond n_max => causes key error in Vivarium
-        # who_above_nmax_index = population.loc[population['nkids'].gt(self.parity_max)].index
-        # who_above_nmax = population.loc[population['nkids'].gt(self.parity_max)]
-        # if len(who_above_nmax) > 0:
-        #     print("Entries/counts above parity_max ({}):".format(self.parity_max))
-        #     print(who_above_nmax)
-        #     print(who_above_nmax['hidp'].value_counts(sort=True))
-        # population.loc[who_above_nmax_index, 'nkids'] = self.parity_max
-        # self.population_view.update(population[['nkids']])
 
         # # HR 24/05/23 To grab parity for testing
         # y = int(str(event.time).split("-")[0])

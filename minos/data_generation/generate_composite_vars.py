@@ -11,12 +11,13 @@ import pandas as pd
 import numpy as np
 import sys
 
-import US_utils
-import US_missing_description as USmd
+from minos.data_generation import US_utils
+# import US_missing_description as USmd
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
+PARITY_MAX_DEFAULT = 10
 
 def generate_composite_housing_quality(data):
     """
@@ -901,7 +902,8 @@ def calculate_equivalent_income(data):
     return data
 
 
-def calculate_children(data):
+def calculate_children(data,
+                       parity_max=PARITY_MAX_DEFAULT):
     """
 
     Parameters
@@ -939,7 +941,10 @@ def calculate_children(data):
             # print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
         # elif (subframe['nkids_ind_raw'].lt(0).any()):
         #     print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+    print("")
 
+    # Reset any women with more than nmax children to nmax
+    data.loc[(data['nkids_ind'] > parity_max) & (data['sex'] == "Female"), 'nkids_ind'] = parity_max
     return data
 
 
