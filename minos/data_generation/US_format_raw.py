@@ -303,6 +303,15 @@ def format_ukhls_columns(year):
                       'auditc3': 'auditc3',  # Alcohol frequency past 12 months
                       'auditc4': 'auditc4',  # Drinks on typical day
                       'auditc5': 'auditc5',  # Six or more drinks frequency
+                      # Exercise/activity variables
+                      'mday': 'mday',  # 7 days moderate activites
+                      'mdhrs': 'mdhrs',  # usual hours moderate activities
+                      'mdmin': 'mdmin',  # usual minute moderate activities
+                      'mwhrs': 'mwhrs',  # weekly hours moderate activities
+                      'vday': 'vday',  # 7 days moderate activites
+                      'vdhrs': 'vdhrs',  # usual hours moderate activities
+                      'vdmin': 'vdmin',  # usual minute moderate activities
+                      'vwhrs': 'vwhrs',  # weekly hours moderate activities
                       }
 
     # Some variables change names halfway through UKHLS.
