@@ -995,6 +995,73 @@ def calculate_auditc_score(data):
     return data
 
 
+def generate_exercise_composite(data):
+    """
+
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    # First do moderate activity
+    # this is a combination of information from all moderate activity variables
+    data['temp_mod_act'] = 0
+    # hours per day * 60 (for minutes) where neither is missing
+    data['temp_mod_act'][(data['mday'] >= 0) & (data['mdhrs'] >= 0)] += data['mday'] * (data['mdhrs'] * 60)
+    # minutes per day
+    data['temp_mod_act'][(data['mday'] >= 0) & (data['mdmin'] >= 0)] += data['mday'] * data['mdmin']
+    # hours per week (asked separately I think for when hours per day is unknown)
+    data['temp_mod_act'][data['mwhrs'] >= 0] += data['mwhrs']
+    # minutes per week (mins per day unknown)
+    data['temp_mod_act'][data['mwmin'] >= 0] += data['mwmin']
+    # handle missing
+    data['temp_mod_act'][(data['mday'] < 0) &
+                         (data['mdhrs'] < 0) &
+                         (data['mdmin'] < 0) &
+                         (data['mwhrs'] < 0) &
+                         (data['mwmin'] < 0)] = -9
+
+    # now vigorous
+    data['temp_vig_act'] = 0
+    # hours per day * 60 (for minutes) where neither is missing
+    data['temp_vig_act'][(data['vday'] >= 0) & (data['vdhrs'] >= 0)] += data['vday'] * (data['vdhrs'] * 60)
+    # minutes per day
+    data['temp_vig_act'][(data['vday'] >= 0) & (data['vdmin'] >= 0)] += data['vday'] * data['vdmin']
+    # hours per week (asked separately I think for when hours per day is unknown)
+    data['temp_vig_act'][data['vwhrs'] >= 0] += data['vwhrs']
+    # minutes per week (mins per day unknown)
+    data['temp_vig_act'][data['vwmin'] >= 0] += data['vwmin']
+    # handle missing
+    data['temp_vig_act'][(data['vday'] < 0) &
+                         (data['vdhrs'] < 0) &
+                         (data['vdmin'] < 0) &
+                         (data['vwhrs'] < 0) &
+                         (data['vwmin'] < 0)] = -9
+
+    # Now do the calculations for a binary active variable
+    data['active'] = -9
+    # if either more than 150 mins moderate, or 75 mins vigorous, then active == TRUE
+    data['active'][(data['temp_mod_act'] >= 150) | (data['temp_vig_act'] >= 75)] = 1
+    #data['active'][data['temp_vig_act'] >= 75] = 1
+    # if both less than 150 mins moderate and less than 75 mins vigorous, then active == FALSE
+    data['active'][(data['temp_mod_act'] < 150) & (data['temp_vig_act'] < 75)] = 0
+    # if both missing, then missing
+    data['active'][(data['temp_mod_act'] == -9) & (data['temp_vig_act'] == -9)] = -9
+
+    # drop cols no longer need
+    data.drop(labels=['temp_mod_act', 'temp_vig_act',
+                      'mday', 'mdhrs', 'mdmin', 'mwhrs', 'mwmin',
+                      'vday', 'vdhrs', 'vdmin', 'vwhrs', 'vwmin'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1018,7 +1085,8 @@ def main():
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
-    data = calculate_auditc_score(data)
+    data = calculate_auditc_score(data)  # alcohol use disorder for consumption (auditc)
+    data = generate_exercise_composite(data)  # exercise composite
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
