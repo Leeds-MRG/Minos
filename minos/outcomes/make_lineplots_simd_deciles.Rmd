@@ -35,9 +35,9 @@ reticulate::use_condaenv("minos_conda", required = TRUE)
 # packages need installing in R using py_install("package"). honestly this seems not worth it..
 from minos.outcomes.make_lineplots import main as lineplot_main
 # define test parameters and run.
-directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
-tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-subset_function_strings = "who_alive,who_first_decile,who_second_decile,who_third_decile,who_fourth_decile,who_fifth_decile,who_sixth_decile,who_seventh_decile,who_eigth_decile,who_ninth_decile,who_tenth_decile"
+directories = "baseline,baseline"#,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
+tags = "National Average,First"#,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
+subset_function_strings = "who_alive,who_first_decile"#,who_second_decile,who_third_decile,who_fourth_decile,who_fifth_decile,who_sixth_decile,who_seventh_decile,who_eigth_decile,who_ninth_decile,who_tenth_decile"
 prefix="simd_deciles"
 config_mode = "glasgow_scaled"
 lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="National Average", v="SF_12", method='nanmean')
