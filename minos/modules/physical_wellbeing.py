@@ -69,7 +69,8 @@ class SF_12_PCS(Base):
                         'neighbourhood_safety',
                         'loneliness',
                         'financial_situation',
-                        'auditc']
+                        'auditc',
+                        'active']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

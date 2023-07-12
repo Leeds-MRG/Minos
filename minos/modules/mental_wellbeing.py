@@ -70,7 +70,8 @@ class MWB(Base):
                         'neighbourhood_safety',
                         'loneliness',
                         'SF_12_diff',
-                        'financial_situation']
+                        'financial_situation',
+                        'active']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

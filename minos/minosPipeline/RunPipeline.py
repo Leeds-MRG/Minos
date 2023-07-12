@@ -39,6 +39,7 @@ from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
 from minos.modules.housing_tenure import HousingTenure
+from minos.modules.physical_activity import PhysicalActivity
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -89,7 +90,8 @@ def validate_components(config_components, intervention):
         "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
         "Mortality()": Mortality(),
         "Education()": Education(),
-        "HousingTenure()": HousingTenure()
+        "HousingTenure()": HousingTenure(),
+        "PhysicalActivity()": PhysicalActivity()
     }
 
     SIPHER7_components_map = {  # SIPHER7 stuff
