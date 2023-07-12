@@ -88,8 +88,8 @@ class PhysicalActivity(Base):
         active_prob_df[0.] = 1 - active_prob_df[1.0]
         active_prob_df.index = pop.index
         active_prob_df["active"] = self.random.choice(active_prob_df.index,
-                                                        list(active_prob_df.columns),
-                                                        active_prob_df)
+                                                      list(active_prob_df.columns),
+                                                      active_prob_df)
         active_prob_df.index = pop.index
         self.population_view.update(active_prob_df["active"])
 
