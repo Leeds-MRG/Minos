@@ -34,16 +34,16 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
                     #"who_babies_under_one": None,
                     #"who_income_benefits": None,
                     #"who_no_public_funds_recourse": None,
-                    "who_first_decile": [who_alive, who_first_simd_decile],
-                    "who_second_decile": [who_alive, who_second_simd_decile],
-                    "who_third_decile": [who_alive, who_third_simd_decile],
-                    "who_fourth_decile": [who_alive, who_fourth_simd_decile],
-                    "who_fifth_decile": [who_alive, who_fifth_simd_decile],
-                    "who_sixth_decile": [who_alive, who_sixth_simd_decile],
-                    "who_seventh_decile": [who_alive, who_seventh_simd_decile],
-                    "who_eighth_decile": [who_alive, who_eighth_simd_decile],
-                    "who_ninth_decile": [who_alive, who_ninth_simd_decile],
-                    "who_tenth_decile": [who_alive, who_tenth_simd_decile],
+                    "who_first_decile": [who_alive, [who_kth_simd_decile, [1]]],
+                    "who_second_decile": [who_alive, [who_kth_simd_decile, [2]]],
+                    "who_third_decile": [who_alive, [who_kth_simd_decile, [3]]],
+                    "who_fourth_decile": [who_alive, [who_kth_simd_decile, [4]]],
+                    "who_fifth_decile": [who_alive, [who_kth_simd_decile, [5]]],
+                    "who_sixth_decile": [who_alive, [who_kth_simd_decile, [6]]],
+                    "who_seventh_decile": [who_alive, [who_kth_simd_decile, [7]]],
+                    "who_eighth_decile": [who_alive, [who_kth_simd_decile, [8]]],
+                    "who_ninth_decile": [who_alive, [who_kth_simd_decile, [9]]],
+                    "who_tenth_decile": [who_alive, [who_kth_simd_decile, [10]]],
 
                      }
 
@@ -53,7 +53,11 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
         subset_chain.append(who_scottish)
 
     for subset_function in subset_chain:
-        data = subset_function(data)
+        if type(subset_function) == list:
+            subset_function, subset_args = subset_function
+            data = subset_function(data, subset_args)
+        else:
+            data = subset_function(data)
 
     return data
 
@@ -151,23 +155,6 @@ def who_young_adults(df):
     df =  df.loc[df["age"] <= 25, ]
     return df.loc[df["age"] >= 16, ]
 
-def who_first_simd_decile(df):
-    return df.loc[df["simd_decile"] == 1]
-def who_second_simd_decile(df):
-    return df.loc[df["simd_decile"] == 2]
-def who_third_simd_decile(df):
-    return df.loc[df["simd_decile"] == 3]
-def who_fourth_simd_decile(df):
-    return df.loc[df["simd_decile"] == 4]
-def who_fifth_simd_decile(df):
-    return df.loc[df["simd_decile"] == 5]
-def who_sixth_simd_decile(df):
-    return df.loc[df["simd_decile"] == 6]
-def who_seventh_simd_decile(df):
-    return df.loc[df["simd_decile"] == 7]
-def who_eighth_simd_decile(df):
-    return df.loc[df["simd_decile"] == 8]
-def who_ninth_simd_decile(df):
-    return df.loc[df["simd_decile"] == 9]
-def who_tenth_simd_decile(df):
-    return df.loc[df["simd_decile"] == 10]
+def who_kth_simd_decile(df, *args):
+    k = args[0]
+    return df.loc[df["simd_decile"] == k]

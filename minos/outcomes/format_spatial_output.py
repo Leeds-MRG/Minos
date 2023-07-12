@@ -220,9 +220,10 @@ def attach_spatial_component(minos_data, spatial_data, v="SF_12", method=np.nanm
 def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
 
-    if subset_function.endswith("_simd_decile"):
-        minos_data = append_SIMD_decile_data(minos_data)
+
     if subset_function:
+        if subset_function.endswith("simd_decile"):
+            minos_data = append_SIMD_decile_data(minos_data)
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', "ZoneID", v]]
     minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
@@ -245,9 +246,7 @@ def append_SIMD_decile_data(data):
               """)
 
     # merge SIMD onto minos data
-    print(data.columns)
     data = data.merge(simd_data, how='left', on="DataZone")
-
     # cut simd data into deciles using qcut (not needed with existing deciles from simd data)
     return data
 
