@@ -246,7 +246,7 @@ def append_SIMD_decile_data(data):
               """)
 
     # merge SIMD onto minos data
-    data = data.merge(simd_data, how='left', on="DataZone")
+    data = data.merge(simd_data, how='left', on="ZoneID")
     # cut simd data into deciles using qcut (not needed with existing deciles from simd data)
     return data
 
