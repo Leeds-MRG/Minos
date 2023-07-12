@@ -14,8 +14,6 @@ fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
 
 output_data_dir: "output"
 
-cross_validation: FALSE
-
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.

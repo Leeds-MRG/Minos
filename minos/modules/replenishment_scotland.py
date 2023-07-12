@@ -41,7 +41,7 @@ class ReplenishmentScotland(Base):
                         'entrance_time',
                         'time',
                         'exit_time',
-                        'S7_labour_state',
+                        'labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',

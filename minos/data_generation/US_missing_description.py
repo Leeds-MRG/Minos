@@ -236,7 +236,7 @@ def main():
     missingness_table(full_US_data)
     # Missingness graphs.
     missingness_hist(full_US_data, "education_state", "age")
-    missingness_bars(full_US_data, "labour_state_raw", "sex")
+    missingness_bars(full_US_data, "labour_state", "sex")
     missingness_bars(full_US_data, "education_state", "ethnicity")
     full_US_data["depression"] = full_US_data["depression"].astype(str)
     #longitudinal_hist(full_US_data)

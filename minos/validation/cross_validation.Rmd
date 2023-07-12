@@ -1,0 +1,257 @@
+---
+title: "Cross Validation Analysis"
+output:
+  html_document:
+    df_print: paged
+---
+
+This notebook will compare the results of the cross-validation simulation run with real data from Understanding Society, so that we can evaluate the transition models.
+
+# Method
+
+After generation of the final datasets (final_US), the respondents were separated into 2 roughly equal halves based on their pidp. One half was labelled as the transition dataset, and the other for simulation. Transition models were then fit using the transition dataset, with the other half then simulated with these models.
+
+The results of the simulation will now be compared to the simulation dataset to see how closely our models mimick reality.
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(here)
+
+workingDir <- here::here()
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+## Data
+
+```{r, include=FALSE}
+# cross validation simulation output
+out.path <- here::here("output", "cross_validation")
+cv <- read_singular_local_out(out.path, '/baseline')
+
+# cv simulation pop (not used for transitions)
+cv.simul.files <- list.files(here::here('data', 'final_US', 'cross_validation', 'simulation/'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw <- do.call(rbind, lapply(cv.simul.files, read.csv))
+```
+
+# Analysis
+
+First things first, we need to make sure that we are comparing the exact same people from each dataset. Therefore, we need a step here to check the pidps from both, and remove anybody not in both datasets.
+
+```{r}
+cv.pidps <- cv %>% select(pidp) %>% unique()
+raw.pidps <- raw %>% select(pidp) %>% unique()
+
+both.pidps <- intersect(cv.pidps, raw.pidps)
+
+cv <- cv %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw %>% filter(pidp %in% both.pidps$pidp)
+```
+
+## hh_income
+
+```{r}
+income.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                         df1.name = 'simulated', 
+                                         df2 = raw, 
+                                         df2.name = 'raw', 
+                                         var = 'hh_income')
+
+plot_mean_comparison(pivoted.df = income.pivoted, 
+                     var = 'hh_income', 
+                     group.var = 'scenario',
+                     save = TRUE,
+                     save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+
+compare_boxplot_long(pivoted.df = income.pivoted,
+                     var = 'hh_income',
+                     scen1 = 'raw',
+                     scen2 = 'simulation')
+
+compare_boxplot_long(pivoted.df = income.pivoted,
+                     var = 'hh_income',
+                     scen1 = 'raw',
+                     scen2 = 'simulation',
+                     subset.max = 5000,
+                     subset.min = -5000)
+```
+
+### T-tests
+
+```{r}
+income.t.tests <- two_sample_t_test(cv, 'cv', raw, 'raw', 'hh_income')
+income.t.tests
+```
+
+```{r}
+yearly_box_plots(pivoted.df = income.pivoted,
+                 var = 'hh_income',
+                 scen1 = 'raw',
+                 scen2 = 'simulation',
+                 subset.max = 5000,
+                 subset.min = -5000)
+```
+
+## SF12
+
+```{r}
+sf12.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'SF_12')
+
+plot_mean_comparison(pivoted.df = sf12.pivoted, 
+                     var = 'SF_12', 
+                     group.var = 'scenario',
+                     save = TRUE,
+                     save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+
+compare_boxplot_long(pivoted.df = sf12.pivoted,
+                     var = 'SF_12',
+                     scen1 = 'raw',
+                     scen2 = 'simulation')
+```
+
+### T-Tests
+
+```{r}
+sf12.t.tests <- two_sample_t_test(cv, 'cv', raw, 'raw', 'hh_income')
+sf12.t.tests
+```
+
+```{r}
+yearly_box_plots(pivoted.df = sf12.pivoted,
+                 var = 'SF_12',
+                 scen1 = 'raw',
+                 scen2 = 'simulation')
+```
+
+## Nutrition Quality
+
+```{r}
+nut.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'nutrition_quality')
+
+plot_mean_comparison(pivoted.df = nut.pivoted, 
+                     var = 'nutrition_quality', 
+                     group.var = 'scenario',
+                     save = TRUE,
+                     save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+
+compare_boxplot_long(pivoted.df = nut.pivoted,
+                     var = 'nutrition_quality',
+                     scen1 = 'raw',
+                     scen2 = 'simulation')
+```
+
+```{r}
+yearly_box_plots(pivoted.df = nut.pivoted,
+                 var = 'nutrition_quality',
+                 scen1 = 'raw',
+                 scen2 = 'simulation')
+```
+
+## Tobacco Use
+
+```{r}
+tobacco.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'ncigs')
+
+plot_mean_comparison(pivoted.df = tobacco.pivoted, 
+                     var = 'ncigs', 
+                     group.var = 'scenario',
+                     save = TRUE,
+                     save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+
+compare_boxplot_long(pivoted.df = tobacco.pivoted,
+                     var = 'ncigs',
+                     scen1 = 'raw',
+                     scen2 = 'simulation')
+
+compare_boxplot_long(pivoted.df = tobacco.pivoted,
+                     var = 'ncigs',
+                     scen1 = 'raw',
+                     scen2 = 'simulation',
+                     subset.max = 100,
+                     subset.min = 0)
+```
+
+```{r}
+yearly_box_plots(pivoted.df = tobacco.pivoted,
+                 var = 'ncigs',
+                 scen1 = 'raw',
+                 scen2 = 'simulation',
+                 subset.max = 100,
+                 subset.min = 0)
+```
+
+## Housing Quality
+
+```{r}
+hous.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'housing_quality')
+
+cv_ordinal_plots(pivoted.df = hous.pivoted, 
+                 var = 'housing_quality',
+                 save = TRUE,
+                 save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+```
+
+## Neighbourhood Safety
+
+```{r}
+nhsafe.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'neighbourhood_safety')
+
+cv_ordinal_plots(pivoted.df = nhsafe.pivoted, 
+                 var = 'neighbourhood_safety',
+                 save = TRUE,
+                 save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+```
+
+## Loneliness
+
+```{r}
+lnly.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'loneliness')
+
+cv_ordinal_plots(pivoted.df = lnly.pivoted, 
+                 var = 'loneliness',
+                 save = TRUE,
+                 save.path = '/home/luke/Documents/WORK/MINOS/VALIDATION_PLOTS/Cross-Validation/')
+```
+
+
+
+
+```{r}
+
+```
+

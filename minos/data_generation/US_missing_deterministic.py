@@ -58,7 +58,7 @@ def is_unemployed(data):
     # Some students can be employed and be missing only one of SIC/SOC codes. These values are truly missing.
     # These people ARE employed and this current condition incorrectly replaces their job with nothing..
 
-    who = data["labour_state_raw"].isin(["Unemployed", "Family Care", "Student", "Sick/Disabled", "Retired", 'Short-term Working'])
+    who = data["labour_state"].isin(["Unemployed", "Family Care", "Student", "Sick/Disabled", "Retired"])
     return who
 
 

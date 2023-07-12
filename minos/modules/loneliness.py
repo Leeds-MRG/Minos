@@ -6,7 +6,6 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
-import logging
 
 
 class Loneliness(Base):
@@ -49,7 +48,7 @@ class Loneliness(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "S7_labour_state",
+                        "labour_state",
                         "SF_12",
                         "job_sec",
                         "ethnicity",
@@ -70,7 +69,7 @@ class Loneliness(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -106,21 +105,12 @@ class Loneliness(Base):
         Returns
         -------
         """
-
-        logging.info("LONELINESS")
-
         # load transition model based on year.
         if self.year < 2018:
             year = 2018
         else:
             year = self.year
-
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2019
-        else:
-            year = min(year, 2019)
-
+        year = min(year, 2019)
         transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'loneliness')

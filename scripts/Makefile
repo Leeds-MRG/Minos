@@ -20,14 +20,6 @@ test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
 
-test_SIPHER7_run: MODE=SIPHER7
-test_SIPHER7_run: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
-test_SIPHER7_run: SIPHER7_base
-SIPHER7_base: setup_S7
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
-
-
-
 ###################
 ## Experiment Runs
 ###################
@@ -158,43 +150,5 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 # Validation runs
 #####################################
 
-cv_default: cv_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default1.yaml -o cv/default1
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default2.yaml -o cv/default2
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default3.yaml -o cv/default3
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default4.yaml -o cv/default4
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default5.yaml -o cv/default5
-
-cv_SIPHER7: cv_S7_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_1.yaml -o cv/S7_1
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_2.yaml -o cv/S7_2
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_3.yaml -o cv/S7_3
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_4.yaml -o cv/S7_4
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_5.yaml -o cv/S7_5
-
-
-#####################################
-# SIPHER7 - Equivalent Income
-#####################################
-
-S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
-S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
-
-S7_baseline: setup_S7
-	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
-
-S7_intervention_hhIncome: setup_S7
-	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeIntervention'
-
-S7_intervention_hhIncomeChildUplift: setup_S7
-	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
-
-S7_intervention_PovertyLineChildUplift: setup_S7
-	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
-
-S7_intervention_livingWage: setup_S7
-	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
-
-S7_intervention_energyDownLift: setup_S7
-	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
-
+cv_baseline: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation

@@ -10,7 +10,6 @@ from minos.modules import r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
-import logging
 from datetime import datetime as dt
 
 class Housing(Base):
@@ -57,6 +56,7 @@ class Housing(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
+                        "labour_state",
                         "SF_12",
                         "job_sec",
                         "ethnicity",
@@ -72,7 +72,7 @@ class Housing(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -82,9 +82,6 @@ class Housing(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
-        logging.info("HOUSING QUALITY")
-
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
@@ -100,13 +97,6 @@ class Housing(Base):
 
         housing_prob_df.index = pop.index
 
-        # convert numeric prediction into string factors (low, medium, high)
-        housing_factor_dict = {1: 'Low',
-                               2: 'Medium',
-                               3: 'High'}
-        housing_prob_df.replace({'housing_quality': housing_factor_dict},
-                                inplace=True)
-
         self.population_view.update(housing_prob_df["housing_quality"])
 
     def calculate_housing(self, pop):
@@ -120,12 +110,7 @@ class Housing(Base):
         -------
         """
         # load transition model based on year.
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2019
-        else:
-            year = min(self.year, 2019)
-
+        year = min(self.year, 2019)
         transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'housing_quality')

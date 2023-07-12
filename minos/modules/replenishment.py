@@ -3,7 +3,6 @@ File for adding new cohorts from Understanding Society data to the population
 """
 
 import pandas as pd
-import logging
 from minos.modules.base_module import Base
 
 
@@ -41,6 +40,7 @@ class Replenishment(Base):
                         'entrance_time',
                         'time',
                         'exit_time',
+                        'labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',
@@ -167,8 +167,6 @@ class Replenishment(Base):
             The `event` that triggered the function call.
         """
 
-        logging.info("REPLENISHMENT")
-
         # Only add new cohorts on the october of each year when the data is taken.
         # If its october update the current year and load in new cohort data.
         # Also update the time variable with the new year for everyone (dead people also)
@@ -217,8 +215,6 @@ class Replenishment(Base):
             # Create simulants and add them to the population data frame.
             # The method used can be changed in setup via builder.population.initializes_simulants.
             self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
-            # logging
-            logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
 
     def age_simulants(self, event):
         """ Age everyone by the length of the simulation time step in days
@@ -268,6 +264,7 @@ class NoReplenishment(Base):
                         'entrance_time',
                         'time',
                         'exit_time',
+                        'labour_state',
                         'job_industry',
                         'job_occupation',
                         'job_sec',
@@ -309,12 +306,7 @@ class NoReplenishment(Base):
                         'gross_paypm',
                         'marital_status',
                         'phealth',
-                        'hh_comp',
-                        'S7_labour_state',
-                        'S7_housing_quality',
-                        'S7_neighbourhood_safety',
-                        'S7_physical_health',
-                        'S7_mental_health',]
+                        'hh_comp']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

@@ -62,7 +62,7 @@ class Income(Base):
                         'region',
                         'hh_income',
                         'job_sec',
-                        'S7_labour_state',
+                        'labour_state',
                         'education_state',
                         'SF_12',
                         'housing_quality',
@@ -105,9 +105,6 @@ class Income(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
-        logging.info("INCOME")
-
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year

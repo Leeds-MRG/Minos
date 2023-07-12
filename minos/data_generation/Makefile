@@ -32,7 +32,7 @@ spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
-cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
+cv_data: $(FINALDATA)/cross_validation/transition/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
 
@@ -67,7 +67,7 @@ $(SPATIALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/
 $(SCOTDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
-$(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
+$(FINALDATA)/cross_validation/transition/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_stock_pop.py --cross_validation
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py

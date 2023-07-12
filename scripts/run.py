@@ -50,7 +50,6 @@ def run(args):
     ## Define some initial vars that vivarium needs
     # start year
     year_start = config['time']['start']['year']
-
     # start_population_size (use size of prepared input population in start year)
     start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
     print(f'Start Population Size: {start_population_size}')
@@ -153,13 +152,15 @@ def run(args):
     #TODO: Add more here.
 
     ############## RUN PIPELINE ##############
-    # Different call for intervention or cross_validation
+    # Different call for intervention or not
     if args.intervention:
-        RunPipeline(config, intervention=args.intervention)
+        simulation = RunPipeline(config, intervention=args.intervention)
     else:
-        RunPipeline(config)
+        simulation = RunPipeline(config, run_output_dir)
 
     print('Finished running the full simulation')
+
+    #return simulation
 
 
 # This __main__ function is used to run this script in a console. See daedalus github for examples.

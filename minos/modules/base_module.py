@@ -37,8 +37,6 @@ class Base():
         self.input_data_dir = config.input_data_dir
         # replenishing directory
         self.replenishing_dir = config.replenishing_dir
-        # mode
-        self.cross_validation = config.cross_validation
 
         return simulation
 

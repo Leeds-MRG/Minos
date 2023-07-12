@@ -59,7 +59,7 @@ class MWB(Base):
                         'ethnicity',
                         'age',
                         'education_state',
-                        'S7_labour_state',
+                        'labour_state',
                         'job_sec',
                         'hh_income',
                         'SF_12',
@@ -109,8 +109,6 @@ class MWB(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
-        logging.info("MENTAL WELLBEING (SF12 MCS)")
 
         self.year = event.time.year
 
