@@ -34,16 +34,16 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
                     #"who_babies_under_one": None,
                     #"who_income_benefits": None,
                     #"who_no_public_funds_recourse": None,
-                    "who_first_decile": [who_alive, [who_kth_simd_decile, [1]]],
-                    "who_second_decile": [who_alive, [who_kth_simd_decile, [2]]],
-                    "who_third_decile": [who_alive, [who_kth_simd_decile, [3]]],
-                    "who_fourth_decile": [who_alive, [who_kth_simd_decile, [4]]],
-                    "who_fifth_decile": [who_alive, [who_kth_simd_decile, [5]]],
-                    "who_sixth_decile": [who_alive, [who_kth_simd_decile, [6]]],
-                    "who_seventh_decile": [who_alive, [who_kth_simd_decile, [7]]],
-                    "who_eighth_decile": [who_alive, [who_kth_simd_decile, [8]]],
-                    "who_ninth_decile": [who_alive, [who_kth_simd_decile, [9]]],
-                    "who_tenth_decile": [who_alive, [who_kth_simd_decile, [10]]],
+                    "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
+                    "who_second_simd_decile": [who_alive, [who_kth_simd_decile, [2]]],
+                    "who_third_simd_decile": [who_alive, [who_kth_simd_decile, [3]]],
+                    "who_fourth_simd_decile": [who_alive, [who_kth_simd_decile, [4]]],
+                    "who_fifth_simd_decile": [who_alive, [who_kth_simd_decile, [5]]],
+                    "who_sixth_simd_decile": [who_alive, [who_kth_simd_decile, [6]]],
+                    "who_seventh_simd_decile": [who_alive, [who_kth_simd_decile, [7]]],
+                    "who_eighth_simd_decile": [who_alive, [who_kth_simd_decile, [8]]],
+                    "who_ninth_simd_decile": [who_alive, [who_kth_simd_decile, [9]]],
+                    "who_tenth_simd_decile": [who_alive, [who_kth_simd_decile, [10]]],
 
                      }
 
@@ -156,5 +156,5 @@ def who_young_adults(df):
     return df.loc[df["age"] >= 16, ]
 
 def who_kth_simd_decile(df, *args):
-    k = args[0]
+    k = args[0][0]
     return df.loc[df["simd_decile"] == k]

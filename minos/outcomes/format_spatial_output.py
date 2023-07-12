@@ -9,7 +9,7 @@ import argparse
 import glob
 import os
 from datetime import datetime
-from aggregate_subset_functions import dynamic_subset_function
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 from multiprocessing import Pool
 from itertools import repeat
 
@@ -220,8 +220,8 @@ def attach_spatial_component(minos_data, spatial_data, v="SF_12", method=np.nanm
 def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
 
-
     if subset_function:
+        print(subset_function,subset_function.endswith("simd_decile"))
         if subset_function.endswith("simd_decile"):
             minos_data = append_SIMD_decile_data(minos_data)
         minos_data = dynamic_subset_function(minos_data, subset_function)
@@ -234,8 +234,7 @@ def append_SIMD_decile_data(data):
 
     try:
         simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[["DZ", "SIMD2020v2_Decile"]]
-        simd_data.columns = ["ZoneID, simd_decile"]
-
+        simd_data.columns = ["ZoneID", "simd_decile"]
     except FileNotFoundError as e:
         print(e)
         print("""
