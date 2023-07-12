@@ -98,7 +98,6 @@ class Alcohol(Base):
         # Update population with new alcohol
         self.population_view.update(alcohol_prob_df["auditc"])
 
-
     def calculate_alcohol(self, pop):
         """Calculate alcohol transition distribution based on provided people/indices
 
