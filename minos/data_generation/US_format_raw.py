@@ -308,10 +308,12 @@ def format_ukhls_columns(year):
                       'mdhrs': 'mdhrs',  # usual hours moderate activities
                       'mdmin': 'mdmin',  # usual minute moderate activities
                       'mwhrs': 'mwhrs',  # weekly hours moderate activities
-                      'vday': 'vday',  # 7 days moderate activites
-                      'vdhrs': 'vdhrs',  # usual hours moderate activities
-                      'vdmin': 'vdmin',  # usual minute moderate activities
-                      'vwhrs': 'vwhrs',  # weekly hours moderate activities
+                      'mwmin': 'mwmin',  # weekly minutes moderate activities
+                      'vday': 'vday',  # 7 days vigorous activites
+                      'vdhrs': 'vdhrs',  # usual hours vigorous activities
+                      'vdmin': 'vdmin',  # usual minute vigorous activities
+                      'vwhrs': 'vwhrs',  # weekly hours vigorous activities
+                      'vwmin': 'vwmin',  # weekly minutes vigorous activities
                       }
 
     # Some variables change names halfway through UKHLS.
