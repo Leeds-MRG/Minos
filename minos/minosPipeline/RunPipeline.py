@@ -28,7 +28,7 @@ from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
-from minos.modules.nutrition import Nutrition, geeYJNutrition
+from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -91,7 +91,8 @@ def validate_components(config_components, intervention):
         "financialSituation()": financialSituation(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),
-        "geeYJNutrition()": geeYJNutrition(),
+        "lmmYJNutrition()": lmmYJNutrition(),
+        "lmmDiffNutrition()": lmmDiffNutrition(),
         "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
         "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
         "Mortality()": Mortality(),
