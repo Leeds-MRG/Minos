@@ -329,6 +329,8 @@ run_yearly_models <- function(transitionDir_path,
       if(dependent == 'ncigs' & year < 2013) { next }
       # alcohol model (auditc) only in specific years
       if(dependent == 'auditc' & !year %in% c(2014, 2016, 2018, 2019)) { next }
+      # active only in specific years
+      if(dependent == 'active' & !year %in% c(2014, 2016, 2018, 2019)) { next }
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
       if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
@@ -381,6 +383,9 @@ run_yearly_models <- function(transitionDir_path,
         }
         if(!year %in% c(2015, 2017, 2019, 2020)) {
           formula.string <- str_remove(formula.string, " \\+ factor\\(auditc\\)")
+        }
+        if(!year %in% c(2015, 2017, 2019, 2020)) {
+          formula.string <- str_remove(formula.string, " \\+ factor\\(active\\)")
         }
       }
       #print(formula.string)
