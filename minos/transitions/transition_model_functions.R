@@ -42,11 +42,11 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
-  data = replace.missing(data)
+  data <- data[, append(all.vars(formula), c("time", 'pidp', 'weight'))]
+  data <- replace.missing(data)
+  data <- drop_na(data)
   # replace missing ncigs values (if still missing)
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
-  
+  #data[which(data$ncigs==-8), 'ncigs'] <- 0
   if(include_weights) {
     model <- clm(formula,
                  data = data,
@@ -249,18 +249,19 @@ estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights
 nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
 nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 
-estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, reflect) {
+estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
   
   data <- replace.missing(data)
   #data <- drop_na(data)
   max_value <- nanmax(data[[depend]])
-  min_value <- nanmin(data[[depend]])
   if (reflect) {
     data[, c(depend)] <- max_value - data[, c(depend)] 
   }
-  yj <- yeojohnson(data[,c(depend)])
-  data[, c(depend)] <- predict(yj)
-  
+  if (yeo_johnson) {
+    yj <- yeojohnson(data[,c(depend)])
+    data[, c(depend)] <- predict(yj)
+  }
+
   if(include_weights) {
     model <- lmer(formula,  
                   weights=weight, 
@@ -269,26 +270,29 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
     model <- lmer(formula, 
                   data = data)
   }
-  #browser()
-  attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
-  attr(model,"max_value") <- max_value # Works though.
-  attr(model,"min_value") <- min_value
-
+  if (yeo_johnson) {
+    attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+  }
+  if (reflect) {
+    attr(model,"max_value") <- max_value # Works though.
+  }
+  browser()
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
-  #browser()
   return(model)
 }
 
 
-estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALSE, depend, reflect) {
+estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALSE, depend, reflect, yeo_johnson) {
   
   data <- replace.missing(data)
-  #data <- drop_na(data)
-  yj <- yeojohnson(data[,c(depend)])
-  data[, c(depend)] <- predict(yj)
-  
+  data <- drop_na(data)
+  if (yeo_johnson){
+    yj <- yeojohnson(data[,c(depend)])
+    data[, c(depend)] <- predict(yj)
+  }
+
   if(include_weights) {
     model <- lmer(formula,  
                    weights=weight, 
@@ -297,8 +301,9 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
     model <- lmer(formula, 
                    data = data)
   }
-  #browser()
-  attr(model,"transform") <- yj
+  if (yeo_johnson){
+    attr(model,"transform") <- yj
+  }
   #attr(model,"max_value") <- max_value
   #attr(model,"min_value") <- min_value
   
@@ -308,20 +313,23 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   return(model)
 }
 
-estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend, reflect) {
+estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
   
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
-  max_value <- nanmax(data[[depend]])
   if (reflect) {
+    max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)] 
   }
-  yj <- yeojohnson(data[,c(depend)])
-  data[, c(depend)] <- predict(yj)
-  min_value <- nanmin(data[[depend]])
-  data[[depend]] <- data[[depend]] - min_value + 0.001
-  
+  if (yeo_johnson)
+  {
+    yj <- yeojohnson(data[,c(depend)])
+    data[, c(depend)] <- predict(yj)
+    min_value <- nanmin(data[[depend]])
+    data[[depend]] <- data[[depend]] - min_value + 0.001
+  }
+
   if(include_weights) {
     model <- glmer(formula,  
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
@@ -334,9 +342,15 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    family=Gamma(link='log'),
                    data = data)
   }
-  attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
-  attr(model,"max_value") <- max_value # Works though.
-  attr(model,"min_value") <- min_value
+
+  if (yeo_johnson){
+    attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+    attr(model,"min_value") <- min_value
+      }
+  
+  if (reflect) {
+    attr(model,"max_value") <- max_value # Works though.
+  }
 
   return(model)
 }
@@ -362,7 +376,7 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
                       data = head(data, 100),
                       corstr="independence") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
   }
-  browser()
+  #browser()
   return (model)
 }
 

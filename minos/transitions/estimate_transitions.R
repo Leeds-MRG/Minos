@@ -108,7 +108,7 @@ run_yearly_models <- function(transitionDir_path,
     if(mode == 'cross_validation') {
       year.range <- seq(min(data$time) + 1, (max(data$time) - 1))
     } else {
-      year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
+      year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
 
@@ -120,7 +120,6 @@ run_yearly_models <- function(transitionDir_path,
 
     print(paste0('Starting for ', dependent, '...'))
 
-    ## Implement the 'next_' functionality to male sure were not doing dodgy prediction when using lags
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
     

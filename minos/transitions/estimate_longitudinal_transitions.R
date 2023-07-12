@@ -23,7 +23,7 @@ require(texreg)
 # Main loop for longitudinal models 
 ###################################
 
-run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data)
+run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data, mode)
 {
   # process is much simpler here than the yearly models. 
   # get model type and some data frame containing X years of data.
@@ -32,6 +32,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
   valid_longitudnial_model_types <- c("GEE", "LMM", "LMM_DIFF", "GLMM", "GEE_YJ", "GEE_YJ_GAMMA", "GEE_DIFF","ORDGEE", "CLMM")
+  
+  data[which(data$ncigs==-8), 'ncigs'] <- 0
+  
   
   repeat{
     def = readLines(modDefs, n = 1) # Read one line from the connection.
@@ -46,14 +49,23 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       next
     }# skip this iteration if model not in valid types. 
     
+
     # Get dependent and independents
     split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
     dependent <- split2[1]
     independents <- split2[2]
     
+
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    year.range <- seq(max(data$time)-6, (max(data$time)))
+    if(mode == 'cross_validation') {
+      year.range <- seq(min(data$time) + 1, (max(data$time)))
+    } else {
+      year.range <- seq(max(data$time) - 6, (max(data$time)))
+      #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
+    }
+    
+
     # set up output directory
     out.path1 <- paste0(transitionDir_path, dependent, '/')
     out.path2 <- paste0(out.path1, tolower(mod.type), '/')
@@ -76,34 +88,22 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     else {
       do.reflect=FALSE
     }
+    if (dependent == "nutrition_quality") {
+      do.yeo.johnson = F
+    }
+    else {
+      do.yeo.johnson = T
+    }
     
-    if (dependent == "SF_12" && mod.type == "GEE"){
-      temp.dependent <- "I(max(SF_12) - SF_12 + 0.001)"
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)     
-    } 
-    else if (dependent == "hh_income" && mod.type == "GEE") {
-      temp.dependent <- "I(hh_income - min(hh_income) + 0.001)" # shift income to left to avoid negative values.
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)      
-    } 
-    else if (dependent == "hh_income" && mod.type == "GEE_DIFF") {
+    if (mod.type == "LMM_DIFF") {
       temp.dependent <-  paste0(dependent, "_diff") # shift income to left to avoid negative values.
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
-    }
-    else if (mod.type == "LMM" && dependent != "SF_12") {
+    } else if (dependent == 'nutrition_quality') {
       temp.dependent <-  paste0(dependent, "_new") # shift income to left to avoid negative values.
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
-    } 
-    else if (mod.type == "LMM_DIFF") {
-      temp.dependent <-  paste0(dependent, "_diff") # shift income to left to avoid negative values.
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)      
-    } 
-    
-    else if (mod.type == "ORDGEE") {
+    } else if (mod.type == "ORDGEE") {
       temp.dependent <- paste0("ordered(", dependent, ")") # make dependent variable into ordered factor.
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
@@ -111,8 +111,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     else if (mod.type == "CLMM") {
       formula.string <- paste0(dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
-    } 
-    else{
+    } else {
       formula.string <- paste0(dependent, " ~ ", independents)
       form <- as.formula(formula.string)
     }
@@ -131,12 +130,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     }
 
     # differencing data for difference models using dplyr lag.
-    if (tolower(mod.type) == "lmm" && dependent == "hh_income")  {
-      data <- data %>%
-        group_by(pidp) %>%
-        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-        mutate(new = lead(.data[[dependent]], order_by = time)) %>%
-        rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
+     if (dependent == "hh_income" || dependent == "nutrition_quality")  {
+       data <- data %>%
+         group_by(pidp) %>%
+         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+         mutate(new = lead(.data[[dependent]], order_by = time)) %>%
+         rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
     }
     if (dependent == "SF_12")  {
       data <- data %>%
@@ -150,22 +149,24 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     sorted_df <- df[order(df$pidp, df$time),]
     
     if(tolower(mod.type) == 'glmm') {
-      
+      if ( dependent == "nutrition_quality") {
+        dependent <- paste0(dependent, "_new")
+      }
       model <- estimate_longitudinal_glmm(data = sorted_df,
                                           formula = form, 
                                           include_weights = use.weights, 
                                           depend = dependent,
-                                          reflect=do.reflect)
+                                          reflect=do.reflect,
+                                          yeo_johnson = do.yeo.johnson)
       
     } else if(tolower(mod.type) == 'lmm') {
-      if ( dependent == "hh_income") {
-        dependent <- paste0(dependent, "_new")
-      }
+      
       model <- estimate_longitudinal_lmm(data = sorted_df,
                                         formula = form, 
                                         include_weights = use.weights, 
                                         reflect = do.reflect,
-                                        depend = dependent)
+                                        yeo_johnson = do.yeo.johnson,
+                                        depend = paste0(dependent, "_new"))
       
     } else if(tolower(mod.type) == 'lmm_diff') {
       
@@ -173,22 +174,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                             formula = form, 
                                             include_weights = use.weights, 
                                             reflect = FALSE,
-                                            depend = paste0(dependent, '_diff'))
+                                            depend = paste0(dependent, '_diff'),
+                                            yeo_johnson = do.yeo.johnson)
       
-    } else if(tolower(mod.type) == 'gee') {
-      
-      model <- estimate_longitudnial_gamma_gee(data = sorted_df,
-                                               formula = form, 
-                                               include_weights = FALSE, 
-                                               depend = dependent,
-                                               reflect = do.reflect)
-    } else if(tolower(mod.type) == 'gee_diff') {
-      
-        model <- estimate_longitudnial_gaussian_gee_diff(data = sorted_df,
-                                                 formula = form, 
-                                                 include_weights = FALSE, 
-                                                 depend = paste0(dependent, '_diff'))
-
     } else if (tolower(mod.type) == "gee_yj") {
       
       model <- estimate_longitudnial_yj_gaussian_gee(data = sorted_df,
@@ -262,19 +250,43 @@ parser$add_argument('-c',
                     fitted to half the population, before running simulations
                     with the other half.')
 
+parser$add_argument('-d',
+                    '--default',
+                    action='store_true',
+                    dest='default',
+                    default=FALSE,
+                    help='Run in default mode. This is the default MINOS 
+                    experiment, where the models estimated in this mode 
+                    include hh_income as the policy lever, SF12 MCS and
+                    PCS as the outcomes of interest, and a series of pathways
+                    from hh_income to both outcomes.')
+
+parser$add_argument('-s7',
+                    '--sipher7',
+                    action='store_true',
+                    dest='SIPHER7',
+                    default=FALSE,
+                    help='Run the SIPHER7 experiment models. In this mode, 
+                    only the transition models needed to run the SIPHER7
+                    equivalent income experiment are estimated. This includes
+                    hh_income as the policy lever, then all the SIPHER7
+                    variable models, as well as some demographic models such
+                    as education state.')
+
 args <- parser$parse_args()
 
 scotland.mode <- args$scotland
-
 cross_validation <- args$crossval
+default <- args$default
+sipher7 <- args$SIPHER7
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
 dataDir <- 'data/final_US/'
-modDefFilename <- 'model_definitions.txt'
+modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
-
+#cross_valdation <- T
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {
@@ -285,25 +297,58 @@ if(scotland.mode) {
   transitionDir <- paste0(transitionDir, 'scotland/')
   create.if.not.exists(transitionDir)
 } else if(cross_validation) {
-  print('Estimating cross validation models')
-  dataDir <- 'data/final_US/cross_validation/transition/'
+  print('Estimating cross validation longitudinal models')
+  dataDir <- 'data/final_US/cross_validation/'
   mode <- 'cross_validation'
   transitionDir <- paste0(transitionDir, 'cross_validation/')
   create.if.not.exists(transitionDir)
-} else {
+} else if(default) {
   print('Estimating transition models in whole population mode')
 }
 
+if(sipher7) {
+  print('Estimating models for SIPHER7 Equivalent Income experiment')
+  modDefFilename <- 'model_definitions_S7.txt'
+}
 
-# Load input data (final_US/)
-filelist <- list.files(dataDir,
-                       include.dirs = FALSE,
-                       full.names = TRUE,
-                       pattern = '[0-9]{4}_US_cohort.csv')
-data <- do.call(rbind, lapply(filelist, read.csv))
-
-run_longitudinal_models(transitionDir, transSourceDir, modDefFilename, data)
-
+if (mode == 'cross_validation') {
+  print("Estimating transitions in batch mode")
+  for (i in 1:5) {
+    print(paste0("Creating version ", i, " transition models"))
+    # set up batch vector and remove one element each loop
+    batch.vec <- c(1,2,3,4,5)
+    batch.vec <- batch.vec[!batch.vec %in% i]
+    
+    # now start new loop to list files in each batch and read data into a single object.
+    # open a dataframe for collecting up multiple batches together
+    combined.data <- data.frame()
+    for (j in batch.vec) {
+      batch.path <- paste0(dataDir, 'batch', j, '/')
+      batch.filelist <- list.files(batch.path,
+                                   include.dirs = FALSE,
+                                   full.names = TRUE,
+                                   pattern = '[0-9]{4}_US_cohort.csv')
+      batch.dat <- do.call(rbind, lapply(batch.filelist, read.csv))
+      combined.data <- rbind(combined.data, batch.dat)
+    }
+    rm(batch.dat, batch.path, batch.filelist)
+    
+    out.dir <- paste0(transitionDir, 'version', i, '/')
+    create.if.not.exists(out.dir)
+    
+    run_longitudinal_models(out.dir, transSourceDir, modDefFilename, combined.data, mode)
+  }
+} else {
+  # Load input data depending on mode and previously set params (final_US/)
+  filelist <- list.files(dataDir,
+                         include.dirs = FALSE,
+                         full.names = TRUE,
+                         pattern = '[0-9]{4}_US_cohort.csv')
+  data <- do.call(rbind, lapply(filelist, read.csv))
+  
+  run_longitudinal_models(transitionDir, transSourceDir, modDefFilename, data, mode)
+}
+  
 print("Generated all longitudinal transition models")
 
 # 

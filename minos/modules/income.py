@@ -889,7 +889,7 @@ class lmmDiffIncome(Base):
                                                                     dependent='hh_income_diff',
                                                                     yeo_johnson = True,
                                                                     reflect=False,
-                                                                    noise_std= 0.5)#2
+                                                                    noise_std= 0.65)#2
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

@@ -473,7 +473,7 @@ class lmmYJMWB(Base):
                         'age',
                         'time',
                         #'education_state',
-                        'labour_state',
+                        #'labour_state',
                         #'job_sec',
                         'hh_income',
                         'SF_12',
@@ -497,6 +497,7 @@ class lmmYJMWB(Base):
 
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
+        print(self.transition_dir)
         self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
 
     def on_initialize_simulants(self, pop_data):
@@ -535,7 +536,7 @@ class lmmYJMWB(Base):
         newWaveMWB = pd.DataFrame(columns=['SF_12'])
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
-        newWaveMWB["SF_12"] -= 2
+        #newWaveMWB["SF_12"] -= 2
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         # Update population with new SF12
         print(np.mean(newWaveMWB["SF_12"]))
@@ -565,7 +566,7 @@ class lmmYJMWB(Base):
                                                                dependent='SF_12',
                                                                reflect=True,
                                                                yeo_johnson=True,
-                                                               noise_std= 0.25)#1
+                                                               noise_std= 1)#1
         #return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
         return out_data
 

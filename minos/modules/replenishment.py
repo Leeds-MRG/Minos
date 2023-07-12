@@ -83,6 +83,7 @@ class Replenishment(Base):
                         'phealth',
                         'marital_status',
                         'hh_comp',
+                        #'labour_state',
                         'S7_labour_state',
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
