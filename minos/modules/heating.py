@@ -111,7 +111,11 @@ class Heating(Base):
         -------
         """
         # load transition model based on year.
-        year = 2019
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
         transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}", self.rpy2_modules)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'heating')

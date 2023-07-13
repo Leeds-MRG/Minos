@@ -85,7 +85,7 @@ class PhysicalActivity(Base):
         self.year = event.time.year
 
         active_prob_df = self.calculate_active(pop)
-        active_prob_df[0] = 1 - active_prob_df[1]
+        active_prob_df[0.] = 1. - active_prob_df[1]
         active_prob_df.index = pop.index
         active_prob_df["active"] = self.random.choice(active_prob_df.index,
                                                       list(active_prob_df.columns),
@@ -104,9 +104,13 @@ class PhysicalActivity(Base):
         -------
         """
         # load transition model based on year.
-        year = 2019
+        if self.cross_validation:
+            # if cross-val, fix year to 2018. 2019 model has vastly reduced sample for some reason
+            year = 2018
+        else:
+            year = min(self.year, 2018)
         transition_model = r_utils.load_transitions(f"active/logit/active_{year}_{year+1}", self.rpy2_modules)
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'active')
-        prob_df.columns = [1]
+        prob_df.columns = [1.]
         return prob_df
