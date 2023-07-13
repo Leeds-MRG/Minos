@@ -303,3 +303,9 @@ rm(raw.s, base.s, spag)
 handover_ordinal(raw.dat, base.dat, var = 'auditc', save = shall.we.save)
 ```
 
+## Physical Activity
+
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'active', save = shall.we.save)
+```
+

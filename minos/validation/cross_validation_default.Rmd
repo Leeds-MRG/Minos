@@ -320,6 +320,21 @@ cv_ordinal_plots(pivoted.df = alc.pivoted,
 rm(alc.pivoted)
 ```
 
+# Physical Activity
+
+```{r}
+active.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'active')
+
+cv_ordinal_plots(pivoted.df = active.pivoted, 
+                 var = 'active',
+                 save = FALSE)
+rm(active.pivoted)
+```
+
 # SECONDARY VARS
 
 ## Marital Status
