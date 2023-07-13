@@ -3,8 +3,45 @@ require(ggplot2)
 require(ggridges)
 require(viridis)
 
+require(ggplot2)
+require(ggExtra)
+require(here)
+require(scales)
+
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
+
+############ PREP ############
+
+validation_prep_ordinal <- function(raw.dat, base.dat, var) {
+  raw <- raw.dat %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'US')
+  
+  base <- base.dat %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'baseline_output')
+  
+  combined <- rbind(raw, base)
+  combined[[var]] <- as.factor(combined[[var]])
+  
+  var.norm <- combined %>%
+    group_by(time) %>%
+    filter(.data[[var]] != -9) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total))
+  
+  prepped <- list(var = combined,
+                  norm = var.norm)
+  
+  return(prepped)
+}
+
+############ PLOTTING ############
 
 spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
 {

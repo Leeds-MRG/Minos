@@ -81,12 +81,14 @@ def validate_components(config_components, intervention):
         "Alcohol()": Alcohol(),
         "Neighbourhood()": Neighbourhood(),
         "Labour()": Labour(),
+        "Heating()": Heating(),
         "Housing()": Housing(),
         "geeIncome()": geeIncome(),
         "geeYJIncome()": geeYJIncome(),
         "lmmDiffIncome()": lmmDiffIncome(),
         "lmmYJIncome()": lmmYJIncome(),
         "Income()": Income(),
+        "financialSituation()": financialSituation(),
         "Loneliness()": Loneliness(),
         "Nutrition()": Nutrition(),
         "lmmYJNutrition()": lmmYJNutrition(),
@@ -95,6 +97,15 @@ def validate_components(config_components, intervention):
         "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
         "Mortality()": Mortality(),
         "Education()": Education(),
+    }
+
+    SIPHER7_components_map = {  # SIPHER7 stuff
+        "S7Labour()" : S7Labour(),
+        "S7Housing()" : S7Housing(),
+        "S7Neighbourhood()": S7Neighbourhood(),
+        "S7MentalHealth()" : S7MentalHealth(),
+        "S7PhysicalHealth()": S7PhysicalHealth(),
+        "S7EquivalentIncome()": S7EquivalentIncome()
     }
 
     intervention_components_map = {        #Interventions
@@ -119,11 +130,17 @@ def validate_components(config_components, intervention):
         if component in components_map.keys():
             # add non intervention components
             component_list.append(components_map[component])
+        elif component in SIPHER7_components_map.keys():
+            component_list.append(SIPHER7_components_map[component])
         elif component in replenishment_components_map.keys():
             replenishment_component.append(replenishment_components_map[component])
         else:
             print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
 
+    # TODO: include some error handling for choosing interventions
+    # Can do this using assertions
+    # i.e. try { AssertThat(intervention is in list(<int1>, <int2>) ...
+    # or even cleverer if we can get the repr()'s from the intervention classes to automate this step
     if intervention in intervention_components_map.keys():
         # add intervention components.
         component_list.append(intervention_components_map[intervention])
