@@ -42,6 +42,30 @@ digest_params <- function(line) {
   return(return.list)
 }
 
+extract_text_in_parentheses <- function(x) {
+  # first check if string has parentheses
+  if(grepl(pattern = '(',
+           x = x,
+           fixed = TRUE)) {
+    # if yes, do substitution
+    x <- gsub("\\(([^()]+)\\)",
+              "\\1",
+              str_extract_all(x,
+                              "\\(([^()]+)\\)")[[1]])
+  }
+  return(x)
+}
+
+get_vars_from_formula_string <- function(formula.string) {
+  # first can split on the '+' sign to get individual elements
+  list.split <- str_split(formula.string, pattern = '\\+')[[1]]
+  # squish to remove whitespace
+  list.split <- sapply(list.split, str_squish)
+  # pull text from parentheses if necessary
+  list.split <- sapply(list.split, extract_text_in_parentheses)
+  return(list.split)
+}
+
 
 ################ Model Specific Functions ################
 
@@ -187,19 +211,19 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 
 
 estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   data = replace.missing(data)
-  
+
   if(include_weights) {
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
   } else {
     model <- glm(formula, family=binomial(link="logit"), data=data)
   }
   # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
+  # This is mildly stupid..
   model[[depend]] <- data[[depend]]
   model$class_preds <- predict(model)
   return(model)
@@ -224,19 +248,19 @@ run_yearly_models <- function(transitionDir_path,
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
+
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  data$housing_quality <- factor(data$housing_quality,
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
-                                 levels = c('No to all', 
-                                            'Yes to some', 
+  data$S7_housing_quality <- factor(data$S7_housing_quality,
+                                 levels = c('No to all',
+                                            'Yes to some',
                                             'Yes to all'))
   data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                    levels = c('Often', 
-                                               'Some of the time', 
+                                    levels = c('Often',
+                                               'Some of the time',
                                                'Hardly ever'))
   data$S7_labour_state <- factor(data$S7_labour_state,
                                  levels = c('FT Employed',
@@ -259,6 +283,12 @@ run_yearly_models <- function(transitionDir_path,
     split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
     dependent <- split2[1]
     independents <- split2[2]
+
+    # find all the independent variables for subsetting later
+    # want to finish with a list of variables, which means figuring out if the
+    # variable is inside parentheses (maybe even 2 layers()) and extracting
+    # first can split on the '+' sign to get individual elements
+    indep.list <- get_vars_from_formula_string(independents)
 
     # formula
     formula.string.orig <- split1[2]
@@ -335,11 +365,12 @@ run_yearly_models <- function(transitionDir_path,
 
       # independents from time T (current)
       indep.df <- data %>%
-        filter(time == year)
+        dplyr::filter(time == year) %>%
+        dplyr::select(all_of(indep.list))
       # dependent from T+1 (rename to 'next_{dependent}' soon)
-      depen.df <- data %>% 
-        filter(time == depend.year) %>% 
-        select(pidp, all_of(dependent))
+      depen.df <- data %>%
+        dplyr::filter(time == depend.year) %>%
+        dplyr::select(pidp, all_of(dependent))
 
       # rename to next_{dependent}
       next.colnames <- c('pidp', paste0('next_', dependent))
@@ -411,7 +442,7 @@ run_yearly_models <- function(transitionDir_path,
                                        formula = form,
                                        include_weights = use.weights,
                                        depend = next.dependent)
-        
+
       } else if(tolower(mod.type) == 'zip') {
 
         model <- estimate_yearly_zip(data = merged,
@@ -481,8 +512,8 @@ parser$add_argument('-d',
                     action='store_true',
                     dest='default',
                     default=FALSE,
-                    help='Run in default mode. This is the default MINOS 
-                    experiment, where the models estimated in this mode 
+                    help='Run in default mode. This is the default MINOS
+                    experiment, where the models estimated in this mode
                     include hh_income as the policy lever, SF12 MCS and
                     PCS as the outcomes of interest, and a series of pathways
                     from hh_income to both outcomes.')
@@ -492,7 +523,7 @@ parser$add_argument('-s7',
                     action='store_true',
                     dest='SIPHER7',
                     default=FALSE,
-                    help='Run the SIPHER7 experiment models. In this mode, 
+                    help='Run the SIPHER7 experiment models. In this mode,
                     only the transition models needed to run the SIPHER7
                     equivalent income experiment are estimated. This includes
                     hh_income as the policy lever, then all the SIPHER7
@@ -550,7 +581,7 @@ if (mode == 'cross_validation') {
     # set up batch vector and remove one element each loop
     batch.vec <- c(1,2,3,4,5)
     batch.vec <- batch.vec[!batch.vec %in% i]
-    
+
     # now start new loop to list files in each batch and read data into a single object.
     # open a dataframe for collecting up multiple batches together
     combined.data <- data.frame()
@@ -564,10 +595,10 @@ if (mode == 'cross_validation') {
       combined.data <- rbind(combined.data, batch.dat)
     }
     rm(batch.dat, batch.path, batch.filelist)
-    
+
     out.dir <- paste0(transitionDir, 'version', i, '/')
     create.if.not.exists(out.dir)
-    
+
     run_yearly_models(out.dir, transSourceDir, modDefFilename, combined.data, mode)
   }
 } else {
@@ -577,7 +608,7 @@ if (mode == 'cross_validation') {
                          full.names = TRUE,
                          pattern = '[0-9]{4}_US_cohort.csv')
   data <- do.call(rbind, lapply(filelist, read.csv))
-  
+
   run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
 }
 

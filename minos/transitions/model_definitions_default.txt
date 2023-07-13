@@ -1,5 +1,5 @@
-CLM : financial_situation ~ factor(financial_situation) + scale(SF_12) + factor(job_sec)+ scale(hh_income)+ I(scale(hh_income)**2) + factor(marital_status) + hhsize + factor(housing_tenure)
-LOGIT : heating ~ factor(heating) + scale(SF_12)+ relevel(factor(ethnicity), ref='WBI') + hh_income + factor(marital_status)+ ncigs+ hhsize + factor(urban) + factor(housing_tenure) + factor(financial_situation)
+CLM : financial_situation ~ factor(financial_situation) + scale(SF_12) + factor(job_sec) + scale(hh_income) + I(scale(hh_income)**2) + factor(marital_status) + hhsize + factor(housing_tenure)
+LOGIT : heating ~ factor(heating) + scale(SF_12)+ relevel(factor(ethnicity), ref='WBI') + hh_income + factor(marital_status) + ncigs + hhsize + factor(urban) + factor(housing_tenure) + factor(financial_situation)
 OLS : hh_income ~ hh_income + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
 OLS_DIFF : hh_income ~ hh_income_diff + age + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'South East') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + relevel(factor(job_sector), ref = '1')
 OLS : nutrition_quality ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + relevel(factor(ethnicity), ref = 'WBI') + hh_income + ncigs
