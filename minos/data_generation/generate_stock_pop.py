@@ -131,7 +131,7 @@ def generate_stock(projections, cross_validation):
 
     print('Generating stock population...')
     years = np.arange(2009, maxyr)
-    file_names = [f"data/complete_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
     # TODO: We reweight the stock population only because reweighting the repl generates very different values to those
