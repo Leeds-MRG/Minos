@@ -928,7 +928,7 @@ def calculate_auditc_score(data):
 
     Parameters
     ----------
-        data: pd.DataFrame
+        data : pd.DataFrame
             US data
     Returns
     -------
@@ -995,15 +995,31 @@ def calculate_auditc_score(data):
     return data
 
 
-def generate_exercise_composite(data):
+def generate_physical_activity_binary(data):
     """
+    To determine what is a healthy level of physical activity, we are following government guidelines found here:
+    https://www.gov.uk/government/publications/physical-activity-guidelines-adults-and-older-adults
 
+    This document states that for adults and older adults (over the age of 19), the government recommends at least 150
+    minutes of moderate activty, or 75 minutes of vigorous activity in a week. Understanding Society has some good
+    variables on moderate and vigorous activity, with the caveat that they have only been asked on waves 7,9,11, and 12.
+
+    For both moderate and vigorous activity, US includes a number of variables:
+    - Number of days in past week did activity
+    - Average hours and minutes per day of activity
+    - Average hours and minutes per week of activity (if answered don't know to how much per day)
+
+    With this, we can generate a binary variable for whether or not an individual is hitting the government exercise
+    targets.
 
     Parameters
     ----------
-    data
-
+        data : pd.DataFrame
+            US data
     Returns
+    -------
+        data : pd.DataFrame
+            US data with binary 'active' variable
     -------
 
     """
@@ -1086,7 +1102,7 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_auditc_score(data)  # alcohol use disorder for consumption (auditc)
-    data = generate_exercise_composite(data)  # exercise composite
+    data = generate_physical_activity_binary(data)  # physical activity composite
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
