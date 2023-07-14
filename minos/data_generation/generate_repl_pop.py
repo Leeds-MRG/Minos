@@ -8,7 +8,7 @@ The two sources of data for reweighting populations are the midyear estimates fr
 population projections from 2021 - 2070 (principal projections can be extended to 2120 but I doubt MINOS will ever
 want to model that far into the future, ~50 years seems like a reasonable maximum but can be expanded if necessary).
 
-Currently we take the 16 year olds from the final data file for 2018 (start date of the simulations), generate identical
+Currently we take the 16 year olds from the final data file for 2020 (start date of the simulations), generate identical
 copies of this population for every year of the simulation to 2070, then adjust the analysis weights (`weight` var) by
 sex and ethnicity to ensure representative populations into the future.
 """
@@ -28,7 +28,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_2018):
+def expand_repl(US_final):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -46,16 +46,16 @@ def expand_repl(US_2018):
     """
 
     # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
-    repl_2018 = US_2018[(US_2018['age'].isin([16, 17]))]
-    repl_2018['age'] = 16
+    repl_1yr = US_final[(US_final['age'].isin([16, 17]))]
+    repl_1yr['age'] = 16
     # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
-    repl_2018['education_state'][repl_2018['education_state'] > 2] = 2
+    repl_1yr['education_state'][repl_1yr['education_state'] > 2] = 2
 
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
-        new_repl = repl_2018
+        new_repl = repl_1yr
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
@@ -176,7 +176,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
 
-    # first collect and load the datafile for 2018
+    # first collect and load the datafile for 2020
     file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
