@@ -57,13 +57,18 @@ extract_text_in_parentheses <- function(x) {
 }
 
 get_vars_from_formula_string <- function(formula.string) {
-  # first can split on the '+' sign to get individual elements
-  list.split <- str_split(formula.string, pattern = '\\+')[[1]]
+  # first replace any '|' sign with '+' sign, necessary for ZIP models
+  # | has to be escaped
+  list.replace <- str_replace(formula.string, pattern = '\\|', replacement = '+')
+  # then can split on the '+' sign to get individual elements
+  list.split <- str_split(list.replace, pattern = '\\+')[[1]]
   # squish to remove whitespace
   list.split <- sapply(list.split, str_squish)
   # pull text from parentheses if necessary
-  list.split <- sapply(list.split, extract_text_in_parentheses)
-  return(list.split)
+  list.split <- as.vector(sapply(list.split, extract_text_in_parentheses))
+  # now remove any duplicates
+  list.final <- unique(list.split)
+  return(list.final)
 }
 
 
@@ -124,10 +129,6 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
 
-  data = replace.missing(data)
-  # replace missing ncigs values (if still missing)
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
-
   if(include_weights) {
     model <- clm(formula,
                  data = data,
@@ -150,7 +151,6 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
 
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
 
-  data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
 
@@ -172,31 +172,15 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
 
-  if(depend == 'next_ncigs' | depend == 'ncigs') {
-    # first subset just the columns we want
-    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12', 'job_sec',
-              'hh_income', 'ethnicity', 'weight')
-    dat.subset <- data[, cols]
-
-    # Replace missing values with NA (util func)
-    dat.subset = replace.missing(dat.subset)
-
-    # now set NA to 0
-    dat.subset[[depend]][is.na(dat.subset[[depend]])] <- 0
-
-    # finally run complete cases
-    dat.subset <- dat.subset[complete.cases(dat.subset),]
-  }
-
   if(include_weights) {
     model <- zeroinfl(formula = formula,
-                      data = dat.subset,
+                      data = data,
                       dist = 'pois',
                       weights = weight,
                       link='logit')
   } else {
     model <- zeroinfl(formula = formula,
-                      data = dat.subset,
+                      data = data,
                       dist = 'pois',
                       link='logit')
   model[[depend]] <- data[[depend]]
@@ -214,8 +198,6 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
 
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-
-  data = replace.missing(data)
 
   if(include_weights) {
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
@@ -366,7 +348,8 @@ run_yearly_models <- function(transitionDir_path,
       # independents from time T (current)
       indep.df <- data %>%
         dplyr::filter(time == year) %>%
-        dplyr::select(all_of(indep.list))
+        dplyr::select(pidp, weight, all_of(indep.list))
+      #print(colnames(indep.df))
       # dependent from T+1 (rename to 'next_{dependent}' soon)
       depen.df <- data %>%
         dplyr::filter(time == depend.year) %>%
@@ -387,26 +370,47 @@ run_yearly_models <- function(transitionDir_path,
       }
 
       #print(formula.string)
-      ## For the SF_12 model alone, we need to modify the formula on the fly
-      # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
-      # not present every year
+      ## For some models we need to modify the formula on the fly
+      # certain variables are completely missing in some years, so we can
+      # drop these variables from the formula and dataset before fitting models
+      drop.vars <- c()
       if(!year %in% c(2011, 2014, 2017, 2020)) {
         formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+        #drop.vars.append('neighbourhood_safety')
+        #append(drop.vars, 'neighbourhood_safety')
+        drop.vars <- c(drop.vars, 'neighbourhood_safety')
       }
       if(!year > 2016) {
         formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+        #drop.vars.append('loneliness')
+        #append(drop.vars, 'loneliness')
+        drop.vars <- c(drop.vars, 'loneliness')
       }
       if(!year %in% c(2015, 2017, 2019)) {
         formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
+        #drop.vars.append('nutrition_quality')
+        #append(drop.vars, 'nutrition_quality')
+        drop.vars <- c(drop.vars, 'nutrition_quality')
       }
       if(year < 2013) {
         formula.string <- str_remove(formula.string, " \\+ ncigs")
+        #drop.vars.append('ncigs')
+        #append(drop.vars, 'ncigs')
+        drop.vars <- c(drop.vars, 'ncigs')
       }
       #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
-
-
+      
+      # now drop the variables from merged that need dropping
+      # and remove any missing data. Missing values are specific negative values,
+      # and can be int, float, or string
+      miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
+                       -10., -9., -8., -7., -3., -2., -1.,
+                       '-10', '-9', '-8', '-7', '-3', '-2', '-1')
+      merged <- merged %>%
+        select(-any_of(drop.vars)) %>%
+        filter(!if_any(everything(), ~ grepl(paste0(miss.values, collapse = '|'),.)))
 
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
