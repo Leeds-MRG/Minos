@@ -206,6 +206,9 @@ def generate_hh_income(data):
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
 
+    # creating difference in hh income for lmm difference models.
+    #data = data.sort_values(by=['time'])
+    #data['hh_income_diff'] = data.groupby(["pidp"])['hh_income'].diff().fillna(0)
     # now drop the intermediates
     data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
               axis=1,

@@ -401,7 +401,7 @@ class geeYJMWB(Base):
         newWaveMWB = self.calculate_mwb(pop)
         newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
         newWaveMWB.index = pop.index # aligning index to vivarium builder dataframe. ensures assignment of new values to correct individuals.
-        newWaveMWB["SF_12"] -= 2
+        #newWaveMWB["SF_12"] -= 2
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         #newWaveMWB.sort_index(inplace=True)
         print(np.mean(newWaveMWB["SF_12"]))
@@ -497,7 +497,6 @@ class lmmYJMWB(Base):
 
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
-        print(self.transition_dir)
         self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
 
     def on_initialize_simulants(self, pop_data):
@@ -536,10 +535,13 @@ class lmmYJMWB(Base):
         newWaveMWB = pd.DataFrame(columns=['SF_12'])
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
-        #newWaveMWB["SF_12"] -= 2
+        #newWaveMWB["SF_12"] += 2
+        #newWaveMWB["SF_12"] *= (10/np.std(newWaveMWB["SF_12"]))
+        #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         # Update population with new SF12
         print(np.mean(newWaveMWB["SF_12"]))
+        print(np.std(newWaveMWB["SF_12"]))
         self.population_view.update(newWaveMWB[['SF_12']])
 
 
@@ -552,22 +554,13 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        #self.update_history_dataframe(pop, self.year, lag=10)
-        # out_data = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-        #                                                          self.rpy2_modules,
-        #                                                          current= pop,
-        #                                                          dependent='SF_12',
-        #                                                          reflect=True,
-        #                                                          yeo_johnson=True,
-        #                                                          noise_std= 0.35)#0.35 for laplace
         out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
                                                                self.rpy2_modules,
                                                                current= pop,
                                                                dependent='SF_12',
                                                                reflect=True,
                                                                yeo_johnson=True,
-                                                               noise_std= 1)#1
-        #return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
+                                                               noise_std= 0.7)#1
         return out_data
 
 

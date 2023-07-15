@@ -164,7 +164,6 @@ class lmmYJNutrition(Base):
                         'sex',
                         'ethnicity',
                         'region',
-                        'hh_income',
                         'SF_12',
                         'education_state',
                         #'labour_state',
@@ -204,11 +203,12 @@ class lmmYJNutrition(Base):
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         pop = pop.sort_values('pidp')
-        pop['nutrition_quality_last'] = pop['nutrition_quality']
+        pop['nutrition_quality_new'] = pop['nutrition_quality']
 
-        ## Predict next income value
-        newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
-        newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
+        ## Predict next nutrition value
+        newWaveNutrition = pd.DataFrame(columns=["nutrition_quality"])
+        newWaveNutrition['nutrition_quality'] = self.calculate_nutrition(pop).round(0).astype(int)
+
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = pop.index
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
@@ -231,10 +231,10 @@ class lmmYJNutrition(Base):
         nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
                                                                        self.rpy2Modules,
                                                                        pop,
-                                                                       dependent='nutrition_quality',
+                                                                       dependent='nutrition_quality_new',
                                                                        reflect=False,
                                                                        yeo_johnson= False,
-                                                                       noise_std=7)#
+                                                                       noise_std=2)#
 
         return nextWaveNutrition
     # Special methods used by vivarium.

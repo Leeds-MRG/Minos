@@ -31,7 +31,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("GEE", "LMM", "LMM_DIFF", "GLMM", "GEE_YJ", "GEE_YJ_GAMMA", "GEE_DIFF","ORDGEE", "CLMM")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM")
   
   data[which(data$ncigs==-8), 'ncigs'] <- 0
   
@@ -59,9 +59,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
     if(mode == 'cross_validation') {
-      year.range <- seq(min(data$time) + 1, (max(data$time)))
+      year.range <- seq(min(data$time) , (max(data$time)))
     } else {
-      year.range <- seq(max(data$time) - 6, (max(data$time)))
+      year.range <- seq(max(data$time) - 9, (max(data$time)))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
     
@@ -99,7 +99,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       temp.dependent <-  paste0(dependent, "_diff") # shift income to left to avoid negative values.
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
-    } else if (dependent == 'nutrition_quality') {
+    } else if (dependent == 'nutrition_quality' || (dependent == "hh_income" && mod.type=="GLMM")) {
       temp.dependent <-  paste0(dependent, "_new") # shift income to left to avoid negative values.
       formula.string <- paste0(temp.dependent, " ~ ", independents)
       form <- as.formula(formula.string)      
@@ -127,10 +127,16 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
-    }
+      #data <- data %>%
+      #  group_by(pidp) %>%
+      #  #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+      #  # naming this diff2 is dumb but stops it interacting with the new diff hh_income_diff variable directly in US data.
+      #  mutate(diff_last = lag(.data[[paste0(dependent, "_diff2")]], order_by = time)) %>%
+      #  rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff_last)  # add the dependent as prefix to the calculated diff
+      }
 
     # differencing data for difference models using dplyr lag.
-     if (dependent == "hh_income" || dependent == "nutrition_quality")  {
+    if (dependent == "nutrition_quality" || (dependent == "hh_income" && mod.type=="GLMM"))  {
        data <- data %>%
          group_by(pidp) %>%
          #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
@@ -143,13 +149,14 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(last = lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
-    }
+
+      }
     
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
     
     if(tolower(mod.type) == 'glmm') {
-      if ( dependent == "nutrition_quality") {
+      if ( dependent == "nutrition_quality" || dependent == "hh_income") {
         dependent <- paste0(dependent, "_new")
       }
       model <- estimate_longitudinal_glmm(data = sorted_df,
@@ -175,23 +182,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                             include_weights = use.weights, 
                                             reflect = FALSE,
                                             depend = paste0(dependent, '_diff'),
-                                            yeo_johnson = do.yeo.johnson)
-      
-    } else if (tolower(mod.type) == "gee_yj") {
-      
-      model <- estimate_longitudnial_yj_gaussian_gee(data = sorted_df,
-                                               formula = form, 
-                                               include_weights = FALSE, 
-                                               depend = dependent,
-                                               reflect = do.reflect)
-      
-    } else if (tolower(mod.type) == "gee_yj_gamma") {
-      
-      model <- estimate_longitudnial_yj_gamma_gee(data = sorted_df,
-                                                     formula = form, 
-                                                     include_weights = FALSE, 
-                                                     depend = dependent,
-                                                     reflect = do.reflect)
+                                            yeo_johnson = TRUE)
       
     } else if (tolower(mod.type) == "ordgee") {
       

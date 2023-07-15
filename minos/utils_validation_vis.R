@@ -69,7 +69,8 @@ spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     ggplot2::scale_colour_viridis_d()+ 
     #ggplot2::geom_smooth(colour="blue") +
     ggplot2::geom_line(colour="blue", alpha=0.2) +
-    ggplot2::geom_point()
+    ggplot2::geom_point() +
+    geom_smooth()
   
   if(save) {
     if(is.null(save.path)) {
@@ -379,3 +380,60 @@ q_q_comparison <- function(raw, cv, var) {
     labs(title = paste0(var, ': Q-Q'))
 }
 
+
+################################################
+# handover vis
+###############################################
+
+handover_boxplots <- function(raw, baseline, var) {
+  raw.var <- raw %>%
+    dplyr::select(pidp, time, all_of(var))
+  raw.var$source <- 'final_US'
+  
+  baseline.var <- baseline %>%
+    dplyr::select(pidp, time, all_of(var))
+  baseline.var$source <- 'baseline_output'
+  
+  combined <- rbind(raw.var, baseline.var)
+  combined$time <- as.factor(combined$time)
+  combined <- drop_na(combined)
+  combined <- filter(combined, .data[[var]] != -9)
+  
+  if (var %in% c('hh_income', 'equivalent_income')) {
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
+  } else if (var == 'ncigs') {
+    #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
+  }
+  
+  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
+    geom_boxplot(notch=TRUE) +
+    labs(title = paste0(var, ': Yearly box plots'))
+}
+
+
+handover_lineplots <- function(raw, base, var) {
+  # GENERALISE THIS AND DOCSTRING
+  raw.means <- raw %>% 
+    dplyr::select(pidp, time, var, weight) %>%
+    group_by(time) %>%
+    summarise(summary_var = mean(!!sym(var), na.rm=TRUE)) %>%
+    mutate(source = 'final_US')
+  
+  base.means <- base %>%
+    dplyr::select(pidp, time, var, weight) %>%
+    group_by(time) %>%
+    summarise(summary_var = mean(!!sym(var))) %>%
+    mutate(source = 'baseline_output')
+  
+  # merge before plot
+  combined <- rbind(raw.means, base.means)
+  
+  # Now plot
+  ggplot(data = combined, aes(x = time, y = summary_var, group = source, color = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Full Sample') +
+    xlab('Year') +
+    ylab(var)
+}

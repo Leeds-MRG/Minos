@@ -611,6 +611,7 @@ class lmmYJIncome(Base):
             'time',
             'pidp',
             'weight',
+            'SF_12',
         ]
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
@@ -630,7 +631,7 @@ class lmmYJIncome(Base):
         #                                             path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"hh_income/lmm/hh_income_LMM", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"hh_income/glmm/hh_income_new_GLMM", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
@@ -665,7 +666,7 @@ class lmmYJIncome(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
-
+        pop['hh_income_new'] = pop['hh_income']
         ## Predict next income value
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
@@ -674,6 +675,7 @@ class lmmYJIncome(Base):
         #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
+        print("income", np.mean(newWaveIncome['hh_income']))
         self.population_view.update(newWaveIncome[['hh_income']])
 
     def calculate_income(self, pop):
@@ -689,13 +691,13 @@ class lmmYJIncome(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
+        nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
                                                                        self.rpy2Modules,
                                                                        pop,
-                                                                       dependent='hh_income',
+                                                                       dependent='hh_income_new',
                                                                        yeo_johnson = True,
                                                                        reflect=False,
-                                                                       noise_std= 0.65)#2
+                                                                       noise_std= 0.45 )#2
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -777,6 +779,7 @@ class lmmDiffIncome(Base):
             'time',
             'pidp',
             'weight',
+            #'hh_income_diff'
         ]
         columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
@@ -832,6 +835,7 @@ class lmmDiffIncome(Base):
         pop = pop.sort_values('pidp')
         self.year = event.time.year
 
+        #pop['hh_income_diff_last'] = pop['hh_income_diff']
         ## Predict next income value
         newWaveIncome = pd.DataFrame(columns=['hh_income', 'hh_income_diff'])
         newWaveIncome['hh_income_diff'] = self.calculate_income(pop)
@@ -845,6 +849,7 @@ class lmmDiffIncome(Base):
         #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
+        print("income", np.mean(newWaveIncome['hh_income']))
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     # def calculate_income(self, pop):
@@ -889,7 +894,7 @@ class lmmDiffIncome(Base):
                                                                     dependent='hh_income_diff',
                                                                     yeo_johnson = True,
                                                                     reflect=False,
-                                                                    noise_std= 0.65)#2
+                                                                    noise_std= 0.5)#0.45
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

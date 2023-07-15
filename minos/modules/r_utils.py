@@ -295,7 +295,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 0):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -352,9 +352,10 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     #     #ols_data = ols_data.ro + stats.rcauchy(n, 0, noise_std)
     #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
 
+    valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality', 'nutrition_quality_diff']
     if dependent == "SF_12" and noise_std:
         prediction = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent == "hh_income" or dependent == "hh_income_diff") and noise_std:
+    elif (dependent in valid_dependents) and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = ols_data.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
     else:
@@ -406,36 +407,31 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         currentRDF = ro.conversion.py2rpy(current)
 
 
-    # Inverse yeojohnson transform.
-    # Stored in estimate_transitions.R.
-    # Note inverse=True arg is needed to get back to actual gross income.
+    # flip left skewed data to right skewed about its maximum.
     if reflect:
         max_value = model.do_slot("max_value")
         currentRDF[currentRDF.names.index(dependent)] = max_value.ro - currentRDF.rx2(dependent)
 
-
+    # load YJ transform
     if yeo_johnson:
         # stupid workaround to get attributes from R S4 type objects. Replaces rx2.
         yj = model.do_slot("transform")
-        #yj = model.rx2('transform') # use yj from fitted model for latest year.
-        currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
-        min_value = model.do_slot("min_value")
-        currentRDF[currentRDF.names.index(dependent)] = currentRDF.rx2(dependent).ro - min_value + 0.001 # shift to strictly positive values for gamma distribution
 
-    ols_data = lme4.predict_merMod(model, newdata=currentRDF, type='response', allow_new_levels=True)  # estimate next income using gamma GEE.
+    # get minimum value to reverse transformatino to strictly positve values.
+    min_value = model.do_slot("min_value")
+
+    prediction = lme4.predict_merMod(model, newdata=currentRDF, type='response', allow_new_levels=True)  # estimate next income using gamma GEE.
     # Inverting transforms to get back to true income values.
 
-    if yeo_johnson:
-        ols_data = ols_data.ro + (min_value.ro - 0.001) # invert shift to strictly positive values.
+    prediction = prediction.ro + (min_value.ro - 0.001) # invert shift to strictly positive values.
 
-    #if (dependent == "SF_12" or dependent == 'nutrition_quality') and noise_std:
-    #    prediction = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    #if dependent == "hh_income" and noise_std:
-    if noise_std:
+    if dependent == "SF_12" or dependent == 'nutrition_quality':
+        prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+    elif dependent == "hh_income_new" and noise_std:
         VGAM = rpy2_modules["VGAM"]
-        prediction = ols_data.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
+        prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
     else:
-        prediction = ols_data
+        prediction = prediction
 
     if yeo_johnson:
         prediction = stats.predict(yj, newdata=prediction, inverse=True)  # invert yj transform.
@@ -446,7 +442,6 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
-        #ols_data = ro.conversion.rpy2py(ols_data)
         prediction_output = ro.conversion.rpy2py(prediction)
 
     return pd.DataFrame(prediction_output, columns=[dependent])

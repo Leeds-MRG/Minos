@@ -276,7 +276,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
-  browser()
+  #browser()
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
@@ -306,6 +306,7 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   }
   #attr(model,"max_value") <- max_value
   #attr(model,"min_value") <- min_value
+  #browser()
   
   #model@transform <- yj # S4 class uses @ rather than $ for assignment. y tho?
   #model@min_value <- min_value
@@ -317,7 +318,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   
   # Sort out dependent type (factor)
   data <- replace.missing(data)
-  #data <- drop_na(data)
+  data <- drop_na(data)
   if (reflect) {
     max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)] 
@@ -326,10 +327,11 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
-    min_value <- nanmin(data[[depend]])
-    data[[depend]] <- data[[depend]] - min_value + 0.001
   }
 
+  min_value <- nanmin(data[[depend]])
+  data[[depend]] <- data[[depend]] - min_value + 0.001
+  
   if(include_weights) {
     model <- glmer(formula,  
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
@@ -342,12 +344,12 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    family=Gamma(link='log'),
                    data = data)
   }
-
+  #browser()
+  attr(model,"min_value") <- min_value
+  
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
-    attr(model,"min_value") <- min_value
       }
-  
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
