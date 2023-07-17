@@ -1,5 +1,10 @@
 """
 Script for imputing missing values in the input populations, to ensure we have a full dataset with no missing values.
+
+This script will read in the final population files (used for fitting transition models), and run through a couple of
+things required to create the starting populations. These are:
+1. Impute missing values using sklearn.impute functions
+2. Do prediction of highest education
 """
 
 import numpy as np
@@ -28,5 +33,5 @@ def main():
     # done
 
 
-if __name__ == '__main__'():
+if __name__ == '__main__()':
     main()
