@@ -186,7 +186,6 @@ def RunPipeline(config, intervention=None):
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
-                    "geepack": importr("geepack"),
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
