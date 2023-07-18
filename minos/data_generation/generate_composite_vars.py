@@ -330,7 +330,7 @@ def generate_composite_neighbourhood_safety(data):
                 (data['drunks'].isin([3, -10, -9, -2, -3])) &
                 (data['muggings'].isin([3, -10, -10, -9, -2, -3])) &
                 (data['teenagers'].isin([3, -10, -9, -2, -3])) &
-                (data['vandalism'].isin([3, -10, -9, -2, -3]))] = 3
+                (data['vandalism'].isin([3, -10, -9, -2, -3]))] = 'Very safe'
 
     # Now safe neighbourhood. Any var == 2 (not very common) but no var == 1 (very or fairly common)
     data.safety[((data['burglaries'].isin([2, -10, -9, -2, -3])) |
@@ -345,14 +345,14 @@ def generate_composite_neighbourhood_safety(data):
                  (data['drunks'] != 1) &
                  (data['muggings'] != 1) &
                  (data['teenagers'] != 1) &
-                 (data['vandalism'] != 1))] = 2
+                 (data['vandalism'] != 1))] = 'Safe'
     # Now unsafe neighbourhood. Any var == 1 (very or fairly common)
     data.safety[(data['burglaries'].isin([1, -10, -9, -2, -3])) |
                 (data['car_crime'].isin([1, -10, -9, -2, -3])) |
                 (data['drunks'].isin([1, -10, -9, -2, -3])) |
                 (data['muggings'].isin([1, -10, -9, -2, -3])) |
                 (data['teenagers'].isin([1, -10, -9, -2, -3])) |
-                (data['vandalism'].isin([1, -10, -9, -2, -3]))] = 1
+                (data['vandalism'].isin([1, -10, -9, -2, -3]))] = 'Unsafe'
     
     # If all missing then set back to -9
     data.safety[(data['burglaries'] < 0) &
@@ -360,7 +360,7 @@ def generate_composite_neighbourhood_safety(data):
                 (data['drunks'] < 0) &
                 (data['muggings'] < 0) &
                 (data['teenagers'] < 0) &
-                (data['vandalism'] < 0)] = -9
+                (data['vandalism'] < 0)] = '-9'
 
     data['neighbourhood_safety'] = data.safety
 
@@ -826,15 +826,15 @@ def calculate_equivalent_income(data):
         -10: -1
     }
     loneliness_dict = {
-        1: 0,
-        2: -0.186/1.282,
-        3: -0.591/1.282,
-        -9: -1,
-        -8: -1,
-        -7: -1,
-        -1: -1,
-        -2: -1,
-        -10: -1
+        'Hardly ever or never': 0,
+        'Sometimes': -0.186/1.282,
+        'Often': -0.591/1.282,
+        '-9': -1,
+        '-8': -1,
+        '-7': -1,
+        '-1': -1,
+        '-2': -1,
+        '-10': -1
     }
     employment_dict = {
         'FT Employed': 0,
@@ -873,6 +873,11 @@ def calculate_equivalent_income(data):
         '-10': -1
     }
 
+    # sort out dtypes (pandas is bad at reading csv's)
+    data = data.convert_dtypes()
+    # fix loneliness var as missing years are given numeric missing code (-9), whilst everything else is string
+    data['loneliness'][data['loneliness'] == -9] = '-9'
+
     # Now we add together weights for each factor level to generate the exponent term
     data['EI_exp_term'] = 0
     #pop['EI_exp_term'] = pop['EI_exp_term'] + phys_health_dict.get(pop['S7_physical_health'])
@@ -889,11 +894,11 @@ def calculate_equivalent_income(data):
     # If any of the variables involved are missing, then can't do calculation for equivalent income
     # These people will be removed in complete_case anyway so not having a value here won't matter
     var_list_num = ['S7_physical_health',
-                    'S7_mental_health',
-                    'loneliness']
+                    'S7_mental_health']
     var_list_str = ['S7_labour_state',
                     'S7_housing_quality',
-                    'S7_neighbourhood_safety']
+                    'S7_neighbourhood_safety',
+                    'loneliness']
     data['equivalent_income'][(data[var_list_num] < 0).any(axis=1)] = -9
     data['equivalent_income'][(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1)] = -9
 

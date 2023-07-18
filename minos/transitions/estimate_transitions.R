@@ -240,6 +240,10 @@ run_yearly_models <- function(transitionDir_path,
                                  levels = c('No to all',
                                             'Yes to some',
                                             'Yes to all'))
+  data$neighbourhood_safety <- factor(data$neighbourhood_safety,
+                                      levels = c('Unsafe',
+                                                 'Safe',
+                                                 'Very safe'))
   data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
                                     levels = c('Often',
                                                'Some of the time',

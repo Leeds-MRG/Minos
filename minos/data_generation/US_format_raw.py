@@ -440,6 +440,19 @@ def format_ukhls_heating(data):
     return data
 
 
+def format_loneliness(data):
+
+    data['loneliness'] = data['loneliness'].map({1: 'Hardly ever or never',
+                                                 2: 'Sometimes',
+                                                 3: 'Often',
+                                                 -9: '-9',
+                                                 -8: '-8',
+                                                 -7: '-7',
+                                                 -2: '-2',
+                                                 -1: '-1'})
+    return data
+
+
 def format_analysis_weight(data):
     """ Add and format analysis weight variable.
 
@@ -515,6 +528,7 @@ def format_data(year, data):
     # data = format_mental_state(data)
     data = format_time(data, year)
     data = format_location(data, year)
+    data = format_loneliness(data)
 
     data = format_ukhls_ethnicity(data)
     data = format_ukhls_employment(data)
