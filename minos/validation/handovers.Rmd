@@ -22,6 +22,9 @@ require(tidyverse)
 require(ggplot2)
 require(knitr)
 require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -739,8 +742,88 @@ spaghetti_plot(spag, 'education_state',
 rm(raw.s, base.s, spag)
 ```
 
+## Parity
 
 ```{r}
+base.parity <- base.dat %>%
+  filter(sex == "Female")
 
+raw.parity <- raw.dat %>%
+  filter(sex == "Female")
+
+prepped.list <- validation_prep_ordinal(raw.parity, base.parity, 'nkids_ind')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Parity (total no. of children)'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = nkids_ind, colour = nkids_ind)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=nkids_ind)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'parity.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.parity,
+                                  df1.name = 'simulated', 
+                                  df2 = raw.parity, 
+                                  df2.name = 'raw', 
+                                  var = 'nkids_ind')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'nkids_ind',
+                 save = shall.we.save,
+                 save.path = save.path)
 ```
 
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.parity %>%
+  select(pidp, age, time, nkids_ind)
+base.s <- base.parity %>%
+  select(pidp, age, time, nkids_ind)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'nkids_ind',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+```{r}
+raw.s <- raw.parity %>%
+  select(pidp, age, time, nkids_ind_raw)
+base.s <- base.parity %>%
+  select(pidp, age, time, nkids_ind_raw)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'nkids_ind_raw',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
