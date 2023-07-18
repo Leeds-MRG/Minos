@@ -311,15 +311,16 @@ class nkidsFertilityAgeSpecificRates(Base):
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
-        # 1. Find everyone in a household who has had children by hidp and increment nkids by 1.
-        had_children_hidps = population.loc[had_children, 'hidp']
-        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index
+        # 1. Find everyone in a household who has had children by hidp and increment nkids by 1
+        had_children_hidps = population.loc[had_children, 'hidp'] # Get all HIDPs of people who've had children
+        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
+        self.population_view.update(population[['nkids']])
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
-        had_children_pidps = population.loc[had_children, 'pidp']
-        who_had_children_individual = population.loc[population['pidp'].isin(had_children_pidps),].index
-        population.loc[who_had_children_individual, 'nkids_ind'] += 1
+        who_had_children_individuals = population.loc[had_children, 'pidp'].index
+        population.loc[who_had_children_individuals, 'nkids_ind'] += 1
+        self.population_view.update(population[['nkids_ind']])
 
         # # HR 24/05/23 To grab parity for testing
         # y = int(str(event.time).split("-")[0])
