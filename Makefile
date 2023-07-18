@@ -157,11 +157,11 @@ clean_plots: ### Remove all <plot>.pdf files in plots/
 	rm -rf plots/*.pdf
 
 clean_notebooks:
-	rm -rf *.nb.html
-	rm -rf *.html
-	rm -rf */*.nb.html
-	rm -rf */*.html
-	rm -rf */*/*.nb.html
-	rm -rf */*/*.html
-	rm -rf */*/*/*.nb.html
-	rm -rf */*/*/*.html
+	rm -rf minos/*.nb.html
+	rm -rf minos/*.html
+	rm -rf minos/validation/*.nb.html
+	rm -rf minos/validation/*.html
+	rm -rf minos/outcomes/*.nb.html
+	rm -rf minos/outcomes/*.html
+	rm -rf minos/testing/*.nb.html
+	rm -rf minos/testing/*.html
