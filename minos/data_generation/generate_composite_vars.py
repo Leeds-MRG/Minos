@@ -927,8 +927,9 @@ def calculate_children(data,
     # Initialise new column
     data['nkids_ind'] = data['nkids_ind_raw']
 
+    pl = str(len(pidps))
     for i,pidp in enumerate(pidps):
-        sys.stdout.write("\rProcessing pidp " + str(i+1) + " of " + str(len(pidps)) + " (females only)")
+        sys.stdout.write("\rProcessing pidp " + str(i+1) + " of " + pl + " (females only)")
         subframe = data[data['pidp'] == pidp][['pidp', 'nkids_ind_raw', 'nkids_ind_new', 'time']]
         # Calculate number of children if:
         # 1. Any pregnancies present (i.e. nkids_ind_new == 2)
