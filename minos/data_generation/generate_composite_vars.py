@@ -172,6 +172,10 @@ def calculate_hourly_wage(data):
     # now replace all still nan with -9
     data["hourly_wage"].fillna(-9, inplace=True)
 
+    data.drop(labels=['hourly_rate', 'gross_paypm'],
+              axis=1,
+              inplace=True)
+
     return data
 
 

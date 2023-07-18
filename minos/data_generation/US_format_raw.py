@@ -54,8 +54,8 @@ labour_ukhls = US_utils.load_json(json_source, "labour_status_ukhls.json")
 # education_ukhls = US_utils.load_json(json_source, "education_ukhls_simple.json")
 education = US_utils.load_json(json_source, "education_gov.json")
 ## Depression.
-depression = US_utils.load_json(json_source, "depression.json")
-depression_change = US_utils.load_json(json_source, "depression_change.json")
+# depression = US_utils.load_json(json_source, "depression.json")
+# depression_change = US_utils.load_json(json_source, "depression_change.json")
 ## Heating.
 # heating_bhps = US_utils.load_json(json_source, "heating_bhps.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
@@ -102,7 +102,10 @@ def format_location(data, year):
 
 
 def format_mental_state(data):
-    """ Format mental health data.
+    """
+    DEFUNKT AS OF 17/7/23 (actually a long time before this but this is when the depression variable was removed).
+
+    Format mental health data.
 
     Parameters
     ----------
@@ -215,13 +218,13 @@ def format_ukhls_columns(year):
                       'ieqmoecd_dv': 'oecd_equiv',  # Modified OECD equivalence scale
                       'intdatem': 'hh_int_m',  # household interview month
                       'intdatey': 'hh_int_y',  # household interview year
-                      'jbbgm': 'job_duration_m',  # what month started job.
-                      'jbbgy': 'job_duration_y',  # what year started job
+                      #'jbbgm': 'job_duration_m',  # what month started job.
+                      #'jbbgy': 'job_duration_y',  # what year started job
                       'jbft_dv': 'emp_type',  # part or full time employment
                       'jbnssec8_dv': 'job_sec',  # job nssec code
-                      'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
+                      #'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
                       # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
-                      'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
+                      #'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
                       'jbstat': 'labour_state_raw',  # labour state
                       'ncigs': 'ncigs',  # typical daily cigarettes smoked.
                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
@@ -245,7 +248,7 @@ def format_ukhls_columns(year):
                       'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
                       'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
                       'nkids_dv': 'nkids',  # number of children
-                      'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
+                      #'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                       'xpelecy': 'yearly_electric',  # yearly electricty expenditure
                       'xpgasy': 'yearly_gas',  # yearly gas expenditure
                       'xpduely': 'yearly_gas_electric',  # yearly both expenditure.
@@ -259,17 +262,17 @@ def format_ukhls_columns(year):
                       'fuelduel': 'gas_electric_combined', # are gas and electric bills separate or combined?
                        # Nutrition vars
                        'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
-                       'fruitamt':'fruit_per_day', # amount of fruit eaten on days when eating fruit
+                       'fruitamt': 'fruit_per_day', # amount of fruit eaten on days when eating fruit
                        'wkvege': 'veg_days', # no. days respondent eats veg per week
                        'vegeamt': 'veg_per_day', # amt. veg eaten on veg eating days
                        # hourly wage stuff (Keeping self-employed and small business vars just in case)
                        'basrate': 'hourly_rate',  # basic pay hourly rate
                        'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
-                       'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
+                       #'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
                        'jbhrs': 'job_hours',  # no. of hours normally worked in a week
-                       'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
-                       'jspayu': 'job_inc',  # average income from job/business
-                       'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
+                       #'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
+                       #'jspayu': 'job_inc',  # average income from job/business
+                       #'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
                        # Private/Public sector var for living wage intervention
                        'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
                       # SF12 MICE vars
@@ -300,11 +303,12 @@ def format_ukhls_columns(year):
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.
 
+    # 17/7/23 - removed this as it's been replaced a long time ago by SF_12_MCS
     # clinical depression changes in wave 10.
-    if year < 2017:
-        attribute_dict["hcond17"] = "depression"
-    else:
-        attribute_dict["hcondcode38"] = "depression"
+    #if year < 2017:
+    #    attribute_dict["hcond17"] = "depression"
+    #else:
+    #    attribute_dict["hcondcode38"] = "depression"
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.
@@ -508,7 +512,7 @@ def format_data(year, data):
     # Categories that are formatted the same regardless of wave.
     data = format_sex(data)
     data = format_academic_year(data)
-    #data = format_mental_state(data)
+    # data = format_mental_state(data)
     data = format_time(data, year)
     data = format_location(data, year)
 

@@ -155,3 +155,13 @@ clean_scotland:
 
 clean_plots: ### Remove all <plot>.pdf files in plots/
 	rm -rf plots/*.pdf
+
+clean_notebooks:
+	rm -rf *.nb.html
+	rm -rf *.html
+	rm -rf */*.nb.html
+	rm -rf */*.html
+	rm -rf */*/*.nb.html
+	rm -rf */*/*.html
+	rm -rf */*/*/*.nb.html
+	rm -rf */*/*/*.html

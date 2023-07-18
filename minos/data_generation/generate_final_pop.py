@@ -24,7 +24,7 @@ import US_utils
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
-def reweight_stock(data, projections):
+def reweight_final(data, projections):
     """
 
     Parameters
@@ -126,7 +126,7 @@ def wave_data_copy(data, var, copy_year, paste_year):
     return data_merged
 
 
-def generate_stock(projections, cross_validation):
+def generate_final(projections, cross_validation):
     maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
@@ -137,7 +137,7 @@ def generate_stock(projections, cross_validation):
     # TODO: We reweight the stock population only because reweighting the repl generates very different values to those
     #   we started with (started with mean ~1, ended with mean in the thousands). We could however trust the analysis
     #   weight from the survey and just transform the replenishing population weights to bring the mean back to ~1.
-    data = reweight_stock(data, projections)
+    data = reweight_final(data, projections)
 
     # Needs a max_educ column despite it not being important for the majority of people
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
@@ -213,7 +213,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_stock(projections, cross_validation)
+    generate_final(projections, cross_validation)
 
 
 if __name__ == "__main__":

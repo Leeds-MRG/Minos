@@ -117,11 +117,12 @@ def main(data):
 
     US_missing_description.missingness_table(data)
     # Table of missing values by row/column after correction.
-    unemployed_columns = ["job_industry",
-                           "job_duration_m",
-                           "job_duration_y",
-                           "job_sec",
-                           "job_occupation"]
+    unemployed_columns = ["job_sec"]
+    # 17/7/23 - removed as not in use and complicating further processing (specifically imputation step)
+                          #"job_industry",
+                          # "job_duration_m",
+                          # "job_duration_y",
+                          # "job_occupation"]
     # force unemployed people to have value 0 in unemployed_columns.
     data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
     # Anyone who doesn't smoke force ncigs to 0.
