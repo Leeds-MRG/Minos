@@ -477,6 +477,7 @@ class lmmYJMWB(Base):
                         #'job_sec',
                         'hh_income',
                         'SF_12',
+                        'SF_12_diff',
                         'housing_quality',
                         #'phealth',
                         'ncigs',
@@ -499,24 +500,6 @@ class lmmYJMWB(Base):
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
         self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
 
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for hh_income when new simulants are added.
-        Only column needed is the diff column for rate of change model predictions.
-
-        Parameters
-        ----------
-            pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        """
-        # Create frame with new 3 columns and add it to the main population frame.
-        # This is the same for both new cohorts and newborn babies.
-        # Neither should be dead yet.
-        pop_update = pd.DataFrame({'SF_12_diff': 0.},
-                                  index=pop_data.index)
-        self.population_view.update(pop_update)
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
         Parameters
@@ -535,14 +518,20 @@ class lmmYJMWB(Base):
         newWaveMWB = pd.DataFrame(columns=['SF_12'])
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
-        #newWaveMWB["SF_12"] += 2
-        #newWaveMWB["SF_12"] *= (10/np.std(newWaveMWB["SF_12"]))
+        #newWaveMWB["SF_12"] -= 1
+
+        sf12_mean = np.mean(newWaveMWB["SF_12"])
+        std_ratio = (11/np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] *= (11/np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
+        newWaveMWB["SF_12"] -= 1.5
         #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
+        newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
         # Update population with new SF12
         print(np.mean(newWaveMWB["SF_12"]))
         print(np.std(newWaveMWB["SF_12"]))
-        self.population_view.update(newWaveMWB[['SF_12']])
+        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
 
     def calculate_mwb(self, pop):
@@ -559,8 +548,8 @@ class lmmYJMWB(Base):
                                                                current= pop,
                                                                dependent='SF_12',
                                                                reflect=True,
-                                                               yeo_johnson=True,
-                                                               noise_std= 0.7)#1
+                                                               yeo_johnson= True,
+                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
         return out_data
 
 

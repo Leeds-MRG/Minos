@@ -92,9 +92,9 @@ cv.years <- cv.years[['time']]
 
 #cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
 # getting only people who were in 2014 population. 
-who_2014_pidps <- raw.dat %>% filter(time %in% c(2014) & hh_income<10000) %>% select(pidp) %>% unique()
+#who_2014_pidps <- raw.dat %>% filter(time %in% c(2014) & hh_income<10000) %>% select(pidp) %>% unique()
 raw <- raw.dat %>% filter(time %in% cv.years)
-raw <- raw %>% filter (pidp %in% who_2014_pidps$pidp)
+#raw <- raw %>% filter (pidp %in% who_2014_pidps$pidp)
 
 #rm(cv.pidps, raw.pidps, both.pidps, cv.years)
 rm(cv.years)

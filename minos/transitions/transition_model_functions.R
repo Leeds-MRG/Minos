@@ -140,112 +140,6 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 # Longitudinal Transition Probability Functions
 ###################################################
 
-
-
-estimate_longitudnial_yj_gamma_gee <- function(data, formula, include_weights = FALSE, depend, reflect) {
-  
-  data <- replace.missing(data)
-  data <- drop_na(data)
-  max_value <- max(data[[depend]])
-  if (reflect) {
-    data[, c(depend)] <- max_value - data[, c(depend)] 
-  }
-  yj <- yeojohnson(data[[depend]])
-  data[[depend]] <- predict(yj)
-  min_value <- min(data[[depend]])
-  data[[depend]] <- data[[depend]] - min_value + 0.001 # shift so values are strictly positive
-  
-  if(include_weights) {
-    model <- geeglm(formula,
-                    id = pidp,
-                    waves = time,
-                    family = Gamma(link='inverse'), # canonical inverse gamma link. Could use log link instead..
-                    data = data,
-                    weights = weight,
-                    corstr="ar1") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
-  } else {
-    model <- geeglm(formula,
-                    id = pidp,
-                    waves = time,
-                    family = Gamma(link='inverse'),
-                    data = data,
-                    corstr="ar1")
-  }
-  # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
-  #model[[depend]] <- data[[depend]]
-  #model$class_preds <- predict(model)
-  model$transform <- yj
-  model$min_value <- min_value
-  model$max_value <- max_value
-  return(model)
-}
-
-
-estimate_longitudnial_gaussian_gee_diff <- function(data, formula, include_weights=FALSE, depend) {
-    data <- replace.missing(data)
-    data <- drop_na(data)
-    if(include_weights) {
-      model <- geeglm(formula,
-                      id = pidp,
-                      waves = time,
-                      family = gaussian, # gaussian GEE uses canonical identity link.
-                      #family=Gamma(link='log'),
-                      data = data,
-                      weights = weight,
-                      corstr="ar1") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
-    } else {
-      model <- geeglm(formula,
-                      id = pidp,
-                      waves = time,
-                      family = gaussian,
-                      #family=Gamma(link='log'),
-                      data = data,
-                      corstr="ar1")
-    }
-    #browser()
-    return(model)
-}
-
-
-estimate_longitudnial_yj_gaussian_gee <- function(data, formula, include_weights = FALSE, depend, reflect) {
-  data <- replace.missing(data)
-  data <- drop_na(data)
-  max_value <- max(data[[depend]])
-  min_value <- max(data[[depend]])
-  if (reflect) {
-    data[, c(depend)] <- max_value - data[, c(depend)] 
-  }
-  yj <- yeojohnson(data[,c(depend)])
-  data[, c(depend)] <- predict(yj)
-  if(include_weights) {
-    model <- geeglm(formula,
-                    id = pidp,
-                    waves = time,
-                    family = gaussian, # gaussian GEE uses canonical identity link.
-                    data = data,
-                    weights = weight,
-                    corstr="ar1") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
-  } else {
-    model <- geeglm(formula,
-                    id = pidp,
-                    waves = time,
-                    family = gaussian,
-                    data = data,
-                    corstr="ar1")
-    #browser()
-  }
-  # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
-  #model[[depend]] <- data[[depend]]
-  #model$class_preds <- predict(model)
-  model$transform <- yj  
-  model$min_value <- min_value
-  model$max_value <- max_value
-  return(model)
-}
-
-
 nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
 nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 
@@ -344,7 +238,6 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    family=Gamma(link='log'),
                    data = data)
   }
-  #browser()
   attr(model,"min_value") <- min_value
   
   if (yeo_johnson){
@@ -353,7 +246,6 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
-
   return(model)
 }
 

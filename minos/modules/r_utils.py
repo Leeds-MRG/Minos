@@ -8,6 +8,7 @@ import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri, r
 from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.vectors import FactorVector
+from rpy2.robjects import numpy2ri
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as pl
@@ -399,13 +400,9 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
 
-    #current = current.drop([dependent, 'time'], axis=1)
-    #current["pidp"] = -current["pidp"]
-
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
-
 
     # flip left skewed data to right skewed about its maximum.
     if reflect:
@@ -425,11 +422,20 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     prediction = prediction.ro + (min_value.ro - 0.001) # invert shift to strictly positive values.
 
-    if dependent == "SF_12" or dependent == 'nutrition_quality':
+    if dependent == 'nutrition_quality':
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif dependent == "hh_income_new" and noise_std:
+    elif dependent == "SF_12" and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
+        #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+    elif (dependent == "hh_income_new") and noise_std:
+        #VGAM = rpy2_modules["VGAM"]
+        #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
+        prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+        noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.0015), -3, 4) #0.075
+        with localconverter(ro.default_converter + numpy2ri.converter):
+            Rnoise = ro.conversion.py2rpy(noise)
+        prediction = prediction.ro + Rnoise # add gaussian noise.
     else:
         prediction = prediction
 

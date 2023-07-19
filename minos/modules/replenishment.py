@@ -95,6 +95,9 @@ class Replenishment(Base):
                         'financial_situation',
                         'housing_tenure',
                         'urban',
+                        'SF_12_diff',
+                        'hh_income_diff',
+                        'nutrition_quality_diff',
                         ]
 
         # Shorthand methods for readability.

@@ -612,6 +612,7 @@ class lmmYJIncome(Base):
             'pidp',
             'weight',
             'SF_12',
+            'hh_income_diff',
         ]
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
@@ -672,11 +673,19 @@ class lmmYJIncome(Base):
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
-        #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
+        newWaveIncome['hh_income'] = np.clip(newWaveIncome['hh_income'], -2500, 17000)
+        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
+        income_mean = np.mean(newWaveIncome["hh_income"])
+        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        newWaveIncome["hh_income"] *= std_ratio
+        newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+        #newWaveIncome["hh_income"] -= 75
+        # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
+
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         print("income", np.mean(newWaveIncome['hh_income']))
-        self.population_view.update(newWaveIncome[['hh_income']])
+        self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -697,7 +706,7 @@ class lmmYJIncome(Base):
                                                                        dependent='hh_income_new',
                                                                        yeo_johnson = True,
                                                                        reflect=False,
-                                                                       noise_std= 0.45 )#2
+                                                                       noise_std= 0.13)#0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -894,7 +903,7 @@ class lmmDiffIncome(Base):
                                                                     dependent='hh_income_diff',
                                                                     yeo_johnson = True,
                                                                     reflect=False,
-                                                                    noise_std= 0.5)#0.45
+                                                                    noise_std= 0.05)#0.45
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

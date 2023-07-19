@@ -206,9 +206,6 @@ def generate_hh_income(data):
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
 
-    # creating difference in hh income for lmm difference models.
-    #data = data.sort_values(by=['time'])
-    #data['hh_income_diff'] = data.groupby(["pidp"])['hh_income'].diff().fillna(0)
     # now drop the intermediates
     data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
               axis=1,
@@ -903,6 +900,14 @@ def calculate_equivalent_income(data):
     return data
 
 
+def generate_difference_variables(data):
+    # creating difference in hh income for lmm difference models.
+    data = data.sort_values(by=['time'])
+    diff_columns = ["hh_income", "SF_12", "nutrition_quality"]
+    diff_column_names = [item + "_diff" for item in diff_columns]
+    data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
+    return data
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -926,6 +931,7 @@ def main():
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
+    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

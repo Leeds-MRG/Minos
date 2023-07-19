@@ -172,7 +172,8 @@ class lmmYJNutrition(Base):
                         'hh_income',
                         #'alcohol_spending',
                         'ncigs',
-                        'nutrition_quality']
+                        'nutrition_quality',
+                        'nutrition_quality_diff']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -186,7 +187,7 @@ class lmmYJNutrition(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
         # just load this once.
-        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_LMM", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_new_LMM", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
 
@@ -213,10 +214,12 @@ class lmmYJNutrition(Base):
         newWaveNutrition.index = pop.index
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
         newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 110) # clipping because of idiot that eats 150 vegetables per week.
+        newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
+        newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(float)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         print('nutrition', np.mean(newWaveNutrition['nutrition_quality']))
-        self.population_view.update(newWaveNutrition['nutrition_quality'])
+        self.population_view.update(newWaveNutrition[['nutrition_quality', 'nutrition_quality_diff']])
 
     def calculate_nutrition(self, pop):
         """Calculate loneliness transition distribution based on provided people/indices.
@@ -234,7 +237,7 @@ class lmmYJNutrition(Base):
                                                                        dependent='nutrition_quality_new',
                                                                        reflect=False,
                                                                        yeo_johnson= False,
-                                                                       noise_std=2)#
+                                                                       noise_std=1)#
 
         return nextWaveNutrition
     # Special methods used by vivarium.
@@ -378,7 +381,7 @@ class lmmDiffNutrition(Base):
                                                                         dependent='nutrition_quality_diff',
                                                                         reflect=False,
                                                                         yeo_johnson= True,
-                                                                        noise_std=1)#
+                                                                        noise_std=1.5)#
 
         return nextWaveNutrition
     # Special methods used by vivarium.

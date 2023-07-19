@@ -23,6 +23,7 @@ require(ggplot2)
 require(ggridges) # for densities over time plots. 
 require(knitr)
 require(here)
+require(gghighlight)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -140,12 +141,18 @@ base.inc <- base.dat %>%
 
 income.spag <- rbind(raw.inc, base.inc)
 
-spaghetti_plot(income.spag, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
 density_ridges(income.spag, 'hh_income',
                save=TRUE, 
                save.path=save.path)
+
+pidp_sample <- sample(unique(income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
+income.spag.sample <- income.spag[which(income.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(income.spag.sample, 'hh_income',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
+               save = shall.we.save,
+               save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
 ```
@@ -229,10 +236,14 @@ base.sf12 <- base.dat %>%
 
 sf12.spag <- rbind(raw.sf12, base.sf12)
 
-spaghetti_plot(sf12.spag, 'SF_12',
+sf12.spag.sample <- sf12.spag[which(sf12.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(sf12.spag.sample, 'SF_12',
                save = shall.we.save,
                save.path = save.path)
-
+spaghetti_highlight_max_plot(sf12.spag.sample, 'SF_12',
+               save = shall.we.save,
+               save.path = save.path)
+  
 density_ridges(sf12.spag, "SF_12", 
                save = T, 
                save.path = save.path)

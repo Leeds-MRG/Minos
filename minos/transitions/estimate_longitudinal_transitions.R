@@ -61,7 +61,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     if(mode == 'cross_validation') {
       year.range <- seq(min(data$time) , (max(data$time)))
     } else {
-      year.range <- seq(max(data$time) - 9, (max(data$time)))
+      year.range <- seq(max(data$time) - 5, (max(data$time)))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
     
@@ -82,83 +82,90 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #} else {
     #  use.weights <- TRUE
     #}
+    
     if (dependent == "SF_12") {
-      do.reflect = TRUE
+      do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed. 
     }
     else {
       do.reflect=FALSE
     }
-    if (dependent == "nutrition_quality") {
-      do.yeo.johnson = F
+    
+    if (dependent == "SF_12" || dependent == "hh_income") {
+      do.yeo.johnson = T #
     }
     else {
-      do.yeo.johnson = T
+      do.yeo.johnson = F
     }
     
-    if (mod.type == "LMM_DIFF") {
-      temp.dependent <-  paste0(dependent, "_diff") # shift income to left to avoid negative values.
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)      
-    } else if (dependent == 'nutrition_quality' || (dependent == "hh_income" && mod.type=="GLMM")) {
-      temp.dependent <-  paste0(dependent, "_new") # shift income to left to avoid negative values.
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)      
-    } else if (mod.type == "ORDGEE") {
-      temp.dependent <- paste0("ordered(", dependent, ")") # make dependent variable into ordered factor.
-      formula.string <- paste0(temp.dependent, " ~ ", independents)
-      form <- as.formula(formula.string)      
-    } 
-    else if (mod.type == "CLMM") {
-      formula.string <- paste0(dependent, " ~ ", independents)
-      form <- as.formula(formula.string)      
-    } else {
-      formula.string <- paste0(dependent, " ~ ", independents)
-      form <- as.formula(formula.string)
-    }
+    # experimental ordinal long models. ignore. 
+    # if (mod.type == "ORDGEE") { 
+    #   temp.dependent <- paste0("ordered(", dependent, ")") # make dependent variable into ordered factor.
+    #   formula.string <- paste0(temp.dependent, " ~ ", independents)
+    #   form <- as.formula(formula.string)      
+    # } 
+    # else if (mod.type == "CLMM") {
+    #   formula.string <- paste0(dependent, " ~ ", independents)
+    #   form <- as.formula(formula.string)      
+    # } else {
+    #   formula.string <- paste0(dependent, " ~ ", independents)
+    #   form <- as.formula(formula.string)
+    # }
     
 
-    # data frame needs sorting by pidp and time for gee to work.
-    # get columns used by formula and sort them by pidp and time. 
-    
     # differencing data for difference models using dplyr lag.
-    if (tolower(mod.type) == 'gee_diff' || tolower(mod.type) == "lmm_diff")  {
+    # NOTE NEED TO UPDATE MODEL DEFINITIONS TO HAVE _DIFF IN RESPONSE VARIABLE NAME. 
+    if (tolower(mod.type) == "lmm_diff")  {
       data <- data %>%
         group_by(pidp) %>%
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
-      #data <- data %>%
-      #  group_by(pidp) %>%
-      #  #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-      #  # naming this diff2 is dumb but stops it interacting with the new diff hh_income_diff variable directly in US data.
-      #  mutate(diff_last = lag(.data[[paste0(dependent, "_diff2")]], order_by = time)) %>%
-      #  rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff_last)  # add the dependent as prefix to the calculated diff
-      }
+        # update model formula with _diff variable. 
+        dependent <-  paste0(dependent, "_diff")
+        formula.string <- paste0(dependent, " ~ ", independents)
+        form <- as.formula(formula.string) 
+        }
 
-    # differencing data for difference models using dplyr lag.
-    if (dependent == "nutrition_quality" || (dependent == "hh_income" && mod.type=="GLMM"))  {
+    # if using glmms need to be careful which time the outcome variable is from.
+    # for nutrition quality and SF12 using previous wave information to predict next 
+    # state so create response income_new that is the lead value.
+    # I.E. using 2019 information to predict income_new values from 2020.
+    # For SF12 predicting current state given changes in all other information and previous SF12 value. 
+    # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
+    # We have SF_12_last in the model formula for 2019 SF12. 
+    if (dependent == "nutrition_quality" || dependent == "hh_income")  {
+      # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%
          #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
          mutate(new = lead(.data[[dependent]], order_by = time)) %>%
          rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
-    }
-    if (dependent == "SF_12")  {
+         dependent <-  paste0(dependent, "_new")
+         formula.string <- paste0(dependent, " ~ ", independents)
+         form <- as.formula(formula.string) 
+       }
+    else if (dependent == "SF_12")  {
+      # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(last = lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
-
+      # data <- data %>%
+      #   group_by(pidp) %>%
+      #   mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+      #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)
+      # 
+      formula.string <- paste0(dependent, " ~ ", independents)
+      form <- as.formula(formula.string)
       }
-    
+    # get only required variables and sort by pidp/time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
     
+    # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
-      if ( dependent == "nutrition_quality" || dependent == "hh_income") {
-        dependent <- paste0(dependent, "_new")
-      }
+      #
       model <- estimate_longitudinal_glmm(data = sorted_df,
                                           formula = form, 
                                           include_weights = use.weights, 
@@ -172,8 +179,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                         formula = form, 
                                         include_weights = use.weights, 
                                         reflect = do.reflect,
-                                        yeo_johnson = do.yeo.johnson,
-                                        depend = paste0(dependent, "_new"))
+                                        yeo_johnson = F,
+                                        depend = dependent)
       
     } else if(tolower(mod.type) == 'lmm_diff') {
       
@@ -181,7 +188,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                             formula = form, 
                                             include_weights = use.weights, 
                                             reflect = FALSE,
-                                            depend = paste0(dependent, '_diff'),
+                                            depend = dependent,
                                             yeo_johnson = TRUE)
       
     } else if (tolower(mod.type) == "ordgee") {
