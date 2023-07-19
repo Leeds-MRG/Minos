@@ -94,9 +94,9 @@ if __name__ == "__main__":
                     'scsf1',
                     'clinical_depression',
                     'ghq_happiness',
-                    'likely_move',
+                    # 'likely_move',
                     'newest_education_state',
-                    'health_limits_social',
+                    # 'health_limits_social',
                     'future_financial_situation',
                     'behind_on_bills']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.

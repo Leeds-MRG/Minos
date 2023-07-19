@@ -253,7 +253,6 @@ def generate_SIPHER_7_neighbourhood_safety(data):
     data.S7_safety[(data['S7_safety'] != 'Hardly ever') &
                    (data['S7_safety'] != 'Often')] = 'Some of the time'
 
-
     # If all missing then set back to -9
     data.S7_safety[(data['burglaries'] < 0) &
                    (data['car_crime'] < 0) &
@@ -322,7 +321,7 @@ def generate_composite_neighbourhood_safety(data):
         data[var][data[var] == 1] = 2
         data[var] = data[var] - 1
 
-    data['safety'] = -9
+    data['safety'] = '-9'
     # First do very safe neighbourhood. All vars == 3 (not at all common) OR missing == -9
     # data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
     data.safety[(data['burglaries'].isin([3, -10, -9, -2, -3])) &

@@ -61,6 +61,8 @@ education = US_utils.load_json(json_source, "education_gov.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 ## Location
 region_dict = US_utils.load_json(json_source, "region.json")
+## Housing Tenure
+housing_tenure_dict = US_utils.load_json(json_source, 'housing_tenure.json')
 
 
 def format_sex(data):
@@ -280,7 +282,7 @@ def format_ukhls_columns(year):
                       'xphsdba': 'behind_on_bills',  # behind on energy bills?
                       'finnow': 'financial_situation',  # financial situation
                       'finfut': 'future_financial_situation',  # expected near future financial situation.
-                      'lkmove': "likely_move",  # likelihood of moving house
+                      # 'lkmove': "likely_move",  # likelihood of moving house
                       'scghqi': 'ghq_depression',  # ghq depression
                       'scghql': 'ghq_happiness',  # ghq general happiness
                       # 'sf1': 'sf1', # sf1 score
@@ -292,7 +294,7 @@ def format_ukhls_columns(year):
                       'scsf3b': 'phealth_limits_work_type',  # physical health limits kind of work
                       'scsf4a': 'S7_mental_health',  # mental health limits work.
                       'scsf5': 'pain_interfere_work',  # pain interfered with work
-                      'scsf7': 'health_limits_social',  # health limits social life.
+                      # 'scsf7': 'health_limits_social',  # health limits social life.
                       'hhtype_dv': 'hh_composition',  # household composition
                       'mastat_dv': 'marstat',  # marital status
                       'hhsize': 'hhsize', # number of people in household
@@ -324,6 +326,19 @@ def format_ukhls_columns(year):
 
 def format_council_tax(data):
     """Format any council tax data for calculation of monthly overheads."""
+
+
+def format_housing_tenure(data):
+    """
+    Format housing tenure variable
+
+    Returns
+    -------
+    data : pd.DataFrame
+        Data with housing_tenure formatted to strings
+    """
+    data["housing_tenure"] = data["housing_tenure"].astype(str).map(housing_tenure_dict)
+    return data
 
 
 def format_ukhls_ethnicity(data):
@@ -450,6 +465,13 @@ def format_loneliness(data):
                                                  -7: '-7',
                                                  -2: '-2',
                                                  -1: '-1'})
+    return data
+
+
+def format_urban(data):
+    data['urban'] = data['urban'].map({1: 'Urban',
+                                       2: 'Rural',
+                                       -9: '-9'})
     return data
 
 
