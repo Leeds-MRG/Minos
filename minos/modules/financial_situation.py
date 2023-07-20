@@ -93,16 +93,21 @@ class financialSituation(Base):
 
         nextWaveFinancialPerception = self.calculate_financial_situation(pop)
         nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
-                                                                list(nextWaveFinancialPerception.columns+1),
-                                                                nextWaveFinancialPerception).astype(float)
+                                                             list(nextWaveFinancialPerception.columns+1),
+                                                             nextWaveFinancialPerception).astype(float)
         nextWaveFinancialPerception.index = pop.index
-        #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
+        #nextWaveFinancialPerception["financial_situation"] = \
+        #    nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
         self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
         year = 2019
-        transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='financial_situation')
+        transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
+                                                    self.rpy2_modules)
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model,
+                                                                        self.rpy2_modules,
+                                                                        pop,
+                                                                        dependent='financial_situation')
         return nextWaveFinancialPerception

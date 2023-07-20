@@ -92,6 +92,12 @@ class Neighbourhood(Base):
 
         neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
 
+        neighbourhood_factor_dict = {1: 'Unsafe',
+                                     2: 'Safe',
+                                     3: 'Very safe'}
+        neighbourhood_prob_df.replace({'neighbourhood_safety': neighbourhood_factor_dict},
+                                      inplace=True)
+
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood
         self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'])

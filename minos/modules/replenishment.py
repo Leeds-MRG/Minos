@@ -166,8 +166,12 @@ class Replenishment(Base):
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
             new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2019-2070.csv")
-            # Now select the population for the current year
+            # Now select the population for the current year and fix bad data types
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
+            # TODO: Replace this with a json or dictionary somewhere that defines data types
+            new_wave['ncigs'] = new_wave['ncigs'].astype(int)
+            # this is horrible and unfortunate but pd.read_csv being terrible is the culprit
+
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds
             # It might mean that the pop shrinks over time, as the counts within age groups is generally between 250-500
             # respondents (16-~80 year olds, older ages can have far less)

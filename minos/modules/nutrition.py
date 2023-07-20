@@ -84,7 +84,7 @@ class Nutrition(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
         ## Predict next income value
-        newWaveNutrition = self.calculate_nutrition(pop).round(0).astype(int)
+        newWaveNutrition = self.calculate_nutrition(pop).round(0)#.astype(int)
         newWaveNutrition = pd.DataFrame(newWaveNutrition, columns=["nutrition_quality"])
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = (newWaveNutrition.index.astype(int))
