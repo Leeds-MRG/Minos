@@ -24,9 +24,9 @@ invlogit <- function(x){
 }
 
 
-missing.str <- c("-1", "-2", "-7", "-8", "-9")
-missing.int <- c(-1, -2, -7, -8, -9)
-missing.float <- c(-1., -2., -7., -8., -9.)
+missing.str <- c("-1", "-2", "-7", "-8", "-9", '-10')
+missing.int <- c(-1, -2, -7, -8, -9, -10)
+missing.float <- c(-1., -2., -7., -8., -9., -10.)
 # replacement of missing values with NA that R can read. 
 # May be a better way of doing this...
 replace.missing <- function(data){

@@ -255,6 +255,10 @@ run_yearly_models <- function(transitionDir_path,
                                             'FT Education',
                                             'Family Care',
                                             'Not Working'))
+  data$loneliness <- factor(data$loneliness,
+                            levels = c('Hardly ever or never',
+                                       'Sometimes',
+                                       'Often'))
 
   # read file
   repeat{
