@@ -137,6 +137,25 @@ def validate_components(config_components, intervention):
     return component_list
 
 
+def cast_type(data):
+    """
+    Some variables were infuriating me by being bothered about their type (think this is since imputation but changing
+    type there doesn't seem to have any effect due to pandas read_csv not being very clever). Going to cast these types
+    here instead so they go into the pipeline in the type that we want.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    data['ncigs'] = data['ncigs'].astype(int)
+    data['heating'] = data['heating'].astype(int)
+    return data
+
+
 def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline
 
@@ -202,6 +221,8 @@ def RunPipeline(config, intervention=None):
     # Save population BEFORE start of the simulation. This is for comparisons and change from baseline
     pop = simulation.get_population()
     pop = utils.get_age_bucket(pop)
+    # first force type of troublesome variables
+    pop = cast_type(pop)
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
