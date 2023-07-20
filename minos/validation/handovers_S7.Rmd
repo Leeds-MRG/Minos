@@ -40,7 +40,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'stock'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
 #out.path <- 'Minos/output/SIPHER7/'

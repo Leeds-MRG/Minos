@@ -53,23 +53,23 @@ cvlist <- list(cv1, cv2, cv3, cv4, cv5)
 cv <- do.call(rbind, cvlist)
 
 # cv simulation batches
-cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+cv.simul.files1 <- list.files(here::here('data', 'stock', 'cross_validation', 'batch1'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
 raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
-cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+cv.simul.files2 <- list.files(here::here('data', 'stock', 'cross_validation', 'batch2'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
 raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
-cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+cv.simul.files3 <- list.files(here::here('data', 'stock', 'cross_validation', 'batch3'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
 raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
-cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+cv.simul.files4 <- list.files(here::here('data', 'stock', 'cross_validation', 'batch4'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
 raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
-cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+cv.simul.files5 <- list.files(here::here('data', 'stock', 'cross_validation', 'batch5'),
                              pattern = '[0-9]{4}_US_cohort.csv',
                              full.names = TRUE)
 raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
