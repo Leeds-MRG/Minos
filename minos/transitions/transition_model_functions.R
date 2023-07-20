@@ -212,7 +212,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   
   # Sort out dependent type (factor)
   data <- replace.missing(data)
-  data <- drop_na(data)
+  #data <- drop_na(data)
   if (reflect) {
     max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)] 
