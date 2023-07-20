@@ -11,7 +11,7 @@
 #transitions: $(TRANSITION_DATA)/loneliness/clm/loneliness_clm_2018_2019.rds
 
 transitions_default: | $(TRANSITION_DATA)
-transitions_default: final_data $(TRANSITION_DATA)/ncigs/zip/ncigs_2018_2019.rds $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds
+transitions_default: final_data $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds
 
 transitions_SIPHER7: | $(TRANSITION_DATA)
 transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds
