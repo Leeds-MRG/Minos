@@ -115,7 +115,7 @@ class Tobacco(Base):
         # load transition model based on year.
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2014
+            year = 2018
         else:
             year = max(self.year, 2014)
             year = min(year, 2018)

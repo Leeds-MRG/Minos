@@ -529,8 +529,8 @@ class lmmYJMWB(Base):
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
         # Update population with new SF12
-        print(np.mean(newWaveMWB["SF_12"]))
-        print(np.std(newWaveMWB["SF_12"]))
+        #print(np.mean(newWaveMWB["SF_12"]))
+        #print(np.std(newWaveMWB["SF_12"]))
         self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
 
