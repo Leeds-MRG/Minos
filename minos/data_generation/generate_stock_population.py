@@ -7,6 +7,7 @@ things required to create the starting populations. These are:
 2. Do prediction of highest education
 """
 
+import argparse
 import numpy as np
 import pandas as pd
 # from sklearn import preprocessing
@@ -20,19 +21,6 @@ from sklearn.impute import IterativeImputer
 from sklearn.pipeline import Pipeline
 
 import US_utils
-
-
-def combined_impute(data):
-    str_vars = data.select_dtypes(exclude=[float, int]).columns.tolist()
-
-    trf1 = ColumnTransformer(transformers=[
-        ('enc', MultiColumnLabelEncoder(columns=str_vars))
-    ], remainder='passthrough',
-        verbose=True)
-
-    test = trf1.fit_transform()
-
-    return data
 
 
 def combined_impute2(data):
@@ -75,6 +63,9 @@ def combined_impute2(data):
         verbose_feature_names_out=False).set_output(transform='pandas')
 
     imputed_data = impute_pipeline.fit_transform(data)
+
+    # force some variables to the right type
+    imputed_data['ncigs'] = imputed_data['ncigs'].astype(int)
 
     return imputed_data
 
@@ -259,7 +250,8 @@ def set_dtypes(data):
     return data
 
 
-def main():
+def main(cross_validation):
+    # get max year of data
     maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
@@ -285,6 +277,25 @@ def main():
 
     # save data
     US_utils.save_multiple_files(data, years, "data/stock/", "")
+
+    # cross validation
+    if cross_validation:
+
+        # read in pidp split
+        split = pd.read_csv('data/cv_pidp_split.csv')
+
+        # Now create separate transition and simulation datasets and save them in subfolders of final_US
+        bat1 = data[data['pidp'].isin(split['split0'])]
+        bat2 = data[data['pidp'].isin(split['split1'])]
+        bat3 = data[data['pidp'].isin(split['split2'])]
+        bat4 = data[data['pidp'].isin(split['split3'])]
+        bat5 = data[data['pidp'].isin(split['split4'])]
+
+        US_utils.save_multiple_files(bat1, years, "data/stock/cross_validation/batch1/", "")
+        US_utils.save_multiple_files(bat2, years, "data/stock/cross_validation/batch2/", "")
+        US_utils.save_multiple_files(bat3, years, "data/stock/cross_validation/batch3/", "")
+        US_utils.save_multiple_files(bat4, years, "data/stock/cross_validation/batch4/", "")
+        US_utils.save_multiple_files(bat5, years, "data/stock/cross_validation/batch5/", "")
     # done
 
     """
@@ -296,4 +307,14 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # Use argparse to select between normal and cross-validation
+    parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
+                                     usage='use "%(prog)s --help" for more information')
+
+    parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
+                        help="Select cross-validation mode to produce cross-validation populations.")
+
+    args = parser.parse_args()
+    cross_validation = args.crossval
+
+    main(cross_validation)

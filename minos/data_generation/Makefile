@@ -2,6 +2,8 @@
 ### Data Generation
 #####################################
 
+## Data Generation Pipeline
+
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
 data: raw_data corrected_data composite_data final_data
@@ -21,6 +23,11 @@ complete_data: $(COMPLETEDATA)/2020_US_cohort.csv
 final_data: ### Produce the final version of the data, which is the base dataset used for fitting transition models
 final_data: $(FINALDATA)/2020_US_cohort.csv
 
+## Stock and Replenishing
+
+stock_data: ### Produce the imputed stock population
+stock_data: $(STOCKDATA)/2020_US_cohort.csv
+
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
 replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
@@ -32,13 +39,19 @@ spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
 
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
-cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
+## Cross Validation
+
+cv_final: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
+
+cv_stock: $(STOCK_DATA)/cross_validation/batch5/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
 
 #####################################
 # Input Populations
 #####################################
+
+## Data Generation Pipeline
 
 $(RAWDATA)/2020_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py --source_dir $(USSOURCEDIR)
@@ -55,6 +68,11 @@ $(COMPLETEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)
 $(FINALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_final_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_final_pop.py
 
+## Stock and Replenishing
+
+$(STOCKDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_population.py $(PERSISTJSON)/*.json
+	$(PYTHON) $(DATAGEN)/generate_stock_population.py
+
 $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/hh_income/ols/hh_income_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
@@ -67,8 +85,13 @@ $(SPATIALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/
 $(SCOTDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_scotland_subsetting.py
 
+## Cross Validation
+
 $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_final_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_final_pop.py --cross_validation
+
+$(STOCKDATA)/cross_validation/batch5/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_population.py $(PERSISTJSON)/*.json
+	$(PYTHON) $(DATAGEN)/generate_stock_population.py --cross_validation
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/hh_income/ols/hh_income_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation

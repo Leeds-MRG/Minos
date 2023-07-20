@@ -149,23 +149,23 @@ def generate_final(projections, cross_validation):
     data['max_educ'] = data['education_state']
 
     # copy 2017 loneliness data onto 2014 for cross-validation runs
-    data = wave_data_copy(data,
-                          var='loneliness',
-                          copy_year=2017,
-                          paste_year=2014,
-                          var_type='ordinal')
-    # copy wave 11 nutrition_quality onto wave 12
-    data = wave_data_copy(data,
-                          var='nutrition_quality',
-                          copy_year=2019,
-                          paste_year=2020,
-                          var_type='continuous')
-    # copy wave 7 nutrition_quality onto wave 6
-    data = wave_data_copy(data,
-                          var='nutrition_quality',
-                          copy_year=2015,
-                          paste_year=2014,
-                          var_type='continuous')
+    #data = wave_data_copy(data,
+    #                      var='loneliness',
+    #                      copy_year=2017,
+    #                      paste_year=2014,
+    #                      var_type='ordinal')
+    ## copy wave 11 nutrition_quality onto wave 12
+    #data = wave_data_copy(data,
+    #                      var='nutrition_quality',
+    #                      copy_year=2019,
+    #                      paste_year=2020,
+    #                      var_type='continuous')
+    ## copy wave 7 nutrition_quality onto wave 6
+    #data = wave_data_copy(data,
+    #                      var='nutrition_quality',
+    #                      copy_year=2015,
+    #                      paste_year=2014,
+    #                      var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('string')
@@ -188,6 +188,19 @@ def generate_final(projections, cross_validation):
         # Shuffle the pidps randomly and split into 5 chunks
         shuffled = all_pidp.sample(frac=1, random_state=1)
         split = np.array_split(shuffled, 5)
+
+        split = [x.reset_index(drop=True) for x in split]
+
+        # save the pidp split for picking up after imputation
+        split_df = pd.DataFrame({'split0': split[0],
+                                 'split1': split[1],
+                                 'split2': split[2],
+                                 'split3': split[3],
+                                 'split4': split[4]})
+
+        print('Saving the PIDP split for cross-validation data...')
+        split_df.to_csv(path_or_buf='data/cv_pidp_split.csv',
+                        index=False)
 
         # Now create separate transition and simulation datasets and save them in subfolders of final_US
         bat1 = data[data['pidp'].isin(split[0])]

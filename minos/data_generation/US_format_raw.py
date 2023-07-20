@@ -233,7 +233,7 @@ def format_ukhls_columns(year):
                       #  not really applicable without random generation.
                       'pidp': 'pidp',  # personal identifier
                       'qfhigh_dv': 'education_state',  # highest education state
-                      'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
+                      #'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
                       # TODO another ethnicity var seems to have fewer missing? https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ethn_dv
                       'racel_dv': 'ethnicity',  # ethnicity derived.
                       'rentgrs_dv': 'hh_rent',  # household monthly rent.
@@ -279,15 +279,15 @@ def format_ukhls_columns(year):
                        'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
                       # SF12 MICE vars
                       'rentinc2': 'energy_in_rent',  # is it combined into rent?
-                      'xphsdba': 'behind_on_bills',  # behind on energy bills?
+                      #'xphsdba': 'behind_on_bills',  # behind on energy bills?
                       'finnow': 'financial_situation',  # financial situation
-                      'finfut': 'future_financial_situation',  # expected near future financial situation.
+                      #'finfut': 'future_financial_situation',  # expected near future financial situation.
                       # 'lkmove': "likely_move",  # likelihood of moving house
-                      'scghqi': 'ghq_depression',  # ghq depression
-                      'scghql': 'ghq_happiness',  # ghq general happiness
+                      #'scghqi': 'ghq_depression',  # ghq depression
+                      #'scghql': 'ghq_happiness',  # ghq general happiness
                       # 'sf1': 'sf1', # sf1 score
-                      'hcondn17': 'clinical_depression',  # has clinical depression.
-                      'scsf1': 'scsf1',  # sf1 score including proxy surveys
+                      #'hcondn17': 'clinical_depression',  # has clinical depression.
+                      #'scsf1': 'scsf1',  # sf1 score including proxy surveys
                       'scsf2a': 'phealth_limits_modact',  # physical health limits moderate activities
                       'scsf2b': 'phealth_limits_stairs',  # physical health limits several flights of stairs
                       'scsf3a': 'S7_physical_health',  # physical health limits work.
@@ -393,8 +393,8 @@ def format_ukhls_education(data):
         Data after formatting educations.
     """
     # Map education ints to strings.
-    who_new_education = data.loc[~data['newest_education_state'].isin(US_utils.missing_types)].index
-    data.loc[who_new_education, 'education_state'] = data.loc[who_new_education, 'newest_education_state']
+    #who_new_education = data.loc[~data['newest_education_state'].isin(US_utils.missing_types)].index
+    #data.loc[who_new_education, 'education_state'] = data.loc[who_new_education, 'newest_education_state']
     data["education_state"] = data["education_state"].astype(str).map(education)
     #print(data['education_state'].value_counts())
     return data

@@ -164,7 +164,7 @@ def predict_education(repl, transition_dir):
 def generate_replenishing(projections, scotland_mode, cross_validation):
 
     output_dir = 'data/replenishing'
-    data_source = 'final_US'
+    data_source = 'stock'
     transition_dir = 'data/transitions'
 
     if scotland_mode:
@@ -172,9 +172,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/batch1'
+        data_source = 'stock'
         output_dir = 'data/replenishing/cross_validation'
-        transition_dir = 'data/transitions/cross_validation/version1'
+        transition_dir = 'data/transitions'
 
     # first collect and load the datafile for 2020
     file_name = f"data/{data_source}/2020_US_cohort.csv"
