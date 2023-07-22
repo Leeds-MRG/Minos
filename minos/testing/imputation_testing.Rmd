@@ -1,0 +1,322 @@
+---
+title: "Imputation Assessment"
+output: html_notebook
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+## Data
+
+```{r}
+# Read raw datafiles in
+imp.files <- list.files(here::here('data', 'stock'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+imp.dat <- do.call(rbind, lapply(imp.files, read.csv)) 
+
+final.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+final.dat <- do.call(rbind, lapply(final.files, read.csv))
+
+complete.files <- list.files(here::here('data', 'complete_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+complete.dat <- do.call(rbind, lapply(complete.files, read.csv))
+```
+
+# Functions
+
+```{r}
+compare_continuous <- function(final, complete, imputed, var) {
+  
+  final.var <- final %>% 
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'final')
+  
+  complete.var <- complete %>% 
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'complete')
+  
+  imputed.var <- imputed %>% 
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'imputed')
+  
+  merged <- rbind(final.var, complete.var)
+  merged <- rbind(merged, imputed.var)
+  
+  # Now plot
+  p1 <- ggplot(data = merged, mapping = aes(x = time, y = mean, group = source, colour = source)) +
+    geom_line() +
+    labs(title = var, subtitle = 'Full Sample') +
+    xlab('Year') +
+    ylab(var)
+  
+  print(p1)
+}
+
+compare_ordinal <- function(final, complete, imputed, var) {
+  
+  final.var <- final %>% 
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(.data[[var]] > 0) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'final')
+  
+  complete.var <- complete %>% 
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(.data[[var]] > 0) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'complete')
+  
+  imputed.var <- imputed %>% 
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(.data[[var]] > 0) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'imputed')
+  
+  merged <- rbind(final.var, complete.var)
+  merged <- rbind(merged, imputed.var)
+  merged[[var]] <- as.factor(merged[[var]])
+  
+  # Now plot
+  p1 <- ggplot(data = merged, mapping = aes(x = .data[[var]], y = n, group = source, fill = source)) +
+    geom_col(position='dodge') +
+    labs(title = var, subtitle = 'Counts by Level') +
+    xlab('Year') +
+    ylab('Count')
+  
+  print(p1)
+}
+
+multi_year_boxplots <- function(final, complete, imputed, var) {
+  final.var <- final %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values)
+  final.var$source <- 'final'
+  
+  complete.var <- complete %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values)
+  complete.var$source <- 'complete'
+  
+  imputed.var <- imputed %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values)
+  imputed.var$source <- 'imputed'
+  
+  combined <- rbind(final.var, complete.var)
+  combined <- rbind(combined, imputed.var)
+  combined$time <- as.factor(combined$time)
+  combined <- drop_na(combined)
+  combined <- filter(combined, .data[[var]] != -9)
+  
+  if (var %in% c('hh_income', 'equivalent_income')) {
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
+  } else if (var == 'ncigs') {
+    #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
+  }
+  
+  ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
+    geom_boxplot(notch=TRUE) +
+    labs(title = paste0(var, ': Yearly box plots'))
+}
+
+```
+
+# Float Variables
+
+## hh_income
+
+```{r}
+compare_continuous(final.dat, complete.dat, imp.dat, 'hh_income')
+multi_year_boxplots(final.dat, complete.dat, imp.dat, 'hh_income')
+```
+
+## SF_12
+
+```{r}
+compare_continuous(final.dat, complete.dat, imp.dat, 'SF_12')
+multi_year_boxplots(final.dat, complete.dat, imp.dat, 'SF_12')
+```
+
+# Str Variables
+
+## Region
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'region')
+```
+
+## Ethnicity
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'ethnicity')
+```
+
+## Loneliness
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'loneliness')
+```
+
+## Sex
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'sex')
+```
+
+## Housing Quality
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'housing_quality')
+```
+
+## S7 Housing Quality
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'S7_housing_quality')
+```
+
+## Neighbourhood Safety
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'neighbourhood_safety')
+```
+
+## S7 Neighbourhood Safety
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'S7_neighbourhood_safety')
+```
+
+## S7 Labour State
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'S7_labour_state')
+```
+
+## Marital Status
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'marital_status')
+```
+
+# Int Variables
+
+## Heating
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'heating')
+```
+
+## Job Sec
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'job_sec')
+```
+
+## ncigs
+
+```{r}
+compare_continuous(final.dat, complete.dat, imp.dat, 'ncigs')
+multi_year_boxplots(final.dat, complete.dat, imp.dat, 'ncigs')
+```
+
+## Financial Situation
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'financial_situation')
+```
+
+## Education State
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'education_state')
+```
+
+## S7 Physical Health
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'S7_physical_health')
+```
+
+## S7 Mental Health
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'S7_mental_health')
+```
+
+## Housing Tenure
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'housing_tenure')
+```
+
+## Nutrition Quality
+
+```{r}
+compare_continuous(final.dat, complete.dat, imp.dat, 'nutrition_quality')
+multi_year_boxplots(final.dat, complete.dat, imp.dat, 'nutrition_quality')
+```
+
+## Smoker
+
+```{r}
+compare_ordinal(final.dat, complete.dat, imp.dat, 'smoker')
+```
+
+
+
+
+
+
+
+```{r}
+
+```
+

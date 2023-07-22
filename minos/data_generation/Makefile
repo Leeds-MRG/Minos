@@ -43,7 +43,7 @@ scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
 cv_final: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
 
-cv_stock: $(STOCK_DATA)/cross_validation/batch5/2020_US_cohort.csv
+cv_stock: $(STOCKDATA)/cross_validation/batch5/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
 

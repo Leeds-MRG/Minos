@@ -18,56 +18,11 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import SimpleImputer
 from sklearn.impute import KNNImputer
 from sklearn.impute import IterativeImputer
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
 
 import US_utils
-
-
-def combined_impute2(data):
-    """
-    Different column types require a different imputer strategy. Namely:
-    1. String columns need simple imputer for most frequent value
-    2. Int columns can have the median value
-    3. Float columns could have mean or iterative imputer, will test both
-
-    Parameters
-    ----------
-    data
-
-    Returns
-    -------
-
-    """
-    print('Starting imputation step...')
-
-    data = US_utils.replace_missing_with_na(data, list(data))
-
-    data = data.convert_dtypes()
-
-    str_vars = data.select_dtypes(exclude=[float, int]).columns.tolist()
-    float_vars = data.select_dtypes(include=float).columns.tolist()
-    int_vars = data.select_dtypes(include=int).columns.tolist()
-
-    #str_vars = ['region']
-
-    print('Beginning imputation pipeline...')
-    impute_pipeline = ColumnTransformer(transformers=[
-        ('int_impute', SimpleImputer(missing_values=pd.NA,
-                                     strategy='median').set_output(transform='pandas'), int_vars),
-        ('float_impute', SimpleImputer(missing_values=pd.NA,
-                                       strategy='mean').set_output(transform='pandas'), float_vars),
-        ('str_impute', SimpleImputer(missing_values=pd.NA,
-                                     strategy='most_frequent').set_output(transform='pandas'), str_vars)
-    ], remainder='passthrough',
-        verbose=True,
-        verbose_feature_names_out=False).set_output(transform='pandas')
-
-    imputed_data = impute_pipeline.fit_transform(data)
-
-    # force some variables to the right type
-    imputed_data['ncigs'] = imputed_data['ncigs'].astype(int)
-
-    return imputed_data
 
 
 def iterative_impute(data):
@@ -173,8 +128,70 @@ def knn_impute(data):
     return imputed_data
 
 
-def simple_string_impute(data):
+def wave_data_copy(data, var, copy_year, paste_year, var_type):
     """
+    Imputer is finding it quite difficult in some cases
+
+    Parameters
+    ----------
+    data : pd.dataframe
+        Dataframe of all variables across all years
+    var : str
+        String variable we want to copy onto another year
+    copy_year : int
+        Year to copy data from
+    paste_year : int
+        Year to paste data to
+
+    Returns
+    -------
+    data_merged : pd.dataframe
+        Final dataset with {var} copied from {copy_year} to {paste_year}
+    """
+    print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
+
+    # get temporary dataframe of pidp, time, and nutrition_quality from 2019
+    tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
+    # change time to 2018 for tmp
+    tmp['time'] = paste_year
+
+    # replace -9 values in 2020 with Nonetype
+    data['nutrition_quality'][data['time'] == paste_year] = None
+
+    # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
+    data_merged = data.merge(right=tmp,
+                             how='left',
+                             on=['pidp', 'time'])
+
+    # set up merge labels
+    var_x = var + '_x'
+    var_y = var + '_y'
+
+    data_merged[var] = -9
+    data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
+    data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
+    # drop intermediate columns
+    data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
+
+    # last step is to impute the still missing with the median value (code is different for continuous vs ordinal vars).
+    # Without this we would have to drop all the missing values, meaning anybody not in wave 11 would be removed.
+    # This is dodgy because we don't know who should actually be missing, but I don't know what else to do
+    if var_type == 'continuous':
+        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
+            data_merged[var][data_merged['time'] == paste_year].median()
+    elif var_type == 'ordinal':
+        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
+            data_merged[var][data_merged['time'] == paste_year].value_counts().index[0]
+
+    return data_merged
+
+
+def combined_simple_impute(data):
+    """
+    Different column types require a different imputer strategy. Namely:
+    1. String columns need simple imputer for most frequent value
+    2. Int columns can have the median value
+    3. Float columns could have mean or iterative imputer, will test both
 
     Parameters
     ----------
@@ -184,70 +201,193 @@ def simple_string_impute(data):
     -------
 
     """
-    print('Starting simple imputation...')
+    print('Starting imputation step...')
 
-    # select object dtypes (mainly string)
-    str_data = data.select_dtypes(include=object)
-    str_data_cols = str_data.columns.tolist()
-    str_data = US_utils.replace_missing_with_na(str_data, str_data_cols)
-
-    str_imputer = SimpleImputer(strategy='most_frequent',
-                                copy=True).set_output(transform='pandas')  # set output as pandas dataframe
-
-    print('Imputing string columns with simple imputer (using most frequent strategy)...')
-    imputed_str_data = str_imputer.fit_transform(str_data)
-
-    data = data.update(other=imputed_str_data,
-                       overwrite=True)
-
-    return data
-
-
-def set_dtypes(data):
-    """
-    Getting the correct data type for each column becomes quite important when running through the sklearn imputation
-    functions, as we will make different decisions based on dtype such as which columns to encode as numeric ordinal,
-    and which to impute based on different schema (some best in iterative, some best through simple maybe imputing
-    most common value).
-
-    This is not simple however because Pandas read_csv function coerces a lot of data into simple types, missing things
-    like ordinal or binary when the values are numeric. This function will attempt to set those dtypes based on some
-    tests, like whether the unique values are 0/1 (binary) or 0-some smallish number (ordinal).
-
-    Parameters
-    ----------
-    data
-
-    Returns
-    -------
-
-    """
-    # first worth trying the pandas dataframe function convert_dtypes for automatic conversion
-    # might catch a couple of float columns that should be int or boolean
-    # need to ensure that numeric -9s are converted to string first or everything gets left as object. Very annoying
-    # but I've looked into fixing this in the earlier pipeline and it's unfortunately very difficult
-    # so to fix, first get all object columns then convert -9 values to '-9'
-    # obj_cols = data.select_dtypes(include=object).columns.tolist()
-    # think this loop is inefficient but I'm absolutely over trying to find a vectorised way of doing it
-    # for col in obj_cols:
-    #    data[col][data[col] == -9] = '-9'
-
-    # if we change all missing to np.nan before we do all of this processing it gets a bit easier (don't have to deal
-    # with missing values when converting types)
     data = US_utils.replace_missing_with_na(data, list(data))
 
     data = data.convert_dtypes()
-    # it only really managed to convert objects to strings, disappointing
 
-    # next check can be for binaries, we can be converted to boolean type
-    # this is the simplest check
-    # get column names into a list for conversion
-    # have to use object for check as select_dtypes doesn't allow for string
-    str_categoricals = data.select_dtypes(include=object).columns.tolist()
+    str_vars = data.select_dtypes(exclude=[float, int]).columns.tolist()
+    float_vars = data.select_dtypes(include=float).columns.tolist()
+    int_vars = data.select_dtypes(include=int).columns.tolist()
 
-    data[[str_categoricals]] = data[[str_categoricals]].astype('category')
+    #str_vars = ['region']
 
-    return data
+    print('Beginning imputation pipeline...')
+    impute_pipeline = ColumnTransformer(transformers=[
+        ('int_impute', SimpleImputer(missing_values=pd.NA,
+                                     strategy='median').set_output(transform='pandas'), int_vars),
+        ('float_impute', SimpleImputer(missing_values=pd.NA,
+                                       strategy='mean').set_output(transform='pandas'), float_vars),
+        ('str_impute', SimpleImputer(missing_values=pd.NA,
+                                     strategy='most_frequent').set_output(transform='pandas'), str_vars)
+    ], remainder='passthrough',
+        verbose=True,
+        verbose_feature_names_out=False).set_output(transform='pandas')
+
+    imputed_data = impute_pipeline.fit_transform(data)
+
+    # force some variables to the right type
+    imputed_data['ncigs'] = imputed_data['ncigs'].astype(int)
+
+    return imputed_data
+
+
+def combined_clever_impute(data):
+
+    data = US_utils.replace_missing_with_na(data, list(data))
+
+    data = data.convert_dtypes()
+
+    str_vars = data.select_dtypes(exclude=[float, int]).columns.tolist()
+    float_vars = data.select_dtypes(include=float).columns.tolist()
+    int_vars = data.select_dtypes(include=int).columns.tolist()
+
+    """
+    # unfortunately because the encoder is stupid we have to replace missing values in strings as something that is NOT
+    # np.nan, so replacing with None and doing another replace to turn these back into np.nan
+    ordinal_encoder = OrdinalEncoder(dtype=int,
+                                     handle_unknown='use_encoded_value',
+                                     unknown_value=-1,
+                                     encoded_missing_value=-1).set_output(transform='pandas')
+
+    # first create a mask for na values to replace them
+    nan_mask = data[str_vars].isna()
+    data[str_vars] = data[str_vars].mask(nan_mask.reindex(index=data[str_vars].index,
+                                                          columns=data[str_vars].columns,
+                                                          fill_value=False), '?')
+    data_encoded = ordinal_encoder.fit_transform(data)
+    data_encoded[data_encoded == '?'] = np.nan
+    data_encoded[data_encoded == -1] = np.nan
+    """
+
+    """
+    # use pd.factorize to encode string variables as int
+    # factorize only works on 1D array so need to do this in loop (replace with apply if can be bothered later)
+    var_label_list = []
+    for i, var in enumerate(str_vars):
+        data[var], labels = pd.factorize(data[var])
+        var_label_list.append(labels)
+        data[var][data[var] == -1] = np.nan
+    """
+
+    # another go at encoding string vars with a bit of dictionary magic and replace
+    transform_dict = {}
+    for col in str_vars:
+        cats = pd.Categorical(data[col]).categories
+        d = {}
+        for i, cat in enumerate(cats):
+            d[cat] = str(i)
+        transform_dict[col] = d
+
+    encoded_data = data.replace(transform_dict)
+    encoded_data[str_vars] = encoded_data[str_vars].fillna('-1')
+    encoded_data[str_vars] = encoded_data[str_vars].astype(int)
+
+    print('Beginning imputation pipeline...')
+    impute_pipeline = ColumnTransformer(transformers=[
+        ('int_str_impute', IterativeImputer(missing_values=np.nan,
+                                        initial_strategy='median',
+                                        random_state=0,
+                                        verbose=2,
+                                        estimator=KNeighborsRegressor(n_neighbors=5)).set_output(transform='pandas'), int_vars),
+        ('float_impute', IterativeImputer(missing_values=np.nan,
+                                          initial_strategy='mean',
+                                          random_state=0,
+                                          verbose=2).set_output(transform='pandas'), float_vars),
+        ('str_impute', IterativeImputer(missing_values=-1.0,
+                                        initial_strategy='median',
+                                        random_state=0,
+                                        verbose=2,
+                                        max_iter=15,
+                                        estimator=RandomForestRegressor(
+                                            # We tuned the hyperparameters of the RandomForestRegressor to get a good
+                                            # enough predictive performance for a restricted execution time.
+                                            n_estimators=4,
+                                            max_depth=10,
+                                            bootstrap=True,
+                                            max_samples=0.5,
+                                            n_jobs=2,
+                                            random_state=0,
+                                        )).set_output(transform='pandas'),
+         str_vars),
+    ], remainder='passthrough',
+        verbose=True,
+        verbose_feature_names_out=False).set_output(transform='pandas')
+
+    """
+    KNeighborsRegressor(n_neighbors=1)
+    RandomForestRegressor(
+        # We tuned the hyperparameters of the RandomForestRegressor to get a good
+        # enough predictive performance for a restricted execution time.
+        n_estimators=4,
+        max_depth=10,
+        bootstrap=True,
+        max_samples=0.5,
+        n_jobs=2,
+        random_state=0,
+    )
+    """
+
+    # n_nearest_features=10,
+
+    imputed_data = impute_pipeline.fit_transform(encoded_data)
+
+    # now reverse the previous encoding to bring back the categorical data
+    #imputed_data = ordinal_encoder.inverse_transform(imputed_data)
+
+    """
+            ('int_impute', IterativeImputer(missing_values=pd.NA,
+                                        initial_strategy='median',
+                                        random_state=0,
+                                        n_nearest_features=10).set_output(transform='pandas'), int_vars),
+        ('float_impute', IterativeImputer(missing_values=pd.NA,
+                                          initial_strategy='mean',
+                                          random_state=0,
+                                          n_nearest_features=10).set_output(transform='pandas'), float_vars),
+            ('int_impute', KNNImputer(missing_values=pd.NA,
+                                  n_neighbors=1).set_output(transform='pandas'), int_vars),
+        ('float_impute', KNNImputer(missing_values=pd.NA,
+                                    n_neighbors=1).set_output(transform='pandas'), float_vars),
+    """
+
+    """
+    for i, var in enumerate(str_vars):
+        data[var], labels = pd.factorize(data[var])
+        var_label_list.append(labels)
+        data[var][data[var] == -1] = np.nan
+    """
+    # round any float values that should not be float
+    imputed_data[str_vars] = round(imputed_data[str_vars])
+    imputed_data[int_vars] = round(imputed_data[int_vars]).astype(int)
+
+    # now to inverse tranformation using the transform dict
+    inverse_transform_dict = {}
+    for col, d in transform_dict.items():
+        inverse_transform_dict[col] = {int(v): k for k, v in d.items()}
+
+    # put int values back to string for inverse transform
+    #imputed_data[str_vars] = imputed_data[str_vars].astype(str)
+
+    imputed_data = imputed_data.replace(inverse_transform_dict)
+
+    # for some reason we still have 8 records with missing marital status, so just going to force these to partnered as
+    # thats the largest group
+    imputed_data['marital_status'][imputed_data['marital_status'] == -1.0] = 'Partnered'
+    imputed_data['loneliness'][imputed_data['loneliness'] == -1.0] = 'Sometimes'
+
+    # handle impossible or highly improbable values
+    # SF_12
+    imputed_data['SF_12'][imputed_data['SF_12'] > 100] = 80
+    imputed_data['SF_12'][imputed_data['SF_12'] < 0] = 10
+    # nutrition_quality
+    imputed_data['nutrition_quality'][imputed_data['nutrition_quality'] > 200] = 20.0
+    # physical health should be integer not float
+    imputed_data['phealth'] = round(imputed_data['phealth']).astype(int)
+    # ncigs can't be negative
+    imputed_data['ncigs'][imputed_data['ncigs'] < 0] = 0
+
+    return imputed_data
 
 
 def main(cross_validation):
@@ -268,7 +408,8 @@ def main(cross_validation):
 
     # run through imputation
     # data = iterative_impute(data)
-    data = combined_impute2(data)
+    #data = combined_simple_impute(data)
+    data = combined_clever_impute(data)
     # data = knn_impute(data)
     # data = simple_string_impute(data)
 
@@ -280,6 +421,8 @@ def main(cross_validation):
 
     # cross validation
     if cross_validation:
+
+        US_utils.check_output_dir("data/stock/cross_validation")
 
         # read in pidp split
         split = pd.read_csv('data/cv_pidp_split.csv')

@@ -672,6 +672,103 @@ spaghetti_plot(spag, 'phealth',
 rm(raw.s, base.s, spag)
 ```
 
+## Financial Situation
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.fsit <- raw.dat %>% 
+  dplyr::select(pidp, time, financial_situation) %>%
+  filter(time > 2009) %>%
+  group_by(time) %>%
+  summarise(financial_situation = mean(financial_situation, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.fsit <- base.dat %>%
+  dplyr::select(pidp, time, financial_situation) %>%
+  filter(time > 2009) %>%
+  group_by(time) %>%
+  summarise(financial_situation = mean(financial_situation, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+fsit <- rbind(raw.fsit, base.fsit)
+
+# Now plot
+ggplot(data = fsit, mapping = aes(x = time, y = financial_situation, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Financial Situation', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Average')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.fsit2 <- raw.dat %>% 
+  dplyr::select(pidp, time, financial_situation) %>%
+  filter(time > 2009) %>%
+  filter(pidp %in% raw.wave1) %>%
+  group_by(time) %>%
+  summarise(financial_situation = mean(financial_situation, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.fsit2 <- base.dat %>%
+  dplyr::select(pidp, time, financial_situation) %>%
+  filter(time > 2009) %>%
+  filter(pidp %in% raw.wave1) %>%
+  group_by(time) %>%
+  summarise(financial_situation = mean(financial_situation, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+fsit2 <- rbind(raw.fsit2, base.fsit2)
+
+# Now plot
+ggplot(data = fsit2, mapping = aes(x = time, y = financial_situation, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Financial Situation') +
+  xlab('Year') +
+  ylab('Average')
+
+if (shall.we.save) {
+  ggsave(filename = 'financial_situation_wav1.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+#raw.phealth.check <- raw.dat %>% 
+#  select(pidp, time, phealth) %>%
+#  filter(time > 2009) %>%
+#  filter(pidp %in% raw.wave1)
+
+#base.phealth.check <- base.dat %>%
+#  select(pidp, time, phealth) %>%
+#  filter(time > 2009) %>%
+#  filter(pidp %in% raw.wave1)
+
+rm(raw.fsit, base.fsit, fsit, raw.wave1, raw.fsit2, base.fsit2, fsit2)
+#rm(raw.phealth.check, base.phealth.check)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, financial_situation)
+base.s <- base.dat %>%
+  select(pidp, age, time, financial_situation)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'financial_situation',
+             save = shall.we.save,
+             save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
 ## Education
 
 ```{r}
