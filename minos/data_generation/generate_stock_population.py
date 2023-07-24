@@ -20,7 +20,10 @@ from sklearn.impute import KNNImputer
 from sklearn.impute import IterativeImputer
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.kernel_approximation import Nystroem
+from sklearn.linear_model import BayesianRidge, Ridge
 from sklearn.pipeline import Pipeline
+from sklearn.pipeline import make_pipeline
 
 import US_utils
 
@@ -211,7 +214,7 @@ def combined_simple_impute(data):
     float_vars = data.select_dtypes(include=float).columns.tolist()
     int_vars = data.select_dtypes(include=int).columns.tolist()
 
-    #str_vars = ['region']
+    # str_vars = ['region']
 
     print('Beginning imputation pipeline...')
     impute_pipeline = ColumnTransformer(transformers=[
@@ -233,8 +236,133 @@ def combined_simple_impute(data):
     return imputed_data
 
 
-def combined_clever_impute(data):
+def imperfect_wave_data_copy(data, var, copy_year, paste_year, var_type):
+    print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
 
+    # get temporary dataframe of pidp, time, and nutrition_quality from 2019
+    tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
+    # change time to 2018 for tmp
+    tmp['time'] = paste_year
+
+    # replace -9 values in 2020 with Nonetype
+    data['nutrition_quality'][data['time'] == paste_year] = None
+
+    # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
+    data_merged = data.merge(right=tmp,
+                             how='left',
+                             on=['pidp', 'time'])
+
+    # set up merge labels
+    var_x = var + '_x'
+    var_y = var + '_y'
+
+    data_merged[var] = -9
+    data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
+    data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
+    # drop intermediate columns
+    data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
+
+    # some people who did not have a value from copy_year will still not have a value in paste_year
+    # this is fine as this is imperfect copy to seed values for imputation
+    # in fact now I think we should remove half the values at random so we can impute at least half of the data for
+    # that wave
+    # can use df.sample(frac=0.5) for this as it should introduce NaN values due to auto-alignment
+    data_merged[var] = data_merged[var].sample(frac=0.5)
+
+    # finally fill na values with MINOS missing (-9)
+    if var_type == 'numeric':
+        data_merged[var] = data_merged[var].fillna(-9)
+    elif var_type == 'str':
+        data_merged[var] = data_merged[var].fillna('-9')
+
+    return data_merged
+
+
+def seed_missing_full_years(data):
+    # copy 2017 loneliness data onto earlier years to seed imputation in those years
+    data = imperfect_wave_data_copy(data,
+                                    var='loneliness',
+                                    copy_year=2017,
+                                    paste_year=2014,
+                                    var_type='numeric')
+    data = imperfect_wave_data_copy(data,
+                                    var='loneliness',
+                                    copy_year=2017,
+                                    paste_year=2015,
+                                    var_type='numeric')
+    data = imperfect_wave_data_copy(data,
+                                    var='loneliness',
+                                    copy_year=2017,
+                                    paste_year=2016,
+                                    var_type='numeric')
+    # neighbourhood safety only present in 2014, 2017, and 2020
+    data = imperfect_wave_data_copy(data,
+                                    var='neighbourhood_safety',
+                                    copy_year=2014,
+                                    paste_year=2015,
+                                    var_type='str')
+    data = imperfect_wave_data_copy(data,
+                                    var='neighbourhood_safety',
+                                    copy_year=2017,
+                                    paste_year=2016,
+                                    var_type='str')
+    data = imperfect_wave_data_copy(data,
+                                    var='neighbourhood_safety',
+                                    copy_year=2017,
+                                    paste_year=2018,
+                                    var_type='str')
+    data = imperfect_wave_data_copy(data,
+                                    var='neighbourhood_safety',
+                                    copy_year=2020,
+                                    paste_year=2019,
+                                    var_type='str')
+    # S7 neighbourhood safety same as neighbourhood safety
+    data = imperfect_wave_data_copy(data,
+                                    var='S7_neighbourhood_safety',
+                                    copy_year=2014,
+                                    paste_year=2015,
+                                    var_type='str')
+    data = imperfect_wave_data_copy(data,
+                                    var='S7_neighbourhood_safety',
+                                    copy_year=2017,
+                                    paste_year=2016,
+                                    var_type='str')
+    data = imperfect_wave_data_copy(data,
+                                    var='S7_neighbourhood_safety',
+                                    copy_year=2017,
+                                    paste_year=2018,
+                                    var_type='str')
+    data = imperfect_wave_data_copy(data,
+                                    var='S7_neighbourhood_safety',
+                                    copy_year=2020,
+                                    paste_year=2019,
+                                    var_type='str')
+    # ncigs missing in 2009, 2011, 2012, 2013. Going to ignore this as we only rely on 2014 onwards for simulation
+    # nutrition quality only in 2015, 2017, and 2019. Missing in key years 2014 and 2020
+    data = imperfect_wave_data_copy(data,
+                                    var='nutrition_quality',
+                                    copy_year=2015,
+                                    paste_year=2014,
+                                    var_type='numeric')
+    data = imperfect_wave_data_copy(data,
+                                    var='nutrition_quality',
+                                    copy_year=2017,
+                                    paste_year=2016,
+                                    var_type='numeric')
+    data = imperfect_wave_data_copy(data,
+                                    var='nutrition_quality',
+                                    copy_year=2019,
+                                    paste_year=2018,
+                                    var_type='numeric')
+    data = imperfect_wave_data_copy(data,
+                                    var='nutrition_quality',
+                                    copy_year=2019,
+                                    paste_year=2020,
+                                    var_type='numeric')
+    return data
+
+
+def combined_clever_impute(data):
     data = US_utils.replace_missing_with_na(data, list(data))
 
     data = data.convert_dtypes()
@@ -286,11 +414,19 @@ def combined_clever_impute(data):
 
     print('Beginning imputation pipeline...')
     impute_pipeline = ColumnTransformer(transformers=[
-        ('int_str_impute', IterativeImputer(missing_values=np.nan,
+        ('int_impute', IterativeImputer(missing_values=np.nan,
                                         initial_strategy='median',
                                         random_state=0,
                                         verbose=2,
-                                        estimator=KNeighborsRegressor(n_neighbors=5)).set_output(transform='pandas'), int_vars),
+                                        estimator=RandomForestRegressor(
+                                            # We tuned the hyperparameters of the RandomForestRegressor to get a good
+                                            # enough predictive performance for a restricted execution time.
+                                            n_estimators=4,
+                                            max_depth=10,
+                                            bootstrap=True,
+                                            max_samples=0.5,
+                                            n_jobs=2,
+                                            random_state=0)).set_output(transform='pandas'), int_vars),
         ('float_impute', IterativeImputer(missing_values=np.nan,
                                           initial_strategy='mean',
                                           random_state=0,
@@ -300,23 +436,17 @@ def combined_clever_impute(data):
                                         random_state=0,
                                         verbose=2,
                                         max_iter=15,
-                                        estimator=RandomForestRegressor(
-                                            # We tuned the hyperparameters of the RandomForestRegressor to get a good
-                                            # enough predictive performance for a restricted execution time.
-                                            n_estimators=4,
-                                            max_depth=10,
-                                            bootstrap=True,
-                                            max_samples=0.5,
-                                            n_jobs=2,
-                                            random_state=0,
-                                        )).set_output(transform='pandas'),
+                                        estimator=KNeighborsRegressor(n_neighbors=5)).set_output(transform='pandas'),
          str_vars),
     ], remainder='passthrough',
         verbose=True,
         verbose_feature_names_out=False).set_output(transform='pandas')
 
     """
+    Nystroem(kernel="polynomial", degree=2, random_state=0), Ridge(alpha=1e3)
+    
     KNeighborsRegressor(n_neighbors=1)
+    
     RandomForestRegressor(
         # We tuned the hyperparameters of the RandomForestRegressor to get a good
         # enough predictive performance for a restricted execution time.
@@ -334,7 +464,7 @@ def combined_clever_impute(data):
     imputed_data = impute_pipeline.fit_transform(encoded_data)
 
     # now reverse the previous encoding to bring back the categorical data
-    #imputed_data = ordinal_encoder.inverse_transform(imputed_data)
+    # imputed_data = ordinal_encoder.inverse_transform(imputed_data)
 
     """
             ('int_impute', IterativeImputer(missing_values=pd.NA,
@@ -367,7 +497,7 @@ def combined_clever_impute(data):
         inverse_transform_dict[col] = {int(v): k for k, v in d.items()}
 
     # put int values back to string for inverse transform
-    #imputed_data[str_vars] = imputed_data[str_vars].astype(str)
+    # imputed_data[str_vars] = imputed_data[str_vars].astype(str)
 
     imputed_data = imputed_data.replace(inverse_transform_dict)
 
@@ -404,11 +534,15 @@ def main(cross_validation):
 
     # need to convert some dtypes before imputation. Simplest way to do this is with pd.DataFrame.convert_dtypes()
     # this works best if we replace missing first
-    #data = data.convert_dtypes()
+    # data = data.convert_dtypes()
+
+    # Do an imperfect wave data copy for certain vars for certain years because we need some kind of seed data to make
+    # the imputation better
+    data = seed_missing_full_years(data)
 
     # run through imputation
     # data = iterative_impute(data)
-    #data = combined_simple_impute(data)
+    # data = combined_simple_impute(data)
     data = combined_clever_impute(data)
     # data = knn_impute(data)
     # data = simple_string_impute(data)
@@ -421,7 +555,6 @@ def main(cross_validation):
 
     # cross validation
     if cross_validation:
-
         US_utils.check_output_dir("data/stock/cross_validation")
 
         # read in pidp split

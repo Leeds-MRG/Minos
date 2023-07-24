@@ -1,7 +1,15 @@
 ---
 title: "Imputation Assessment"
-output: html_notebook
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
 ---
+
 
 # SETUP
 
@@ -17,8 +25,11 @@ workingDir <- normalizePath('../')
 knitr::opts_knit$set(root.dir = workingDir)
 knitr::opts_chunk$set(
   warning = FALSE,
-  message = FALSE
+  message = FALSE,
+  out.width = 3500
 )
+# 3000
+# '100%'
 rm(workingDir)
 ```
 
@@ -99,21 +110,21 @@ compare_ordinal <- function(final, complete, imputed, var) {
   
   final.var <- final %>% 
     dplyr::select(pidp, time, all_of(var)) %>%
-    filter(.data[[var]] > 0) %>%
+    filter(.data[[var]] >= 0) %>%
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'final')
   
   complete.var <- complete %>% 
     dplyr::select(pidp, time, all_of(var)) %>%
-    filter(.data[[var]] > 0) %>%
+    filter(.data[[var]] >= 0) %>%
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'complete')
   
   imputed.var <- imputed %>% 
     dplyr::select(pidp, time, all_of(var)) %>%
-    filter(.data[[var]] > 0) %>%
+    filter(.data[[var]] >= 0) %>%
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'imputed')
@@ -121,6 +132,7 @@ compare_ordinal <- function(final, complete, imputed, var) {
   merged <- rbind(final.var, complete.var)
   merged <- rbind(merged, imputed.var)
   merged[[var]] <- as.factor(merged[[var]])
+  merged$time = as.factor(merged$time)
   
   # Now plot
   p1 <- ggplot(data = merged, mapping = aes(x = .data[[var]], y = n, group = source, fill = source)) +
@@ -129,7 +141,31 @@ compare_ordinal <- function(final, complete, imputed, var) {
     xlab('Year') +
     ylab('Count')
   
+  p2 <- ggplot(data = merged, mapping = aes(x = time, y = n, group = .data[[var]], colour = .data[[var]])) +
+    geom_line() +
+    geom_point() +
+    facet_grid(.~source) +
+    theme(legend.position="none") +
+    labs(title = var, subtitle = 'Counts by Level') +
+    xlab('Year') +
+    ylab('Count')
+  
   print(p1)
+  print(p2)
+  
+  var.norm <- merged %>%
+    group_by(time, source) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total))
+  
+  p3 <- ggplot(data = var.norm, mapping = aes(x = time, y = prct, fill=.data[[var]], position='dodge')) +
+    geom_bar(stat = 'identity') +
+    facet_grid(.~source) +
+    theme(legend.position="none") +
+    labs(title = var) +
+    xlab('Year') +
+    ylab('Proportion')
+  print(p3)
 }
 
 multi_year_boxplots <- function(final, complete, imputed, var) {
