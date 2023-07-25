@@ -219,12 +219,6 @@ run_yearly_models <- function(transitionDir_path,
                                      include_weights = use.weights,
                                      depend = next.dependent)
 
-      } else if(tolower(mod.type) == 'ols_diff') {
-
-        model <- estimate_yearly_ols_diff(data = merged,
-                                          formula = form,
-                                          depend = paste0(dependent, '_diff'))
-
       } else if(tolower(mod.type) == 'clm') {
 
         # set ordinal dependent to factor
