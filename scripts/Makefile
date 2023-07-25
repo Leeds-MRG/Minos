@@ -107,7 +107,7 @@ arc4_intervention_hhIncomeChildUplift: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
 arc4_intervention_PovertyLineChildUplift: setup
-	bash scripts/arc_submit.sh  -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 arc4_intervention_25All: setup
 	$(PYTHON) scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25All'
@@ -116,10 +116,10 @@ arc4_intervention_25RelativePoverty: setup
 	$(PYTHON) scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
 
 arc4_intervention_50All: setup
-	$(PYTHON) scripts/arc_submit.sh  -c $(RUN_CONFIG) -o $(MODE) -i '50All'
+	$(PYTHON) scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50All'
 
 arc4_intervention_50RelativePoverty: setup
-	$(PYTHON) scripts/arc_submit.sh  -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
+	$(PYTHON) scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
 
 arc4_intervention_livingWage: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
