@@ -7,7 +7,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
 
     if subset_chain_string == None:
         function_string = "who_alive"
-        prinxt("No subset defined. Defaulting to who_alive..")
+        print("No subset defined. Defaulting to who_alive..")
 
     subset_chains = {"who": [],
                      # Original intervention subgroups.
