@@ -93,12 +93,12 @@ run_yearly_models <- function(transitionDir_path,
 
     ## Calculate diff for rate of change models
     # only applicable to hh_income and SF_12 for now
-    if (tolower(mod.type) == 'ols_diff') {
-      data <- data %>%
-        group_by(pidp) %>%
-        mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-        rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
-    }
+    #if (tolower(mod.type) == 'ols_diff') {
+    #  data <- data %>%
+    #    group_by(pidp) %>%
+    #    mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+    #    rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
+    #}
 
     ## Yearly model estimation loop
 
