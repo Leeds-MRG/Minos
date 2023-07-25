@@ -2,7 +2,6 @@ source("minos/transitions/utils.R")
 require(ordinal)
 require(nnet)
 require(pscl)
-require(geepack)
 require(bestNormalize)
 require(lme4)
 
