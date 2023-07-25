@@ -38,7 +38,7 @@ from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention
+from minos.modules.intervention import hhIncomeIntervention, childUplift
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
@@ -102,7 +102,11 @@ def validate_components(config_components, intervention):
         "hhIncomeChildUplift": hhIncomeChildUplift(),
         "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
         "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift()
+        "energyDownlift": energyDownlift(),
+        "25All": childUplift(),
+        "50All": childUplift(),
+        "25RelativePoverty": childUplift(),
+        "50RelativePoverty": childUplift()
     }
 
     replenishment_components_map = {
@@ -134,7 +138,17 @@ def validate_components(config_components, intervention):
         component_list.append(intervention_components_map[intervention])
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
-    return component_list
+
+    intervention_kwargs_dict = {
+        "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
+        "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+        "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
+        "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+    }
+    intervention_kwargs = {} # default to em
+    if intervention in intervention_kwargs_dict.keys():
+        intervention_kwargs = intervention_kwargs_dict[intervention]
+    return component_list, intervention_kwargs
 
 
 def RunPipeline(config, intervention=None):
@@ -153,7 +167,8 @@ def RunPipeline(config, intervention=None):
     # Check each of the modules is present.
 
     # Replenishment always go last. (first in sim)
-    components = validate_components(config['components'], intervention)
+    components, intervention_kwargs = validate_components(config['components'], intervention)
+    config.update({'intervention_parameters': intervention_kwargs}) #add dict of intervention kwargs to config.
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,

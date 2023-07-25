@@ -47,6 +47,15 @@ aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),
 aggregate_minos_output_treated:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated"
 
+BOOSTED="who_boosted"
+aggregate_child_uplifts: MODE=default_config
+aggregate_child_uplifts: TREATED_DIRECTORIES = baseline,25All,50All,25RelativePoverty,50RelativePoverty
+aggregate_child_uplifts: TREATED_DIRECTORY_TAGS="Baseline,£25 All Child Uplift,£50 All Child Uplift,£25 Poverty Line Child Uplift,£50 Poverty Line Child Uplift"
+aggregate_child_uplifts: TREATED_DIRECTORY_SUBSETS = "who_kids",$(BOOSTED),$(BOOSTED),$(BOOSTED),$(BOOSTED)
+aggregate_child_uplifts:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "varying_child_uplifts"
+
+
 aggregate_minos_output_living_wage:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"
 
