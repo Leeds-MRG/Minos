@@ -610,6 +610,7 @@ class lmmYJIncome(Base):
             #'job_sector',
             'time',
             'pidp',
+            'hidp',
             'weight',
             'SF_12',
             'hh_income_diff',
@@ -667,13 +668,12 @@ class lmmYJIncome(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
-        pop['hh_income_new'] = pop['hh_income']
+        pop['hh_income_current'] = pop['hh_income']
         ## Predict next income value
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
-        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
         income_mean = np.mean(newWaveIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
         newWaveIncome["hh_income"] *= std_ratio
@@ -684,6 +684,16 @@ class lmmYJIncome(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print("income", np.mean(newWaveIncome['hh_income']))
+
+        # Household income is a household level measure, despite this we predict it for each individual
+        # because of this, we need to ensure that all members of a household have the same value after prediction.
+        # To this end, I'm going to take the mean of the predicted values for all members of the household
+        # first attach hidp onto newWaveIncome (indices are identical to can just attach) then replace hh_income
+        # with mean within group
+        newWaveIncome['hidp'] = pop['hidp']
+        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
+        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
+
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
