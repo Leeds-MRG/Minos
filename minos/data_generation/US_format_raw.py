@@ -209,6 +209,7 @@ def format_ukhls_columns(year):
                       'ctband_dv': 'council_tax',  # council tax derived.
                       'dvage': 'age',  # age derived.
                       'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
+                      'houscost1_dv': 'hh_costs',  # monthly housing costs
                       'gor_dv': 'region',  # government region
                       'hheat': 'heating',  # household heating
                       'hidp': 'hidp',  # household id

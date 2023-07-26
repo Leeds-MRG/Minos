@@ -193,11 +193,14 @@ def generate_hh_income(data):
     print('Generating household income...')
 
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
-    data["hh_rent"][data["hh_rent"] < 0] = 0
-    data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
-    data["council_tax"][data["council_tax"] < 0] = 0
-    data["outgoings"] = -9
-    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
+    # data["hh_rent"][data["hh_rent"] < 0] = 0
+    # data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+    # data["council_tax_draw"][data["council_tax_draw"] < 0] = 0
+
+    data["outgoings"] = 0
+    data["outgoings"][data['hh_costs'] >= 0] += data["hh_costs"]
+    data["outgoings"][data['council_tax_draw'] >= 0] += data["council_tax_draw"] / 12 # council tax is yearly so divide by 12 for monthly reduction in income
+    data['outgoings'][(data['hh_costs'] < 0) & (data['council_tax_draw'] < 0)] = -9
 
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
@@ -206,8 +209,14 @@ def generate_hh_income(data):
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
 
+    # put back any missing that were mistakenly adjusted for inflation
+    data['hh_income'][(data['hh_netinc'] == -9) |
+                      (data['outgoings'] == -9) |
+                      (data['oecd_equiv'] == -9)] = -9
+
     # now drop the intermediates
-    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv',
+                      'council_tax_draw', 'council_tax_upper', 'council_tax_lower', 'hh_costs'],
               axis=1,
               inplace=True)
 
