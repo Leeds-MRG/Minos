@@ -1,4 +1,7 @@
-"""Module for applying any interventions to the base population from replenishment."""
+"""
+Module for applying any interventions to the base population from replenishment.
+"""
+
 import itertools
 import sys
 import pandas as pd
@@ -6,6 +9,7 @@ import numpy as np
 from pathlib import Path
 import logging
 from minos.modules.base_module import Base
+
 
 class hhIncomeIntervention():
 
@@ -322,7 +326,6 @@ class livingWageIntervention(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
-
     def on_initialize_simulants(self, pop_data):
         """
         Parameters
@@ -335,7 +338,6 @@ class livingWageIntervention(Base):
                                    'boost_amount': 0.}, # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
-
 
     def on_time_step(self, event):
         """
@@ -388,7 +390,6 @@ class livingWageIntervention(Base):
         logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
 
-
 class energyDownlift(Base):
     @property
     def name(self):
@@ -433,13 +434,11 @@ class energyDownlift(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
-
 
     def on_time_step(self, event):
 
@@ -468,7 +467,6 @@ class energyDownlift(Base):
         logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
         logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
-
 
 
 class energyDownliftNoSupport(Base):
@@ -515,13 +513,11 @@ class energyDownliftNoSupport(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
-
 
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
@@ -542,6 +538,124 @@ class energyDownliftNoSupport(Base):
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
+
+class ChildPovertyReduction(Base):
+    """Uplift by £25 per week per child in each household. """
+
+    @property
+    def name(self):
+        return "child_poverty_reduction"
+
+    def __repr__(self):
+        return "ChildPovertyReduction()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income", 'nkids', 'hidp']
+        columns_created = ["income_boosted", "boost_amount"]
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the child poverty reduction intervention in year {event.time.year}...")
+
+        # This intervention will reduce the % of children living in families in relative poverty to a defined proportion
+        # by a set end year. As a first attempt, we will reduce the numbers to fewer than 10% of children living in
+        # relative poverty by 2030
+
+        # STEPS;
+        # 1. Find all households with children in
+        # 2. Find all of these households in relative poverty (hh_income < 60% of median hh_income in that year)
+        # 3. Calculate how many should be uplifted (gradual reduction in child poverty with 2030 as year we hit 10%)
+        # 4. Pick households at random to meet this target, and uplift ALL members of household to above threshold
+        # 5. Profit
+
+        # set parameters
+        end_year = 2030
+
+        # 1. Find all households with children
+        full_pop = self.population_view.get(event.index, query="alive =='alive'")
+        # 1a. Reset the previous boost
+        # TODO probably a faster way to do this than resetting the whole column.
+        # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
+        # 2. Find all households in relative poverty
+        median_income = full_pop['hh_income'].median()
+        relative_poverty_threshold = median_income * 0.6
+        target_pop = self.population_view.get(event.index,
+                                       query=f"alive == 'alive' & nkids > 0 & hh_income < {relative_poverty_threshold}")
+
+        # 3. Calculate how many households should be uplifted
+        # We can calculate the proportion and divide by the number of years until target year
+        prop_in_poverty = len(target_pop['hidp'].unique()) / len(full_pop['hidp'].unique())
+        print(f"Proportion of families in poverty: {prop_in_poverty * 100}")
+        # we need to reduce this proportion down to 10% by 2030, so we can calculate the number of years we have left
+        # and then the proportion to reduce in that year
+        years_remaining = end_year - event.time.year
+        #if prop_in_poverty > 0.1:
+        proportion_remaining = prop_in_poverty - 0.1
+        proportion_to_target = proportion_remaining / years_remaining
+        print(f"Proportion to uplift: {proportion_to_target}")
+
+        # 4. Pick households at random to meet this target, and uplift ALL members of household to above threshold
+        # first get only households with kids under the poverty threshold
+        #poverty_pop =
+        # get sample with fraction proportion_to_target
+        num_households_to_uplift = round(len(target_pop['hidp'].unique()) * proportion_to_target)
+
+        target_households = target_pop['hidp'].sample(n=num_households_to_uplift)
+        target_sample = target_pop[target_pop['hidp'].isin(target_households)]
+
+
+
+
+        pop['boost_amount'] = (25 * 30.436875 * pop['nkids'] / 7) # £25 per week * 30.463/7 weeks per average month * nkids.
+        pop['income_boosted'] = (pop['boost_amount'] != 0)
+        pop['hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
+        # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
 
 
 ### some test on time steps for variious scotland interventions

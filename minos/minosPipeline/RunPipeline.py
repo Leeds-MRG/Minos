@@ -44,6 +44,7 @@ from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
+from minos.modules.intervention import ChildPovertyReduction
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -115,6 +116,7 @@ def validate_components(config_components, intervention):
         "livingWageIntervention": livingWageIntervention(),
         "energyDownlift": energyDownlift(),
         "energyDownliftNoSupport": energyDownliftNoSupport(),
+        "ChildPovertyReduction": ChildPovertyReduction(),
     }
 
     replenishment_components_map = {
@@ -135,7 +137,8 @@ def validate_components(config_components, intervention):
         elif component in replenishment_components_map.keys():
             replenishment_component.append(replenishment_components_map[component])
         else:
-            print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
+            print(f"Warning! {component} in config not found when running pipeline. Are you sure its in the "
+                  f"minos/minosPipeline/RunPipeline.py script?")
 
     # TODO: include some error handling for choosing interventions
     # Can do this using assertions
@@ -144,6 +147,9 @@ def validate_components(config_components, intervention):
     if intervention in intervention_components_map.keys():
         # add intervention components.
         component_list.append(intervention_components_map[intervention])
+    else:
+        print(f"WARNING: {intervention} is not in the recognised list of interventions, are you sure its in the "
+              "minos/minosPipeline/RunPipeline.py script?")
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
     return component_list
