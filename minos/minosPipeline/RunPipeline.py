@@ -145,7 +145,8 @@ def validate_components(config_components, intervention):
         "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
         "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
     }
-    intervention_kwargs = {} # default to em
+    
+    intervention_kwargs = {}  # default to em
     if intervention in intervention_kwargs_dict.keys():
         intervention_kwargs = intervention_kwargs_dict[intervention]
     return component_list, intervention_kwargs
