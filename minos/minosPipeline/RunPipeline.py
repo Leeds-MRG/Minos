@@ -142,8 +142,16 @@ def validate_components(config_components, intervention):
     intervention_kwargs_dict = {
         "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
         "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+        "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+        "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
         "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
         "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+        "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
+        "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
+        "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+        "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+        "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+        "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
     }
     
     intervention_kwargs = {}  # default to em
