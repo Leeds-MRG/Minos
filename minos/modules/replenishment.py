@@ -94,6 +94,7 @@ class Replenishment(Base):
                         'financial_situation',
                         'housing_tenure',
                         'urban',
+                        'universal_credit',
                         ]
 
         # Shorthand methods for readability.

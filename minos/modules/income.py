@@ -66,7 +66,8 @@ class Income(Base):
                         'SF_12',
                         'housing_quality',
                         'job_sector',
-                        'hh_income_diff']
+                        'hh_income_diff',
+                        'universal_credit']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

@@ -56,26 +56,67 @@ intervention_hhIncome: setup
 intervention_hhIncomeChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
+###########################################
+# Child Uplifts Over Amount and Condition #
+###########################################
+
 intervention_25All: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25All'
-
-intervention_25RelativePoverty: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
 
 intervention_50All: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50All'
 
+intervention_75All: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '75All'
+
+intervention_100All: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100All'
+
+intervention_25RelativePoverty: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
+
 intervention_50RelativePoverty: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
+
+intervention_75RelativePoverty: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '75RelativePoverty'
+
+intervention_100RelativePoverty: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100RelativePoverty'
+
+intervention_25UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
+
+intervention_50UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
+
+intervention_75UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
+
+intervention_100UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
 intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
+############################
+# Living Wage Intervention #
+############################
+
 intervention_livingWage: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
+###############################
+# Energy Crisis Interventions #
+###############################
+
 intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+
+
+#####################################################
+# Short Cut Commands for Many Interventions at Once #
+#####################################################
 
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
@@ -83,7 +124,15 @@ all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLin
 
 all_child_uplifts: MODE=default_config
 all_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
-all_child_uplifts: baseline intervention_25All intervention_50All intervention_25RelativePoverty intervention_50RelativePoverty
+all_child_uplifts: baseline intervention_25All intervention_50All intervention_75All intervention_100All
+
+poverty_line_child_uplifts: MODE=default_config
+poverty_line_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+poverty_line_child_uplifts: baseline intervention_25RelativePoverty intervention_50RelativePoverty intervention_75RelativePoverty intervention_100RelativePoverty
+
+universal_credit_child_uplifts: MODE=default_config
+universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+universal_credit_child_uplifts: baseline intervention_25UniversalCredit intervention_50UniversalCredit intervention_75UniversalCredit intervention_100UniversalCredit
 
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -112,14 +161,38 @@ arc4_intervention_PovertyLineChildUplift: setup
 arc4_intervention_25All: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25All'
 
-arc4_intervention_25RelativePoverty: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
-
 arc4_intervention_50All: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50All'
 
+arc4_intervention_75All: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75All'
+
+arc4_intervention_100All: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100All'
+
+arc4_intervention_25RelativePoverty: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
+
 arc4_intervention_50RelativePoverty: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
+
+arc4_intervention_75RelativePoverty: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75RelativePoverty'
+
+arc4_intervention_100RelativePoverty: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100RelativePoverty'
+
+arc4_intervention_25UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
+
+arc4_intervention_50UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
+
+arc4_intervention_75UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
+
+arc4_intervention_100UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
 arc4_intervention_livingWage: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
@@ -131,9 +204,18 @@ arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
+
 arc4_all_child_uplifts: MODE=default_config
 arc4_all_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_all_child_uplifts: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_25RelativePoverty arc4_intervention_50RelativePoverty
+arc4_all_child_uplifts: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
+
+arc4_poverty_line_child_uplifts: MODE=default_config
+arc4_poverty_line_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_50RelativePoverty arc4_intervention_75RelativePoverty arc4_intervention_100RelativePoverty
+
+arc4_universal_credit_child_uplifts: MODE=default_config
+arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
 
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
