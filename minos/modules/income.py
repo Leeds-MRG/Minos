@@ -687,11 +687,16 @@ class lmmYJIncome(Base):
 
         # Household income is a household level measure, despite this we predict it for each individual
         # because of this, we need to ensure that all members of a household have the same value after prediction.
-        # To this end, I'm going to take the mean of the predicted values for all members of the household
-        # first attach hidp onto newWaveIncome (indices are identical to can just attach) then replace hh_income
-        # with mean within group
+        # To this end, I'm going to take one random member of each household and fix everybody else in the house to
+        # this value
         newWaveIncome['hidp'] = pop['hidp']
-        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
+        random_income_within_household = newWaveIncome.groupby('hidp').apply(
+            lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
+        newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
+            random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
+        #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
+
+        # Finally calculate diff
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
 
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
