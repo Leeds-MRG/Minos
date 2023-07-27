@@ -295,6 +295,7 @@ def format_ukhls_columns(year):
                       'hhsize': 'hhsize', # number of people in household
                       'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban', # urban or rural household.
+                      'benbase4': 'universal_credit',
                       }
 
     # Some variables change names halfway through UKHLS.
