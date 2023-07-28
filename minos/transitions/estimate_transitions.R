@@ -184,7 +184,7 @@ run_yearly_models <- function(transitionDir_path,
 
       # no weight var in 2009 (wave 1)
       if(year == 2009) {
-        use.weights <- FALSE
+        use.weights <- TRUE
       } else {
         use.weights <- TRUE
       }

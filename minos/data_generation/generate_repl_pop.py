@@ -121,7 +121,7 @@ def reweight_repl(expanded_repl, projections):
     expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
             max(expanded_repl['weight']) - min(expanded_repl['weight']))
 
-    return(expanded_repl)
+    return expanded_repl
 
 
 def predict_education(repl, transition_dir):
@@ -164,7 +164,7 @@ def predict_education(repl, transition_dir):
 def generate_replenishing(projections, scotland_mode, cross_validation):
 
     output_dir = 'data/replenishing'
-    data_source = 'final_US'
+    data_source = 'inflated_US'
     transition_dir = 'data/transitions'
 
     if scotland_mode:
@@ -183,10 +183,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
     # expand and reweight the population
     expanded_repl = expand_repl(data)
 
-    reweighted_repl = reweight_repl(expanded_repl, projections)
+    #reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(reweighted_repl, transition_dir)
+    final_repl = predict_education(expanded_repl, transition_dir)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
