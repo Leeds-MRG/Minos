@@ -105,8 +105,16 @@ def validate_components(config_components, intervention):
         "energyDownlift": energyDownlift(),
         "25All": childUplift(),
         "50All": childUplift(),
+        "75All": childUplift(),
+        "100All": childUplift(),
         "25RelativePoverty": childUplift(),
-        "50RelativePoverty": childUplift()
+        "50RelativePoverty": childUplift(),
+        "75RelativePoverty": childUplift(),
+        "100RelativePoverty": childUplift(),
+        "25UniversalCredit": childUplift(),
+        "50UniversalCredit": childUplift(),
+        "75UniversalCredit": childUplift(),
+        "100UniversalCredit": childUplift(),
     }
 
     replenishment_components_map = {
