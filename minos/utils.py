@@ -199,56 +199,6 @@ def patch(module, modification_function=replace_text, *args, **kwargs):
     return module
 
 
-# HR 26/05/23 To dump some population data for fertility/parity development testing
-# Grabs population at runtime, currently in block in add_new_birth_cohorts.nkidsFertilityAgeSpecificRates.on_time_step
-def dump_parity(pop,
-                year,
-                outpath=OUTPATH_DEFAULT,
-                bin_edges=BIN_EDGES_DEFAULT):
-    # Get rid of all extraneous columns
-    var_order = ["ethnicity", "age", "nkids"]
-    pop = pop[var_order]
-
-    # Group by unique combinations and add counter column
-    # Add bin column, with specified bin ranges
-    # Note that "right" parameter must be false, as this means "bin by less than upper bin limit", i.e. "<=" or "[ )"
-    unagg = pop.value_counts().reset_index(name="count").sort_values(var_order)
-    unagg['bin'] = pd.cut(unagg['age'], bins=bin_edges, right=False)
-
-    # Aggregate across ethnicities
-    agg_eth = unagg.groupby(["age", "nkids"])["count"].sum()
-
-    # Put into binned age groups
-    agg_agebins = unagg.groupby(["bin", "nkids", "ethnicity"])["count"].sum().reset_index()
-
-    # Aggregate by ethnicity and into age bins
-    agg_agebins_eth = unagg.groupby(["bin", "nkids"])["count"].sum()
-
-    # Pivot to wide form and add "total" column
-    nkids_wide = agg_agebins.pivot_table(index='nkids', columns='ethnicity', aggfunc=sum, values="count")
-    nkids_wide["total"] = nkids_wide.sum(axis=1)
-    agebins_wide = agg_agebins.pivot_table(index='bin', columns='ethnicity', aggfunc=sum, values="count")
-    agebins_wide["total"] = agebins_wide.sum(axis=1)
-
-    # Create timestamp and dump
-    t = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + str(year)
-    filename = "eth_parity_dump_" + t + ".xlsx"
-    filefull = os.path.join(outpath, filename)
-    print("Trying to dump parity info to", filefull)
-    try:
-        with pd.ExcelWriter(filefull) as writer:
-            unagg.to_excel(writer, sheet_name='unagg', index=False)
-            agg_eth.to_excel(writer, sheet_name='agg_eth')
-            agg_agebins.to_excel(writer, sheet_name='agg_agebins', index=False)
-            agg_agebins_eth.to_excel(writer, sheet_name='agg_agebins_eth')
-            nkids_wide.to_excel(writer, sheet_name='nkids_wide')
-            agebins_wide.to_excel(writer, sheet_name='agebins_wide')
-        print("Done")
-    except Exception as e:
-        print("Couldn't dump data, exception follows")
-        print(e)
-
-
 ## SERIES SOLVER FUNCTIONS BELOW, FOR FERTILITY/PARITY
 ## FEB 23 ONWARDS
 
