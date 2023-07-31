@@ -466,11 +466,11 @@ handover_lineplots <- function(raw, base, var) {
   raw.means <- raw %>% 
     dplyr::select(pidp, time, var, weight) %>%
     group_by(time) %>%
-    summarise(summary_var = mean(!!sym(var), na.rm=TRUE)) %>%
+    summarise(summary_var = weighted.mean(x = .data[[var]], w = weight, na.rm=TRUE)) %>%
     mutate(source = 'final_US')
   
   base.means <- base %>%
-    dplyr::select(pidp, time, var, weight) %>%
+    dplyr::select(pidp, time, var) %>%
     group_by(time) %>%
     summarise(summary_var = mean(!!sym(var))) %>%
     mutate(source = 'baseline_output')

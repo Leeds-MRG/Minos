@@ -77,6 +77,11 @@ def expand_repl(US_2018):
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
 
+    assert(expanded_repl.duplicated('pidp').sum() == 0)
+
+    # reset index for the predict_education step
+    expanded_repl.reset_index(drop=True, inplace=True)
+
     return expanded_repl
 
 
@@ -188,6 +193,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
     # finally, predict the highest level of educ
     final_repl = predict_education(expanded_repl, transition_dir)
 
+    final_repl['ncigs'] = final_repl['ncigs'].astype(int)
+    final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
+    final_repl['loneliness'] = final_repl['loneliness'].astype(int)
+
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
     print('Replenishing population generated for 2019 - 2070')
@@ -207,7 +216,6 @@ def main():
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
-
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"

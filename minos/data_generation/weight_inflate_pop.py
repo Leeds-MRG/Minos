@@ -20,14 +20,39 @@ def inflate_population(data):
     data = data.loc[np.repeat(data.index.values, (data['weight'] * 100))]
     data['pidp'] = data.groupby(['pidp', 'time'])
 
-    # we need to make sure that all new records are given unique IDs, which is complicated because these pidps will most
-    # often span multiple years. That means we need to probably do 2 groupings, first by pidp alone
-
-
     data.drop('weight',
               axis=1,
               inplace=True)
     return data
+
+
+def inflate_pop_single_year(data, year):
+
+    data_year = data[data['time'] == year]
+
+    # we need to make sure that all new records are given unique IDs, which is complicated because these pidps will most
+    # often span multiple years. There is most likely a clever solution with groupby and transform but I can't get it
+    # to work, instead I'm going to try looping through each pidp
+
+    # first duplicate records weight * 100 times
+    data_year = data_year.loc[np.repeat(data_year.index.values, (data_year['weight'] * 100))]
+    # now groupby and add a groupID var for modifying the pidp later
+    data_year['groupID'] = data_year.groupby('pidp')['pidp'].rank(method='first')
+    # finally can modify the pipd by increasing by factor of 1000 + groupID
+    data_year['pidp'] = (data_year['pidp'] * 1000) + data_year['groupID']
+
+    # reset index to remove duplicated indices
+    data_year.reset_index(drop=True, inplace=True)
+
+    # Finally drop the groupID and weight variables
+    data_year.drop(['weight', 'groupID'],
+              axis=1,
+              inplace=True)
+
+    # last check that no duplicated pidp's remain
+    assert(data_year.duplicated('pidp').sum() == 0)
+
+    return data_year
 
 
 def main():
@@ -38,9 +63,13 @@ def main():
     file_names = [f"data/final_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    data = inflate_population(data)
+    #data = inflate_population(data)
+    data_inf_2014 = inflate_pop_single_year(data, year=2014)
+    data_inf_2020 = inflate_pop_single_year(data, year=2020)
 
-    US_utils.save_multiple_files(data, years, "data/inflated_US/", "")
+    #US_utils.save_multiple_files(data, years, "data/inflated_US/", "")
+    US_utils.save_file(data_inf_2014, 'data/inflated_US/', '', 2014)
+    US_utils.save_file(data_inf_2020, 'data/inflated_US/', '', 2020)
 
 
 if __name__ == '__main__':
