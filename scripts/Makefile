@@ -65,9 +65,6 @@ intervention_livingWage: setup
 intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
-fertility_testing: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/fertility_default.yaml -o default_config -i 'hhIncomeIntervention'
-
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
