@@ -72,9 +72,9 @@ def mffill_groupby(pid_groupby):
     """
     Forward fill the maximum observation in groupby object. The filled variable would only be able to increase over
     time.
-    At time of writing this is only used for education_state, as we have the weird problem that some individuals seem to
+    Originally used for education_state, as we have the weird problem that some individuals seem to
     bounce between defined education states and lower levels (often 0).
-    Also found to be an issue for number of children ever had by women (lnprnt in US, nkids_ind_raw here;
+    Subsequently also found to be an issue for number of children ever had by women (US: lnprnt, Minos: nkids_ind_raw);
     v. small number decrease over time
 
     Parameters
