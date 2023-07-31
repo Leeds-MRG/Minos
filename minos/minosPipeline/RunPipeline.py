@@ -98,18 +98,24 @@ replenishment_components_map = {
 }
 
 
-# HR 19/04/23 Rough definition of component priorities
-# Replenishment component first, then intervention(s), then fert/mort, then everything else
+# HR 31/07/23 Updated priorities based on recent development
+# Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
+# 1. Replenishment
+# 2. Fertility/mortality
+# 3. Income
+# 4. Intervention
+# 5. Everything else
 def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
     component_priorities.update({el:0 for el in replenishment_components_map})
     component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
-    component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in intervention_components_map})
+    component_priorities.update({el: 2 for el in ["Mortality()"]})
+    # component_priorities.update){el:3 for el in ['']} # New income-based components to be added here
+    component_priorities.update({el:4 for el in intervention_components_map})
     everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
-    component_priorities.update({el:4 for el in everything_else})
+    component_priorities.update({el:5 for el in everything_else})
     # [print(str(el)) for el in component_priorities.items()]
     return component_priorities, all_components_map
 
