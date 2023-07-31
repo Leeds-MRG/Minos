@@ -67,8 +67,6 @@ class Replenishment(Base):
                         'weight',
                         'nkids',
                         'nkids_ind',
-                        'nkids_ind_raw',
-                        'nkids_ind_new',
                         'ndrinks',
                         'max_educ',
                         'yearly_energy',
