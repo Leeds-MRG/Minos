@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import minos.utils as utilities
-from minos.utils import dump_parity
 from os.path import dirname as up
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
@@ -321,12 +320,6 @@ class nkidsFertilityAgeSpecificRates(Base):
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
         self.population_view.update(population[['nkids_ind']])
-
-        # # HR 24/05/23 To grab parity for testing
-        # y = int(str(event.time).split("-")[0])
-        # # print("\n##Event time:", y, "##\n")
-        # outpath = up(up(up(up(__file__)))) # Waaaay out of the way, above the project folder
-        # dump_parity(pop=population, year=y)
 
 
     @staticmethod
