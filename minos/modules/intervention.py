@@ -601,43 +601,64 @@ class ChildPovertyReduction(Base):
         # relative poverty by 2030
 
         # STEPS;
-        # 1. Find all households with children in
-        # 2. Find all of these households in relative poverty (hh_income < 60% of median hh_income in that year)
-        # 3. Calculate how many should be uplifted (gradual reduction in child poverty with 2030 as year we hit 10%)
-        # 4. Pick households at random to meet this target, and uplift ALL members of household to above threshold
-        # 5. Profit
+        # 1. Calculate median hh_income over all households
+        # 2. Calculate total kids in sample
+        # 3. Find all households in relative poverty
+        # 4. Calculate the proportion of children in relative poverty (hh_income < 60% of median hh_income in that year)
+        # 5. Calculate how many should be uplifted (gradual reduction in child poverty with 2030 as year we hit 10%)
+        # 6. Calculate number of children to elevate out of poverty based on proportion to uplift
+        # 7. Profit
 
         # set parameters
         end_year = 2030
 
-        # 1. Find all households with children
+        # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
+        median_income = full_pop['hh_income'].median()
+        # 2. Total number of kids
+        nkids_total = full_pop['nkids'].sum()
         # 1a. Reset the previous boost
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
-        # 2. Find all households in relative poverty
-        median_income = full_pop['hh_income'].median()
+        # 3. Find all households in relative poverty
         relative_poverty_threshold = median_income * 0.6
         target_pop = self.population_view.get(event.index,
-                                       query=f"alive == 'alive' & nkids > 0 & hh_income < {relative_poverty_threshold}")
+                                              query=f"alive == 'alive' & nkids > 0 & hh_income < "
+                                                    f"{relative_poverty_threshold}")
+        # 4. Calculate the proportion of children in relative poverty
+        target_pop_nkids = target_pop['nkids'].sum()
+        prop_in_poverty = target_pop_nkids / nkids_total
+        print(f"Percentage of families in poverty: {prop_in_poverty * 100}")
 
-        # 3. Calculate how many households should be uplifted
-        # We can calculate the proportion and divide by the number of years until target year
-        prop_in_poverty = len(target_pop['hidp'].unique()) / len(full_pop['hidp'].unique())
-        print(f"Proportion of families in poverty: {prop_in_poverty * 100}")
+        # 5. Calculate how many should be uplifted (gradual reduction in child poverty with 2030 as year we hit 10%)
         # we need to reduce this proportion down to 10% by 2030, so we can calculate the number of years we have left
         # and then the proportion to reduce in that year
         years_remaining = end_year - event.time.year
-        #if prop_in_poverty > 0.1:
+        # if prop_in_poverty > 0.1:
         proportion_remaining = prop_in_poverty - 0.1
-        proportion_to_target = proportion_remaining / years_remaining
-        print(f"Proportion to uplift: {proportion_to_target}")
+        proportion_to_uplift = proportion_remaining / years_remaining
+        print(f"Proportion to uplift: {proportion_to_uplift}")
+
+        # 6. Calculate number of children to elevate out of poverty based on proportion to uplift
+        nkids_to_uplift = round(target_pop_nkids * proportion_to_uplift)
+
+        # 7. Randomly select households by hidp until we hit the nkids_to_uplift target
+        target_hidps = []
+        kids = 0
+        for i in target_pop.sample(frac=1).iterrows():
+            if (kids + i[1]['nkids']) <= nkids_to_uplift:
+                kids += i[1]['nkids']
+                target_hidps.append(i[1]['hidp'])
+            if kids >= nkids_to_uplift:
+                break
+
+        print(target_pop[target_pop['hidp'].isin(target_hidps)])
 
         # 4. Pick households at random to meet this target, and uplift ALL members of household to above threshold
         # first get only households with kids under the poverty threshold
-        #poverty_pop =
+        # poverty_pop =
         # get sample with fraction proportion_to_target
-        num_households_to_uplift = round(len(target_pop['hidp'].unique()) * proportion_to_target)
+        num_households_to_uplift = round(len(target_pop['hidp'].unique()) * proportion_to_uplift)
 
         target_households = target_pop['hidp'].sample(n=num_households_to_uplift)
         target_sample = target_pop[target_pop['hidp'].isin(target_households)]
