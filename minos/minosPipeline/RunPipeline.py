@@ -122,8 +122,8 @@ def get_priorities():
     component_priorities.update({el:0 for el in replenishment_components_map})
     component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
-    component_priorities.update({el: 2 for el in ["Mortality()"]})
-    # component_priorities.update){el:3 for el in ['']} # New income-based components to be added here
+    component_priorities.update({el:2 for el in ["Mortality()"]})
+    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
     component_priorities.update({el:4 for el in intervention_components_map})
     everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
     component_priorities.update({el:5 for el in everything_else})
