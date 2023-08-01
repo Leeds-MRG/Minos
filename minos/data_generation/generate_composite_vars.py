@@ -915,6 +915,7 @@ def generate_difference_variables(data):
     diff_columns = ["hh_income", "SF_12", "nutrition_quality"]
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
+    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     return data
 
 def main():

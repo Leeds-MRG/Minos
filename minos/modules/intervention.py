@@ -636,7 +636,12 @@ class ChildPovertyReduction(Base):
         years_remaining = end_year - event.time.year
         # if prop_in_poverty > 0.1:
         proportion_remaining = prop_in_poverty - 0.1
-        proportion_to_uplift = proportion_remaining / years_remaining
+        if years_remaining > 0:  # before 2030
+            proportion_to_uplift = proportion_remaining / years_remaining
+        elif years_remaining == 0:  # in 2030
+            proportion_to_uplift = proportion_remaining
+        elif years_remaining < 0:  # after 2030, fix to target level
+            proportion_to_uplift = proportion_remaining
         print(f"Proportion to uplift: {proportion_to_uplift}")
 
         # 6. Calculate number of children to elevate out of poverty based on proportion to uplift
@@ -652,31 +657,28 @@ class ChildPovertyReduction(Base):
             if kids >= nkids_to_uplift:
                 break
 
-        print(target_pop[target_pop['hidp'].isin(target_hidps)])
+        print(f"Number of households to uplift: {len(target_hidps)}")
+        #print(target_pop[target_pop['hidp'].isin(target_hidps)])
 
-        # 4. Pick households at random to meet this target, and uplift ALL members of household to above threshold
-        # first get only households with kids under the poverty threshold
-        # poverty_pop =
-        # get sample with fraction proportion_to_target
-        num_households_to_uplift = round(len(target_pop['hidp'].unique()) * proportion_to_uplift)
+        # 8. Calculate boost amount for each household and apply
+        uplift_pop = self.population_view.get(event.index,
+                                              query=f"alive == 'alive' & hidp.isin({target_hidps})")
+        uplift_pop['boost_amount'] = median_income - uplift_pop['hh_income']
+        uplift_pop['income_boosted'] = (uplift_pop['boost_amount'] != 0)
+        uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
-        target_households = target_pop['hidp'].sample(n=num_households_to_uplift)
-        target_sample = target_pop[target_pop['hidp'].isin(target_households)]
+        # 9. Update original population with uplifted values
+        self.population_view.update(uplift_pop[['hh_income', 'income_boosted', 'boost_amount']])
 
-
-
-
-        pop['boost_amount'] = (25 * 30.436875 * pop['nkids'] / 7) # £25 per week * 30.463/7 weeks per average month * nkids.
-        pop['income_boosted'] = (pop['boost_amount'] != 0)
-        pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) # for debugging.
-        # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
-
-        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
-        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
-        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
-        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
+        # 10. Logging
+        logging.info(f"\tNumber of people uplifted: {sum(uplift_pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(uplift_pop['income_boosted']) / len(full_pop)) * 100}% of the total "
+                     f"population.")
+        logging.info(f"\t...and {(sum(uplift_pop['income_boosted']) / len(target_pop)) * 100}% of the population in"
+                     f"poverty.")
+        logging.info(f"\tTotal boost amount: {uplift_pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount across households in poverty: "
+                     f"{uplift_pop['boost_amount'][uplift_pop['income_boosted']].mean()}")
 
 
 ### some test on time steps for variious scotland interventions
