@@ -810,17 +810,3 @@ spaghetti_plot(spag, 'nkids_ind',
 rm(raw.s, base.s, spag)
 ```
 
-```{r}
-raw.s <- raw.parity %>%
-  select(pidp, age, time, nkids_ind_raw)
-base.s <- base.parity %>%
-  select(pidp, age, time, nkids_ind_raw)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'nkids_ind_raw',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
-```
