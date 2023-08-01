@@ -19,6 +19,9 @@ source("minos/transitions/transition_model_functions.R")
 require(argparse)
 require(tidyverse)
 require(stringr)
+require(pscl)
+require(dplyr)
+require(tidyr)
 require(texreg)
 
 # Take the line from the model_definitions.txt and pull out what we need

@@ -66,6 +66,7 @@ class Replenishment(Base):
                         'loneliness',
                         'weight',
                         'nkids',
+                        'nkids_ind',
                         'ndrinks',
                         'max_educ',
                         'yearly_energy',

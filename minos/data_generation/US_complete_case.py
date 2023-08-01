@@ -44,9 +44,11 @@ def complete_case_varlist(data, varlist):
 
 
 def complete_case_custom_years(data, var, years):
+    print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
     data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+    # data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan, inplace=True) # Avoids Pandas SettingWithCopyWarning
     data = data[~(data['time'].isin(years) & data[var].isna())]
 
     return data
@@ -70,7 +72,8 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure"]  # many of these
+                          "housing_tenure",
+                          "nkids_ind"]
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)

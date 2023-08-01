@@ -25,7 +25,7 @@ def check_output_dir(output):
     None
     """
     if not os.path.isdir(output):
-        os.mkdir(output)
+        os.makedirs(output)
         print(f"Output directory not found. Creating directory to save data at {output}")
 
 
