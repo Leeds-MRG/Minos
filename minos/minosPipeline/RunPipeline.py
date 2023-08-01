@@ -20,15 +20,16 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income
-from minos.modules.mental_wellbeing import MWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
-from minos.modules.nutrition import Nutrition
+from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
 from minos.modules.S7Neighbourhood import S7Neighbourhood
@@ -42,7 +43,7 @@ from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift
+from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -52,9 +53,12 @@ from minos.outcomes.minos_distribution_visualisation import *
 # last one in first one off. any module that requires another should be BELOW IT in this order.
 # Note priority in vivarium modules supersedes this. two
 # Outcome module goes first (last in sim)
-
 components_map = {
     # Outcome module.
+    "geeMWB()": geeMWB(),
+    "geeYJMWB()": geeYJMWB(),
+    "lmmYJMWB()": lmmYJMWB(),
+    "lmmDiffMWB()": lmmDiffMWB(),
     "MWB()": MWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
@@ -63,10 +67,16 @@ components_map = {
     "Labour()": Labour(),
     "Heating()": Heating(),
     "Housing()": Housing(),
+    "geeIncome()": geeIncome(),
+    "geeYJIncome()": geeYJIncome(),
+    "lmmDiffIncome()": lmmDiffIncome(),
+    "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
+    "lmmYJNutrition()": lmmYJNutrition(),
+    "lmmDiffNutrition()": lmmDiffNutrition(),
     "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
@@ -87,7 +97,8 @@ intervention_components_map = {  # Interventions
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
-    "energyDownlift": energyDownlift()
+    "energyDownlift": energyDownlift(),
+    "energyDownliftNoSupport": energyDownliftNoSupport(),
 }
 
 replenishment_components_map = {
@@ -163,7 +174,6 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
-
     component_list = []
     replenishment_component = []
     print("Initial components list:", config_components)
@@ -228,7 +238,10 @@ def RunPipeline(config, intervention=None):
                     "stats": importr('stats'),
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "zeroinfl": importr("pscl"),
+                    "bestNormalize": importr("bestNormalize"),
+                    "VGAM": importr("VGAM"),
+                    "lme4": importr("lme4"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

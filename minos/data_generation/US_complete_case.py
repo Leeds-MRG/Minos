@@ -54,6 +54,15 @@ def complete_case_custom_years(data, var, years):
     return data
 
 
+def cut_outliers(df, lower, upper, var):
+    """Take values of a column within the lower and upper percentiles
+
+    E.g. if lower = 5 upper = 95. removes the top and bottom 5% from the data."""
+    P = np.nanpercentile(df[var], [lower, upper])
+    new_df = df.loc[((df[var] > P[0]) & (df[var] < P[1])), ]
+    return new_df
+
+
 if __name__ == "__main__":
     maxyr = US_utils.get_data_maxyr()
 
@@ -62,9 +71,9 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'SF_12', 'financial_situation',
+                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
                           "housing_tenure",
-                          "nkids_ind"]  # many of these
+                          "nkids_ind"]
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -104,6 +113,8 @@ if __name__ == "__main__":
                     'behind_on_bills']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.
                                         # remove them here or as late as needed.
+                                        
     data = data.drop(labels=drop_columns, axis=1)
+    data = cut_outliers(data, 0.1, 99.9, "hh_income")
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")

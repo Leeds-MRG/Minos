@@ -89,7 +89,7 @@ class Alcohol(Base):
         newWaveAlcohol = self.calculate_alcohol(pop)
         newWaveAlcohol = pd.DataFrame(newWaveAlcohol, columns=["alcohol_spending"])
         # Set index type to int (instead of object as previous)
-        newWaveAlcohol.index = newWaveAlcohol.index.astype(int)
+        newWaveAlcohol.index = pop.index
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new alcohol

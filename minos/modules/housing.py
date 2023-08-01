@@ -62,7 +62,9 @@ class Housing(Base):
                         "ethnicity",
                         "age",
                         "housing_quality",
-                        "hh_income",]
+                        "hh_income",
+                        "hh_income_diff",
+                        'housing_tenure']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -98,7 +100,7 @@ class Housing(Base):
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
 
-        housing_prob_df.index = housing_prob_df.index.astype(int)
+        housing_prob_df.index = pop.index
 
         # convert numeric prediction into string factors (low, medium, high)
         housing_factor_dict = {1: 'Low',

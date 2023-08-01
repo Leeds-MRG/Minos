@@ -23,9 +23,7 @@ replenishing_dir: 'data/replenishing/cross_validation'
 cross_validation: TRUE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-#components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment(), nkidsFertilityAgeSpecificRates()]
-
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 
 scale_rates:
     method: "constant"

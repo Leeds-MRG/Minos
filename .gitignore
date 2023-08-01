@@ -27,6 +27,7 @@ minos/*/__pycache__/
 # data folders generated in code
 data/*/*.csv
 data/*.csv
+data/final_US/cross_validation/*
 # R transitions objects and coefficient files
 data/transitions/*coefficients.txt
 data/transitions/*.rds
