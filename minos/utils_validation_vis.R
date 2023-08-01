@@ -460,13 +460,13 @@ handover_boxplots <- function(raw, baseline, var) {
     labs(title = paste0(var, ': Yearly box plots'))
 }
 
-
+# summarise(summary_var = weighted.mean(x = .data[[var]], w = weight)) %>%
 handover_lineplots <- function(raw, base, var) {
   # GENERALISE THIS AND DOCSTRING
   raw.means <- raw %>% 
-    dplyr::select(pidp, time, var, weight) %>%
+    dplyr::select(pidp, time, var) %>%
     group_by(time) %>%
-    summarise(summary_var = weighted.mean(x = .data[[var]], w = weight, na.rm=TRUE)) %>%
+    summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
     mutate(source = 'final_US')
   
   base.means <- base %>%
