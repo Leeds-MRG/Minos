@@ -41,14 +41,14 @@ def main():
     print(latest_experiments_list)
     # get all csvs for latest experiments for each intervention.
 
-    file_list = list(chain([glob(item + "*.csv", recursive=True) for item in latest_experiments_list]))
+    file_list = list(chain([glob(item + "/*.csv", recursive=True) for item in latest_experiments_list]))
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
     #for file in file_list:
     #    append_spatial_data(file, simd_dict, "ZoneID", "simd_decile")
     with Pool() as pool:
-        pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict)))
+        pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict), repeat("ZoneID"), repeat("simd_decile")))
 
 
 if __name__ == '__main__':
