@@ -7,6 +7,7 @@ from glob import glob
 import pandas as pd
 from multiprocessing import Pool
 from itertools import repeat, chain
+import sys
 
 def append_spatial_attribute(file_path, spatial_dict, key_variable, attribute_name):
     data = pd.read_csv(file_path, low_memory=False, engine='c')
@@ -47,10 +48,11 @@ def main():
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
-    #for file in file_list:
-    #    append_spatial_attribute(file, simd_dict, "ZoneID", "simd_decile")
-    with Pool() as pool:
-        pool.starmap(append_spatial_attribute, zip(file_list, repeat(simd_dict), repeat("ZoneID"), repeat("simd_decile")))
+
+    for file in file_list:
+        append_spatial_attribute(file[sys.argv[1]], simd_dict, "ZoneID", "simd_decile")
+    #with Pool() as pool:
+    #    pool.starmap(append_spatial_attribute, zip(file_list, repeat(simd_dict), repeat("ZoneID"), repeat("simd_decile")))
 
 
 if __name__ == '__main__':
