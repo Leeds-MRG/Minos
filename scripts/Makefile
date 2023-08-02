@@ -108,7 +108,7 @@ arc4_glasgow_baseline: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
 arc4_glasgow_25_poverty_line: setup
-	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i "povertyLineChildUplift"
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'hhIncomePovertyLineChildUplift'
 
 arc4_EPCG: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
