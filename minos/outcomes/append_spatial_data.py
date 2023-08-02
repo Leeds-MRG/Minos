@@ -41,7 +41,7 @@ def main():
     print(latest_experiments_list)
     # get all csvs for latest experiments for each intervention.
 
-    file_list = list(chain([glob(item + "/*.csv", recursive=True) for item in latest_experiments_list]))
+    file_list = list(chain(*[glob(item + "/*.csv", recursive=True) for item in latest_experiments_list]))
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
