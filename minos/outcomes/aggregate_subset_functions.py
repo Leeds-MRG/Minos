@@ -64,7 +64,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
 
 def get_required_intervention_variables(subset_function_string):
     # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
-    default_variables = ["pidp", "alive", "SF_12"]
+    default_variables = ["pidp", "alive", "SF_12", 'time']
     required_variables_dict = {
         "who_alive": default_variables,
         "who_boosted":  default_variables + ["income_boosted"],
