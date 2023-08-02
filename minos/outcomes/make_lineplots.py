@@ -20,6 +20,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables
 
+
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
 
@@ -41,7 +42,8 @@ def subset_minos_data(data, subset_func_string, mode):
     return subsetted_data
 
 
-def aggregate_csv(file, subset_function_string = None, outcome_variable="SF_12", aggregate_method=np.nanmean, mode="default_config"):
+def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
+                  mode="default_config"):
     """
 
     Parameters
@@ -57,14 +59,16 @@ def aggregate_csv(file, subset_function_string = None, outcome_variable="SF_12",
         Scalar aggregate of a single MINOS output dataset. E.g. the mean SF12 value for all individuals in the desired subset.
     """
     required_columns = get_required_intervention_variables(subset_function_string)
-    data = pd.read_csv(file, usecols=required_columns, low_memory=True, engine='c') #low_memory could be buggy but is faster.
+    data = pd.read_csv(file, usecols=required_columns, low_memory=True,
+                       engine='c')  # low_memory could be buggy but is faster.
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)[outcome_variable]
     agg_value = aggregate_method(data)
     return agg_value
 
 
-def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", method=np.nanmean, mode="default_config"):
+def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", method=np.nanmean,
+                                mode="default_config"):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
     Parameters
@@ -91,21 +95,20 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     aggregated_data = pd.DataFrame()
     for year in years:
         files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
-        #files = files[:10]
+        # files = files[:10]
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
         with Pool() as pool:
             if year == 2020:
-                    aggregated_means = pool.starmap(aggregate_csv,
-                                                    zip(files, repeat("who_alive"), repeat(v), repeat(method),
-                                                        repeat(mode)))
-            else:
-                aggregated_means = pool.starmap(aggregate_csv,
-                                                zip(files, repeat(subset_func_string), repeat(v), repeat(method),
+                subset_func_string = "who_alive"
+
+            aggregated_means = pool.starmap(aggregate_csv,
+                                            zip(files, repeat(subset_func_string), repeat(v), repeat(method),
                                                 repeat(mode)))
-        if aggregated_means == []: # if no datasets found for given year supply a dummy row.
-            print(f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
+        if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
+            print(
+                f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
             aggregated_means = [None]
 
         single_year_aggregates = pd.DataFrame(aggregated_means)
@@ -115,6 +118,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
 
     return aggregated_data
+
 
 def relative_scaling(df, v, ref):
     """ Scale aggregate data based on some reference source.
@@ -150,13 +154,14 @@ def relative_scaling(df, v, ref):
             # get data for each year. get reference level sf12 for each year. divide all sf12 values be reference value.
             # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
             # <1 implies reduction.
-            year_df = df.loc[df['year']==year, ].copy()
+            year_df = df.loc[df['year'] == year,].copy()
             x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
             year_df[v] /= x_bar
             df.loc[df['year'] == year, v] = year_df[v]
     else:
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
     return df
+
 
 def find_latest_source_file_path(file_path):
     """ A file path can have multiple runs of data that are sorted by time Y_m_d_H_M_S. Find the lastest one.
@@ -196,7 +201,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     None
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
-    df[v] -= 1  # set centre at 0.
+    df[v] -= 1  #  set centre at 0.
 
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
@@ -230,6 +235,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
 
+
 def find_MINOS_years_range(file_path):
     """ Calculate the number of years in MINOS output data.
 
@@ -247,11 +253,12 @@ def find_MINOS_years_range(file_path):
         config = yaml.safe_load(stream)
     start_year = config['time']['start']['year']
     end_year = config['time']['end']['year']
-    years = np.arange(start_year+1, end_year)
+    years = np.arange(start_year + 1, end_year)
     return years
 
 
-def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12", method='nanmean'):
+def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
+         method='nanmean'):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
 
@@ -273,8 +280,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     if method == "nanmean":
         method = np.nanmean
     else:
-        raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
-
+        raise ValueError(
+            "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
 
     directories = directories.split(",")
     tags = tags.split(",")
@@ -295,21 +302,28 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     print("relative scaling done. plotting.. ")
     aggregate_lineplot(scaled_data, "plots", prefix, v, method)
 
+
 if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
 
-    # define test parameters and run.
-    #directories = "baseline,povertyLineChildUplift,livingWageIntervention"
-    #tags = "Baseline,Poverty Line Child Uplift,Living Wage Intervention"
-    #subset_function_strings = "who_below_living_wage,who_boosted,who_boosted"
-    #prefix = "baseline_living_wage_"
-    #mode = 'default_config'
+    #define test parameters and run.
+    directories = "baseline,25RelativePoverty,livingWageIntervention"
+    tags = "Baseline,Poverty Line Child Uplift,Living Wage Intervention"
+    subset_function_strings = "who_below_living_wage,who_boosted,who_boosted"
+    prefix = "baseline_living_wage_"
+    mode = 'default_config'
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    mode="glasgow_scaled"
-    directories="baseline,EPCG,EBSS"
-    tags="Baseline,Energy Price Cap Guarantee,Energy Bill Support Scheme"
-    subset_function_strings="who_uses_energy,who_boosted,who_boosted"
-    prefix="epcg_ebss_baseline"
+    # mode = "glasgow_scaled"
+    # directories = "baseline,EPCG,EBSS"
+    # tags = "Baseline,Energy Price Cap Guarantee,Energy Bill Support Scheme"
+    # subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
+    # prefix = "epcg_ebss_baseline"
+    directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
+    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
+    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
+    prefix="simd_deciles"
+    mode = "glasgow_scaled"
+    ref='National Average'
     main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)

@@ -83,7 +83,6 @@ def get_required_intervention_variables(subset_function_string):
         "who_ninth_simd_decile": default_variables + ['simd_decile'],
         "who_tenth_simd_decile": default_variables + ['simd_decile'],
     }
-
     return required_variables_dict[subset_function_string]
 
 def who_alive(df):
