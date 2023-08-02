@@ -39,7 +39,8 @@ def main():
 
     #for file in file_list:
     #    append_spatial_data(file, simd_dict, "ZoneID", "simd_decile")
-    pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict))
+    pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict)))
+
 
 if __name__ == '__main__':
     main()
