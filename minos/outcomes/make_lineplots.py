@@ -19,6 +19,7 @@ from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables
+import warnings
 
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
@@ -145,15 +146,17 @@ def relative_scaling(df, v, ref):
     """
     # if no reference column don't scale anything..
     if ref is not None:
-        years = sorted(list(set(df['year'])))
-        for year in years:
-            # get data for each year. get reference level sf12 for each year. divide all sf12 values be reference value.
-            # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
-            # <1 implies reduction.
-            year_df = df.loc[df['year']==year, ].copy()
-            x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
-            year_df[v] /= x_bar
-            df.loc[df['year'] == year, v] = year_df[v]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            years = sorted(list(set(df['year'])))
+            for year in years:
+                # get data for each year. get reference level sf12 for each year. divide all sf12 values be reference value.
+                # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
+                # <1 implies reduction.
+                year_df = df.loc[df['year']==year, ].copy()
+                x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
+                year_df[v] /= x_bar
+                df.loc[df['year'] == year, v] = year_df[v]
     else:
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
     return df
