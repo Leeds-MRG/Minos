@@ -19,7 +19,6 @@ from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
-from minos.outcomes.format_spatial_output import append_SIMD_decile_data
 
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
@@ -59,8 +58,6 @@ def aggregate_csv(file, subset_function_string = None, outcome_variable="SF_12",
     """
     data = pd.read_csv(file, low_memory=False)
     if subset_function_string:
-        if subset_function_string.endswith("simd_decile"):
-            data = append_SIMD_decile_data(data)
         data = subset_minos_data(data, subset_function_string, mode)[outcome_variable]
     agg_value = aggregate_method(data)
     return agg_value
