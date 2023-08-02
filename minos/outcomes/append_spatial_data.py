@@ -33,6 +33,7 @@ def get_simd_dict():
 
 def main():
     file_list = glob("output/glasgow_scaled/*.csv", recursive=True)
+    print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
     for file in file_list:
