@@ -2,10 +2,10 @@
 
 rather than run through a massive
 """
-
+import multiprocessing
 from glob import glob
 import pandas as pd
-from multiprocessing import pool
+from multiprocessing import Pool
 from itertools import repeat
 
 def append_spatial_data(file_path, spatial_dict, key_variable, attribute_name):
@@ -39,7 +39,8 @@ def main():
 
     #for file in file_list:
     #    append_spatial_data(file, simd_dict, "ZoneID", "simd_decile")
-    pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict)))
+    with Pool() as pool:
+        pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict)))
 
 
 if __name__ == '__main__':
