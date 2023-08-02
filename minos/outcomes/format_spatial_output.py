@@ -234,7 +234,8 @@ def append_SIMD_decile_data(data):
 
     try:
         simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[["DZ", "SIMD2020v2_Decile"]]
-        simd_data.columns = ["ZoneID", "simd_decile"]
+        #simd_data.columns = ["ZoneID", "simd_decile"]
+        simd_data = dict(simd_data)
     except FileNotFoundError as e:
         print(e)
         print("""
@@ -245,7 +246,8 @@ def append_SIMD_decile_data(data):
               """)
 
     # merge SIMD onto minos data
-    data = data.merge(simd_data, how='left', on="ZoneID")
+    #data = data.merge(simd_data, how='left', on="ZoneID")
+    data['simd_decile'] = data['ZoneID'].map(simd_data)
     # cut simd data into deciles using qcut (not needed with existing deciles from simd data)
     return data
 
