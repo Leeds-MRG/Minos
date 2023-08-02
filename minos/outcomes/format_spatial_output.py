@@ -85,22 +85,6 @@ def get_region_lsoas(region):
     lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
     return pd.read_csv(lsoas_file_path)
 
-def get_simd_dict():
-    #get simd to data-zone map
-
-    try:
-        simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[["DZ", "SIMD2020v2_Decile"]]
-        #simd_data.columns = ["ZoneID", "simd_decile"]
-        simd_dict = dict(simd_data)
-    except FileNotFoundError as e:
-        print(e)
-        print("""
-              \nREADME::\n
-              "SIMD to datazone map shouldn't be in the MINOS git. 
-              If you don't have it download it from here (as of july 2023).\n 
-              https://www.gov.scot/publications/scottish-index-of-multiple-deprivation-2020v2-data-zone-look-up/
-              """)
-    return simd_dict
 
 def group_by_and_aggregate(data, group_column, v, method):
     """ Aggregate values by
@@ -233,13 +217,10 @@ def attach_spatial_component(minos_data, spatial_data, v="SF_12", method=np.nanm
     return minos_data
 
 
-def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmean, simd_dict=None):
+def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
 
     if subset_function:
-        print(subset_function,subset_function.endswith("simd_decile"))
-        if subset_function.endswith("simd_decile"):
-            minos_data = append_SIMD_decile_data(minos_data, simd_dict)
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', "ZoneID", v]]
     minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
@@ -268,12 +249,10 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glas
     # Get spatial data and subset LSOAs for desired region.
     # Pooled as there can be hundreds of datasets here and it gets silly.
 
-    simd_dict = get_simd_dict()
-
     with Pool() as pool:
         if is_synthetic_pop:
             aggregated_spatial_data = pool.starmap(load_synthetic_data,
-                                                   zip(minos_files, repeat(subset_function), repeat(simd_dict)))
+                                                   zip(minos_files, repeat(subset_function)))
         else:
             spatial_data = get_spatial_data()
             region_lsoas = get_region_lsoas(region)
