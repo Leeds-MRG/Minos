@@ -44,6 +44,40 @@ def merge_with_synthpop_individuals(synthpop, msim_data, merge_column="pidp"):
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
 
+def get_spatial_attribute_data():
+    try:
+        simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[
+                ["DZ", "SIMD2020v2_Decile"]]
+        simd_data.columns = ["ZoneID", "simd_decile"]
+        simd_data["local_simd_deciles"] = pd.qcut(simd_data["simd_decile"], q=10, labels = list(range(1, 11)))
+        #simd_dict = dict(zip(simd_data["DZ"], simd_data["SIMD2020v2_Decile"]))
+    except FileNotFoundError as e:
+        print(e)
+        print("""
+                  \nREADME::\n
+                  "SIMD to datazone map shouldn't be in the MINOS git. 
+                  If you don't have it download it from here (as of july 2023).\n 
+                  https://www.gov.scot/publications/scottish-index-of-multiple-deprivation-2020v2-data-zone-look-up/
+                  """)
+    return simd_data
+
+def get_knn_cluster_data():
+
+    try:
+        knn_data = pd.read_csv("persistent_data/spatial_data/DZ_LA_with_clusters.csv", encoding= 'unicode_escape')[
+            ["DZ code", "Cluster"]]
+        knn_data.columns = ["ZoneID", "cluster"]
+        #simd_dict = dict(zip(simd_data["DZ"], simd_data["SIMD2020v2_Decile"]))
+    except FileNotFoundError as e:
+        print(e)
+        print("""\nREADME::\n
+            Ask Hugh/Rob/Nik for the data zone to knn cluster data if you don't have it and 
+            store in persistent_data/spatial_data/.""")
+    return knn_data
+
+def merge_with_spatial_attributes(synthpop, spatial_data, merge_column):
+    return synthpop.merge(spatial_data, on=merge_column)
+
 def take_synthpop_sample(merged_data, percent, seed=8):
     """ Take smaller subset of full scale synthetic population
 
@@ -71,7 +105,7 @@ def main():
     4.
     """
     #synthpop_file_name = "../HH2011PopEst2020S_population.csv"
-    synthpop_file_path = "persistent_data/Ind2011PopEst2020S_population.csv"
+    synthpop_file_path = "persistent_data/spatial_data/Ind2011PopEst2020S_population.csv"
     try:
         synthpop_data = pd.read_csv(synthpop_file_path) # this is individual population weighted data.
     except FileNotFoundError as e:
@@ -94,6 +128,12 @@ def main():
     percent = 1.0 # = 0.1
     sampled_data = take_synthpop_sample(merged_data, percent)
     print(f"Taking {100*percent}% of sample giving {sampled_data.shape[0]} rows.")
+
+    # merge with spatial_attributes
+    # get simd_deciles
+    sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+    # get_zone_ids
+    sampled_data = merge_with_spatial_attributes(sampled_data, get_knn_cluster_data(), "ZoneID")
 
     US_utils.check_output_dir("data/scaled_US/") # check save directory exists or create it.
     US_utils.save_file(sampled_data, "data/scaled_glasgow_US/", '', 2020)
