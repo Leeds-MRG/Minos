@@ -36,6 +36,10 @@ def get_simd_dict():
 
 def main():
     # get all intervention directories for glasgow spatial data. Could change this to a specified list.
+
+    print(sys.argv)
+
+
     directory_list = glob("output/glasgow_scaled/*/", recursive=True)
     print("Using interventions: ", directory_list)
 
@@ -43,12 +47,12 @@ def main():
     latest_experiments_list = [max(glob(item+"*/", recursive=True)) for item in directory_list]
     print("Using latest data for interventions: ", latest_experiments_list)
 
+
     # get all csvs for latest experiments for each intervention.
     file_list = list(chain(*[glob(item + "/*.csv", recursive=True) for item in latest_experiments_list]))
     print(f"Updating file {sys.argv[1]/len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
-    print(sys.argv)
     append_spatial_attribute(file_list[sys.argv[1]], simd_dict, "ZoneID", "simd_decile")
     #with Pool() as pool:
     #    pool.starmap(append_spatial_attribute, zip(file_list, repeat(simd_dict), repeat("ZoneID"), repeat("simd_decile")))
