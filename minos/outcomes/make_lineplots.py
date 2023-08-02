@@ -18,7 +18,7 @@ import yaml
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
-from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables
 
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
@@ -56,7 +56,8 @@ def aggregate_csv(file, subset_function_string = None, outcome_variable="SF_12",
     agg_value : float
         Scalar aggregate of a single MINOS output dataset. E.g. the mean SF12 value for all individuals in the desired subset.
     """
-    data = pd.read_csv(file, low_memory=True, engine='pyarrow') #low_memory could be buggy but is faster.
+    required_columns = get_required_intervention_variables(subset_function_string)
+    data = pd.read_csv(file, usecols=required_columns, low_memory=True, engine='pyarrow') #low_memory could be buggy but is faster.
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)[outcome_variable]
     agg_value = aggregate_method(data)

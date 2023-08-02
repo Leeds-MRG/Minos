@@ -62,6 +62,30 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
     return data
 
 
+def get_required_intervention_variables(subset_function_string):
+    # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
+    default_variables = ["pidp", "alive", "SF_12"]
+    required_variables_dict = {
+        "who_alive": default_variables,
+        "who_boosted":  default_variables + ["income_boosted"],
+        "who_below_living_wage": default_variables + ["region", "hourly_wage"],
+        "who_kids": default_variables + ["nkids"],
+        "who_below_poverty_line_and_kids": default_variables + ["hh_income", "nkids"],
+        "who_uses_energy": default_variables + ['yearly_energy'],
+        "who_first_simd_decile": default_variables + ['simd_decile'],
+        "who_second_simd_decile": default_variables + ['simd_decile'],
+        "who_third_simd_decile": default_variables + ['simd_decile'],
+        "who_fourth_simd_decile": default_variables + ['simd_decile'],
+        "who_fifth_simd_decile": default_variables + ['simd_decile'],
+        "who_sixth_simd_decile": default_variables + ['simd_decile'],
+        "who_seventh_simd_decile": default_variables + ['simd_decile'],
+        "who_eighth_simd_decile": default_variables + ['simd_decile'],
+        "who_ninth_simd_decile": default_variables + ['simd_decile'],
+        "who_tenth_simd_decile": default_variables + ['simd_decile'],
+    }
+
+    return required_variables_dict[subset_function_string]
+
 def who_alive(df):
     """ Get who is alive.
     Parameters
