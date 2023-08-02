@@ -6,7 +6,7 @@ import multiprocessing
 from glob import glob
 import pandas as pd
 from multiprocessing import Pool
-from itertools import repeat
+from itertools import repeat, chain
 
 def append_spatial_data(file_path, spatial_dict, key_variable, attribute_name):
     data = pd.read_csv(file_path)
@@ -33,7 +33,15 @@ def get_simd_dict():
 
 
 def main():
-    file_list = glob("output/glasgow_scaled/*.csv", recursive=True)
+    # get all intervention directories for glasgow spatial data.
+    directory_list = glob("output/glasgow_scaled/*/")
+    print(directory_list)
+    # get latest directory by time for each intervention.
+    latest_experiments_list = [max(glob(item+"*/")) for item in directory_list]
+    print(latest_experiments_list)
+    # get all csvs for latest experiments for each intervention.
+
+    file_list = chain([glob(item + "*.csv") for item in latest_experiments_list])
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
