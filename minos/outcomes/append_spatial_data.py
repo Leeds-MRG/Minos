@@ -50,7 +50,7 @@ def main():
 
     # get all csvs for latest experiments for each intervention.
     file_list = list(chain(*[glob(item + "/*.csv", recursive=True) for item in latest_experiments_list]))
-    print(f"Updating file {job_id/len(file_list)} files with simd_decile information.")
+    print(f"Updating file {job_id} of {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
     append_spatial_attribute(file_list[job_id], simd_dict, "ZoneID", "simd_decile")
