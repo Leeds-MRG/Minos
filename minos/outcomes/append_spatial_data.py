@@ -9,7 +9,7 @@ from multiprocessing import Pool
 from itertools import repeat, chain
 
 def append_spatial_data(file_path, spatial_dict, key_variable, attribute_name):
-    data = pd.read_csv(file_path)
+    data = pd.read_csv(file_path, low_memory=False)
     data[attribute_name] = data[key_variable].map(spatial_dict)
     data.to_csv(file_path)
 
