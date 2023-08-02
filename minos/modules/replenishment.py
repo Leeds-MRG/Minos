@@ -51,7 +51,6 @@ class Replenishment(Base):
                         'hidp',
                         'birth_month',
                         'birth_year',
-                        'nobs',
                         'region',
                         'SF_12',
                         'hh_int_y',
