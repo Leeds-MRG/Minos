@@ -84,7 +84,10 @@ class Replenishment(Base):
                         'marital_status',
                         'hh_comp',
                         'universal_income',
-                        'council_tax'
+                        'council_tax',
+                        'local_simd_deciles',
+                        'simd_decile',
+                        'cluster'
                         ]
 
         if config.input_data_dir == "data/scaled_glasgow_US": # only have spatial column and new pidp for synthpop.
