@@ -90,7 +90,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     aggregated_data = pd.DataFrame()
     for year in years:
         files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
-        files = files[:10]
+        #files = files[:10]
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
