@@ -10,7 +10,8 @@ from itertools import repeat, chain
 
 def append_spatial_data(file_path, spatial_dict, key_variable, attribute_name):
     data = pd.read_csv(file_path, low_memory=False)
-    data[attribute_name] = data[key_variable].map(spatial_dict)
+    if attribute_name not in data.columns: # only do this if the variable isn't already added..
+        data[attribute_name] = data[key_variable].map(spatial_dict)
     data.to_csv(file_path)
 
 def get_simd_dict():
