@@ -37,11 +37,11 @@ def main():
     directory_list = glob("output/glasgow_scaled/*/", recursive=True)
     print(directory_list)
     # get latest directory by time for each intervention.
-    latest_experiments_list = [max(glob(item+"*/")) for item in directory_list]
+    latest_experiments_list = [max(glob(item+"*/", recursive=True)) for item in directory_list]
     print(latest_experiments_list)
     # get all csvs for latest experiments for each intervention.
 
-    file_list = list(chain([glob(item + "*.csv") for item in latest_experiments_list]))
+    file_list = list(chain([glob(item + "*.csv", recursive=True) for item in latest_experiments_list]))
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
