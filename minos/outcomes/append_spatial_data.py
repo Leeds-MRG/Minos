@@ -5,7 +5,8 @@ rather than run through a massive
 
 from glob import glob
 import pandas as pd
-
+from multiprocessing import pool
+from itertools import repeat
 
 def append_spatial_data(file_path, spatial_dict, key_variable, attribute_name):
     data = pd.read_csv(file_path)
@@ -36,9 +37,9 @@ def main():
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
-    for file in file_list:
-        append_spatial_data(file, simd_dict, "ZoneID", "simd_decile")
-
+    #for file in file_list:
+    #    append_spatial_data(file, simd_dict, "ZoneID", "simd_decile")
+    pool.starmap(append_spatial_data, zip(file_list, repeat(simd_dict))
 
 if __name__ == '__main__':
     main()
