@@ -57,7 +57,7 @@ def aggregate_csv(file, subset_function_string = None, outcome_variable="SF_12",
         Scalar aggregate of a single MINOS output dataset. E.g. the mean SF12 value for all individuals in the desired subset.
     """
     required_columns = get_required_intervention_variables(subset_function_string)
-    data = pd.read_csv(file, usecols=required_columns, low_memory=True, engine='pyarrow') #low_memory could be buggy but is faster.
+    data = pd.read_csv(file, usecols=required_columns, low_memory=True, engine='c') #low_memory could be buggy but is faster.
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)[outcome_variable]
     agg_value = aggregate_method(data)
