@@ -115,6 +115,17 @@ def get_required_intervention_variables(subset_function_string):
         "who_ninth_simd_decile": default_variables + ['simd_decile'],
         "who_tenth_simd_decile": default_variables + ['simd_decile'],
 
+        "who_boosted_first_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_second_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_third_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_fourth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_fifth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_sixth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_seventh_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_eighth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_ninth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_tenth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+
         "who_kids_first_simd_decile": default_variables + ["nkids", 'simd_decile'],
         "who_kids_second_simd_decile": default_variables + ["nkids", 'simd_decile'],
         "who_kids_third_simd_decile": default_variables + ["nkids", 'simd_decile'],
