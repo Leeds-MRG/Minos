@@ -45,12 +45,11 @@ def main():
 
     # get all csvs for latest experiments for each intervention.
     file_list = list(chain(*[glob(item + "/*.csv", recursive=True) for item in latest_experiments_list]))
-    print(f"Updating {len(file_list)} files with simd_decile information.")
+    print(f"Updating file {sys.argv[1]/len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
-
-    for file in file_list:
-        append_spatial_attribute(file[sys.argv[1]], simd_dict, "ZoneID", "simd_decile")
+    print(sys.argv)
+    append_spatial_attribute(file_list[sys.argv[1]], simd_dict, "ZoneID", "simd_decile")
     #with Pool() as pool:
     #    pool.starmap(append_spatial_attribute, zip(file_list, repeat(simd_dict), repeat("ZoneID"), repeat("simd_decile")))
 
