@@ -34,14 +34,14 @@ def get_simd_dict():
 
 def main():
     # get all intervention directories for glasgow spatial data.
-    directory_list = glob("output/glasgow_scaled/*/")
+    directory_list = glob("output/glasgow_scaled/*/", recursive=True)
     print(directory_list)
     # get latest directory by time for each intervention.
     latest_experiments_list = [max(glob(item+"*/")) for item in directory_list]
     print(latest_experiments_list)
     # get all csvs for latest experiments for each intervention.
 
-    file_list = chain([glob(item + "*.csv") for item in latest_experiments_list])
+    file_list = list(chain([glob(item + "*.csv") for item in latest_experiments_list]))
     print(f"Updating {len(file_list)} files with simd_decile information.")
     simd_dict = get_simd_dict()
 
