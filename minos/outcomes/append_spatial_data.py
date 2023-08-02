@@ -32,7 +32,7 @@ def get_simd_dict():
 
 
 def main():
-    file_list = glob("output/glasgow_scaled/*")
+    file_list = glob("output/glasgow_scaled/*.csv", recursive=True)
     simd_dict = get_simd_dict()
 
     for file in file_list:
