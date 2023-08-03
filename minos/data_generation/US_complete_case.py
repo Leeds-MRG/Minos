@@ -44,9 +44,11 @@ def complete_case_varlist(data, varlist):
 
 
 def complete_case_custom_years(data, var, years):
+    print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
     data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+    # data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan, inplace=True) # Avoids Pandas SettingWithCopyWarning
     data = data[~(data['time'].isin(years) & data[var].isna())]
 
     return data
@@ -70,7 +72,7 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure", 'hh_income']  # many of these
+                          "housing_tenure", 'hh_income', "nkids_ind"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -82,7 +84,9 @@ if __name__ == "__main__":
     # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
-    # ncigs missing for wave 1 only
+    # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
+    # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
+    data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])

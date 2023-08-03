@@ -9,13 +9,15 @@ these functions entirely into R. Some variables are imputed then combined and vi
 
 import pandas as pd
 import numpy as np
+import sys
 
-import US_utils
-import US_missing_description as USmd
+from minos.data_generation import US_utils
+# import US_missing_description as USmd
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
+PARITY_MAX_DEFAULT = 10
 
 def generate_composite_housing_quality(data):
     """
@@ -909,6 +911,58 @@ def calculate_equivalent_income(data):
     return data
 
 
+def calculate_children(data,
+                       parity_max=PARITY_MAX_DEFAULT):
+    """
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        A DataFrame containing corrected Understanding Society data
+    Returns
+    -------
+    data : pd.DataFrame
+        The same DataFrame containing a composite variable for number of children an individual has ever had
+
+    """
+    print('Generating composite for children per individual...')
+
+    # data.to_csv("datadump.csv")
+    pidps_all = data['pidp'].unique()
+    pidps = data[data['sex'] == 'Female']['pidp'].unique()
+    print("No. of pidps (all):", len(pidps_all))
+    print("No. of pidps (females only):", len(pidps))
+
+    # Initialise new column
+    data['nkids_ind'] = data['nkids_ind_raw']
+
+    pl = str(len(pidps))
+    for i,pidp in enumerate(pidps):
+        sys.stdout.write("\rProcessing pidp " + str(i+1) + " of " + pl + " (females only)")
+        subframe = data[data['pidp'] == pidp][['pidp', 'nkids_ind_raw', 'nkids_ind_new', 'time']]
+        # Calculate number of children if:
+        # 1. Any pregnancies present (i.e. nkids_ind_new == 2)
+        # 2. There are no negative values in nkids_ind_raw (indicating invalid values)
+        if (2 in subframe['nkids_ind_new'].values) and not (subframe['nkids_ind_raw'].lt(0).any()):
+            # Increment values according to cumulative sum
+            # Note specific method avoids Pandas SettingWithCopyWarning
+            # See here: https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
+            data.loc[subframe.index, 'nkids_ind'] = subframe['nkids_ind_raw'] + (subframe['nkids_ind_new'] == 2).astype(int).cumsum()
+            # print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+        # elif (subframe['nkids_ind_raw'].lt(0).any()):
+        #     print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+    print("")
+
+    # Reset any women with more than nmax children to nmax
+    data.loc[(data['nkids_ind'] > parity_max) & (data['sex'] == "Female"), 'nkids_ind'] = parity_max
+
+    # Drop interim variables as not used elsewhere in pipeline
+    data.drop(labels=['nkids_ind_raw', 'nkids_ind_new'],
+              axis=1,
+              inplace=True)
+    return data
+
+
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
@@ -917,6 +971,7 @@ def generate_difference_variables(data):
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     return data
+
 
 def main():
     maxyr = US_utils.get_data_maxyr()
@@ -941,6 +996,7 @@ def main():
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
+    data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
 
     print('Finished composite generation. Saving data...')

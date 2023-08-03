@@ -2,6 +2,10 @@
 .idea/*
 .idea/
 
+# Jupyter stuff
+.ipynb_checkpoints/
+.ipynb_checkpoints/*
+
 # Cython stuff (pycache)
 data/__pycache__/
 minos/__pycache__/
@@ -71,6 +75,10 @@ papers/phd1/data/*
 
 # Chris' data
 persistent_data/ADULT*.csv
+persistent_data/Fertility/
+persistent_data/Fertility/*
+persistent_data/Mortality/
+persistent_data/Mortality/*
 
 # conda env.
 conda_minos

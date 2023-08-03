@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from os.path import exists
 from os import remove
-
+from minos.utils import get_nearest
 
 class BaseHandler:
     def __init__(self, configuration):
@@ -17,7 +17,7 @@ class BaseHandler:
             self._build()
             self.cache()
         else:
-            print('Fetching rate table from catch {}'.format(self.rate_table_path))
+            print('Fetching rate table from cache {}'.format(self.rate_table_path))
             self.rate_table = pd.read_csv(self.rate_table_path, index_col=[0])
 
     def set_matrix_tables(self):
@@ -26,7 +26,7 @@ class BaseHandler:
     def cache(self, overwrite=False):
         if not exists(self.rate_table_path) or overwrite:
             print('Caching rate table...')
-            self.rate_table.to_csv(self.rate_table_path)
+            self.rate_table.to_csv(self.rate_table_path, index=False)
             print('Cached to {}'.format(self.rate_table_path))
         else:
             print('File already exists at {}'.format(self.rate_table_path))
@@ -53,7 +53,7 @@ class BaseHandler:
             year_end (int): Year for the interpolation to finish
             age_start (int): Minimum age observed in the rate table
             age_end (int): Maximum age observed in the rate table
-            unique_sex (list of ints): Sex of indivuals to be considered
+            unique_sex (list of ints): Sex of individuals to be considered
 
             Returns:
             df (dataframe): A dataframe with the right vph format.
@@ -65,7 +65,18 @@ class BaseHandler:
         unique_locations = np.unique(df['REGION.name'])
         unique_ethnicity = np.unique(df['ETH.group'])
 
-        # loop over the observed values to fill the ne dataframe
+        # HR 20/04/23 Get all years from year_start and year_end
+        unique_years = np.unique(df['year'])
+        print("\n## Running transform_rate_table, checking years... ##")
+        years = list(range(year_start, year_end))
+        print("\n## years before checking:", years)
+
+        year_start = get_nearest(list(unique_years), year_start)
+        year_end = get_nearest(list(unique_years), year_end)
+        years = list(range(year_start, year_end))
+        print("\n## years after checking:", years)
+
+        # loop over the observed values to fill the new dataframe
         list_dic = []
         for loc in unique_locations:
 
@@ -94,27 +105,45 @@ class BaseHandler:
                         elif age == 100:
                             column = column_suffix + '100.101p'
                         else:
-                            # columns parsed to the rigth name (eg 'M.50.51' for a male between 50 and 51 yo)
+                            # columns parsed to the right name (eg 'M.50.51' for a male between 50 and 51 yo)
                             column = column_suffix + str(age) + '.' + str(age + 1)
 
-                        if sub_loc_eth_df[column].shape[0] == 1:
-                            value = sub_loc_eth_df[column].values[0]
-                        else:
-                            value = 0
-                            print('Problem, more or less than one value in this category')
+                        # HR 21/04/23 Old block not including year
+                        # if sub_loc_eth_df[column].shape[0] == 1:
+                        #     value = sub_loc_eth_df[column].values[0]
+                        # else:
+                        #     value = 0
+                        #     print('Problem, more or less than one value in this category')
+                        #
+                        # # create the rate row.
+                        # dict = {'region': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                        #         'year_start': year_start, 'year_end': year_end, 'mean_value': value}
+                        # list_dic.append(dict)
 
-                        # create the rate row.
-                        dict = {'region': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
-                                'year_start': year_start, 'year_end': year_end, 'mean_value': value}
-                        list_dic.append(dict)
+                        # HR 21/04/23 New block to include year
+                        for year in years:
+
+                            # Get sub-dataframe for year
+                            sub_loc_eth_year_df = sub_loc_eth_df[sub_loc_eth_df['year'] == year]
+
+                            if sub_loc_eth_year_df[column].shape[0] == 1:
+                                value = sub_loc_eth_year_df[column].values[0]
+                            else:
+                                value = 0
+                                print('Problem, more or less than one value in this category')
+
+                            # create the rate row.
+                            dict = {'region': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                                    'year_start': year, 'year_end': year + 1, 'mean_value': value}
+                            list_dic.append(dict)
 
         return pd.DataFrame(list_dic)
 
     @staticmethod
     def compute_migration_rates(df_migration_numbers, df_population_total, year_start, year_end, age_start, age_end,
                                 unique_sex=[1, 2], normalize=True):
-        """Function that computes the migration (this can be immigration or emigration) rates based on the an input dataframe containing the total values of
-         migration seen and an input dataframe containing the total population values. The rate is the ratio between both and its retuned as a rate
+        """Function that computes the migration (this can be immigration or emigration) rates based on an input dataframe containing the total values of
+         migration seen and an input dataframe containing the total population values. The rate is the ratio between both and is returned as a rate
           table in a format readable for vivarium public health.
 
           Parameters:
@@ -125,7 +154,7 @@ class BaseHandler:
           year_end (int): Year for the interpolation to finish
           age_start (int): Minimum age observed in the rate table
           age_end (int): Maximum age observed in the rate table
-          unique_sex (list of ints): Sex of indivuals to be considered
+          unique_sex (list of ints): Sex of individuals to be considered
           normalize (True/False): divide by the number of population
 
           Returns:
@@ -162,17 +191,17 @@ class BaseHandler:
                         # cater for particular cases (age less than 1 and more than 100).
                         if age == -1:
                             column = column_suffix + 'B.0'
-                            colum_total = 'B'
+                            column_total = 'B'
                         elif age == 100:
                             column = column_suffix + '100.101p'
                         else:
-                            # columns parsed to the rigth name (eg 'M.50.51' for a male between 50 and 51 yo)
+                            # columns parsed to the right name (eg 'M.50.51' for a male between 50 and 51 yo)
                             column = column_suffix + str(age) + '.' + str(age + 1)
-                            colum_total = column_suffix + str(age)
+                            column_total = column_suffix + str(age)
 
-                        if sub_loc_eth_df[column].shape[0] == 1 and sub_loc_eth_df_total[colum_total].sum() != 0:
+                        if sub_loc_eth_df[column].shape[0] == 1 and sub_loc_eth_df_total[column_total].sum() != 0:
                             if normalize:
-                                value = sub_loc_eth_df[column].values[0] / sub_loc_eth_df_total[colum_total].sum()
+                                value = sub_loc_eth_df[column].values[0] / sub_loc_eth_df_total[column_total].sum()
                             else:
                                 value = sub_loc_eth_df[column].values[0]
                         else:

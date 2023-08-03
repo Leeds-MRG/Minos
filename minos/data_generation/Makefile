@@ -24,6 +24,12 @@ complete_data: $(COMPLETEDATA)/2020_US_cohort.csv
 final_data: ### Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
 final_data: $(FINALDATA)/2020_US_cohort.csv
 
+inflated_data: ### Inflate the data to account for survey weights, with records duplicated (weight * 100) times
+inflated_data: $(INFLATEDDATA)/2020_US_cohort.csv
+
+inflated_repl: ### Replenishing population generated from inflated data.
+inflated_repl: $(DATADIR)/replenishing/inflated/replenishing_pop_2019-2070.csv
+
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
 replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
@@ -61,8 +67,14 @@ $(COMPLETEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)
 $(FINALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_stock_pop.py
 
-$(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(INFLATEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/weight_inflate_pop.py $(PERSISTJSON)/*.json
+	$(PYTHON) $(DATAGEN)/weight_inflate_pop.py
+
+$(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
+
+$(DATADIR)/replenishing/inflated/replenishing_pop_2019-2070.csv: $(INFLATEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --inflated
 
 $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv: $(SCOTDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland

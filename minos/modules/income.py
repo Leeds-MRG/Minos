@@ -611,7 +611,7 @@ class lmmYJIncome(Base):
             'time',
             'pidp',
             'hidp',
-            'weight',
+            #'weight',
             'SF_12',
             'hh_income_diff',
         ]

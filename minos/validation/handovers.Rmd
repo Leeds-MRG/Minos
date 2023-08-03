@@ -23,6 +23,9 @@ require(ggplot2)
 require(ggridges) # for densities over time plots. 
 require(knitr)
 require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
 require(gghighlight)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
@@ -64,7 +67,6 @@ create.if.not.exists(save.path)
 shall.we.save <- FALSE
 ```
 
-
 # PATHWAYS
 
 ## Income
@@ -75,60 +77,6 @@ shall.we.save <- FALSE
 
 handover_boxplots(raw.dat, base.dat, 'hh_income')
 handover_lineplots(raw.dat, base.dat, "hh_income")
-
-# raw.income2 <- raw.dat %>% 
-#               dplyr::select(pidp, time, hh_income) %>%
-#               filter(pidp %in% raw.income.wave1)
-# 
-# base.income <-  base.income2 <- base.dat %>%
-#                                 dplyr::select(pidp, time, hh_income) %>%
-#                                 filter(pidp %in% raw.income.wave1)
-# 
-# handover_lineplots(raw.d)
-# ## Try a version where final_US is limited to only those present from wave 1 
-# # onwards because the sample refreshments are messing with the plot
-# raw.income.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
-# 
-# raw.income2 <- raw.dat %>% 
-#   dplyr::select(pidp, time, hh_income) %>%
-#   filter(pidp %in% raw.income.wave1) %>%
-#   group_by(time) %>%
-#   summarise(income = mean(hh_income, na.rm = TRUE)) %>%
-#   mutate(source = 'final_US')
-# 
-# base.income2 <- base.dat %>%
-#   dplyr::select(pidp, time, hh_income) %>%
-#   filter(pidp %in% raw.income.wave1) %>%
-#   group_by(time) %>%
-#   summarise(income = mean(hh_income, na.rm = TRUE)) %>%
-#   mutate(source = 'baseline_output')
-# 
-# income2 <- rbind(raw.income2, base.income2)
-# 
-# # Now plot
-# ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colour = source)) +
-#   geom_line() +
-#   geom_vline(xintercept=start.year, linetype='dotted') +
-#   labs(title = 'Household Income') +
-#   xlab('Year') +
-#   ylab('Income')
-# 
-# if (shall.we.save) {
-#   ggsave(filename = 'hh_income_wav1.png',
-#        plot = last_plot(),
-#        path = save.path)
-# }
-# 
-# raw.income.check <- raw.dat %>% 
-#   dplyr::select(pidp, time, hh_income) %>%
-#   filter(pidp %in% raw.income.wave1)
-# 
-# base.income.check <- base.dat %>%
-#   dplyr::select(pidp, time, hh_income) %>%
-#   filter(pidp %in% raw.income.wave1)
-# 
-# rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
-#    raw.income.check, base.income.check)
 ```
 
 ### Spaghetti
@@ -353,18 +301,18 @@ rm(raw.housing, base.housing, housing, housing.norm)
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, housing_quality)
-base.s <- base.dat %>%
-  select(pidp, age, time, housing_quality)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'housing_quality',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, housing_quality)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, housing_quality)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'housing_quality',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Neighbourhood Safety
@@ -419,18 +367,18 @@ if (shall.we.save) {
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, neighbourhood_safety)
-base.s <- base.dat %>%
-  select(pidp, age, time, neighbourhood_safety)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'neighbourhood_safety',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, neighbourhood_safety)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, neighbourhood_safety)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'neighbourhood_safety',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Loneliness
@@ -485,18 +433,18 @@ rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, loneliness)
-base.s <- base.dat %>%
-  select(pidp, age, time, loneliness)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'loneliness',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, loneliness)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, loneliness)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'loneliness',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Nutrition Quality
@@ -551,23 +499,23 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 ### Spaghetti
 
 ```{r}
-raw.nut <- raw.dat %>%
-  select(pidp, age, time, nutrition_quality)
-base.nut <- base.dat %>%
-  select(pidp, age, time, nutrition_quality)
-
-nut.spag <- rbind(raw.nut, base.nut)
-
-spaghetti_plot(nut.spag, 'nutrition_quality',
-               save = shall.we.save,
-               save.path = save.path)
-
-
-density_ridges(nut.spag, "nutrition_quality", 
-               save = T, 
-               save.path = save.path)
-
-rm(raw.nut, base.nut, nut.spag)
+# raw.nut <- raw.dat %>%
+#   select(pidp, age, time, nutrition_quality)
+# base.nut <- base.dat %>%
+#   select(pidp, age, time, nutrition_quality)
+# 
+# nut.spag <- rbind(raw.nut, base.nut)
+# 
+# spaghetti_plot(nut.spag, 'nutrition_quality',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# 
+# density_ridges(nut.spag, "nutrition_quality", 
+#                save = T, 
+#                save.path = save.path)
+# 
+# rm(raw.nut, base.nut, nut.spag)
 ```
 
 ## Physical Health
@@ -655,18 +603,18 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, phealth)
-base.s <- base.dat %>%
-  select(pidp, age, time, phealth)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'phealth',
-             save = shall.we.save,
-             save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, phealth)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, phealth)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'phealth',
+#              save = shall.we.save,
+#              save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Education
@@ -722,18 +670,92 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, education_state)
-base.s <- base.dat %>%
-  select(pidp, age, time, education_state)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, education_state)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, education_state)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'education_state',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
+```
+
+## Parity
+
+```{r}
+base.parity <- base.dat %>%
+  filter(sex == "Female")
+
+raw.parity <- raw.dat %>%
+  filter(sex == "Female")
+
+prepped.list <- validation_prep_ordinal(raw.parity, base.parity, 'nkids_ind')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Parity (total no. of children)'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = nkids_ind, colour = nkids_ind)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=nkids_ind)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'parity.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.parity,
+                                  df1.name = 'simulated', 
+                                  df2 = raw.parity, 
+                                  df2.name = 'raw', 
+                                  var = 'nkids_ind')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'nkids_ind',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.parity %>%
+  select(pidp, age, time, nkids_ind)
+base.s <- base.parity %>%
+  select(pidp, age, time, nkids_ind)
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'education_state',
+spaghetti_plot(spag, 'nkids_ind',
                save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
 
+```{r}
+
+```
 

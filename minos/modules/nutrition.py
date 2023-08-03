@@ -334,6 +334,7 @@ class lmmDiffNutrition(Base):
         # Neither should be dead yet.
         pop_update = pd.DataFrame({'nutrition_quality_diff': 0},
                                   index=pop_data.index)
+        pop_update['nutrition_quality_diff'] = pop_update['nutrition_quality_diff'].astype(int)
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):

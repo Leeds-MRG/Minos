@@ -112,6 +112,12 @@ def inapplicable_job_sector(data):
     return data['job_sector'] == -8
 
 
+def inapplicable_number_of_children(data):
+    return data['nkids_ind_raw'] == -8
+    # return data['nkids_ind_raw'] < 0
+    # return data['nkids_ind_raw'].isin([-1, -2, -7, -8, -9])
+
+
 def main(data):
     print("Before removing deterministically missing values.")
 
@@ -128,6 +134,8 @@ def main(data):
     data = det_missing(data, ['ncigs'], doesnt_smoke, force_zero)
     # anyone who has job_sector == -8 (inapplicable) should be forced to 0
     data = det_missing(data, ['job_sector'], inapplicable_job_sector, force_zero)
+    data = det_missing(data, ['nkids_ind_raw'], inapplicable_number_of_children, force_zero)
+
     # table of missing values by row/column after correction.
     print("After removing deterministically missing values.")
     US_missing_description.missingness_table(data)
