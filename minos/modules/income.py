@@ -610,7 +610,7 @@ class lmmYJIncome(Base):
             #'job_sector',
             'time',
             'pidp',
-            'weight',
+            #'weight',
             'SF_12',
             'hh_income_diff',
         ]

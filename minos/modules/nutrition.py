@@ -215,7 +215,7 @@ class lmmYJNutrition(Base):
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
         newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 110) # clipping because of idiot that eats 150 vegetables per week.
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
-        newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(float)
+        newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print('nutrition', np.mean(newWaveNutrition['nutrition_quality']))
@@ -334,6 +334,7 @@ class lmmDiffNutrition(Base):
         # Neither should be dead yet.
         pop_update = pd.DataFrame({'nutrition_quality_diff': 0},
                                   index=pop_data.index)
+        pop_update['nutrition_quality_diff'] = pop_update['nutrition_quality_diff'].astype(int)
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):

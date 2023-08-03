@@ -13,6 +13,7 @@ import pickle
 # Single wave functions.
 ########################
 
+
 def check_output_dir(output):
     """Check an output data directory exists and create it if it does not.
 
@@ -64,6 +65,7 @@ def load_file(file_name):
     data = pd.read_stata(file_name, convert_categoricals=False)
     return data
 
+
 def save_json(data, destination):
     """Save python dictionaries to JSON.
 
@@ -79,6 +81,7 @@ def save_json(data, destination):
     """
     with open(destination, 'w') as fp:
         json.dump(data, fp)
+
 
 def load_json(file_source, file_name):
     """ Load a JSON data dictionary.
@@ -125,6 +128,7 @@ def get_wave_letter(year):
         wave_number = year - 2009
     wave_letter = alphabet[wave_number]
     return wave_letter
+
 
 def US_file_name(year, source, section):
     """ Get file name for given year of US data.

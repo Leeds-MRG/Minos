@@ -24,6 +24,10 @@ handovers_S7:
 	# open html file in firefox
 	firefox file://$(VALIDATION)/handovers_S7.html
 
+handovers_inflated:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers_inflated.Rmd')"
+	firefox file://$(VALIDATION)/handovers_inflated.html
+
 debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"
 	# open html file in firefox
