@@ -2,26 +2,54 @@
 #TODO: make bash functions for vulnerable subgroups in aggregated_lineplots.sh
 #TODO make bash script for maps.
 #TODO add bash script with 4 interventions (no poverty line).
-#####################################
-# Post-hoc aggregation of multiple MINOS runs on bash terminal.
-#####################################
 
+##############################################################
+# Post-hoc aggregation of multiple MINOS runs into lineplots #
+##############################################################
 
-main_lineplots:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/make_lineplots_all.Rmd')"
-	# open html file in firefox
-	firefox file://$(OUTCOMES)/make_lineplots_all.html
+# All Children Uplift
+all_child_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_child"
 
-simd_decile_lineplots:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/make_lineplots_simd_deciles.Rmd')"
-	# open html file in firefox
-	firefox file://$(OUTCOMES)/make_lineplots_simd_deciles.html
+# Poverty Line Child Uplift
+poverty_line_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "poverty_line_child"
 
-vulnerable_lineplots:
-	bash minos/outcomes/aggregated_vulnerable_lineplots.sh
+# Living Wage Intervention
+living_wage_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "living_wage"
 
-main_maps:
-	bash minos/outcomes/aggregated_maps.sh
+# EBSS energy downlift.
+ebss_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "ebss"
+
+# do all the above together
+all_five_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_five"
+
+all_initial_lineplots: all_child_lineplot poverty_line_lineplot living_wage_lineplot ebss_lineplot all_five_lineplot
+
+# glasgow new lineplots
+
+baseline_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_baseline_all_deciles"
+
+poverty_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_all_deciles"
+
+poverty_first_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_first"
+
+poverty_fifth_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_fifth"
+
+poverty_tenth_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_tenth"
+
+epcg_simd_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "epcg_simd_lineplot"
+
+all_decile_lineplots: baseline_all_deciles poverty_all_deciles poverty_fifth_decile_lineplot poverty_first_decile_lineplot poverty_tenth_decile_lineplot
 
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
@@ -95,6 +123,9 @@ epcg_ebss_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
 
+# experimental bash scripts.
+main_maps:
+	bash minos/outcomes/aggregated_maps.sh
 
 
 map_all: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map

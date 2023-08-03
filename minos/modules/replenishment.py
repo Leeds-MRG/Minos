@@ -87,7 +87,7 @@ class Replenishment(Base):
                         ]
 
         if config.input_data_dir == "data/scaled_glasgow_US": # only have spatial column and new pidp for synthpop.
-            view_columns += ["ZoneID", 
+            view_columns += ["ZoneID",
                              "new_pidp",
                              'local_simd_deciles',
                              'simd_decile',
