@@ -54,7 +54,9 @@ aggregate_minos_output_poverty_child_uplift:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
 
 aggregate_minos_output_child_poverty_reduction:
-	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReduction "Baseline,Child Poverty Reduction" who_kids,who_boosted "child_poverty_reduction"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReduction "Baseline,Child Poverty Reduction" who_alive,who_boosted "child_poverty_reduction_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReduction "Baseline,Child Poverty Reduction" who_kids,who_boosted "child_poverty_reduction_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReduction "Baseline,Child Poverty Reduction" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_who_pov_kids"
 
 #aggregate_minos_output_all_child_uplift:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift"

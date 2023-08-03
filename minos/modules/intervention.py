@@ -188,7 +188,8 @@ class hhIncomeChildUplift(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # print(np.mean(pop['hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
+        #pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
+        #pop['boost_amount'] = 0
         pop['boost_amount'] = (25 * 30.436875 * pop['nkids'] / 7) # £25 per week * 30.463/7 weeks per average month * nkids.
         pop['income_boosted'] = (pop['boost_amount'] != 0)
         pop['hh_income'] += pop['boost_amount']
@@ -262,7 +263,8 @@ class hhIncomePovertyLineChildUplift(Base):
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']
+        #pop['hh_income'] -= pop['boost_amount']
+        #pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -355,6 +357,7 @@ class livingWageIntervention(Base):
         pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
+        #pop['boost_amount'] = 0
         # Now get who gets uplift (different for London/notLondon)
         who_uplifted_London = pop['hourly_wage'] > 0
         who_uplifted_London *= pop['region'] == 'London'
@@ -448,6 +451,7 @@ class energyDownlift(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
+        #pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -523,6 +527,7 @@ class energyDownliftNoSupport(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
+        #pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
@@ -611,13 +616,18 @@ class ChildPovertyReduction(Base):
 
         # set parameters
         end_year = 2030
+        target_pov_prop = 0.1
+
 
         # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
+        # Reset the previous income_boosted for testing
+        full_pop['income_boosted'] = False
+        full_pop['boost_amount'] = 0.0
+        self.population_view.update(full_pop[['income_boosted', 'boost_amount']])
         median_income = full_pop['hh_income'].median()
         # 2. Total number of kids
         nkids_total = full_pop['nkids'].sum()
-        # 1a. Reset the previous boost
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
         # 3. Find all households in relative poverty
@@ -628,21 +638,26 @@ class ChildPovertyReduction(Base):
         # 4. Calculate the proportion of children in relative poverty
         target_pop_nkids = target_pop['nkids'].sum()
         prop_in_poverty = target_pop_nkids / nkids_total
-        print(f"Percentage of families in poverty: {prop_in_poverty * 100}")
+        print(f"Percentage of children in poverty: {prop_in_poverty * 100}")
 
         # 5. Calculate how many should be uplifted (gradual reduction in child poverty with 2030 as year we hit 10%)
         # we need to reduce this proportion down to 10% by 2030, so we can calculate the number of years we have left
         # and then the proportion to reduce in that year
         years_remaining = end_year - event.time.year
-        # if prop_in_poverty > 0.1:
-        proportion_remaining = prop_in_poverty - 0.1
+
+        if prop_in_poverty > target_pov_prop:
+            prop_above_target = prop_in_poverty - target_pov_prop
+        else:
+            prop_above_target = 0
+
         if years_remaining > 0:  # before 2030
-            proportion_to_uplift = proportion_remaining / years_remaining
+            proportion_to_uplift = prop_above_target / years_remaining
         elif years_remaining == 0:  # in 2030
-            proportion_to_uplift = proportion_remaining
+            proportion_to_uplift = prop_above_target
         elif years_remaining < 0:  # after 2030, fix to target level
-            proportion_to_uplift = proportion_remaining
-        print(f"Proportion to uplift: {proportion_to_uplift}")
+            proportion_to_uplift = prop_above_target
+        print(f"Proportion to uplift by {end_year}: {prop_above_target}")
+        print(f"Proportion to uplift this year: {proportion_to_uplift}")
 
         # 6. Calculate number of children to elevate out of poverty based on proportion to uplift
         nkids_to_uplift = round(target_pop_nkids * proportion_to_uplift)
@@ -658,7 +673,7 @@ class ChildPovertyReduction(Base):
                 break
 
         print(f"Number of households to uplift: {len(target_hidps)}")
-        #print(target_pop[target_pop['hidp'].isin(target_hidps)])
+        print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
 
         # 8. Calculate boost amount for each household and apply
         uplift_pop = self.population_view.get(event.index,
@@ -669,6 +684,12 @@ class ChildPovertyReduction(Base):
 
         # 9. Update original population with uplifted values
         self.population_view.update(uplift_pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        target_pop2 = self.population_view.get(event.index,
+                                              query=f"alive == 'alive' & nkids > 0 & hh_income < "
+                                                    f"{relative_poverty_threshold}")
+
+        print(f"Proportion of children in poverty AFTER intervention: {target_pop2['nkids'].sum() / nkids_total}")
 
         # 10. Logging
         logging.info(f"\tNumber of people uplifted: {sum(uplift_pop['income_boosted'])}")
