@@ -2,6 +2,10 @@
 ## Test Simulations
 ###################
 
+# Default parameters
+MODE=default_config
+RUN_CONFIG=$(CONFIG)/default.yaml
+
 .PHONY: testRun testRun_Intervention test_run
 
 testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
@@ -44,14 +48,8 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
-baseline_default: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config
-
 baseline_inflated: setup_inflated
 	$(PYTHON) scripts/run.py -c $(CONFIG)/inflated_default.yaml -o inflated_default
-
-intervention_livingWage_default: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'livingWageIntervention'
 
 intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
@@ -129,25 +127,25 @@ arc4_cv_baseline: cv_setup
 
 beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
 beefy_baseline: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE)
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 beefy_intervention_hhIncome: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeIntervention'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
 beefy_intervention_hhIncomeChildUplift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeChildUplift'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
 beefy_intervention_PovertyLineChildUplift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 beefy_intervention_livingWage: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'livingWageIntervention'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
 beefy_intervention_energyDownLift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownlift'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
 beefy_intervention_energyDownLiftNoSupport: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownliftNoSupport'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 beefy_all_scenarios: MODE=default_config
 beefy_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
