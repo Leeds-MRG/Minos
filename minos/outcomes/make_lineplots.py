@@ -100,12 +100,11 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
         with Pool() as pool:
-            if year == 2020:
-                subset_func_string = "who_alive"
 
-            aggregated_means = pool.starmap(aggregate_csv,
-                                            zip(files, repeat(subset_func_string), repeat(v), repeat(method),
-                                                repeat(mode)))
+            if year > 2020 or "baseline" in source:
+                aggregated_means = pool.starmap(aggregate_csv,
+                                                zip(files, repeat(subset_func_string), repeat(v), repeat(method),
+                                                    repeat(mode)))
         if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
             print(
                 f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
