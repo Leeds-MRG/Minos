@@ -9,6 +9,16 @@ if __name__ == '__main__':
     ref = "National Average"
     v = "SF_12"
     method='nanmean'
+    #lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+    directories = "baseline,hhIncomePovertyLineChildUplift"
+    tags = "National Average,First"
+    subset_function_strings = """who_kids_tenth_simd_decile,who_boosted_first_simd_decile"""
+    prefix="25_poverty_first_simd_decile"
+    config_mode = "glasgow_scaled"
+    ref = "National Average"
+    v = "SF_12"
+    method='nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
     directories = "baseline,hhIncomePovertyLineChildUplift"
@@ -19,7 +29,7 @@ if __name__ == '__main__':
     ref = "National Average"
     v = "SF_12"
     method='nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    #lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
     directories = "baseline,hhIncomePovertyLineChildUplift"
     tags = "National Average,Fifth"
@@ -29,4 +39,4 @@ if __name__ == '__main__':
     ref = "National Average"
     v = "SF_12"
     method='nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    #lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
