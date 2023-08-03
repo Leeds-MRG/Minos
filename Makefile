@@ -95,7 +95,9 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
-setup: install data transitions_default inflated_data replenishing_data
+setup: install data transitions_default replenishing_data
+
+setup_inflated: install data transitions_default inflated_data inflated_repl
 
 setup_S7: install data transitions_SIPHER7 replenishing_data
 

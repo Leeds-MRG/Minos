@@ -166,10 +166,10 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation):
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated):
 
     output_dir = 'data/replenishing'
-    data_source = 'inflated_US'
+    data_source = 'final_US'
     transition_dir = 'data/transitions'
 
     if scotland_mode:
@@ -180,6 +180,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
         data_source = 'final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
+    if inflated:
+        data_source = 'inflated_US'
+        output_dir = 'data/replenishing/inflated'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"
@@ -212,10 +215,14 @@ def main():
                         help="Select Scotland mode to only produce replenishing using scottish sample.")
     parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
                         help="Select cross-validation mode to produce cross-validation replenishing population.")
+    parser.add_argument("-i", "--inflated", dest='inflated', action='store_true', default=False,
+                        help="Select inflated mode to produce inflated cross-validation populations from inflated"
+                             "data.")
 
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
+    inflated = args.inflated
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
@@ -224,7 +231,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections, scotland_mode, cross_validation)
+    generate_replenishing(projections, scotland_mode, cross_validation, inflated)
 
 
 if __name__ == "__main__":

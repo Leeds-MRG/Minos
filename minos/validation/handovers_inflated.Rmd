@@ -1,5 +1,5 @@
 ---
-title: "MINOS Handover Plots"
+title: "MINOS Handover Plots - Inflated"
 output:
   html_document:
     toc: true
@@ -47,10 +47,10 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'inflated_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'default_config/')
+out.path <- here::here('output', 'inflated_default/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
@@ -63,6 +63,41 @@ create.if.not.exists(save.path)
 
 shall.we.save <- FALSE
 ```
+
+
+# SAMPLE
+
+```{r}
+raw.n <- raw.dat %>%
+  group_by(time) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.n <- base.dat %>%
+  group_by(time) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+combined <- rbind(raw.n, base.n)
+#combined$time <- as.factor(combined$time)
+
+ggplot(data = combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  geom_col(position='dodge') +
+  labs(title = 'Sample size over time')
+```
+
+# Check Weights
+
+```{r}
+# raw.weight <- raw.dat %>%
+#   group_by(time) %>%
+#   summarise(sum.weight = sum(weight, na.rm = TRUE))
+# 
+# ggplot(data = raw.weight, aes(x = time, y = sum.weight)) +
+#   geom_line()
+```
+
 
 # PATHWAYS
 
@@ -680,9 +715,3 @@ cv_ordinal_plots(pivoted.df = pivoted,
 # 
 # rm(raw.s, base.s, spag)
 ```
-
-
-```{r}
-
-```
-

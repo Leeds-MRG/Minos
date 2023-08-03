@@ -24,7 +24,7 @@ def inflate_pop_all_years(data):
     # generate unique pidp using groupID
     data['pidp'] = (data['pidp'] * 1000) + data['groupID']
 
-    data.drop(['weight', 'groupID'],
+    data.drop('groupID',
               axis=1,
               inplace=True)
     # last check that no duplicated pidp's remain

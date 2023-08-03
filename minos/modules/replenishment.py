@@ -64,7 +64,7 @@ class Replenishment(Base):
                         'alcohol_spending',
                         'smoker',
                         'loneliness',
-                        #'weight',
+                        'weight',
                         'nkids',
                         'ndrinks',
                         'max_educ',
