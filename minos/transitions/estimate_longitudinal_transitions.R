@@ -18,6 +18,7 @@ require(argparse)
 require(tidyverse)
 require(stringr)
 require(texreg)
+require(dplyr)
 
 ###################################
 # Main loop for longitudinal models 

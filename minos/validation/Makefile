@@ -50,10 +50,14 @@ debug_interventions:
 
 ########### Validation ###########
 
-cross_validation_default: cv_setup cv_default
+cross_validation_default: cv_setup cv_default cv_render
+
+cv_render:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_default.Rmd')"
 	firefox file://$(VALIDATION)/cross_validation_default.html
 
-cross_validation_S7: cv_S7_setup cv_SIPHER7
+cross_validation_S7: cv_S7_setup cv_SIPHER7 cv_S7_render
+
+cv_S7_render:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_S7.Rmd')"
 	firefox file://$(VALIDATION)/cross_validation_S7.html

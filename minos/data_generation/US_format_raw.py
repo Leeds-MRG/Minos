@@ -243,10 +243,17 @@ def format_ukhls_columns(year):
                       # for waves 2 and 5 similar variable 'smnow' could be used.
                       'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                       'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
+                      ## ---------------------
+                      ## Weight variables
                       'indscus_xw': "weight1",  # Cross-sectional analysis weight (wave 1)
                       'indscub_xw': "weight2_5",  # Cross-sectional analysis weight (waves 2-5)
                       'indscui_xw': "weight6p",  # Cross-sectional analysis weight (waves 6+)
-                      'nkids_dv': 'nkids',  # number of children
+                      ## ---------------------
+                      ## All variables relating to number of children
+                      'nkids_dv': 'nkids',  # number of children in household
+                      'lnprnt': 'nkids_ind_raw',  # number of children ever had by individual at first interview
+                      'preg': 'nkids_ind_new',  # whether had a child (actually a pregnancy) since last interview
+                      ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                       'xpelecy': 'yearly_electric',  # yearly electricty expenditure
                       'xpgasy': 'yearly_gas',  # yearly gas expenditure
