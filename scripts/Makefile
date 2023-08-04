@@ -70,7 +70,8 @@ intervention_energyDownLiftNoSupport: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 intervention_childPovertyReduction: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReduction'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/child_poverty_reduction_vis.Rmd')"
 	firefox file://$(OUTCOMES)/child_poverty_reduction_vis.html
 

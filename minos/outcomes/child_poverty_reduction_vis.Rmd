@@ -40,14 +40,15 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r, include=FALSE}
 out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
-int.dat <- read_singular_local_out(out.path, 'ChildPovertyReduction', drop.dead = TRUE)
+int.dat <- read_singular_local_out(out.path, 'ChildPovertyReductionRANDOM', drop.dead = TRUE)
+int2.dat <- read_singular_local_out(out.path, 'ChildPovertyReductionSUSTAIN', drop.dead = TRUE)
 #base.dat <- read_agg_subset_batch_out(out.path, 'baseline', drop.dead = TRUE)
 #int1.dat <- read_agg_subset_batch_out(out.path, 'ChildPovertyReduction', drop.dead = TRUE)
 ```
 
 # Relative Poverty Reduction
 
-The first intervention we will focus on is a reduction in the prevalence of children in relative poverty. 
+The first intervention we will focus on is a reduction in the prevalence of children in relative poverty. In these interventions, we have a target level of child poverty to attain (10% of children in a household in poverty) by a specified target year, which is 2030 unless stated otherwise. To achieve this, we find households with a hh_income under the poverty line, and uplift a number of households each year to linearly achieve the target proportion by the target year. 
 
 ## Threshold
 
@@ -84,187 +85,247 @@ ggplot(data = threshold, aes(x = time, y = poverty_threshold)) +
 
 The threshold for relative poverty decreases over time in our simulation (it's worth noting that monetary values in our simulation have been adjusted for inflation to 2020 £s). This suggests that our population is getting slightly less wealthy over time on average.
 
-## Boosted Sample
+## Random Uplift
+
+In this intervention, we will randomly select households to uplift in each year until we uplift the number of children required for that year. 
+
+### Boosted Sample
 
 We can also look at how many people are receiving the intervention over time, and the total and mean amounts of money being added to the system. This should slowly increase to 2030 and then hold fairly steady.
 
 ```{r}
-hh_boosted <- int.dat %>%
-  select(hidp, time, income_boosted, boost_amount, nkids) %>%
-  filter(income_boosted == 'True') %>%
-  group_by(time) %>%
-  summarise(n_boosted = length(unique(hidp)),
-            total_boost = sum(boost_amount),
-            kids_boosted = sum(nkids))
 
-ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
-  geom_line() +
-  geom_vline(xintercept = 2030, linetype = 'dashed') +
-  labs(title = 'Number of households receiving intervention') +
-  xlab('Year') +
-  ylab('Number Boosted')
+sample_information <- function(int.dat, target.year) {
+  hh_boosted <- int.dat %>%
+    select(hidp, time, income_boosted, boost_amount, nkids) %>%
+    filter(income_boosted == 'True') %>%
+    group_by(time) %>%
+    summarise(n_boosted = length(unique(hidp)),
+              total_boost = sum(boost_amount),
+              kids_boosted = sum(nkids))
+  
+  p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of households receiving intervention') +
+    xlab('Year') +
+    ylab('Number Boosted')
+  
+  p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of children in households receiving intervention') +
+    xlab('Year') +
+    ylab('Number Children')
+  
+  p3 <- ggplot(hh_boosted, aes(x = time, y = total_boost)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Total boost amount') +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  mean.boost <- int.dat %>%
+    select(time, income_boosted, boost_amount) %>%
+    group_by(time, income_boosted) %>%
+    summarise(mean_boost = mean(boost_amount)) %>%
+    filter(income_boosted == 'True')
+  
+  p4 <- ggplot(mean.boost, aes(x = time, y = mean_boost)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Mean boost amount') +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  print(p1)
+  print(p2)
+  print(p3)
+  print(p4)
+}
 
-ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
-  geom_line() +
-  geom_vline(xintercept = 2030, linetype = 'dashed') +
-  labs(title = 'Number of children in households receiving intervention') +
-  xlab('Year') +
-  ylab('Number Children')
-
-ggplot(hh_boosted, aes(x = time, y = total_boost)) +
-  geom_line() +
-  geom_vline(xintercept = 2030, linetype = 'dashed') +
-  labs(title = 'Total boost amount') +
-  xlab('Year') +
-  ylab('Boost Amount')
-
-mean.boost <- int.dat %>%
-  select(time, income_boosted, boost_amount) %>%
-  group_by(time, income_boosted) %>%
-  summarise(mean_boost = mean(boost_amount)) %>%
-  filter(income_boosted == 'True')
-
-ggplot(mean.boost, aes(x = time, y = mean_boost)) +
-  geom_line() +
-  geom_vline(xintercept = 2030, linetype = 'dashed') +
-  labs(title = 'Mean boost amount') +
-  xlab('Year') +
-  ylab('Boost Amount')
+sample_information(int.dat, target.year = 2030)
 ```
 
 
 Now lets look at SF_12_MCS comparisons.
 
-## SF_12_MCS
+### SF_12_MCS
 
 SF_12_MCS stands for the Mental Component Score (MCS) from the 12-item Short Form (SF) Survey. See [this paper](https://link.springer.com/referenceworkentry/10.1007/978-94-007-0753-5_2698) for more information about SF_12.
 
-### Full Sample
+#### Full Sample
 
 First lets look at the effect of the intervention on the entire sample.
 
 ```{r}
-base.all.SF12 <- base.dat %>%
-  select(time, weight, SF_12) %>%
-  group_by(time) %>%
-  summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+full.sample.change.SF12 <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12') +
+    xlab('Year') +
+    ylab('Difference')
+}
 
-int.all.SF12 <- int.dat %>%
-  select(time, weight, SF_12) %>%
-  group_by(time) %>%
-  summarise(int.SF12 = weighted.mean(SF_12, w = weight))
-
-combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
-combined$diff <- combined$int.SF12 - combined$base.SF12
-
-ggplot(combined, aes(x = time, y = diff)) +
-  geom_line() +
-  geom_hline(yintercept = 0, linetype='dashed') +
-  labs(title = 'Relative change in SF12') +
-  xlab('Year') +
-  ylab('Difference')
+full.sample.change.SF12(base.dat, int.dat)
 ```
 
-### Families with children
+#### Families with children
 
 Now focused only on families with children.
  
 ```{r}
-base.all.SF12 <- base.dat %>%
-  select(time, weight, SF_12, nkids) %>%
-  filter(nkids > 0) %>%
-  group_by(time) %>%
-  summarise(base.SF12 = weighted.mean(SF_12, w = weight))
-
-int.all.SF12 <- int.dat %>%
-  select(time, weight, SF_12, nkids) %>%
-  filter(nkids > 0) %>%
-  group_by(time) %>%
-  summarise(int.SF12 = weighted.mean(SF_12, w = weight))
-
-combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
-combined$diff <- combined$int.SF12 - combined$base.SF12
-
-ggplot(combined, aes(x = time, y = diff)) +
-  geom_line() +
-  geom_hline(yintercept = 0, linetype='dashed') +
-  labs(title = 'Relative change in SF12') +
-  xlab('Year') +
-  ylab('Difference')
+all.families.change.SF12 <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12') +
+    xlab('Year') +
+    ylab('Difference')
+}
+all.families.change.SF12(base.dat, int.dat)
 ```
 
-### Families w/ children under poverty line
+#### Families w/ children under poverty line
 
 Now only households with children under the poverty line.
 
 ```{r}
-base.thresh <- merge(base.dat, threshold, by = 'time')
-int.thresh <- merge(int.dat, threshold, by = 'time')
+poverty.families.change.SF12 <- function(base.dat, int.dat, threshold) {
+  base.thresh <- merge(base.dat, threshold, by = 'time')
+  int.thresh <- merge(int.dat, threshold, by = 'time')
+  
+  base.all.SF12 <- base.thresh %>%
+    select(time, weight, SF_12, nkids, hh_income, poverty_threshold) %>%
+    filter(nkids > 0) %>%
+    filter(hh_income < poverty_threshold) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.thresh %>%
+    select(time, weight, SF_12, nkids, hh_income, poverty_threshold) %>%
+    filter(nkids > 0) %>%
+    filter(hh_income < poverty_threshold) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12') +
+    xlab('Year') +
+    ylab('Difference')
+}
 
-base.all.SF12 <- base.thresh %>%
-  select(time, weight, SF_12, nkids, hh_income, poverty_threshold) %>%
-  filter(nkids > 0) %>%
-  filter(hh_income < poverty_threshold) %>%
-  group_by(time) %>%
-  summarise(base.SF12 = weighted.mean(SF_12, w = weight))
-
-int.all.SF12 <- int.thresh %>%
-  select(time, weight, SF_12, nkids, hh_income, poverty_threshold) %>%
-  filter(nkids > 0) %>%
-  filter(hh_income < poverty_threshold) %>%
-  group_by(time) %>%
-  summarise(int.SF12 = weighted.mean(SF_12, w = weight))
-
-combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
-combined$diff <- combined$int.SF12 - combined$base.SF12
-
-ggplot(combined, aes(x = time, y = diff)) +
-  geom_line() +
-  geom_hline(yintercept = 0, linetype='dashed') +
-  labs(title = 'Relative change in SF12') +
-  xlab('Year') +
-  ylab('Difference')
+poverty.families.change.SF12(base.dat, int.dat, threshold)
 ```
 
 This plot is perhaps a bit disingenuous, as the closer we get to 2030 the fewer households are actually under the poverty line. We might achieve what we want better by looking only at the boosted population.
 
-### Treatment on the Treated
+#### Treatment on the Treated
 
 ```{r}
-boosted.overtime <- int.dat %>%
-  filter(income_boosted == 'True')
+treatment.on.treated.change.SF12 <- function(base.dat, int.dat) {
+  boosted.byyear <- int.dat %>%
+    filter(income_boosted == 'True')
+  
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12') +
+    xlab('Year') +
+    ylab('Difference')
+}
 
-base.all.SF12 <- base.dat %>%
-  select(time, weight, SF_12, nkids, pidp) %>%
-  filter(pidp %in% boosted.overtime$pidp) %>%
-  group_by(time) %>%
-  summarise(base.SF12 = weighted.mean(SF_12, w = weight))
-
-int.all.SF12 <- int.dat %>%
-  select(time, weight, SF_12, nkids, pidp) %>%
-  filter(pidp %in% boosted.overtime$pidp) %>%
-  group_by(time) %>%
-  summarise(int.SF12 = weighted.mean(SF_12, w = weight))
-
-combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
-combined$diff <- combined$int.SF12 - combined$base.SF12
-
-ggplot(combined, aes(x = time, y = diff)) +
-  geom_line() +
-  geom_hline(yintercept = 0, linetype='dashed') +
-  labs(title = 'Relative change in SF12') +
-  xlab('Year') +
-  ylab('Difference')
+treatment.on.treated.change.SF12(base.dat, int.dat)
 ```
 
+### True Treatment on Treated
 
+Instead of looking at the difference in means 
 
+## Sustained Uplift
 
+This intervention is similar to the random uplift intervention with one difference. In the first year that the intervention is applied, households are randomly chosen for uplift until the correct number of children for that year are uplifted. The difference comes in subsequent years. From year 2 onwards, households that have been previously intervened on will once again be uplifted to above the poverty line (if they are once again below). This is the meaning of the sustained intervention, where families are chosen at random and then maintained above the poverty line, instead of picking a random subset of households under the poverty line as in the random intervention.
 
+### Boosted Sample
 
+```{r}
+sample_information(int2.dat, target.year = 2030)
+```
 
+### SF_12_MCS
 
+#### Full Sample
 
+```{r}
+full.sample.change.SF12(base.dat, int2.dat)
+```
+
+#### Families with children
+
+```{r}
+all.families.change.SF12(base.dat, int.dat)
+```
+
+#### Families w/ children under poverty line
+
+```{r}
+poverty.families.change.SF12(base.dat, int.dat, threshold)
+```
+
+#### Treatment on the Treated
+
+```{r}
+treatment.on.treated.change.SF12(base.dat, int.dat)
+```
 
 
 

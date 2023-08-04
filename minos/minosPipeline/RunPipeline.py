@@ -44,7 +44,7 @@ from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
-from minos.modules.intervention import ChildPovertyReduction
+from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -100,6 +100,8 @@ intervention_components_map = {  # Interventions
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+    "ChildPovertyReductionRANDOM": ChildPovertyReductionRANDOM(),
+    "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
 }
 
 replenishment_components_map = {
@@ -175,67 +177,6 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
-
-    #components = [eval(x) for x in config.components] # more adapative way but security issues.
-    # last one in first one off. any module that requires another should be BELOW IT in this order.
-    # Note priority in vivarium modules supercedes this. two
-    # Outcome module goes first (last in sim)
-    components_map = {
-        # Outcome module.
-        "geeMWB()": geeMWB(),
-        "geeYJMWB()": geeYJMWB(),
-        "lmmYJMWB()": lmmYJMWB(),
-        "lmmDiffMWB()": lmmDiffMWB(),
-        "MWB()": MWB(),
-        #Intermediary modules
-        "Tobacco()": Tobacco(),
-        "Alcohol()": Alcohol(),
-        "Neighbourhood()": Neighbourhood(),
-        "Labour()": Labour(),
-        "Heating()": Heating(),
-        "Housing()": Housing(),
-        "geeIncome()": geeIncome(),
-        "geeYJIncome()": geeYJIncome(),
-        "lmmDiffIncome()": lmmDiffIncome(),
-        "lmmYJIncome()": lmmYJIncome(),
-        "Income()": Income(),
-        "financialSituation()": financialSituation(),
-        "Loneliness()": Loneliness(),
-        "Nutrition()": Nutrition(),
-        "lmmYJNutrition()": lmmYJNutrition(),
-        "lmmDiffNutrition()": lmmDiffNutrition(),
-        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
-        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
-        "Mortality()": Mortality(),
-        "Education()": Education(),
-    }
-
-    SIPHER7_components_map = {  # SIPHER7 stuff
-        "S7Labour()" : S7Labour(),
-        "S7Housing()" : S7Housing(),
-        "S7Neighbourhood()": S7Neighbourhood(),
-        "S7MentalHealth()" : S7MentalHealth(),
-        "S7PhysicalHealth()": S7PhysicalHealth(),
-        "S7EquivalentIncome()": S7EquivalentIncome()
-    }
-
-    intervention_components_map = {        #Interventions
-        "hhIncomeIntervention": hhIncomeIntervention(),
-        "hhIncomeChildUplift": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift(),
-        "energyDownliftNoSupport": energyDownliftNoSupport(),
-        "ChildPovertyReduction": ChildPovertyReduction(),
-    }
-
-    replenishment_components_map = {
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
-    }
-
     component_list = []
     replenishment_component = []
     print("Initial components list:", config_components)
@@ -248,8 +189,7 @@ def validate_components(config_components, intervention):
         elif component in replenishment_components_map.keys():
             replenishment_component.append(replenishment_components_map[component])
         else:
-            print(f"Warning! {component} in config not found when running pipeline. Are you sure its in the "
-                  f"minos/minosPipeline/RunPipeline.py script?")
+            print("Warning! Component", component, "in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
 
     # TODO: include some error handling for choosing interventions
     # Can do this using assertions
@@ -258,9 +198,6 @@ def validate_components(config_components, intervention):
     if intervention in intervention_components_map.keys():
         # add intervention components.
         component_list.append(intervention_components_map[intervention])
-    else:
-        print(f"WARNING: {intervention} is not in the recognised list of interventions, are you sure its in the "
-              "minos/minosPipeline/RunPipeline.py script?")
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
     print("Final components list:", component_list)
@@ -403,4 +340,4 @@ def get_output_data_filename(config, year=0):
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"
 
-    return(output_data_filename)
+    return output_data_filename
