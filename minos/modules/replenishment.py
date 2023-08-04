@@ -84,7 +84,7 @@ class Replenishment(Base):
                         'marital_status',
                         'hh_comp',
                         'universal_income',
-                        'council_tax',  
+                        'council_tax',
                         #'labour_state',
                         'S7_labour_state',
                         'S7_housing_quality',
