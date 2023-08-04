@@ -77,7 +77,7 @@ class Income(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -250,7 +250,7 @@ class geeIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
         # just load this once.
         self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee/hh_income_GEE", self.rpy2Modules,
@@ -434,7 +434,7 @@ class geeYJIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
@@ -625,7 +625,7 @@ class lmmYJIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
@@ -800,7 +800,7 @@ class lmmDiffIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,

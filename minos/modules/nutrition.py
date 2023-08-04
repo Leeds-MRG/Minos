@@ -66,7 +66,7 @@ class Nutrition(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -184,7 +184,7 @@ class lmmYJNutrition(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
         # just load this once.
         self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_new_LMM", self.rpy2Modules,
@@ -311,7 +311,7 @@ class lmmDiffNutrition(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
         # just load this once.
         self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm_diff/nutrition_quality_LMM_DIFF", self.rpy2Modules,
