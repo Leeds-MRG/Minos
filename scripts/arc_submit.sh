@@ -33,6 +33,11 @@ fi
 # Set current time for directory naming
 TIME=`date +%Y_%m_%d_%H_%M_%S`
 
+# create these if they dont exist. Will crash arc4 if you dont do this.
+mkdir -p logs
+mkdir -p logs/log
+mkdir -p logs/errors
+
 
 if [ "$#" -eq 4 ]; then
   echo "Running baseline MINOS simulation"

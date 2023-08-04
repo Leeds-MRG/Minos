@@ -1,0 +1,785 @@
+---
+title: "Handovers - SIPHER 7 Equivalent Income"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+## Data
+
+```{r}
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+#out.path <- 'Minos/output/SIPHER7/'
+out.path <- here::here('output', 'SIPHER7/')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+```
+
+## Constants
+
+```{r}
+start.year <- 2020
+save.path <- here::here("plots", "handovers", 'SIPHER7')
+create.if.not.exists(save.path)
+
+shall.we.save <- TRUE
+```
+
+# INPUTS
+
+## Income
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.income <- raw.dat %>% 
+  dplyr::select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm=TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.income <- base.dat %>%
+  dplyr::select(pidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+income <- rbind(raw.income, base.income)
+
+# Now plot
+ggplot(data = income, mapping = aes(x = time, y = income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Household Income', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Income')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.income.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.income2 <- raw.dat %>% 
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.income2 <- base.dat %>%
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1) %>%
+  group_by(time) %>%
+  summarise(income = mean(hh_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+income2 <- rbind(raw.income2, base.income2)
+
+# Now plot
+ggplot(data = income2, mapping = aes(x = time, y = income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Household Income') +
+  xlab('Year') +
+  ylab('Income')
+
+if (shall.we.save) {
+  ggsave(filename = 'hh_income_wav1.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+raw.income.check <- raw.dat %>% 
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1)
+
+base.income.check <- base.dat %>%
+  dplyr::select(pidp, time, hh_income) %>%
+  filter(pidp %in% raw.income.wave1)
+
+rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2, 
+   raw.income.check, base.income.check)
+```
+
+### Spaghetti
+
+```{r}
+raw.inc <- raw.dat %>%
+  select(pidp, age, time, hh_income)
+base.inc <- base.dat %>%
+  select(pidp, age, time, hh_income)
+
+income.spag <- rbind(raw.inc, base.inc)
+
+spaghetti_plot(income.spag, 'hh_income',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.inc, base.inc, income.spag)
+```
+
+
+# OUTCOMES
+
+## Equivalent Income
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.ei <- raw.dat %>% 
+  dplyr::select(pidp, time, equivalent_income) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.ei <- base.dat %>%
+  dplyr::select(pidp, time, equivalent_income) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+ei <- rbind(raw.ei, base.ei)
+# drop -9 values (missing)
+ei <- ei %>%
+  filter(equivalent_income != -9)
+
+# Now plot
+ggplot(data = ei, mapping = aes(x = time, y = equivalent_income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Equivalent Income', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('EI')
+
+## Try a version where final_US is limited to only those present from wave 1 
+# onwards because the sample refreshments are messing with the plot
+raw.ei.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+raw.ei.2 <- raw.dat %>% 
+  dplyr::select(pidp, time, equivalent_income) %>%
+  filter(pidp %in% raw.ei.wave1) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'final_US')
+
+base.ei.2 <- base.dat %>%
+  dplyr::select(pidp, time, equivalent_income) %>%
+  filter(pidp %in% raw.ei.wave1) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  mutate(source = 'baseline_output')
+
+ei.2 <- rbind(raw.ei.2, base.ei.2)
+# drop -9 values (missing)
+ei.2 <- ei.2 %>%
+  filter(equivalent_income != -9)
+
+# Now plot
+ggplot(data = ei.2, mapping = aes(x = time, y = equivalent_income, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Equivalent Income', subtitle = 'Wave 1 sample') +
+  xlab('Year') +
+  ylab('EI')
+
+if (shall.we.save) {
+  ggsave(filename = 'EI_wav1.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(raw.ei, base.ei, ei, raw.ei.wave1, raw.ei.2, base.ei.2, ei.2)
+```
+
+### Spaghetti
+
+```{r}
+raw.ei <- raw.dat %>%
+  select(pidp, age, time, equivalent_income)
+base.ei <- base.dat %>%
+  select(pidp, age, time, equivalent_income)
+
+ei.spag <- rbind(raw.ei, base.ei)
+
+spaghetti_plot(base.ei, 'equivalent_income')
+
+spaghetti_plot(ei.spag, 'equivalent_income',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.ei, base.ei, ei.spag)
+```
+
+# PATHWAYS
+
+## S7 Housing Quality
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_housing_quality')
+
+housing <- prepped.list$var
+housing.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = housing, mapping = aes(x = time, y = n, group = S7_housing_quality, colour = S7_housing_quality)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Housing Quality', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=S7_housing_quality)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Housing Quality') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_housing_quality.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, housing, housing.norm)
+```
+
+
+
+```{r}
+hous.pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_housing_quality')
+
+cv_ordinal_plots(pivoted.df = hous.pivoted, 
+                 var = 'S7_housing_quality',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_housing_quality)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_housing_quality)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_housing_quality',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## S7 Neighbourhood Safety
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_neighbourhood_safety')
+
+nh_safety <- prepped.list$var
+nh_safety.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = nh_safety, mapping = aes(x = time, y = n, group = S7_neighbourhood_safety, colour = S7_neighbourhood_safety)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Neighbourhood Safety', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = nh_safety.norm, mapping = aes(x = time, y = prct, fill=S7_neighbourhood_safety)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Neighbourhood Safety') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_neighbourhood_safety.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, nh_safety, nh_safety.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_neighbourhood_safety')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_neighbourhood_safety',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_neighbourhood_safety)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_neighbourhood_safety)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_neighbourhood_safety',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+
+## S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
+
+lab.state <- prepped.list$var
+lab.state.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_labour_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_labour_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_labour_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_labour_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_labour_state',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## S7 Physical Health
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_physical_health')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'S7 Physical Health'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = S7_physical_health, colour = S7_physical_health)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=S7_physical_health)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_physical_health.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_physical_health')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_physical_health',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_physical_health)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_physical_health)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_physical_health',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## S7 Mental Health
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_mental_health')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'S7 Mental Health'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = S7_mental_health, colour = S7_mental_health)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=S7_mental_health)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_mental_health.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_mental_health')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_mental_health',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, S7_mental_health)
+base.s <- base.dat %>%
+  select(pidp, age, time, S7_mental_health)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'S7_mental_health',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## Loneliness
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'loneliness')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Loneliness'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = loneliness, colour = loneliness)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'loneliness.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'loneliness')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'loneliness',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, loneliness)
+base.s <- base.dat %>%
+  select(pidp, age, time, loneliness)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'loneliness',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+
+## Education
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Education State'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'education_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'education_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'education_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, education_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, education_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'education_state',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## Parity
+
+```{r}
+base.parity <- base.dat %>%
+  filter(sex == "Female")
+
+raw.parity <- raw.dat %>%
+  filter(sex == "Female")
+
+prepped.list <- validation_prep_ordinal(raw.parity, base.parity, 'nkids_ind')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Parity (total no. of children)'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = nkids_ind, colour = nkids_ind)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=nkids_ind)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'parity.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.parity,
+                                  df1.name = 'simulated', 
+                                  df2 = raw.parity, 
+                                  df2.name = 'raw', 
+                                  var = 'nkids_ind')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'nkids_ind',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.parity %>%
+  select(pidp, age, time, nkids_ind)
+base.s <- base.parity %>%
+  select(pidp, age, time, nkids_ind)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'nkids_ind',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```

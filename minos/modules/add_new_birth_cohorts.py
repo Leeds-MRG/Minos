@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import minos.utils as utilities
+from os.path import dirname as up
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
 from minos.modules.base_module import Base
@@ -123,7 +124,7 @@ class FertilityAgeSpecificRates(Base):
         #    tracking metrics.
         # Do the naive thing, set so all women can have children
         # and none of them have had a child in the last year.
-        # TODO: alter this so newborns cant have children. It's wierd.
+        # TODO: alter this so newborns cant have children. It's weird.
         pop_update.loc[women, 'last_birth_time'] = pop_data.creation_time - pd.Timedelta(days=utilities.DAYS_PER_YEAR)
         # add new columns to population frame.
         self.population_view.update(pop_update)
@@ -228,6 +229,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         asfr_fertility.set_rate_table()
         simulation._data.write("covariate.age_specific_fertility_rate.estimate",
                                asfr_fertility.rate_table)
+        simulation._data.write("parity_max", asfr_fertility.parity_max)
+        print("Max. parity successfully passed to ANBC:", asfr_fertility.parity_max)
 
         return simulation
 
@@ -247,20 +250,21 @@ class nkidsFertilityAgeSpecificRates(Base):
 
         """
         # Load in birth rate lookup table data and build lookup table.
+        self.parity_max = builder.data.load("parity_max")
         age_specific_fertility_rate = builder.data.load("covariate.age_specific_fertility_rate.estimate")
         fertility_rate = builder.lookup.build_table(age_specific_fertility_rate,
-                                                    key_columns=['sex', 'region', 'ethnicity'],
+                                                    key_columns=['sex', 'region', 'ethnicity', 'nkids_ind'],
                                                     parameter_columns=['age', 'year'])
         # Register rate producer for birth rates by
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity'])
+                                                                   requires_columns=['sex', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'hidp']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp']
         # Add new columns to population required for module using build in sim creator.
         self.population_view = builder.population.get_view(view_columns)
 
@@ -268,6 +272,7 @@ class nkidsFertilityAgeSpecificRates(Base):
                                                  requires_columns=['sex'])
         # Add listener event to check who has given birth on each time step using the on_time_step function below.
         builder.event.register_listener('time_step', self.on_time_step, priority=1)
+
 
     def on_initialize_simulants(self, pop_data):
         """ Adds the required columns for the module to run to the population data frame.
@@ -293,7 +298,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         """
         # Get a view on all living people.
         population = self.population_view.get(event.index, query='alive == "alive"')
-        # not needed due to yearly incremenents.
+        # not needed due to yearly increments.
         #nine_months_ago = pd.Timestamp(event.time - PREGNANCY_DURATION)
         #can_have_children = population.last_birth_time < nine_months_ago
         #eligible_women = population[can_have_children]
@@ -301,13 +306,21 @@ class nkidsFertilityAgeSpecificRates(Base):
         # filter_for_rate simply takes the subset of women who have given birth generated via the CRN stream.
         who_women = population.loc[population['sex']=='Female',].index
         rate_series = self.fertility_rate(who_women)
+
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
-        # find everyone in a household who has had children by hidp and incremement nkids by 1.
-        had_children_hidps = population.loc[had_children, 'hidp']
-        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index
+
+        # 1. Find everyone in a household who has had children by hidp and increment nkids by 1
+        had_children_hidps = population.loc[had_children, 'hidp'] # Get all HIDPs of people who've had children
+        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
         self.population_view.update(population[['nkids']])
+
+        # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
+        who_had_children_individuals = population.loc[had_children, 'pidp'].index
+        population.loc[who_had_children_individuals, 'nkids_ind'] += 1
+        self.population_view.update(population[['nkids_ind']])
+
 
     @staticmethod
     def load_age_specific_fertility_rate_data(builder):
@@ -318,9 +331,11 @@ class nkidsFertilityAgeSpecificRates(Base):
         asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
         return asfr_data
 
+
     @property
     def name(self):
         return 'nkids_age_specific_fertility'
+
 
     def __repr__(self):
         return "nkidsFertilityAgeSpecificRates()"

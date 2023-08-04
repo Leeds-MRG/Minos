@@ -2,6 +2,10 @@
 ## Test Simulations
 ###################
 
+# Default parameters
+MODE=default_config
+RUN_CONFIG=$(CONFIG)/default.yaml
+
 .PHONY: testRun testRun_Intervention test_run
 
 testRun: ### Start a test run of the microsimulation using configuration defined in testConfig.yaml
@@ -24,6 +28,14 @@ test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
 
+test_SIPHER7_run: MODE=SIPHER7
+test_SIPHER7_run: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+test_SIPHER7_run: SIPHER7_base
+SIPHER7_base: setup_S7
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+
+
+
 ###################
 ## Experiment Runs
 ###################
@@ -36,15 +48,12 @@ test_scot_run: baseline intervention_livingWage
 ## Local single runs of MINOS interventions.
 ############################################
 
-all_scenarios: baseline intervention_hhIncomeChildUplift
-all_scenarios: intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
-
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
-baseline_default: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config
+baseline_inflated: setup_inflated
+	$(PYTHON) scripts/run.py -c $(CONFIG)/inflated_default.yaml -o inflated_default
 
 intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
@@ -61,6 +70,9 @@ intervention_livingWage: setup
 intervention_energyDownLift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
+intervention_energyDownLiftNoSupport: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
+
 glasgow_baseline: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
@@ -72,7 +84,7 @@ intervention_EBSS: setup
 
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift intervention_energyDownLiftNoSupport
 
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -104,6 +116,9 @@ arc4_intervention_livingWage: setup
 arc4_intervention_energyDownLift: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
+arc4_intervention_energyDownLiftNoSupport: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
+
 arc4_glasgow_baseline: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
@@ -118,7 +133,7 @@ arc4_EBSS: setup
 
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -137,26 +152,29 @@ arc4_cv_baseline: cv_setup
 
 beefy_baseline: ### Baseline run of MINOS on beefy. Runs 100 iterations with no interventions at all. Just status quo.
 beefy_baseline: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE)
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 beefy_intervention_hhIncome: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeIntervention'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
 beefy_intervention_hhIncomeChildUplift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomeChildUplift'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
 beefy_intervention_PovertyLineChildUplift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 beefy_intervention_livingWage: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'livingWageIntervention'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
 beefy_intervention_energyDownLift: setup
-	bash scripts/slurm_submit.sh -c config/default.yaml -o $(MODE) -i 'energyDownlift'
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+
+beefy_intervention_energyDownLiftNoSupport: setup
+	bash scripts/slurm_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 beefy_all_scenarios: MODE=default_config
 beefy_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-beefy_all_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervention_PovertyLineChildUplift beefy_intervention_livingWage beefy_intervention_energyDownLift
+beefy_all_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift beefy_intervention_PovertyLineChildUplift beefy_intervention_livingWage beefy_intervention_energyDownLift, beefy_intervention_energyDownLiftNoSupport
 
 beefy_all_scot_scenarios: MODE=scotland_mode
 beefy_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
@@ -166,5 +184,43 @@ beefy_all_scot_scenarios: beefy_baseline beefy_intervention_hhIncomeChildUplift 
 # Validation runs
 #####################################
 
-cv_baseline: cv_setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation.yaml -o cross_validation
+cv_default: cv_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default1.yaml -o cv/default1
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default2.yaml -o cv/default2
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default3.yaml -o cv/default3
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default4.yaml -o cv/default4
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_default5.yaml -o cv/default5
+
+cv_SIPHER7: cv_S7_setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_1.yaml -o cv/S7_1
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_2.yaml -o cv/S7_2
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_3.yaml -o cv/S7_3
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_4.yaml -o cv/S7_4
+	$(PYTHON) scripts/run.py -c $(CONFIG)/cross_validation/cross_validation_S7_5.yaml -o cv/S7_5
+
+
+#####################################
+# SIPHER7 - Equivalent Income
+#####################################
+
+S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
+S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
+
+S7_baseline: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
+
+S7_intervention_hhIncome: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeIntervention'
+
+S7_intervention_hhIncomeChildUplift: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
+
+S7_intervention_PovertyLineChildUplift: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
+
+S7_intervention_livingWage: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
+
+S7_intervention_energyDownLift: setup_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
+

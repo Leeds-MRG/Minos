@@ -59,10 +59,12 @@ def aggregate_variables_by_year(source, mode, years, tag, v, method, subset_func
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
-        if year == 2020:
+        if year == 2020 and tag == "Baseline":
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(v), repeat(method), repeat("who_alive"), repeat(mode)))
+        elif year == 2020 and tag != "Baseline":
+            continue # skip processing here. ignoring starting data from interventions.
         else:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
@@ -164,6 +166,6 @@ if __name__ == '__main__':
             config = yaml.safe_load(stream)
             start_year = config['time']['start']['year']
             end_year = config['time']['end']['year']
-            years = np.arange(start_year+1, end_year)
+            years = np.arange(start_year, end_year)
         #print(batch_source, years)
         df = main(batch_source, mode, years, tag, v, method, subset_function_string)

@@ -7,6 +7,7 @@ RAWDATA = $(DATADIR)/raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
 COMPOSITEDATA = $(DATADIR)/composite_US
 COMPLETEDATA = $(DATADIR)/complete_US
+INFLATEDDATA = $(DATADIR)/inflated_US
 FINALDATA = $(DATADIR)/final_US
 SPATIALDATA = $(DATADIR)/spatial_US
 SCOTDATA = $(DATADIR)/scotland_US
@@ -95,11 +96,17 @@ $(SITEPACKAGES)/vivarium/__init__.py:
 
 setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
-setup: install data transitions replenishing_data
+setup: install data transitions_default replenishing_data
+
+setup_inflated: install data transitions_default inflated_data inflated_repl
+
+setup_S7: install data transitions_SIPHER7 replenishing_data
 
 scot_setup: install scot_data scot_transitions scot_replenishing
 
 cv_setup: install cv_data cv_transitions cv_replenishing
+
+cv_S7_setup: install data cv_S7_transitions cv_replenishing
 
 #####################################
 ### ADDITIONAL MAKEFILES

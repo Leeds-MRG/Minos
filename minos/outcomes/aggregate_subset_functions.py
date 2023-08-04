@@ -239,7 +239,6 @@ def who_unemployed(df):
     # who unemployed
     return df.loc[df["labour_state"] == "Unemployed", ]
 
-
 def who_young_adults(df):
     # who aged between 16 and 25.
     df =  df.loc[df["age"] <= 25, ]

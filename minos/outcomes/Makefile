@@ -49,6 +49,43 @@ poverty_tenth_decile_lineplot:
 epcg_simd_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "epcg_simd_lineplot"
 
+
+# DEPRECATED VULNERABLE SUBPOPULATION OUTPUTS FOR SCOTLAND. NEEDS UPDATING FOR NEW LINEPLOTS in make_lineplot_macros.py
+aggregate_minos_output_all_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift "Baseline,All Children Uplift,Poverty Line Child Uplift" who_kids,who_boosted,who_boosted "all_vs_poverty_child_uplift"
+
+aggregate_minos_output_disabled_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift"
+
+aggregate_minos_output_minority_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift"
+
+aggregate_minos_output_three_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift"
+
+# omitted due to lack of sample size
+aggregate_minos_output_young_mother_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift"
+
+aggregate_minos_output_young_adult_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift"
+
+aggregate_minos_output_uneducated_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift"
+
+aggregate_combined_vulnerable:MODE=default_config
+aggregate_combined_vulnerable:VULNERABLE_DIRECTORIES=baseline,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift
+aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_TAGS="Baseline,All Children Uplift,Disabled Children Uplift,Minority Children Uplift,Three Children Uplift,Young Single Parent Children Uplift,Low Education Children Uplift"
+aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,who_disabled,who_ethnic_minority,who_three_kids,who_young_adults,who_no_formal_education
+aggregate_combined_vulnerable:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable"
+
+aggregate_minos_output_energy:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg"
+
+aggregate_minos_output_energy_old: # old command not using intervention with no support as well
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift"
+
 all_decile_lineplots: baseline_all_deciles poverty_all_deciles poverty_fifth_decile_lineplot poverty_first_decile_lineplot poverty_tenth_decile_lineplot
 
 ####################################################################################################################################################
@@ -65,6 +102,7 @@ INTERVENTION2 = povertyUplift
 OUT_BASELINE = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/baseline
 OUT_HHINCOMECHILDUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomeChildUplift
 OUT_ENERGYDOWNLIFT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownlift
+OUT_ENERGYDOWNLIFTNOSUPPORT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownliftNoSupport
 OUT_LIVINGWAGEINT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/livingWageIntervention
 OUT_POVERTYUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomePovertyLineChildUplift
 

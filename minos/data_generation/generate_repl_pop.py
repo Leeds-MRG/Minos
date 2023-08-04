@@ -77,6 +77,11 @@ def expand_repl(US_2018):
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
 
+    assert(expanded_repl.duplicated('pidp').sum() == 0)
+
+    # reset index for the predict_education step
+    expanded_repl.reset_index(drop=True, inplace=True)
+
     return expanded_repl
 
 
@@ -121,7 +126,7 @@ def reweight_repl(expanded_repl, projections):
     expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
             max(expanded_repl['weight']) - min(expanded_repl['weight']))
 
-    return(expanded_repl)
+    return expanded_repl
 
 
 def predict_education(repl, transition_dir):
@@ -149,7 +154,7 @@ def predict_education(repl, transition_dir):
                     "stats": importr('stats'),
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "zeroinfl": importr("pscl"),
                     }
     transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
@@ -161,7 +166,7 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation):
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated):
 
     output_dir = 'data/replenishing'
     data_source = 'final_US'
@@ -172,9 +177,12 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/simulation'
+        data_source = 'final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
-        transition_dir = 'data/transitions/cross_validation'
+        transition_dir = 'data/transitions/cross_validation/version1'
+    if inflated:
+        data_source = 'inflated_US'
+        output_dir = 'data/replenishing/inflated'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"
@@ -183,10 +191,14 @@ def generate_replenishing(projections, scotland_mode, cross_validation):
     # expand and reweight the population
     expanded_repl = expand_repl(data)
 
-    reweighted_repl = reweight_repl(expanded_repl, projections)
+    #reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(reweighted_repl, transition_dir)
+    final_repl = predict_education(expanded_repl, transition_dir)
+
+    final_repl['ncigs'] = final_repl['ncigs'].astype(int)
+    final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
+    final_repl['loneliness'] = final_repl['loneliness'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
@@ -203,11 +215,14 @@ def main():
                         help="Select Scotland mode to only produce replenishing using scottish sample.")
     parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
                         help="Select cross-validation mode to produce cross-validation replenishing population.")
+    parser.add_argument("-i", "--inflated", dest='inflated', action='store_true', default=False,
+                        help="Select inflated mode to produce inflated cross-validation populations from inflated"
+                             "data.")
 
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
-
+    inflated = args.inflated
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
@@ -216,7 +231,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections, scotland_mode, cross_validation)
+    generate_replenishing(projections, scotland_mode, cross_validation, inflated)
 
 
 if __name__ == "__main__":

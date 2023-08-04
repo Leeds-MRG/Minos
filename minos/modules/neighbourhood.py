@@ -9,6 +9,7 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 class Neighbourhood(Base):
 
@@ -51,7 +52,7 @@ class Neighbourhood(Base):
                         'hh_income',
                         'neighbourhood_safety',
                         'SF_12',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'housing_quality',
                         'job_sec']
@@ -65,7 +66,7 @@ class Neighbourhood(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -75,6 +76,9 @@ class Neighbourhood(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("NEIGHBOURHOOD SAFETY")
+
         # Get living people to update their neighbourhood
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
@@ -86,7 +90,7 @@ class Neighbourhood(Base):
                                                                            list(neighbourhood_prob_df.columns),
                                                                            neighbourhood_prob_df) + 1
 
-        neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
+        neighbourhood_prob_df.index = pop.index
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood
@@ -105,16 +109,20 @@ class Neighbourhood(Base):
         """
         # load transition model based on year.
         # get the nearest multiple of 3+1 year. Data occur every 2011,2014,2017 ...
-        year = max(self.year, 2011)
-        mod = year % 3
-        if mod == 0:
-            year -= 2  # e.g. 2013 moves back two years to 2011.
-        elif mod == 1:
-            pass  # e.g. 2011 is correct
-        elif mod == 2:
-            year -= 1  # e.g. 2012 moves back one year to 2011.
-            
-        year = min(year, 2017) # transitions only go up to 2014.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2017
+        else:
+            year = max(self.year, 2011)
+            mod = year % 3
+            if mod == 0:
+                year -= 2  # e.g. 2013 moves back two years to 2011.
+            elif mod == 1:
+                pass  # e.g. 2011 is correct
+            elif mod == 2:
+                year -= 1  # e.g. 2012 moves back one year to 2011.
+            year = min(year, 2017)  # transitions only go up to 2017.
+
         transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')

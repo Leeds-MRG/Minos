@@ -20,24 +20,144 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income
-from minos.modules.mental_wellbeing import MWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
-from minos.modules.nutrition import Nutrition
+from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+
+from minos.modules.S7Labour import S7Labour
+from minos.modules.S7Housing import S7Housing
+from minos.modules.S7Neighbourhood import S7Neighbourhood
+from minos.modules.S7MentalHealth import S7MentalHealth
+from minos.modules.S7PhysicalHealth import S7PhysicalHealth
+from minos.modules.S7EquivalentIncome import S7EquivalentIncome
+from minos.modules.heating import Heating
+from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme
+from minos.modules.intervention import energyDownliftNoSupport
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
+
+
+# components = [eval(x) for x in config.components] # more adaptive way but security issues.
+# last one in first one off. any module that requires another should be BELOW IT in this order.
+# Note priority in vivarium modules supersedes this. two
+# Outcome module goes first (last in sim)
+components_map = {
+    # Outcome module.
+    "geeMWB()": geeMWB(),
+    "geeYJMWB()": geeYJMWB(),
+    "lmmYJMWB()": lmmYJMWB(),
+    "lmmDiffMWB()": lmmDiffMWB(),
+    "MWB()": MWB(),
+    # Intermediary modules
+    "Tobacco()": Tobacco(),
+    "Alcohol()": Alcohol(),
+    "Neighbourhood()": Neighbourhood(),
+    "Labour()": Labour(),
+    "Heating()": Heating(),
+    "Housing()": Housing(),
+    "geeIncome()": geeIncome(),
+    "geeYJIncome()": geeYJIncome(),
+    "lmmDiffIncome()": lmmDiffIncome(),
+    "lmmYJIncome()": lmmYJIncome(),
+    "Income()": Income(),
+    "financialSituation()": financialSituation(),
+    "Loneliness()": Loneliness(),
+    "Nutrition()": Nutrition(),
+    "lmmYJNutrition()": lmmYJNutrition(),
+    "lmmDiffNutrition()": lmmDiffNutrition(),
+    "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
+    "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
+    "Mortality()": Mortality(),
+    "Education()": Education(),
+}
+
+SIPHER7_components_map = {  # SIPHER7 stuff
+    "S7Labour()": S7Labour(),
+    "S7Housing()": S7Housing(),
+    "S7Neighbourhood()": S7Neighbourhood(),
+    "S7MentalHealth()": S7MentalHealth(),
+    "S7PhysicalHealth()": S7PhysicalHealth(),
+    "S7EquivalentIncome()": S7EquivalentIncome()
+}
+
+intervention_components_map = {  # Interventions
+    "hhIncomeIntervention": hhIncomeIntervention(),
+    "hhIncomeChildUplift": hhIncomeChildUplift(),
+    "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
+    "livingWageIntervention": livingWageIntervention(),
+    "energyDownlift": energyDownlift(),
+    "energyDownliftNoSupport": energyDownliftNoSupport(),
+}
+
+replenishment_components_map = {
+    "Replenishment()": Replenishment(),
+    "NoReplenishment()": NoReplenishment(),
+    "ReplenishmentNowcast()": ReplenishmentNowcast(),
+    "ReplenishmentScotland()": ReplenishmentScotland(),
+}
+
+
+# HR 31/07/23 Updated priorities based on recent development
+# Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
+# 1. Replenishment
+# 2. Fertility/mortality
+# 3. Income
+# 4. Intervention
+# 5. Everything else
+def get_priorities():
+    all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
+    component_priorities = {}
+    component_priorities.update({el:0 for el in replenishment_components_map})
+    component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
+                                                 "nkidsFertilityAgeSpecificRates()"]})
+    component_priorities.update({el:2 for el in ["Mortality()"]})
+    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
+    component_priorities.update({el:4 for el in intervention_components_map})
+    everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
+    component_priorities.update({el:5 for el in everything_else})
+    # [print(str(el)) for el in component_priorities.items()]
+    return component_priorities, all_components_map
+
+
+def validate_and_sort_components(config_components, intervention):
+
+    # Separate any unknown components
+    priorities, all_map = get_priorities()
+    all_components = config_components+[intervention]
+    comps_unknown = [c for c in all_components if c not in all_map]
+
+    # Remove unknown components and print warnings
+    if comps_unknown:
+        for c in comps_unknown:
+            all_components.remove(c)
+        print("\nWarning! The components below were not recognised when running the Minos pipeline and have been removed")
+        print("Check they're present in minos/minosPipeline/RunPipeline.py and rerun")
+        for c in comps_unknown:
+            print(str(c))
+        print("\n")
+
+    # Get components in correct order for passing to Vivarium
+    comp_dict = {comp:priorities[comp] for comp in all_components}
+    # print("Components (unordered):\n", comp_dict)
+    comp_out = [all_map[k] for k,v in sorted(comp_dict.items(), key=lambda item: item[1])]
+    # print("Components (ordered forwards):\n", comp_out)
+    comp_out = list(reversed(comp_out))
+    # print("Components (ordered backwards):\n", comp_out)
+
+    return comp_out
 
 
 def validate_components(config_components, intervention):
@@ -97,20 +217,28 @@ def validate_components(config_components, intervention):
 
     component_list = []
     replenishment_component = []
+    print("Initial components list:", config_components)
     for component in config_components:
         if component in components_map.keys():
             # add non intervention components
             component_list.append(components_map[component])
+        elif component in SIPHER7_components_map.keys():
+            component_list.append(SIPHER7_components_map[component])
         elif component in replenishment_components_map.keys():
             replenishment_component.append(replenishment_components_map[component])
         else:
-            print("Warning! Component in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
+            print("Warning! Component", component, "in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
 
+    # TODO: include some error handling for choosing interventions
+    # Can do this using assertions
+    # i.e. try { AssertThat(intervention is in list(<int1>, <int2>) ...
+    # or even cleverer if we can get the repr()'s from the intervention classes to automate this step
     if intervention in intervention_components_map.keys():
         # add intervention components.
         component_list.append(intervention_components_map[intervention])
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
+    print("Final components list:", component_list)
     return component_list
 
 
@@ -130,7 +258,8 @@ def RunPipeline(config, intervention=None):
     # Check each of the modules is present.
 
     # Replenishment always go last. (first in sim)
-    components = validate_components(config['components'], intervention)
+    # components = validate_components(config['components'], intervention)
+    components = validate_and_sort_components(config['components'], intervention)
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -150,7 +279,10 @@ def RunPipeline(config, intervention=None):
                     "stats": importr('stats'),
                     "nnet": importr("nnet"),
                     "ordinal": importr('ordinal'),
-                    "zeroinfl": importr("pscl")
+                    "zeroinfl": importr("pscl"),
+                    "bestNormalize": importr("bestNormalize"),
+                    "VGAM": importr("VGAM"),
+                    "lme4": importr("lme4"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

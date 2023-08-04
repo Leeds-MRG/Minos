@@ -7,6 +7,7 @@ from minos.modules.base_module import Base
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 class Education(Base):
 
@@ -69,35 +70,38 @@ class Education(Base):
         event : vivarium.population.PopulationEvent
             The `event` that triggered the function call.
         """
+
+        logging.info("EDUCATION")
+
         self.year = event.time.year
 
         # Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17
         # No need to test max_educ for this one, everyone stays in education to 16 now minimum
-        level2 = self.population_view.get(event.index, query="alive=='alive' and age == 17 and labour_state=='Student'")
+        level2 = self.population_view.get(event.index, query="alive=='alive' and age == 17 and S7_labour_state=='FT Education'")
         # Update education state and apply back to population view
         level2['education_state'][level2['education_state'] < 2] = 2
         self.population_view.update(level2['education_state'])
 
         # Level 3 is equivalent to A-level, so make this change by age 19 if max_educ is 3 or larger
-        level3 = self.population_view.get(event.index, query="alive=='alive' and age == 19 and labour_state=='Student' and max_educ >= 3")
+        level3 = self.population_view.get(event.index, query="alive=='alive' and age == 19 and S7_labour_state=='FT Education' and max_educ >= 3")
         level3['education_state'][level3['education_state'] < 3] = 3
         self.population_view.update(level3['education_state'])
 
         # Level 5 is nursing/medical and HE diploma, so make this change by age 22 if max_educ is 5
         level5 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 22 and labour_state=='Student' and max_educ == 5")
+                                          query="alive=='alive' and age == 22 and S7_labour_state=='FT Education' and max_educ == 5")
         level5['education_state'][level5['education_state'] < 5] = 5
         self.population_view.update(level5['education_state'])
 
         # Level 6 is 1st degree or teaching qual (not PGCE), so make this change by age 22 if max_educ is 6 or larger
         level6 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 22 and labour_state=='Student' and max_educ >= 6")
+                                          query="alive=='alive' and age == 22 and S7_labour_state=='FT Education' and max_educ >= 6")
         level6['education_state'][level6['education_state'] < 6] = 6
         self.population_view.update(level6['education_state'])
 
         # Level 7 is higher degree (masters/PhD), so make this change by age 25 if max_educ is 7
         level7 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 26 and labour_state=='Student' and max_educ == 7")
+                                          query="alive=='alive' and age == 26 and S7_labour_state=='FT Education' and max_educ == 7")
         level7['education_state'][level7['education_state'] < 7] = 7
         self.population_view.update(level7['education_state'])
 

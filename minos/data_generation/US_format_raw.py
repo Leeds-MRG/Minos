@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """ This file formats Understanding Society variables for using in a microsimulation.
 It DOES NOT handle missing data. see US_missing.py.
@@ -226,14 +225,14 @@ def format_ukhls_columns(year):
                       'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
                       # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
                       'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
-                      'jbstat': 'labour_state',  # labour state
-                      'smoker': 'smoker',
+                      'jbstat': 'labour_state_raw',  # labour state
                       'ncigs': 'ncigs',  # typical daily cigarettes smoked.
                       # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
                       #  not really applicable without random generation.
                       'pidp': 'pidp',  # personal identifier
                       'qfhigh_dv': 'education_state',  # highest education state
                       'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
+                      # TODO another ethnicity var seems to have fewer missing? https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ethn_dv
                       'racel_dv': 'ethnicity',  # ethnicity derived.
                       'rentgrs_dv': 'hh_rent',  # household monthly rent.
                       #'scghqi': 'depression_change',  # depression change GHQ.
@@ -247,8 +246,17 @@ def format_ukhls_columns(year):
                       # for waves 2 and 5 similar variable 'smnow' could be used.
                       'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                       'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                      'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
-                      'nkids_dv': 'nkids',  # number of children
+                      ## ---------------------
+                      ## Weight variables
+                      'indscus_xw': "weight1",  # Cross-sectional analysis weight (wave 1)
+                      'indscub_xw': "weight2_5",  # Cross-sectional analysis weight (waves 2-5)
+                      'indscui_xw': "weight6p",  # Cross-sectional analysis weight (waves 6+)
+                      ## ---------------------
+                      ## All variables relating to number of children
+                      'nkids_dv': 'nkids',  # number of children in household
+                      'lnprnt': 'nkids_ind_raw',  # number of children ever had by individual at first interview
+                      'preg': 'nkids_ind_new',  # whether had a child (actually a pregnancy) since last interview
+                      ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                       'xpelecy': 'yearly_electric',  # yearly electricty expenditure
                       'xpgasy': 'yearly_gas',  # yearly gas expenditure
@@ -259,7 +267,7 @@ def format_ukhls_columns(year):
                       'fuelhave2': 'has_gas',  # spends money on gas
                       'fuelhave3': 'has_oil',  # spends money on oil
                       'fuelhave4': 'has_other',  # has some other fuel source.
-                      'fuelhave5': 'has_none',  # has no fuel source.
+                      'fuelhave96': 'has_none',  # has no fuel source.
                       'fuelduel': 'gas_electric_combined', # are gas and electric bills separate or combined?
                        # Nutrition vars
                        'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
@@ -287,16 +295,18 @@ def format_ukhls_columns(year):
                       # 'sf1': 'sf1', # sf1 score
                       'hcondn17': 'clinical_depression',  # has clinical depression.
                       'scsf1': 'scsf1',  # sf1 score including proxy surveys
-                      'scsf2a': 'phealth_limits_modact', # physical health limits moderate activities
-                      'scsf2b': 'phealth_limits_stairs', # physical health limits several flights of stairs
-                      'scsf3a': 'phealth_limits_work',  # physical health limits work.
-                      'scsf3b': 'phealth_limits_work_type', # physical health limits kind of work
-                      'scsf4a': 'mhealth_limits_work',  # mental health limits work.
-                      'scsf5': 'pain_interfere_work', # pain interfered with work
+                      'scsf2a': 'phealth_limits_modact',  # physical health limits moderate activities
+                      'scsf2b': 'phealth_limits_stairs',  # physical health limits several flights of stairs
+                      'scsf3a': 'S7_physical_health',  # physical health limits work.
+                      'scsf3b': 'phealth_limits_work_type',  # physical health limits kind of work
+                      'scsf4a': 'S7_mental_health',  # mental health limits work.
+                      'scsf5': 'pain_interfere_work',  # pain interfered with work
                       'scsf7': 'health_limits_social',  # health limits social life.
-                      'hhtype_dv': 'hh_composition', # household composition
-                      'mastat_dv': 'marstat' # marital status
-                      ''
+                      'hhtype_dv': 'hh_composition',  # household composition
+                      'mastat_dv': 'marstat',  # marital status
+                      'hhsize': 'hhsize', # number of people in household
+                      'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
+                      'urban_dv': 'urban', # urban or rural household.
                       }
 
     # Some variables change names halfway through UKHLS.
@@ -416,7 +426,7 @@ def format_ukhls_employment(data):
     For now just assume they are unemployed and assign their industries to 0."""
 
     # Remap job statuses.
-    data["labour_state"] = data["labour_state"].astype(str).map(labour_ukhls)
+    data["labour_state_raw"] = data["labour_state_raw"].astype(str).map(labour_ukhls)
     return data
 
 
@@ -438,19 +448,34 @@ def format_ukhls_heating(data):
     return data
 
 
-def format_analysis_weight(data):
-    """ Add and format analysis weight variable.
-
-            Parameters
-            ----------
-            data : pd.DataFrame
-                Data frame to add weight to.
-
-            Returns
-            -------
-            data : Pd.DataFrame
-                Data with formatted weight column.
+def format_analysis_weight(data, year):
     """
+    Add and format analysis weight variable.
+    Combining the three weight variables that cover different waves into one.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data frame to add weight to.
+
+    Returns
+    -------
+    data : Pd.DataFrame
+        Data with formatted weight column.
+    """
+    data['weight'] = -9
+    if year == 2009:
+        data['weight'] = data['weight1']
+    if year in range(2010, 2014):
+        data['weight'] = data['weight2_5']
+    if year > 2013:
+        data['weight'] = data['weight6p']
+
+    # can now drop all three columns as this is done yearly
+    # drop cols we don't need
+    data.drop(labels=['weight1', 'weight2_5', 'weight6p'],
+              axis=1,
+              inplace=True)
     return data
 
 
@@ -519,7 +544,7 @@ def format_data(year, data):
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
 
-    data = format_analysis_weight(data)
+    data = format_analysis_weight(data, year)
 
     return data
 
