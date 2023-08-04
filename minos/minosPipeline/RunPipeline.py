@@ -109,25 +109,33 @@ replenishment_components_map = {
 }
 
 
-# HR 31/07/23 Updated priorities based on recent development
-# Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
-# 1. Replenishment
-# 2. Fertility/mortality
-# 3. Income
+# HR 03/08/23 Updated component priorities
+# Order should be (see https://github.com/Leeds-MRG/Minos/issues/291):
+# 0. Replenishment
+# 1. Mortality
+# 2. Fertility
+# 3. Education
 # 4. Intervention
-# 5. Everything else
+# 5. Income
+# 6. Everything else except mental wellbeing
+# 7. Mental wellbeing, equivalent income (SIPHER7 only)
 def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
     component_priorities.update({el:0 for el in replenishment_components_map})
-    component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
+    component_priorities.update({el:1 for el in ["Mortality()"]})
+    component_priorities.update({el:2 for el in ["FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
-    component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
+    component_priorities.update({el:3 for el in ["Education()"]})
     component_priorities.update({el:4 for el in intervention_components_map})
-    everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
-    component_priorities.update({el:5 for el in everything_else})
-    # [print(str(el)) for el in component_priorities.items()]
+    component_priorities.update({el:5 for el in ['Income()', 'geeIncome()', 'geeYJIncome()', 'lmmDiffIncome()', 'lmmYJIncome()']}) # New income-based components to be added here
+
+    and_finally = ['MWB', 'geeMWB()', "geeYJMWB()", "lmmYJMWB()", "lmmDiffMWB()", 'S7EquivalentIncome()']
+    everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)+and_finally]
+    component_priorities.update({el:6 for el in everything_else})
+    component_priorities.update({el:7 for el in and_finally})
+
+    [print(str(el)) for el in component_priorities.items()]
     return component_priorities, all_components_map
 
 
