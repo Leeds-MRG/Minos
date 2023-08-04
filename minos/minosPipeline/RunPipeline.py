@@ -140,10 +140,12 @@ def get_priorities():
 
 
 def validate_and_sort_components(config_components, intervention):
-
     # Separate any unknown components
     priorities, all_map = get_priorities()
-    all_components = config_components+[intervention]
+    all_components = config_components
+    if intervention:
+        all_components += intervention
+    print(all_components)
     comps_unknown = [c for c in all_components if c not in all_map]
 
     # Remove unknown components and print warnings
