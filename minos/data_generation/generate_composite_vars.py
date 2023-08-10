@@ -777,12 +777,12 @@ def calculate_equivalent_income(data):
 
     Parameters
     ----------
-        pop: PopulationView
-            Population from MINOS to calculate next income for.
+        data: pd.DataFrame
+            Population from US to calculate equivalent income for.
     Returns
     -------
-    nextWaveIncome: pd.Series
-        Vector of new household incomes from OLS prediction.
+    data: pd.DataFrame
+        DataFrame with equivalent income column added
     """
     print('Calculating equivalent income...')
     # This is a deterministic calculation based on the values from each of the SIPHER7 variables
@@ -882,7 +882,11 @@ def calculate_equivalent_income(data):
     data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: nh_safety_dict[x['S7_neighbourhood_safety']], axis=1)
 
     # finally do the calculation for equivalent income (EI = income^EI_exp_term)
-    data['equivalent_income'] = data['hh_income'] * np.exp(data['EI_exp_term'])
+    # need to get absolute value for income first
+    data['hh_income_abs'] = data['hh_income'].abs()
+    data['equivalent_income'] = data['hh_income_abs'] * np.exp(data['EI_exp_term'])
+    # now revert to correct sign
+    data['equivalent_income'][data['hh_income'] < 0] = data['equivalent_income'] * -1
 
     # If any of the variables involved are missing, then can't do calculation for equivalent income
     # These people will be removed in complete_case anyway so not having a value here won't matter
@@ -895,7 +899,7 @@ def calculate_equivalent_income(data):
     data['equivalent_income'][(data[var_list_num] < 0).any(axis=1)] = -9
     data['equivalent_income'][(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1)] = -9
 
-    data.drop(labels=['EI_exp_term'],
+    data.drop(labels=['EI_exp_term', 'hh_income_abs'],
               axis=1,
               inplace=True)
 

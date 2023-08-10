@@ -179,7 +179,11 @@ class S7EquivalentIncome(Base):
         pop['EI_exp_term'] = pop['EI_exp_term'] + pop.apply(lambda x: nh_safety_dict[x['S7_neighbourhood_safety']], axis=1)
 
         # finally do the calculation for equivalent income (EI = income^EI_exp_term)
-        pop['equivalent_income'] = pop['hh_income'] * np.exp(pop['EI_exp_term'])
+        # need to get absolute value for income first
+        pop['hh_income_abs'] = pop['hh_income'].abs()
+        pop['equivalent_income'] = pop['hh_income_abs'] * np.exp(pop['EI_exp_term'])
+        # now revert to correct sign
+        pop['equivalent_income'][pop['hh_income'] < 0] = pop['equivalent_income'] * -1
 
         return pop['equivalent_income']
 
