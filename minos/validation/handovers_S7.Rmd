@@ -137,6 +137,13 @@ rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2,
    raw.income.check, base.income.check)
 ```
 
+### Boxplots
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'hh_income')
+```
+
+
 ### Spaghetti
 
 ```{r}
@@ -229,6 +236,12 @@ if (shall.we.save) {
 rm(raw.ei, base.ei, ei, raw.ei.wave1, raw.ei.2, base.ei.2, ei.2)
 ```
 
+### Boxplots
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'equivalent_income')
+```
+
 ### Spaghetti
 
 ```{r}
@@ -301,18 +314,18 @@ cv_ordinal_plots(pivoted.df = hous.pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, S7_housing_quality)
-base.s <- base.dat %>%
-  select(pidp, age, time, S7_housing_quality)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'S7_housing_quality',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, S7_housing_quality)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, S7_housing_quality)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'S7_housing_quality',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## S7 Neighbourhood Safety
@@ -366,18 +379,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, S7_neighbourhood_safety)
-base.s <- base.dat %>%
-  select(pidp, age, time, S7_neighbourhood_safety)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'S7_neighbourhood_safety',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, S7_neighbourhood_safety)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, S7_neighbourhood_safety)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'S7_neighbourhood_safety',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 
@@ -499,18 +512,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, S7_physical_health)
-base.s <- base.dat %>%
-  select(pidp, age, time, S7_physical_health)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'S7_physical_health',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, S7_physical_health)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, S7_physical_health)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'S7_physical_health',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## S7 Mental Health
@@ -566,18 +579,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, S7_mental_health)
-base.s <- base.dat %>%
-  select(pidp, age, time, S7_mental_health)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'S7_mental_health',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, S7_mental_health)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, S7_mental_health)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'S7_mental_health',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Loneliness
@@ -633,18 +646,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, loneliness)
-base.s <- base.dat %>%
-  select(pidp, age, time, loneliness)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'loneliness',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, loneliness)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, loneliness)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'loneliness',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 
@@ -770,16 +783,16 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.parity %>%
-  select(pidp, age, time, nkids_ind)
-base.s <- base.parity %>%
-  select(pidp, age, time, nkids_ind)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'nkids_ind',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# base.s <- base.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'nkids_ind',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```

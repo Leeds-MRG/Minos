@@ -151,14 +151,14 @@ cv_ordinal_plots <- function(pivoted.df, var, save=FALSE, save.path) {
   
   df <- df %>% filter(.data[[var]] != -9)
   
-  p1 <- ggplot(data = df, aes(x = time, y = n, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
-    geom_line() + 
-    geom_point() +
-    labs(title = paste0('Cross-Validation: ', var), subtitle = 'Count') +
-    xlab('Year') +
-    ylab('Count')
-  
-  print(p1)
+  # p1 <- ggplot(data = df, aes(x = time, y = n, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+  #   geom_line() + 
+  #   geom_point() +
+  #   labs(title = paste0('Cross-Validation: ', var), subtitle = 'Count') +
+  #   xlab('Year') +
+  #   ylab('Count')
+  # 
+  # print(p1)
   
   if(save) {
     if(is.null(save.path)) {
