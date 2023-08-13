@@ -24,6 +24,10 @@ handovers_S7:
 	# open html file in firefox
 	firefox file://$(VALIDATION)/handovers_S7.html
 
+handovers_inflated:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers_inflated.Rmd')"
+	firefox file://$(VALIDATION)/handovers_inflated.html
+
 debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"
 	# open html file in firefox
@@ -46,10 +50,14 @@ debug_interventions:
 
 ########### Validation ###########
 
-cross_validation_default: cv_setup cv_default
+cross_validation_default: cv_setup cv_default cv_render
+
+cv_render:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_default.Rmd')"
 	firefox file://$(VALIDATION)/cross_validation_default.html
 
-cross_validation_S7: cv_S7_setup cv_SIPHER7
+cross_validation_S7: cv_S7_setup cv_SIPHER7 cv_S7_render
+
+cv_S7_render:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_S7.Rmd')"
 	firefox file://$(VALIDATION)/cross_validation_S7.html

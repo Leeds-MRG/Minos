@@ -1,9 +1,14 @@
 ## Validation plotting functions for MINOS
+require(ggplot2)
+require(ggridges)
+require(viridis)
 
 require(ggplot2)
 require(ggExtra)
 require(here)
 require(scales)
+require(gghighlight)
+require(viridis)
 
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
@@ -58,17 +63,16 @@ spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
   if (min(data_plot$time) < 2020) {
     handover <- TRUE
   }
-  
+    
   output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) + 
     ggplot2::labs(x = "time", y = v) + 
     ggplot2::theme_classic() + 
     ggplot2::theme(text = ggplot2::element_text(size = 12)) + 
-    ggplot2::scale_colour_viridis_d()+ 
-    #ggplot2::geom_smooth(colour="blue") +
     ggplot2::geom_line(colour="blue", alpha=0.2) +
-    ggplot2::geom_point()
+    ggplot2::geom_point() +
+    gghighlight::gghighlight(max(!!sym(v)) > 20)
   
-  if(save) {
+  if (save) {
     if(is.null(save.path)) {
       stop('ERROR: save.path must be defined when saving the plot')
     }
@@ -87,10 +91,57 @@ spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
            plot = output_plot,
            path = save.path)
   }
-  
   return (output_plot)
 }
 
+spaghetti_highlight_max_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
+{
+  # spaghetti plot displaying trajectories over time for continuous variable v
+  # data: list Some dataset to plot. Needs v, time and pidp variables.
+  # v : some continuous variable to plot. 
+  # save : whether to save the plot
+  # save.path : path to save plot at, must be defined if save == TRUE
+  
+  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
+  data_plot <- data[, c("time", "pidp", v)]
+  # Remove missing values
+  data_plot <- data_plot %>%
+    filter(!.data[[v]] %in% miss.values)
+  
+  # get range of years to figure out if this is handover or not
+  if (min(data_plot$time) < 2020) {
+    handover <- TRUE
+  }
+  
+  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), color=factor(pidp), group = pidp)) + 
+    ggplot2::labs(x = "time", y = v) + 
+    ggplot2::theme_classic() + 
+    ggplot2::theme(text = ggplot2::element_text(size = 12)) + 
+    ggplot2::geom_line() +
+    ggplot2::geom_point() +
+    gghighlight::gghighlight(min(!!sym(v)) < 5, (pidp %% 1000) == 13, use_direct_label=FALSE, max_highlight=10)
+  
+  if (save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    # add handover to filename if handover
+    if (handover) {
+      save.filename <- paste0('spaghetti_handover_', v, '.png')
+    } else {
+      save.filename <- paste0('spaghetti_output_', v, '.png')
+    }
+    # add tag to filename if provided
+    if (!is.null(filename.tag)) {
+      save.filename <- paste0(filename.tag, '_', save.filename)
+    }
+    
+    ggsave(filename = save.filename,
+           plot = output_plot,
+           path = save.path)
+  }
+  return (output_plot)
+}
 
 violin_plot <- function(data, v)
 {
@@ -111,6 +162,45 @@ violin_plot <- function(data, v)
   return(violin_long)
 }
 
+density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
+{
+  data_plot <- data[, c("time", v)]
+  # Remove missing values
+  data_plot <- data_plot %>%
+    filter(!data_plot[[v]] %in% miss.values)
+  if (min(data_plot$time) < 2020) {
+    handover <- TRUE
+  }
+  
+  data_plot$time <- factor(data_plot$time)
+  data_plot <- data_plot[order(data_plot$time),]
+  output_plot <- ggplot(data_plot, aes(x=!!sym(v), y=time)) +
+                 geom_density_ridges(aes(y=time, color=time, linetype=time), alpha=0.6) +
+                 #scale_color_viridis_d() +
+                 scale_color_cyclical(values=c("#F8766D", "#00BA38","#619CFF")) +
+                 scale_linetype_cyclical(values=c(1, 2, 3))
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    # add handover to filename if handover
+    if (handover) {
+      save.filename <- paste0('density_ridges_handover_', v, '.png')
+    } else {
+      save.filename <- paste0('density_ridges_output_', v, '.png')
+    }
+    # add tag to filename if provided
+    if (!is.null(filename.tag)) {
+      save.filename <- paste0(filename.tag, '_', save.filename)
+    }
+    
+    ggsave(filename = save.filename,
+           plot = output_plot,
+           path = save.path)
+  }
+  return(output_plot)
+}
 # 
 marg_dist_densigram_plot_oneyear <- function(observed, 
                                              predicted,
@@ -138,14 +228,16 @@ marg_dist_densigram_plot_oneyear <- function(observed,
     
     p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
       geom_point(alpha = 0.6, size=0.1) +
-      geom_smooth() +
+      #geom_smooth() +
+      geom_smooth(method='lm') +
       scale_y_continuous(trans=asinh_trans) +
       scale_x_continuous(trans=asinh_trans) +
       geom_abline(intercept = 0) +
       stat_ellipse(color = 'red') +
       theme(legend.position = c(0.15, 0.9)) +
       labs(title = paste0(var, ' - ', target.year),
-           subtitle = 'Marginal Distributions - Inverse Hyperbolic Sine transformation')
+           subtitle = 'Marginal Distributions - Inverse Hyperbolic Sine transformation') +
+      coord_fixed() # force equal sized axes for easier interpretation. 
   } else {
     # no transformation for other vars
     p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
@@ -337,3 +429,60 @@ q_q_comparison <- function(raw, cv, var) {
     labs(title = paste0(var, ': Q-Q'))
 }
 
+
+################################################
+# handover vis
+###############################################
+
+handover_boxplots <- function(raw, baseline, var) {
+  raw.var <- raw %>%
+    dplyr::select(pidp, time, all_of(var))
+  raw.var$source <- 'final_US'
+  
+  baseline.var <- baseline %>%
+    dplyr::select(pidp, time, all_of(var))
+  baseline.var$source <- 'baseline_output'
+  
+  combined <- rbind(raw.var, baseline.var)
+  combined$time <- as.factor(combined$time)
+  combined <- drop_na(combined)
+  combined <- filter(combined, .data[[var]] != -9)
+  
+  if (var %in% c('hh_income', 'equivalent_income')) {
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
+  } else if (var == 'ncigs') {
+    #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
+    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
+  }
+  
+  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
+    geom_boxplot(notch=TRUE) +
+    labs(title = paste0(var, ': Yearly box plots'))
+}
+
+# summarise(summary_var = weighted.mean(x = .data[[var]], w = weight)) %>%
+handover_lineplots <- function(raw, base, var) {
+  # GENERALISE THIS AND DOCSTRING
+  raw.means <- raw %>% 
+    dplyr::select(pidp, time, var) %>%
+    group_by(time) %>%
+    summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
+    mutate(source = 'final_US')
+  
+  base.means <- base %>%
+    dplyr::select(pidp, time, var) %>%
+    group_by(time) %>%
+    summarise(summary_var = mean(!!sym(var))) %>%
+    mutate(source = 'baseline_output')
+  
+  # merge before plot
+  combined <- rbind(raw.means, base.means)
+  
+  # Now plot
+  ggplot(data = combined, aes(x = time, y = summary_var, group = source, color = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Full Sample') +
+    xlab('Year') +
+    ylab(var)
+}

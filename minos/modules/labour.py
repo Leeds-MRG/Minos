@@ -102,7 +102,7 @@ class Labour(Base):
         labour_prob_df = self.calculate_labour(pop)
 
         labour_prob_df["labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
-        labour_prob_df.index = labour_prob_df.index.astype(int)
+        labour_prob_df.index = pop.index
 
         self.population_view.update(labour_prob_df["labour_state"])
 

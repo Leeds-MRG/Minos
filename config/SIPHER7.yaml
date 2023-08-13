@@ -9,8 +9,11 @@ population:
     age_start: 0
     age_end: 100
 
-mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
-fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
+#mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
+#fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+
 input_data_dir: "data/final_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
@@ -19,16 +22,8 @@ transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing'
 cross_validation: FALSE
 
-# REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
-# The order of these listed components is important. They are initialised last one in first one off.
-# All other components need the replenishment module which loads in real cohort data.
-# The Replenishment component must be listed LAST here no matter what as it is the FIRST module used. (priority 0)
-# Only if Replenishment needs some other module in the future would it be superceded.
-# Similarly Mortality requires Replenishment but everything else requires Mortality so it goes second. (priority 1)
-# Finally everything else can go in any order (priority 2+).
-#components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), Income(), Education(), Mortality(), Replenishment()]
-
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here
+components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(), Mortality(), Replenishment(), nkidsFertilityAgeSpecificRates()]
 
 scale_rates:
     method: "constant"
