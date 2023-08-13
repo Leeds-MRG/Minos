@@ -147,8 +147,6 @@ def who_universal_credit(df):
     # whos on universal credit.
     # TODO extend to other legacy benefits at some point?
     return df.loc[df['universal_credit'] == 1]
-    df =  df.loc[df["age"] <= 25, ]
-    return df.loc[df["age"] >= 16, ]
 
 def who_uses_energy(df):
     return df.loc[df['yearly_energy'] > 0]

@@ -70,6 +70,36 @@ aggregate_universal_credit_child_uplifts:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "varying_universal_credit_child_uplifts"
 
 
+aggregate_25_universal_credit: MODE=default_config
+aggregate_25_universal_credit: TREATED_DIRECTORIES = baseline,25UniversalCredit
+aggregate_25_universal_credit: TREATED_DIRECTORY_TAGS="Baseline,£25 Universal Credit"
+aggregate_25_universal_credit: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED)
+aggregate_25_universal_credit:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "25_universal_credit_child_uplifts"
+
+aggregate_25_relative_poverty: MODE=default_config
+aggregate_25_relative_poverty: TREATED_DIRECTORIES = baseline,25RelativePoverty
+aggregate_25_relative_poverty: TREATED_DIRECTORY_TAGS="Baseline,£25 Relative Poverty"
+aggregate_25_relative_poverty: TREATED_DIRECTORY_SUBSETS = "who_below_poverty_line_and_kids",$(BOOSTED)
+aggregate_25_relative_poverty:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "25_relative_poverty_child_uplifts"
+
+aggregate_25_all_children: MODE=default_config
+aggregate_25_all_children: TREATED_DIRECTORIES = baseline,25All
+aggregate_25_all_children: TREATED_DIRECTORY_TAGS="Baseline,£25 All Children"
+aggregate_25_all_children: TREATED_DIRECTORY_SUBSETS = "who_kids",$(BOOSTED)
+aggregate_25_all_children:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "25_all_children_child_uplifts"
+
+aggregate_combined_25_child_uplifts: MODE=default_config
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORIES = baseline,25UniversalCredit,25RelativePoverty,25All
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORY_TAGS="Baseline,£25 Universal Credit,£25 Relative Poverty,£25 All"
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORY_SUBSETS = "who_kids",$(BOOSTED),$(BOOSTED),$(BOOSTED)
+aggregate_combined_25_child_uplifts:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "combined_25_child_uplifts"
+
+aggregate_all_child_uplifts: aggregate_25_all_children aggregate_25_relative_poverty aggregate_25_universal_credit aggregate_combined_25_child_uplifts
+
 
 aggregate_minos_output_living_wage:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"

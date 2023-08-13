@@ -54,7 +54,8 @@ class childUplift():
         view_columns = ["hh_income",
                         'nkids',
                         'alive',
-                        'universal_credit']
+                        'universal_credit',
+                        'hidp']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -84,7 +85,8 @@ class childUplift():
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile.
         pop['income_boosted'] = False
-        pop.loc[dynamic_subset_function(pop, self.uplift_condition).index ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+        uplifted_households = np.unique(dynamic_subset_function(pop, self.uplift_condition)['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
         pop['boost_amount'] = pop['income_boosted'] * get_monthly_boost_amount(pop, self.uplift_amount) # £25 per week * 30.463/7 weeks per average month * nkids.
         #pop['income_boosted'] = (pop['boost_amount'] != 0)
         pop['hh_income'] += pop['boost_amount']

@@ -92,14 +92,43 @@ SIPHER7_components_map = {  # SIPHER7 stuff
     "S7EquivalentIncome()": S7EquivalentIncome()
 }
 
-intervention_components_map = {  # Interventions
+
+intervention_components_map = {        #Interventions
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
-    "energyDownliftNoSupport": energyDownliftNoSupport(),
+    "25All": childUplift(),
+    "50All": childUplift(),
+    "75All": childUplift(),
+    "100All": childUplift(),
+    "25RelativePoverty": childUplift(),
+    "50RelativePoverty": childUplift(),
+    "75RelativePoverty": childUplift(),
+    "100RelativePoverty": childUplift(),
+    "25UniversalCredit": childUplift(),
+    "50UniversalCredit": childUplift(),
+    "75UniversalCredit": childUplift(),
+    "100UniversalCredit": childUplift(),
 }
+
+
+intervention_kwargs_dict = {
+    "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
+    "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+    "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+    "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+    "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
+}
+
 
 replenishment_components_map = {
     "Replenishment()": Replenishment(),
@@ -107,7 +136,6 @@ replenishment_components_map = {
     "ReplenishmentNowcast()": ReplenishmentNowcast(),
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
-
 
 # HR 31/07/23 Updated priorities based on recent development
 # Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
@@ -175,65 +203,6 @@ def validate_components(config_components, intervention):
             List of component module classes.
     """
 
-    #components = [eval(x) for x in config.components] # more adapative way but security issues.
-    # last one in first one off. any module that requires another should be BELOW IT in this order.
-    # Note priority in vivarium modules supercedes this. two
-    # Outcome module goes first (last in sim)
-    components_map = {
-        # Outcome module.
-        "MWB()": MWB(),
-        #Intermediary modules
-        "Tobacco()": Tobacco(),
-        "Alcohol()": Alcohol(),
-        "Neighbourhood()": Neighbourhood(),
-        "Labour()": Labour(),
-        "Heating()": Heating(),
-        "Housing()": Housing(),
-        "Income()": Income(),
-        "financialSituation()": financialSituation(),
-        "Loneliness()": Loneliness(),
-        "Nutrition()": Nutrition(),
-        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
-        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
-        "Mortality()": Mortality(),
-        "Education()": Education(),
-    }
-
-    SIPHER7_components_map = {  # SIPHER7 stuff
-        "S7Labour()" : S7Labour(),
-        "S7Housing()" : S7Housing(),
-        "S7Neighbourhood()": S7Neighbourhood(),
-        "S7MentalHealth()" : S7MentalHealth(),
-        "S7PhysicalHealth()": S7PhysicalHealth(),
-        "S7EquivalentIncome()": S7EquivalentIncome()
-    }
-
-    intervention_components_map = {        #Interventions
-        "hhIncomeIntervention": hhIncomeIntervention(),
-        "hhIncomeChildUplift": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift(),
-        "25All": childUplift(),
-        "50All": childUplift(),
-        "75All": childUplift(),
-        "100All": childUplift(),
-        "25RelativePoverty": childUplift(),
-        "50RelativePoverty": childUplift(),
-        "75RelativePoverty": childUplift(),
-        "100RelativePoverty": childUplift(),
-        "25UniversalCredit": childUplift(),
-        "50UniversalCredit": childUplift(),
-        "75UniversalCredit": childUplift(),
-        "100UniversalCredit": childUplift(),
-    }
-
-    replenishment_components_map = {
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
-    }
 
     component_list = []
     replenishment_component = []
@@ -258,21 +227,6 @@ def validate_components(config_components, intervention):
         component_list.append(intervention_components_map[intervention])
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
-
-    intervention_kwargs_dict = {
-        "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
-        "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-        "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-        "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-        "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
-        "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
-        "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
-        "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
-        "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
-        "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
-        "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
-        "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
-    }
     
     intervention_kwargs = {}  # default to em
     if intervention in intervention_kwargs_dict.keys():

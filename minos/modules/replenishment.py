@@ -97,9 +97,9 @@ class Replenishment(Base):
                         'housing_tenure',
                         'urban',
                         'universal_credit',
-                        #'SF_12_diff',
-                        #'hh_income_diff',
-                        #'nutrition_quality_diff',
+                        'SF_12_diff',
+                        'hh_income_diff',
+                        'nutrition_quality_diff',
                         ]
 
         # Shorthand methods for readability.

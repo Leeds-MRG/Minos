@@ -210,7 +210,6 @@ arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
-
 arc4_all_child_uplifts: MODE=default_config
 arc4_all_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_child_uplifts: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
@@ -222,6 +221,11 @@ arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePover
 arc4_universal_credit_child_uplifts: MODE=default_config
 arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+
+arc4_all_25_uplifts: MODE=default_config
+arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_all_25_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_25All arc4_intervention_25UniversalCredit
+
 
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
