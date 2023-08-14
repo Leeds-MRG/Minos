@@ -1,17 +1,17 @@
 
 NUMRUNS=10
-declare -a intlist=(hhIncomeChildUplift livingWageIntervention)
+declare -a intlist=(livingWageIntervention energyDownlift)
 
 TIME=$(date +%Y_%m_%d_%H_%M_%S)
 
-echo "Running $NUMRUNS runs for the Baseline, All Child Uplift, and Living Wage scenarios..."
+echo "Running $NUMRUNS runs for the Baseline, Living Wage, and Energy Crisis scenarios..."
 echo "Starting with baseline..."
 
 ## Doing the baseline runs
 for i in $(seq 1 $NUMRUNS);
 do
     echo "Starting run #$i for the baseline scenario..."
-    python3 scripts/run.py -c config/default.yaml -o default_config -t "$TIME" -r "$i"
+    python3 scripts/run.py -c config/SIPHER7.yaml -o SIPHER7_batch -t "$TIME" -r "$i"
 done
 
 ## Now intervention runs
@@ -20,7 +20,7 @@ do
     for i in $(seq 1 $NUMRUNS);
     do
         echo "Starting run #$i for the $scen scenario..."
-        python3 scripts/run.py -c config/default.yaml -o default_config -i "$scen" -t "$TIME" -r "$i"
+        python3 scripts/run.py -c config/SIPHER7.yaml -o SIPHER7_batch -i "$scen" -t "$TIME" -r "$i"
     done
 done
 

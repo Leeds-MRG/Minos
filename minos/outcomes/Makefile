@@ -8,6 +8,15 @@ test_plot: BOOSTED=who_boosted
 test_plot: aggregate_minos_output_energy
 
 #####################################
+# SIPHER 7 Equivalent Income Outcomes (lol)
+#####################################
+
+S7_outcomes:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/equivalent_income_out.Rmd')"
+	# open html file in firefox
+	firefox file://$(OUTCOMES)/equivalent_income_out.html
+
+#####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
 
@@ -31,6 +40,8 @@ default_all_lineplots: all_lineplots
 all_lineplots: aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
 
+S7_all_lineplots:
+	bash minos/outcomes/make_all_lineplots_S7.sh
 
 aggregate_minos_output:
 aggregate_minos_output:	DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift

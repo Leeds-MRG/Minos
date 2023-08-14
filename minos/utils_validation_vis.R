@@ -385,11 +385,11 @@ snapshot_OP_plots <- function(raw, cv, var, target.years) {
 multi_year_boxplots <- function(raw, cv, var) {
   raw.var <- raw %>%
     dplyr::select(pidp, time, all_of(var))
-  raw.var$source <- 'raw'
+  raw.var$source <- 'US'
   
   cv.var <- cv %>%
     dplyr::select(pidp, time, all_of(var))
-  cv.var$source <- 'cross-validation'
+  cv.var$source <- 'CrossValidation'
   
   combined <- rbind(raw.var, cv.var)
   combined$time <- as.factor(combined$time)
@@ -403,7 +403,7 @@ multi_year_boxplots <- function(raw, cv, var) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }
   
-  ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
+  ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source, fill=source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
 }
@@ -436,27 +436,34 @@ q_q_comparison <- function(raw, cv, var) {
 
 handover_boxplots <- function(raw, baseline, var) {
   raw.var <- raw %>%
-    dplyr::select(pidp, time, all_of(var))
-  raw.var$source <- 'final_US'
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    mutate(source = 'US')
   
   baseline.var <- baseline %>%
-    dplyr::select(pidp, time, all_of(var))
-  baseline.var$source <- 'baseline_output'
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    mutate(source = 'Baseline')
   
   combined <- rbind(raw.var, baseline.var)
   combined$time <- as.factor(combined$time)
-  combined <- drop_na(combined)
-  combined <- filter(combined, .data[[var]] != -9)
   
   if (var %in% c('hh_income', 'equivalent_income')) {
-    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
+    combined <- filter(combined, 
+                       .data[[var]] < quantile(.data[[var]], 0.99), 
+                       .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var == 'ncigs') {
     #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
-    combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
+    combined <- filter(combined, 
+                       .data[[var]] < quantile(.data[[var]], 0.99), 
+                       !.data[[var]] == 0)
   }
   
   ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
     geom_boxplot(notch=TRUE) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     labs(title = paste0(var, ': Yearly box plots'))
 }
 
@@ -464,15 +471,19 @@ handover_boxplots <- function(raw, baseline, var) {
 handover_lineplots <- function(raw, base, var) {
   # GENERALISE THIS AND DOCSTRING
   raw.means <- raw %>% 
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
     group_by(time) %>%
-    summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
+    summarise(summary_var = weighted.mean(.data[[var]], w=weight, na.rm = TRUE)) %>%
     mutate(source = 'final_US')
   
   base.means <- base %>%
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
     group_by(time) %>%
-    summarise(summary_var = mean(!!sym(var))) %>%
+    summarise(summary_var = weighted.mean(.data[[var]], w=weight, na.rm = TRUE)) %>%
     mutate(source = 'baseline_output')
   
   # merge before plot

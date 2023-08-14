@@ -21,6 +21,7 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
+OUTCOMES=$(ROOT)/minos/outcomes
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
@@ -131,6 +132,7 @@ clean_all: clean_data clean_out clean_transitions clean_logs
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
 	rm -f data/*/*.csv
+	rm -f data/*/*/*.csv
 
 clean_out: ### Remove all output files
 clean_out:
@@ -148,6 +150,10 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*/*.txt
 	rm -rf data/transitions/scotland/*/*.rds
 
 clean_scotland: ### Clean all files related to Scotland mode

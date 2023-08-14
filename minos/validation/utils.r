@@ -159,18 +159,18 @@ cv_ordinal_plots <- function(pivoted.df, var, save=FALSE, save.path) {
   #   ylab('Count')
   # 
   # print(p1)
-  
-  if(save) {
-    if(is.null(save.path)) {
-      stop('ERROR: save.path must be defined when saving the plot')
-    }
-    save.filename <- paste0('cv_', var, '_count.png')
-    ggsave(filename = save.filename,
-           plot = p1,
-           path = save.path,
-           width = 9,
-           height = 5)
-  }
+  #
+  # if(save) {
+  #   if(is.null(save.path)) {
+  #     stop('ERROR: save.path must be defined when saving the plot')
+  #   }
+  #   save.filename <- paste0('cv_', var, '_count.png')
+  #   ggsave(filename = save.filename,
+  #          plot = p1,
+  #          path = save.path,
+  #          width = 9,
+  #          height = 5)
+  # }
   
   df <- df %>%
     group_by(time, scenario) %>%

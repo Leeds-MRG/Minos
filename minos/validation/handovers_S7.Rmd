@@ -58,8 +58,38 @@ start.year <- 2020
 save.path <- here::here("plots", "handovers", 'SIPHER7')
 create.if.not.exists(save.path)
 
-shall.we.save <- TRUE
+shall.we.save <- FALSE
 ```
+
+# Weight Testing
+
+```{r}
+raw.weight <- raw.dat %>%
+  select(pidp, time, weight) %>%
+  group_by(time) %>%
+  summarise(mean.weight = mean(weight, na.rm = TRUE))
+
+ggplot(raw.weight, aes(x = time, y = mean.weight)) +
+  geom_line()
+
+raw.weight.WBI <- raw.dat %>%
+  select(pidp, time, weight, ethnicity) %>%
+  filter(ethnicity == 'WBI') %>%
+  group_by(time) %>%
+  summarise(mean.weight = mean(weight, na.rm=TRUE))
+
+ggplot(raw.weight.WBI, aes(x=time, y = mean.weight)) +
+  geom_line()
+
+raw.weight.eth <- raw.dat %>%
+  select(pidp, time, weight, ethnicity) %>%
+  group_by(time, ethnicity) %>%
+  summarise(mean.weight = mean(weight, na.rm = TRUE))
+
+ggplot(raw.weight.eth, aes(x = time, y = mean.weight, group = ethnicity, color = ethnicity)) +
+  geom_line()
+```
+
 
 # INPUTS
 
@@ -137,6 +167,13 @@ rm(raw.income, base.income, income, raw.income.wave1, raw.income2, base.income2,
    raw.income.check, base.income.check)
 ```
 
+### Modified Lineplots
+
+```{r}
+handover_lineplots(raw.dat, base.dat, 'hh_income')
+```
+
+
 ### Boxplots
 
 ```{r}
@@ -147,18 +184,18 @@ handover_boxplots(raw.dat, base.dat, 'hh_income')
 ### Spaghetti
 
 ```{r}
-raw.inc <- raw.dat %>%
-  select(pidp, age, time, hh_income)
-base.inc <- base.dat %>%
-  select(pidp, age, time, hh_income)
-
-income.spag <- rbind(raw.inc, base.inc)
-
-spaghetti_plot(income.spag, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.inc, base.inc, income.spag)
+# raw.inc <- raw.dat %>%
+#   select(pidp, age, time, hh_income)
+# base.inc <- base.dat %>%
+#   select(pidp, age, time, hh_income)
+# 
+# income.spag <- rbind(raw.inc, base.inc)
+# 
+# spaghetti_plot(income.spag, 'hh_income',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.inc, base.inc, income.spag)
 ```
 
 
@@ -170,15 +207,16 @@ rm(raw.inc, base.inc, income.spag)
 # first figure out how to plot final_US
 # start with hh_income
 raw.ei <- raw.dat %>% 
-  dplyr::select(pidp, time, equivalent_income) %>%
+  dplyr::select(pidp, time, equivalent_income, weight) %>%
+  filter(equivalent_income != -9) %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w=weight, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.ei <- base.dat %>%
-  dplyr::select(pidp, time, equivalent_income) %>%
+  dplyr::select(pidp, time, equivalent_income, weight) %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w=weight, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
 
 # merge before plot
@@ -197,20 +235,21 @@ ggplot(data = ei, mapping = aes(x = time, y = equivalent_income, group = source,
 
 ## Try a version where final_US is limited to only those present from wave 1 
 # onwards because the sample refreshments are messing with the plot
-raw.ei.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+raw.ei.wave1 <- raw.dat$pidp[raw.dat$time == 2017]
 
 raw.ei.2 <- raw.dat %>% 
-  dplyr::select(pidp, time, equivalent_income) %>%
+  dplyr::select(pidp, time, equivalent_income, weight) %>%
   filter(pidp %in% raw.ei.wave1) %>%
+  filter(equivalent_income != -9) %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w=weight, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.ei.2 <- base.dat %>%
-  dplyr::select(pidp, time, equivalent_income) %>%
+  dplyr::select(pidp, time, equivalent_income, weight) %>%
   filter(pidp %in% raw.ei.wave1) %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income, na.rm = TRUE)) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w=weight, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
 
 ei.2 <- rbind(raw.ei.2, base.ei.2)
@@ -222,7 +261,7 @@ ei.2 <- ei.2 %>%
 ggplot(data = ei.2, mapping = aes(x = time, y = equivalent_income, group = source, colour = source)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Equivalent Income', subtitle = 'Wave 1 sample') +
+  labs(title = 'Equivalent Income', subtitle = 'Wave 9 sample') +
   xlab('Year') +
   ylab('EI')
 
@@ -236,6 +275,30 @@ if (shall.we.save) {
 rm(raw.ei, base.ei, ei, raw.ei.wave1, raw.ei.2, base.ei.2, ei.2)
 ```
 
+### Modified Lineplots
+
+```{r}
+handover_lineplots(raw.dat, base.dat, 'equivalent_income')
+```
+
+### Check Replenishing Population
+
+Might give us a clue about the big correction in first year of simulation?
+
+```{r}
+repl.file <- here::here('data', 'replenishing', 'replenishing_pop_2019-2070.csv')
+repl.dat <- read.csv(repl.file)
+
+repl.equiv <- repl.dat %>%
+  select(time, equivalent_income, weight) %>%
+  group_by(time) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+
+ggplot(repl.equiv, aes(x = time, y = equivalent_income)) +
+  geom_line()
+```
+
+
 ### Boxplots
 
 ```{r}
@@ -245,20 +308,20 @@ handover_boxplots(raw.dat, base.dat, 'equivalent_income')
 ### Spaghetti
 
 ```{r}
-raw.ei <- raw.dat %>%
-  select(pidp, age, time, equivalent_income)
-base.ei <- base.dat %>%
-  select(pidp, age, time, equivalent_income)
-
-ei.spag <- rbind(raw.ei, base.ei)
-
-spaghetti_plot(base.ei, 'equivalent_income')
-
-spaghetti_plot(ei.spag, 'equivalent_income',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.ei, base.ei, ei.spag)
+# raw.ei <- raw.dat %>%
+#   select(pidp, age, time, equivalent_income)
+# base.ei <- base.dat %>%
+#   select(pidp, age, time, equivalent_income)
+# 
+# ei.spag <- rbind(raw.ei, base.ei)
+# 
+# spaghetti_plot(base.ei, 'equivalent_income')
+# 
+# spaghetti_plot(ei.spag, 'equivalent_income',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.ei, base.ei, ei.spag)
 ```
 
 # PATHWAYS
@@ -292,6 +355,17 @@ if (shall.we.save) {
          path = save.path)
 }
 
+## just look at means in case the means are causing some problems
+raw.dat.2 <- raw.dat
+raw.dat.2$S7_housing_quality2[raw.dat.2$S7_housing_quality == 'No to all'] <- 1
+raw.dat.2$S7_housing_quality2[raw.dat.2$S7_housing_quality == 'Yes to some'] <- 2
+raw.dat.2$S7_housing_quality2[raw.dat.2$S7_housing_quality == 'Yes to all'] <- 3
+base.dat.2 <- base.dat
+base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'No to all'] <- 1
+base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to some'] <- 2
+base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to all'] <- 3
+
+handover_lineplots(raw.dat.2, base.dat.2, 'S7_housing_quality2')
 
 rm(prepped.list, housing, housing.norm)
 ```
@@ -357,6 +431,17 @@ if (shall.we.save) {
          path = save.path)
 }
 
+## just look at means in case the means are causing some problems
+raw.dat.2 <- raw.dat
+raw.dat.2$S7_neighbourhood_safety2[raw.dat.2$S7_neighbourhood_safety == 'Often'] <- 1
+raw.dat.2$S7_neighbourhood_safety2[raw.dat.2$S7_neighbourhood_safety == 'Some of the time'] <- 2
+raw.dat.2$S7_neighbourhood_safety2[raw.dat.2$S7_neighbourhood_safety == 'Hardly ever'] <- 3
+base.dat.2 <- base.dat
+base.dat.2$S7_neighbourhood_safety2[base.dat.2$S7_neighbourhood_safety == 'Often'] <- 1
+base.dat.2$S7_neighbourhood_safety2[base.dat.2$S7_neighbourhood_safety == 'Some of the time'] <- 2
+base.dat.2$S7_neighbourhood_safety2[base.dat.2$S7_neighbourhood_safety == 'Hardly ever'] <- 3
+
+handover_lineplots(raw.dat.2, base.dat.2, 'S7_neighbourhood_safety2')
 
 rm(prepped.list, nh_safety, nh_safety.norm)
 ```
@@ -423,6 +508,23 @@ if (shall.we.save) {
          path = save.path)
 }
 
+raw.dat.2 <- raw.dat
+raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'PT Employed'] <- 6
+raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'FT Employed'] <- 5
+raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'FT Education'] <- 4
+raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'Not Working'] <- 3
+raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'Job Seeking'] <- 2
+raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'Family Care'] <- 1
+base.dat.2 <- base.dat
+base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'PT Employed'] <- 6
+base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'FT Employed'] <- 5
+base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'FT Education'] <- 4
+base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'Not Working'] <- 3
+base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'Job Seeking'] <- 2
+base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'Family Care'] <- 1
+
+handover_lineplots(raw.dat.2, base.dat.2, 'S7_labour_state2')
+
 
 rm(prepped.list, lab.state, lab.state.norm)
 ```
@@ -445,18 +547,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, S7_labour_state)
-base.s <- base.dat %>%
-  select(pidp, age, time, S7_labour_state)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'S7_labour_state',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, S7_labour_state)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, S7_labour_state)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'S7_labour_state',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## S7 Physical Health
@@ -489,6 +591,9 @@ if (shall.we.save) {
          plot = last_plot(),
          path = save.path)
 }
+
+
+handover_lineplots(raw.dat, base.dat, 'S7_physical_health')
 
 
 rm(prepped.list, var, norm, tit)
@@ -557,6 +662,8 @@ if (shall.we.save) {
          path = save.path)
 }
 
+handover_lineplots(raw.dat, base.dat, 'S7_mental_health')
+
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -603,6 +710,9 @@ norm <- prepped.list$norm
 
 tit <- 'Loneliness'
 
+## loneliness only available from 2017 onwards
+var <- filter(var, time >= 2017)
+
 # Now plot
 ggplot(data = var, mapping = aes(x = time, y = n, group = loneliness, colour = loneliness)) +
   geom_line() +
@@ -624,6 +734,8 @@ if (shall.we.save) {
          path = save.path)
 }
 
+handover_lineplots(raw.dat, base.dat, 'loneliness')
+
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -636,6 +748,8 @@ pivoted <- combine_and_pivot_long(df1 = base.dat,
                                        df2 = raw.dat, 
                                        df2.name = 'raw', 
                                        var = 'loneliness')
+
+pivoted <- filter(pivoted, time >= 2017)
 
 cv_ordinal_plots(pivoted.df = pivoted, 
                  var = 'loneliness',
@@ -712,18 +826,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, education_state)
-base.s <- base.dat %>%
-  select(pidp, age, time, education_state)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'education_state',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, education_state)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, education_state)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'education_state',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Parity
@@ -796,3 +910,8 @@ cv_ordinal_plots(pivoted.df = pivoted,
 # 
 # rm(raw.s, base.s, spag)
 ```
+
+```{r}
+
+```
+

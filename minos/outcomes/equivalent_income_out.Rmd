@@ -1,6 +1,13 @@
 ---
 title: "Equivalent Income Outcome Visualisation"
-output: html_notebook
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
 ---
 
 # SETUP
@@ -9,42 +16,103 @@ output: html_notebook
 
 require(tidyverse)
 require(ggplot2)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
 knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
 rm(workingDir)
 ```
 
 ```{r, include=FALSE}
-source('Minos/minos/validation/utils.r')
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 # Data
 
 ```{r}
 # set output path to SIPHER 7 experiment out
-out.path <- 'Minos/output/SIPHER7/'
+out.path <- here::here('output', 'SIPHER7/')
 # read all files into dataframe (util function handles runtime subdirectory etc.)
-base.dat <- read_output(out.path, 'baseline')
-allchild.dat <- read_output(out.path, 'hhIncomeChildUplift')
-pov.dat <- read_output(out.path, 'hhIncomePovertyLineChildUplift')
-wage.dat <- read_output(out.path, 'livingWageIntervention')
-energy.dat <- read_output(out.path, 'energyDownlift')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+allchild.dat <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
+pov.dat <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
+wage.dat <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
+energy.dat <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TRUE)
 ```
+
+## Remove 2020 Data Point
+
+```{r}
+base.dat <- filter(base.dat, time > 2020)
+allchild.dat <- filter(allchild.dat, time > 2020)
+pov.dat <- filter(pov.dat, time > 2020)
+wage.dat <- filter(wage.dat, time > 2020)
+energy.dat <- filter(energy.dat, time > 2020)
+```
+
+## BATCH DATA
+
+```{r}
+S7.var.list <- c('hh_income', 'equivalent_income', 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness')
+out.path.batch <- here::here('output', 'SIPHER7_batch/')
+
+base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=TRUE)
+wage.batch <- read_batch_out_all_years(out.path.batch, 'livingWageIntervention', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=TRUE)
+energy.batch <- read_batch_out_all_years(out.path.batch, 'energyDownlift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=TRUE)
+```
+
 
 # Baseline
 
 ```{r}
 base.subset <- base.dat %>%
-  select(pidp, time, equivalent_income) %>%
+  select(pidp, time, equivalent_income, weight) %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income))
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 
 base.subset$scenario <- 'Baseline'
 
-ggplot(data = base.subset, aes(x = time, y = equivalent_income)) +
+ggplot(data = base.subset, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
   geom_line()
 ```
+
+## Batch
+
+```{r}
+base.bat.sub <- base.batch %>%
+  select(pidp, time, run_id, equivalent_income, weight) %>%
+  group_by(run_id, time) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm=TRUE))
+
+ggplot(data = base.bat.sub, aes(x = time, y = equivalent_income, group=run_id, color = run_id)) +
+  geom_line()
+
+ggplot(data = base.bat.sub, aes(x = time, y = equivalent_income)) +
+  geom_smooth()
+
+base.bat.sub2 <- base.bat.sub %>%
+  group_by(time) %>%
+  summarise(var = mean(equivalent_income),
+         min = min(equivalent_income),
+         max = max(equivalent_income))
+
+ggplot(data = base.bat.sub2, aes(x = time, y = var)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = min, ymax = max), 
+                alpha = 0.1,
+                linetype = 'dashed')
+```
+
 
 # Comparisons
 
@@ -53,15 +121,15 @@ ggplot(data = base.subset, aes(x = time, y = equivalent_income)) +
 ```{r}
 equivalent_income_comparison_fullpop <- function(base, int, int.name, save=FALSE, save.path=NULL) {
   base.subset <- base %>%
-    select(pidp, time, equivalent_income, alive) %>%
+    select(pidp, time, equivalent_income, alive, weight) %>%
     filter(alive != 'dead') %>%
     group_by(time) %>%
-    summarise(equivalent_income = mean(equivalent_income))
+    summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
   int.subset <- int %>%
-    select(pidp, time, equivalent_income, alive) %>%
+    select(pidp, time, equivalent_income, alive, weight) %>%
     filter(alive != 'dead') %>%
     group_by(time) %>%
-    summarise(equivalent_income = mean(equivalent_income))
+    summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
   
   base.subset$scenario <- 'Baseline'
   int.subset$scenario <- int.name
@@ -86,54 +154,82 @@ equivalent_income_comparison_fullpop <- function(base, int, int.name, save=FALSE
            path = save.path)
   }
 }
+
+equivalent_income_comparison_fullpop_batch <- function(base.bat, int.bat, int.name, save=FALSE, save.path=NULL) {
+  base.subset <- base.bat %>%
+    select(pidp, time, run_id, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
+  int.subset <- int.bat %>%
+    select(pidp, time, run_id, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
+  
+  base.subset$scenario <- 'Baseline'
+  int.subset$scenario <- int.name
+  
+  combined <- rbind(base.subset, int.subset)
+  
+  p <- ggplot(combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+    geom_smooth() +
+    labs(title = paste0('Equivalent Income: ', int.name), subtitle = '10 Runs') +
+    xlab('Year') +
+    ylab('Equivalent Income (£)')
+  
+  print(p)
+}
 ```
 
 ## Plots
 
 ```{r}
-equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_fullpop(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+
+equivalent_income_comparison_fullpop_batch(base.batch, wage.batch, 'LivingWage')
+equivalent_income_comparison_fullpop_batch(base.batch, energy.batch, 'EnergyCrisis')
 ```
+
 
 ## Combined
 
 
 ```{r}
 base.subset <- base.dat %>%
-  select(pidp, time, equivalent_income, alive) %>%
+  select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income))
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 base.subset$scenario <- 'Baseline'
 
 allchild.subset <- allchild.dat %>%
-  select(pidp, time, equivalent_income, alive) %>%
+  select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income))
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 allchild.subset$scenario <- 'AllChild'
 
 pov.subset <- pov.dat %>%
-  select(pidp, time, equivalent_income, alive) %>%
+  select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income))
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 pov.subset$scenario <- 'PovertyChild'
 
 wage.subset <- wage.dat %>%
-  select(pidp, time, equivalent_income, alive) %>%
+  select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income))
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 wage.subset$scenario <- 'LivingWage'
 
 energy.subset <- energy.dat %>%
-  select(pidp, time, equivalent_income, alive) %>%
+  select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
-  summarise(equivalent_income = mean(equivalent_income))
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 energy.subset$scenario <- 'EnergyDownlift'
 
 all.combined <- rbind(base.subset, allchild.subset, pov.subset, wage.subset, energy.subset)
@@ -152,16 +248,16 @@ ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenari
 
 ```{r}
 equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE, save.path=NULL) {
-  base.sub <- base.dat %>%
+  base.sub <- base %>%
     select(pidp, time, equivalent_income, alive) %>%
     filter(alive != 'dead') %>%
     select(-alive) %>%
     rename(baseline = equivalent_income)
   int.sub <- int %>%
-    select(pidp, time, equivalent_income, income_boosted, alive) %>%
+    select(pidp, time, equivalent_income, income_boosted, alive, weight) %>%
     filter(alive != 'dead') %>%
     select(-alive) %>%
-    set_names(c('pidp', 'time', int.name, 'income_boosted'))
+    set_names(c('pidp', 'time', int.name, 'income_boosted', 'weight'))
   
   merged <- merge(base.sub, int.sub, by = c('pidp', 'time'))
   
@@ -177,7 +273,7 @@ equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE
                  names_to = 'scenario',
                  values_to = 'equivalent_income') %>%
     group_by(time, scenario) %>%
-    summarise(equivalent_income = mean(equivalent_income))
+    summarise(equivalent_income = weighted.mean(equivalent_income, w=weight))
     
   
   p <- ggplot(data = boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
@@ -198,17 +294,56 @@ equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE
            path = save.path)
   }
 }
+
+equivalent_income_comparison_treated_batch <- function(base.bat, int.bat, int.name, save=FALSE, save.path=NULL) {
+  base.sub <- base.bat %>%
+    select(pidp, time, run_id, equivalent_income) %>%
+    rename(baseline = equivalent_income)
+  int.sub <- int.bat %>%
+    select(pidp, time, run_id, equivalent_income, income_boosted, weight) %>%
+    set_names(c('pidp', 'time', 'run_id', int.name, 'income_boosted', 'weight'))
+  
+  merged <- merge(base.sub, int.sub, by = c('pidp', 'time', 'run_id'))
+  
+  boosted.pidps <- int.sub %>%
+    filter(income_boosted == 'True') %>%
+    select(pidp)
+  
+  boosted <- merged %>%
+    filter(pidp %in% boosted.pidps$pidp) %>%
+    filter(income_boosted == 'True' | time == 2020) %>%
+    select(-income_boosted) %>%
+    pivot_longer(cols = baseline:.data[[int.name]],
+                 names_to = 'scenario',
+                 values_to = 'equivalent_income') %>%
+    group_by(time, scenario, run_id) %>%
+    summarise(equivalent_income = weighted.mean(equivalent_income, w=weight))
+    
+  
+  p <- ggplot(data = boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+    geom_smooth() +
+    labs(title = paste0('Equivalent Income: ', int.name), subtitle = 'Treated Population') +
+    xlab('Year') +
+    ylab('Equivalent Income (£)')
+  
+  print(p)
+}
 ```
 
 
 ## Plots
 
 ```{r}
-equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+
+equivalent_income_comparison_treated_batch(base.batch, wage.batch, 'LivingWage')
+equivalent_income_comparison_treated_batch(base.batch, energy.batch, 'EnergyDownlift')
 ```
+
+
 
 # Remove Income Effect
 
@@ -245,15 +380,337 @@ allchild.boosted <- allchild.merged %>%
   pivot_longer(cols = baseline:allchild_adj,
                names_to = 'scenario',
                values_to = 'equivalent_income')
+```
 
+```{r}
 ggplot(data = allchild.boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
   geom_line()
-
-
 ```
+
 
 
 NOTE: Can we 'remove' the income effect?
 Use the boost amount and income_boosted variables to sort of 'undo' the intervention effect and then we are only visualising the difference from pathway changes and not just the income effect.
 
 ALSO: Difference plots.
+
+
+# DETAILED ANALYSIS
+
+## Living Wage
+
+For this, we're going to look at the difference in equivalent income and try to explain it by looking at the pathway variables. What we want to see is that as income is uplifted, the various pathways show a positive shift and that in part explains the difference in equivalent income. 
+
+First visualise both income and equivalent income on one graph.
+
+### Income and Equivalent Income
+
+```{r}
+base.inc <- base.dat %>%
+  select(pidp, time, hh_income, equivalent_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+            equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
+  mutate(source = 'Baseline')
+
+int.inc <- wage.dat %>%
+  select(pidp, time, hh_income, equivalent_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+            equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
+  mutate(source = 'Living_Wage')
+
+combined <- rbind(base.inc, int.inc)
+combined <- combined %>%
+  pivot_longer(cols=hh_income:equivalent_income,
+               names_to = 'income_type',
+               values_to = 'value')
+
+ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
+  geom_line() +
+  facet_wrap( ~ income_type, nrow=2, scales='free')
+```
+
+## Energy Crisis
+
+### Housing Quality
+
+```{r}
+S7_ordinal_pathway_vis <- function(base.dat, int.dat, int.name, var) {
+  base.hous <- base.dat %>%
+    select(pidp, time, all_of(var)) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = n / total) %>%
+    select(-n, -total) %>%
+    mutate(source = 'Baseline')
+  
+  inc.hous <- int.dat %>%
+    select(pidp, time, all_of(var)) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = n / total) %>%
+    select(-n, -total) %>%
+    mutate(source = int.name)
+  
+  combined <- rbind(base.hous, inc.hous)
+  combined[[var]] <- as.factor(combined[[var]])
+  
+  p1 <- ggplot(combined, aes(x = time, y = prop, group = interaction(.data[[var]], source), color = .data[[var]], linetype = source)) +
+    geom_line() +
+    geom_point()
+  
+  print(p1)
+  
+  base.hous2 <- base.dat %>%
+    select(pidp, time, all_of(var)) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = (n / total) * 100) %>%
+    select(-n, -total) %>%
+    rename(Baseline = prop)
+  
+  int.hous2 <- int.dat %>%
+    select(pidp, time, all_of(var)) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = (n / total) * 100) %>%
+    select(-n, -total) %>%
+    rename(int = prop)
+  
+  combined2 <- merge(base.hous2, int.hous2, by = c('time', var))
+  
+  combined2[[var]] <- as.factor(combined2[[var]])
+  
+  combined2$diff <- combined2$int - combined2$Baseline
+  
+  p2 <- ggplot(combined2, aes(x = time, y = diff, group = .data[[var]], color = .data[[var]])) +
+    geom_line() +
+    geom_point()
+  
+  print(p2)
+}
+
+S7_ordinal_pathway_vis_batch <- function(base.bat, int.bat, int.name, var) {
+  base.hous <- base.bat %>%
+    select(pidp, time, run_id, all_of(var)) %>%
+    group_by(time, run_id, .data[[var]]) %>%
+    count() %>%
+    group_by(time, run_id) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = n / total) %>%
+    select(-n, -total) %>%
+    mutate(source = 'Baseline')
+  
+  inc.hous <- int.bat %>%
+    select(pidp, time, run_id, all_of(var)) %>%
+    group_by(time, run_id, .data[[var]]) %>%
+    count() %>%
+    group_by(time, run_id) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = n / total) %>%
+    select(-n, -total) %>%
+    mutate(source = int.name)
+  
+  combined <- rbind(base.hous, inc.hous)
+  combined[[var]] <- as.factor(combined[[var]])
+  
+  p1 <- ggplot(combined, aes(x = time, y = prop, group = interaction(.data[[var]], source), color = .data[[var]], linetype = source)) +
+    geom_smooth()
+  
+  print(p1)
+  
+  base.hous2 <- base.bat %>%
+    select(pidp, time, run_id, all_of(var)) %>%
+    group_by(time, run_id, .data[[var]]) %>%
+    count() %>%
+    group_by(time, run_id) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = (n / total) * 100) %>%
+    select(-n, -total) %>%
+    rename(Baseline = prop)
+  
+  int.hous2 <- int.bat %>%
+    select(pidp, time, run_id, all_of(var)) %>%
+    group_by(time, run_id, .data[[var]]) %>%
+    count() %>%
+    group_by(time, run_id) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prop = (n / total) * 100) %>%
+    select(-n, -total) %>%
+    rename(int = prop)
+  
+  combined2 <- merge(base.hous2, int.hous2, by = c('time', 'run_id', var))
+  
+  combined2[[var]] <- as.factor(combined2[[var]])
+  
+  combined2$diff <- combined2$int - combined2$Baseline
+  
+  p2 <- ggplot(combined2, aes(x = time, y = diff, group = .data[[var]], color = .data[[var]]), fill = .data[[var]]) +
+    geom_smooth() +
+    labs(title = paste0(int.name, ': Change from Baseline')) +
+    xlab('Year') +
+    ylab('Change')
+  
+  print(p2)
+}
+
+```
+
+### Housing Quality
+
+```{r}
+S7_ordinal_pathway_vis(base.dat, energy.dat, 'EnergyCrisis', 'S7_housing_quality')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_housing_quality')
+```
+
+
+### Neighbourhood Safety
+
+```{r}
+S7_ordinal_pathway_vis(base.dat, energy.dat, 'EnergyCrisis', 'S7_neighbourhood_safety')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_neighbourhood_safety')
+```
+
+### Mental Wellbeing
+
+```{r}
+S7_ordinal_pathway_vis(base.dat, energy.dat, 'EnergyCrisis', 'S7_mental_health')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_mental_health')
+```
+
+### Physical Health
+
+```{r}
+S7_ordinal_pathway_vis(base.dat, energy.dat, 'EnergyCrisis', 'S7_physical_health')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_physical_health')
+```
+
+### Loneliness
+
+```{r}
+S7_ordinal_pathway_vis(base.dat, energy.dat, 'EnergyCrisis', 'loneliness')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'loneliness')
+```
+
+### Labour State
+
+```{r}
+S7_ordinal_pathway_vis(base.dat, energy.dat, 'EnergyCrisis', 'S7_labour_state')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_labour_state')
+```
+
+
+
+```{r}
+boosted.pidps <- energy.dat %>%
+  filter(income_boosted == 'True') %>%
+  select(pidp)
+
+base.hous <- base.dat %>%
+  select(pidp, time, S7_housing_quality) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  group_by(time, S7_housing_quality) %>%
+  count() %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prop = (n / total) * 100) %>%
+  select(-n, -total) %>%
+  rename(Baseline = prop)
+
+int.hous <- energy.dat %>%
+  select(pidp, time, S7_housing_quality, income_boosted) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  group_by(time, S7_housing_quality) %>%
+  count() %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prop = (n / total) * 100) %>%
+  select(-n, -total) %>%
+  rename(EnergyCrisis = prop)
+
+combined <- merge(base.hous, int.hous, by = c('time', 'S7_housing_quality'))
+
+combined$diff <- combined$EnergyCrisis - combined$Baseline
+
+
+
+ggplot(combined, aes(x = time, y = diff, group = S7_housing_quality, color = S7_housing_quality)) +
+  geom_line() +
+  geom_point()
+```
+
+```{r}
+## just look at means in case the means are causing some problems
+base.dat.2 <- base.dat
+base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'No to all'] <- 1
+base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to some'] <- 2
+base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to all'] <- 3
+wage.dat.2 <- energy.dat
+wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'No to all'] <- 1
+wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'Yes to some'] <- 2
+wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'Yes to all'] <- 3
+
+base.hous.mean <- base.dat.2 %>%
+  select(pidp, time, S7_housing_quality2, weight) %>%
+  group_by(time) %>%
+  summarise(mean_housing = weighted.mean(S7_housing_quality2, w = weight, na.rm = TRUE)) %>%
+  mutate(source = 'Baseline')
+wage.hous.mean <- wage.dat.2 %>%
+  select(pidp, time, S7_housing_quality2, weight) %>%
+  group_by(time) %>%
+  summarise(mean_housing = weighted.mean(S7_housing_quality2, w = weight, na.rm = TRUE)) %>%
+  mutate(source = 'EnergyCrisis')
+
+combined <- rbind(base.hous.mean, wage.hous.mean)
+
+ggplot(combined, aes(x = time, y = mean_housing, group = source, color = source)) +
+  geom_line() +
+  geom_point()
+```
+
+
+```{r}
+
+df <- combine_and_pivot_long(base.dat, 'Baseline', wage.dat, 'LivingWage', c('S7_housing_quality', 'income_boosted'))
+
+outcomes.prep <- function(base.dat, int.dat, int.name, var) {
+  boosted.pidps <- int.dat %>%
+    filter(income_boosted == 'True') %>%
+    select(pidp, time)
+  
+  df1 <- base.dat %>%
+    select(pidp, time, all_of(var), weight) %>%
+    
+}
+
+
+
+
+combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
+  # get only the columns we want a rename
+  df1 <- df1 %>%
+    select('pidp', 'time', all_of(var)) %>%
+    set_names(c('pidp', 'time', df1.name))
+  df2 <- df2 %>%
+    select('pidp', 'time', all_of(var)) %>%
+    set_names(c('pidp', 'time', df2.name))
+  # merge on pidp and time
+  merged <- merge(df1, df2, by = c('pidp', 'time'), all=TRUE)
+  pivoted <- pivot_longer(data = merged,
+                          cols = df1.name:df2.name,
+                          names_to = 'scenario',
+                          values_to = var)
+  return(pivoted)
+}
+
+```
+

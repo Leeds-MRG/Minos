@@ -1,0 +1,5 @@
+
+bash minos/outcomes/make_lineplot_S7.sh SIPHER7 baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"
+bash minos/outcomes/make_lineplot_S7.sh SIPHER7 baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
+bash minos/outcomes/make_lineplot_S7.sh SIPHER7 baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift "Baseline,All Children Uplift,Poverty Line Child Uplift" who_kids,who_boosted,who_boosted "all_vs_poverty_child_uplift"
+bash minos/outcomes/make_lineplot_S7.sh SIPHER7 baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg"
