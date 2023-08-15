@@ -183,10 +183,10 @@ equivalent_income_comparison_fullpop_batch <- function(base.bat, int.bat, int.na
 ## Plots
 
 ```{r}
-equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_fullpop(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild')
+equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild')
+equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage')
+equivalent_income_comparison_fullpop(base.dat, energy.dat, 'EnergyDownlift')
 
 equivalent_income_comparison_fullpop_batch(base.batch, wage.batch, 'LivingWage')
 equivalent_income_comparison_fullpop_batch(base.batch, energy.batch, 'EnergyCrisis')
@@ -197,7 +197,7 @@ equivalent_income_comparison_fullpop_batch(base.batch, energy.batch, 'EnergyCris
 
 
 ```{r}
-base.subset <- base.dat %>%
+base.subset <- base.batch %>%
   select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
@@ -237,6 +237,35 @@ all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'A
 
 ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
   geom_line() +
+  labs(title = 'Equivalent Income Comparison', subtitle = 'Whole Population') +
+  xlab('Year') +
+  ylab('Equivalent Income (£)')
+```
+
+```{r}
+base.subset <- base.batch %>%
+  select(pidp, time, run_id, equivalent_income, weight) %>%
+  group_by(time, run_id) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight)) %>%
+  mutate(scenario = 'Baseline')
+
+wage.subset <- wage.batch %>%
+  select(pidp, time, run_id, equivalent_income, weight) %>%
+  group_by(time, run_id) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight)) %>%
+  mutate(scenario = 'LivingWage')
+
+energy.subset <- energy.batch %>%
+  select(pidp, time, run_id, equivalent_income, weight) %>%
+  group_by(time, run_id) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight)) %>%
+  mutate(scenario = 'EnergyCrisis')
+
+all.combined <- rbind(base.subset, wage.subset, energy.subset)
+all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'LivingWage', 'EnergyCrisis'))
+
+ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+  geom_smooth() +
   labs(title = 'Equivalent Income Comparison', subtitle = 'Whole Population') +
   xlab('Year') +
   ylab('Equivalent Income (£)')
@@ -334,10 +363,10 @@ equivalent_income_comparison_treated_batch <- function(base.bat, int.bat, int.na
 ## Plots
 
 ```{r}
-equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
-equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift', save=TRUE, save.path = '/home/luke/Documents/WORK/MINOS/Minos/plots/Equivalent_Income/')
+equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild')
+equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild')
+equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage')
+equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift')
 
 equivalent_income_comparison_treated_batch(base.batch, wage.batch, 'LivingWage')
 equivalent_income_comparison_treated_batch(base.batch, energy.batch, 'EnergyDownlift')
@@ -432,6 +461,35 @@ ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
 ```
 
 ## Energy Crisis
+
+### CHANGE IN INCOME / EQUIVALENT INCOME
+
+```{r}
+base.inc <- base.dat %>%
+  select(pidp, time, hh_income, equivalent_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+            equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
+  mutate(source = 'Baseline')
+
+int.inc <- wage.dat %>%
+  select(pidp, time, hh_income, equivalent_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+            equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
+  mutate(source = 'Living_Wage')
+
+combined <- rbind(base.inc, int.inc)
+combined <- combined %>%
+  pivot_longer(cols=hh_income:equivalent_income,
+               names_to = 'income_type',
+               values_to = 'value')
+
+ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
+  geom_line() +
+  facet_wrap( ~ income_type, nrow=2, scales='free')
+```
+
 
 ### Housing Quality
 
