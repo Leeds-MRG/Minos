@@ -197,7 +197,7 @@ equivalent_income_comparison_fullpop_batch(base.batch, energy.batch, 'EnergyCris
 
 
 ```{r}
-base.subset <- base.batch %>%
+base.subset <- base.dat %>%
   select(pidp, time, equivalent_income, alive, weight) %>%
   filter(alive != 'dead') %>%
   group_by(time) %>%
@@ -460,7 +460,7 @@ ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
   facet_wrap( ~ income_type, nrow=2, scales='free')
 ```
 
-## Energy Crisis
+
 
 ### CHANGE IN INCOME / EQUIVALENT INCOME
 
@@ -472,12 +472,12 @@ base.inc <- base.dat %>%
             equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
   mutate(source = 'Baseline')
 
-int.inc <- wage.dat %>%
+int.inc <- energy.dat %>%
   select(pidp, time, hh_income, equivalent_income, weight) %>%
   group_by(time) %>%
   summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
             equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
-  mutate(source = 'Living_Wage')
+  mutate(source = 'EnergyCrisis')
 
 combined <- rbind(base.inc, int.inc)
 combined <- combined %>%
@@ -490,6 +490,125 @@ ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
   facet_wrap( ~ income_type, nrow=2, scales='free')
 ```
 
+How about on the same plot to make it more clear?
+
+```{r}
+income_equivinc_change <- function(base.dat, int.dat) {
+  base.inc <- base.dat %>%
+    select(pidp, time, hh_income, equivalent_income, weight) %>%
+    group_by(time) %>%
+    summarise(base_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              base_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  int.inc <- int.dat %>%
+    select(pidp, time, hh_income, equivalent_income, weight) %>%
+    group_by(time) %>%
+    summarise(energy_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              energy_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  combined <- merge(base.inc, int.inc, by = c('time'))
+  
+  combined$diff_income <- combined$energy_income - combined$base_income
+  combined$diff_equiv_income <- combined$energy_equiv_income - combined$base_equiv_income
+  
+  combined <- combined %>%
+    pivot_longer(cols = diff_income:diff_equiv_income,
+                 names_prefix = 'diff_',
+                 names_to = 'variable',
+                 values_to = 'diff')
+  
+  ggplot(combined, aes(x = time, y = diff, group = variable, color = variable)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+}
+
+income_equivinc_change_batch <- function(base.batch, int.batch) {
+  base.inc <- base.batch %>%
+    select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(base_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              base_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  int.inc <- int.batch %>%
+    select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(energy_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              energy_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  combined <- merge(base.inc, int.inc, by = c('time', 'run_id'))
+  
+  combined$diff_income <- combined$energy_income - combined$base_income
+  combined$diff_equiv_income <- combined$energy_equiv_income - combined$base_equiv_income
+  
+  combined <- combined %>%
+    pivot_longer(cols = diff_income:diff_equiv_income,
+                 names_prefix = 'diff_',
+                 names_to = 'variable',
+                 values_to = 'diff')
+  
+  ggplot(combined, aes(x = time, y = diff, group = variable, color = variable)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+}
+
+income_equivinc_change(base.dat, energy.dat)
+income_equivinc_change_batch(base.batch, energy.batch)
+
+income_equivinc_change(base.dat, wage.dat)
+income_equivinc_change_batch(base.batch, wage.batch)
+```
+
+### Percent Change
+
+Proportional difference? Percentage difference in income and equivalent income over time?
+
+```{r}
+income_equivinc_percent_change_batch <- function(base.batch, int.batch) {
+  base.inc <- base.batch %>%
+    select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(base_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              base_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  int.inc <- int.batch %>%
+    select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(energy_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              energy_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  combined <- merge(base.inc, int.inc, by = c('time', 'run_id'))
+  
+  combined$diff_income <- combined$energy_income - combined$base_income
+  combined$diff_equiv_income <- combined$energy_equiv_income - combined$base_equiv_income
+  
+  combined <- combined %>%
+    group_by(time) %>%
+    summarise(mean_income = mean(base_income),
+              mean_equiv_income = mean(base_equiv_income),
+              mean_diff_income = mean(diff_income),
+              mean_diff_equiv_income = mean(diff_equiv_income)) %>%
+    mutate(percent_change_income = (mean_diff_income / mean_income) * 100,
+           percent_change_equiv_income = (mean_diff_equiv_income / mean_equiv_income) * 100) %>%
+    select(-mean_income, -mean_equiv_income, -mean_diff_income, -mean_diff_equiv_income) %>%
+    pivot_longer(cols = percent_change_income:percent_change_equiv_income,
+                 names_prefix = 'percent_change_',
+                 names_to = 'variable',
+                 values_to = 'change')
+  
+  ggplot(combined, aes(x = time, y = change, group = variable, color = variable)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Percent change: Income vs Equivalent Income') +
+    xlab('Year') +
+    ylab('Percent Change')
+}
+
+income_equivinc_percent_change_batch(base.batch, energy.batch)
+income_equivinc_percent_change_batch(base.batch, wage.batch)
+
+```
+
+## Energy Crisis
 
 ### Housing Quality
 
