@@ -65,7 +65,7 @@ def expand_repl(US_2018):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
+        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)
 
         #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
@@ -156,7 +156,7 @@ def predict_education(repl, transition_dir):
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
                     }
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
+    transition_model = r_utils.load_transitions("education_state/nnet2/education_state_NNET2", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan

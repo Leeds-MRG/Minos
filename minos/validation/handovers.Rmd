@@ -741,21 +741,118 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.parity %>%
-  select(pidp, age, time, nkids_ind)
-base.s <- base.parity %>%
-  select(pidp, age, time, nkids_ind)
+# raw.s <- raw.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# base.s <- base.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'nkids_ind',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
+```
+
+## Total nkids
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.parity, base.parity, 'nkids_ind')
+
+
+```
+
+## Marital Status
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'marital_status')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Marital Status'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = marital_status, colour = marital_status)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=marital_status)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'marital_status.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+### Spaghetti
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, marital_status)
+base.s <- base.dat %>%
+  select(pidp, age, time, marital_status)
 
 spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'nkids_ind',
+spaghetti_plot(spag, 'marital_status',
                save = shall.we.save,
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
 ```
 
-```{r}
+## Education State
 
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Education State'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'education_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
 ```
+
+
+
+
+
+
 
