@@ -1,0 +1,462 @@
+---
+title: "Paper 1 Notebook"
+output: html_notebook
+---
+
+```{r "preamble"}
+source("minos/transitions/utils.R")
+source("minos/transitions/transition_model_functions.R")
+source("minos/transitions/paper_1_plots.R")
+library(dplyr)
+library(texreg)
+library(lme4)
+library(glmnet)
+library(mice)
+library(sjPlot)
+library(visreg)
+library(ggplot2)
+library(ggpattern)
+library(VIM)
+```
+
+
+```{r "raw_data_processing"}
+
+
+dataDir <- "data/raw_US/"
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')[21:23] # get files for 2011-2013.
+raw.data <- do.call(rbind, lapply(filelist, read.csv))
+
+
+model_formula_string <- "SF_12 ~ factor(sex) + 
+                  relevel(factor(ethnicity), ref='WBI') + 
+                  scale(age) + 
+                  factor(education_state) + 
+                  factor(labour_state_raw) + 
+                  relevel(factor(job_sec), ref=1) +
+                  relevel(factor(region), ref='London') +
+                  scale(hh_netinc)"
+model_formula <- as.formula(model_formula_string)
+variables <- all.vars(model_formula)
+variables[1] <- "SF_12"
+
+raw.data <- raw.data[, append(variables, c("time", 'pidp', 'weight'))]
+
+raw.data <- raw.data %>%
+        group_by(pidp) %>%
+        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        mutate(last = lag(.data[["SF_12"]], order_by = time)) %>%
+        rename_with(.fn = ~paste0('SF_12_', .), .cols = last)  # add the dependent as prefix to the calculated diff
+
+raw.data <- replace.missing(raw.data)
+raw.data <- drop_na(raw.data)
+```
+
+
+```{r "OLS"}
+
+sf12.lm <- lm(model_formula_string,
+              data= raw.data)
+a<- summary(sf12.lm)
+print(a)
+print(a$adj.r.squared)
+
+save.path <- "minos/outcomes/paper1_plots/"
+create.if.not.exists(save.path)
+texreg(sf12.lm, dcolumn=T, booktabs=T, file=paste0(save.path,'ols_coefficients.txt'), custom.model.names=c("OLS"), single.row=T)
+save(sf12.lm, file = paste0(save.path,"baseline_OLS.RData"))
+
+
+write_coefs <- T
+if (write_coefs)
+{
+  texreg_file <- paste0(save.path, 'SF12_OLS_coefficients.txt')
+  tex_label <- paste0("table: baseline_OLS_coefficients") 
+  tex_headers <- c(texreg::names2latex("Baseline SF_12 OLS"))
+  tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "ols"))    
+  texreg(sf12.lm, # what model to save coefs for. 
+         file=texreg_file,  # where to save.
+         custom.model.names = tex_headers, # title of table.
+         stars = c(0.001, 0.01, 0.05), # p-value significance symbols. 
+         digits=4, # p values significant figures.
+         caption=tex_caption, # \caption command option. 
+         label = tex_label, # \label command option. 
+         dcolumn=T,# nice column alignment. 
+         booktabs=T, # nice hlines. (recommended)
+         tabular=T,# tabular env.
+         single.row = T, # nicer one row formatting.
+         longtable=T, # allows tables to wrap over pages
+         use.packages=F, # don't add \usepackage commands to allow for direct importing of files as inputs
+         fontsize='small') # small font
+}
+
+
+forest_plot_lm(sf12.lm, paste0(save.path, "presentation_forest.pdf"))
+qq_plot(resid(sf12.lm), paste0(save.path, "presentation_qq.pdf"))
+residual_density_plot(res=resid(sf12.lm), file_name=paste0(save.path, "presentation_residual_density.pdf"), guide="normal")
+
+squareRootRes <- sqrt(abs(scale(resid(sf12.lm))))
+fitted_residuals <- as.data.frame(cbind(fitted(sf12.lm), squareRootRes))
+colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
+fitted_residual_plot(fitted_residuals, paste0(save.path, "presentation_fitted_residual_plot.pdf"))
+
+#visreg(sf12.lm, "age", by="sex", overlay=T)
+
+pdf(paste0(save.path, "total_missingness_structure1.pdf"))
+aggr(subset(raw.data[,reg_columns], select=-c(y)), sortVars=T,  oma=c(8,4,4,4), numbers=T, cex.axis=1.0, col = c(blue, orange), prop=F, combined=T, cex.numbers=0.5)
+dev.off()
+
+
+```
+
+
+
+```{r final_data_processing}
+# new formula and get data from final
+
+dataDir <- "data/composite_US/"
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')[3:5] # get files for 2011-2013.
+final.data <- do.call(rbind, lapply(filelist, read.csv))
+
+# scale(SF_12_last) +
+model_formula_string <- "SF_12 ~
+                  factor(sex) + 
+                  relevel(factor(ethnicity), ref='WBI') + 
+                  scale(age) + 
+                  scale(I(age**2)) +
+                  factor(education_state) + 
+                  factor(S7_labour_state) + 
+                  relevel(factor(job_sec), ref=1) +
+                  relevel(factor(region), ref='London') +
+                  scale(hh_income) + 
+                  scale(I(hh_income**2)) +
+                  (1+time|pidp)"
+
+final.data <- final.data %>%
+        group_by(pidp) %>%
+        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        mutate(last = lag(.data[["SF_12"]], order_by = time)) %>%
+        rename_with(.fn = ~paste0('SF_12_', .), .cols = last)  # add the dependent as prefix to the calculated diff
+
+glmm_model_formula <- as.formula(model_formula_string)
+variables <- all.vars(glmm_model_formula)
+#variables[2] <- "SF_12"
+
+final.data <- final.data[, append(variables, c("time", 'pidp', 'weight'))]
+
+
+final.data <- replace.missing(final.data)
+final.data <- drop_na(final.data)
+
+```
+
+
+```{r MICE}
+
+
+dataDir <- "data/composite_US/"
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')[3:5] # get files for 2011-2013.
+mice.data <- do.call(rbind, lapply(filelist, read.csv))
+mice.data <-replace.missing(mice.data)
+
+model_formula_string <- "SF_12 ~ factor(sex) + 
+                  relevel(factor(ethnicity), ref='WBI') + 
+                  scale(age) + 
+                  factor(education_state) + 
+                  factor(S7_labour_state) + 
+                  relevel(factor(job_sec), ref=1) +
+                  relevel(factor(region), ref='London') +
+                  scale(hh_income)"
+
+
+# set up MICE and cache data
+# plots of missingness pre and post raw US
+# figures of convergence and difference in distribution.
+cached <- F # if you just want the plots used cached data. MICE can take forever..
+imp_columns <- c("SF_12",
+                 'sex',
+                 "job_sec",
+                 "education_state",
+                 "S7_labour_state", 
+                 "region", 
+                 "ethnicity", 
+                 "age", 
+                 "hh_income")
+
+method <-   c('pmm',
+            'pmm',#'polr',
+            'pmm',
+            'pmm', #'polr',
+            'pmm',
+            'pmm',
+            'pmm',
+            'pmm',
+            'pmm' )
+
+# structure plots for adding in auxliary variables
+
+pdf(paste0(save.path, "total_missingness_structure2.pdf"))
+aggr(subset(mice.data, select=-c(y)), sortVars=T,  oma=c(8,4,4,4), numbers=T, cex.axis=1.0, col = c(blue, orange), prop=F, combined=T, cex.numbers=0.5)
+dev.off()
+
+cached<-T
+if (cached){
+  load('papers/phd1/data/mice_set.RData')
+  load('papers/phd1/data/mice_data.RData')
+} else{
+  pidps <- mice.data$pidp
+  save(pidps, file = paste0(save.path, 'mice_pidps.RData'))
+  mice.weights <- mice.data$weight
+  save(mice.weights, file = paste0(save.path, 'mice_weights.RData'))
+  
+  mice_set <- mice(data = mice.data[,imp_columns], method=method,
+                   m = 20, maxit = 10,
+                   #m = 2, maxit = 2,
+                   remove.collinear=T)
+  mice.data <- complete(mice_set) 
+
+  save(mice_set, file = paste0(save.path,'mice_set.RData'))
+  save(mice.data, file = paste0(save.path,'mice_data.RData'))
+}
+
+
+#pdf("papers/phd1/plots/ols_mice_convergence.pdf")
+#print(plot(mice_set, y = SF_12 + y ~ .it | .ms))
+#dev.off()
+pdf(paste0(paste0(save.path,"ols_mice_convergence.pdf")))
+print(plot(mice_set, SF_12 = SF_12 ~ .it | .ms))
+dev.off()
+
+mice.sf12.lm <- with(mice_set, lm(as.formula(model_formula_string)))
+final.pool<- pool(mice.sf12.lm)
+
+pooled_lm <- mice.sf12.lm$analyses[[1]]
+pool.sum <- summary(final.pool)
+pooled_lm$coefficients = pool.sum$estimate
+mice.preds<- predict(pooled_lm)
+
+pool.r.squared(final.pool)
+
+# mice objects dont go in forest plot annoyingly. move coefficients over to a
+# dummy lm that plot_models can read.
+mice.lm.object <- summary(lm(model_formula_string, data = complete(mice_set)))
+mice.lm.object$coefficients[,1] <- pool.sum$estimate
+mice.lm.object$coefficients[,2] <- pool.sum$std.error
+mice.lm.object$coefficients[,3] <- pool.sum$statistic
+mice.lm.object$coefficients[,4] <- pool.sum$p.value
+save(mice.lm.object, file = paste0(paste0(save.path,'mice_lm_object.RData')))
+
+#texreg(mice.lm.object, dcolumn=T, booktabs=T, file='../plots/mice_ols_coefficients.txt', title="SF12 MICE OLS Coefficients", custom.model.names=c("SF12 OLS"), single.row=T, include.aic=T)
+
+res <- as.data.frame(predict(pooled_lm))
+real <- as.data.frame(data$SF_12)
+res$type <- c("Predicted")
+real$type <- c("Real")
+colnames(res) <- c("SF12", 'type')
+colnames(real) <- c("SF12", 'type')
+hist.data <- rbind(res,real)
+hist.data <- tidyr::drop_na(hist.data)
+
+
+res <- as.data.frame(resid(pooled_lm))
+residual_density_plot(res, paste0(save.path,'mice_ols_densities.pdf'), guide='normal')
+
+forest_plot(mice.lm.object, paste0(save.path,'mice_SF12_forest.pdf'))
+
+
+
+write_coefs <- T
+if (write_coefs)
+{
+  texreg_file <- paste0(save.path, 'SF12_MICE_OLS_coefficients.txt')
+  tex_label <- paste0("table: MICE_OLS_coefficients") 
+  tex_headers <- c(texreg::names2latex("MICE SF_12 OLS"))
+  tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "ols"))    
+  texreg(pooled_lm, # what model to save coefs for. 
+         file=texreg_file,  # where to save.
+         custom.model.names = tex_headers, # title of table.
+         stars = c(0.001, 0.01, 0.05), # p-value significance symbols. 
+         digits=4, # p values significant figures.
+         caption=tex_caption, # \caption command option. 
+         label = tex_label, # \label command option. 
+         dcolumn=T,# nice column alignment. 
+         booktabs=T, # nice hlines. (recommended)
+         tabular=T,# tabular env.
+         single.row = T, # nicer one row formatting.
+         longtable=T, # allows tables to wrap over pages
+         use.packages=F, # don't add \usepackage commands to allow for direct importing of files as inputs
+         fontsize='small') # small font
+}
+```
+
+
+```{r cross validated nowcasting}
+# split data into five
+# transition models
+# compare coefficients in plots. 
+
+
+```
+
+```{r lasso}
+# just import from old paper
+lasso.data <- tidyr::drop_na(final.data)
+X <- model.matrix(as.formula(model_formula_string), data=lasso.data)
+y <- lasso.data$SF_12
+weight <- lasso.data$weight
+cv.lasso <- cv.glmnet(X, y, family = "gaussian", weights = weight)
+lasso <- glmnet(X, y, alpha = 1,  family = "gaussian", weights = weight)
+
+# plots for this. 
+  
+  pdf(paste0(save.path, 'ols_lasso_2013.pdf'))
+  plot(lasso, xvar = "lambda", label = T) 
+  abline(v = log(cv.lasso$lambda.min), col = "blue",lty=2)
+  abline(v = log(cv.lasso$lambda.1se), col = "red", lty=3)
+  legend('bottomright', legend=c("Minimum Standard Error", "First Standard Error"), col=c('blue', 'red'), lty=c(2, 3))
+  dev.off()
+  
+  pdf(paste0(save.path, 'ols_cv_lasso_2013.pdf'))
+  plot(cv.lasso)
+  dev.off()
+  
+  print(coef(cv.lasso, s = "lambda.min"))
+  print(coef(cv.lasso, s = "lambda.1se"))
+```
+
+```{r projection of weights}
+# get from old paper as well? interesting idea on macro micro
+sf12.lm.weighted <- lm(formula, weights = weights, data = final.data)
+
+# plots as with SF12
+
+```
+
+
+```{r handovers}
+# boxplots for handovers
+#.estimating from 2014-2020.
+# get data for 2013- 2020
+# run 2013 pop through transition probability model a few times. 
+# profit. 
+# run it through model a few times
+# compare with real data in boxplots and ridgelines. 
+
+dataDir <- "data/raw_US/"
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')[23:30] # get files for 2011-2013.
+raw.data <- do.call(rbind, lapply(filelist, read.csv))
+raw.data <- replace.missing(raw.data)
+raw.data <- raw.data[, c('pidp', 'time', variables)]
+raw.data <- drop_na(raw.data)
+```
+
+```{r handovers}
+start.data <- raw.data[which(raw.data$time==2013),]
+rolling.data <- start.data[, c("pidp", "SF_12", "time")]
+handover.data <- rolling.data
+for (i in 1:7){
+  rolling.data$SF_12 <- predict(sf12.lm, start.data)
+  start.data$SF_12 <- rolling.data$SF_12
+  rolling.data[, 'time'] <- rolling.data[, 'time'] +1
+  handover.data <- rbind(handover.data, rolling.data)
+}
+
+handover_boxplots(raw.data, handover.data, "SF_12")
+density_ridges(raw.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "raw_ridges")
+density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "handover_ridges")
+
+```
+
+
+## HETEROGENEITY ###############################################################
+
+
+
+
+
+```{r "glmm"}
+glmm.data <- final.data
+# yoink transition model function pre processing
+reflect <- T
+yeo_johnson <- T
+include_weights <- T
+depend <- "SF_12"
+dependent_data <- glmm.data$SF_12
+
+if (reflect) {
+    max_value <- nanmax(glmm.data[[depend]])
+    glmm.data[, c(depend)] <- max_value - glmm.data[, c(depend)] 
+  }
+if (yeo_johnson)
+{
+  yj <- yeojohnson(glmm.data[,c(depend)])
+  glmm.data[, c(depend)] <- predict(yj)
+}
+
+min_value <- nanmin(glmm.data[[depend]])
+glmm.data[[depend]] <- glmm.data[[depend]] - min_value + 0.001
+
+if(include_weights) {
+  sf12.glmm.model <- glmer(glmm_model_formula,  
+                 nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
+                 family=Gamma(link='log'), # gamma family with log link.
+                 weights=weight, 
+                 data = glmm.data)
+} else {
+  sf12.glmm.model <- glmer(model_formula, 
+                 nAGQ=0, 
+                 family=Gamma(link='log'),
+                 data = glmm.data)
+}
+
+
+save(sf12.glmm.model, file = paste0(save.path,"sf12_glmm.RData"))
+
+
+write_coefs <- T
+if (write_coefs)
+{
+  texreg_file <- paste0(save.path, 'SF_12_GLMM_coefficients.txt')
+  tex_label <- paste0("table: GLMM_SF_12_coefficients") 
+  tex_headers <- c(texreg::names2latex("SF_12 GLMM"))
+  tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "glmm"))    
+  texreg(glmm.sf12.lm, # what model to save coefs for. 
+         file=texreg_file,  # where to save.
+         custom.model.names = tex_headers, # title of table.
+         stars = c(0.001, 0.01, 0.05), # p-value significance symbols. 
+         digits=4, # p values significant figures.
+         caption=tex_caption, # \caption command option. 
+         label = tex_label, # \label command option. 
+         dcolumn=T,# nice column alignment. 
+         booktabs=T, # nice hlines. (recommended)
+         tabular=T,# tabular env.
+         single.row = T, # nicer one row formatting.
+         longtable=T, # allows tables to wrap over pages
+         use.packages=F, # don't add \usepackage commands to allow for direct importing of files as inputs
+         fontsize='small') # small font
+}
+
+glmm.fitted <- (max_value - predict(yj, predict(sf12.glmm.model, type='response') + min_value, inverse=T))
+glmm.resid <- scale(dependent_data - glmm.fitted)
+forest_plot_glmm(sf12.glmm.model, paste0(save.path, "glmm_forest.pdf"))
+qq_plot(glmm.resid, paste0(save.path, "glmm_qq.pdf"))
+residual_density_plot(res=glmm.resid , file_name=paste0(save.path, "glmm_residual_density.pdf"), guide="normal")
+
+squareRootRes <- sqrt(abs(scale(glmm.resid)))
+fitted_residuals <- as.data.frame(cbind(glmm.fitted, squareRootRes))
+colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
+fitted_residual_plot(fitted_residuals, paste0(save.path, "glmm_fitted_residual_plot.pdf"))
+
+```

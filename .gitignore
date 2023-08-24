@@ -100,3 +100,7 @@ plots/*
 # HR 21/12/22 Windows utils stuff to ignore
 minos/windowsutils/output/
 minos/windowsutils/output/*
+
+minos/outcomes/paper1/paper1plots/*.RData
+
+persistent_data/spatial_data/Ind2011PopEst2020S_population.csv 
