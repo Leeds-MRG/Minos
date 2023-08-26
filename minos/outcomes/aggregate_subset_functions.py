@@ -41,6 +41,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                     #"who_babies_under_one": None,
                     #"who_income_benefits": None,
                     #"who_no_public_funds_recourse": None,
+                    'who_vulnerable_subgroups': [who_alive, who_kids, who_all_vulnerable_subgroups]
                     }
 
     subset_chain = subset_chains[subset_chain_string]
@@ -97,12 +98,14 @@ def who_boosted(df):
 
 
 def who_disabled(df):
-    return df.query("`labour_state` == 'Sick/Disabled'")
+    return df.query("`S7_labour_state` == 'Sick/Disabled'")
 
 
 def who_ethnic_minority(df):
     # Who is not White British (ethnic minority)?
-    return df.query("ethnicity != 'WBI'")
+    df = df.query("ethnicity != 'WBI'")
+    df = df.query("ethnicity != 'WHO'")
+    return df
 
 
 def who_female(df):
@@ -126,7 +129,7 @@ def who_scottish(df):
 
 def who_single(df):
     # who not married. E.g. single/diuorced/widowed etc.
-    return df.query("marstat != 'Married'")
+    return df.query("marital_status != 'Partnered'")
 
 
 def who_three_kids(df):
@@ -136,12 +139,14 @@ def who_three_kids(df):
 
 def who_unemployed(df):
     # who unemployed
-    return df.loc[df["labour_state"] == "Unemployed",]
+    return df.loc[df["S7_labour_state"] == "Unemployed",]
 
 def who_young_adults(df):
     # who aged between 16 and 25.
     df = df.loc[df["age"] <= 25,]
-    return df.loc[df["age"] >= 16,]
+    df = df.loc[df["age"] >= 16,]
+    #return df.loc[df['sex']=="Female", ]
+    return df
 
 def who_universal_credit(df):
     # whos on universal credit.
@@ -150,3 +155,16 @@ def who_universal_credit(df):
 
 def who_uses_energy(df):
     return df.loc[df['yearly_energy'] > 0]
+
+
+def who_all_vulnerable_subgroups(df):
+    # get individual in all vulnerable subgroups.
+    #
+    subset_functions = [who_single, who_three_kids, who_young_adults, who_ethnic_minority, who_disabled]
+    df['who_boosted'] = False
+    for subset_function in subset_functions:
+        search_index = subset_function(df).index
+        df.loc[search_index,"who_boosted"] = True
+    who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
+    df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
+    return df.loc[df['who_boosted'], ]

@@ -97,6 +97,18 @@ intervention_75UniversalCredit: setup
 intervention_100UniversalCredit: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
+intervention_25Vulnerable: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25Vulnerable'
+
+intervention_50Vulnerable: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50Vulnerable'
+
+intervention_75Vulnerable: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '75Vulnerable'
+
+intervention_100Vulnerable: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100Vulnerable'
+
 intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
@@ -197,6 +209,18 @@ arc4_intervention_75UniversalCredit: setup
 arc4_intervention_100UniversalCredit: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
+arc4_intervention_25Vulnerable: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25Vulnerable'
+
+arc4_intervention_50Vulnerable: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50Vulnerable'
+
+arc4_intervention_75Vulnerable: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75Vulnerable'
+
+arc4_intervention_100Vulnerable: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100Vulnerable'
+
 arc4_intervention_livingWage: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
@@ -221,6 +245,11 @@ arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePover
 arc4_universal_credit_child_uplifts: MODE=default_config
 arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+
+arc4_vulnerable_child_uplifts: MODE=default_config
+arc4_vulnerable_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_vulnerable_child_uplifts: arc4_baseline arc4_intervention_25Vulnerable arc4_intervention_50Vulnerable arc4_intervention_75Vulnerable arc4_intervention_100Vulnerable
+
 
 arc4_all_25_uplifts: MODE=default_config
 arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml

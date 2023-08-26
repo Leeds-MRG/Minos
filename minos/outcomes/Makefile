@@ -161,6 +161,9 @@ aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,wh
 aggregate_combined_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable"
 
+aggregate_all_vulnerable_subgroups:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,25All "Baseline,Vulnerable" who_vulnerable_subgroups,who_vulnerable_subgroups "vulnerable_subgroups"
+
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg"
 

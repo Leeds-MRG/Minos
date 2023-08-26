@@ -55,7 +55,11 @@ class childUplift():
                         'nkids',
                         'alive',
                         'universal_credit',
-                        'hidp']
+                        'hidp',
+                        "S7_labour_state",
+                        "marital_status",
+                        'age',
+                        'ethnicity']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
