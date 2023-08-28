@@ -107,28 +107,28 @@ aggregate_all_child_uplifts: aggregate_25_all_children aggregate_25_relative_pov
 aggregate_25_UC_vulnerable: MODE=default_config
 aggregate_25_UC_vulnerable: TREATED_DIRECTORIES = baseline,25UniversalCredit,25Vulnerable
 aggregate_25_UC_vulnerable: TREATED_DIRECTORY_TAGS="Baseline,£25 Universal Credit,£25 Vulnerable Groups"
-aggregate_25_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED)
+aggregate_25_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED),$(BOOSTED)
 aggregate_25_UC_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "25_UC_vulnerable_uplift"
 
 aggregate_50_UC_vulnerable: MODE=default_config
 aggregate_50_UC_vulnerable: TREATED_DIRECTORIES = baseline,50UniversalCredit,50Vulnerable
 aggregate_50_UC_vulnerable: TREATED_DIRECTORY_TAGS="Baseline,£50 Universal Credit,£50 Vulnerable Groups"
-aggregate_50_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED)
+aggregate_50_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED),$(BOOSTED)
 aggregate_50_UC_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "50_UC_vulnerable_uplift"
 
 aggregate_75_UC_vulnerable: MODE=default_config
 aggregate_75_UC_vulnerable: TREATED_DIRECTORIES = baseline,75UniversalCredit,75Vulnerable
 aggregate_75_UC_vulnerable: TREATED_DIRECTORY_TAGS="Baseline,£75 Universal Credit,£75 Vulnerable Groups"
-aggregate_75_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED)
+aggregate_75_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED),$(BOOSTED)
 aggregate_75_UC_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "75_UC_vulnerable_uplift"
 
 aggregate_100_UC_vulnerable: MODE=default_config
 aggregate_100_UC_vulnerable: TREATED_DIRECTORIES = baseline,100UniversalCredit,100Vulnerable
 aggregate_100_UC_vulnerable: TREATED_DIRECTORY_TAGS="Baseline,£100 Universal Credit,£100 Vulnerable Groups"
-aggregate_100_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED)
+aggregate_100_UC_vulnerable: TREATED_DIRECTORY_SUBSETS = "who_universal_credit_and_kids",$(BOOSTED),$(BOOSTED)
 aggregate_100_UC_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "100_UC_vulnerable_uplift"
 
