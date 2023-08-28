@@ -69,6 +69,13 @@ aggregate_universal_credit_child_uplifts: TREATED_DIRECTORY_SUBSETS = "who_unive
 aggregate_universal_credit_child_uplifts:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "varying_universal_credit_child_uplifts"
 
+aggregate_vulnerable_child_uplifts: MODE=default_config
+aggregate_vulnerable_child_uplifts: TREATED_DIRECTORIES = baseline,25Vulnerable,50Vulnerable,75Vulnerable,100Vulnerable
+aggregate_vulnerable_child_uplifts: TREATED_DIRECTORY_TAGS="Baseline,£25 Vulnerable Groups,£50 Vulnerable Groups,£75 Vulnerable Groups,£100 Vulnerable Groups"
+aggregate_vulnerable_child_uplifts: TREATED_DIRECTORY_SUBSETS = "who_vulnerable_subgroups",$(BOOSTED),$(BOOSTED),$(BOOSTED),$(BOOSTED)
+aggregate_vulnerable_child_uplifts:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "varying_vulnerable_child_uplifts"
+
 
 aggregate_25_universal_credit: MODE=default_config
 aggregate_25_universal_credit: TREATED_DIRECTORIES = baseline,25UniversalCredit
