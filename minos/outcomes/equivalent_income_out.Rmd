@@ -680,37 +680,37 @@ ggplot(combined, aes(x = time, y = mean_housing, group = source, color = source)
 
 ```{r}
 
-df <- combine_and_pivot_long(base.dat, 'Baseline', wage.dat, 'LivingWage', c('S7_housing_quality', 'income_boosted'))
-
-outcomes.prep <- function(base.dat, int.dat, int.name, var) {
-  boosted.pidps <- int.dat %>%
-    filter(income_boosted == 'True') %>%
-    select(pidp, time)
-  
-  df1 <- base.dat %>%
-    select(pidp, time, all_of(var), weight) %>%
-    
-}
-
-
-
-
-combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
-  # get only the columns we want a rename
-  df1 <- df1 %>%
-    select('pidp', 'time', all_of(var)) %>%
-    set_names(c('pidp', 'time', df1.name))
-  df2 <- df2 %>%
-    select('pidp', 'time', all_of(var)) %>%
-    set_names(c('pidp', 'time', df2.name))
-  # merge on pidp and time
-  merged <- merge(df1, df2, by = c('pidp', 'time'), all=TRUE)
-  pivoted <- pivot_longer(data = merged,
-                          cols = df1.name:df2.name,
-                          names_to = 'scenario',
-                          values_to = var)
-  return(pivoted)
-}
+# df <- combine_and_pivot_long(base.dat, 'Baseline', wage.dat, 'LivingWage', c('S7_housing_quality', 'income_boosted'))
+# 
+# outcomes.prep <- function(base.dat, int.dat, int.name, var) {
+#   boosted.pidps <- int.dat %>%
+#     filter(income_boosted == 'True') %>%
+#     select(pidp, time)
+#   
+#   df1 <- base.dat %>%
+#     select(pidp, time, all_of(var), weight) %>%
+#     
+# }
+# 
+# 
+# 
+# 
+# combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
+#   # get only the columns we want a rename
+#   df1 <- df1 %>%
+#     select('pidp', 'time', all_of(var)) %>%
+#     set_names(c('pidp', 'time', df1.name))
+#   df2 <- df2 %>%
+#     select('pidp', 'time', all_of(var)) %>%
+#     set_names(c('pidp', 'time', df2.name))
+#   # merge on pidp and time
+#   merged <- merge(df1, df2, by = c('pidp', 'time'), all=TRUE)
+#   pivoted <- pivot_longer(data = merged,
+#                           cols = df1.name:df2.name,
+#                           names_to = 'scenario',
+#                           values_to = var)
+#   return(pivoted)
+# }
 
 ```
 
