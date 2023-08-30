@@ -82,6 +82,8 @@ if __name__ == "__main__":
     # doing complete case without the year range taken into account removes the whole years data
     # make sure its int not float (need to convert NA to 0 for this to work)
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
+    # buckners social cohesion score
+    data = complete_case_custom_years(data, 'social_cohesion', years=[2009, 2011, 2014, 2017, 2020])
     # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])

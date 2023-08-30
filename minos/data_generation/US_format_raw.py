@@ -304,6 +304,7 @@ def format_ukhls_columns(year):
                       'hhsize': 'hhsize', # number of people in household
                       'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban', # urban or rural household.
+                      'nbrsnci_dv': 'social_cohesion',  # buckners social cohesion score
                       }
 
     # Some variables change names halfway through UKHLS.
