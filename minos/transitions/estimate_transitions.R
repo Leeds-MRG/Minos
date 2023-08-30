@@ -55,19 +55,19 @@ run_yearly_models <- function(transitionDir_path,
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
+
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  data$housing_quality <- factor(data$housing_quality,
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
-                                 levels = c('No to all', 
-                                            'Yes to some', 
+  data$S7_housing_quality <- factor(data$S7_housing_quality,
+                                 levels = c('No to all',
+                                            'Yes to some',
                                             'Yes to all'))
   data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                    levels = c('Often', 
-                                               'Some of the time', 
+                                    levels = c('Often',
+                                               'Some of the time',
                                                'Hardly ever'))
   data$S7_labour_state <- factor(data$S7_labour_state,
                                  levels = c('FT Employed',
@@ -76,6 +76,11 @@ run_yearly_models <- function(transitionDir_path,
                                             'FT Education',
                                             'Family Care',
                                             'Not Working'))
+  data$marital_status <- factor(data$marital_status,
+                                levels = c('Single',
+                                           'Partnered',
+                                           'Separated',
+                                           'Widowed'))
 
   # read file
   repeat{
@@ -125,16 +130,16 @@ run_yearly_models <- function(transitionDir_path,
 
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
-    
+
     valid_yearly_model_types = c("NNET", "OLS", "OLS_DIFF", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
-    
+
     for(year in year.range) {
       if(!is.element(mod.type, valid_yearly_model_types))
         {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-        }# skip this iteration if model not in valid types. 
-      
+        }# skip this iteration if model not in valid types.
+
       # reset the formula string for each year
       formula.string <- formula.string.orig
 
@@ -174,8 +179,8 @@ run_yearly_models <- function(transitionDir_path,
       indep.df <- data %>%
         filter(time == year)
       # dependent from T+1 (rename to 'next_{dependent}' soon)
-      depen.df <- data %>% 
-        filter(time == depend.year) %>% 
+      depen.df <- data %>%
+        filter(time == depend.year) %>%
         select(pidp, all_of(dependent))
 
       # rename to next_{dependent}
@@ -242,7 +247,7 @@ run_yearly_models <- function(transitionDir_path,
                                        formula = form,
                                        include_weights = use.weights,
                                        depend = next.dependent)
-        
+
       } else if(tolower(mod.type) == 'zip') {
 
         model <- estimate_yearly_zip(data = merged,
@@ -266,7 +271,7 @@ run_yearly_models <- function(transitionDir_path,
       # save model & coefficients to file (in their own folder)
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
-      # writing tex table of coefficients. easy writing for papers and documentation. 
+      # writing tex table of coefficients. easy writing for papers and documentation.
       write_coefs <- F
       if (write_coefs)
       {
@@ -319,8 +324,8 @@ parser$add_argument('-d',
                     action='store_true',
                     dest='default',
                     default=FALSE,
-                    help='Run in default mode. This is the default MINOS 
-                    experiment, where the models estimated in this mode 
+                    help='Run in default mode. This is the default MINOS
+                    experiment, where the models estimated in this mode
                     include hh_income as the policy lever, SF12 MCS and
                     PCS as the outcomes of interest, and a series of pathways
                     from hh_income to both outcomes.')
@@ -330,7 +335,7 @@ parser$add_argument('-s7',
                     action='store_true',
                     dest='SIPHER7',
                     default=FALSE,
-                    help='Run the SIPHER7 experiment models. In this mode, 
+                    help='Run the SIPHER7 experiment models. In this mode,
                     only the transition models needed to run the SIPHER7
                     equivalent income experiment are estimated. This includes
                     hh_income as the policy lever, then all the SIPHER7
@@ -388,7 +393,7 @@ if (mode == 'cross_validation') {
     # set up batch vector and remove one element each loop
     batch.vec <- c(1,2,3,4,5)
     batch.vec <- batch.vec[!batch.vec %in% i]
-    
+
     # now start new loop to list files in each batch and read data into a single object.
     # open a dataframe for collecting up multiple batches together
     combined.data <- data.frame()
@@ -402,10 +407,10 @@ if (mode == 'cross_validation') {
       combined.data <- rbind(combined.data, batch.dat)
     }
     rm(batch.dat, batch.path, batch.filelist)
-    
+
     out.dir <- paste0(transitionDir, 'version', i, '/')
     create.if.not.exists(out.dir)
-    
+
     run_yearly_models(out.dir, transSourceDir, modDefFilename, combined.data, mode)
   }
 } else {
@@ -415,7 +420,7 @@ if (mode == 'cross_validation') {
                          full.names = TRUE,
                          pattern = '[0-9]{4}_US_cohort.csv')
   data <- do.call(rbind, lapply(filelist, read.csv))
-  
+
   run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
 }
 
