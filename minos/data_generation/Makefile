@@ -2,6 +2,8 @@
 ### Data Generation
 #####################################
 
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
 data: raw_data corrected_data composite_data complete_data final_data
@@ -30,17 +32,23 @@ inflated_repl: $(DATADIR)/replenishing/inflated/replenishing_pop_2019-2070.csv
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
 replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
+# scotland only population by subsetting US data
+
 scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
-spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
-### version of the final data to be used in spatial analyses (of Sheffield only)
-spatial_data: $(SPATIALDATA)/2020_US_cohort.csv
-
 scot_data: $(SCOTDATA)/2020_US_cohort.csv
+
+# cross validation 
 
 cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
+
+# creating spatial populations from WS3 data
+
+glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
+
+#sheffield_scaled_data goes here. 
 
 #####################################
 # Input Populations
@@ -81,3 +89,7 @@ $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation
+
+# synthetic input for glasgow with spatial component.
+$(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/US_upscaling.py

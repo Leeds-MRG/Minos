@@ -29,10 +29,28 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
+4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system. If using arm64 macs see next paragraph.
 
 ```
 > conda env create -f environment.yml
+```
+
+If you're on an arm64 architecture cpu (M1/M2 macs) it's a good idea use these alternative commands below. 
+This won't work on Windows. maybe Linux?
+The process is pretty much the same but some of the R packages for arm64 aren't on conda forge yet (if ever) so requires
+some manual installing. 
+
+```
+# Old intel x86 architecture will work for running MINOS but doesn't behave well when plotting and needs specifying.
+CONDA_SUBDIR=osx-64 conda env create -f environment.yml
+
+# New arm64 architecture alternative minos_conda environment.
+CONDA_SUBDIR=osx-arm64 conda env create -f arm64_environment.yml
+conda activate minos_conda # activate conda environment. 
+# Then go into R console and install a couple of packages manually.
+R # goes into R console in bash
+install.packages("ordinal")
+install.packages("pscl")
 ```
 
 5. Navigate to the uppermost *Minos* folder. The following command will install *Minos* and all its dependencies. All replenishing and transition data necessary to run *Minos* will be generated, all of which are derived from the Understanding Society dataset. This may take several minutes. You will then be able to run any of the microsimulation scenarios provided.

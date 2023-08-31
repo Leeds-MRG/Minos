@@ -43,7 +43,8 @@ from minos.modules.intervention import hhIncomeIntervention, childUplift
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
+from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme
+from minos.modules.intervention import energyDownliftNoSupport
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -99,6 +100,9 @@ intervention_components_map = {        #Interventions
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
+    "EPCG": energyPriceCapGuarantee(),
+    "EBSS": energyBillSupportScheme(),
+
     "25All": childUplift(),
     "50All": childUplift(),
     "75All": childUplift(),
@@ -213,7 +217,6 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
-
 
     component_list = []
     replenishment_component = []

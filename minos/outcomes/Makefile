@@ -1,35 +1,53 @@
-
-
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
+#TODO: make bash functions for vulnerable subgroups in aggregated_lineplots.sh
+#TODO make bash script for maps.
+#TODO add bash script with 4 interventions (no poverty line).
 
-test_plot: MODE=default_config
-test_plot: ALIVE=who_alive
-test_plot: BOOSTED=who_boosted
-test_plot: aggregate_minos_output_energy
+##############################################################
+# Post-hoc aggregation of multiple MINOS runs into lineplots #
+##############################################################
 
-#####################################
-# Post-hoc aggregation of multiple MINOS runs on bash terminal.
-#####################################
+# All Children Uplift
+all_child_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_child"
 
-#TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
-scot_all_lineplots: MODE=scotland_mode
-scot_all_lineplots: ALIVE=who_alive
-scot_all_lineplots: BOOSTED=who_boosted
-scot_all_lineplots: LIVING_WAGE=who_below_living_wage
-scot_all_lineplots: POVERTY=who_below_poverty_line_and_kids
-scot_all_lineplots: CHILD=who_kids
-scot_all_lineplots: all_lineplots
+# Poverty Line Child Uplift
+poverty_line_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "poverty_line_child"
 
-default_all_lineplots: MODE=default_config
-default_all_lineplots: ALIVE=who_alive
-default_all_lineplots: BOOSTED=who_boosted
-default_all_lineplots: LIVING_WAGE=who_below_living_wage
-default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
-default_all_lineplots: CHILD=who_kids
-default_all_lineplots: all_lineplots
+# Living Wage Intervention
+living_wage_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "living_wage"
 
-all_lineplots: aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
-vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
+# EBSS energy downlift.
+ebss_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "ebss"
+
+# do all the above together
+all_five_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_five"
+
+all_initial_lineplots: all_child_lineplot poverty_line_lineplot living_wage_lineplot ebss_lineplot all_five_lineplot
+
+# glasgow new lineplots
+
+baseline_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_baseline_all_deciles"
+
+poverty_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_all_deciles"
+
+poverty_first_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_first"
+
+poverty_fifth_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_fifth"
+
+poverty_tenth_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_poverty_tenth"
+
+epcg_simd_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "epcg_simd_lineplot"
 
 
 aggregate_minos_output:
@@ -190,6 +208,7 @@ aggregate_minos_output_energy:
 aggregate_minos_output_energy_old: # old command not using intervention with no support as well
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift"
 
+all_decile_lineplots: baseline_all_deciles poverty_all_deciles poverty_fifth_decile_lineplot poverty_first_decile_lineplot poverty_tenth_decile_lineplot
 
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
@@ -208,6 +227,7 @@ OUT_ENERGYDOWNLIFT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownlift
 OUT_ENERGYDOWNLIFTNOSUPPORT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownliftNoSupport
 OUT_LIVINGWAGEINT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/livingWageIntervention
 OUT_POVERTYUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomePovertyLineChildUplift
+
 SPATIAL_DIRECTORY1 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION1)# first geojson for comparison in diff plot.
 SPATIAL_DIRECTORY2 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
 AGG_METHOD = nanmean# what method to aggregate with.
@@ -257,6 +277,16 @@ aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -s $(OUT_BASELINE) -y $(AGG_YEAR) -d $(OUT_BASELINE) -m nanmean -v SF_12 -f	geojson -u who_below_poverty_line_and_kids
 	$(PYTHON) minos/outcomes/format_spatial_output.py -s $(OUT_POVERTYUP) -y $(AGG_YEAR) -d $(OUT_POVERTYUP) -m	nanmean	-v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -f $(OUT_POVERTYUP)/nanmean_SF_12_$(AGG_YEAR).geojson -g $(OUT_BASELINE)/nanmean_SF_12_$(AGG_YEAR).geojson -d $(PLOTDIR)/baseline_vs_poverty_25_uplift_difference_map -m $(AGG_LOCATION) -v SF_12
+
+epcg_ebss_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
+
+# experimental bash scripts.
+main_maps:
+	bash minos/outcomes/aggregated_maps.sh
+
 
 map_all: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
 map_concept_note: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map

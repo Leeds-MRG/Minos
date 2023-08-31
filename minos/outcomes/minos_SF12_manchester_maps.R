@@ -9,6 +9,7 @@ library(sf)
 library(tibble)
 library(ggrepel) # for geom_text_repel
 
+
 manchester_subset_function <- function(data){
   gma_lsoas <- read.csv("/Users/robertclay/minos/persistent_data/KNN_LSOA_clusters.csv")$X
   return(subset(data, LSOA11CD %in% gma_lsoas))

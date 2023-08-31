@@ -41,8 +41,52 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                     #"who_babies_under_one": None,
                     #"who_income_benefits": None,
                     #"who_no_public_funds_recourse": None,
-                    'who_vulnerable_subgroups': [who_alive, who_kids, who_all_vulnerable_subgroups]
-                    }
+                    'who_vulnerable_subgroups': [who_alive, who_kids, who_all_vulnerable_subgroups],
+                    
+                    "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
+                    "who_second_simd_decile": [who_alive, [who_kth_simd_decile, [2]]],
+                    "who_third_simd_decile": [who_alive, [who_kth_simd_decile, [3]]],
+                    "who_fourth_simd_decile": [who_alive, [who_kth_simd_decile, [4]]],
+                    "who_fifth_simd_decile": [who_alive, [who_kth_simd_decile, [5]]],
+                    "who_sixth_simd_decile": [who_alive, [who_kth_simd_decile, [6]]],
+                    "who_seventh_simd_decile": [who_alive, [who_kth_simd_decile, [7]]],
+                    "who_eighth_simd_decile": [who_alive, [who_kth_simd_decile, [8]]],
+                    "who_ninth_simd_decile": [who_alive, [who_kth_simd_decile, [9]]],
+                    "who_tenth_simd_decile": [who_alive, [who_kth_simd_decile, [10]]],
+
+                     "who_boosted_first_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [1]]],
+                     "who_boosted_second_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [2]]],
+                     "who_boosted_third_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [3]]],
+                     "who_boosted_fourth_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [4]]],
+                     "who_boosted_fifth_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [5]]],
+                     "who_boosted_sixth_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [6]]],
+                     "who_boosted_seventh_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [7]]],
+                     "who_boosted_eighth_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [8]]],
+                     "who_boosted_ninth_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [9]]],
+                     "who_boosted_tenth_simd_decile": [who_alive, who_boosted, [who_kth_simd_decile, [10]]],
+
+                     "who_kids_first_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [1]]],
+                     "who_kids_second_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [2]]],
+                     "who_kids_third_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [3]]],
+                     "who_kids_fourth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [4]]],
+                     "who_kids_fifth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [5]]],
+                     "who_kids_sixth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [6]]],
+                     "who_kids_seventh_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [7]]],
+                     "who_kids_eighth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [8]]],
+                     "who_kids_ninth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [9]]],
+                     "who_kids_tenth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [10]]],
+
+                     "who_poverty_kids_first_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [1]]],
+                     "who_poverty_kids_second_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [2]]],
+                     "who_poverty_kids_third_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [3]]],
+                     "who_poverty_kids_fourth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [4]]],
+                     "who_poverty_kids_fifth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [5]]],
+                     "who_poverty_kids_sixth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [6]]],
+                     "who_poverty_kids_seventh_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [7]]],
+                     "who_poverty_kids_eighth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [8]]],
+                     "who_poverty_kids_ninth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [9]]],
+                     "who_poverty_kids_tenth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [10]]],
+                     }
 
     subset_chain = subset_chains[subset_chain_string]
 
@@ -50,10 +94,70 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
         subset_chain.append(who_scottish)
 
     for subset_function in subset_chain:
-        data = subset_function(data)
+        if type(subset_function) == list:
+            subset_function, subset_args = subset_function
+            data = subset_function(data, subset_args)
+        else:
+            data = subset_function(data)
 
     return data
 
+
+def get_required_intervention_variables(subset_function_string):
+    # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
+    default_variables = ["pidp", "alive", "SF_12", 'time']
+    required_variables_dict = {
+        "who_alive": default_variables,
+        "who_boosted":  default_variables + ["income_boosted"],
+        "who_below_living_wage": default_variables + ["region", "hourly_wage"],
+        "who_kids": default_variables + ["nkids"],
+        "who_below_poverty_line_and_kids": default_variables + ["hh_income", "nkids"],
+        "who_uses_energy": default_variables + ['yearly_energy'],
+        "who_first_simd_decile": default_variables + ['simd_decile'],
+        "who_second_simd_decile": default_variables + ['simd_decile'],
+        "who_third_simd_decile": default_variables + ['simd_decile'],
+        "who_fourth_simd_decile": default_variables + ['simd_decile'],
+        "who_fifth_simd_decile": default_variables + ['simd_decile'],
+        "who_sixth_simd_decile": default_variables + ['simd_decile'],
+        "who_seventh_simd_decile": default_variables + ['simd_decile'],
+        "who_eighth_simd_decile": default_variables + ['simd_decile'],
+        "who_ninth_simd_decile": default_variables + ['simd_decile'],
+        "who_tenth_simd_decile": default_variables + ['simd_decile'],
+
+        "who_boosted_first_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_second_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_third_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_fourth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_fifth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_sixth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_seventh_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_eighth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_ninth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_tenth_simd_decile": default_variables + ["income_boosted", 'simd_decile'],
+
+        "who_kids_first_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_second_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_third_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_fourth_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_fifth_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_sixth_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_seventh_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_eighth_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_ninth_simd_decile": default_variables + ["nkids", 'simd_decile'],
+        "who_kids_tenth_simd_decile": default_variables + ["nkids", 'simd_decile'],
+
+        "who_poverty_kids_first_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_second_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_third_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_fourth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_fifth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_sixth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_seventh_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_eighth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_ninth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_poverty_kids_tenth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+    }
+    return required_variables_dict[subset_function_string]
 
 def who_alive(df):
     """ Get who is alive.
@@ -65,6 +169,9 @@ def who_alive(df):
     """
     return df.loc[df['alive'] == 'alive',]
 
+def who_uses_energy(df):
+    # who spends money on energy. fuel bills > 0.
+    return df.loc[df['yearly_energy']>=0,]
 
 def who_adult(df):
     return df.query("age >= 16")
@@ -169,3 +276,6 @@ def who_all_vulnerable_subgroups(df):
     who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
     df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
     return df.loc[df['who_boosted'], ]
+def who_kth_simd_decile(df, *args):
+    k = args[0][0]
+    return df.loc[df["simd_decile"] == k]

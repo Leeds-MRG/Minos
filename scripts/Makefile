@@ -20,6 +20,10 @@ test_run: MODE=default_config
 test_run: RUN_CONFIG=$(CONFIG)/default.yaml
 test_run: baseline intervention_energyDownLift
 
+test_run_all: MODE=default_config
+test_run_all: RUN_CONFIG=$(CONFIG)/default.yaml
+test_run_all: baseline intervention_hhIncome intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+
 test_scot_run: MODE=scotland_mode
 test_scot_run: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 test_scot_run: baseline intervention_livingWage
@@ -133,6 +137,15 @@ intervention_energyDownLiftNoSupport: setup
 # Short Cut Commands for Many Interventions at Once #
 #####################################################
 
+glasgow_baseline: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
+
+intervention_EPCG: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
+
+intervention_EBSS: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
+
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift intervention_energyDownLiftNoSupport
@@ -229,6 +242,18 @@ arc4_intervention_energyDownLift: setup
 
 arc4_intervention_energyDownLiftNoSupport: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
+
+arc4_glasgow_baseline: setup
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
+
+arc4_glasgow_25_poverty_line: setup
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'hhIncomePovertyLineChildUplift'
+
+arc4_EPCG: setup
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EPCG'
+
+arc4_EBSS: setup
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
 
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
