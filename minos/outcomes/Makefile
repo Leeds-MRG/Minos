@@ -16,6 +16,11 @@ S7_outcomes:
 	# open html file in firefox
 	firefox file://$(OUTCOMES)/equivalent_income_out.html
 
+S7_batch_outcomes:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/equivalent_income_out_batch.Rmd')"
+	# open html file in firefox
+	firefox file://$(OUTCOMES)/equivalent_income_out_batch.html
+
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
