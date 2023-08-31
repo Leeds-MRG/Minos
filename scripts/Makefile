@@ -101,17 +101,17 @@ intervention_75UniversalCredit: setup
 intervention_100UniversalCredit: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
-intervention_25Vulnerable: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25Vulnerable'
+intervention_25Priority: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25Priority'
 
-intervention_50Vulnerable: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50Vulnerable'
+intervention_50Priority: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50Priority'
 
-intervention_75Vulnerable: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '75Vulnerable'
+intervention_75Priority: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '75Priority'
 
-intervention_100Vulnerable: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100Vulnerable'
+intervention_100Priority: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100Priority'
 
 intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
@@ -222,17 +222,17 @@ arc4_intervention_75UniversalCredit: setup
 arc4_intervention_100UniversalCredit: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
-arc4_intervention_25Vulnerable: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25Vulnerable'
+arc4_intervention_25Priority: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25Priority'
 
-arc4_intervention_50Vulnerable: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50Vulnerable'
+arc4_intervention_50Priority: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50Priority'
 
-arc4_intervention_75Vulnerable: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75Vulnerable'
+arc4_intervention_75Priority: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75Priority'
 
-arc4_intervention_100Vulnerable: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100Vulnerable'
+arc4_intervention_100Priority: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100Priority'
 
 arc4_intervention_livingWage: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
@@ -259,21 +259,21 @@ arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
-arc4_all_child_uplifts: MODE=default_config
-arc4_all_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_all_child_uplifts: MODE=scaled_glasgow #MODE=default_config
+arc4_all_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
 arc4_all_child_uplifts: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
 
 arc4_poverty_line_child_uplifts: MODE=default_config
 arc4_poverty_line_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_50RelativePoverty arc4_intervention_75RelativePoverty arc4_intervention_100RelativePoverty
 
-arc4_universal_credit_child_uplifts: MODE=default_config
-arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+arc4_universal_credit_child_uplifts: MODE=scaled_glasgow #MODE=default_config
+arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
+arc4_universal_credit_child_uplifts: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
 
-arc4_vulnerable_child_uplifts: MODE=default_config
-arc4_vulnerable_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_vulnerable_child_uplifts: arc4_baseline arc4_intervention_25Vulnerable arc4_intervention_50Vulnerable arc4_intervention_75Vulnerable arc4_intervention_100Vulnerable
+arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config
+arc4_priority_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
+arc4_priority_child_uplifts: arc4_baseline arc4_intervention_25Priority arc4_intervention_50Priority arc4_intervention_75Priority arc4_intervention_100Priority
 
 
 arc4_all_25_uplifts: MODE=default_config
