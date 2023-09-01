@@ -52,6 +52,17 @@ def all_five_lineplots(*args):
 # glasgow spatial population lineplots #
 ########################################
 
+def glasgow_deciles_lineplot(config_mode, source, subset_function):
+    directories = f"{source}," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
+    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
+    subset_function_strings = f"""{subset_function},{subset_function}_first_simd_decile,{subset_function}_second_simd_decile,{subset_function}_third_simd_decile,{subset_function}_fourth_simd_decile,{subset_function}_fifth_simd_decile,{subset_function}_sixth_simd_decile,{subset_function}_seventh_simd_decile,{subset_function}_eighth_simd_decile,{subset_function}_ninth_simd_decile,{subset_function}_tenth_simd_decile"""
+    prefix="25_f{source}_simd_deciles"
+    ref = "National Average"
+    v = "SF_12"
+    method='nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
 def poverty_line_simd_deciles_lineplot(*args):
     directories = "baseline," + ("hhIncomePovertyLineChildUplift," * 10)[:-1] # repeat 11 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
@@ -200,8 +211,11 @@ string_to_lineplot_function = {
     "all_five": all_five_lineplots,
 
     # glasgow synthpop lineplots
-    "glasgow_baseline_all_deciles": simd_decile_baseline_lineplot,
-    "glasgow_poverty_all_deciles": poverty_line_simd_deciles_lineplot,
+    "glasgow_baseline_all_deciles": glasgow_deciles_lineplot,
+    "glasgow_poverty_all_deciles": glasgow_deciles_lineplot,
+    "glasgow_universal_credit_all_deciles": glasgow_deciles_lineplot,
+    "glasgow_priority_groups_all_deciles": glasgow_deciles_lineplot,
+
     "glasgow_poverty_first": poverty_line_first_decile_lineplot,
     "glasgow_poverty_fifth": poverty_line_fifth_decile_lineplot,
     "glasgow_poverty_tenth": poverty_line_tenth_decile_lineplot,
@@ -234,6 +248,13 @@ string_to_lineplot_function = {
 }
 
 string_to_lineplot_function_args={
+
+    # glasgow synthpop lineplots
+    "glasgow_baseline_all_deciles": ["baseline", "who_kids"],
+    "glasgow_poverty_all_deciles": ["baseline", "who_below_poverty_line_and_kids"],
+    "glasgow_universal_credit_all_deciles": ["baseline", "who_universal_credit_and_kids"],
+    "glasgow_priority_groups_all_deciles": ["baseline", "who_priority_subgroups"],
+
 
     "25_UC_priority": [25],
     "50_UC_priority": [50],

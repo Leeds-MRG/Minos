@@ -19,7 +19,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_universal_credit_and_kids": [who_alive, who_kids, who_universal_credit],
                      "who_scottish": [who_alive, who_scottish],
                      # "who_bottom_income_quintile": who_bottom_income_quintile,
-                     # Scottish gov sgugested vulnerable subgroups.
+                     # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
                      "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],
                      "who_three_kids": [who_alive, who_three_kids],
@@ -41,7 +41,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                     #"who_babies_under_one": None,
                     #"who_income_benefits": None,
                     #"who_no_public_funds_recourse": None,
-                    'who_vulnerable_subgroups': [who_alive, who_kids, who_all_vulnerable_subgroups],
+                    'who_priority_subgroups': [who_alive, who_kids, who_priority_subgroups],
                     
                     "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
                     "who_second_simd_decile": [who_alive, [who_kth_simd_decile, [2]]],
@@ -76,16 +76,38 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_kids_ninth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [9]]],
                      "who_kids_tenth_simd_decile": [who_alive, who_kids, [who_kth_simd_decile, [10]]],
 
-                     "who_poverty_kids_first_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [1]]],
-                     "who_poverty_kids_second_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [2]]],
-                     "who_poverty_kids_third_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [3]]],
-                     "who_poverty_kids_fourth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [4]]],
-                     "who_poverty_kids_fifth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [5]]],
-                     "who_poverty_kids_sixth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [6]]],
-                     "who_poverty_kids_seventh_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [7]]],
-                     "who_poverty_kids_eighth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [8]]],
-                     "who_poverty_kids_ninth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [9]]],
-                     "who_poverty_kids_tenth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [10]]],
+                     "who_below_poverty_line_and_kids_first_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [1]]],
+                     "who_below_poverty_line_and_kids_second_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [2]]],
+                     "who_below_poverty_line_and_kids_third_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [3]]],
+                     "who_below_poverty_line_and_kids_fourth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [4]]],
+                     "who_below_poverty_line_and_kids_fifth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [5]]],
+                     "who_below_poverty_line_and_kids_sixth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [6]]],
+                     "who_below_poverty_line_and_kids_seventh_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [7]]],
+                     "who_below_poverty_line_and_kids_eighth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [8]]],
+                     "who_below_poverty_line_and_kids_ninth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [9]]],
+                     "who_below_poverty_line_and_kids_tenth_simd_decile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_decile, [10]]],
+
+                     "who_universal_credit_and_kids_first_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [1]]],
+                     "who_universal_credit_and_kids_second_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [2]]],
+                     "who_universal_credit_and_kids_third_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [3]]],
+                     "who_universal_credit_and_kids_fourth_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [4]]],
+                     "who_universal_credit_and_kids_fifth_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [5]]],
+                     "who_universal_credit_and_kids_sixth_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [6]]],
+                     "who_universal_credit_and_kids_seventh_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [7]]],
+                     "who_universal_credit_and_kids_eighth_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [8]]],
+                     "who_universal_credit_and_kids_ninth_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [9]]],
+                     "who_universal_credit_and_kids_tenth_simd_decile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_decile, [10]]],
+
+                     "who_priority_subgroups_first_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [1]]],
+                     "who_priority_subgroups_second_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [2]]],
+                     "who_priority_subgroups_third_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [3]]],
+                     "who_priority_subgroups_fourth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [4]]],
+                     "who_priority_subgroups_fifth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [5]]],
+                     "who_priority_subgroups_sixth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [6]]],
+                     "who_priority_subgroups_seventh_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [7]]],
+                     "who_priority_subgroups_eighth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [8]]],
+                     "who_priority_subgroups_ninth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [9]]],
+                     "who_priority_subgroups_tenth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [10]]],
                      }
 
     subset_chain = subset_chains[subset_chain_string]
@@ -114,7 +136,7 @@ def get_required_intervention_variables(subset_function_string):
         "who_below_poverty_line_and_kids": default_variables + ["hh_income", "nkids"],
         "who_uses_energy": default_variables + ['yearly_energy'],
         "who_universal_credit_and_kids": default_variables + ["universal_credit", "nkids"],
-        'who_vulnerable_subgroups': default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state"],
+        'who_priority_subgroups': default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state"],
 
 
         "who_first_simd_decile": default_variables + ['simd_decile'],
@@ -150,16 +172,38 @@ def get_required_intervention_variables(subset_function_string):
         "who_kids_ninth_simd_decile": default_variables + ["nkids", 'simd_decile'],
         "who_kids_tenth_simd_decile": default_variables + ["nkids", 'simd_decile'],
 
-        "who_poverty_kids_first_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_second_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_third_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_fourth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_fifth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_sixth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_seventh_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_eighth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_ninth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
-        "who_poverty_kids_tenth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_first_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_second_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_third_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_fourth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_fifth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_sixth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_seventh_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_eighth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_ninth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_tenth_simd_decile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+
+        "who_universal_credit_and_kids_first_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_second_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_third_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_fourth_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_fifth_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_sixth_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_seventh_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_eighth_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_ninth_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_tenth_simd_decile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+
+        "who_priority_subgroups_first_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_second_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_third_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_fourth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_fifth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_sixth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_seventh_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_eighth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_ninth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_tenth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
     }
     return required_variables_dict[subset_function_string]
 
@@ -269,8 +313,8 @@ def who_uses_energy(df):
     return df.loc[df['yearly_energy'] > 0]
 
 
-def who_all_vulnerable_subgroups(df):
-    # get individual in all vulnerable subgroups.
+def who_priority_subgroups(df):
+    # get individual in all priority subgroups.
     #
     subset_functions = [who_single, who_three_kids, who_young_adults, who_ethnic_minority, who_disabled]
     df['who_boosted'] = False

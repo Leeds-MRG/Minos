@@ -56,23 +56,23 @@ poverty_line_lineplot:
 BOOSTED="who_boosted"
 aggregate_all_child_uplifts: MODE="default_config"
 aggregate_all_child_uplifts:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_all_child"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_all_child"
 
 aggregate_poverty_line_child_uplifts: MODE="default_config"
 aggregate_poverty_line_child_uplifts:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_relative_poverty"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_relative_poverty"
 
 aggregate_universal_credit_child_uplifts: MODE="default_config"
 aggregate_universal_credit_child_uplifts:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_universal_credit"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
 
 aggregate_priority_groups_child_uplifts: MODE="default_config"
 aggregate_priority_groups_child_uplifts:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_priority_groups"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
 
 aggregate_25_universal_credit: MODE="default_config"
 aggregate_25_universal_credit:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_universal_credit"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
 
 aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
@@ -81,6 +81,7 @@ aggregate_25_relative_poverty:
 aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:
 	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+
 
 #################################
 # Custom subset for scotgov piece
@@ -110,19 +111,25 @@ all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_
 
 
 baseline_all_deciles:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_all_deciles"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_baseline_all_deciles"
 
 poverty_all_deciles:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_all_deciles"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_all_deciles"
+
+universal_credit_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_universal_credit_all_deciles"
+
+priority_group_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_priority_groups_all_deciles"
 
 poverty_first_decile_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_first"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_first"
 
 poverty_fifth_decile_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_fifth"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_fifth"
 
 poverty_tenth_decile_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_tenth"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_tenth"
 
 ###############################
 # energy crisis lineplots #####
