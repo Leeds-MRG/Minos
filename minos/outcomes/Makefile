@@ -236,7 +236,7 @@ epcg_ebss_map:
 uc_baseline_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "baseline" -i "25Universal" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
 
 priority_baseline_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
