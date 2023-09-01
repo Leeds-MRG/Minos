@@ -244,7 +244,7 @@ string_to_lineplot_function = {
     "100_universal_credit": relative_poverty,
 
     "incremental_universal_credit": incremental_25_to_100,
-    "incremental_priority": incremental_25_to_100,
+    "incremental_priority_groups": incremental_25_to_100,
 
 }
 
