@@ -251,9 +251,9 @@ string_to_lineplot_function_args={
 
     # glasgow synthpop lineplots
     "glasgow_baseline_all_deciles": ["baseline", "who_kids"],
-    "glasgow_poverty_all_deciles": ["baseline", "who_below_poverty_line_and_kids"],
-    "glasgow_universal_credit_all_deciles": ["baseline", "who_universal_credit_and_kids"],
-    "glasgow_priority_groups_all_deciles": ["baseline", "who_priority_subgroups"],
+    "glasgow_poverty_all_deciles": ["25RelativePoverty", "who_below_poverty_line_and_kids"],
+    "glasgow_universal_credit_all_deciles": ["25UniversalCredit", "who_universal_credit_and_kids"],
+    "glasgow_priority_groups_all_deciles": ["25Priority", "who_priority_subgroups"],
 
 
     "25_UC_priority": [25],
