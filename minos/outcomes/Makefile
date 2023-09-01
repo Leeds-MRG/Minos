@@ -234,14 +234,14 @@ epcg_ebss_map:
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
 
 uc_baseline_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Universal" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "Baseline" -i "25Universal" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Universal" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "Baseline" -i "25Universal" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
 
 priority_baseline_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "Baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "Baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
 
 # experimental bash scripts.
 main_maps:
