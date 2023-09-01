@@ -56,7 +56,7 @@ def glasgow_deciles_lineplot(config_mode, source, subset_function):
     directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
     #directories = f"{source}," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = f"""{subset_function},{subset_function}_first_simd_decile,{subset_function}_second_simd_decile,{subset_function}_third_simd_decile,{subset_function}_fourth_simd_decile,{subset_function}_fifth_simd_decile,{subset_function}_sixth_simd_decile,{subset_function}_seventh_simd_decile,{subset_function}_eighth_simd_decile,{subset_function}_ninth_simd_decile,{subset_function}_tenth_simd_decile"""
+    subset_function_strings = f"""who_kids,{subset_function}_first_simd_decile,{subset_function}_second_simd_decile,{subset_function}_third_simd_decile,{subset_function}_fourth_simd_decile,{subset_function}_fifth_simd_decile,{subset_function}_sixth_simd_decile,{subset_function}_seventh_simd_decile,{subset_function}_eighth_simd_decile,{subset_function}_ninth_simd_decile,{subset_function}_tenth_simd_decile"""
     prefix="25_f{source}_simd_deciles"
     ref = "National Average"
     v = "SF_12"
