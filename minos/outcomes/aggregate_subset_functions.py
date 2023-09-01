@@ -283,3 +283,5 @@ def who_all_vulnerable_subgroups(df):
 def who_kth_simd_decile(df, *args):
     k = args[0][0]
     return df.loc[df["simd_decile"] == k]
+
+
