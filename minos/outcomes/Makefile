@@ -56,31 +56,31 @@ poverty_line_lineplot:
 BOOSTED="who_boosted"
 aggregate_all_child_uplifts: MODE="default_config"
 aggregate_all_child_uplifts:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "incremental_all_child"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_all_child"
 
 aggregate_poverty_line_child_uplifts: MODE="default_config"
 aggregate_poverty_line_child_uplifts:
-	bash minos/outcomes/make_macros.sh $(MODE) "incremental_relative_poverty"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_relative_poverty"
 
 aggregate_universal_credit_child_uplifts: MODE="default_config"
 aggregate_universal_credit_child_uplifts:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "incremental_universal_credit"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_universal_credit"
 
 aggregate_priority_groups_child_uplifts: MODE="default_config"
 aggregate_priority_groups_child_uplifts:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "incremental_priority_groups"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "incremental_priority_groups"
 
 aggregate_25_universal_credit: MODE="default_config"
 aggregate_25_universal_credit:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "25_universal_credit"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_universal_credit"
 
 aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
-	bash minos/outcomes/make_lineplot_macros.sh "25_relative_poverty"
+	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
 
 aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "25_all"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
 
 #################################
 # Custom subset for scotgov piece
@@ -88,19 +88,19 @@ aggregate_25_all_children:
 
 aggregate_25_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_25_UC_vulnerable:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "25_UC_priority"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_UC_priority"
 
 aggregate_50_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_50_UC_vulnerable:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "50_UC_priority"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "50_UC_priority"
 
 aggregate_75_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_75_UC_vulnerable:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "75_UC_priority"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "75_UC_priority"
 
 aggregate_100_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_100_UC_vulnerable:
-	bash minos/outcomes/make_lineplot_macros.sh $(MODE) "100_UC_priority"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "100_UC_priority"
 
 all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable
 
