@@ -88,19 +88,19 @@ aggregate_25_all_children:
 
 aggregate_25_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_25_UC_vulnerable:
-	bash minos/outcomes/make_lineplots_macros.py $(MODE) "25_UC_priority"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_UC_priority"
 
 aggregate_50_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_50_UC_vulnerable:
-	bash minos/outcomes/make_lineplots_macros.py $(MODE) "50_UC_priority"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_UC_priority"
 
 aggregate_75_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_75_UC_vulnerable:
-	bash minos/outcomes/make_lineplots_macros.py $(MODE) "75_UC_priority"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_UC_priority"
 
 aggregate_100_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_100_UC_vulnerable:
-	bash minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
 
 all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable
 
