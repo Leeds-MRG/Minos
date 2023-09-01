@@ -56,7 +56,8 @@ def glasgow_deciles_lineplot(config_mode, source, subset_function):
     #directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
     directories = f"{source}," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = f"""who_kids,who_kids_first_simd_decile,who_kids_second_simd_decile,who_kids_third_simd_decile,who_kids_fourth_simd_decile,who_kids_fifth_simd_decile,who_kids_sixth_simd_decile,who_kids_seventh_simd_decile,who_kids_eighth_simd_decile,who_kids_ninth_simd_decile,who_kids_tenth_simd_decile"""
+    #subset_function_strings = f"""who_kids,who_kids_first_simd_decile,who_kids_second_simd_decile,who_kids_third_simd_decile,who_kids_fourth_simd_decile,who_kids_fifth_simd_decile,who_kids_sixth_simd_decile,who_kids_seventh_simd_decile,who_kids_eighth_simd_decile,who_kids_ninth_simd_decile,who_kids_tenth_simd_decile"""
+    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
     prefix=f"25_{source}_simd_deciles"
     ref = "National Average"
     v = "SF_12"
@@ -190,7 +191,7 @@ def incremental_25_to_100(config_mode, intervention_name, intervention_tag):
     "The same intervention in increments from £25 to £100"
     directories = f"baseline,25{intervention_name},50{intervention_name},75{intervention_name},100{intervention_name}"
     tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag},£75 {intervention_tag},£100 {intervention_tag}"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted,who_boosted"
+    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted,who_boosted,who_boosted"
     prefix=f"25_100_incremental_{intervention_name}_uplift"
     ref = "Baseline"
     v = "SF_12"
