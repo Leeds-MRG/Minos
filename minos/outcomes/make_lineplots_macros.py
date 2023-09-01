@@ -178,7 +178,7 @@ def incremental_25_to_100(config_mode, intervention_name, intervention_tag):
     "The same intervention in increments from £25 to £100"
     directories = f"baseline,25{intervention_name},50{intervention_name},75{intervention_name},100{intervention_name}"
     tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag},£75 {intervention_tag},£100 {intervention_tag}"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
+    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted,who_boosted"
     prefix=f"25_100_incremental_{intervention_name}_uplift"
     ref = "Baseline"
     v = "SF_12"
