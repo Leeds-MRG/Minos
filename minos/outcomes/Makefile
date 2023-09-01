@@ -62,11 +62,11 @@ aggregate_poverty_line_child_uplifts: MODE="default_config"
 aggregate_poverty_line_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_relative_poverty"
 
-aggregate_universal_credit_child_uplifts: MODE="default_config"
+aggregate_universal_credit_child_uplifts: MODE="scaled_glasgow"
 aggregate_universal_credit_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
 
-aggregate_priority_groups_child_uplifts: MODE="default_config"
+aggregate_priority_groups_child_uplifts: MODE= "scaled_glasgow"
 aggregate_priority_groups_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
 
@@ -103,7 +103,7 @@ aggregate_100_UC_vulnerable: MODE="scaled_glasgow"
 aggregate_100_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
 
-all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable
+all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable aggregate_universal_credit_child_uplifts aggregate_priority_groups_child_uplifts
 
 ########################################################
 # SIMD decile lineplots for glasgow using spatial data #
