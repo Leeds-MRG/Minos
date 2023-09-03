@@ -911,7 +911,50 @@ cv_ordinal_plots(pivoted.df = pivoted,
 # rm(raw.s, base.s, spag)
 ```
 
-```{r}
+## Job Sec
 
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'job_sec')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Job NSSEC'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = job_sec, colour = job_sec)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=job_sec)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'job_sec.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
 ```
 
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat,
+                                  df1.name = 'simulated', 
+                                  df2 = raw.dat, 
+                                  df2.name = 'raw', 
+                                  var = 'job_sec')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'job_sec',
+                 save = shall.we.save,
+                 save.path = save.path)
+```

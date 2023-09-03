@@ -47,9 +47,11 @@ S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
 out.path.batch <- here::here('output', 'SIPHER7_batch/')
 
-base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=TRUE)
-wage.batch <- read_batch_out_all_years(out.path.batch, 'livingWageIntervention', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=TRUE)
-energy.batch <- read_batch_out_all_years(out.path.batch, 'energyDownlift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=TRUE)
+base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
+wage.batch <- read_batch_out_all_years(out.path.batch, 'livingWageIntervention', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+energy.batch <- read_batch_out_all_years(out.path.batch, 'energyDownlift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+child.batch <- read_batch_out_all_years(out.path.batch, 'hhIncomeChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+pov.batch <- read_batch_out_all_years(out.path.batch, 'hhIncomePovertyLineChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
 ```
 
 ## Calculate Age Group
@@ -66,6 +68,8 @@ calc_age_group <- function(batch.dat) {
 base.batch <- calc_age_group(base.batch)
 wage.batch <- calc_age_group(wage.batch)
 energy.batch <- calc_age_group(energy.batch)
+child.batch <- calc_age_group(child.batch)
+pov.batch <- calc_age_group(pov.batch)
 ```
 
 
@@ -134,6 +138,8 @@ equivalent_income_comparison_fullpop_batch <- function(base.bat, int.bat, int.na
 ```{r}
 equivalent_income_comparison_fullpop_batch(base.batch, wage.batch, 'LivingWage')
 equivalent_income_comparison_fullpop_batch(base.batch, energy.batch, 'EnergyCrisis')
+equivalent_income_comparison_fullpop_batch(base.batch, child.batch, 'AllChild')
+equivalent_income_comparison_fullpop_batch(base.batch, pov.batch, 'PovertyChild')
 ```
 
 ```{r}
@@ -155,8 +161,20 @@ energy.subset <- energy.batch %>%
   summarise(equivalent_income = weighted.mean(equivalent_income, w = weight)) %>%
   mutate(scenario = 'EnergyCrisis')
 
-all.combined <- rbind(base.subset, wage.subset, energy.subset)
-all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'LivingWage', 'EnergyCrisis'))
+child.subset <- child.batch %>%
+  select(pidp, time, run_id, equivalent_income, weight) %>%
+  group_by(time, run_id) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight)) %>%
+  mutate(scenario = 'AllChild')
+
+pov.subset <- pov.batch %>%
+  select(pidp, time, run_id, equivalent_income, weight) %>%
+  group_by(time, run_id) %>%
+  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight)) %>%
+  mutate(scenario = 'PovertyChild')
+
+all.combined <- rbind(base.subset, wage.subset, energy.subset, child.subset, pov.subset)
+all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'LivingWage', 'EnergyCrisis', 'AllChild', 'PovertyChild'))
 
 ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
   geom_smooth() +
@@ -208,18 +226,18 @@ equivalent_income_comparison_treated_batch <- function(base.bat, int.bat, int.na
 ```{r}
 equivalent_income_comparison_treated_batch(base.batch, wage.batch, 'LivingWage')
 equivalent_income_comparison_treated_batch(base.batch, energy.batch, 'EnergyDownlift')
+equivalent_income_comparison_treated_batch(base.batch, child.batch, 'AllChild')
+equivalent_income_comparison_treated_batch(base.batch, pov.batch, 'PovertyChild')
 ```
 
 
 # DETAILED ANALYSIS
 
-## Living Wage
-
 For this, we're going to look at the difference in equivalent income and try to explain it by looking at the pathway variables. What we want to see is that as income is uplifted, the various pathways show a positive shift and that in part explains the difference in equivalent income. 
 
 First visualise both income and equivalent income on one graph.
 
-### Income and Equivalent Income
+## Income and Equivalent Income
 
 ```{r}
 income_equivinc_change_batch <- function(base.batch, int.batch) {
@@ -253,9 +271,11 @@ income_equivinc_change_batch <- function(base.batch, int.batch) {
 
 income_equivinc_change_batch(base.batch, energy.batch)
 income_equivinc_change_batch(base.batch, wage.batch)
+income_equivinc_change_batch(base.batch, child.batch)
+income_equivinc_change_batch(base.batch, pov.batch)
 ```
 
-### Percent Change
+## Percent Change
 
 Proportional difference? Percentage difference in income and equivalent income over time?
 
@@ -302,10 +322,11 @@ income_equivinc_percent_change_batch <- function(base.batch, int.batch) {
 
 income_equivinc_percent_change_batch(base.batch, energy.batch)
 income_equivinc_percent_change_batch(base.batch, wage.batch)
-
+income_equivinc_percent_change_batch(base.batch, child.batch)
+income_equivinc_percent_change_batch(base.batch, pov.batch)
 ```
 
-#### By Subpopulation
+### By Subpopulation
 
 ```{r}
 income_equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, filter.var, subpop) {
@@ -357,7 +378,7 @@ income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, filter.var
 income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, filter.var = 'urban', subpop = '2')
 ```
 
-#### On the Same Plot
+### All Subgroups
 
 ```{r}
 equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, int.name, group.var) {
@@ -395,35 +416,6 @@ equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, int.name
     ylab('Percent Change')
 }
 
-# 'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
-
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'ethnicity')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'urban')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'age.group')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'region')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'job_sec')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'education_state')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'nkids_ind')
-equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'housing_tenure')
-
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'age.group')
-```
-
-```{r}
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'ethnicity')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'urban')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'age.group')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'region')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'job_sec')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'education_state')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'nkids_ind')
-equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'housing_tenure')
-```
-
-
-## Energy Crisis
-
-```{r}
 S7_ordinal_pathway_vis_batch <- function(base.bat, int.bat, int.name, var) {
   base.hous <- base.bat %>%
     select(pidp, time, run_id, all_of(var)) %>%
@@ -489,41 +481,85 @@ S7_ordinal_pathway_vis_batch <- function(base.bat, int.bat, int.name, var) {
 }
 ```
 
-### Housing Quality
+#### Energy Crisis
 
 ```{r}
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'ethnicity')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'urban')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'age.group')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'region')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'job_sec')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'education_state')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'nkids_ind')
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'housing_tenure')
+
 S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_housing_quality')
-```
-
-
-### Neighbourhood Safety
-
-```{r}
 S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_neighbourhood_safety')
-```
-
-### Mental Wellbeing
-
-```{r}
 S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_mental_health')
-```
-
-### Physical Health
-
-```{r}
 S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_physical_health')
-```
-
-### Loneliness
-
-```{r}
 S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'loneliness')
+S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_labour_state')
 ```
 
-### Labour State
+
+#### Living Wage
 
 ```{r}
-S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_labour_state')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'ethnicity')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'urban')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'age.group')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'region')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'job_sec')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'education_state')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'nkids_ind')
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'housing_tenure')
+
+S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_housing_quality')
+S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_neighbourhood_safety')
+S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_mental_health')
+S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_physical_health')
+S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'loneliness')
+S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_labour_state')
+```
+
+#### All Child
+
+```{r}
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'ethnicity')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'urban')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'age.group')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'region')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'job_sec')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'education_state')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'nkids_ind')
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'housing_tenure')
+
+S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_housing_quality')
+S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_neighbourhood_safety')
+S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_mental_health')
+S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_physical_health')
+S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'loneliness')
+S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_labour_state')
+```
+
+#### Poverty Child
+
+```{r}
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'ethnicity')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'urban')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'age.group')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'region')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'job_sec')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'education_state')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'nkids_ind')
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'housing_tenure')
+
+S7_ordinal_pathway_vis_batch(base.batch, pov.batch, 'PovertyChild', 'S7_housing_quality')
+S7_ordinal_pathway_vis_batch(base.batch, pov.batch, 'PovertyChild', 'S7_neighbourhood_safety')
+S7_ordinal_pathway_vis_batch(base.batch, pov.batch, 'PovertyChild', 'S7_mental_health')
+S7_ordinal_pathway_vis_batch(base.batch, pov.batch, 'PovertyChild', 'S7_physical_health')
+S7_ordinal_pathway_vis_batch(base.batch, pov.batch, 'PovertyChild', 'loneliness')
+S7_ordinal_pathway_vis_batch(base.batch, pov.batch, 'PovertyChild', 'S7_labour_state')
 ```
 
 

@@ -290,6 +290,22 @@ cv_ordinal_plots(pivoted.df = mstat.pivoted,
 rm(mstat.pivoted)
 ```
 
+## Job NSSEC
+
+```{r}
+job_sec.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'job_sec')
+
+cv_ordinal_plots(pivoted.df = job_sec.pivoted, 
+                 var = 'job_sec',
+                 save = FALSE)
+rm(mstat.pivoted)
+```
+
+
 ## hhsize
 
 ```{r}
