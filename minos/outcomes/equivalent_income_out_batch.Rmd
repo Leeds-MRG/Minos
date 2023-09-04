@@ -42,16 +42,24 @@ source(here::here('minos', 'validation', 'utils.r'))
 ## BATCH DATA
 
 ```{r}
-S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
-                 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
-                 'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
-out.path.batch <- here::here('output', 'SIPHER7_batch/')
+# S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
+#                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
+#                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
+# out.path.batch <- here::here('output', 'SIPHER7_batch/')
+# 
+# base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
+# wage.batch <- read_batch_out_all_years(out.path.batch, 'livingWageIntervention', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+# energy.batch <- read_batch_out_all_years(out.path.batch, 'energyDownlift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+# child.batch <- read_batch_out_all_years(out.path.batch, 'hhIncomeChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+# pov.batch <- read_batch_out_all_years(out.path.batch, 'hhIncomePovertyLineChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
 
-base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-wage.batch <- read_batch_out_all_years(out.path.batch, 'livingWageIntervention', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-energy.batch <- read_batch_out_all_years(out.path.batch, 'energyDownlift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-child.batch <- read_batch_out_all_years(out.path.batch, 'hhIncomeChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-pov.batch <- read_batch_out_all_years(out.path.batch, 'hhIncomePovertyLineChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
+out.path.arc <- here::here('output', 'SIPHER7_batch_ARC/')
+
+base.batch <- read.csv(paste0(out.path.arc, 'baseline_batch_aggregated.csv'))
+wage.batch <- read.csv(paste0(out.path.arc, 'wage_batch_aggregated.csv'))
+energy.batch <- read.csv(paste0(out.path.arc, 'energy_batch_aggregated.csv'))
+child.batch <- read.csv(paste0(out.path.arc, 'child_batch_aggregated.csv'))
+pov.batch <- read.csv(paste0(out.path.arc, 'pov_batch_aggregated.csv'))
 ```
 
 ## Calculate Age Group
@@ -72,8 +80,84 @@ child.batch <- calc_age_group(child.batch)
 pov.batch <- calc_age_group(pov.batch)
 ```
 
+## Calculate Income Quintile
+
+```{r}
+calc_income_quintile <- function(batch.dat) {
+  batch.dat <- batch.dat %>%
+    mutate(income.quint = cut(batch.dat$hh_income, breaks=c(quantile(batch.dat$hh_income, probs = seq(0, 1, by = 0.20))), 
+                          labels=c(1,2,3,4,5), include.lowest=TRUE))
+}
+
+base.batch <- calc_income_quintile(base.batch)
+wage.batch <- calc_income_quintile(wage.batch)
+energy.batch <- calc_income_quintile(energy.batch)
+child.batch <- calc_income_quintile(child.batch)
+pov.batch <- calc_income_quintile(pov.batch)
+```
 
 # Batch Baseline
+
+## Household Income
+
+```{r}
+base.bat.sub <- base.batch %>%
+  select(pidp, time, run_id, hh_income, weight) %>%
+  group_by(run_id, time) %>%
+  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm=TRUE))
+
+base.bat.sub$run_id <- as.factor(base.bat.sub$run_id)
+
+big.run.id <- base.bat.sub$run_id[which.max(base.bat.sub$hh_income)]
+
+base.bat.sub12 <- base.bat.sub %>%
+  filter(run_id != big.run.id)
+
+ggplot(data = base.bat.sub, aes(x = time, y = hh_income, group=run_id, color = run_id)) +
+  geom_line() +
+  labs(title = 'Household Income: Individual Runs')
+
+ggplot(data = base.bat.sub12, aes(x = time, y = hh_income, group=run_id, color = run_id)) +
+  geom_line() +
+  labs(title = 'Household Income: Individual Runs')
+
+ggplot(data = base.bat.sub, aes(x = time, y = hh_income)) +
+  geom_smooth() +
+  labs(title = 'Household Income: Smoothed mean')
+
+ggplot(data = base.bat.sub12, aes(x = time, y = hh_income)) +
+  geom_smooth() +
+  labs(title = 'Household Income: Smoothed mean')
+
+base.bat.sub2 <- base.bat.sub %>%
+  group_by(time) %>%
+  summarise(var = mean(hh_income),
+         min = min(hh_income),
+         max = max(hh_income))
+
+base.bat.sub22 <- base.bat.sub12 %>%
+  group_by(time) %>%
+  summarise(var = mean(hh_income),
+         min = min(hh_income),
+         max = max(hh_income))
+
+ggplot(data = base.bat.sub2, aes(x = time, y = var)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = min, ymax = max), 
+                alpha = 0.1,
+                linetype = 'dashed') +
+  labs(title = 'Household Income: Min - Max')
+
+ggplot(data = base.bat.sub22, aes(x = time, y = var)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = min, ymax = max), 
+                alpha = 0.1,
+                linetype = 'dashed') +
+  labs(title = 'Household Income: Min - Max')
+```
+
+
+## Equivalent Income
 
 ```{r}
 base.bat.sub <- base.batch %>%
@@ -83,11 +167,24 @@ base.bat.sub <- base.batch %>%
 
 base.bat.sub$run_id <- as.factor(base.bat.sub$run_id)
 
+big.run.id <- base.bat.sub$run_id[which.max(base.bat.sub$equivalent_income)]
+
+base.bat.sub12 <- base.bat.sub %>%
+  filter(run_id != big.run.id)
+
 ggplot(data = base.bat.sub, aes(x = time, y = equivalent_income, group=run_id, color = run_id)) +
   geom_line() +
   labs(title = 'Equivalent Income: Individual Runs')
 
+ggplot(data = base.bat.sub12, aes(x = time, y = equivalent_income, group=run_id, color = run_id)) +
+  geom_line() +
+  labs(title = 'Equivalent Income: Individual Runs')
+
 ggplot(data = base.bat.sub, aes(x = time, y = equivalent_income)) +
+  geom_smooth() +
+  labs(title = 'Equivalent Income: Smoothed mean')
+
+ggplot(data = base.bat.sub12, aes(x = time, y = equivalent_income)) +
   geom_smooth() +
   labs(title = 'Equivalent Income: Smoothed mean')
 
@@ -97,7 +194,20 @@ base.bat.sub2 <- base.bat.sub %>%
          min = min(equivalent_income),
          max = max(equivalent_income))
 
+base.bat.sub22 <- base.bat.sub12 %>%
+  group_by(time) %>%
+  summarise(var = mean(equivalent_income),
+         min = min(equivalent_income),
+         max = max(equivalent_income))
+
 ggplot(data = base.bat.sub2, aes(x = time, y = var)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = min, ymax = max), 
+                alpha = 0.1,
+                linetype = 'dashed') +
+  labs(title = 'Equivalent Income: Min - Max')
+
+ggplot(data = base.bat.sub22, aes(x = time, y = var)) +
   geom_line() +
   geom_ribbon(aes(ymin = min, ymax = max), 
                 alpha = 0.1,
@@ -136,8 +246,8 @@ equivalent_income_comparison_fullpop_batch <- function(base.bat, int.bat, int.na
 ```
 
 ```{r}
-equivalent_income_comparison_fullpop_batch(base.batch, wage.batch, 'LivingWage')
 equivalent_income_comparison_fullpop_batch(base.batch, energy.batch, 'EnergyCrisis')
+equivalent_income_comparison_fullpop_batch(base.batch, wage.batch, 'LivingWage')
 equivalent_income_comparison_fullpop_batch(base.batch, child.batch, 'AllChild')
 equivalent_income_comparison_fullpop_batch(base.batch, pov.batch, 'PovertyChild')
 ```
@@ -235,12 +345,10 @@ equivalent_income_comparison_treated_batch(base.batch, pov.batch, 'PovertyChild'
 
 For this, we're going to look at the difference in equivalent income and try to explain it by looking at the pathway variables. What we want to see is that as income is uplifted, the various pathways show a positive shift and that in part explains the difference in equivalent income. 
 
-First visualise both income and equivalent income on one graph.
-
 ## Income and Equivalent Income
 
 ```{r}
-income_equivinc_change_batch <- function(base.batch, int.batch) {
+income_equivinc_change_batch <- function(base.batch, int.batch, int.name) {
   base.inc <- base.batch %>%
     select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
     group_by(time, run_id) %>%
@@ -264,23 +372,104 @@ income_equivinc_change_batch <- function(base.batch, int.batch) {
                  names_to = 'variable',
                  values_to = 'diff')
   
+  combined2 <- combined %>%
+    group_by(time, variable) %>%
+    summarise(mean.diff = mean(diff))
+  
+  print(combined2)
+  
   ggplot(combined, aes(x = time, y = diff, group = variable, color = variable)) +
     geom_smooth() +
-    geom_hline(yintercept = 0, linetype = 'dashed')
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Change in Income and Equivalent Income', 
+         subtitle = int.name)
 }
 
-income_equivinc_change_batch(base.batch, energy.batch)
-income_equivinc_change_batch(base.batch, wage.batch)
-income_equivinc_change_batch(base.batch, child.batch)
-income_equivinc_change_batch(base.batch, pov.batch)
+income_equivinc_change_batch(base.batch, energy.batch, 'Energy Crisis')
+income_equivinc_change_batch(base.batch, wage.batch, 'Living Wage')
+income_equivinc_change_batch(base.batch, child.batch, 'All Child')
+income_equivinc_change_batch(base.batch, pov.batch, 'Poverty Child')
 ```
+
+## Equivalent Income Change
+
+```{r}
+equivinc_change_batch <- function(base.batch, int.batch, int.name) {
+  base.inc <- base.batch %>%
+    select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(base_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  int.inc <- int.batch %>%
+    select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
+    group_by(time, run_id) %>%
+    summarise(energy_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  combined <- merge(base.inc, int.inc, by = c('time', 'run_id'))
+  
+  combined$diff_equiv_income <- combined$energy_equiv_income - combined$base_equiv_income
+  
+  #print(combined)
+  
+  ggplot(combined, aes(x = time, y = diff_equiv_income)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Percent change: Income vs Equivalent Income',
+         subtitle = int.name) +
+    xlab('Year') +
+    ylab('Percent Change')
+}
+
+equivinc_change_batch(base.batch, energy.batch, 'Energy Crisis')
+equivinc_change_batch(base.batch, wage.batch, 'Living Wage')
+equivinc_change_batch(base.batch, child.batch, 'All Child')
+equivinc_change_batch(base.batch, pov.batch, 'Poverty Child')
+```
+
+### By Subpopulation
+
+```{r}
+equivinc_change_batch_subpop <- function(base.batch, int.batch, int.name, group.var) {
+  base.inc <- base.batch %>%
+    select(pidp, time, run_id, equivalent_income, weight, all_of(group.var)) %>%
+    group_by(time, run_id, .data[[group.var]]) %>%
+    summarise(base_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  int.inc <- int.batch %>%
+    select(pidp, time, run_id, equivalent_income, weight, all_of(group.var)) %>%
+    group_by(time, run_id, .data[[group.var]]) %>%
+    summarise(int_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  combined <- merge(base.inc, int.inc, by = c('time', 'run_id', group.var))
+  combined[[group.var]] <- as.factor(combined[[group.var]])
+  
+  combined$diff_equiv_income <- combined$int_equiv_income - combined$base_equiv_income
+  
+  combined <- combined %>%
+    group_by(time, .data[[group.var]]) %>%
+    summarise(mean_diff_equiv_income = mean(diff_equiv_income))
+  
+  ggplot(combined, aes(x = time, y = mean_diff_equiv_income, group = .data[[group.var]], color = .data[[group.var]])) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = paste0('Equivalent Income change by ', group.var), subtitle = int.name) +
+    xlab('Year') +
+    ylab('Equivalent Income (£s)')
+}
+
+equivinc_change_batch_subpop(base.batch, energy.batch, 'Energy Crisis', group.var = 'income.quint')
+equivinc_change_batch_subpop(base.batch, wage.batch, 'Living Wage', group.var = 'income.quint')
+equivinc_change_batch_subpop(base.batch, child.batch, 'All Child', group.var = 'income.quint')
+equivinc_change_batch_subpop(base.batch, pov.batch, 'Poverty Child', group.var = 'income.quint')
+```
+
 
 ## Percent Change
 
 Proportional difference? Percentage difference in income and equivalent income over time?
 
 ```{r}
-income_equivinc_percent_change_batch <- function(base.batch, int.batch) {
+income_equivinc_percent_change_batch <- function(base.batch, int.batch, int.name) {
   base.inc <- base.batch %>%
     select(pidp, time, run_id, hh_income, equivalent_income, weight) %>%
     group_by(time, run_id) %>%
@@ -315,21 +504,22 @@ income_equivinc_percent_change_batch <- function(base.batch, int.batch) {
   ggplot(combined, aes(x = time, y = change, group = variable, color = variable)) +
     geom_smooth() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
-    labs(title = 'Percent change: Income vs Equivalent Income') +
+    labs(title = 'Percent change: Income vs Equivalent Income',
+         subtitle = int.name) +
     xlab('Year') +
     ylab('Percent Change')
 }
 
-income_equivinc_percent_change_batch(base.batch, energy.batch)
-income_equivinc_percent_change_batch(base.batch, wage.batch)
-income_equivinc_percent_change_batch(base.batch, child.batch)
-income_equivinc_percent_change_batch(base.batch, pov.batch)
+income_equivinc_percent_change_batch(base.batch, energy.batch, 'Energy Crisis')
+income_equivinc_percent_change_batch(base.batch, wage.batch, 'Living Wage')
+income_equivinc_percent_change_batch(base.batch, child.batch, 'All Child')
+income_equivinc_percent_change_batch(base.batch, pov.batch, 'Poverty Child')
 ```
 
 ### By Subpopulation
 
 ```{r}
-income_equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, filter.var, subpop) {
+income_equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, int.name, filter.var, subpop) {
   print(paste0('Calculating income and equivalent income for ', filter.var, ' == ', subpop))
   
   base.inc <- base.batch %>%
@@ -368,14 +558,17 @@ income_equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, f
   ggplot(combined, aes(x = time, y = change, group = variable, color = variable)) +
     geom_smooth() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
-    labs(title = paste0('Percent change: ', filter.var, ' == ', subpop)) +
+    labs(title = paste0('Percent change: ', filter.var, ' == ', subpop),
+         subtitle = int.name) +
     xlab('Year') +
     ylab('Percent Change')
 }
 
-income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, filter.var = 'ethnicity', subpop = 'PAK')
-income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, filter.var = 'urban', subpop = '1')
-income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, filter.var = 'urban', subpop = '2')
+income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', filter.var = 'ethnicity', subpop = 'PAK')
+income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', filter.var = 'urban', subpop = '1')
+income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', filter.var = 'urban', subpop = '2')
+income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', filter.var = 'income.quint', subpop = '1')
+income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', filter.var = 'income.quint', subpop = '5')
 ```
 
 ### All Subgroups
@@ -484,6 +677,7 @@ S7_ordinal_pathway_vis_batch <- function(base.bat, int.bat, int.name, var) {
 #### Energy Crisis
 
 ```{r}
+equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'income.quint')
 equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'ethnicity')
 equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'urban')
 equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'age.group')
@@ -505,6 +699,7 @@ S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_labou
 #### Living Wage
 
 ```{r}
+equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'income.quint')
 equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'ethnicity')
 equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'urban')
 equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'age.group')
@@ -525,6 +720,7 @@ S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_labour_s
 #### All Child
 
 ```{r}
+equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'income.quint')
 equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'ethnicity')
 equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'urban')
 equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'age.group')
@@ -545,6 +741,7 @@ S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_labour_sta
 #### Poverty Child
 
 ```{r}
+equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'income.quint')
 equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'ethnicity')
 equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'urban')
 equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'age.group')
