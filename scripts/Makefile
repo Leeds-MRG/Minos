@@ -201,8 +201,8 @@ S7_intervention_energyDownLift: setup_S7
 
 
 arc4_S7_all_scenarios: setup_S7
-	$(PYTHON) scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
-	$(PYTHON) scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
-	$(PYTHON) scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
-	$(PYTHON) scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
-	$(PYTHON) scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomeChildUplift'
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
