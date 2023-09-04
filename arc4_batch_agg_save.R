@@ -14,7 +14,7 @@ source(here::here('minos', 'utils_datain.R'))
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
-out.path.batch <- here::here('output', 'SIPHER7_batch/')
+out.path.batch <- here::here('output', 'SIPHER7/')
 
 base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
 write.csv(base.batch, file = 'output/baseline_batch_aggregated.csv')
