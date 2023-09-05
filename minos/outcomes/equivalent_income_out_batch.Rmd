@@ -345,7 +345,7 @@ equivalent_income_comparison_treated_batch(base.batch, pov.batch, 'PovertyChild'
 
 For this, we're going to look at the difference in equivalent income and try to explain it by looking at the pathway variables. What we want to see is that as income is uplifted, the various pathways show a positive shift and that in part explains the difference in equivalent income. 
 
-## Income and Equivalent Income
+# Income and Equivalent Income
 
 ```{r}
 income_equivinc_change_batch <- function(base.batch, int.batch, int.name) {
@@ -391,7 +391,7 @@ income_equivinc_change_batch(base.batch, child.batch, 'All Child')
 income_equivinc_change_batch(base.batch, pov.batch, 'Poverty Child')
 ```
 
-## Equivalent Income Change
+# Equivalent Income Change
 
 ```{r}
 equivinc_change_batch <- function(base.batch, int.batch, int.name) {
@@ -426,7 +426,7 @@ equivinc_change_batch(base.batch, child.batch, 'All Child')
 equivinc_change_batch(base.batch, pov.batch, 'Poverty Child')
 ```
 
-### By Subpopulation
+## By Subpopulation
 
 ```{r}
 equivinc_change_batch_subpop <- function(base.batch, int.batch, int.name, group.var) {
@@ -464,7 +464,7 @@ equivinc_change_batch_subpop(base.batch, pov.batch, 'Poverty Child', group.var =
 ```
 
 
-## Percent Change
+# Percent Change
 
 Proportional difference? Percentage difference in income and equivalent income over time?
 
@@ -516,7 +516,7 @@ income_equivinc_percent_change_batch(base.batch, child.batch, 'All Child')
 income_equivinc_percent_change_batch(base.batch, pov.batch, 'Poverty Child')
 ```
 
-### By Subpopulation
+## By Subpopulation
 
 ```{r}
 income_equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, int.name, filter.var, subpop) {
@@ -571,7 +571,7 @@ income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name =
 income_equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', filter.var = 'income.quint', subpop = '5')
 ```
 
-### All Subgroups
+## All Subgroups
 
 ```{r}
 equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, int.name, group.var) {
@@ -674,7 +674,7 @@ S7_ordinal_pathway_vis_batch <- function(base.bat, int.bat, int.name, var) {
 }
 ```
 
-#### Energy Crisis
+### Energy Crisis
 
 ```{r}
 equivinc_percent_change_batch_subpop(base.batch, energy.batch, int.name = 'Energy Crisis', group.var = 'income.quint')
@@ -696,7 +696,7 @@ S7_ordinal_pathway_vis_batch(base.batch, energy.batch, 'EnergyCrisis', 'S7_labou
 ```
 
 
-#### Living Wage
+### Living Wage
 
 ```{r}
 equivinc_percent_change_batch_subpop(base.batch, wage.batch, int.name = 'Living Wage', group.var = 'income.quint')
@@ -717,7 +717,7 @@ S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'loneliness'
 S7_ordinal_pathway_vis_batch(base.batch, wage.batch, 'Living Wage', 'S7_labour_state')
 ```
 
-#### All Child
+### All Child
 
 ```{r}
 equivinc_percent_change_batch_subpop(base.batch, child.batch, int.name = 'AllChild', group.var = 'income.quint')
@@ -738,7 +738,7 @@ S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'loneliness')
 S7_ordinal_pathway_vis_batch(base.batch, child.batch, 'AllChild', 'S7_labour_state')
 ```
 
-#### Poverty Child
+### Poverty Child
 
 ```{r}
 equivinc_percent_change_batch_subpop(base.batch, pov.batch, int.name = 'PovertyChild', group.var = 'income.quint')
