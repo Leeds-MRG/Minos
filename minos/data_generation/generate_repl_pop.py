@@ -65,7 +65,7 @@ def expand_repl(US_2018):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
+        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)
 
         #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
