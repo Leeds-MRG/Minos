@@ -62,7 +62,8 @@ class JobSec(Base):
                         "sex",
                         "ethnicity",
                         "region",
-                        "education_state"]
+                        "education_state",
+                        "S7_labour_state"]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -100,6 +101,11 @@ class JobSec(Base):
                                                         job_sec_prob_df)
 
         job_sec_prob_df.index = pop.index
+
+        # merge prediction onto original pop, then do some accounting
+        # job_sec must == 0 if labour state is not working (any of: Family Care, FT Education, Job Seeking, Not Working
+        pop['job_sec'] = job_sec_prob_df['job_sec']
+        pop['job_sec'][pop['S7_labour_state'].isin(['Family Care', 'FT Education', 'Job Seeking', 'Not Working'])] = 0
 
         self.population_view.update(job_sec_prob_df["job_sec"].astype(float))
 

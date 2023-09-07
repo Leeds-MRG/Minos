@@ -376,8 +376,6 @@ income_equivinc_change_batch <- function(base.batch, int.batch, int.name) {
     group_by(time, variable) %>%
     summarise(mean.diff = mean(diff))
   
-  print(combined2)
-  
   ggplot(combined, aes(x = time, y = diff, group = variable, color = variable)) +
     geom_smooth() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
