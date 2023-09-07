@@ -179,7 +179,7 @@ def priority_only(config_mode, boost_amount):
 def UC_priority(config_mode, boost_amount):
     "UC and priority interventions on one lineplot."
     directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}Priority"
-    tags = f"Baseline,£{boost_amount} Universal Credit,£f{boost_amount} Priority Groups"
+    tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} Priority Groups"
     subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
     prefix= f"{boost_amount}_UC_and_priority"
     ref = "Baseline"
@@ -187,11 +187,11 @@ def UC_priority(config_mode, boost_amount):
     method='nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
-def incremental_25_to_100(config_mode, intervention_name, intervention_tag):
+def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subset_function):
     "The same intervention in increments from £25 to £100"
     directories = f"baseline,25{intervention_name},50{intervention_name},75{intervention_name},100{intervention_name}"
     tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag},£75 {intervention_tag},£100 {intervention_tag}"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted,who_boosted,who_boosted"
+    subset_function_strings = f"{subset_function},who_boosted,who_boosted,who_boosted,who_boosted"
     prefix=f"25_100_incremental_{intervention_name}_uplift"
     ref = "Baseline"
     v = "SF_12"
@@ -278,10 +278,10 @@ string_to_lineplot_function_args={
     "75_relative_poverty": [75],
     "100_relative_poverty": [100],
 
-    "incremental_universal_credit": ["UniversalCredit", "Universal Credit"],
-    "incremental_priority_groups": {"Priority", "Priority Groups"},
-    "incremental_all_child": {"All", "Nationwide"},
-    "incremental_relative_poverty": {"RelativePoverty", "Relative Poverty"},
+    "incremental_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids"],
+    "incremental_priority_groups": {"Priority", "Priority Groups", "who_priority_subgroups"},
+    "incremental_all_child": {"All", "Nationwide", "who_kids"},
+    "incremental_relative_poverty": {"RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"},
 }
 
 if __name__ == '__main__':

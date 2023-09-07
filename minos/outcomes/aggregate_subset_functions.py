@@ -42,8 +42,9 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                     #"who_income_benefits": None,
                     #"who_no_public_funds_recourse": None,
                     'who_priority_subgroups': [who_alive, who_kids, who_priority_subgroups],
-                    
-                    "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
+                    'who_priority_subgroups_and_kids': [who_alive, who_kids, who_priority_subgroups],
+
+                     "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
                     "who_second_simd_decile": [who_alive, [who_kth_simd_decile, [2]]],
                     "who_third_simd_decile": [who_alive, [who_kth_simd_decile, [3]]],
                     "who_fourth_simd_decile": [who_alive, [who_kth_simd_decile, [4]]],
