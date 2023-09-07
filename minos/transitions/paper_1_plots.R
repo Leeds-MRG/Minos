@@ -2,8 +2,11 @@ library(ggplot2)
 library(sjPlot)
 library(ggplot2)
 library(ggpattern)
-#source("papers/phd1/paper_plots.R")
 library(visreg)
+library(ggridges)
+
+source("minos/transitions/utils.R")
+source("minos/transitions/transition_model_functions.R")
 
 # forest plot for lm models. 
 forest_plot_lm <- function(model, file_name){
@@ -21,7 +24,7 @@ forest_plot_lm <- function(model, file_name){
   sf12_coefs[what_two_star, 'p.stars'] <- "**"
   sf12_coefs[what_three_star, 'p.stars'] <- "***"
   p.stars<- sf12_coefs[, 5]
-  browser()
+  #browser()
   pdf(file_name)
   p <- plot_model(model, transform=NULL,
                   title = "") + aes(shape=p.stars)
@@ -37,8 +40,16 @@ forest_plot_lm <- function(model, file_name){
 
 forest_plot_glmm <- function(model, file_name){
   
+  
+  
   sf12_coefs <- summary(model)$coefficients
   sf12_coefs <- cbind(sf12_coefs, sf12_coefs[, 4])
+  
+  # shift coefficients by exponential scale
+  
+  
+  # shift standard errors according to formula.
+  
   colnames(sf12_coefs)[5] <- "p.stars"
   what_ns <- which(sf12_coefs[, "Pr(>|z|)"] > 0.05)
   what_one_star <- which(sf12_coefs[, "Pr(>|z|)"] <= 0.05)
@@ -51,7 +62,7 @@ forest_plot_glmm <- function(model, file_name){
   sf12_coefs[what_three_star, 'p.stars'] <- "***"
   p.stars<- sf12_coefs[, 5]
   pdf(file_name)
-  p <- plot_model(model, transform=NULL,
+  p <- plot_model(model, transform="exp",
                   title = "") + aes(shape=p.stars)
   p$data$p.stars[which(p$data$p.stars == "")] <- 'n.s.'
   p <- p +  scale_shape_manual(name='Significance Level',
@@ -150,8 +161,8 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
 {
   data_plot <- data[, c("time", v)]
   # Remove missing values
-  data_plot <- data_plot %>%
-    filter(!data_plot[[v]] %in% miss.values)
+  #data_plot <- data_plot %>%
+   # filter(!data_plot[[v]] %in% miss.values)
   if (min(data_plot$time) < 2020) {
     handover <- TRUE
   }
@@ -162,7 +173,8 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     geom_density_ridges(aes(y=time, color=time, linetype=time), alpha=0.6) +
     #scale_color_viridis_d() +
     scale_color_cyclical(values=c("#F8766D", "#00BA38","#619CFF")) +
-    scale_linetype_cyclical(values=c(1, 2, 3))
+    scale_linetype_cyclical(values=c(1, 2, 3)) +
+    xlim(0, 80)
   
   if(save) {
     if(is.null(save.path)) {
@@ -187,14 +199,14 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
 }
 
 
-handover_boxplots <- function(raw, baseline, var) {
+handover_boxplots <- function(raw, baseline, var, save_path, save=T) {
   raw.var <- raw %>%
     dplyr::select(pidp, time, all_of(var))
-  raw.var$source <- 'final_US'
+  raw.var$source <- 'Real Data'
   
   baseline.var <- baseline %>%
     dplyr::select(pidp, time, all_of(var))
-  baseline.var$source <- 'baseline_output'
+  baseline.var$source <- 'Predicted Data.'
   
   combined <- rbind(raw.var, baseline.var)
   combined$time <- as.factor(combined$time)
@@ -208,7 +220,10 @@ handover_boxplots <- function(raw, baseline, var) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }
   
-  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
+  boxplot<- ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
+  if (save) {
+    ggsave(paste0(save_path, ".pdf"))
+  }
 }
