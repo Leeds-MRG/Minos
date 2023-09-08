@@ -9,6 +9,7 @@ this file should not be run directly and is called from notebooks. e.g. Rmd note
 # 2. aggregate all source files together
 
 import pandas as pd
+import re
 from glob import glob
 from multiprocessing import Pool
 import os
@@ -41,6 +42,14 @@ def subset_minos_data(data, subset_func_string, mode):
     subsetted_data = dynamic_subset_function(data, subset_func_string, mode)
     return subsetted_data
 
+def aggregate_percentage_counts(df):
+    # for some ordinal variable return a groupby providing the percetage of the population in each variable.
+    new_df = pd.DataFrame(df.value_counts(normalize=True))
+    v = new_df.columns[0]
+    new_df['prct'] = new_df[v]
+    new_df[v] = new_df.index
+    new_df.reset_index(inplace=True, drop=True)
+    return new_df
 
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
                   mode="default_config"):
@@ -64,6 +73,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)[outcome_variable]
     agg_value = aggregate_method(data)
+
     return agg_value
 
 
@@ -110,12 +120,20 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
             aggregated_means = [None]
 
-        single_year_aggregates = pd.DataFrame(aggregated_means)
-        single_year_aggregates.columns = [v]
-        single_year_aggregates['year'] = year
-        single_year_aggregates['tag'] = tag
-        aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
+        if v == "SF_12":
+            single_year_aggregates = pd.DataFrame(aggregated_means)
+            single_year_aggregates.columns = [v]
+            single_year_aggregates['year'] = year
+            single_year_aggregates['tag'] = tag
+            aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
+        elif v == "housing_quality":
+            for i, single_year_aggregate in enumerate(aggregated_means):
+                single_year_aggregate['time'] = year
+                single_year_aggregate['tag'] = tag
+                single_year_aggregate['id'] = i
+                aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
 
+    aggregated_data.reset_index(drop=True, inplace=True)
     return aggregated_data
 
 
@@ -174,10 +192,23 @@ def find_latest_source_file_path(file_path):
     latest_file_path: str
         Returns the latest path in all_file_paths chronologically.
     """
-    all_file_paths = os.listdir(file_path)
+    # replaced latest file search with regex because it keeps finding aggregate data and
+    # .DSStore files and im slowly losing my mind.
+    # sort file list and pull latest files until a regex date match is found.
+    all_file_paths = sorted(os.listdir(file_path))
+    # NOTE THIS IS AN EXACT MATCH. ANY FILE WITH STUFF EITHER SIDE OF A DATE WILL NOT BE FOUND.
+    date_pattern = re.compile(r'^(\d{4})_(\d{2})_(\d{2})_(\d{2})_(\d{2})_(\d{2})$')
     if len(all_file_paths) > 1:
         # if more than 1, select most recent datetime
-        latest_file_path = max(all_file_paths, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+        while all_file_paths:
+            file  = all_file_paths.pop()
+            if date_pattern.match(file):
+                latest_file_path = file
+                break
+        if not all_file_paths:
+            raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                               "aggregate. Please check the output directory.")
+        #latest_file_path = max(all_file_paths, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
     elif len(all_file_paths) == 1:
         latest_file_path = all_file_paths[0]  # os.listdir returns a list, we only have 1 element
     else:
@@ -278,6 +309,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     # Without using eval this is the best way I can think of to import from string to function.
     if method == "nanmean":
         method = np.nanmean
+    elif method == "percentages":
+        method = aggregate_percentage_counts
     else:
         raise ValueError(
             "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
@@ -294,13 +327,19 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         years = find_MINOS_years_range(latest_file_path)
 
         print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
-        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string)
+        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string, v=v, method=method)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    scaled_data = relative_scaling(aggregate_long_stack, v, ref)
-    print("relative scaling done. plotting.. ")
-    aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+    if v == "SF_12":
+        scaled_data = relative_scaling(aggregate_long_stack, v, ref)
+        print("relative scaling done. plotting.. ")
+        aggregate_lineplot(scaled_data, "plots", prefix, v, method)
 
+    elif v == "housing_quality":
+        print(f"Data compiled for variable {v} using method {method.__name__}.")
+        file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
+        aggregate_long_stack.to_csv(file_path)
+        print(f"Saved to {file_path}.")
 
 if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
@@ -319,10 +358,20 @@ if __name__ == '__main__':
     # tags = "Baseline,Energy Price Cap Guarantee,Energy Bill Support Scheme"
     # subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
     # prefix = "epcg_ebss_baseline"
+
     directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
     tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
     subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
     prefix="simd_deciles"
     mode = "glasgow_scaled"
     ref='National Average'
+
+    directories = "baseline,25RelativePoverty"
+    tags = "Baseline,Poverty Line Child Uplift"
+    subset_function_strings = "who_below_living_wage,who_boosted"
+    prefix = "baseline_housing_quality"
+    mode = 'default_config'
+    ref = "Baseline"
+    v = "housing_quality"
+    method = 'percentages'
     main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
