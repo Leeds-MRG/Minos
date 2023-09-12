@@ -528,14 +528,12 @@ crossval.raw.data <- drop_na(crossval.raw.data)
 ```
 
 ```{r ols_handovers}
-start.data <- crossval.raw.data[which(raw.data$time==2013),]
-rolling.data <- start.data[, c("pidp", "SF_12", "time")]
-handover.data <- rolling.data
+start.data <- crossval.raw.data[which(crossval.raw.data$time==2013),]
+handover.data <- start.data
 for (i in 1:7){
-  rolling.data$SF_12 <- predict(sf12.lm, start.data)
-  start.data$SF_12 <- rolling.data$SF_12
-  rolling.data[, 'time'] <- rolling.data[, 'time'] +1
-  handover.data <- rbind(handover.data, rolling.data)
+  start.data$SF_12 <- predict(sf12.lm, start.data)
+  start.data[, 'time'] <- start.data[, 'time'] +1
+  handover.data <- rbind(handover.data, start.data[, c("pidp", "SF_12", "time")])
 }
 
 
@@ -550,7 +548,7 @@ density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.
 start.data <- mice.data[which(mice.data$time==2013),]
 rolling.data <- start.data[, c("pidp", "SF_12", "time")]
 handover.data <- rolling.data
-for (i in 1:7){
+for (i in 1:6){
   rolling.data$SF_12 <- predict(pooled_lm, start.data)
   start.data$SF_12 <- rolling.data$SF_12
   rolling.data[, 'time'] <- rolling.data[, 'time'] +1
@@ -566,7 +564,7 @@ density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.
 
 
 ```{r cross_val_handovers}
-start.data <- crossval.raw.data[which(raw.data$time==2013),]
+start.data <- crossval.raw.data[which(crossval.raw.data$time==2013),]
 rolling.data <- start.data[, c("pidp", "SF_12", "time")]
 handover.data <- rolling.data
 for (i in 1:7){
@@ -578,7 +576,7 @@ for (i in 1:7){
 
 
 handover_boxplots(crossval.raw.data, handover.data, "SF_12", paste0(save.path, "crossval_ols_SF12_boxplot"))
-density_ridges(crossval.raw.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "crossvalraw_ridges")
+density_ridges(crossval.raw.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "crossval_raw_ridges")
 density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "crossval_handover_ridges")
 
 ```
