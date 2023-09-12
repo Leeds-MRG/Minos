@@ -140,8 +140,8 @@ arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 
 arc4_energy_scenarios: MODE = glasgow_scaled
-arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_energy_scenarios: arc4_EBSS
+arc4_energy_scenarios: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_energy_scenarios: arc4_baseline arc4_intervention_energyDownLiftNoSupport arc4_EPCG arc4_EBSS
 
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
