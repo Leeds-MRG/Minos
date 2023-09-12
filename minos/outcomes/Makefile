@@ -161,6 +161,9 @@ epcg_ebss_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
 
+aggregate_all_energy_interventions:
+	python3 minos/outcomes/make_lineplots_macros.py
+
 # experimental bash scripts.
 main_maps:
 	bash minos/outcomes/aggregated_maps.sh

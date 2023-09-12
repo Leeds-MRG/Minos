@@ -100,6 +100,8 @@ intervention_components_map = {  # Interventions
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+    "EPCG": energyPriceCapGuarantee(),
+    "EBSS": energyBillSupportScheme(),
 }
 
 replenishment_components_map = {
@@ -180,40 +182,6 @@ def validate_components(config_components, intervention):
     # last one in first one off. any module that requires another should be BELOW IT in this order.
     # Note priority in vivarium modules supercedes this. two
     # Outcome module goes first (last in sim)
-    components_map = {
-        # Outcome module.
-        "MWB()": MWB(),
-        #Intermediary modules
-        "Tobacco()": Tobacco(),
-        "Alcohol()": Alcohol(),
-        "Neighbourhood()": Neighbourhood(),
-        "Labour()": Labour(),
-        "Housing()": Housing(),
-        "Income()": Income(),
-        "Loneliness()": Loneliness(),
-        "Nutrition()": Nutrition(),
-        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
-        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
-        "Mortality()": Mortality(),
-        "Education()": Education(),
-    }
-
-    intervention_components_map = {        #Interventions
-        "hhIncomeIntervention": hhIncomeIntervention(),
-        "hhIncomeChildUplift": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift(),
-        "EPCG": energyPriceCapGuarantee(),
-        "EBSS": energyBillSupportScheme(),
-    }
-
-    replenishment_components_map = {
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
-    }
 
     component_list = []
     replenishment_component = []
