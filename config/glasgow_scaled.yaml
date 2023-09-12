@@ -18,6 +18,8 @@ output_data_dir: "output"
 transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing'
 
+cross_validation: TRUE
+
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.
@@ -27,7 +29,8 @@ replenishing_dir: 'data/replenishing'
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), nkidsFertilityAgeSpecificRates(), Mortality(), Replenishment()]
+#components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), nkidsFertilityAgeSpecificRates(), Mortality(), Replenishment()]
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 
 
 scale_rates:
