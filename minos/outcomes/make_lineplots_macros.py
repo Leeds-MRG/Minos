@@ -49,10 +49,10 @@ def all_five_lineplots():
 
 
 def all_energy_lineplots():
-    directories = "baseline,energyDownliftNoSupport,EPCG,EBSS"
+    directories = "Baseline,energyDownliftNoSupport,EPCG,EBSS"
     tags = "No Energy Crisis,Energy Crisis With No Support,EPCG,EPCG + EBSS"
     subset_function_strings = "who_uses_energy,who_boosted,who_boosted,who_boosted"
-    prefix="all_five_combined"
+    prefix="energy_lineplots"
     config_mode = "glasgow_scaled"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12", method='nanmean')
 

@@ -150,13 +150,14 @@ def relative_scaling(df, v, ref):
     if ref is not None:
         years = sorted(list(set(df['year'])))
         for year in years:
-            # get data for each year. get reference level sf12 for each year. divide all sf12 values be reference value.
-            # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
-            # <1 implies reduction.
-            year_df = df.loc[df['year'] == year,].copy()
-            x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
-            year_df[v] /= x_bar
-            df.loc[df['year'] == year, v] = year_df[v]
+            if year > 2020 or ref=="baseline":
+                # get data for each year. get reference level sf12 for each year. divide all sf12 values be reference value.
+                # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
+                # <1 implies reduction.
+                year_df = df.loc[df['year'] == year,].copy()
+                x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
+                year_df[v] /= x_bar
+                df.loc[df['year'] == year, v] = year_df[v]
     else:
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
     return df
@@ -319,10 +320,10 @@ if __name__ == '__main__':
     # tags = "Baseline,Energy Price Cap Guarantee,Energy Bill Support Scheme"
     # subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
     # prefix = "epcg_ebss_baseline"
-    directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
-    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
-    prefix="simd_deciles"
-    mode = "glasgow_scaled"
-    ref='National Average'
+    #directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
+    #tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
+    #subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
+    #prefix="simd_deciles"
+    #mode = "glasgow_scaled"
+    #ref='National Average'
     main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
