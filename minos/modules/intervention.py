@@ -525,6 +525,7 @@ class energyDownliftNoSupport(Base):
 
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        self.year = event.time.year
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
@@ -532,7 +533,9 @@ class energyDownliftNoSupport(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        year = min(self.year, 2023)
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300)) * 4/3
+        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
         #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
