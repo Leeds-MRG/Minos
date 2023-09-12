@@ -198,7 +198,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
 
     final_repl['ncigs'] = final_repl['ncigs'].astype(int)
     final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
-    final_repl['loneliness'] = final_repl['loneliness'].astype(int)
+    #final_repl['loneliness'] = final_repl['loneliness'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)

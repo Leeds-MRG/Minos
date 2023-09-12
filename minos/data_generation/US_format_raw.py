@@ -476,6 +476,22 @@ def format_analysis_weight(data, year):
     return data
 
 
+def format_loneliness(data):
+    data['new_loneliness'] = -9
+
+    data['new_loneliness'][data['loneliness'] == 1] = 'Never'
+    data['new_loneliness'][data['loneliness'] == 2] = 'Sometimes'
+    data['new_loneliness'][data['loneliness'] == 3] = 'Often'
+
+    data['loneliness'] = data['new_loneliness']
+
+    data.drop(labels=['new_loneliness'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     """ Function to collect and merge the indresp and hhresp files for a specific year.
 
@@ -535,6 +551,7 @@ def format_data(year, data):
     #data = format_mental_state(data)
     data = format_time(data, year)
     data = format_location(data, year)
+    data = format_loneliness(data)
 
     data = format_ukhls_ethnicity(data)
     data = format_ukhls_employment(data)

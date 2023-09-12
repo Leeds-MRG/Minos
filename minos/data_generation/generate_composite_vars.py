@@ -824,9 +824,10 @@ def calculate_equivalent_income(data):
         -10: -1
     }
     loneliness_dict = {
-        1: 0,
-        2: -0.186/1.282,
-        3: -0.591/1.282,
+        'Never': 0,
+        'Sometimes': -0.186/1.282,
+        'Often': -0.591/1.282,
+        '-9': -1,
         -9: -1,
         -8: -1,
         -7: -1,
@@ -891,11 +892,11 @@ def calculate_equivalent_income(data):
     # If any of the variables involved are missing, then can't do calculation for equivalent income
     # These people will be removed in complete_case anyway so not having a value here won't matter
     var_list_num = ['S7_physical_health',
-                    'S7_mental_health',
-                    'loneliness']
+                    'S7_mental_health']
     var_list_str = ['S7_labour_state',
                     'S7_housing_quality',
-                    'S7_neighbourhood_safety']
+                    'S7_neighbourhood_safety',
+                    'loneliness']
     data['equivalent_income'][(data[var_list_num] < 0).any(axis=1)] = -9
     data['equivalent_income'][(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1)] = -9
 

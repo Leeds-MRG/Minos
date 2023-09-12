@@ -140,9 +140,9 @@ class S7EquivalentIncome(Base):
             1: -0.877/1.282
         }
         loneliness_dict = {
-            1: 0,
-            2: -0.186/1.282,
-            3: -0.591/1.282
+            'Never': 0,
+            'Sometimes': -0.186/1.282,
+            'Often': -0.591/1.282
         }
         employment_dict = {
             'FT Employed': 0,

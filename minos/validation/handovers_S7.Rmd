@@ -355,18 +355,6 @@ if (shall.we.save) {
          path = save.path)
 }
 
-## just look at means in case the means are causing some problems
-raw.dat.2 <- raw.dat
-raw.dat.2$S7_housing_quality2[raw.dat.2$S7_housing_quality == 'No to all'] <- 1
-raw.dat.2$S7_housing_quality2[raw.dat.2$S7_housing_quality == 'Yes to some'] <- 2
-raw.dat.2$S7_housing_quality2[raw.dat.2$S7_housing_quality == 'Yes to all'] <- 3
-base.dat.2 <- base.dat
-base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'No to all'] <- 1
-base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to some'] <- 2
-base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to all'] <- 3
-
-handover_lineplots(raw.dat.2, base.dat.2, 'S7_housing_quality2')
-
 rm(prepped.list, housing, housing.norm)
 ```
 
@@ -508,24 +496,6 @@ if (shall.we.save) {
          path = save.path)
 }
 
-raw.dat.2 <- raw.dat
-raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'PT Employed'] <- 6
-raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'FT Employed'] <- 5
-raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'FT Education'] <- 4
-raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'Not Working'] <- 3
-raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'Job Seeking'] <- 2
-raw.dat.2$S7_labour_state2[raw.dat.2$S7_labour_state == 'Family Care'] <- 1
-base.dat.2 <- base.dat
-base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'PT Employed'] <- 6
-base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'FT Employed'] <- 5
-base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'FT Education'] <- 4
-base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'Not Working'] <- 3
-base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'Job Seeking'] <- 2
-base.dat.2$S7_labour_state2[base.dat.2$S7_labour_state == 'Family Care'] <- 1
-
-handover_lineplots(raw.dat.2, base.dat.2, 'S7_labour_state2')
-
-
 rm(prepped.list, lab.state, lab.state.norm)
 ```
 
@@ -662,8 +632,6 @@ if (shall.we.save) {
          path = save.path)
 }
 
-handover_lineplots(raw.dat, base.dat, 'S7_mental_health')
-
 
 rm(prepped.list, var, norm, tit)
 ```
@@ -733,8 +701,6 @@ if (shall.we.save) {
          plot = last_plot(),
          path = save.path)
 }
-
-handover_lineplots(raw.dat, base.dat, 'loneliness')
 
 
 rm(prepped.list, var, norm, tit)

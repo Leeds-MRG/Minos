@@ -81,6 +81,10 @@ run_yearly_models <- function(transitionDir_path,
                                            'Partnered',
                                            'Separated',
                                            'Widowed'))
+  data$loneliness <- factor(data$loneliness,
+                            levels = c('Never',
+                                       'Sometimes',
+                                       'Often'))
 
   # read file
   repeat{

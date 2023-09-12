@@ -44,9 +44,9 @@ source(here::here('minos', 'validation', 'utils.r'))
 out.path <- here::here('output', 'SIPHER7/')
 # read all files into dataframe (util function handles runtime subdirectory etc.)
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
-allchild.dat <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
-pov.dat <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
-wage.dat <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
+# allchild.dat <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
+# pov.dat <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
+# wage.dat <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
 energy.dat <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TRUE)
 ```
 
@@ -54,9 +54,9 @@ energy.dat <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TR
 
 ```{r}
 base.dat <- filter(base.dat, time > 2020)
-allchild.dat <- filter(allchild.dat, time > 2020)
-pov.dat <- filter(pov.dat, time > 2020)
-wage.dat <- filter(wage.dat, time > 2020)
+# allchild.dat <- filter(allchild.dat, time > 2020)
+# pov.dat <- filter(pov.dat, time > 2020)
+# wage.dat <- filter(wage.dat, time > 2020)
 energy.dat <- filter(energy.dat, time > 2020)
 ```
 
@@ -119,9 +119,9 @@ equivalent_income_comparison_fullpop <- function(base, int, int.name, save=FALSE
 ## Plots
 
 ```{r}
-equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild')
-equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild')
-equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage')
+# equivalent_income_comparison_fullpop(base.dat, allchild.dat, 'allChild')
+# equivalent_income_comparison_fullpop(base.dat, pov.dat, 'povertyChild')
+# equivalent_income_comparison_fullpop(base.dat, wage.dat, 'LivingWage')
 equivalent_income_comparison_fullpop(base.dat, energy.dat, 'EnergyDownlift')
 ```
 
@@ -137,26 +137,26 @@ base.subset <- base.dat %>%
   summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 base.subset$scenario <- 'Baseline'
 
-allchild.subset <- allchild.dat %>%
-  select(pidp, time, equivalent_income, alive, weight) %>%
-  filter(alive != 'dead') %>%
-  group_by(time) %>%
-  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
-allchild.subset$scenario <- 'AllChild'
-
-pov.subset <- pov.dat %>%
-  select(pidp, time, equivalent_income, alive, weight) %>%
-  filter(alive != 'dead') %>%
-  group_by(time) %>%
-  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
-pov.subset$scenario <- 'PovertyChild'
-
-wage.subset <- wage.dat %>%
-  select(pidp, time, equivalent_income, alive, weight) %>%
-  filter(alive != 'dead') %>%
-  group_by(time) %>%
-  summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
-wage.subset$scenario <- 'LivingWage'
+# allchild.subset <- allchild.dat %>%
+#   select(pidp, time, equivalent_income, alive, weight) %>%
+#   filter(alive != 'dead') %>%
+#   group_by(time) %>%
+#   summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
+# allchild.subset$scenario <- 'AllChild'
+# 
+# pov.subset <- pov.dat %>%
+#   select(pidp, time, equivalent_income, alive, weight) %>%
+#   filter(alive != 'dead') %>%
+#   group_by(time) %>%
+#   summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
+# pov.subset$scenario <- 'PovertyChild'
+# 
+# wage.subset <- wage.dat %>%
+#   select(pidp, time, equivalent_income, alive, weight) %>%
+#   filter(alive != 'dead') %>%
+#   group_by(time) %>%
+#   summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
+# wage.subset$scenario <- 'LivingWage'
 
 energy.subset <- energy.dat %>%
   select(pidp, time, equivalent_income, alive, weight) %>%
@@ -165,8 +165,11 @@ energy.subset <- energy.dat %>%
   summarise(equivalent_income = weighted.mean(equivalent_income, w = weight))
 energy.subset$scenario <- 'EnergyDownlift'
 
-all.combined <- rbind(base.subset, allchild.subset, pov.subset, wage.subset, energy.subset)
-all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'AllChild', 'PovertyChild', 'LivingWage', 'EnergyDownlift'))
+# all.combined <- rbind(base.subset, allchild.subset, pov.subset, wage.subset, energy.subset)
+# all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'AllChild', 'PovertyChild', 'LivingWage', 'EnergyDownlift'))
+
+all.combined <- rbind(base.subset, energy.subset)
+all.combined$scenario <- factor(all.combined$scenario, levels = c('Baseline', 'EnergyDownlift'))
 
 ggplot(data = all.combined, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
   geom_line() +
@@ -233,52 +236,52 @@ equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE
 ## Plots
 
 ```{r}
-equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild')
-equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild')
-equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage')
+# equivalent_income_comparison_treated(base.dat, allchild.dat, 'allChild')
+# equivalent_income_comparison_treated(base.dat, pov.dat, 'povertyChild')
+# equivalent_income_comparison_treated(base.dat, wage.dat, 'LivingWage')
 equivalent_income_comparison_treated(base.dat, energy.dat, 'EnergyDownlift')
 ```
 
 # Remove Income Effect
 
 ```{r, include=FALSE}
-# THink about this...
-# We can use the income_boosted and boost_amount variables to remove the income boost from people and visualise that
-
-base.sub2 <- base.dat %>%
-  select(pidp, time, equivalent_income, alive) %>%
-  filter(alive != 'dead') %>%
-  select(-alive) %>%
-  rename(baseline = equivalent_income)
-
-allchild.sub2 <- allchild.dat %>%
-  select(pidp, time, equivalent_income, income_boosted, boost_amount, alive) %>%
-  filter(alive != 'dead') %>%
-  select(-alive) %>%
-  rename(allchild = equivalent_income)
-
-allchild.merged <- merge(base.sub2, allchild.sub2, by = c('pidp', 'time'))
-  
-boosted.pidps <- allchild.sub2 %>%
-  filter(income_boosted == 'True') %>%
-  select(pidp)
-
-allchild.boosted <- allchild.merged %>%
-  filter(pidp %in% boosted.pidps$pidp) %>%
-  filter(income_boosted == 'True' | time == 2020) %>%
-  mutate(adjusted_EI = allchild - boost_amount) %>%
-  select(-allchild, -income_boosted, -boost_amount) %>%
-  group_by(time) %>%
-  summarise(baseline = mean(baseline),
-            allchild_adj = mean(adjusted_EI)) %>%
-  pivot_longer(cols = baseline:allchild_adj,
-               names_to = 'scenario',
-               values_to = 'equivalent_income')
+# # THink about this...
+# # We can use the income_boosted and boost_amount variables to remove the income boost from people and visualise that
+# 
+# base.sub2 <- base.dat %>%
+#   select(pidp, time, equivalent_income, alive) %>%
+#   filter(alive != 'dead') %>%
+#   select(-alive) %>%
+#   rename(baseline = equivalent_income)
+# 
+# allchild.sub2 <- allchild.dat %>%
+#   select(pidp, time, equivalent_income, income_boosted, boost_amount, alive) %>%
+#   filter(alive != 'dead') %>%
+#   select(-alive) %>%
+#   rename(allchild = equivalent_income)
+# 
+# allchild.merged <- merge(base.sub2, allchild.sub2, by = c('pidp', 'time'))
+#   
+# boosted.pidps <- allchild.sub2 %>%
+#   filter(income_boosted == 'True') %>%
+#   select(pidp)
+# 
+# allchild.boosted <- allchild.merged %>%
+#   filter(pidp %in% boosted.pidps$pidp) %>%
+#   filter(income_boosted == 'True' | time == 2020) %>%
+#   mutate(adjusted_EI = allchild - boost_amount) %>%
+#   select(-allchild, -income_boosted, -boost_amount) %>%
+#   group_by(time) %>%
+#   summarise(baseline = mean(baseline),
+#             allchild_adj = mean(adjusted_EI)) %>%
+#   pivot_longer(cols = baseline:allchild_adj,
+#                names_to = 'scenario',
+#                values_to = 'equivalent_income')
 ```
 
 ```{r}
-ggplot(data = allchild.boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
-  geom_line()
+# ggplot(data = allchild.boosted, aes(x = time, y = equivalent_income, group = scenario, color = scenario)) +
+#   geom_line()
 ```
 
 
@@ -300,29 +303,29 @@ First visualise both income and equivalent income on one graph.
 ### Income and Equivalent Income
 
 ```{r}
-base.inc <- base.dat %>%
-  select(pidp, time, hh_income, equivalent_income, weight) %>%
-  group_by(time) %>%
-  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
-            equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
-  mutate(source = 'Baseline')
-
-int.inc <- wage.dat %>%
-  select(pidp, time, hh_income, equivalent_income, weight) %>%
-  group_by(time) %>%
-  summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
-            equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
-  mutate(source = 'Living_Wage')
-
-combined <- rbind(base.inc, int.inc)
-combined <- combined %>%
-  pivot_longer(cols=hh_income:equivalent_income,
-               names_to = 'income_type',
-               values_to = 'value')
-
-ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
-  geom_line() +
-  facet_wrap( ~ income_type, nrow=2, scales='free')
+# base.inc <- base.dat %>%
+#   select(pidp, time, hh_income, equivalent_income, weight) %>%
+#   group_by(time) %>%
+#   summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+#             equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
+#   mutate(source = 'Baseline')
+# 
+# int.inc <- wage.dat %>%
+#   select(pidp, time, hh_income, equivalent_income, weight) %>%
+#   group_by(time) %>%
+#   summarise(hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+#             equivalent_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE)) %>%
+#   mutate(source = 'Living_Wage')
+# 
+# combined <- rbind(base.inc, int.inc)
+# combined <- combined %>%
+#   pivot_longer(cols=hh_income:equivalent_income,
+#                names_to = 'income_type',
+#                values_to = 'value')
+# 
+# ggplot(combined, aes(x = time, y = value, group = source, color = source)) +
+#   geom_line() +
+#   facet_wrap( ~ income_type, nrow=2, scales='free')
 ```
 
 
@@ -387,8 +390,46 @@ income_equivinc_change <- function(base.dat, int.dat) {
     geom_hline(yintercept = 0, linetype = 'dashed')
 }
 
+income_equivinc_change_percent <- function(base.dat, int.dat) {
+  base.inc <- base.dat %>%
+    select(pidp, time, hh_income, equivalent_income, weight) %>%
+    group_by(time) %>%
+    summarise(base_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              base_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  int.inc <- int.dat %>%
+    select(pidp, time, hh_income, equivalent_income, weight) %>%
+    group_by(time) %>%
+    summarise(energy_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+              energy_equiv_income = weighted.mean(equivalent_income, w = weight, na.rm = TRUE))
+  
+  combined <- merge(base.inc, int.inc, by = c('time'))
+  
+  combined$diff_income <- combined$energy_income - combined$base_income
+  combined$diff_equiv_income <- combined$energy_equiv_income - combined$base_equiv_income
+  
+  combined <- combined %>%
+    group_by(time) %>%
+    summarise(mean_income = mean(base_income),
+              mean_equiv_income = mean(base_equiv_income),
+              mean_diff_income = mean(diff_income),
+              mean_diff_equiv_income = mean(diff_equiv_income)) %>%
+    mutate(percent_change_income = (mean_diff_income / mean_income) * 100,
+           percent_change_equiv_income = (mean_diff_equiv_income / mean_equiv_income) * 100) %>%
+    select(-mean_income, -mean_equiv_income, -mean_diff_income, -mean_diff_equiv_income) %>%
+    pivot_longer(cols = percent_change_income:percent_change_equiv_income,
+                 names_prefix = 'percent_change_',
+                 names_to = 'variable',
+                 values_to = 'percent_change')
+  
+  ggplot(combined, aes(x = time, y = percent_change, group = variable, color = variable)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+}
+
 income_equivinc_change(base.dat, energy.dat)
-income_equivinc_change(base.dat, wage.dat)
+income_equivinc_change_percent(base.dat, energy.dat)
+#income_equivinc_change(base.dat, wage.dat)
 ```
 
 ## Energy Crisis
@@ -536,32 +577,32 @@ ggplot(combined, aes(x = time, y = diff, group = S7_housing_quality, color = S7_
 ```
 
 ```{r}
-## just look at means in case the means are causing some problems
-base.dat.2 <- base.dat
-base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'No to all'] <- 1
-base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to some'] <- 2
-base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to all'] <- 3
-wage.dat.2 <- energy.dat
-wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'No to all'] <- 1
-wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'Yes to some'] <- 2
-wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'Yes to all'] <- 3
-
-base.hous.mean <- base.dat.2 %>%
-  select(pidp, time, S7_housing_quality2, weight) %>%
-  group_by(time) %>%
-  summarise(mean_housing = weighted.mean(S7_housing_quality2, w = weight, na.rm = TRUE)) %>%
-  mutate(source = 'Baseline')
-wage.hous.mean <- wage.dat.2 %>%
-  select(pidp, time, S7_housing_quality2, weight) %>%
-  group_by(time) %>%
-  summarise(mean_housing = weighted.mean(S7_housing_quality2, w = weight, na.rm = TRUE)) %>%
-  mutate(source = 'EnergyCrisis')
-
-combined <- rbind(base.hous.mean, wage.hous.mean)
-
-ggplot(combined, aes(x = time, y = mean_housing, group = source, color = source)) +
-  geom_line() +
-  geom_point()
+# ## just look at means in case the means are causing some problems
+# base.dat.2 <- base.dat
+# base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'No to all'] <- 1
+# base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to some'] <- 2
+# base.dat.2$S7_housing_quality2[base.dat.2$S7_housing_quality == 'Yes to all'] <- 3
+# wage.dat.2 <- energy.dat
+# wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'No to all'] <- 1
+# wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'Yes to some'] <- 2
+# wage.dat.2$S7_housing_quality2[wage.dat.2$S7_housing_quality == 'Yes to all'] <- 3
+# 
+# base.hous.mean <- base.dat.2 %>%
+#   select(pidp, time, S7_housing_quality2, weight) %>%
+#   group_by(time) %>%
+#   summarise(mean_housing = weighted.mean(S7_housing_quality2, w = weight, na.rm = TRUE)) %>%
+#   mutate(source = 'Baseline')
+# wage.hous.mean <- wage.dat.2 %>%
+#   select(pidp, time, S7_housing_quality2, weight) %>%
+#   group_by(time) %>%
+#   summarise(mean_housing = weighted.mean(S7_housing_quality2, w = weight, na.rm = TRUE)) %>%
+#   mutate(source = 'EnergyCrisis')
+# 
+# combined <- rbind(base.hous.mean, wage.hous.mean)
+# 
+# ggplot(combined, aes(x = time, y = mean_housing, group = source, color = source)) +
+#   geom_line() +
+#   geom_point()
 ```
 
 

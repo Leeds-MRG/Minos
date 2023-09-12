@@ -450,7 +450,7 @@ equivinc_change_batch_subpop <- function(base.batch, int.batch, int.name, group.
   ggplot(combined, aes(x = time, y = mean_diff_equiv_income, group = .data[[group.var]], color = .data[[group.var]])) +
     geom_smooth() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
-    labs(title = paste0('Equivalent Income change by ', group.var), subtitle = int.name) +
+    labs(title = paste0('Absolute change')) +
     xlab('Year') +
     ylab('Equivalent Income (£s)')
 }
@@ -602,9 +602,10 @@ equivinc_percent_change_batch_subpop <- function(base.batch, int.batch, int.name
   ggplot(combined, aes(x = time, y = percent_change_equiv_income, group = .data[[group.var]], color = .data[[group.var]])) +
     geom_smooth() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
-    labs(title = paste0('Percent change by ', group.var), subtitle = int.name) +
+    labs(title = paste0('Percent change')) +
     xlab('Year') +
-    ylab('Percent Change')
+    ylab('Percent Change (%)') +
+    scale_fill_discrete(name = 'Income Quintile')
 }
 
 S7_ordinal_pathway_vis_batch <- function(base.bat, int.bat, int.name, var) {

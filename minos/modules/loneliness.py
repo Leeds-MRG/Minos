@@ -94,7 +94,14 @@ class Loneliness(Base):
                                                               loneliness_prob_df) + 1
         loneliness_prob_df.index = pop.index
 
-        self.population_view.update(loneliness_prob_df["loneliness"].astype(int))
+        # convert numeric prediction into string factors (low, medium, high)
+        loneliness_factor_dict = {1: 'Never',
+                                  2: 'Sometimes',
+                                  3: 'Often'}
+        loneliness_prob_df.replace({'loneliness': loneliness_factor_dict},
+                                   inplace=True)
+
+        self.population_view.update(loneliness_prob_df["loneliness"])
 
     def calculate_loneliness(self, pop):
         """Calculate loneliness transition distribution based on provided people/indices.
