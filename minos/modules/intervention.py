@@ -701,7 +701,7 @@ class energyBillSupportScheme(Base):
         view_columns = ['yearly_energy',
                         "region",
                         "hidp",
-                        "labour_state",
+                        "S7_labour_state",
                         'hh_income',
                         "universal_income",
                         "council_tax"]
@@ -749,10 +749,10 @@ class energyBillSupportScheme(Base):
             # £900 for those on means tested (need benefits variables)
             # TODO how is this determined? Needs extra variable from US. Work out what 'means tested' is and any US mapping.
             # £300 for households with pensioners (labour states)
-            pensioner_houses = pop.loc[pop['labour_state']=="Retired", 'hidp']
+            pensioner_houses = pop.loc[pop['S7_labour_state']=="Retired", 'hidp']
             pop.loc[pop['hidp'].isin(pensioner_houses), 'boost_amount'] += 300
             # £150 for households with long term sick/disabled individuals.
-            disability_houses = pop.loc[pop['labour_state']=="Sick/Disabled", 'hidp']
+            disability_houses = pop.loc[pop['S7_labour_state']=="Sick/Disabled", 'hidp']
             pop.loc[pop['hidp'].isin(disability_houses), 'boost_amount'] += 150
             # £650 for those on universal credit
             universal_credit_houses = pop.loc[pop['universal_income']==1, 'hidp']
