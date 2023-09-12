@@ -214,7 +214,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     df.reset_index(drop=True, inplace=True)
 
     f = plt.figure()
-    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y="SF_12", hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
