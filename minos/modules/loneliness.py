@@ -89,17 +89,21 @@ class Loneliness(Base):
 
         loneliness_prob_df = self.calculate_loneliness(pop)
 
-        loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
-                                                              list(loneliness_prob_df.columns),
-                                                              loneliness_prob_df) + 1
-        loneliness_prob_df.index = pop.index
+        # loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
+        #                                                       list(loneliness_prob_df.columns),
+        #                                                       loneliness_prob_df) + 1
+        # loneliness_prob_df.index = pop.index
+        #
+        # # convert numeric prediction into string factors (low, medium, high)
+        # loneliness_factor_dict = {1: 'Never',
+        #                           2: 'Sometimes',
+        #                           3: 'Often'}
+        # loneliness_prob_df.replace({'loneliness': loneliness_factor_dict},
+        #                            inplace=True)
 
-        # convert numeric prediction into string factors (low, medium, high)
-        loneliness_factor_dict = {1: 'Never',
-                                  2: 'Sometimes',
-                                  3: 'Often'}
-        loneliness_prob_df.replace({'loneliness': loneliness_factor_dict},
-                                   inplace=True)
+        loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index, list(loneliness_prob_df.columns),
+                                                                   loneliness_prob_df)
+        loneliness_prob_df.index = loneliness_prob_df.index.astype(int)
 
         self.population_view.update(loneliness_prob_df["loneliness"])
 
@@ -116,6 +120,9 @@ class Loneliness(Base):
 
         logging.info("LONELINESS")
 
+        # set up list of columns
+        cols = ['Never', 'Sometimes', 'Often']
+
         # load transition model based on year.
         if self.year < 2018:
             year = 2018
@@ -128,9 +135,10 @@ class Loneliness(Base):
         else:
             year = min(year, 2019)
 
-        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"loneliness/nnet/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'loneliness')
+        # prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'loneliness')
+        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):

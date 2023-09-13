@@ -104,8 +104,8 @@ class JobSec(Base):
 
         # merge prediction onto original pop, then do some accounting
         # job_sec must == 0 if labour state is not working (any of: Family Care, FT Education, Job Seeking, Not Working
-        pop['job_sec'] = job_sec_prob_df['job_sec']
-        pop['job_sec'][pop['S7_labour_state'].isin(['Family Care', 'FT Education', 'Job Seeking', 'Not Working'])] = 0
+        #job_sec_prob_df['S7_labour_state'] = pop['S7_labour_state']
+        #job_sec_prob_df['job_sec'][job_sec_prob_df['S7_labour_state'].isin(['Family Care', 'FT Education', 'Job Seeking', 'Not Working'])] = 0
 
         self.population_view.update(job_sec_prob_df["job_sec"].astype(float))
 
@@ -119,6 +119,8 @@ class JobSec(Base):
         Returns
         -------
         """
+        cols = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
         # load transition model based on year.
         if self.cross_validation:
             # if cross-val, fix year to final year model
@@ -126,9 +128,10 @@ class JobSec(Base):
         else:
             year = min(self.year, 2019)
 
-        transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"job_sec/nnet/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'job_sec')
+        #prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'job_sec')
+        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):
