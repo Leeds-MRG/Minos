@@ -89,16 +89,16 @@ class S7Neighbourhood(Base):
         #
         # neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
 
-        # # convert numeric prediction into string factors
-        # neighbourhood_factor_dict = {1: 'Often',
-        #                                 2: 'Some of the time',
-        #                                 3: 'Hardly ever'}
-        # neighbourhood_prob_df.replace({'S7_neighbourhood_safety': neighbourhood_factor_dict},
-        #                         inplace=True)
+        # convert numeric prediction into string factors
+        neighbourhood_factor_dict = {1: 'Often',
+                                        2: 'Some of the time',
+                                        3: 'Hardly ever'}
+        neighbourhood_prob_df.replace({'S7_neighbourhood_safety': neighbourhood_factor_dict},
+                                inplace=True)
 
-        neighbourhood_prob_df["S7_neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index, list(neighbourhood_prob_df.columns),
-                                                               neighbourhood_prob_df)
-        neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
+        # neighbourhood_prob_df["S7_neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index, list(neighbourhood_prob_df.columns),
+        #                                                        neighbourhood_prob_df)
+        # neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood
@@ -134,8 +134,8 @@ class S7Neighbourhood(Base):
         transition_model = r_utils.load_transitions(f"S7_neighbourhood_safety/nnet/S7_neighbourhood_safety_{year}_{year + 3}",
                                                     self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        #prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_neighbourhood_safety')
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_neighbourhood_safety')
+        #prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     # Special methods used by vivarium.

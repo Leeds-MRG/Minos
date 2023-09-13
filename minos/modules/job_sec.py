@@ -128,10 +128,10 @@ class JobSec(Base):
         else:
             year = min(self.year, 2019)
 
-        transition_model = r_utils.load_transitions(f"job_sec/nnet/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        #prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'job_sec')
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'job_sec')
+        #prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):

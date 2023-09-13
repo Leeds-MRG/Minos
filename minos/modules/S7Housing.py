@@ -91,22 +91,22 @@ class S7Housing(Base):
 
         housing_prob_df = self.calculate_housing(pop)
 
-        # housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index,
-        #                                                         list(housing_prob_df.columns),
-        #                                                         housing_prob_df) + 1
-        #
-        # housing_prob_df.index = housing_prob_df.index.astype(int)
-        #
-        # # convert numeric prediction into string factors (low, medium, high)
-        # housing_factor_dict = {1: 'No to all',
-        #                        2: 'Yes to some',
-        #                        3: 'Yes to all'}
-        # housing_prob_df.replace({'S7_housing_quality': housing_factor_dict},
-        #                         inplace=True)
+        housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index,
+                                                                list(housing_prob_df.columns),
+                                                                housing_prob_df) + 1
 
-        housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns),
-                                                               housing_prob_df)
         housing_prob_df.index = housing_prob_df.index.astype(int)
+
+        # convert numeric prediction into string factors (low, medium, high)
+        housing_factor_dict = {1: 'No to all',
+                               2: 'Yes to some',
+                               3: 'Yes to all'}
+        housing_prob_df.replace({'S7_housing_quality': housing_factor_dict},
+                                inplace=True)
+
+        # housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index, list(housing_prob_df.columns),
+        #                                                        housing_prob_df)
+        # housing_prob_df.index = housing_prob_df.index.astype(int)
 
 
         self.population_view.update(housing_prob_df["S7_housing_quality"])
@@ -129,10 +129,10 @@ class S7Housing(Base):
             year = 2019
         else:
             year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"S7_housing_quality/nnet/S7_housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"S7_housing_quality/clm/S7_housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        #prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_housing_quality')
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_housing_quality')
+        #prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):
