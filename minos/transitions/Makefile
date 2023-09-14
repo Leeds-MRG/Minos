@@ -14,7 +14,7 @@ transitions_default: | $(TRANSITION_DATA)
 transitions_default: final_data $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds
 
 transitions_SIPHER7: | $(TRANSITION_DATA)
-transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/hh_income/glmm/hh_income_GLMM.rds
+transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds
 
 scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds
 
