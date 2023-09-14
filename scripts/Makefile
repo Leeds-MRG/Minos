@@ -199,6 +199,9 @@ S7_intervention_livingWage: setup_S7
 S7_intervention_energyDownLift: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
 
+arc4_S7_pres_scenarios: setup_S7
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
+	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
 
 arc4_S7_all_scenarios: setup_S7
 	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
