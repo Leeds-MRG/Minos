@@ -1,0 +1,200 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+# source(here::here('minos', 'utils_datain.R'))
+# source(here::here('minos', 'utils_validation_vis.R'))
+# source(here::here('minos', 'validation', 'utils.r'))
+```
+
+## Data
+
+```{r}
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+
+#out.path <- 'Minos/output/SIPHER7/'
+#out.path <- here::here('output', 'SIPHER7/')
+#base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+
+# raw.dat <- raw.dat %>%
+#   #filter(loneliness != '-9')
+#   #filter(S7_housing_quality != '-9')
+#   filter(S7_labour_state != '-9')
+```
+
+# TEST
+
+
+```{r}
+require(car)
+require(nnet)
+#library(xlsx)
+require(MASS)
+#options(warn=1)
+options(digits = 3)
+
+var.name <- 'job_sec'
+
+raw.dat <- raw.dat %>%
+  filter(.data[[var.name]] != '-9')
+
+file.name <- paste0('PROP_ODDS_TESTING/Prop_odds_', var.name, '.txt')
+
+#
+#Trial <- read.xlsx("Trial.xls", "Sheet 1")
+# Set up an out file structure
+sink(file.name)
+# Trial$Outcome is assessed on a six point scale 0-5
+# loneliness
+#schtyp_M_M.f <- factor(raw.dat$loneliness, labels = c('Never', 'Sometimes', 'Often'))
+#schtyp_M_M.f <- factor(raw.dat$S7_housing_quality, labels = c('No to all', 'Yes to some', 'Yes to all'))
+#schtyp_M_M.f <- factor(raw.dat$S7_labour_state, labels = c('FT Employed', 'PT Employed', 'Job Seeking', 'Family Care', 'Not Working', 'FT Education'))
+#schtyp_M_M.f <- factor(raw.dat$S7_labour_state)
+schtyp_M_M.f <- factor(raw.dat[[var.name]])
+#
+cat("Multinomial logistic regression \n")
+# Assign takes on a value of 1 (Treatment) or 0 (Control) 
+mod.multinom <-multinom(schtyp_M_M.f~sex, data = raw.dat)
+print(summary(mod.multinom, cor=F, Wald=T))
+x1<-logLik(mod.multinom)
+cat("Degrees of freedom Multinomial logistic regression \n")
+print(df_of_multinom_model <- attributes(x1)$df)
+cat("Proportional odds logistic regression\n")
+mod.polr <- polr(schtyp_M_M.f ~ sex, data=raw.dat)
+print(summary(mod.polr))
+x2<-logLik(mod.polr)
+cat("Degrees of freedom Proportional Odds Logistic Regression \n")
+print(df_of_polr_model <- attributes(x2)$df)
+
+cat("Answering the question: Is proportional odds model assumption violated\n")
+cat("P value for difference in AIC between POLR and Multinomial Logit model\n")
+# abs since the values could be negative. That is negative difference of degrees of freedom would produce p=NaN
+print(1-pchisq(abs(mod.polr$deviance-mod.multinom$deviance),   abs(df_of_multinom_model-df_of_polr_model)))
+sink()
+```
+
+```{r}
+
+prop_odds_assumption_test <- function(test.dat, test.var, form.right) {
+  # NOTE
+  # The following code came from this stack overflow which itself came from a book:
+  # https://stackoverflow.com/questions/37016215/testing-the-proportional-odds-assumption-in-r
+  
+  require(car)
+  require(nnet)
+  require(MASS)
+  options(warn=1)
+  options(digits = 3)
+  
+  # Set up an out file structure
+  sink(paste0('Testing_adequacy_of_Prop_odds_', test.var, '.txt'))
+  # set up response factor
+  schtyp_M_M.f <- factor(test.dat[[test.var]])
+  # set up formula object for multinom
+  form <- as.formula(paste0("schtyp_M_M.f ~ ", form.right))
+  print(form)
+  #
+  cat("Multinomial logistic regression \n")
+  # Test against the formula from file
+  mod.multinom <-multinom(formula = form, data = test.dat)
+  print(summary(mod.multinom, cor=F, Wald=T))
+  x1<-logLik(mod.multinom)
+  cat("Degrees of freedom Multinomial logistic regression \n")
+  print(df_of_multinom_model <- attributes(x1)$df)
+  cat("Proportional odds logistic regression\n")
+  mod.polr <- polr(formula = form, data = test.dat)
+  print(summary(mod.polr))
+  x2<-logLik(mod.polr)
+  cat("Degrees of freedom Proportional Odds Logistic Regression \n")
+  print(df_of_polr_model <- attributes(x2)$df)
+  
+  cat("Answering the question: Is proportional odds model assumption violated\n")
+  cat("P value for difference in AIC between POLR and Multinomial Logit model\n")
+  # abs since the values could be negative. That is negative difference of degrees of freedom would produce p=NaN
+  print(1-pchisq(abs(mod.polr$deviance-mod.multinom$deviance),   abs(df_of_multinom_model-df_of_polr_model)))
+  sink()
+}
+```
+
+```{r}
+raw.dat <- raw.dat %>%
+  filter(loneliness != '-9')
+
+form.rightside <- "factor(loneliness) + scale(age) + factor(sex) + relevel(factor(education_state), ref = '3') + relevel(factor(job_sec), ref = '3') + scale(hh_income) + relevel(factor(hh_comp), ref = '3') + relevel(factor(marital_status), ref = 'Partnered') + relevel(factor(ethnicity), ref = 'WBI')"
+
+form.rightside <- 'sex'
+
+#prop_odds_assumption_test(test.dat = raw.dat, test.var = 'loneliness', form.right = form.rightside)
+
+test.dat <- raw.dat
+test.var <- 'loneliness'
+form.right <- form.rightside
+
+
+require(car)
+require(nnet)
+require(MASS)
+options(warn=1)
+options(digits = 3)
+
+# Set up an out file structure
+sink(paste0('Testing_adequacy_of_Prop_odds_', test.var, '.txt'))
+# set up response factor
+schtyp_M_M.f <- factor(test.dat[[test.var]])
+# set up formula object for multinom
+form <- as.formula(paste0("schtyp_M_M.f ~ ", form.right))
+print(form)
+#
+cat("Multinomial logistic regression \n")
+# Test against the formula from file
+mod.multinom <-multinom(formula = form, data = test.dat)
+print(summary(mod.multinom, cor=F, Wald=T))
+x1<-logLik(mod.multinom)
+cat("Degrees of freedom Multinomial logistic regression \n")
+print(df_of_multinom_model <- attributes(x1)$df)
+cat("Proportional odds logistic regression\n")
+mod.polr <- polr(formula = form, data = test.dat)
+print(summary(mod.polr))
+x2<-logLik(mod.polr)
+cat("Degrees of freedom Proportional Odds Logistic Regression \n")
+print(df_of_polr_model <- attributes(x2)$df)
+
+cat("Answering the question: Is proportional odds model assumption violated\n")
+cat("P value for difference in AIC between POLR and Multinomial Logit model\n")
+# abs since the values could be negative. That is negative difference of degrees of freedom would produce p=NaN
+print(1-pchisq(abs(mod.polr$deviance-mod.multinom$deviance),   abs(df_of_multinom_model-df_of_polr_model)))
+sink()
+```
+
+
+```{r}
+
+```
+

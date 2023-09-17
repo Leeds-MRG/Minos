@@ -209,3 +209,9 @@ arc4_S7_all_scenarios: setup_S7
 	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'hhIncomePovertyLineChildUplift'
 	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'livingWageIntervention'
 	bash scripts/arc_submit.sh -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
+
+S7_local_batch: setup_S7
+	bash scripts/local_batch.sh
+
+S7_local_batch_outcomes: S7_local_batch S7_PresPlots_Refined
+

@@ -41,7 +41,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # set output path to SIPHER 7 experiment out
-out.path <- here::here('output', 'SIPHER7/')
+out.path <- here::here('output', 'SIPHER7asd/')
 # read all files into dataframe (util function handles runtime subdirectory etc.)
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 # allchild.dat <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
@@ -639,6 +639,10 @@ ggplot(combined, aes(x = time, y = diff, group = S7_housing_quality, color = S7_
 #                           values_to = var)
 #   return(pivoted)
 # }
+
+```
+
+```{r}
 
 ```
 

@@ -72,7 +72,7 @@ energy.list <- list.files(path = paste0(out.path.arc2, '/energy'),
                             full.names = TRUE)
 energy.batch <- do.call(rbind, lapply(energy.list, read.csv))
 
-#base.batch <- 
+int.name <- 'Energy Crisis'
 ```
 
 

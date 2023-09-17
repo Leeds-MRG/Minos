@@ -1,5 +1,5 @@
 
-NUMRUNS=10
+NUMRUNS=30
 declare -a intlist=(energyDownlift)
 
 TIME=$(date +%Y_%m_%d_%H_%M_%S)
