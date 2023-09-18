@@ -46,9 +46,9 @@ main<- function() {
                   std = sd(prct, na.rm = TRUE),
                   n = n()) %>%
         mutate(se = std / sqrt(n), # grab CIs
-               cs = cumsum(mean),
-               lower.ci = cs - qt(1 - (0.05 / 2), n - 1) * se,
-               upper.ci = cs + qt(1 - (0.05 / 2), n - 1) * se,)
+               cs = cumsum(mean)) %>%
+        mutate(lower.ci = cs - qt(1 - (0.05 / 2), n - 1) * se,
+               upper.ci = cs + qt(1 - (0.05 / 2), n - 1) * se)
       
       print(data)
       
