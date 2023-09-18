@@ -44,12 +44,11 @@ main<- function() {
         arrange(time, housing_quality) %>% 
         summarise(mean = mean(prct, na.rm = TRUE),
                   std = sd(prct, na.rm = TRUE),
-                  n = n(),
-                  cs = sum(prct)) %>%
+                  n = n()) %>%
         mutate(se = std / sqrt(n), # grab CIs
                lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
                upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se,
-               cumsum = cumsum(cs))
+               cs = cumsum(mean))
       
       
       barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
