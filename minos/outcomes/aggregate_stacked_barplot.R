@@ -50,6 +50,7 @@ main<- function() {
                upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se,
                cs = cumsum(mean))
       
+      print(data3$cs)
       
       barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
         geom_bar(stat = 'identity') +
