@@ -20,7 +20,7 @@ main<- function() {
   for (tag in unique(data$tag)) {
     data2 <- data[which(data$tag == tag),]
     
-    if (unique(data2$id) == 0) {
+    if (length(unique(data2$id)) == 0) {
       print ("Warning! Only one model run being used to calculate standard errors. Plots will have no uncertainty bars.")
     }
     data3 <- data2 %>%
