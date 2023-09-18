@@ -40,14 +40,14 @@ main<- function() {
     else {
       
       data3 <- data2 %>%
-        group_by(time, housing_quality) %>%
-        mutate(pos = cumsum(prct)) %>% # get cumulative positions
+        group_by(time, housing_quality) %>% # get cumulative positions
         summarise(mean = mean(prct, na.rm = TRUE),
                   std = sd(prct, na.rm = TRUE),
                   n = n()) %>%
         mutate(se = std / sqrt(n), # grab CIs
                lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
-               upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se)
+               upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se,
+               pos = cumsum(prct))
       
       
       barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
