@@ -287,6 +287,9 @@ def find_MINOS_years_range(file_path):
     return years
 
 
+def weighted_nanmean(df, v, weights = "weight"):
+    return np.nanmean(df[v] * df[weights])
+
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
          method='nanmean'):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
@@ -308,7 +311,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
     # Without using eval this is the best way I can think of to import from string to function.
     if method == "nanmean":
-        method = np.nanmean
+        method = weighted_nanmean
     elif method == "percentages":
         method = aggregate_percentage_counts
     else:
@@ -375,3 +378,6 @@ if __name__ == '__main__':
     v = "housing_quality"
     method = 'percentages'
     main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
+
+
+# TODO find a way to aggregate boxplots/ridgelines together
