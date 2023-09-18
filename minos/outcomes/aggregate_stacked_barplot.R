@@ -50,11 +50,9 @@ main<- function() {
                upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se,
                cs = cumsum(mean))
       
-      print(data3$cs)
-      
       barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
         geom_bar(stat = 'identity') +
-        geom_errorbar(aes(y = cs, ymin= lower.ci, ymax= upper.ci)) +
+        geom_errorbar(aes(x=time, y = cs, ymin= lower.ci, ymax= upper.ci)) +
         geom_vline(xintercept=2020, linetype='dotted') +
         labs(title = paste0("Housing Quality over time for ", tag)) +
         xlab('Year') +
