@@ -45,7 +45,7 @@ main<- function() {
         summarise(mean = mean(prct, na.rm = TRUE),
                   std = sd(prct, na.rm = TRUE),
                   n = n(),
-                  cs = sum(sales)) %>%
+                  cs = sum(prct)) %>%
         mutate(se = std / sqrt(n), # grab CIs
                lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
                upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se,
