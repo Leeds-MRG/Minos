@@ -17,10 +17,12 @@ main<- function() {
   data.path <- paste0(data.path, "/housing_quality_aggregation_using_aggregate_percentage_counts.csv")
   data <- read.csv(data.path)
   
+  data$housing_quality <- factor(data$housing_quality, levels = c("High", "Medium", "Low"))
+  
   for (tag in unique(data$tag)) {
     data2 <- data[which(data$tag == tag),]
-    data2$housing_quality <- factor(data2$housing_quality, levels = c("High", "Medium", "Low"))
     if (length(unique(data2$id)) == 1) {
+      
       print ("Warning! Only one model run being used to calculate standard errors. Plots will have no uncertainty bars.")
       data3 <- data2 %>%
       group_by(time, housing_quality) %>%
