@@ -369,10 +369,10 @@ if __name__ == '__main__':
     mode = "glasgow_scaled"
     ref='National Average'
 
-    directories = "baseline,25RelativePoverty"
-    tags = "Baseline,Poverty Line Child Uplift"
+    directories = "baseline,livingWageIntervention"
+    tags = "Baseline,Living Wage Intervention"
     subset_function_strings = "who_below_living_wage,who_boosted"
-    prefix = "baseline_housing_quality"
+    prefix = "baseline_living_wage"
     mode = 'default_config'
     ref = "Baseline"
     v = "housing_quality"

@@ -12,7 +12,7 @@ source(here::here('minos', 'utils_datain.R'))
 
 main<- function() {
   
-  data.path <- here::here("output", "default_config", "25RelativePoverty/")
+  data.path <- here::here("output", "default_config", "livingWageIntervention")
   data.path <- get_latest_runtime_subdirectory(data.path)
   data.path <- paste0(data.path, "/housing_quality_aggregation_using_aggregate_percentage_counts.csv")
   data <- read.csv(data.path)
@@ -39,7 +39,8 @@ main<- function() {
       geom_vline(xintercept=2020, linetype='dotted') +
       labs(title = paste0("Housing Quality over time for ", tag)) +
       xlab('Year') +
-      ylab('Proportion')
+      ylab('Proportion') +
+      ggsave("plots/housing_quality.pdf")
     print(barplot)
   }
 
