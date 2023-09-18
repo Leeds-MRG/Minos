@@ -41,6 +41,7 @@ main<- function() {
       
       data3 <- data2 %>%
         group_by(time, housing_quality) %>%
+        mutate(pos = cumsum(prct)) %>% # get cumulative positions
         summarise(mean = mean(prct, na.rm = TRUE),
                   std = sd(prct, na.rm = TRUE),
                   n = n()) %>%
@@ -51,7 +52,7 @@ main<- function() {
       
       barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
         geom_bar(stat = 'identity') +
-        geom_errorbar(aes(ymin= lower.ci, ymax= upper.ci)) +
+        geom_errorbar(aes(y = pos, ymin= lower.ci, ymax= upper.ci)) +
         geom_vline(xintercept=2020, linetype='dotted') +
         labs(title = paste0("Housing Quality over time for ", tag)) +
         xlab('Year') +
