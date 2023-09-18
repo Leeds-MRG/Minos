@@ -40,19 +40,21 @@ main<- function() {
     else {
       
       data3 <- data2 %>%
-        mutate(pos = cumsum(prct)) %>%
         group_by(time, housing_quality) %>%
+        arrange(time, housing_quality) %>% 
         summarise(mean = mean(prct, na.rm = TRUE),
                   std = sd(prct, na.rm = TRUE),
-                  n = n()) %>%
+                  n = n(),
+                  cs = sum(sales)) %>%
         mutate(se = std / sqrt(n), # grab CIs
                lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
-               upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se)
+               upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se,
+               cumsum = cumsum(cs))
       
       
       barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
         geom_bar(stat = 'identity') +
-        geom_errorbar(aes(y = pos, ymin= lower.ci, ymax= upper.ci)) +
+        geom_errorbar(aes(y = cs, ymin= lower.ci, ymax= upper.ci)) +
         geom_vline(xintercept=2020, linetype='dotted') +
         labs(title = paste0("Housing Quality over time for ", tag)) +
         xlab('Year') +
