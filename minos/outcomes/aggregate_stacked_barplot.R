@@ -67,7 +67,8 @@ main<- function() {
       save.path <- paste0(here::here(), "/plots/", tag, "housing_quality.pdf")
       ggsave(save.path, plot = last_plot())
       print(paste0("Saved to: ", save.path))
-      #print(barplot)    }
+      #print(barplot)    
+      }
     #print(barplot)
   }
 
