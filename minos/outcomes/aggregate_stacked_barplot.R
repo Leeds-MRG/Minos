@@ -35,7 +35,7 @@ main<- function() {
         xlab('Year') +
         ylab('Proportion')
     
-      ggsave(paste0(here::here(), "/plots/housing_quality.pdf"), plot = last_plot())
+      ggsave(paste0(here::here(), paste0("/plots/", tag, "housing_quality.pdf"), plot = last_plot())
       print(barplot)
     }
     
