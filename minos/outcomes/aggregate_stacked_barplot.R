@@ -40,7 +40,7 @@ main<- function() {
       labs(title = paste0("Housing Quality over time for ", tag)) +
       xlab('Year') +
       ylab('Proportion') +
-      ggsave("plots/housing_quality.pdf")
+      ggsave(paste0(here::here(), "/plots/housing_quality.pdf"), last_plot())
     print(barplot)
   }
 
