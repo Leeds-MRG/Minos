@@ -19,29 +19,46 @@ main<- function() {
   
   for (tag in unique(data$tag)) {
     data2 <- data[which(data$tag == tag),]
-    
-    if (length(unique(data2$id)) == 0) {
+    data2$housing_quality <- factor(data2$housing_quality, levels = c("High", "Medium", "Low"))
+    if (length(unique(data2$id)) == 1) {
       print ("Warning! Only one model run being used to calculate standard errors. Plots will have no uncertainty bars.")
-    }
-    data3 <- data2 %>%
+      data3 <- data2 %>%
       group_by(time, housing_quality) %>%
-      summarise(mean = mean(prct, na.rm = TRUE),
-                std = sd(prct, na.rm = TRUE),
-                n = n()) %>%
-      mutate(se = std / sqrt(n), # grab CIs
-             lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
-             upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se)
+      summarise(mean = mean(prct, na.rm = TRUE))
+      
+      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
+        geom_bar(stat = 'identity') +
+        geom_vline(xintercept=2020, linetype='dotted') +
+        labs(title = paste0("Housing Quality over time for ", tag)) +
+        xlab('Year') +
+        ylab('Proportion')
     
+      ggsave(paste0(here::here(), "/plots/housing_quality.pdf"), plot = last_plot())
+      print(barplot)
+    }
     
-    barplot <-ggplot(data = data3, mapping = aes(x = time, y = prct, fill=housing_quality)) +
-      geom_bar(stat = 'identity') +
-      geom_errorbar(aes(ymin= lower.ci, ymax= upper.ci)) +
-      geom_vline(xintercept=2020, linetype='dotted') +
-      labs(title = paste0("Housing Quality over time for ", tag)) +
-      xlab('Year') +
-      ylab('Proportion')
-    
-    ggsave(paste0(here::here(), "/plots/housing_quality.pdf"), plot= last_plot())
+    else {
+      
+      data3 <- data2 %>%
+        group_by(time, housing_quality) %>%
+        summarise(mean = mean(prct, na.rm = TRUE),
+                  std = sd(prct, na.rm = TRUE),
+                  n = n()) %>%
+        mutate(se = std / sqrt(n), # grab CIs
+               lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
+               upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se)
+      
+      
+      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
+        geom_bar(stat = 'identity') +
+        geom_errorbar(aes(ymin= lower.ci, ymax= upper.ci)) +
+        geom_vline(xintercept=2020, linetype='dotted') +
+        labs(title = paste0("Housing Quality over time for ", tag)) +
+        xlab('Year') +
+        ylab('Proportion')
+      
+      ggsave(paste0(here::here(), "plots/housing_quality.pdf"), plot = last_plot())
+    }
     #print(barplot)
   }
 
