@@ -6,6 +6,7 @@
 
 library(here)
 library(ggplot2)
+library(dplyr)
 
 source(here::here('minos', 'utils_datain.R'))
 
@@ -14,19 +15,27 @@ main<- function() {
   data.path <- here::here("output", "default_config", "25RelativePoverty/")
   data.path <- get_latest_runtime_subdirectory(data.path)
   data.path <- paste0(data.path, "/housing_quality_aggregation_using_aggregate_percentage_counts.csv")
-  
   data <- read.csv(data.path)
   
   for (tag in unique(data$tag)) {
     data2 <- data[which(data$tag == tag),]
+    
+    if (unique(data2$id) == 0) {
+      print ("Warning! Only one model run being used to calculate standard errors. Plots will have no uncertainty bars.")
+    }
     data3 <- data2 %>%
       group_by(time, housing_quality) %>%
-      summarise(n = n(),
-                mean.var = mean(prct),)
+      summarise(mean = mean(prct, na.rm = TRUE),
+                std = sd(prct, na.rm = TRUE),
+                n = n()) %>%
+      mutate(se = std / sqrt(n), # grab CIs
+             lower.ci = mean - qt(1 - (0.05 / 2), n - 1) * se,
+             upper.ci = mean + qt(1 - (0.05 / 2), n - 1) * se)
     
     
-    barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean.var, fill=housing_quality)) +
+    barplot <-ggplot(data = data3, mapping = aes(x = time, y = prct, fill=housing_quality)) +
       geom_bar(stat = 'identity') +
+      geom_errorbar(aes(ymin= lower.ci, ymax= upper.ci)) +
       geom_vline(xintercept=2020, linetype='dotted') +
       labs(title = paste0("Housing Quality over time for ", tag)) +
       xlab('Year') +
