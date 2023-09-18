@@ -34,9 +34,11 @@ main<- function() {
         labs(title = paste0("Housing Quality over time for ", tag)) +
         xlab('Year') +
         ylab('Proportion')
-    
-      ggsave(paste0(here::here(), "/plots/", tag, "housing_quality.pdf"), plot = last_plot())
-      print(barplot)
+      
+      save.path <- paste0(here::here(), "/plots/", tag, "housing_quality.pdf")
+      ggsave(save.path, plot = last_plot())
+      print(paste0("Saved to: ", save.path))
+      #print(barplot)
     }
     
     else {
@@ -62,8 +64,10 @@ main<- function() {
         xlab('Year') +
         ylab('Proportion')
       
-      ggsave(paste0(here::here(), "/plots/living_wage_housing_quality.pdf"), plot = last_plot())
-    }
+      save.path <- paste0(here::here(), "/plots/", tag, "housing_quality.pdf")
+      ggsave(save.path, plot = last_plot())
+      print(paste0("Saved to: ", save.path))
+      #print(barplot)    }
     #print(barplot)
   }
 
