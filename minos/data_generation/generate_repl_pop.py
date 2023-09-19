@@ -22,7 +22,7 @@ from rpy2.robjects.packages import importr
 
 import US_utils
 from minos.modules import r_utils
-
+from uuid import uuid4
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -65,7 +65,14 @@ def expand_repl(US_2018):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 - new_repl.index
+        #new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
+
+        # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
+        # in python. Developed in the 80s such that odds of repeat values is astronomical.
+        # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
+        # bit shifting makes number that only relies on clock to improve uniqueness but less random.
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e12)
+        #[(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
 
         #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
