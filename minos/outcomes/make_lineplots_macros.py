@@ -4,6 +4,10 @@ from minos.outcomes.make_lineplots import main as lineplot_main
 import sys
 
 
+####################
+# Old school plots #
+####################
+
 def all_child_lineplot(*args):
     directories = "baseline,hhIncomeChildUplift"
     tags = "Baseline,All Child Uplift"
@@ -33,6 +37,15 @@ def living_wage_lineplot(*args):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
 
+def epcg_and_no_support_lineplot(*args):
+    directories = "baseline,energyDownlift,energyDownliftNoSupport"
+    tags = "Baseline,EPCG,No Support"
+    subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
+    prefix = "baseline_living_wage"
+    config_mode = "default_config"
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+                  method='nanmean')
+
 
 def ebss_lineplot(*args):
     directories = "baseline,energyDownlift"
@@ -45,14 +58,21 @@ def ebss_lineplot(*args):
 
 
 def all_five_lineplots(*args):
-    directories = "baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift"
-    tags = "Baseline,All Child Uplift,Poverty Line Child Uplift,Living Wage Intervention,Energy Downlift"
-    subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
+    directories = "baseline,25UC,25RelativePoverty,livingWageIntervention,energyDownlift"
+    tags = "Baseline,£25 Universal Credit Child Uplift,£25 Poverty Line Child Uplift,Living Wage Intervention,Energy Downlift"
+    subset_function_strings = "who_kids,who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = "all_five_combined"
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
 
+
+def social_science_all_plots(config_mode):
+
+    epcg_and_no_support_lineplot(config_mode)
+    UC_relative_poverty(config_mode, 25)
+    all_five_lineplots(config_mode)
+    living_wage_lineplot(config_mode)
 
 ########################################
 # glasgow spatial population lineplots #
@@ -195,6 +215,18 @@ def UC_priority(config_mode, boost_amount):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
+def UC_relative_poverty(config_mode, boost_amount):
+    "UC and priority interventions on one lineplot."
+    directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}RelativePoverty"
+    tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} All in Relative Poverty"
+    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
+    prefix = f"{boost_amount}_UC_and_priority"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
 
 def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subset_function):
     "The same intervention in increments from £25 to £100"
@@ -255,6 +287,7 @@ string_to_lineplot_function = {
     "incremental_universal_credit": incremental_25_to_100,
     "incremental_priority_groups": incremental_25_to_100,
 
+    "social_science_all_plots": social_science_all_plots
 }
 
 string_to_lineplot_function_args = {

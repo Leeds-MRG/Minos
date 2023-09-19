@@ -280,10 +280,13 @@ arc4_all_25_uplifts: MODE=default_config
 arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_25_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_25All arc4_intervention_25UniversalCredit
 
-
 arc4_all_scot_scenarios: MODE=scotland_mode
 arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+
+arc4_all_social_science_concept_scenarios: MODE=default_config
+arc4_all_social_science_concept_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_all_social_science_concept_scenarios: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_25RelativePoverty arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation

@@ -82,6 +82,12 @@ aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:
 	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
 
+##########################################
+# Custom subset for social science paper #
+##########################################
+
+social_science_lineplots:
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "social_science_all_plots"
 
 #################################
 # Custom subset for scotgov piece
@@ -108,7 +114,6 @@ all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_
 ########################################################
 # SIMD decile lineplots for glasgow using spatial data #
 ########################################################
-
 
 baseline_all_deciles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_baseline_all_deciles"
@@ -145,6 +150,7 @@ all_five_lineplot:
 
 epcg_simd_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
+
 
 ########################################################################
 # need to add macros for these in make_lineplot_macros.sh. do later..  #
