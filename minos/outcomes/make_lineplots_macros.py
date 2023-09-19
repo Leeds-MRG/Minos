@@ -41,7 +41,7 @@ def epcg_and_no_support_lineplot(*args):
     directories = "baseline,energyDownlift,energyDownliftNoSupport"
     tags = "Baseline,EPCG,No Support"
     subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
-    prefix = "baseline_living_wage"
+    prefix = "baseline_energy_downlift"
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
@@ -51,7 +51,7 @@ def ebss_lineplot(*args):
     directories = "baseline,energyDownlift"
     tags = "Baseline,Energy Downlift"
     subset_function_strings = "who_uses_energy,who_boosted"
-    prefix = "baseline_energy_downlift"
+    prefix = "baseline_ebss"
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
@@ -220,7 +220,7 @@ def UC_relative_poverty(config_mode, boost_amount):
     directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}RelativePoverty"
     tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} All in Relative Poverty"
     subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
-    prefix = f"{boost_amount}_UC_and_priority"
+    prefix = f"{boost_amount}_UC_and_relative_poverty"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
