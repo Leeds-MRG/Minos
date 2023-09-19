@@ -71,7 +71,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
     if subset_function_string:
-        data = subset_minos_data(data, subset_function_string, mode)[outcome_variable]
+        data = subset_minos_data(data, subset_function_string, mode)
     agg_value = aggregate_method(data)
 
     return agg_value

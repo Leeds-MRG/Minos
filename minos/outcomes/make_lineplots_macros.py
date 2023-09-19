@@ -68,7 +68,7 @@ def all_five_lineplots(*args):
 
 
 def social_science_all_plots(config_mode):
-
+    # all social science lineplots together.
     epcg_and_no_support_lineplot(config_mode)
     UC_relative_poverty(config_mode, 25)
     all_five_lineplots(config_mode)
