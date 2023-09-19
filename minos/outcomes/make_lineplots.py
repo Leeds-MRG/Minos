@@ -72,7 +72,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
                        engine='c')  # low_memory could be buggy but is faster.
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
-    agg_value = aggregate_method(data)
+    agg_value = aggregate_method(data, outcome_variable)
 
     return agg_value
 
