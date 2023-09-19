@@ -288,7 +288,7 @@ def find_MINOS_years_range(file_path):
 
 
 def weighted_nanmean(df, v, weights = "weight"):
-    return np.nanmean(df[v] * df[weights])
+    return df[v] * df[weights] / sum(df[weights])
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
          method='nanmean'):
@@ -310,7 +310,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     """
 
     # Without using eval this is the best way I can think of to import from string to function.
-    if method == "nanmean":
+    if method == "nanmean" or method == "weighted_nanmean":
         method = weighted_nanmean
     elif method == "percentages":
         method = aggregate_percentage_counts

@@ -100,6 +100,8 @@ intervention_components_map = {        #Interventions
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
+    "energyDownliftNoSupport": energyDownliftNoSupport(),
+
     "EPCG": energyPriceCapGuarantee(),
     "EBSS": energyBillSupportScheme(),
 
