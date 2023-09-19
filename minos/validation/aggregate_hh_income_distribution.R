@@ -29,11 +29,16 @@ main <- function() {
 
   comparison_density_plot <- ggplot(plot_data, aes(x=hh_income, y=factor(time), fill=Intervention)) +
     geom_density_ridges(alpha=0.4) +
-    ggsave("plots/living_wage_vs_baseline_income_ridgelines.pdf", last_plot()) +
     xlab("Household Disposable Income") + # for the x axis label
-    ylab("Year") # for the y axis label
-  #print(comparison_density_plot)
-  
+    ylab("Year")
+  ggsave("plots/living_wage_vs_baseline_income_ridgelines.pdf", last_plot())
+    
+  boxplot<- ggplot(data = plot_data, aes(x = time, y = hh_income,  group = interaction(time, Intervention), fill= Intervention)) +
+    geom_boxplot(notch=TRUE) +
+    xlab("Household Disposable Income") + # for the x axis label
+    ylab("Year")
+  ggsave("plots/living_wage_vs_baseline_income_boxplots.pdf", last_plot())
+
 }
 
 main()
