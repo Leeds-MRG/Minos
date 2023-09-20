@@ -121,7 +121,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
             aggregated_means = [None]
 
         if v == "SF_12":
-            single_year_aggregates = pd.DataFrame(pd.DataFrame(aggregated_means).to_numpy().flatten(), columns=[v])
+            single_year_aggregates = pd.DataFrame(aggregated_means)
             single_year_aggregates['year'] = year
             single_year_aggregates['tag'] = tag
             aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
@@ -287,7 +287,7 @@ def find_MINOS_years_range(file_path):
 
 
 def weighted_nanmean(df, v, weights = "weight"):
-    return df[v] * df[weights] / sum(df[weights])
+    return np.nansum(df[v] * df[weights]) / sum(df[weights])
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
          method='nanmean'):
