@@ -121,7 +121,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
             aggregated_means = [None]
 
         if v == "SF_12":
-            single_year_aggregates = pd.DataFrame(aggregated_means)
+            single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
             single_year_aggregates['year'] = year
             single_year_aggregates['tag'] = tag
             aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
