@@ -121,8 +121,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
             aggregated_means = [None]
 
         if v == "SF_12":
-            single_year_aggregates = pd.DataFrame(aggregated_means)
-            single_year_aggregates.columns = [v]
+            single_year_aggregates = pd.DataFrame(pd.DataFrame(aggregated_means).to_numpy().flatten(), columns=[v])
             single_year_aggregates['year'] = year
             single_year_aggregates['tag'] = tag
             aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
@@ -362,21 +361,23 @@ if __name__ == '__main__':
     # subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
     # prefix = "epcg_ebss_baseline"
 
-    directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
-    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
-    prefix="simd_deciles"
-    mode = "glasgow_scaled"
-    ref='National Average'
+    # directories = "baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline,baseline"
+    # tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
+    # subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
+    # prefix="simd_deciles"
+    # mode = "glasgow_scaled"
+    # ref='National Average'
 
-    directories = "baseline,livingWageIntervention"
-    tags = "Baseline,Living Wage Intervention"
-    subset_function_strings = "who_below_living_wage,who_boosted"
-    prefix = "baseline_living_wage"
-    mode = 'default_config'
-    ref = "Baseline"
-    v = "housing_quality"
-    method = 'percentages'
+    # directories = "baseline,livingWageIntervention"
+    # tags = "Baseline,Living Wage Intervention"
+    # subset_function_strings = "who_below_living_wage,who_boosted"
+    # prefix = "baseline_living_wage"
+    # mode = 'default_config'
+    # ref = "Baseline"
+    # v = "housing_quality"
+    # method = 'percentages'
+
+
     main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
 
 
