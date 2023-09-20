@@ -58,7 +58,7 @@ def ebss_lineplot(*args):
 
 
 def all_five_lineplots(*args):
-    directories = "baseline,25UC,25RelativePoverty,livingWageIntervention,energyDownlift"
+    directories = "baseline,25UniversalCredit,25RelativePoverty,livingWageIntervention,energyDownlift"
     tags = "Baseline,£25 Universal Credit Child Uplift,£25 Poverty Line Child Uplift,Living Wage Intervention,Energy Downlift"
     subset_function_strings = "who_kids,who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = "all_five_combined"
