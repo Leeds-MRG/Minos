@@ -59,8 +59,8 @@ def ebss_lineplot(*args):
 
 def all_five_lineplots(*args):
     directories = "baseline,25UniversalCredit,25RelativePoverty,livingWageIntervention,energyDownlift"
-    tags = "Baseline,£25 Universal Credit Child Uplift,£25 Poverty Line Child Uplift,Living Wage Intervention,Energy Downlift"
-    subset_function_strings = "who_kids,who_boosted,who_boosted,who_boosted,who_boosted"
+    tags = "Baseline,£25 Universal Credit Child Uplift,£25 Poverty Line Child Uplift,Living Wage Intervention, EPCG"
+    subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = "all_five_combined"
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
@@ -184,7 +184,7 @@ def relative_poverty(config_mode, boost_amount):
     "nationwide policy"
     directories = f"baseline,{boost_amount}RelativePoverty"
     tags = f"Baseline,£{boost_amount} Relative Poverty"
-    subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
+    subset_function_strings = "who_universal_credit_and_kids,who_boosted"
     prefix = f"{boost_amount}_relative_poverty"
     ref = "Baseline"
     v = "SF_12"
