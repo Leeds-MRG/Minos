@@ -71,6 +71,7 @@ def social_science_all_plots(config_mode):
     # all social science lineplots together.
     epcg_and_no_support_lineplot(config_mode)
     UC_relative_poverty(config_mode, 25)
+    UC_relative_poverty(config_mode, 50)
     all_five_lineplots(config_mode)
     living_wage_lineplot(config_mode)
 
