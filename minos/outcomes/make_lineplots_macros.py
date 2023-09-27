@@ -241,6 +241,18 @@ def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subs
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
+def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subset_function):
+    "The same intervention in increments from £25 to £50"
+    directories = f"baseline,25{intervention_name},50{intervention_name}"
+    tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag}"
+    subset_function_strings = f"{subset_function},who_boosted,who_boosted"
+    prefix = f"25_50_incremental_{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
 #################
 # main function #
 #################
@@ -287,6 +299,7 @@ string_to_lineplot_function = {
 
     "incremental_universal_credit": incremental_25_to_100,
     "incremental_priority_groups": incremental_25_to_100,
+    "incremental_25_50_relative_poverty": incremental_25_to_50,
 
     "social_science_all_plots": social_science_all_plots
 }
@@ -323,6 +336,8 @@ string_to_lineplot_function_args = {
     "incremental_priority_groups": ["Priority", "Priority Groups", "who_priority_subgroups"],
     "incremental_all_child": ["All", "Nationwide", "who_kids"],
     "incremental_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
+
+    "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 }
 
 if __name__ == '__main__':
