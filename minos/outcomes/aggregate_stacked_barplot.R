@@ -17,8 +17,11 @@ stack_barplot_with_uncertainty<- function(mode, source, v) {
   data.path <- paste0(data.path, v, "_aggregation_using_aggregate_percentage_counts.csv")
   data <- read.csv(data.path)
   
-  if (v == "housing_quality" || v == "neighbourhood_safety" || v == "loneliness"){
+  if (v == "housing_quality" ){
     data[, c(v)] <- factor(data[, c(v)], levels = c("High", "Medium", "Low"))
+  }
+  else if (v == "neighbourhood_safety" || v == "loneliness") {
+    data[, c(v)] <- factor(data[, c(v)], levels = c(1, 2, 3))
   }
   
   for (tag in unique(data$tag)) {
