@@ -20,7 +20,7 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
   intervention1.data <- read_first_singular_local_out(out.path, intervention1, drop.dead = TRUE)
   intervention1.data$Intervention <- tag1
   
-  intervention2.data <- read_singular_local_out(out.path,  intervention2, drop.dead = TRUE)
+  intervention2.data <- read_first_singular_local_out(out.path,  intervention2, drop.dead = TRUE)
   intervention2.data$Intervention = tag2
   
   intervention1.data <- intervention1.data[, c(v, "time", "Intervention")]
