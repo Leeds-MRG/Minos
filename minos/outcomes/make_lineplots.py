@@ -336,7 +336,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         print("relative scaling done. plotting.. ")
         aggregate_lineplot(scaled_data, "plots", prefix, v, method)
 
-    elif method == 'percentages':
+    elif method == aggregate_percentage_counts:
         print(f"Data compiled for variable {v} using method {method.__name__}.")
         file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
         aggregate_long_stack.to_csv(file_path)
