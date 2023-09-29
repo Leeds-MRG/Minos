@@ -5,8 +5,8 @@ library(ggplot2)
 library(tidyverse)
 
 source(here::here('minos', 'utils_datain.R'))
-source(here::here('minos', 'utils_validation_vis.R'))
-source(here::here('minos', 'validation', 'utils.r'))
+#source(here::here('minos', 'utils_validation_vis.R'))
+#source(here::here('minos', 'validation', 'utils.r'))
 
 
 two_interventions_continuous_plots <- function(mode, intervention1, intervention2, tag1, tag2, v) {
@@ -15,7 +15,8 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
   # draw ridgeline plot for income over time for baseline and 25 relative poverty.
   
   out.path <- here::here('output', mode, "/")
-  intervention1.data <- read_singular_local_out(out.path, intervention1, drop.dead = TRUE)
+  
+  intervention1.data <- read_first_singular_local_out(out.path, intervention1, drop.dead = TRUE)
   intervention1.data$Intervention <- tag1
   
   intervention2.data <- read_singular_local_out(out.path,  intervention2, drop.dead = TRUE)
