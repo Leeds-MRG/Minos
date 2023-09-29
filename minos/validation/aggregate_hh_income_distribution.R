@@ -13,6 +13,7 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
   # load in data
   # subset using dplyer
   # draw ridgeline plot for income over time for baseline and 25 relative poverty.
+  print(paste0("Starting for:", intervention1, " ", intervention2, " ", v, "."))
   
   out.path <- here::here('output', mode, "/")
   
@@ -40,7 +41,7 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
     xlab(v) + # for the x axis label
     ylab("Year")
   ggsave(paste0(plot.dir, "_boxplots.pdf"), last_plot())
-
+  print(paste0("Done for:", intervention1, " ", intervention2, " ", v, "."))
 }
 
 main <- function(){
