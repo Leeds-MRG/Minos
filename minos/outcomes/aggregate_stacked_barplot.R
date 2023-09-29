@@ -66,7 +66,13 @@ stack_barplot_with_uncertainty<- function(mode, source, v) {
         xlab('Year') +
         ylab('Proportion')
       
-      save.path <- paste0(here::here(), "/plots/", tag, "_", v, "_aggregate_barplot.pdf")
+      if (tag == "Baseline"){
+        save.path <- paste0(here::here(), "/plots/", source, "_", tag, "_", v, "_aggregate_barplot.pdf")
+      }
+      else {
+        save.path <- paste0(here::here(), "/plots/", tag, "_", v, "_aggregate_barplot.pdf")
+      }
+      
       ggsave(save.path, plot = last_plot())
       print(paste0("Saved to: ", save.path))
       #print(barplot)    
