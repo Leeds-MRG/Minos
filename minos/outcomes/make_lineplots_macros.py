@@ -300,6 +300,8 @@ string_to_lineplot_function = {
     "incremental_universal_credit": incremental_25_to_100,
     "incremental_priority_groups": incremental_25_to_100,
     "incremental_25_50_relative_poverty": incremental_25_to_50,
+    "incremental_25_50_universal_credit": incremental_25_to_50,
+
 
     "social_science_all_plots": social_science_all_plots
 }
@@ -338,6 +340,8 @@ string_to_lineplot_function_args = {
     "incremental_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
+    "incremental_25_50_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+
 }
 
 if __name__ == '__main__':
