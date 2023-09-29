@@ -38,6 +38,32 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
 }
 
 
+read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
+  # When there are many rules in the file get the one with id 0001
+  ## Start with scenario name
+  # attach full output path
+  # get runtime directory
+  # list files
+  # return do.call(...)
+  
+  scen.path <- paste0(out.path, scenario)
+  scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  files <- list.files(scen.path,
+                      pattern = '0001_run_id_[0-9]{4}.csv',
+                      full.names = TRUE)
+  dat <- do.call(rbind, lapply(files, read.csv))
+  
+  # remove dead people
+  if(drop.dead) {
+    dat <- dat %>%
+      filter(alive != 'dead')
+  }
+  
+  return(dat)
+}
+
+
 # Function to find the latest runtime subdirectory (most recent)
 # Reads all directories in a given path and returns the most recent subdir
 # This requires all folders in the given path to be named with a specific 
