@@ -432,7 +432,8 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-        noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -5, 5) #0.005
+        #noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -5, 5) #0.005
+        noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -10, 10) #0.005
         with localconverter(ro.default_converter + numpy2ri.converter):
             Rnoise = ro.conversion.py2rpy(noise)
         prediction = prediction.ro + Rnoise # add gaussian noise.

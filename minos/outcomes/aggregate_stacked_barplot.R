@@ -10,14 +10,16 @@ library(dplyr)
 
 source(here::here('minos', 'utils_datain.R'))
 
-main<- function() {
+stack_barplot_with_uncertainty<- function(mode, source, v) {
   
-  data.path <- here::here("output", "default_config", "livingWageIntervention")
-  data.path <- get_latest_runtime_subdirectory(data.path)
-  data.path <- paste0(data.path, "/housing_quality_aggregation_using_aggregate_percentage_counts.csv")
+  data.path <- here::here("output", mode, source)
+  data.path <- get_latest_runtime_subdirectory(data.path) # calculate latest time folder of data to get runs from.
+  data.path <- paste0(data.path, v, "_aggregation_using_aggregate_percentage_counts.csv")
   data <- read.csv(data.path)
   
-  data$housing_quality <- factor(data$housing_quality, levels = c("High", "Medium", "Low"))
+  if (v == "housing_quality" || v == "neighbourhood_safety" || v == "loneliness"){
+    data[, c(v)] <- factor(data[, c(v)], levels = c("High", "Medium", "Low"))
+  }
   
   for (tag in unique(data$tag)) {
     data2 <- data[which(data$tag == tag),]
@@ -25,17 +27,17 @@ main<- function() {
       
       print ("Warning! Only one model run being used to calculate standard errors. Plots will have no uncertainty bars.")
       data3 <- data2 %>%
-      group_by(time, housing_quality) %>%
+      group_by(time, !!sym(v)) %>%
       summarise(mean = mean(prct, na.rm = TRUE))
       
-      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
+      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=!!sym(v))) +
         geom_bar(stat = 'identity') +
         geom_vline(xintercept=2020, linetype='dotted') +
-        labs(title = paste0("Housing Quality over time for ", tag)) +
+        labs(title = paste0(v, " over time for ", tag)) +
         xlab('Year') +
         ylab('Proportion')
       
-      save.path <- paste0(here::here(), "/plots/", tag, "housing_quality.pdf")
+      save.path <- paste0(here::here(), "/plots/", tag, "_", v, "_aggregate_barplot.pdf")
       ggsave(save.path, plot = last_plot())
       print(paste0("Saved to: ", save.path))
       #print(barplot)
@@ -44,8 +46,8 @@ main<- function() {
     else {
       
       data3 <- data2 %>%
-        group_by(time, housing_quality) %>%
-        arrange(time, housing_quality) %>% 
+        group_by(time, !!sym(v)) %>%
+        arrange(time, !!sym(v)) %>% 
         summarise(mean = mean(prct, na.rm = TRUE),
                   std = sd(prct, na.rm = TRUE),
                   n = n()) %>%
@@ -56,15 +58,15 @@ main<- function() {
       
       #print(data)
       
-      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=housing_quality)) +
+      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=!!symv(v))) +
         geom_bar(stat = 'identity') +
         geom_errorbar(aes(x=time, y = cs, ymin= lower.ci, ymax= upper.ci)) +
         geom_vline(xintercept=2020, linetype='dotted') +
-        labs(title = paste0("Housing Quality over time for ", tag)) +
+        labs(title = paste0(v, " over time for ", tag)) +
         xlab('Year') +
         ylab('Proportion')
       
-      save.path <- paste0(here::here(), "/plots/", tag, "housing_quality.pdf")
+      save.path <- paste0(here::here(), "/plots/", tag, "_", v, "_aggregate_barplot.pdf")
       ggsave(save.path, plot = last_plot())
       print(paste0("Saved to: ", save.path))
       #print(barplot)    
@@ -72,6 +74,27 @@ main<- function() {
     #print(barplot)
   }
 
+}
+
+main <- function() {
+  mode <- "default_config"
+  stack_barplot_with_uncertainty(mode, "50UniversalCredit", "housing_quality")
+  stack_barplot_with_uncertainty(mode, "50RelativePoverty", "housing_quality")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "housing_quality")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "housing_quality")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "housing_quality")
+  
+  stack_barplot_with_uncertainty(mode, "50UniversalCredit", "neighbourhood_safety")
+  stack_barplot_with_uncertainty(mode, "50RelativePoverty", "neighbourhood_safety")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "neighbourhood_safety")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "neighbourhood_safety")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "neighbourhood_safety")
+  
+  stack_barplot_with_uncertainty(mode, "50UniversalCredit", "loneliness")
+  stack_barplot_with_uncertainty(mode, "50RelativePoverty", "loneliness")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "loneliness")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "loneliness")
+  stack_barplot_with_uncertainty(mode, "livingWageIntervention", "loneliness")
 }
 
 main()
