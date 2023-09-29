@@ -14,7 +14,7 @@ stack_barplot_with_uncertainty<- function(mode, source, v) {
   
   data.path <- here::here("output", mode, source)
   data.path <- get_latest_runtime_subdirectory(data.path) # calculate latest time folder of data to get runs from.
-  data.path <- paste0(data.path, v, "_aggregation_using_aggregate_percentage_counts.csv")
+  data.path <- paste0(data.path,'/', v, "_aggregation_using_aggregate_percentage_counts.csv")
   data <- read.csv(data.path)
   
   if (v == "housing_quality" || v == "neighbourhood_safety" || v == "loneliness"){
