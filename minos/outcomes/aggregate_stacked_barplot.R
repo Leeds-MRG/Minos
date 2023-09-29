@@ -58,7 +58,7 @@ stack_barplot_with_uncertainty<- function(mode, source, v) {
       
       #print(data)
       
-      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=!!symv(v))) +
+      barplot <-ggplot(data = data3, mapping = aes(x = time, y = mean, fill=!!sym(v))) +
         geom_bar(stat = 'identity') +
         geom_errorbar(aes(x=time, y = cs, ymin= lower.ci, ymax= upper.ci)) +
         geom_vline(xintercept=2020, linetype='dotted') +
