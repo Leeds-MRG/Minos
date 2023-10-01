@@ -28,7 +28,7 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
   
   plot_data <- rbind(intervention1.data, intervention2.data)
 
-  plot.dir <- paste0('plots/', intervention1, "_", intervention2, "_", v)
+  plot.dir <- paste0('plots/', "handovers_", intervention1, "_", intervention2, "_", v)
   
   comparison_density_plot <- ggplot(plot_data, aes(x=!!sym(v), y=factor(time), fill=Intervention)) +
     geom_density_ridges(alpha=0.4) +
@@ -41,7 +41,7 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
     xlab(v) + # for the x axis label
     ylab("Year")
   ggsave(paste0(plot.dir, "_boxplots.pdf"), last_plot())
-  print(paste0("Done for:", intervention1, " ", intervention2, " ", v, "."))
+  print(paste0("Saved to:",paste0(plot.dir, "_boxplots.pdf")))
 }
 
 main <- function(){
@@ -62,8 +62,29 @@ main <- function(){
   
   two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention","nutrition_quality")
   
-  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift", "nutrition_quality")
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift","nutrition_quality")
   two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support", "nutrition_quality") 
+  
+  two_interventions_continuous_plots("default_config", "baseline", "25RelativePoverty", "Baseline", "£25 Relative Poverty", "SF_12")
+  two_interventions_continuous_plots("default_config", "baseline", "50RelativePoverty", "Baseline", "£50 Relative Poverty", "SF_12")
+  two_interventions_continuous_plots("default_config", "baseline", "25UniversalCredit", "Baseline", "£25 Universal Credit", "SF_12")
+  two_interventions_continuous_plots("default_config", "baseline", "50UniversalCredit", "Baseline", "£50 Universal Credit", "SF_12")
+  
+  two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention","SF_12")
+  
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift", "SF_12")
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support" ,"SF_12") 
+  
+  two_interventions_continuous_plots("default_config", "baseline", "25RelativePoverty", "Baseline", "£25 Relative Poverty", "ncigs")
+  two_interventions_continuous_plots("default_config", "baseline", "50RelativePoverty", "Baseline", "£50 Relative Poverty", "ncigs")
+  two_interventions_continuous_plots("default_config", "baseline", "25UniversalCredit", "Baseline", "£25 Universal Credit", "ncigs")
+  two_interventions_continuous_plots("default_config", "baseline", "50UniversalCredit", "Baseline", "£50 Universal Credit", "ncigs")
+  
+  two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention","ncigs")
+  
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift", "ncigs")
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support" ,"ncigs") 
+  
 }
 
 main()

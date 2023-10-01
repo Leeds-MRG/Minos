@@ -70,10 +70,10 @@ stack_barplot_with_uncertainty<- function(mode, source, v) {
         ylab('Proportion')
       
       if (tag == "Baseline"){
-        save.path <- paste0(here::here(), "/plots/", source, "_", tag, "_", v, "_aggregate_barplot.pdf")
+        save.path <- paste0(here::here(), "/plots/", "handovers_", source, "_", tag, "_", v, "_aggregate_barplot.pdf")
       }
       else {
-        save.path <- paste0(here::here(), "/plots/", tag, "_", v, "_aggregate_barplot.pdf")
+        save.path <- paste0(here::here(), "/plots/", "handovers_", tag, "_", v, "_aggregate_barplot.pdf")
       }
       
       ggsave(save.path, plot = last_plot())
@@ -92,18 +92,22 @@ main <- function() {
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "housing_quality")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "housing_quality")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "housing_quality")
+  stack_barplot_with_uncertainty(mode, "energyDownlift", "housing_quality")
   
   stack_barplot_with_uncertainty(mode, "50UniversalCredit", "neighbourhood_safety")
   stack_barplot_with_uncertainty(mode, "50RelativePoverty", "neighbourhood_safety")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "neighbourhood_safety")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "neighbourhood_safety")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "neighbourhood_safety")
+  stack_barplot_with_uncertainty(mode, "energyDownlift", "neighbourhood_safety")
   
   stack_barplot_with_uncertainty(mode, "50UniversalCredit", "loneliness")
   stack_barplot_with_uncertainty(mode, "50RelativePoverty", "loneliness")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "loneliness")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "loneliness")
   stack_barplot_with_uncertainty(mode, "livingWageIntervention", "loneliness")
+  stack_barplot_with_uncertainty(mode, "energyDownlift", "loneliness")
+  
 }
 
 main()
