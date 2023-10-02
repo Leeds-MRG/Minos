@@ -314,6 +314,15 @@ def format_ukhls_columns(year):
                       'vdmin': 'vdmin',  # usual minute vigorous activities
                       'vwhrs': 'vwhrs',  # weekly hours vigorous activities
                       'vwmin': 'vwmin',  # weekly minutes vigorous activities
+                      # Material Deprivation vars
+                      'matdepa': 'matdepa',  # Material Deprivation: Holiday
+                      'matdepd': 'matdepd',  # Material Deprivation: House
+                      'matdepe': 'matdepe',  # Material Deprivation: Contents Insurance
+                      'matdepf': 'matdepf',  # Material Deprivation: Regular Savings
+                      'matdepg': 'matdepg',  # Material Deprivation: Replace worn out furniture
+                      'matdeph': 'matdeph',  # Material Deprivation: Replace or repair major electrical goods
+                      'matdepi': 'matdepi',  # Material Deprivation: Money for self
+                      'matdepj': 'matdepj',  # Material Deprivation: Keep up with bills
                       }
 
     # Some variables change names halfway through UKHLS.

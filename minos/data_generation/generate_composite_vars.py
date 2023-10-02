@@ -1078,6 +1078,69 @@ def generate_physical_activity_binary(data):
     return data
 
 
+def generate_matdep_proxy(data):
+    """
+    This function will create a single proxy from the information in the material deprivation variables (all named
+    matdep{letter}). Each variable is a 4 level ordinal with the following levels:
+
+    1 - I/We have this
+    2 - Can't afford it
+    3 - Don't need it now
+    4 - Does not apply
+
+    A score of 1 indicates a positive response.
+    A score of 2 indicates a negative response.
+    A score of 3 or 4 will be treated as a missing value.
+
+    Each score of 1 will increment a material deprivation score variable by 1, and the final sum over all the variables
+    will be divided by the number of non-missing items to get a score from 0-1.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with the material deprivation component variables.
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with the combined matdep proxy created, and component variables removed.
+    """
+    # Create matdepscore variable and populate from the matdep variables
+    # Matdepscore + 1 if individual indicates they have the specific variable
+    # Then no increment if individual indicates they cannot afford it
+    # Finally scores of 3 (Don't need it now) or 4 (Does not apply) will be treated as a missing value
+    data['matdepscore'] = 0
+    data['matdepscore'][data['matdepa'] == 1] += 1
+    data['matdepscore'][data['matdepd'] == 1] += 1
+    data['matdepscore'][data['matdepe'] == 1] += 1
+    data['matdepscore'][data['matdepf'] == 1] += 1
+    data['matdepscore'][data['matdepg'] == 1] += 1
+    data['matdepscore'][data['matdeph'] == 1] += 1
+    data['matdepscore'][data['matdepi'] == 1] += 1
+    data['matdepscore'][data['matdepj'] == 1] += 1
+
+    # counter to increment when values are not missing (negative or 3, 4)
+    data['counter'] = 0
+    data['counter'][data['matdepa'].isin([1, 2])] += 1
+    data['counter'][data['matdepd'].isin([1, 2])] += 1
+    data['counter'][data['matdepe'].isin([1, 2])] += 1
+    data['counter'][data['matdepf'].isin([1, 2])] += 1
+    data['counter'][data['matdepg'].isin([1, 2])] += 1
+    data['counter'][data['matdeph'].isin([1, 2])] += 1
+    data['counter'][data['matdepi'].isin([1, 2])] += 1
+    data['counter'][data['matdepj'].isin([1, 2])] += 1
+
+    # Now use the counter value and matdepscore to generate a score between 0 and 1
+    data['matdep'] = data['matdepscore'] / data['counter']
+
+    # drop cols no longer need
+    data.drop(labels=['matdepa', 'matdepd', 'matdepe', 'matdepf', 'matdepg', 'matdeph', 'matdepi', 'matdepj',
+                      'matdepscore', 'counter'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1103,6 +1166,7 @@ def main():
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_auditc_score(data)  # alcohol use disorder for consumption (auditc)
     data = generate_physical_activity_binary(data)  # physical activity composite
+    data = generate_matdep_proxy(data)  # Material Deprivation proxy
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
