@@ -245,8 +245,17 @@ def format_ukhls_columns(year):
                       # for waves 2 and 5 similar variable 'smnow' could be used.
                       'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
                       'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                      'indscub_xw': "weight",  # TESTING: Cross-sectional analysis weight (waves 2-11)
-                      'nkids_dv': 'nkids',  # number of children
+                      ## ---------------------
+                      ## Weight variables
+                      'indscus_xw': "weight1",  # Cross-sectional analysis weight (wave 1)
+                      'indscub_xw': "weight2_5",  # Cross-sectional analysis weight (waves 2-5)
+                      'indscui_xw': "weight6p",  # Cross-sectional analysis weight (waves 6+)
+                      ## ---------------------
+                      ## All variables relating to number of children
+                      'nkids_dv': 'nkids',  # number of children in household
+                      'lnprnt': 'nkids_ind_raw',  # number of children ever had by individual at first interview
+                      'preg': 'nkids_ind_new',  # whether had a child (actually a pregnancy) since last interview
+                      ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                       'xpelecy': 'yearly_electric',  # yearly electricty expenditure
                       'xpgasy': 'yearly_gas',  # yearly gas expenditure
@@ -257,7 +266,7 @@ def format_ukhls_columns(year):
                       'fuelhave2': 'has_gas',  # spends money on gas
                       'fuelhave3': 'has_oil',  # spends money on oil
                       'fuelhave4': 'has_other',  # has some other fuel source.
-                      'fuelhave5': 'has_none',  # has no fuel source.
+                      'fuelhave96': 'has_none',  # has no fuel source.
                       'fuelduel': 'gas_electric_combined', # are gas and electric bills separate or combined?
                        # Nutrition vars
                        'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
@@ -477,19 +486,34 @@ def format_ukhls_heating(data):
     return data
 
 
-def format_analysis_weight(data):
-    """ Add and format analysis weight variable.
-
-            Parameters
-            ----------
-            data : pd.DataFrame
-                Data frame to add weight to.
-
-            Returns
-            -------
-            data : Pd.DataFrame
-                Data with formatted weight column.
+def format_analysis_weight(data, year):
     """
+    Add and format analysis weight variable.
+    Combining the three weight variables that cover different waves into one.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data frame to add weight to.
+
+    Returns
+    -------
+    data : Pd.DataFrame
+        Data with formatted weight column.
+    """
+    data['weight'] = -9
+    if year == 2009:
+        data['weight'] = data['weight1']
+    if year in range(2010, 2014):
+        data['weight'] = data['weight2_5']
+    if year > 2013:
+        data['weight'] = data['weight6p']
+
+    # can now drop all three columns as this is done yearly
+    # drop cols we don't need
+    data.drop(labels=['weight1', 'weight2_5', 'weight6p'],
+              axis=1,
+              inplace=True)
     return data
 
 
@@ -559,7 +583,7 @@ def format_data(year, data):
     data = format_ukhls_heating(data)
     data = format_housing_tenure(data)
 
-    data = format_analysis_weight(data)
+    data = format_analysis_weight(data, year)
 
     return data
 

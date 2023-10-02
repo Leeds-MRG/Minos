@@ -19,6 +19,9 @@ require(ggplot2)
 require(ggExtra)
 require(here)
 require(scales)
+require(dplyr)
+require(tidyr)
+require(purrr)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -276,9 +279,24 @@ cv_ordinal_plots(pivoted.df = educ.pivoted,
 rm(educ.pivoted)
 ```
 
-
+# Parity
 
 ```{r}
+cv.parity <- cv %>%
+  filter(sex == "Female")
 
+raw.parity <- raw %>%
+  filter(sex == "Female")
+
+parity.pivoted <- combine_and_pivot_long(df1 = cv.parity, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw.parity, 
+                                          df2.name = 'raw', 
+                                          var = 'nkids_ind')
+
+cv_ordinal_plots(pivoted.df = parity.pivoted, 
+                 var = 'nkids_ind',
+                 save = FALSE)
+rm(educ.pivoted)
 ```
 

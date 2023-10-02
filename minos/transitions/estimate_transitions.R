@@ -14,13 +14,15 @@
 ################ Utilities ################
 
 source("minos/transitions/utils.R")
+source("minos/transitions/transition_model_functions.R")
 
 require(argparse)
 require(tidyverse)
-require(ordinal)
-require(nnet)
 require(stringr)
 require(pscl)
+require(dplyr)
+require(tidyr)
+require(texreg)
 
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
@@ -43,176 +45,6 @@ digest_params <- function(line) {
 }
 
 
-################ Model Specific Functions ################
-
-# We can keep these really simple, all they need to do is run the model so
-# in most cases will only require the data, the formula, and a flag for whether
-# to include the survey weights in estimation (only no for 2009 where no weight
-# information available)
-
-estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend) {
-
-  if(include_weights) {
-    # fit the model including weights (after 2009)
-    model <- lm(formula,
-                data = data,
-                weights = weight)
-  } else {
-    # fit the model WITHOUT weights (2009)
-    model <- lm(formula,
-                data = data)
-  }
-  model[[depend]] <- data[[depend]]
-  return(model)
-}
-
-estimate_yearly_ols_diff <- function(data, formula, depend) {
-
-  #orig.depend <- gsub("^.*?_", "", depend)
-  #pred.var <- paste0(orig.depend, '_change')
-  #data[[pred.var]] <- data[[depend]] - data[[orig.depend]]
-  #formula.preds <- gsub("^.*?~", "~", formula)
-
-  # Split string on the tilda and keep the right hand side (predictors)
-  formula.right <- unlist(str_split(as.character(formula), pattern = '~')[3])
-  # Add diff to the formula now using the depend argument
-  formula2 <- paste0(depend, ' ~ ', formula.right)
-  # Now we have the original right hand side of the formula, and the diff as the
-  # dependent variable
-
-  # diff models are much more likely to have missing data if respondent wasn't
-  # in previous wave, so have to do some more null handling here
-  data <- data %>%
-    drop_na(.data[[depend]])
-
-
-  # no need to worry about weights as we can't fit this model in first year (2009)
-  model <- lm(formula2,
-              data = data,
-              weights = weight)
-
-  model[[depend]] <- data[[depend]]
-  return(model)
-}
-
-estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
-
-  # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
-
-  data = replace.missing(data)
-  # replace missing ncigs values (if still missing)
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
-
-  if(include_weights) {
-    model <- clm(formula,
-                 data = data,
-                 link = "logit",
-                 threshold = "flexible",
-                 Hess=T,
-                 weights = weight)
-  } else {
-    model <- clm(formula,
-                 data = data,
-                 link = "logit",
-                 threshold = "flexible",
-                 Hess=T)
-  }
-  model[[depend]] <- data[[depend]]
-  data[[depend]] <- NULL
-  model$class_preds <- predict(model, newdata = data, type='class')
-  return(model)
-}
-
-estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
-
-  data = replace.missing(data)
-  # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
-
-  if(include_weights) {
-    model <- multinom(formula = formula,
-                      data = data,
-                      MaxNWts = 10000,
-                      maxit = 1000,
-                      weights = weight)
-  } else {
-    model <- multinom(formula = formula,
-                      data = data,
-                      MaxNWts = 10000,
-                      maxit = 1000)
-  model[[depend]] <- data[[depend]]
-  }
-  return(model)
-}
-
-estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-
-  if(depend == 'next_ncigs' | depend == 'ncigs') {
-    # first subset just the columns we want
-    cols <- c('pidp', depend, 'age', 'sex', 'education_state', 'SF_12_MCS', 'job_sec', 
-              'hh_income', 'ethnicity', 'weight', 'SF_12_PCS')
-    dat.subset <- data[, cols]
-
-    # Replace missing values with NA (util func)
-    dat.subset = replace.missing(dat.subset)
-
-    # now set NA to 0
-    dat.subset[[depend]][is.na(dat.subset[[depend]])] <- 0
-
-    # finally run complete cases
-    dat.subset <- dat.subset[complete.cases(dat.subset),]
-  }
-
-  if(include_weights) {
-    model <- zeroinfl(formula = formula,
-                      data = dat.subset,
-                      dist = 'pois',
-                      weights = weight,
-                      link='logit')
-  } else {
-    model <- zeroinfl(formula = formula,
-                      data = dat.subset,
-                      dist = 'pois',
-                      link='logit')
-  model[[depend]] <- data[[depend]]
-  }
-
-  #print(summary(model))
-  #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
-  #print(prs)
-
-  return(model)
-}
-
-
-estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
-  
-  # Sort out dependent type (factor)
-  data[[depend]] <- as.factor(data[[depend]])
-  
-  data = replace.missing(data)
-  
-  if(include_weights) {
-    model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
-  } else {
-    model <- glm(formula, family=binomial(link="logit"), data=data)
-  }
-  # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
-  model[[depend]] <- data[[depend]]
-  model$class_preds <- predict(model)
-  return(model)
-}
-
-calculate_diff <- function(data, cont.var) {
-  data <- data %>%
-    group_by(pidp) %>%
-    mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time))
-}
-
-
-
 ################ Main Run Loop ################
 
 run_yearly_models <- function(transitionDir_path,
@@ -224,19 +56,19 @@ run_yearly_models <- function(transitionDir_path,
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
+
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  data$housing_quality <- factor(data$housing_quality,
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
-                                 levels = c('No to all', 
-                                            'Yes to some', 
+  data$S7_housing_quality <- factor(data$S7_housing_quality,
+                                 levels = c('No to all',
+                                            'Yes to some',
                                             'Yes to all'))
   data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                    levels = c('Often', 
-                                               'Some of the time', 
+                                    levels = c('Often',
+                                               'Some of the time',
                                                'Hardly ever'))
   data$S7_labour_state <- factor(data$S7_labour_state,
                                  levels = c('FT Employed',
@@ -248,7 +80,7 @@ run_yearly_models <- function(transitionDir_path,
   data$auditc <- factor(data$auditc,
                         levels = c('Non-drinker',
                                    'Low Risk',
-                                   'Increased Risk', 
+                                   'Increased Risk',
                                    'High Risk'))
 
   # read file
@@ -270,12 +102,12 @@ run_yearly_models <- function(transitionDir_path,
 
     ## Calculate diff for rate of change models
     # only applicable to hh_income and SF_12 for now
-    if (tolower(mod.type) == 'ols_diff') {
-      data <- data %>%
-        group_by(pidp) %>%
-        mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-        rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
-    }
+    #if (tolower(mod.type) == 'ols_diff') {
+    #  data <- data %>%
+    #    group_by(pidp) %>%
+    #    mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+    #    rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
+    #}
 
     ## Yearly model estimation loop
 
@@ -283,9 +115,9 @@ run_yearly_models <- function(transitionDir_path,
     # crossval needs to start in 2010, whereas default model can have reduced timespan
     # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(min(data$time) + 1, (max(data$time) - 1))
+      year.range <- seq(max(data$time) - 3, (max(data$time)-1))
     } else {
-      year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
+      year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
 
@@ -297,11 +129,17 @@ run_yearly_models <- function(transitionDir_path,
 
     print(paste0('Starting for ', dependent, '...'))
 
-    ## Implement the 'next_' functionality to male sure were not doing dodgy prediction when using lags
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
 
+    valid_yearly_model_types = c("NNET", "OLS", "OLS_DIFF", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
+
     for(year in year.range) {
+      if(!is.element(mod.type, valid_yearly_model_types))
+        {
+        print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
+        next
+        }# skip this iteration if model not in valid types.
 
       # reset the formula string for each year
       formula.string <- formula.string.orig
@@ -346,8 +184,8 @@ run_yearly_models <- function(transitionDir_path,
       indep.df <- data %>%
         filter(time == year)
       # dependent from T+1 (rename to 'next_{dependent}' soon)
-      depen.df <- data %>% 
-        filter(time == depend.year) %>% 
+      depen.df <- data %>%
+        filter(time == depend.year) %>%
         select(pidp, all_of(dependent))
 
       # rename to next_{dependent}
@@ -359,14 +197,14 @@ run_yearly_models <- function(transitionDir_path,
 
       # no weight var in 2009 (wave 1)
       if(year == 2009) {
-        use.weights <- FALSE
+        use.weights <- TRUE
       } else {
         use.weights <- TRUE
       }
 
       #print(formula.string)
       ## For the SF_12 models (MCS & PCS), we need to modify the formula on the fly
-      # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are 
+      # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
       if(dependent %in% c('SF_12_MCS', 'SF_12_PCS')) {
         if(!year %in% c(2011, 2014, 2017, 2020)) {
@@ -402,12 +240,6 @@ run_yearly_models <- function(transitionDir_path,
                                      include_weights = use.weights,
                                      depend = next.dependent)
 
-      } else if(tolower(mod.type) == 'ols_diff') {
-
-        model <- estimate_yearly_ols_diff(data = merged,
-                                          formula = form,
-                                          depend = paste0(dependent, '_diff'))
-
       } else if(tolower(mod.type) == 'clm') {
 
         # set ordinal dependent to factor
@@ -428,7 +260,7 @@ run_yearly_models <- function(transitionDir_path,
                                        formula = form,
                                        include_weights = use.weights,
                                        depend = next.dependent)
-        
+
       } else if(tolower(mod.type) == 'zip') {
 
         model <- estimate_yearly_zip(data = merged,
@@ -452,6 +284,13 @@ run_yearly_models <- function(transitionDir_path,
       # save model & coefficients to file (in their own folder)
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
+      # writing tex table of coefficients. easy writing for papers and documentation.
+      write_coefs <- F
+      if (write_coefs)
+      {
+        texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.rds')
+        texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
+      }
       saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
 
@@ -498,8 +337,8 @@ parser$add_argument('-d',
                     action='store_true',
                     dest='default',
                     default=FALSE,
-                    help='Run in default mode. This is the default MINOS 
-                    experiment, where the models estimated in this mode 
+                    help='Run in default mode. This is the default MINOS
+                    experiment, where the models estimated in this mode
                     include hh_income as the policy lever, SF12 MCS and
                     PCS as the outcomes of interest, and a series of pathways
                     from hh_income to both outcomes.')
@@ -509,7 +348,7 @@ parser$add_argument('-s7',
                     action='store_true',
                     dest='SIPHER7',
                     default=FALSE,
-                    help='Run the SIPHER7 experiment models. In this mode, 
+                    help='Run the SIPHER7 experiment models. In this mode,
                     only the transition models needed to run the SIPHER7
                     equivalent income experiment are estimated. This includes
                     hh_income as the policy lever, then all the SIPHER7
@@ -567,7 +406,7 @@ if (mode == 'cross_validation') {
     # set up batch vector and remove one element each loop
     batch.vec <- c(1,2,3,4,5)
     batch.vec <- batch.vec[!batch.vec %in% i]
-    
+
     # now start new loop to list files in each batch and read data into a single object.
     # open a dataframe for collecting up multiple batches together
     combined.data <- data.frame()
@@ -581,10 +420,10 @@ if (mode == 'cross_validation') {
       combined.data <- rbind(combined.data, batch.dat)
     }
     rm(batch.dat, batch.path, batch.filelist)
-    
+
     out.dir <- paste0(transitionDir, 'version', i, '/')
     create.if.not.exists(out.dir)
-    
+
     run_yearly_models(out.dir, transSourceDir, modDefFilename, combined.data, mode)
   }
 } else {
@@ -594,7 +433,7 @@ if (mode == 'cross_validation') {
                          full.names = TRUE,
                          pattern = '[0-9]{4}_US_cohort.csv')
   data <- do.call(rbind, lapply(filelist, read.csv))
-  
+
   run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
 }
 

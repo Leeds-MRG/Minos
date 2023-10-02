@@ -19,6 +19,9 @@ require(ggplot2)
 require(ggExtra)
 require(here)
 require(scales)
+require(dplyr)
+require(tidyr)
+require(purrr)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -91,7 +94,10 @@ cv.years <- cv %>% select(time) %>% unique()
 cv.years <- cv.years[['time']]
 
 #cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+# getting only people who were in 2014 population. 
+#who_2014_pidps <- raw.dat %>% filter(time %in% c(2014) & hh_income<10000) %>% select(pidp) %>% unique()
 raw <- raw.dat %>% filter(time %in% cv.years)
+#raw <- raw %>% filter (pidp %in% who_2014_pidps$pidp)
 
 #rm(cv.pidps, raw.pidps, both.pidps, cv.years)
 rm(cv.years)
@@ -397,10 +403,44 @@ cv_ordinal_plots(pivoted.df = ethnic.piv.nowhite,
 rm(ethnic.pivoted, ethnic.piv.nowhite)
 ```
 
-
-
+## Parity
 
 ```{r}
+cv.parity <- cv %>%
+  filter(sex == "Female")
 
+cv1.parity <- cv1 %>%
+  filter(sex == "Female")
+
+cv2.parity <- cv2 %>%
+  filter(sex == "Female")
+
+cv3.parity <- cv3 %>%
+  filter(sex == "Female")
+
+cv4.parity <- cv4 %>%
+  filter(sex == "Female")
+
+cv5.parity <- cv5 %>%
+  filter(sex == "Female")
+
+raw.parity <- raw %>%
+  filter(sex == "Female")
+
+cv.mean.plots(cv1.parity, cv2.parity, cv3.parity, cv4.parity, cv5.parity, raw.parity, 'nkids_ind')
+multi_year_boxplots(raw.parity, cv.parity, 'nkids_ind')
+q_q_comparison(raw.parity, cv.parity, 'nkids_ind')
 ```
+```{r}
+parity.pivoted <- combine_and_pivot_long(df1 = cv.parity,
+                                         df1.name = 'simulated',
+                                         df2 = raw.parity,
+                                         df2.name = 'raw',
+                                         var = 'nkids_ind')
 
+cv_ordinal_plots(pivoted.df = parity.pivoted, 
+                 var = 'nkids_ind',
+                 save = FALSE)
+
+rm(parity.pivoted)
+```

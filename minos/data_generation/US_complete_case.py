@@ -44,12 +44,23 @@ def complete_case_varlist(data, varlist):
 
 
 def complete_case_custom_years(data, var, years):
+    print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
     data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+    # data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan, inplace=True) # Avoids Pandas SettingWithCopyWarning
     data = data[~(data['time'].isin(years) & data[var].isna())]
 
     return data
+
+
+def cut_outliers(df, lower, upper, var):
+    """Take values of a column within the lower and upper percentiles
+
+    E.g. if lower = 5 upper = 95. removes the top and bottom 5% from the data."""
+    P = np.nanpercentile(df[var], [lower, upper])
+    new_df = df.loc[((df[var] > P[0]) & (df[var] < P[1])), ]
+    return new_df
 
 
 if __name__ == "__main__":
@@ -60,8 +71,14 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
+<<<<<<< HEAD
                           "education_state", 'region', "age", "job_sector", 'SF_12_MCS', 'SF_12_PCS',
                           'financial_situation', "housing_tenure", 'urban', 'heating']  # many of these
+=======
+                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
+                          "housing_tenure",
+                          "nkids_ind"]
+>>>>>>> development
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -73,7 +90,9 @@ if __name__ == "__main__":
     # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
-    # ncigs missing for wave 1 only
+    # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
+    # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
+    data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
@@ -107,6 +126,8 @@ if __name__ == "__main__":
                     'behind_on_bills']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.
                                         # remove them here or as late as needed.
+                                        
     data = data.drop(labels=drop_columns, axis=1)
+    data = cut_outliers(data, 0.1, 99.9, "hh_income")
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")

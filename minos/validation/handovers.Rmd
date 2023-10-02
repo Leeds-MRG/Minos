@@ -20,8 +20,13 @@ Handover plots are not strictly statistical validation, but more a type of 'sani
 
 require(tidyverse)
 require(ggplot2)
+require(ggridges) # for densities over time plots. 
 require(knitr)
 require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+require(gghighlight)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -67,7 +72,11 @@ shall.we.save <- FALSE
 ## Income
 
 ```{r}
-handover_continuous(raw.dat, base.dat, var = 'hh_income')
+# first figure out how to plot final_US
+# start with hh_income
+
+handover_boxplots(raw.dat, base.dat, 'hh_income')
+handover_lineplots(raw.dat, base.dat, "hh_income")
 ```
 
 ### Spaghetti
@@ -80,7 +89,16 @@ base.inc <- base.dat %>%
 
 income.spag <- rbind(raw.inc, base.inc)
 
-spaghetti_plot(income.spag, 'hh_income',
+density_ridges(income.spag, 'hh_income',
+               save=TRUE, 
+               save.path=save.path)
+
+pidp_sample <- sample(unique(income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
+income.spag.sample <- income.spag[which(income.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(income.spag.sample, 'hh_income',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
                save = shall.we.save,
                save.path = save.path)
 
@@ -91,7 +109,9 @@ rm(raw.inc, base.inc, income.spag)
 ## SF_12_MCS
 
 ```{r}
-handover_continuous(raw.dat, base.dat, var = 'SF_12_MCS')
+# sf12 boxplot handovers
+handover_boxplots(raw.dat, base.dat, 'SF_12_MCS')
+handover_lineplots(raw.dat, base.dat, "SF_12_MCS")
 ```
 
 ### Spaghetti
@@ -104,17 +124,26 @@ base.sf12.m <- base.dat %>%
 
 sf12.m.spag <- rbind(raw.sf12.m, base.sf12.m)
 
-spaghetti_plot(sf12.m.spag, 'SF_12_MCS',
-               save = shall.we.save,
+# sf12.m.spag.sample <- sf12.m.spag[which(sf12.m.spag$pidp %in% pidp_sample), ]
+# spaghetti_plot(sf12.m.spag.sample, 'SF_12_MCS',
+#                save = shall.we.save,
+#                save.path = save.path)
+# spaghetti_highlight_max_plot(sf12.m.spag.sample, 'SF_12_MCS',
+#                save = shall.we.save,
+#                save.path = save.path)
+  
+density_ridges(sf12.m.spag, "SF_12_MCS", 
+               save = shall.we.save, 
                save.path = save.path)
 
-rm(raw.sf12.m, base.sf12.m, sf12.m.spag)
+rm(raw.sf12.m, base.sf12.m, sf12.m.spag, sf12.m.spag.sample)
 ```
 
 ## SF_12_PCS
 
 ```{r}
-handover_continuous(raw.dat, base.dat, var = 'SF_12_PCS')
+handover_boxplots(raw.dat, base.dat, 'SF_12_PCS')
+handover_lineplots(raw.dat, base.dat, "SF_12_PCS")
 ```
 
 ### Spaghetti
@@ -126,9 +155,13 @@ base.sf12.p <- base.dat %>%
   select(pidp, age, time, SF_12_PCS)
 
 sf12.p.spag <- rbind(raw.sf12.p, base.sf12.p)
+# 
+# spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
+#                save = shall.we.save,
+#                save.path = save.path)
 
-spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
-               save = shall.we.save,
+density_ridges(sf12.p.spag, "SF_12_PCS", 
+               save = shall.we.save, 
                save.path = save.path)
 
 rm(raw.sf12.p, base.sf12.p, sf12.p.spag)
@@ -149,18 +182,18 @@ handover_ordinal(raw.dat, base.dat, var = 'housing_quality', save = shall.we.sav
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, housing_quality)
-base.s <- base.dat %>%
-  select(pidp, age, time, housing_quality)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'housing_quality',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, housing_quality)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, housing_quality)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'housing_quality',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Neighbourhood Safety
@@ -172,18 +205,18 @@ handover_ordinal(raw.dat, base.dat, var = 'neighbourhood_safety', save = shall.w
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, neighbourhood_safety)
-base.s <- base.dat %>%
-  select(pidp, age, time, neighbourhood_safety)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'neighbourhood_safety',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, neighbourhood_safety)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, neighbourhood_safety)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'neighbourhood_safety',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Loneliness
@@ -195,18 +228,18 @@ handover_ordinal(raw.dat, base.dat, var = 'loneliness', save = shall.we.save)
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, loneliness)
-base.s <- base.dat %>%
-  select(pidp, age, time, loneliness)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'loneliness',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, loneliness)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, loneliness)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'loneliness',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Nutrition Quality
@@ -214,24 +247,31 @@ rm(raw.s, base.s, spag)
 TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 
 ```{r}
-handover_continuous(raw.dat, base.dat, var = 'nutrition_quality')
+#  nutriton quality line/boxplots.
+handover_boxplots(raw.dat, base.dat, 'nutrition_quality')
+handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 ```
 
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, nutrition_quality)
-base.s <- base.dat %>%
-  select(pidp, age, time, nutrition_quality)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'nutrition_quality',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.nut <- raw.dat %>%
+#   select(pidp, age, time, nutrition_quality)
+# base.nut <- base.dat %>%
+#   select(pidp, age, time, nutrition_quality)
+# 
+# nut.spag <- rbind(raw.nut, base.nut)
+# 
+# spaghetti_plot(nut.spag, 'nutrition_quality',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# 
+# density_ridges(nut.spag, "nutrition_quality", 
+#                save = T, 
+#                save.path = save.path)
+# 
+# rm(raw.nut, base.nut, nut.spag)
 ```
 
 ## Physical Health
@@ -240,23 +280,25 @@ NOTE: At present, physical health is not predicted or transitioned.
 
 ```{r}
 handover_continuous(raw.dat, base.dat, var = 'phealth')
+handover_boxplots(raw.dat, base.dat, 'phealth')
+handover_lineplots(raw.dat, base.dat, 'phealth')
 ```
 
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, phealth)
-base.s <- base.dat %>%
-  select(pidp, age, time, phealth)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'phealth',
-             save = shall.we.save,
-             save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, phealth)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, phealth)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'phealth',
+#              save = shall.we.save,
+#              save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Education
@@ -268,13 +310,13 @@ handover_ordinal(raw.dat, base.dat, var = 'education_state', save = shall.we.sav
 
 
 ```{r}
-pivoted <- combine_and_pivot_long(df1 = base.dat, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw.dat, 
-                                       df2.name = 'raw', 
+pivoted <- combine_and_pivot_long(df1 = base.dat,
+                                       df1.name = 'simulated',
+                                       df2 = raw.dat,
+                                       df2.name = 'raw',
                                        var = 'education_state')
 
-cv_ordinal_plots(pivoted.df = pivoted, 
+cv_ordinal_plots(pivoted.df = pivoted,
                  var = 'education_state',
                  save = shall.we.save,
                  save.path = save.path)
@@ -283,19 +325,92 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, education_state)
-base.s <- base.dat %>%
-  select(pidp, age, time, education_state)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'education_state',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, education_state)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, education_state)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'education_state',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
+
+## Parity
+
+```{r}
+base.parity <- base.dat %>%
+  filter(sex == "Female")
+
+raw.parity <- raw.dat %>%
+  filter(sex == "Female")
+
+prepped.list <- validation_prep_ordinal(raw.parity, base.parity, 'nkids_ind')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Parity (total no. of children)'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = nkids_ind, colour = nkids_ind)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=nkids_ind)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'parity.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.parity,
+                                  df1.name = 'simulated', 
+                                  df2 = raw.parity, 
+                                  df2.name = 'raw', 
+                                  var = 'nkids_ind')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'nkids_ind',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+
+### Spaghetti
+
+```{r}
+# raw.s <- raw.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# base.s <- base.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'nkids_ind',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
+```
+
 
 ## Alcohol (AUDITC)
 
@@ -307,5 +422,12 @@ handover_ordinal(raw.dat, base.dat, var = 'auditc', save = shall.we.save)
 
 ```{r}
 handover_ordinal(raw.dat, base.dat, var = 'active', save = shall.we.save)
+```
+
+## Material Deprivation
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'matdep')
+handover_lineplots(raw.dat, base.dat, 'matdep')
 ```
 

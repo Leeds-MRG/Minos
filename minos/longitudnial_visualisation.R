@@ -45,7 +45,8 @@ spaghetti_plot <- function(data, v)
                  ggplot2::scale_colour_viridis_d()+ 
                  #ggplot2::geom_smooth(colour="blue") +
                  ggplot2::geom_line(colour="blue", alpha=0.2) +
-                 ggplot2::geom_point()
+                 ggplot2::geom_point() +
+                 ggplot2::geom_smooth()
     
   return (output_plot)
 }

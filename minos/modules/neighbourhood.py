@@ -91,7 +91,7 @@ class Neighbourhood(Base):
                                                                            list(neighbourhood_prob_df.columns),
                                                                            neighbourhood_prob_df) + 1
 
-        neighbourhood_prob_df.index = neighbourhood_prob_df.index.astype(int)
+        neighbourhood_prob_df.index = pop.index
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood

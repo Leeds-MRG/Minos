@@ -66,6 +66,7 @@ class Replenishment(Base):
                         'loneliness',
                         'weight',
                         'nkids',
+                        'nkids_ind',
                         'ndrinks',
                         'max_educ',
                         'yearly_energy',
@@ -83,6 +84,7 @@ class Replenishment(Base):
                         'phealth',
                         'marital_status',
                         'hh_comp',
+                        #'labour_state',
                         'S7_labour_state',
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
@@ -95,7 +97,11 @@ class Replenishment(Base):
                         'housing_tenure',
                         'urban',
                         'auditc',
-                        'active']
+                        'active',
+                        'SF_12_diff',
+                        'hh_income_diff',
+                        'nutrition_quality_diff',
+                        ]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
