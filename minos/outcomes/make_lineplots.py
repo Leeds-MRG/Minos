@@ -119,7 +119,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
             aggregated_means = [None]
 
-        if v == "SF_12":
+        if method == weighted_nanmean or method == child_uplift_cost_sum:
             single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
             single_year_aggregates['year'] = year
             single_year_aggregates['tag'] = tag
@@ -285,8 +285,18 @@ def find_MINOS_years_range(file_path):
     return years
 
 
-def weighted_nanmean(df, v, weights = "weight"):
-    return np.nansum(df[v] * df[weights]) / sum(df[weights])
+def weighted_nanmean(df, v, weights = "weight", scale=1):
+    df = df.loc[df['weight'] > 0]
+    df['weight'] = 1/df['weight']
+    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+
+def child_uplift_cost_sum(df, v, weights='weight'):
+    # get unique households
+    # get boost amount per household
+    df = df.loc[df['weight'] > 0]
+    group = df.groupby(['hidp'])
+    weights = 1/group[weights].sum()
+    return np.nansum(weights * group[v].min())/np.nansum(weights)
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
          method='nanmean'):
@@ -312,6 +322,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         method = weighted_nanmean
     elif method == "percentages":
         method = aggregate_percentage_counts
+    elif method == "child_uplift_cost_sum":
+        method = child_uplift_cost_sum
     else:
         raise ValueError(
             "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
@@ -335,7 +347,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         scaled_data = relative_scaling(aggregate_long_stack, v, ref)
         print("relative scaling done. plotting.. ")
         aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-
+    elif v == "boost_amount":
+        aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
     elif method == aggregate_percentage_counts:
         print(f"Data compiled for variable {v} using method {method.__name__}.")
         file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
@@ -367,15 +380,24 @@ if __name__ == '__main__':
     # mode = "glasgow_scaled"
     # ref='National Average'
 
-    directories = "baseline,livingWageIntervention"
-    tags = "Baseline,Living Wage Intervention"
-    subset_function_strings = "who_below_living_wage,who_boosted"
-    prefix = "baseline_living_wage"
-    mode = 'default_config'
-    ref = "Baseline"
-    v = "housing_quality"
-    method = 'percentages'
+    # directories = "baseline,livingWageIntervention"
+    # tags = "Baseline,Living Wage Intervention"
+    # subset_function_strings = "who_below_living_wage,who_boosted"
+    # prefix = "baseline_living_wage"
+    # mode = 'default_config'
+    # ref = "Baseline"
+    # v = "housing_quality"
+    # method = 'percentages'
 
+
+    # directories = "25RelativePoverty,25UniversalCredit"
+    # tags = "£25 Relative Poverty,£25 Universal Credit"
+    # subset_function_strings = "who_boosted,who_boosted"
+    # prefix = "25rp_25uc_cost_lineplot"
+    # mode = 'default_config'
+    # ref = "25RelativePoverty"
+    # v = "boost_amount"
+    # method = 'child_uplift_cost_sum'
 
     main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
 

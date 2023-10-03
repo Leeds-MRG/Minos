@@ -131,7 +131,7 @@ def get_required_intervention_variables(subset_function_string):
     default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "loneliness"]
     required_variables_dict = {
         "who_alive": default_variables,
-        "who_boosted":  default_variables + ["income_boosted"],
+        "who_boosted":  default_variables + ["income_boosted", 'boost_amount'],
         "who_below_living_wage": default_variables + ["region", "hourly_wage"],
         "who_kids": default_variables + ["nkids"],
         "who_below_poverty_line_and_kids": default_variables + ["hh_income", "nkids"],
