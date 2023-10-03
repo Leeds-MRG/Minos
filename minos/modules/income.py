@@ -613,7 +613,8 @@ class lmmYJIncome(Base):
             #'job_sector',
             'time',
             'pidp',
-            #'weight',
+            'hidp',
+            'weight',
             'SF_12',
             'hh_income_diff',
         ]
@@ -671,23 +672,32 @@ class lmmYJIncome(Base):
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
         pop['hh_income_new'] = pop['hh_income']
-        ## Predict next income value
-        newWaveIncome = pd.DataFrame(columns=['hh_income'])
-        newWaveIncome['hh_income'] = self.calculate_income(pop)
-        newWaveIncome.index = pop.index
 
-        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
-        income_mean = np.mean(newWaveIncome["hh_income"])
-        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
-        newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+
+        ## Predict next income value
+        newWaveIncome = pd.DataFrame(self.calculate_income(pop), columns=['hh_income_new'])
+        newWaveIncome.index = pop.index
+        pop['hh_income_new'] = newWaveIncome['hh_income_new']
+        pop['hh_income_new'] = pop.groupby(['hidp'])['hh_income_new'].transform('mean')
+
+        income_mean = np.median(pop["hh_income"])
+        std_ratio = (np.std(pop['hh_income'])/np.std(pop["hh_income_new"]))
+        pop["hh_income_new"] *= std_ratio
+        pop["hh_income_new"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         #print(std_ratio)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print("income", np.mean(newWaveIncome['hh_income']))
-        self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
+
+        pop['hh_income_diff'] = pop['hh_income_new'] - pop['hh_income']
+        pop['hh_income'] = pop['hh_income_new']
+        # Set index back to population of interest.
+
+        # Draw individuals next states randomly from this distribution.
+        # Update population with new income
+        self.population_view.update(pop[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -708,7 +718,7 @@ class lmmYJIncome(Base):
                                                                        dependent='hh_income_new',
                                                                        yeo_johnson = True,
                                                                        reflect=False,
-                                                                       noise_std= 0.175)#0.45 for yj. 100? for non yj.
+                                                                       noise_std= 0.5)#0.175 for yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

@@ -520,9 +520,9 @@ class lmmYJMWB(Base):
         newWaveMWB.index = pop.index
         #newWaveMWB["SF_12"] -= 1
 
-        sf12_mean = np.mean(newWaveMWB["SF_12"])
-        std_ratio = (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] *= (11/np.std(newWaveMWB["SF_12"]))
+        sf12_mean = np.median(pop["SF_12"])
+        std_ratio = (np.std(newWaveMWB["SF_12"])/np.std(pop["SF_12"]))
+        newWaveMWB["SF_12"] *= std_ratio
         newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
         newWaveMWB["SF_12"] -= 1.5
         #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
@@ -549,7 +549,7 @@ class lmmYJMWB(Base):
                                                                dependent='SF_12',
                                                                reflect=True,
                                                                yeo_johnson= True,
-                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
+                                                               noise_std= 0.35)# 0.15 for non yj, 0.35 for yj
         return out_data
 
 

@@ -177,7 +177,7 @@ class hhIncomeIntervention():
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income"]
+        view_columns = ["hh_income", 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -254,7 +254,7 @@ class hhIncomeChildUplift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids']
+        view_columns = ["hh_income", 'nkids', 'hidp']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -406,7 +406,7 @@ class livingWageIntervention(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
+        view_columns = ['hh_income', 'hidp', 'pidp', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -466,6 +466,10 @@ class livingWageIntervention(Base):
 
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         pop['income_boosted'] = who_uplifted_notLondon | who_uplifted_London
+
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
         #pop.drop(labels='who_uplifted', inplace=True)
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
@@ -517,7 +521,7 @@ class energyDownlift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'yearly_energy']
+        view_columns = ["hh_income", 'yearly_energy', 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -553,10 +557,14 @@ class energyDownlift(Base):
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
         #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
         pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
@@ -599,7 +607,7 @@ class energyDownliftNoSupport(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'yearly_energy']
+        view_columns = ["hh_income", 'yearly_energy', 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -630,11 +638,15 @@ class energyDownliftNoSupport(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
         pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
         #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
@@ -726,7 +738,7 @@ class energyPriceCapGuarantee(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'yearly_energy']
+        view_columns = ["hh_income", 'yearly_energy', 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -760,10 +772,14 @@ class energyPriceCapGuarantee(Base):
         # TODO is an 80% increase correct? More dynamic assumption needed?
         year = min(self.year, 2023)
         #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300-1))  # 80% of monthly fuel bill subtracted from dhi.
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
         pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
@@ -833,6 +849,7 @@ class energyBillSupportScheme(Base):
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
         year = min(self.year, 2023)
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
         pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300))  # 80% of monthly fuel bill subtracted from dhi.
         #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
@@ -866,7 +883,10 @@ class energyBillSupportScheme(Base):
             # for now assume linear reduction in energy costs from 0% to 15% by 2030.
             # TODO naive?
             # TODO any other boosts suggested by new gov plans. any specifically by subgroups?
-        pop['boost_amount'] = pop['boost_amount'].clip(upper=0.001)
+        pop['boost_amount'] = pop['boost_amount'].clip(upper=0.001) # real intervention only gave households money until they reached £0 energy bills. they cant 'gain' money.
+
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
         pop['income_boosted'] = pop['boost_amount'] != 0
         pop['hh_income'] += pop['boost_amount']
 
