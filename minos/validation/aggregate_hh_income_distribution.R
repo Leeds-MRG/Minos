@@ -20,8 +20,8 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
   intervention1.data <- read_first_singular_local_out(out.path, intervention1, drop.dead = TRUE)
   intervention1.data$Intervention <- tag1
   
-  intervention2.data <- read_first_singular_local_out(out.path,  intervention2, drop.dead = TRUE)
-  intervention2.data$Intervention = tag2
+  intervention2.data <- read_first_singular_local_out(out.path, intervention2, drop.dead = TRUE)
+  intervention2.data$Intervention <- tag2
   
   intervention1.data <- intervention1.data[, c(v, "time", "Intervention")]
   intervention2.data <- intervention2.data[, c(v, "time", "Intervention")]
@@ -53,7 +53,7 @@ main <- function(){
   two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention", "hh_income")
   
   two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift", "hh_income")
-  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support", "hh_income")
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownliftNoSupport", "Baseline", "Energy Downlift No Support", "hh_income")
  
   two_interventions_continuous_plots("default_config", "baseline", "25RelativePoverty", "Baseline", "£25 Relative Poverty", "nutrition_quality")
   two_interventions_continuous_plots("default_config", "baseline", "50RelativePoverty", "Baseline", "£50 Relative Poverty", "nutrition_quality")
@@ -63,7 +63,7 @@ main <- function(){
   two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention","nutrition_quality")
   
   two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift","nutrition_quality")
-  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support", "nutrition_quality") 
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownliftNoSupport", "Baseline", "Energy Downlift No Support", "nutrition_quality") 
   
   two_interventions_continuous_plots("default_config", "baseline", "25RelativePoverty", "Baseline", "£25 Relative Poverty", "SF_12")
   two_interventions_continuous_plots("default_config", "baseline", "50RelativePoverty", "Baseline", "£50 Relative Poverty", "SF_12")
@@ -73,7 +73,7 @@ main <- function(){
   two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention","SF_12")
   
   two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift", "SF_12")
-  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support" ,"SF_12") 
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownliftNoSupport", "Baseline", "Energy Downlift No Support" ,"SF_12") 
   
   two_interventions_continuous_plots("default_config", "baseline", "25RelativePoverty", "Baseline", "£25 Relative Poverty", "ncigs")
   two_interventions_continuous_plots("default_config", "baseline", "50RelativePoverty", "Baseline", "£50 Relative Poverty", "ncigs")
@@ -83,7 +83,7 @@ main <- function(){
   two_interventions_continuous_plots("default_config", "baseline", "livingWageIntervention", "Baseline", "Living Wage Intervention","ncigs")
   
   two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift", "ncigs")
-  two_interventions_continuous_plots("default_config", "baseline", "energyDownlift", "Baseline", "Energy Downlift No Support" ,"ncigs") 
+  two_interventions_continuous_plots("default_config", "baseline", "energyDownliftNoSupport", "Baseline", "Energy Downlift No Support" ,"ncigs") 
   
 }
 
