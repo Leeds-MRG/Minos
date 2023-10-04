@@ -28,6 +28,10 @@ two_interventions_continuous_plots <- function(mode, intervention1, intervention
   
   plot_data <- rbind(intervention1.data, intervention2.data)
 
+  if (v == "ncigs") {
+    plot_data <- plot_data[which(plot_data$ncigs<30),]
+  }
+  
   plot.dir <- paste0('plots/', "handovers_", intervention1, "_", intervention2, "_", v)
   
   comparison_density_plot <- ggplot(plot_data, aes(x=!!sym(v), y=factor(time), fill=Intervention)) +
