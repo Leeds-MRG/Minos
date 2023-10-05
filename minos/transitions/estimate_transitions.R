@@ -267,10 +267,10 @@ run_yearly_models <- function(transitionDir_path,
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
       # writing tex table of coefficients. easy writing for papers and documentation. 
-      write_coefs <- F
-      if (write_coefs)
+      write_coefs <- T
+      if (write_coefs & tolower(mod.type) != "nnet") # cant write coefs for nnet using texreg.
       {
-        texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.rds')
+        texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.txt')
         texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
       }
       saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
