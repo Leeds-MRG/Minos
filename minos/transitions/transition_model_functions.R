@@ -4,6 +4,7 @@ require(nnet)
 require(pscl)
 require(bestNormalize)
 require(lme4)
+require(glmmTMB)
 
 ################ Model Specific Functions ################
 
@@ -13,12 +14,12 @@ require(lme4)
 # information available)
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
-  
+
   if (transform){
     yj <-  yeojohnson(data[, c(depend)], standardize=FALSE)
     data[, c(depend)] <- predict(yj)
   }
-  
+
   if(include_weights) {
     # fit the model including weights (after 2009)
     model <- lm(formula,
@@ -30,7 +31,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, 
                 data = data)
   }
   model[[depend]] <- data[[depend]]
-  
+
   if (transform){
     model$transform <- yj
   }
@@ -38,7 +39,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, 
 }
 
 estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
   data <- data[, append(all.vars(formula), c("time", 'pidp', 'weight'))]
@@ -68,19 +69,19 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
 
 
 estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   data = replace.missing(data)
-  
+
   if(include_weights) {
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
   } else {
     model <- glm(formula, family=binomial(link="logit"), data=data)
   }
   # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
+  # This is mildly stupid..
   model[[depend]] <- data[[depend]]
   model$class_preds <- predict(model)
   return(model)
@@ -88,11 +89,11 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
 
 
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   if(include_weights) {
     model <- multinom(formula = formula,
                       data = data,
@@ -111,7 +112,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   if(include_weights) {
     model <- zeroinfl(formula = formula,
                       data = data,
@@ -121,16 +122,16 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   } else {
     model <- zeroinfl(formula = formula,
                       data = data,
-                      dist = 'pois', 
+                      dist = 'pois',
                       link='logit')
     model[[depend]] <- data[[depend]]
     model$class_preds <- predict(model)
   }
-  
+
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
-  
+
   return(model)
 }
 
@@ -143,12 +144,12 @@ nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
 nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 
 estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
-  
+
   data <- replace.missing(data)
   #data <- drop_na(data)
   max_value <- nanmax(data[[depend]])
   if (reflect) {
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson) {
     yj <- yeojohnson(data[,c(depend)])
@@ -156,11 +157,11 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   }
 
   if(include_weights) {
-    model <- lmer(formula,  
-                  weights=weight, 
+    model <- lmer(formula,
+                  weights=weight,
                   data = data)
   } else {
-    model <- lmer(formula, 
+    model <- lmer(formula,
                   data = data)
   }
   if (yeo_johnson) {
@@ -170,7 +171,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
     attr(model,"max_value") <- max_value # Works though.
   }
   #browser()
-  #model@transform <- yj 
+  #model@transform <- yj
   #model@min_value <- min_value
   #model@max_value <- max_value
   return(model)
@@ -178,7 +179,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
 
 
 estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALSE, depend, reflect, yeo_johnson) {
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
   if (yeo_johnson){
@@ -187,11 +188,11 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   }
 
   if(include_weights) {
-    model <- lmer(formula,  
-                   weights=weight, 
+    model <- lmer(formula,
+                   weights=weight,
                    data = data)
   } else {
-    model <- lmer(formula, 
+    model <- lmer(formula,
                    data = data)
   }
   if (yeo_johnson){
@@ -200,21 +201,21 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   #attr(model,"max_value") <- max_value
   #attr(model,"min_value") <- min_value
   #browser()
-  
+
   #model@transform <- yj # S4 class uses @ rather than $ for assignment. y tho?
   #model@min_value <- min_value
   #model@max_value <- max_value
   return(model)
 }
 
-estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
-  
+estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
+
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
   if (reflect) {
     max_value <- nanmax(data[[depend]])
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson)
   {
@@ -224,21 +225,21 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
 
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
-  
+
   if(include_weights) {
-    model <- glmer(formula,  
+    model <- glmer(formula,
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
                    family=Gamma(link='log'), # gamma family with log link.
-                   weights=weight, 
+                   weights=weight,
                    data = data)
   } else {
-    model <- glmer(formula, 
-                   nAGQ=0, 
+    model <- glmer(formula,
+                   nAGQ=0,
                    family=Gamma(link='log'),
                    data = data)
   }
   attr(model,"min_value") <- min_value
-  
+
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
       }
@@ -248,7 +249,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   return(model)
 }
 
-estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend) 
+estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend)
 {
   #data[[depend]] <- as.factor(data[[depend]])
   data <- replace.missing(data)
@@ -273,7 +274,7 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
   return (model)
 }
 
-estimate_longitudinal_clmm <- function(data, formula, depend) 
+estimate_longitudinal_clmm <- function(data, formula, depend)
 {
   data <- replace.missing(data)
   data <- drop_na(data)
@@ -281,8 +282,51 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   model <- clmm2(formula,
                 random=factor(pidp),
                 link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
+                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data.
                 threshold="flexible",
                 nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+  return (model)
+}
+
+estimate_beta_glmm <- function(data, formula, depend, reflect, yeo_johnson) {
+
+  data <- replace.missing(data)
+  data <- drop_na(data)
+
+  if (reflect) {
+    max_value <- nanmax(data[[depend]])
+    data[, c(depend)] <- max_value - data[, c(depend)]
+  }
+  if (yeo_johnson)
+  {
+    yj <- yeojohnson(data[,c(depend)])
+    data[, c(depend)] <- predict(yj)
+  }
+
+  min_value <- nanmin(data[[depend]])
+  #data[[depend]] <- data[[depend]] - min_value + 0.001
+  #data[[depend]][data[[depend]] == 1] = 0.999
+  #data[[depend]][data[[depend]] == 0] = 0.001
+
+  print(paste0('Some data summary stats for beta GLMM ', depend))
+  print(paste0('Min value of dependent variable: ', min_value))
+  print(paste0('Max value of dependent variable: ', max(data[[depend]])))
+
+  model <- glmmTMB(formula,
+                   data = data,
+                   family = beta_family(link = 'logit'),
+                   weights = weight,
+                   na.action = na.omit,
+                   verbose = TRUE)
+
+  attr(model,"min_value") <- min_value
+
+  if (yeo_johnson){
+    attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+  }
+  if (reflect) {
+    attr(model,"max_value") <- max_value # Works though.
+  }
+
   return (model)
 }

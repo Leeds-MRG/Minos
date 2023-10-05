@@ -32,7 +32,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", 'GLMMB')
 
   data[which(data$ncigs==-8), 'ncigs'] <- 0
 
@@ -84,14 +84,14 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #  use.weights <- TRUE
     #}
 
-    if (dependent == "SF_12") {
+    if (dependent %in% c("SF_12_MCS", 'SF_12_PCS')) {
       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
     }
     else {
       do.reflect=FALSE
     }
 
-    if (dependent == "SF_12" || dependent == "hh_income") {
+    if (dependent %in% c("SF_12_MCS", 'SF_12_PCS', 'hh_income')) {
       do.yeo.johnson = T #
     }
     else {
@@ -125,7 +125,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         dependent <-  paste0(dependent, "_diff")
         formula.string <- paste0(dependent, " ~ ", independents)
         form <- as.formula(formula.string)
-        }
+    }
 
     # if using glmms need to be careful which time the outcome variable is from.
     # for nutrition quality and SF12 using previous wave information to predict next
@@ -134,7 +134,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # For SF12 predicting current state given changes in all other information and previous SF12 value.
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
     # We have SF_12_last in the model formula for 2019 SF12.
-    if (dependent == "nutrition_quality" || dependent == "hh_income")  {
+    if (dependent == "nutrition_quality" || dependent == "hh_income") {
       # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%
@@ -144,8 +144,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          dependent <-  paste0(dependent, "_new")
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string)
-       }
-    else if (dependent.isin(['SF_12_MCS', 'SF_12_PCS']))  {
+    }
+    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'matdep')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -159,7 +159,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       #
       formula.string <- paste0(dependent, " ~ ", independents)
       form <- as.formula(formula.string)
-      }
+    }
     # get only required variables and sort by pidp/time.
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
@@ -167,7 +167,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # function call and parameters based on model type.
     if(tolower(mod.type) == 'glmm') {
       #
-      model <- estimate_longitudinal_glmm(data = sorted_df,
+      model <- estimate_gamma_glmm(data = sorted_df,
                                           formula = form,
                                           include_weights = use.weights,
                                           depend = dependent,
@@ -204,6 +204,14 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_longitudinal_clmm(data = sorted_df,
                                           formula = form,
                                           depend = dependent)
+
+    } else if (tolower(mod.type) == "glmmb") {
+
+      model <- estimate_beta_glmm(data = sorted_df,
+                                  formula = form,
+                                  depend = dependent,
+                                  reflect = do.reflect,
+                                  yeo_johnson = do.yeo.johnson)
 
     }
 

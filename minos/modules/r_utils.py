@@ -250,6 +250,46 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     return np.ceil(preds)
 
 
+def predict_next_timestep_logit(model, rpy2_modules, current, dependent):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The independent variable we are trying to predict
+
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    prediction = stats.predict(model, currentRDF, type='response')
+    newRPopDF = base.cbind(currentRDF, predicted = prediction)
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    return newPandasPopDF[[dependent]]
+
+
 def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
@@ -377,7 +417,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, mod_type, noise_std = 1):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -399,6 +439,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     stats = rpy2_modules['stats']
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
+    glmmTMB = rpy2_modules["glmmTMB"]
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -417,14 +458,20 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     # get minimum value to reverse transformatino to strictly positve values.
     min_value = model.do_slot("min_value")
 
-    prediction = lme4.predict_merMod(model, newdata=currentRDF, type='response', allow_new_levels=True)  # estimate next income using gamma GEE.
-    # Inverting transforms to get back to true income values.
+    if mod_type == 'gamma':
+        prediction = lme4.predict_merMod(model, newdata=currentRDF, type='response',
+                                            allow_new_levels=True)  # estimate next income using gamma GEE.
+        # Inverting transforms to get back to true income values.
+        prediction = prediction.ro + (min_value.ro - 0.001)  # invert shift to strictly positive values.
+    elif mod_type == 'beta':
+        prediction = stats.predict(model, newdata=currentRDF, type='response',
+                                     allow_new_levels=True)  # estimate next income using gamma GEE.
 
-    prediction = prediction.ro + (min_value.ro - 0.001) # invert shift to strictly positive values.
+
 
     if dependent == 'nutrition_quality':
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif dependent == "SF_12" and noise_std:
+    elif dependent in ["SF_12_MCS", "SF_12_PCS"] and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.

@@ -484,7 +484,9 @@ class lmmYJMWB(Base):
                         'ncigs',
                         'nutrition_quality',
                         'neighbourhood_safety',
-                        'loneliness']
+                        'loneliness',
+                        'financial_situation',
+                        'active',]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -550,7 +552,8 @@ class lmmYJMWB(Base):
                                                                dependent='SF_12_MCS',
                                                                reflect=True,
                                                                yeo_johnson= True,
-                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
+                                                               mod_type='gamma',
+                                                               noise_std= 0.1)  # 5 for non yj, 0.35 for yj
         return out_data
 
 

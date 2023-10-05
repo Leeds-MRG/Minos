@@ -53,7 +53,6 @@ class Replenishment(Base):
                         'birth_year',
                         'nobs',
                         'region',
-                        'SF_12_MCS',
                         'hh_int_y',
                         'hh_int_m',
                         'Date',
@@ -71,7 +70,6 @@ class Replenishment(Base):
                         'max_educ',
                         'yearly_energy',
                         'job_sector',
-                        'SF_12_PCS',
                         'gross_pay_se',
                         'nutrition_quality',
                         'job_hours_se',
@@ -98,9 +96,14 @@ class Replenishment(Base):
                         'urban',
                         'auditc',
                         'active',
-                        'SF_12_diff',
+                        'SF_12_MCS',
+                        'SF_12_MCS_diff',
                         'hh_income_diff',
                         'nutrition_quality_diff',
+                        'SF_12_PCS',
+                        'SF_12_PCS_diff',
+                        'matdep',
+                        'matdep_diff',
                         ]
 
         # Shorthand methods for readability.

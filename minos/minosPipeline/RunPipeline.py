@@ -20,7 +20,7 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.physical_wellbeing import SF_12_PCS lmmYJPCS
+from minos.modules.physical_wellbeing import SF_12_PCS, lmmYJPCS
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
@@ -30,6 +30,7 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.material_deprivation import MaterialDeprivation
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -85,6 +86,9 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "MaterialDeprivation()": MaterialDeprivation(),
+    "PhysicalActivity()": PhysicalActivity(),
+    "HousingTenure()": HousingTenure(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -178,61 +182,6 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
-<<<<<<< HEAD
-
-    #components = [eval(x) for x in config.components] # more adapative way but security issues.
-    # last one in first one off. any module that requires another should be BELOW IT in this order.
-    # Note priority in vivarium modules supercedes this. two
-    # Outcome module goes first (last in sim)
-    components_map = {
-        # Outcome modules.
-        "MWB()": MWB(),
-        "SF_12_PCS()": SF_12_PCS(),
-        #Intermediary modules
-        "Tobacco()": Tobacco(),
-        "Alcohol()": Alcohol(),
-        "Neighbourhood()": Neighbourhood(),
-        "Labour()": Labour(),
-        "Heating()": Heating(),
-        "Housing()": Housing(),
-        "Income()": Income(),
-        "financialSituation()": financialSituation(),
-        "Loneliness()": Loneliness(),
-        "Nutrition()": Nutrition(),
-        "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
-        "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
-        "Mortality()": Mortality(),
-        "Education()": Education(),
-        "HousingTenure()": HousingTenure(),
-        "PhysicalActivity()": PhysicalActivity()
-    }
-
-    SIPHER7_components_map = {  # SIPHER7 stuff
-        "S7Labour()" : S7Labour(),
-        "S7Housing()" : S7Housing(),
-        "S7Neighbourhood()": S7Neighbourhood(),
-        "S7MentalHealth()" : S7MentalHealth(),
-        "S7PhysicalHealth()": S7PhysicalHealth(),
-        "S7EquivalentIncome()": S7EquivalentIncome()
-    }
-
-    intervention_components_map = {        #Interventions
-        "hhIncomeIntervention": hhIncomeIntervention(),
-        "hhIncomeChildUplift": hhIncomeChildUplift(),
-        "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
-        "livingWageIntervention": livingWageIntervention(),
-        "energyDownlift": energyDownlift()
-    }
-
-    replenishment_components_map = {
-        "Replenishment()": Replenishment(),
-        "NoReplenishment()": NoReplenishment(),
-        "ReplenishmentNowcast()": ReplenishmentNowcast(),
-        "ReplenishmentScotland()": ReplenishmentScotland(),
-    }
-
-=======
->>>>>>> development
     component_list = []
     replenishment_component = []
     print("Initial components list:", config_components)
@@ -301,6 +250,7 @@ def RunPipeline(config, intervention=None):
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
+                    "glmmTMB": importr("glmmTMB"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

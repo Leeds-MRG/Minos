@@ -59,6 +59,7 @@ class Housing(Base):
         view_columns = ["sex",
                         "S7_labour_state",
                         "SF_12_MCS",
+                        "SF_12_PCS",
                         "job_sec",
                         "ethnicity",
                         "age",

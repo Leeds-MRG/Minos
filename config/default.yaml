@@ -23,7 +23,7 @@ replenishing_dir: 'data/replenishing'
 cross_validation: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components : [lmmYJMWB(), SF_12_PCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), MaterialDeprivation(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 
 scale_rates:
     method: "constant"
