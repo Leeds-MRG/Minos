@@ -675,13 +675,19 @@ class lmmYJIncome(Base):
 
 
         ## Predict next income value
-        newWaveIncome = pd.DataFrame(self.calculate_income(pop), columns=['hh_income_new'])
+        newWaveIncome = pd.DataFrame(self.calculate_income(pop), columns=['hh_income'])
         newWaveIncome.index = pop.index
-        pop['hh_income_new'] = newWaveIncome['hh_income_new']
-        pop['hh_income_new'] = pop.groupby(['hidp'])['hh_income_new'].transform('mean')
+        #pop['hh_income_new'] = newWaveIncome['hh_income_new']
+        #pop['hh_income_new'] = pop.groupby(['hidp'])['hh_income_new'].transform('mean')
 
-        income_mean = np.median(pop["hh_income"])
-        std_ratio = (np.std(pop['hh_income'])/np.std(pop["hh_income_new"]))
+        newWaveIncome['hidp'] = pop['hidp']
+        random_income_within_household = newWaveIncome.groupby('hidp').apply(
+            lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
+        newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
+            random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
+
+        income_mean = np.median(newWaveIncome["hh_income"])
+        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income_new"]))
         pop["hh_income_new"] *= std_ratio
         pop["hh_income_new"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
