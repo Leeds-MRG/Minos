@@ -21,6 +21,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables
 
+pd.options.mode.chained_assignment = None  # default='warn'
 
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
@@ -287,7 +288,8 @@ def find_MINOS_years_range(file_path):
 
 def weighted_nanmean(df, v, weights = "weight", scale=1):
     df = df.loc[df['weight'] > 0]
-    df['weight'] = 1/df['weight']
+
+    df.loc[df.index, weights] = 1/df[weights]
     return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
 
 def child_uplift_cost_sum(df, v, weights='weight'):
@@ -359,10 +361,10 @@ if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
 
     #define test parameters and run.
-    directories = "baseline,25RelativePoverty,livingWageIntervention"
-    tags = "Baseline,Poverty Line Child Uplift,Living Wage Intervention"
-    subset_function_strings = "who_below_living_wage,who_boosted,who_boosted"
-    prefix = "baseline_living_wage_"
+    directories = "baseline,25RelativePoverty,50RelativePoverty"
+    tags = "Baseline,25 Relative Poverty,50 Relative Poverty"
+    subset_function_strings = "who_below_living_wage_and_kids,who_boosted,who_boosted"
+    prefix = "baseline_25_50_relative_poverty"
     mode = 'default_config'
     ref = "Baseline"
     v = "SF_12"
