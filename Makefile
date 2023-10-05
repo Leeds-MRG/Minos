@@ -4,6 +4,7 @@ USSOURCEDIR = $(CURDIR)/../UKDA-6614-stata/stata/stata13_se/
 SPATIALSOURCEDIR = $(CURDIR)/../US_spatial_lookup/
 DATADIR = $(CURDIR)/data
 RAWDATA = $(DATADIR)/raw_US
+ADJRAWDATA = $(DATADIR)/adj_raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
 COMPOSITEDATA = $(DATADIR)/composite_US
 COMPLETEDATA = $(DATADIR)/complete_US

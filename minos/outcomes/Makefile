@@ -168,6 +168,73 @@ aggregate_all_25_child_uplifts: aggregate_25_all_children aggregate_25_relative_
 aggregate_minos_output_living_wage:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"
 
+aggregate_minos_output_poverty_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
+
+aggregate_minos_output_child_poverty_reductionRANDOM:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_alive,who_boosted "child_poverty_reduction_RANDOM_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_kids,who_boosted "child_poverty_reduction_RANDOM_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_RANDOM_who_pov_kids"
+
+aggregate_minos_output_child_poverty_reductionSUSTAIN:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_alive,who_boosted "child_poverty_reduction_SUSTAIN_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_pov_kids"
+
+#aggregate_minos_output_all_child_uplift:
+#	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift"
+
+aggregate_minos_output_all_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift "Baseline,All Children Uplift,Poverty Line Child Uplift" who_kids,who_boosted,who_boosted "all_vs_poverty_child_uplift"
+
+aggregate_minos_output_disabled_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift"
+
+aggregate_minos_output_minority_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift"
+
+aggregate_minos_output_three_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift"
+
+# omitted due to lack of sample size
+aggregate_minos_output_young_mother_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift"
+
+aggregate_minos_output_young_adult_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift"
+
+aggregate_minos_output_uneducated_child_uplift:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift"
+
+
+aggregate_minos_output_scottish: MODE=default_config
+aggregate_minos_output_scottish: DIRECTORIES=baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
+aggregate_minos_output_scottish: DIRECTORY_TAGS="Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
+aggregate_minos_output_scottish: SUBSET_FUNCTIONS=who_scottish,who_scottish,who_scottish,who_scottish
+aggregate_minos_output_scottish:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(SUBSET_FUNCTIONS) "who_scottish?"
+
+aggregate_minos_output_living_wage_scot:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_scottish,who_scottish "living_wage_treated"
+
+aggregate_minos_output_all_child_uplift_scot:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_scottish,who_scottish "all_child_uplift"
+
+aggregate_minos_output_poverty_child_uplift_scot:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_scottish,who_scottish "poverty_line_child_uplift"
+
+aggregate_minos_output_energy_scot:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_scottish,who_scottish "energy_downlift"
+
+lineplots_national_scottish_subsample: aggregate_minos_output_living_wage_scot aggregate_minos_output_all_child_uplift_scot aggregate_minos_output_poverty_child_uplift_scot aggregate_minos_output_energy_scot aggregate_minos_output_scottish
+
+aggregate_combined_vulnerable:MODE=default_config
+aggregate_combined_vulnerable:VULNERABLE_DIRECTORIES=baseline,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift,hhIncomeChildUplift
+aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_TAGS="Baseline,All Children Uplift,Disabled Children Uplift,Minority Children Uplift,Three Children Uplift,Young Single Parent Children Uplift,Low Education Children Uplift"
+aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,who_disabled,who_ethnic_minority,who_three_kids,who_young_adults,who_no_formal_education
+aggregate_combined_vulnerable:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable"
+
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg"
 

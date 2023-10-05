@@ -615,6 +615,7 @@ class lmmYJIncome(Base):
             'pidp',
             'hidp',
             'weight',
+            #'weight',
             'SF_12',
             'hh_income_diff',
         ]
@@ -671,25 +672,16 @@ class lmmYJIncome(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
-        pop['hh_income_new'] = pop['hh_income']
-
-
+        pop['hh_income_current'] = pop['hh_income']
         ## Predict next income value
-        newWaveIncome = pd.DataFrame(self.calculate_income(pop), columns=['hh_income'])
+        newWaveIncome = pd.DataFrame(columns=['hh_income'])
+        newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
-        #pop['hh_income_new'] = newWaveIncome['hh_income_new']
-        #pop['hh_income_new'] = pop.groupby(['hidp'])['hh_income_new'].transform('mean')
-
-        newWaveIncome['hidp'] = pop['hidp']
-        random_income_within_household = newWaveIncome.groupby('hidp').apply(
-            lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
-        newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
-            random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
 
         income_mean = np.median(newWaveIncome["hh_income"])
-        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income_new"]))
-        pop["hh_income_new"] *= std_ratio
-        pop["hh_income_new"] -= ((std_ratio-1)*income_mean)
+        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        newWaveIncome["hh_income"] *= std_ratio
+        newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         #print(std_ratio)
@@ -697,13 +689,21 @@ class lmmYJIncome(Base):
         # Update population with new income
         #print("income", np.mean(newWaveIncome['hh_income']))
 
-        pop['hh_income_diff'] = pop['hh_income_new'] - pop['hh_income']
-        pop['hh_income'] = pop['hh_income_new']
-        # Set index back to population of interest.
+        # Household income is a household level measure, despite this we predict it for each individual
+        # because of this, we need to ensure that all members of a household have the same value after prediction.
+        # To this end, I'm going to take one random member of each household and fix everybody else in the house to
+        # this value
+        newWaveIncome['hidp'] = pop['hidp']
+        random_income_within_household = newWaveIncome.groupby('hidp').apply(
+            lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
+        newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
+            random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
+        #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
 
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-        self.population_view.update(pop[['hh_income', 'hh_income_diff']])
+        # Finally calculate diff
+        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
+
+        self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
         """Calculate income transition distribution based on provided people/indices

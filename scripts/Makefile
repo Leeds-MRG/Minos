@@ -145,6 +145,12 @@ intervention_EPCG: setup
 
 intervention_EBSS: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
+	
+intervention_childPovertyReduction: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/child_poverty_reduction_vis.Rmd')"
+	firefox file://$(OUTCOMES)/child_poverty_reduction_vis.html
 
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml

@@ -7,10 +7,13 @@ MICEDATA = $(DATADIR)/mice_US
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
-data: raw_data corrected_data composite_data complete_data final_data
+data: raw_data adj_raw_data corrected_data composite_data complete_data final_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2020_US_cohort.csv
+
+adj_raw_data: ### Generate adjusted raw data, currently only simulates a council tax value
+adj_raw_data: $(ADJRAWDATA)/2020_US_cohort.csv
 
 corrected_data: ### Run a number of imputation procedures on the raw data to produce corrected data
 corrected_data: $(CORRECTDATA)/2020_US_cohort.csv
@@ -57,6 +60,9 @@ glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
 
 $(RAWDATA)/2020_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py --source_dir $(USSOURCEDIR)
+
+$(ADJRAWDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(DATAGEN)/fake_council_tax.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
+	$(PYTHON) $(DATAGEN)/fake_council_tax.py
 
 $(CORRECTDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_missing_deterministic.py $(DATAGEN)/US_missing_LOCF.py $(DATAGEN)/US_missing_description.py $(DATAGEN)/US_missing_data_correction.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_missing_main.py

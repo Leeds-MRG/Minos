@@ -73,8 +73,7 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
-                          "nkids_ind"]
+                          "housing_tenure", 'hh_income', "nkids_ind"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)

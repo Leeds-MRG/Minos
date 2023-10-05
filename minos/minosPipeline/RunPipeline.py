@@ -43,8 +43,8 @@ from minos.modules.intervention import hhIncomeIntervention, childUplift
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme
-from minos.modules.intervention import energyDownliftNoSupport
+from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme, energyDownliftNoSupport
+from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -121,6 +121,9 @@ intervention_components_map = {        #Interventions
     "50Priority": childUplift(),
     "75Priority": childUplift(),
     "100Priority": childUplift(),
+
+    "ChildPovertyReductionRANDOM": ChildPovertyReductionRANDOM(),
+    "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
 }
 
 
@@ -380,10 +383,10 @@ def get_output_data_filename(config, year=0):
     # Add experiment parameters to output file name if present
     if 'run_ID' in config.keys():
         print(config.run_ID)
-        output_data_filename += str(config.run_ID).zfill(4) + '_' # pad with zeros so files are saved in correct order.
+        output_data_filename += str(config.run_ID).zfill(4) + '_'  # pad with zeros so files are saved in correct order.
         output_data_filename += str(config.run_ID_names) + '_'
 
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"
 
-    return(output_data_filename)
+    return output_data_filename
