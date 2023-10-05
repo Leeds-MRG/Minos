@@ -206,7 +206,7 @@ def predict_nnet(model, rpy2Modules, current, columns):
     return pd.DataFrame(newPandasPopDF, columns=columns)
 
 
-def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
+def predict_next_timestep_zip(model, rpy2Modules, current, dependent, noise_std=0):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -238,6 +238,9 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     # zero determine probability of them not drinking
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
+
+    if noise_std:
+        counts = counts.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         counts = ro.conversion.rpy2py(counts)
@@ -432,8 +435,8 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-        #noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -5, 5) #0.005
-        noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -10, 10) #0.005
+        noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -5, 5) #0.005
+        #noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -10, 10) #0.005
         with localconverter(ro.default_converter + numpy2ri.converter):
             Rnoise = ro.conversion.py2rpy(noise)
         prediction = prediction.ro + Rnoise # add gaussian noise.

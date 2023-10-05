@@ -125,7 +125,8 @@ class Tobacco(Base):
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
                                                             rpy2Modules= self.rpy2Modules,
                                                             current=pop,
-                                                            dependent='ncigs')
+                                                            dependent='ncigs',
+                                                            noise_std=1)
         return nextWaveTobacco
 
     def plot(self, pop, config):
