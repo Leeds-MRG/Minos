@@ -550,6 +550,9 @@ def generate_energy_composite(data):
               axis=1,
               inplace=True)
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
+
+    #put everyone's energy usage to match the maximum in the household.
+    data['yearly_energy'] = data.groupby(['hidp'])['yearly_energy'].transform(max)
     return data
 
 
