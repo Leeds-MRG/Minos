@@ -250,28 +250,78 @@ TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 #  nutriton quality line/boxplots.
 handover_boxplots(raw.dat, base.dat, 'nutrition_quality')
 handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
+
+test.pidps <- raw.dat %>%
+  select(pidp)
+
+test.base <- base.dat %>%
+  filter(pidp %in% test.pidps$pidp)
+
+handover_boxplots(raw.dat, test.base, 'nutrition_quality')
+handover_lineplots(raw.dat, test.base, 'nutrition_quality')
 ```
 
 ### Spaghetti
 
 ```{r}
-# raw.nut <- raw.dat %>%
-#   select(pidp, age, time, nutrition_quality)
-# base.nut <- base.dat %>%
-#   select(pidp, age, time, nutrition_quality)
-# 
-# nut.spag <- rbind(raw.nut, base.nut)
-# 
-# spaghetti_plot(nut.spag, 'nutrition_quality',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# 
-# density_ridges(nut.spag, "nutrition_quality", 
-#                save = T, 
-#                save.path = save.path)
-# 
-# rm(raw.nut, base.nut, nut.spag)
+raw.nut <- raw.dat %>%
+  select(pidp, age, time, nutrition_quality)
+base.nut <- base.dat %>%
+  select(pidp, age, time, nutrition_quality)
+
+nut.spag <- rbind(raw.nut, base.nut)
+
+spaghetti_plot(nut.spag, 'nutrition_quality',
+               save = shall.we.save,
+               save.path = save.path)
+
+
+density_ridges(nut.spag, "nutrition_quality",
+               save = T,
+               save.path = save.path)
+
+rm(raw.nut, base.nut, nut.spag)
+```
+
+## Tobacco
+
+TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
+
+```{r}
+#  nutriton quality line/boxplots.
+handover_boxplots(raw.dat, base.dat, 'ncigs')
+handover_lineplots(raw.dat, base.dat, 'ncigs')
+
+test.pidps <- raw.dat %>%
+  select(pidp)
+
+test.base <- base.dat %>%
+  filter(pidp %in% test.pidps$pidp)
+
+handover_boxplots(raw.dat, test.base, 'ncigs')
+handover_lineplots(raw.dat, test.base, 'ncigs')
+```
+
+### Spaghetti
+
+```{r}
+raw.nut <- raw.dat %>%
+  select(pidp, age, time, ncigs)
+base.nut <- base.dat %>%
+  select(pidp, age, time, ncigs)
+
+nut.spag <- rbind(raw.nut, base.nut)
+
+spaghetti_plot(nut.spag, 'ncigs',
+               save = shall.we.save,
+               save.path = save.path)
+
+
+density_ridges(nut.spag, "ncigs",
+               save = FALSE,
+               save.path = save.path)
+
+rm(raw.nut, base.nut, nut.spag)
 ```
 
 ## Physical Health
@@ -427,7 +477,26 @@ handover_ordinal(raw.dat, base.dat, var = 'active', save = shall.we.save)
 ## Material Deprivation
 
 ```{r}
-handover_boxplots(raw.dat, base.dat, 'matdep')
-handover_lineplots(raw.dat, base.dat, 'matdep')
+#handover_boxplots(raw.dat, base.dat, 'matdep')
+#handover_lineplots(raw.dat, base.dat, 'matdep')
+handover_ordinal(raw.dat, base.dat, var = 'matdep', save = shall.we.save)
 ```
+
+```{r}
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, matdep) %>%
+#   filter(!matdep %in% miss.values)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, matdep) %>%
+#   filter(!matdep %in% miss.values)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'matdep',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
+```
+
 

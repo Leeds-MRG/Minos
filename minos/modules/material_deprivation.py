@@ -67,7 +67,6 @@ class MaterialDeprivation(Base):
                         'urban',
                         'financial_situation',
                         'matdep',
-                        'matdep_diff',
                         'weight']
 
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -81,9 +80,13 @@ class MaterialDeprivation(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
+
+
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"matdep/glmmb/matdep_GLMMB", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"matdep/glmmb/matdep_GLMMB", self.rpy2_modules, path=self.transition_dir)
+        # self.gee_transition_model = r_utils.load_transitions(f"matdep/clm/matdep_2018-2019", self.rpy2_modules,
+        #                                                      path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -93,33 +96,53 @@ class MaterialDeprivation(Base):
             The event time_step that called this function.
         """
 
+        # self.year = event.time.year
+        # # Get living people to update their income
+        # pop = self.population_view.get(event.index, query="alive =='alive'")
+        # pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
+        # pop["matdep_last"] = pop["matdep"]
+        #
+        # # Predict next mwb value
+        # newWaveMatdep = pd.DataFrame(columns=['matdep'])
+        # newWaveMatdep['matdep'] = self.calculate_matdep(pop)
+        # newWaveMatdep.index = pop.index
+        # #newWaveMatdep["matdep"] -= 1
+        #
+        # sf12_mean = np.mean(newWaveMatdep["matdep"])
+        # std_ratio = (11/np.std(newWaveMatdep["matdep"]))
+        # newWaveMatdep["matdep"] *= (11/np.std(newWaveMatdep["matdep"]))
+        # newWaveMatdep["matdep"] -= ((std_ratio-1)*sf12_mean)
+        # newWaveMatdep["matdep"] -= 1.5
+        # #newWaveMatdep["matdep"] += (50 - np.mean(newWaveMatdep["SF_12_MCS"]))
+        # newWaveMatdep["matdep"] = np.clip(newWaveMatdep["matdep"], 0, 1) # keep within [0, 100] bounds of SF12.
+        # newWaveMatdep["matdep_diff"] = newWaveMatdep["matdep"] - pop["matdep"]
+        # # Update population with new SF12_MCS
+        # #print(np.mean(newWaveMatdep["matdep"]))
+        # #print(np.std(newWaveMatdep["matdep"]))
+        # self.population_view.update(newWaveMatdep[['matdep', "matdep_diff"]])
+
+        pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
-        # Get living people to update their income
-        pop = self.population_view.get(event.index, query="alive =='alive'")
-        pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
-        pop["matdep_last"] = pop["matdep"]
 
-        # Predict next mwb value
-        newWaveMatdep = pd.DataFrame(columns=['matdep'])
-        newWaveMatdep['matdep'] = self.calculate_mwb(pop)
-        newWaveMatdep.index = pop.index
-        #newWaveMatdep["matdep"] -= 1
+        matdep_prob_df = self.calculate_matdep(pop)
 
-        sf12_mean = np.mean(newWaveMatdep["matdep"])
-        std_ratio = (11/np.std(newWaveMatdep["matdep"]))
-        newWaveMatdep["matdep"] *= (11/np.std(newWaveMatdep["matdep"]))
-        newWaveMatdep["matdep"] -= ((std_ratio-1)*sf12_mean)
-        newWaveMatdep["matdep"] -= 1.5
-        #newWaveMatdep["matdep"] += (50 - np.mean(newWaveMatdep["SF_12_MCS"]))
-        newWaveMatdep["matdep"] = np.clip(newWaveMatdep["matdep"], 0, 1) # keep within [0, 100] bounds of SF12.
-        newWaveMatdep["matdep_diff"] = newWaveMatdep["matdep"] - pop["matdep"]
-        # Update population with new SF12_MCS
-        #print(np.mean(newWaveMatdep["matdep"]))
-        #print(np.std(newWaveMatdep["matdep"]))
-        self.population_view.update(newWaveMatdep[['matdep', "matdep_diff"]])
+        matdep_prob_df["matdep"] = self.random.choice(matdep_prob_df.index,
+                                                        list(matdep_prob_df.columns),
+                                                        matdep_prob_df) + 1
+
+        # housing_prob_df.index = pop.index
+        #
+        # # convert numeric prediction into string factors (low, medium, high)
+        # housing_factor_dict = {1: 'Low',
+        #                        2: 'Medium',
+        #                        3: 'High'}
+        # housing_prob_df.replace({'matdep': housing_factor_dict},
+        #                         inplace=True)
+
+        self.population_view.update(matdep_prob_df["matdep"])
 
 
-    def calculate_mwb(self, pop):
+    def calculate_matdep(self, pop):
         """Calculate SF_12 transition distribution based on provided people/indices
         Parameters
         ----------
@@ -128,12 +151,24 @@ class MaterialDeprivation(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
-                                                               self.rpy2_modules,
-                                                               current= pop,
-                                                               dependent='matdep',
-                                                               reflect=False,
-                                                               yeo_johnson= False,
-                                                               mod_type='beta',
-                                                               noise_std= 5)  # 5 for non yj, 0.35 for yj
-        return out_data
+        # out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
+        #                                                        self.rpy2_modules,
+        #                                                        current= pop,
+        #                                                        dependent='matdep',
+        #                                                        reflect=False,
+        #                                                        yeo_johnson= False,
+        #                                                        mod_type='beta',
+        #                                                        noise_std= 0.1)  # 5 for non yj, 0.35 for yj
+        # return out_data
+
+        # load transition model based on year.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
+
+        transition_model = r_utils.load_transitions(f"matdep/clm/matdep_{year}_{year + 1}", self.rpy2_modules, path=self.transition_dir)
+        # returns probability matrix (3xn) of next ordinal state.
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, 'matdep')
+        return prob_df

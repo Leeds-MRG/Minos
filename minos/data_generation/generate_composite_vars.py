@@ -1132,12 +1132,18 @@ def generate_matdep_proxy(data):
     data['counter'][data['matdepj'].isin([1, 2])] += 1
 
     # Now use the counter value and matdepscore to generate a score between 0 and 1
-    data['matdep'] = data['matdepscore'] / data['counter']
-    data['matdep'][data['counter'] == 0] = -9
+    data['matdepTEMP'] = data['matdepscore'] / data['counter']
+    data['matdepTEMP'][data['counter'] == 0] = -9
+
+    # now convert to 3 level ordinal
+    data['matdep'] = -9
+    data['matdep'][data['matdepTEMP'] == 0] = 1
+    data['matdep'][(data['matdepTEMP'] > 0) & (data['matdepTEMP'] < 1)] = 2
+    data['matdep'][data['matdepTEMP'] == 1] = 3
 
     # drop cols no longer need
     data.drop(labels=['matdepa', 'matdepd', 'matdepe', 'matdepf', 'matdepg', 'matdeph', 'matdepi', 'matdepj',
-                      'matdepscore', 'counter'],
+                      'matdepscore', 'counter', 'matdepTEMP'],
               axis=1,
               inplace=True)
 
