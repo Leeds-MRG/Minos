@@ -37,9 +37,7 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   return(dat)
 }
 
-
 read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
-  # When there are many rules in the file get the one with id 0001
   ## Start with scenario name
   # attach full output path
   # get runtime directory
@@ -61,6 +59,36 @@ read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE)
   }
   
   return(dat)
+}
+
+
+
+read_raw_data_out <- function(data.path, section, drop.dead=FALSE) {
+  ## get all data 
+  
+  scen.path <- paste0(data.path, section)
+  files <- list.files(scen.path,
+                      pattern = '[0-9]{4}_US_cohort.csv',
+                      full.names = TRUE)
+  dat <- do.call(rbind, lapply(files, read.csv))
+  # remove dead people
+  if(drop.dead) {
+    dat <- dat %>%
+      filter(alive != 'dead')
+  }
+  
+  return(dat)
+}
+
+save_raw_data_in <- function(data, data.path) {
+  ## save all data after processing.
+  
+  for (year_time in unique(data$time)) {
+    yearly_file_name <- paste0(data.path, year_time, "_US_Cohort.csv")
+    yearly_df <- data[which(data$time == year_time),]
+    write.csv(yearly_df, file=yearly_file_name, row.names=FALSE)
+    print(paste0("Saved file to: ", yearly_file_name, "."))
+  }
 }
 
 
