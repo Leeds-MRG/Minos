@@ -6,6 +6,8 @@ data: ### Run all four levels of data generation from raw Understanding Society 
 ###	format with composite variables generated
 data: raw_data corrected_data composite_data complete_data final_data
 
+inflated_data: data glasgow_scaled_data
+
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2020_US_cohort.csv
 
@@ -41,6 +43,12 @@ scot_data: $(SCOTDATA)/2020_US_cohort.csv
 cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
+
+# creating spatial populations from WS3 data
+
+glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
+
+#sheffield_scaled_data goes here.
 
 #####################################
 # Input Populations
@@ -84,3 +92,7 @@ $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation
+
+# synthetic input for glasgow with spatial component.
+$(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/US_upscaling.py
