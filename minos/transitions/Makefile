@@ -18,7 +18,7 @@ transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_menta
 
 scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds
 
-cv_transitions: $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds $(TRANSITION_DATA)/cross_validation/version5/SF_12/glmm/SF_12_GLMM.rds
+cv_transitions: $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds $(TRANSITION_DATA)/cross_validation/version5/SF_12_MCS/glmm/SF_12_MCS_GLMM.rds
 
 cv_S7_transitions: | $(TRANSITION_DATA)
 cv_S7_transitions: $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/cross_validation/version5/hh_income/glmm/hh_income_new_GLMM.rds

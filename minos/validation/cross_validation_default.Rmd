@@ -341,6 +341,21 @@ cv_ordinal_plots(pivoted.df = active.pivoted,
 rm(active.pivoted)
 ```
 
+# Material Deprivation
+
+```{r}
+matdep.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'matdep')
+
+cv_ordinal_plots(pivoted.df = matdep.pivoted, 
+                 var = 'matdep',
+                 save = FALSE)
+rm(matdep.pivoted)
+```
+
 # SECONDARY VARS
 
 ## Marital Status
