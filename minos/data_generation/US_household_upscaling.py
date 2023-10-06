@@ -77,7 +77,7 @@ def main():
     sampled_data['weight'] = 1 # force sample weights to 1.
 
     US_utils.check_output_dir("data/scaled_glasgow_US/") # check save directory exists or create it.
-    US_utils.save_file(sampled_data, "data/scaled_glasgow_US/", 'household_', 2020)
+    US_utils.save_file(sampled_data, "data/scaled_glasgow_US/", '', 2020)
 
 
 if __name__ == '__main__':
