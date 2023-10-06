@@ -16,7 +16,7 @@ left (right?) merge on hidp might be the simplest way to do this?
 
 
 import pandas as pd
-from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes, get_spatial_attribute_data, get_knn_cluster_data
+from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes, get_spatial_attribute_data
 import numpy as np
 import US_utils
 
@@ -73,8 +73,6 @@ def main():
     # merge with spatial_attributes
     # get simd_deciles
     sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
-    # get_zone_ids
-    sampled_data = merge_with_spatial_attributes(sampled_data, get_knn_cluster_data(), "ZoneID")
 
     sampled_data['weight'] = 1 # force sample weights to 1.
 
