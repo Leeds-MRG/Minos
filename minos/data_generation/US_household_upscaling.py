@@ -49,7 +49,7 @@ def main():
     3. Merge synthetic population on real Understanding Society data to get populated individual rows with a spatial component.
     4.
     """
-    synthpop_file_path = "../data/HH2011PopEst2020S_population.csv"
+    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020S_population.csv"
     try:
         synthpop_data = pd.read_csv(synthpop_file_path) # this is individual population weighted data.
     except FileNotFoundError as e:
