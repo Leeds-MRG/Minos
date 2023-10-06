@@ -18,6 +18,7 @@ import numpy as np
 from numpy.random import choice
 import argparse
 import os
+from uuid import uuid4
 from rpy2.robjects.packages import importr
 
 import US_utils
@@ -65,9 +66,16 @@ def expand_repl(US_2018):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
 
-        #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
+        # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
+        # in python. Developed in the 80s such that odds of repeat values is astronomical.
+        # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
+        # bit shifting makes number that only relies on clock to improve uniqueness but less random.
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e12)
+        # [(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
+
+        # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
         ## Previously tried duplicating the 16 year olds but this is hard in Scotland mode as there are only 3 people
         # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
@@ -77,7 +85,7 @@ def expand_repl(US_2018):
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
 
-    assert(expanded_repl.duplicated('pidp').sum() == 0)
+    assert (expanded_repl.duplicated('pidp').sum() == 0)
 
     # reset index for the predict_education step
     expanded_repl.reset_index(drop=True, inplace=True)
