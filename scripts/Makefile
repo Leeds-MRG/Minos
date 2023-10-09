@@ -179,7 +179,7 @@ cv_SIPHER7: cv_S7_setup
 #####################################
 
 S7_all_scenarios: S7_baseline S7_intervention_hhIncomeChildUplift S7_intervention_PovertyLineChildUplift
-S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift
+S7_all_scenarios: S7_intervention_livingWage S7_intervention_energyDownLift S7_intervention_energyDownLiftNoSupport
 
 S7_baseline: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7
@@ -199,3 +199,5 @@ S7_intervention_livingWage: setup_S7
 S7_intervention_energyDownLift: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
 
+S7_intervention_energyDownLiftNoSupport: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownliftNoSupport'
