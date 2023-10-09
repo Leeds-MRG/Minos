@@ -486,7 +486,8 @@ class lmmYJMWB(Base):
                         'neighbourhood_safety',
                         'loneliness',
                         'financial_situation',
-                        'active',]
+                        'active',
+                        'chron_disease']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

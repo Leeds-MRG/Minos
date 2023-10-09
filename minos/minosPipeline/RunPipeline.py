@@ -30,7 +30,13 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.heating import Heating
+from minos.modules.financial_situation import financialSituation
+from minos.modules.housing_tenure import HousingTenure
+from minos.modules.physical_activity import PhysicalActivity
 from minos.modules.material_deprivation import MaterialDeprivation
+from minos.modules.chron_disease import ChronicDisease
+
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -38,10 +44,6 @@ from minos.modules.S7Neighbourhood import S7Neighbourhood
 from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
-from minos.modules.heating import Heating
-from minos.modules.financial_situation import financialSituation
-from minos.modules.housing_tenure import HousingTenure
-from minos.modules.physical_activity import PhysicalActivity
 
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
@@ -89,6 +91,7 @@ components_map = {
     "MaterialDeprivation()": MaterialDeprivation(),
     "PhysicalActivity()": PhysicalActivity(),
     "HousingTenure()": HousingTenure(),
+    "ChronicDisease()": ChronicDisease(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff

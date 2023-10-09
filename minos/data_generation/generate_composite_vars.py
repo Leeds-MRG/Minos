@@ -1150,6 +1150,92 @@ def generate_matdep_proxy(data):
     return data
 
 
+def generate_chron_disease_proxy(data):
+    """
+    For a first pass at a chronic disease proxy variable, we are going to focus on the distinction between no chronic
+    disease (CD), 1 CD, and more than 1. We think this will give us a fairly simple ordinal variable that has a strong
+    correlation with SF_12_PCS.
+
+    NOTE: There is a variable (hcond96) for none of the above conditions. I'm going to ignore this and just rely on
+    the tally of CD's we create from each individual variable.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with the individual chronic disease variables.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with the chronic disease proxy, and component variables removed.
+    """
+
+    # first start the counter and increment with every non-missing positive response to each chronic condition
+    data['cd_counter'] = 0
+    data['cd_counter'][data['hcond1'] == 1] += 1  # Asthma
+    data['cd_counter'][data['hcond2'] == 1] += 1  # Arthritis
+    data['cd_counter'][data['hcond3'] == 1] += 1  # Congestive Heart Failure
+    data['cd_counter'][data['hcond4'] == 1] += 1  # Coronary Heart Failure
+    data['cd_counter'][data['hcond5'] == 1] += 1  # Angina
+    data['cd_counter'][data['hcond6'] == 1] += 1  # Heart attack or myocardial infarction
+    data['cd_counter'][data['hcond7'] == 1] += 1  # Stroke
+    data['cd_counter'][data['hcond8'] == 1] += 1  # Emphysema
+    data['cd_counter'][data['hcond10'] == 1] += 1  # Hypothyroidism
+    data['cd_counter'][data['hcond11'] == 1] += 1  # Chronic Bronchitis
+    data['cd_counter'][data['hcond12'] == 1] += 1  # Any kind of liver condition
+    data['cd_counter'][data['hcond13'] == 1] += 1  # Cancer or malignancy
+    data['cd_counter'][data['hcond14'] == 1] += 1  # Diabetes
+    data['cd_counter'][data['hcond15'] == 1] += 1  # Epilepsy
+    data['cd_counter'][data['hcond16'] == 1] += 1  # High blood pressure
+    data['cd_counter'][data['hcond18'] == 1] += 1  # Other long standing/chronic condition
+    data['cd_counter'][data['hcond19'] == 1] += 1  # Multiple Sclerosis
+    data['cd_counter'][data['hcond20'] == 1] += 1  # H.I.V
+    data['cd_counter'][data['hcond21'] == 1] += 1  # COPD
+
+    # next we need a missing counter to find cases where all vars are missing
+    data['cd_miss_counter'] = 0
+    data['cd_miss_counter'][data['hcond1'] < 0] += 1  # Asthma
+    data['cd_miss_counter'][data['hcond2'] < 0] += 1  # Arthritis
+    data['cd_miss_counter'][data['hcond3'] < 0] += 1  # Congestive Heart Failure
+    data['cd_miss_counter'][data['hcond4'] < 0] += 1  # Coronary Heart Failure
+    data['cd_miss_counter'][data['hcond5'] < 0] += 1  # Angina
+    data['cd_miss_counter'][data['hcond6'] < 0] += 1  # Heart attack or myocardial infarction
+    data['cd_miss_counter'][data['hcond7'] < 0] += 1  # Stroke
+    data['cd_miss_counter'][data['hcond8'] < 0] += 1  # Emphysema
+    data['cd_miss_counter'][data['hcond10'] < 0] += 1  # Hypothyroidism
+    data['cd_miss_counter'][data['hcond11'] < 0] += 1  # Chronic Bronchitis
+    data['cd_miss_counter'][data['hcond12'] < 0] += 1  # Any kind of liver condition
+    data['cd_miss_counter'][data['hcond13'] < 0] += 1  # Cancer or malignancy
+    data['cd_miss_counter'][data['hcond14'] < 0] += 1  # Diabetes
+    data['cd_miss_counter'][data['hcond15'] < 0] += 1  # Epilepsy
+    data['cd_miss_counter'][data['hcond16'] < 0] += 1  # High blood pressure
+    data['cd_miss_counter'][data['hcond18'] < 0] += 1  # Other long-standing/chronic condition
+    data['cd_miss_counter'][data['hcond19'] < 0] += 1  # Multiple Sclerosis
+    data['cd_miss_counter'][data['hcond20'] < 0] += 1  # H.I.V
+    data['cd_miss_counter'][data['hcond21'] < 0] += 1  # COPD
+
+    # 'hcond96': 'hcond96',  # Health Condition 96: None of these
+
+    data['chron_disease'] = -9
+    data['chron_disease'][data['cd_counter'] == 0] = 1  # No Chronic disease
+    data['chron_disease'][data['cd_counter'] == 1] = 2  # 1 Chronic disease
+    data['chron_disease'][data['cd_counter'] > 1] = 3  # 1+ Chronic disease
+
+    # Now missing - when all (19) CD's are missing then the ordinal variable can be labelled missing
+    data['chron_disease'][data['cd_miss_counter'] == 19] = -9  # All missing
+
+    # drop cols no longer need
+    data.drop(labels=['hcond1', 'hcond2', 'hcond3', 'hcond4', 'hcond5', 'hcond6', 'hcond7', 'hcond8', 'hcond10',
+                      'hcond11', 'hcond12', 'hcond13', 'hcond14', 'hcond15', 'hcond16', 'hcond18', 'hcond19', 'hcond20',
+                      'hcond21', 'hcond96',
+                      'cd_counter', 'cd_miss_counter'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+
 def calculate_children(data,
                        parity_max=PARITY_MAX_DEFAULT):
     """
@@ -1238,8 +1324,9 @@ def main():
     data = calculate_auditc_score(data)  # alcohol use disorder for consumption (auditc)
     data = generate_physical_activity_binary(data)  # physical activity composite
     data = generate_matdep_proxy(data)  # Material Deprivation proxy
+    data = generate_chron_disease_proxy(data)  # Chronic Disease proxy
     data = calculate_children(data)  # total number of biological children
-    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
+    data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

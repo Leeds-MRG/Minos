@@ -193,7 +193,8 @@ class lmmYJPCS(Base):
                         'loneliness',
                         'financial_situation',
                         'active',
-                        'auditc',]
+                        'auditc',
+                        'chron_disease']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -255,10 +256,10 @@ class lmmYJPCS(Base):
         """
         out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
                                                                self.rpy2_modules,
-                                                               current= pop,
+                                                               current=pop,
                                                                dependent='SF_12_PCS',
                                                                reflect=True,
-                                                               yeo_johnson= True,
+                                                               yeo_johnson=True,
                                                                mod_type='gamma',
-                                                               noise_std= 0.1)  # 5 for non yj, 0.35 for yj
+                                                               noise_std=0.1)  # 5 for non yj, 0.35 for yj
         return out_data

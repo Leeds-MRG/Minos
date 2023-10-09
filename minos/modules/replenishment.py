@@ -104,6 +104,7 @@ class Replenishment(Base):
                         'SF_12_PCS_diff',
                         'matdep',
                         'matdep_diff',
+                        'chron_disease',
                         ]
 
         # Shorthand methods for readability.

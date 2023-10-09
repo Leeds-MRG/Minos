@@ -175,6 +175,7 @@ run_yearly_models <- function(transitionDir_path,
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
       if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018)) { next }
+      if(dependent %in% c('chron_disease') & year < 2011) { next }
 
       print(paste0('Starting estimation for ', dependent, ' in ', year))
 
@@ -207,28 +208,33 @@ run_yearly_models <- function(transitionDir_path,
       ## For the SF_12 models (MCS & PCS), we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
-      if(dependent %in% c('SF_12_MCS', 'SF_12_PCS')) {
-        if(!year %in% c(2011, 2014, 2017, 2020)) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
-        }
-        if(!year > 2016) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
-        }
-        if(!year %in% c(2015, 2017, 2019)) {
-          formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
-        }
-        if(year < 2013) {
-          formula.string <- str_remove(formula.string, " \\+ ncigs")
-        }
-        if(!year %in% c(2015, 2017, 2019, 2020)) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(auditc\\)")
-        }
-        if(!year %in% c(2015, 2017, 2019, 2020)) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(active\\)")
-        }
-        if(!year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) {
-          formula.string <- str_remove(formula.string, " \\+ factor\\(matdep\\)")
-        }
+      # CHANGE 9/10/23: We remove these variables because they're not present, 
+      #                 so we should do this for all models and not just SF_12
+      if(!year %in% c(2011, 2014, 2017, 2020)) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+      }
+      if(!year > 2016) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+      }
+      if(!year %in% c(2015, 2017, 2019)) {
+        formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
+        formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
+      }
+      if(year < 2013) {
+        formula.string <- str_remove(formula.string, " \\+ ncigs")
+        formula.string <- str_remove(formula.string, " \\+ scale\\(ncigs\\)")
+      }
+      if(!year %in% c(2015, 2017, 2019, 2020)) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(auditc\\)")
+      }
+      if(!year %in% c(2015, 2017, 2019, 2020)) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(active\\)")
+      }
+      if(!year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(matdep\\)")
+      }
+      if(year < 2011) {
+        formula.string <- str_remove(formula.string, " \\+ factor\\(chron_disease\\)")
       }
       #print(formula.string)
       # Now make string into formula

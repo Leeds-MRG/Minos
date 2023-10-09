@@ -332,6 +332,27 @@ def format_ukhls_columns(year):
                       'matdeph': 'matdeph',  # Material Deprivation: Replace or repair major electrical goods
                       'matdepi': 'matdepi',  # Material Deprivation: Money for self
                       'matdepj': 'matdepj',  # Material Deprivation: Keep up with bills
+                      # Chronic Disease Vars
+                      'hcond1': 'hcond1',  # Health Condition 1: Asthma
+                      'hcond2': 'hcond2',  # Health Condition 2: Arthritis
+                      'hcond3': 'hcond3',  # Health Condition 3: Congestive Heart Failure
+                      'hcond4': 'hcond4',  # Health Condition 4: Coronary Heart Failure
+                      'hcond5': 'hcond5',  # Health Condition 5: Angina
+                      'hcond6': 'hcond6',  # Health Condition 6: Heart attack or myocardial infarction
+                      'hcond7': 'hcond7',  # Health Condition 7: Stroke
+                      'hcond8': 'hcond8',  # Health Condition 8: Emphysema
+                      'hcond10': 'hcond10',  # Health Condition 10: Hypothyroidism
+                      'hcond11': 'hcond11',  # Health Condition 11: Chronic Bronchitis
+                      'hcond12': 'hcond12',  # Health Condition 12: Any kind of liver condition
+                      'hcond13': 'hcond13',  # Health Condition 13: Cancer or malignancy
+                      'hcond14': 'hcond14',  # Health Condition 14: Diabetes
+                      'hcond15': 'hcond15',  # Health Condition 15: Epilepsy
+                      'hcond16': 'hcond16',  # Health Condition 16: High blood pressure
+                      'hcond18': 'hcond18',  # Health Condition 18: Other long standing/chronic condition
+                      'hcond19': 'hcond19',  # Health Condition 19: Multiple Sclerosis
+                      'hcond20': 'hcond20',  # Health Condition 20: H.I.V
+                      'hcond21': 'hcond21',  # Health Condition 21: COPD
+                      'hcond96': 'hcond96',  # Health Condition 96: None of these
                       }
 
     # Some variables change names halfway through UKHLS.
