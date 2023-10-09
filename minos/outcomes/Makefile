@@ -1,36 +1,14 @@
-
-
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
+#TODO: make bash functions for vulnerable subgroups in aggregated_lineplots.sh
+#TODO make bash script for maps.
+#TODO add bash script with 4 interventions (no poverty line).
 
-test_plot: MODE=default_config
-test_plot: ALIVE=who_alive
-test_plot: BOOSTED=who_boosted
-test_plot: aggregate_minos_output_energy
+##############################################################
+# Post-hoc aggregation of multiple MINOS runs into lineplots #
+##############################################################
 
-#####################################
-# Post-hoc aggregation of multiple MINOS runs on bash terminal.
-#####################################
 
-#TODO: Parameterise this so we can run `make scot_all_lineplots` and it sets the $(MODE) var and runs all lineplots with it
-scot_all_lineplots: MODE=scotland_mode
-scot_all_lineplots: ALIVE=who_alive
-scot_all_lineplots: BOOSTED=who_boosted
-scot_all_lineplots: LIVING_WAGE=who_below_living_wage
-scot_all_lineplots: POVERTY=who_below_poverty_line_and_kids
-scot_all_lineplots: CHILD=who_kids
-scot_all_lineplots: all_lineplots
-
-default_all_lineplots: MODE=default_config
-default_all_lineplots: ALIVE=who_alive
-default_all_lineplots: BOOSTED=who_boosted
-default_all_lineplots: LIVING_WAGE=who_below_living_wage
-default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
-default_all_lineplots: CHILD=who_kids
-default_all_lineplots: all_lineplots
-
-all_lineplots: aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
-vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
-
+all_initial_lineplots: all_child_lineplot poverty_line_lineplot living_wage_lineplot ebss_lineplot all_five_lineplot
 
 aggregate_minos_output:
 aggregate_minos_output:	DIRECTORIES = baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
@@ -47,11 +25,161 @@ aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),
 aggregate_minos_output_treated:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated"
 
+
+###########################
+# Living Wage Lineplots ###
+###########################
+
+# Living Wage Intervention
+living_wage_lineplot: MODE="default_config"
+living_wage_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "living_wage"
+
+##########################################
+# Child Income Intervention Lineplots #
+#######################################
+
+# old interventions that are fixed £25 increase.
+# All Children Uplift
+all_child_lineplot: MODE="default_config"
+all_child_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_child"
+
+# Poverty Line Child Uplift
+poverty_line_lineplot: MODE="default_config"
+poverty_line_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py  $(MODE) "poverty_line_child"
+
+
+# individual lineplots for new child interventions in increments up to £100
+
+BOOSTED="who_boosted"
+aggregate_all_child_uplifts: MODE="default_config"
+aggregate_all_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_all_child"
+
+aggregate_poverty_line_child_uplifts: MODE="default_config"
+aggregate_poverty_line_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_relative_poverty"
+
+aggregate_universal_credit_child_uplifts: MODE="scaled_glasgow"
+aggregate_universal_credit_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
+
+aggregate_priority_groups_child_uplifts: MODE= "scaled_glasgow"
+aggregate_priority_groups_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
+
+aggregate_25_universal_credit: MODE="default_config"
+aggregate_25_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_25_relative_poverty: MODE="default_config"
+aggregate_25_relative_poverty:
+	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
+
+aggregate_25_all_children: MODE="default_config"
+aggregate_25_all_children:
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+
+##########################################
+# Custom subset for social science paper #
+##########################################
+
+social_science_lineplots:
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "social_science_all_plots"
+
+#################################
+# Custom subset for scotgov piece
+#################################
+
+aggregate_25_UC_priority: MODE="scaled_glasgow"
+aggregate_25_UC_priority:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_UC_priority"
+
+aggregate_50_UC_priority: MODE="scaled_glasgow"
+aggregate_50_UC_priority:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_UC_priority"
+
+aggregate_75_UC_priority: MODE="scaled_glasgow"
+aggregate_75_UC_priority:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_UC_priority"
+
+aggregate_100_UC_priority: MODE="scaled_glasgow"
+aggregate_100_UC_priority:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
+
+all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable aggregate_universal_credit_child_uplifts aggregate_priority_groups_child_uplifts
+
+########################################################
+# SIMD decile lineplots for glasgow using spatial data #
+########################################################
+
+baseline_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_baseline_all_deciles"
+
+poverty_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_all_deciles"
+
+universal_credit_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_universal_credit_all_deciles"
+
+priority_group_all_deciles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_priority_groups_all_deciles"
+
+poverty_first_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_first"
+
+poverty_fifth_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_fifth"
+
+poverty_tenth_decile_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_tenth"
+
+###############################
+# energy crisis lineplots #####
+###############################
+
+# EBSS energy downlift.
+ebss_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "ebss"
+
+# do all the above together
+all_five_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_five"
+
+epcg_simd_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
+
+
+########################################################################
+# need to add macros for these in make_lineplot_macros.sh. do later..  #
+########################################################################
+
+aggregate_combined_25_child_uplifts: MODE=default_config
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORIES = baseline,25UniversalCredit,25RelativePoverty,25All
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORY_TAGS="Baseline,£25 Universal Credit,£25 Relative Poverty,£25 All"
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORY_SUBSETS = "who_kids",$(BOOSTED),$(BOOSTED),$(BOOSTED)
+aggregate_combined_25_child_uplifts:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "combined_25_child_uplifts"
+
+aggregate_all_25_child_uplifts: aggregate_25_all_children aggregate_25_relative_poverty aggregate_25_universal_credit aggregate_combined_25_child_uplifts
+
 aggregate_minos_output_living_wage:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated"
 
 aggregate_minos_output_poverty_child_uplift:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
+
+aggregate_minos_output_child_poverty_reductionRANDOM:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_alive,who_boosted "child_poverty_reduction_RANDOM_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_kids,who_boosted "child_poverty_reduction_RANDOM_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_RANDOM_who_pov_kids"
+
+aggregate_minos_output_child_poverty_reductionSUSTAIN:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_alive,who_boosted "child_poverty_reduction_SUSTAIN_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_pov_kids"
 
 #aggregate_minos_output_all_child_uplift:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift"
@@ -110,9 +238,7 @@ aggregate_combined_vulnerable:
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg"
 
-aggregate_minos_output_energy_old: # old command not using intervention with no support as well
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift"
-
+all_decile_lineplots: baseline_all_deciles poverty_all_deciles poverty_fifth_decile_lineplot poverty_first_decile_lineplot poverty_tenth_decile_lineplot
 
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
@@ -131,6 +257,7 @@ OUT_ENERGYDOWNLIFT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownlift
 OUT_ENERGYDOWNLIFTNOSUPPORT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/energyDownliftNoSupport
 OUT_LIVINGWAGEINT = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/livingWageIntervention
 OUT_POVERTYUP = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/hhIncomePovertyLineChildUplift
+
 SPATIAL_DIRECTORY1 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION1)# first geojson for comparison in diff plot.
 SPATIAL_DIRECTORY2 = output/$(DEFAULT_OUTPUT_SUBDIRECTORY)/$(INTERVENTION2)# second geojson for comparison in aggregate_two_and_diff
 AGG_METHOD = nanmean# what method to aggregate with.
@@ -180,6 +307,26 @@ aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -s $(OUT_BASELINE) -y $(AGG_YEAR) -d $(OUT_BASELINE) -m nanmean -v SF_12 -f	geojson -u who_below_poverty_line_and_kids
 	$(PYTHON) minos/outcomes/format_spatial_output.py -s $(OUT_POVERTYUP) -y $(AGG_YEAR) -d $(OUT_POVERTYUP) -m	nanmean	-v SF_12 -f geojson -u who_boosted
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -f $(OUT_POVERTYUP)/nanmean_SF_12_$(AGG_YEAR).geojson -g $(OUT_BASELINE)/nanmean_SF_12_$(AGG_YEAR).geojson -d $(PLOTDIR)/baseline_vs_poverty_25_uplift_difference_map -m $(AGG_LOCATION) -v SF_12
+
+epcg_ebss_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
+
+uc_baseline_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
+
+priority_baseline_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
+
+# experimental bash scripts.
+main_maps:
+	bash minos/outcomes/aggregated_maps.sh
+
 
 map_all: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
 map_concept_note: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map

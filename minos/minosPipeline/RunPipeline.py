@@ -4,6 +4,7 @@ import logging
 import os
 from pathlib import Path
 from rpy2.robjects.packages import importr
+import pandas as pd
 
 # Do this to suppress warnings from Vivariums code...
 import warnings
@@ -44,9 +45,6 @@ from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
-
-# for viz.
-from minos.outcomes.minos_distribution_visualisation import *
 
 
 # components = [eval(x) for x in config.components] # more adaptive way but security issues.
