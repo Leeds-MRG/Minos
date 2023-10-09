@@ -112,6 +112,10 @@ arc4_intervention_energyDownLift: setup
 arc4_intervention_energyDownLiftNoSupport: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
+arc4_intervention_childPovertyReduction: setup
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
+
 arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
