@@ -377,10 +377,12 @@ class livingWageIntervention(Base):
         logging.info(f"\tNumber of people uplifted: {sum(who_uplifted_London) + sum(who_uplifted_notLondon)}")
         logging.info(
             f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
-        logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
-        logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
-        logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
-        logging.info(f"\t\tNot London %: {(sum(who_uplifted_notLondon) / len(pop[pop['region'] != 'London'])) * 100}")
+        if len(pop[pop['region'] == 'London']): # added check here for scottish pop who have no londoners and ends up dividing by 0.
+            logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
+            logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
+        if len(pop[pop['region'] != 'London']): # likewise if we ever do a london only intervention...
+            logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
+            logging.info(f"\t\tNot London %: {(sum(who_uplifted_notLondon) / len(pop[pop['region'] != 'London'])) * 100}")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'][pop['income_boosted'] == True].sum()}")
         logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].sum()}")

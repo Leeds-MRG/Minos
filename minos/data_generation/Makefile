@@ -33,6 +33,8 @@ inflated_repl: $(DATADIR)/replenishing/inflated/replenishing_pop_2019-2070.csv
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
 replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
+glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
+
 scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
 spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
@@ -90,3 +92,7 @@ $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation
+
+# synthetic input for glasgow with spatial component.
+$(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
+	$(PYTHON) $(DATAGEN)/US_household_upscaling.py
