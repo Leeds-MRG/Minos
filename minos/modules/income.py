@@ -607,6 +607,8 @@ class lmmYJIncome(Base):
                         'job_sec',
                         'SF_12',
                         'pidp',
+                        'hh_income',
+                        'hh_income_diff'
                         ]
 
 

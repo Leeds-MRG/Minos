@@ -478,7 +478,9 @@ class lmmYJMWB(Base):
                         "nutrition_quality",
                         "ncigs",
                         'SF_12',
-                        'pidp'
+                        'SF_12_diff',
+                        'pidp',
+                        'hh_income'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)

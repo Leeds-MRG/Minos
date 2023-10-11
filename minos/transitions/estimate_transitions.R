@@ -197,18 +197,18 @@ run_yearly_models <- function(transitionDir_path,
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
       if(!year %in% c(2011, 2014, 2017, 2020)) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
       }
       if(!year > 2016) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(loneliness\\)")
       }
       if(!year %in% c(2015, 2017, 2019)) {
-        formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
+        formula.string <- str_remove_all(formula.string, " \\+ scale\\(nutrition_quality\\)")
       }
       if(year < 2013) {
-        formula.string <- str_remove(formula.string, " \\+ ncigs")
+        formula.string <- str_remove_all(formula.string, " \\+ scale\\(ncigs\\)")
       }
-      #print(formula.string)
+      print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
 

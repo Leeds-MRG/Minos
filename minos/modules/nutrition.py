@@ -158,14 +158,17 @@ class lmmYJNutrition(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
+        view_columns = ['time',
+                        "age",
                         "sex",
                         "ethnicity",
                         "region",
                         "education_state",
                         'hh_income',
                         'pidp',
-                        'hidp'
+                        'hidp',
+                        'nutrition_quality',
+                        'nutrition_quality_diff',
                         ]
 
         #view_columns += self.transition_model.rx2('model').names
