@@ -208,7 +208,7 @@ run_yearly_models <- function(transitionDir_path,
       if(year < 2013) {
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(ncigs\\)")
       }
-      print(formula.string)
+      #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
 
