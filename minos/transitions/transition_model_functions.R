@@ -5,6 +5,8 @@ require(pscl)
 require(bestNormalize)
 require(lme4)
 
+require(GLMMadaptive)
+
 ################ Model Specific Functions ################
 
 # We can keep these really simple, all they need to do is run the model so
@@ -134,6 +136,29 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   return(model)
 }
 
+estimate_yearly_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, depend) {
+  
+  data <- replace.missing(data)
+  
+  browser()
+  model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
+                       fixed = ncigs ~ scale(age) + factor(education_state) + factor(sex) + scale(SF_12) + scale(hh_income) + factor(ethnicity),
+                       random = ~ 1|pidp,
+                       data = data,
+                       family = zi.poisson(), 
+                       zi_fixed = ~ ncigs)
+  
+  #model[[depend]] <- data[[depend]]
+  #model$class_preds <- predict(model)
+
+  #print(summary(model))
+  #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
+  #print(prs)
+  
+  return(model)
+}
+
+
 
 ###################################################
 # Longitudinal Transition Probability Functions
@@ -147,6 +172,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   data <- replace.missing(data)
   #data <- drop_na(data)
   max_value <- nanmax(data[[depend]])
+  data[[depend]] <- data[[depend]] + rnorm(nrow(data),0,1)
   if (reflect) {
     data[, c(depend)] <- max_value - data[, c(depend)] 
   }
@@ -169,7 +195,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
-  #browser()
+  browser()
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
@@ -212,6 +238,8 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
+  data[[depend]] <- data[[depend]] + rnorm(nrow(data),0,1)
+  
   if (reflect) {
     max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)] 

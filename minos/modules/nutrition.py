@@ -55,7 +55,8 @@ class Nutrition(Base):
                         'hh_income',
                         'alcohol_spending',
                         'ncigs',
-                        'nutrition_quality']
+                        'nutrition_quality',
+                        'hidp']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -173,7 +174,8 @@ class lmmYJNutrition(Base):
                         #'alcohol_spending',
                         'ncigs',
                         'nutrition_quality',
-                        'nutrition_quality_diff']
+                        'nutrition_quality_diff',
+                        'hidp']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

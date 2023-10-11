@@ -32,7 +32,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "MIXED_ZIP")
   
   data[which(data$ncigs==-8), 'ncigs'] <- 0
   
@@ -134,7 +134,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # For SF12 predicting current state given changes in all other information and previous SF12 value. 
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
     # We have SF_12_last in the model formula for 2019 SF12. 
-    if (dependent == "nutrition_quality" || dependent == "hh_income")  {
+    if (dependent == "nutrition_quality" || dependent == "hh_income" || dependent == "ncigs")  {
       # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%
@@ -161,7 +161,16 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       form <- as.formula(formula.string)
       }
     # get only required variables and sort by pidp/time. 
-    df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
+    if (tolower(mod.type) != "mixed_zip"){
+      
+      df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
+      
+    } else {
+      
+      df <- data[, append(all.vars(form), c("time", 'pidp', 'weight', 'ncigs'))]
+      
+    }
+    
     sorted_df <- df[order(df$pidp, df$time),]
     
     # function call and parameters based on model type. 
@@ -205,6 +214,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                           formula = form, 
                                           depend = dependent)
       
+    } else if (tolower(mod.type) == "mixed_zip") {
+      
+      model <- estimate_yearly_mixed_zip(sorted_df,
+                                         formula,
+                                         include_weights = FALSE,
+                                         depend)
     }
     
     write_coefs <- F

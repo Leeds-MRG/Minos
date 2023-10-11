@@ -257,20 +257,15 @@ class hhIncomePovertyLineChildUplift(Base):
         logging.info(f"\tApplying effects of the hh_income poverty line child uplift intervention in year {event.time.year}...")
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
-        # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         who_uplifted = (pop['hh_income'] <= np.nanmedian(pop['hh_income']) * 0.6) #
         pop['boost_amount'] = (who_uplifted * 25 * 30.436875 / 7) # £20 per child per week uplift for everyone under poverty line.
 
-        # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         pop['income_boosted'] = who_uplifted
         pop['hh_income'] += pop['boost_amount']
-        # print(np.mean(pop['hh_income'])) # for debugging.
-        # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
+
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
         logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
