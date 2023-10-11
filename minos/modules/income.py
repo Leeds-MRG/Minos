@@ -599,21 +599,17 @@ class lmmYJIncome(Base):
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
-        view_columns = [
-            'hh_income',
-            'age',
-            'sex',
-            'ethnicity',
-            'region',
-            'education_state',
-            'job_sec',
-            #'job_sector',
-            'time',
-            'pidp',
-            #'weight',
-            'SF_12',
-            'hh_income_diff',
-        ]
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        'job_sec',
+                        'SF_12',
+                        'pidp',
+                        ]
+
+
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)# + columns_created)

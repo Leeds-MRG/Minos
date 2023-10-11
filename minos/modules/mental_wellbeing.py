@@ -467,23 +467,19 @@ class lmmYJMWB(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp',
-                        'sex',
-                        'ethnicity',
-                        'age',
-                        'time',
-                        #'education_state',
-                        #'labour_state',
-                        #'job_sec',
-                        'hh_income',
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
                         'SF_12',
-                        'SF_12_diff',
-                        'housing_quality',
-                        #'phealth',
-                        'ncigs',
-                        'nutrition_quality',
-                        'neighbourhood_safety',
-                        'loneliness']
+                        'pidp'
+                        ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
