@@ -67,9 +67,11 @@ def who_below_living_wage(df):
     who_uplifted_London = df['hourly_wage'] > 0
     who_uplifted_London *= df['region'] == 'London'
     who_uplifted_London *= df['hourly_wage'] < 11.95
+    who_uplifted_London *= df['job_sector'] == 2
     who_uplifted_notLondon = df['hourly_wage'] > 0
     who_uplifted_notLondon *= df['region'] != 'London'
     who_uplifted_notLondon *= df['hourly_wage'] < 10.90
+    who_uplifted_notLondon *= df['job_sector'] == 2
     return df.loc[who_uplifted_notLondon | who_uplifted_London, ] # get anyone from either group.
 
 
