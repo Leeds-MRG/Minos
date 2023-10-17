@@ -72,7 +72,8 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'SF_12_MCS', 'SF_12_PCS',
-                          'financial_situation', "housing_tenure", 'urban', 'heating', "nkids_ind"]
+                          'financial_situation', "housing_tenure", 'urban', 'heating', "nkids_ind",
+                          'chron_disease']
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -111,6 +112,7 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'auditc', years=[2015, 2017, 2019, 2020])
     # active (physical activity) - present in 2015, 2017, 2019, 2020
     data = complete_case_custom_years(data, 'active', years=[2015, 2017, 2019, 2020])
+    # chronic disease in the all years function
 
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
