@@ -245,12 +245,13 @@ def main(data, save=False):
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
                  'nkids_ind_raw',
-                 'hcond1', 'hcond2', 'hcond3', 'hcond4', 'hcond5', 'hcond6', 'hcond7', 'hcond8', 'hcond10',
-                 'hcond11', 'hcond12', 'hcond13', 'hcond14', 'hcond15', 'hcond16', 'hcond18', 'hcond19', 'hcond20',
-                 'hcond21',  # ALL HCOND are health conditions - for the chronic conditions proxy var
                  ] # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
-    mf_columns = ['education_state', 'nkids_ind_raw']
+    mf_columns = ['education_state', 'nkids_ind_raw',
+                  'hcond1', 'hcond2', 'hcond3', 'hcond4', 'hcond5', 'hcond6', 'hcond7', 'hcond8', 'hcond10',
+                  'hcond11', 'hcond12', 'hcond13', 'hcond14', 'hcond15', 'hcond16', 'hcond18', 'hcond19', 'hcond20',
+                  'hcond21'  # ALL HCOND are health conditions - for the chronic conditions proxy var
+                  ]          # hcond variables are absorbing and therefore cannot go backwards
     li_columns = ["age"]
     data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
@@ -262,6 +263,7 @@ def main(data, save=False):
     if save:
         US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
     return data
+
 
 if __name__ == "__main__":
     # Load in data.
