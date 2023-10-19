@@ -112,7 +112,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, aggregat
             # TODO: Set this year value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
             # dont aggregate other functions apart from the baseline reference intervention for the first year.
             # creates a burn in that we have to explain and its ugly.
-            if year > 2020 or "baseline" in source:
+            if year > 2020 or source == "baseline":
                 # use multiprocessing to download multiple MINOS model runs, take the desired subset of the population,
                 # and calculate the desired aggregate using the `method' function.
                 aggregated_means = pool.starmap(aggregate_csv,
@@ -121,7 +121,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, aggregat
                                                     repeat(aggregation_variable),
                                                     repeat(method),
                                                     repeat(mode)))
-
+            else:
+                continue
         if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
             print(
                 f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
@@ -307,15 +308,15 @@ def find_MINOS_years_range(file_path):
         config = yaml.safe_load(stream)
     start_year = config['time']['start']['year']
     end_year = config['time']['end']['year']
-    years = np.arange(start_year + 1, end_year)
+    years = np.arange(start_year, end_year)
     return years
 
 
 def weighted_nanmean(df, aggregation_variable, weights="weight", scale=1):
-    df = df.loc[df['weight'] > 0]  # grab anyone with non-zero weights. (almost everybody).
-    df.loc[df.index, weights] = 1 / df[weights]  # reciprocate weights. needed for inverse probability weights.
-    return np.nansum(df[aggregation_variable] * df[weights]) / sum(df[weights]) * scale  # standard weighed mean formula.
-
+    #df = df.loc[df['weight'] > 0]  # grab anyone with non-zero weights. (almost everybody).
+    #df.loc[df.index, weights] = 1 / df[weights]  # reciprocate weights. needed for inverse probability weights.
+    #return np.nansum(df[aggregation_variable] * df[weights]) / sum(df[weights]) * scale  # standard weighed mean formula.
+    return np.nanmean(df[aggregation_variable])
 
 def child_uplift_cost_sum(df, aggregation_variable, weights='weight'):
     # get unique households
@@ -384,6 +385,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         scaled_data = relative_scaling(aggregate_long_stack, aggregation_variable, ref)
         print("relative scaling done. plotting.. ")
         aggregate_lineplot(scaled_data, "plots", prefix, aggregation_variable, method)
+        print(f"Saved to {file_path}.")
     elif method == child_uplift_cost_sum:
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, aggregation_variable, method)
     elif method == aggregate_percentage_counts:

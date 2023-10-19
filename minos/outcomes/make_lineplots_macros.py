@@ -124,7 +124,7 @@ def living_wage_lineplot(*args):
     prefix = "baseline_living_wage"
     config_mode = "default_config"
     aggregation_variable = "SF_12"
-    aggregate_method = 'nanmean'
+    aggregate_method = 'weighted_nanmean'
     reference_population = "Baseline"
     lineplot_main(directories=directories,
                   tags=tags,
