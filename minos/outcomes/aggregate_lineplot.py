@@ -53,9 +53,9 @@ def aggregate_lineplot(source, destination, v, method, prefix):
     f = plt.figure()
     sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
-        file_name = f"{prefix}_{v}_aggs_by_year.pdf"
+        file_name = f"{prefix}_{v}_lineplot.pdf"
     else:
-        file_name = f"{v}_aggs_by_year.pdf"
+        file_name = f"{v}_lineplot.pdf"
     file_name = os.path.join(destination, file_name)
 
     # Sort out axis labels

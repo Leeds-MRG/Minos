@@ -38,7 +38,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
 
     subset_chain = subset_chains[subset_chain_string]
 
-    if mode == 'scotland_mode': # if in scotland mode add it to the .
+    if mode == 'scotland_mode':  # if in scotland mode add it to the .
         subset_chain.append(who_scottish)
 
     for subset_function in subset_chain:

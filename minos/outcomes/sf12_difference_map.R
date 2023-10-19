@@ -1,5 +1,5 @@
 library(argparse)
-source("minos/validation/minos_SF12_maps.R")
+source("minos/outcomes/minos_SF12_maps.R")
 
 main <- function(){
 
