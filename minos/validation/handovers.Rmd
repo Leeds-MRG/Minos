@@ -155,10 +155,10 @@ base.sf12.p <- base.dat %>%
   select(pidp, age, time, SF_12_PCS)
 
 sf12.p.spag <- rbind(raw.sf12.p, base.sf12.p)
-# 
-# spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
-#                save = shall.we.save,
-#                save.path = save.path)
+
+spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
+               save = shall.we.save,
+               save.path = save.path)
 
 density_ridges(sf12.p.spag, "SF_12_PCS", 
                save = shall.we.save, 
@@ -483,20 +483,20 @@ handover_ordinal(raw.dat, base.dat, var = 'matdep', save = shall.we.save)
 ```
 
 ```{r}
-# raw.s <- raw.dat %>%
-#   select(pidp, age, time, matdep) %>%
-#   filter(!matdep %in% miss.values)
-# base.s <- base.dat %>%
-#   select(pidp, age, time, matdep) %>%
-#   filter(!matdep %in% miss.values)
-# 
-# spag <- rbind(raw.s, base.s)
-# 
-# spaghetti_plot(spag, 'matdep',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# rm(raw.s, base.s, spag)
+raw.s <- raw.dat %>%
+  select(pidp, age, time, matdep) %>%
+  filter(!matdep %in% miss.values)
+base.s <- base.dat %>%
+  select(pidp, age, time, matdep) %>%
+  filter(!matdep %in% miss.values)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'matdep',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
 ```
 
 ## Chronic Disease

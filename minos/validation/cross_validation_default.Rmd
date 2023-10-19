@@ -356,6 +356,21 @@ cv_ordinal_plots(pivoted.df = matdep.pivoted,
 rm(matdep.pivoted)
 ```
 
+# Chronic Disease
+
+```{r}
+chron_disease.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'chron_disease')
+
+cv_ordinal_plots(pivoted.df = chron_disease.pivoted, 
+                 var = 'chron_disease',
+                 save = FALSE)
+rm(chron_disease.pivoted)
+```
+
 # SECONDARY VARS
 
 ## Marital Status
