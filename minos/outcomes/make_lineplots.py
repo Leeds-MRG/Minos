@@ -23,6 +23,7 @@ from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, g
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
 
@@ -43,6 +44,7 @@ def subset_minos_data(data, subset_func_string, mode):
     subsetted_data = dynamic_subset_function(data, subset_func_string, mode)
     return subsetted_data
 
+
 def aggregate_percentage_counts(df, v):
     # for some ordinal variable return a groupby providing the percetage of the population in each variable.
     new_df = pd.DataFrame(df[v].value_counts(normalize=True))
@@ -50,6 +52,7 @@ def aggregate_percentage_counts(df, v):
     new_df[v] = new_df.index
     new_df.reset_index(inplace=True, drop=True)
     return new_df
+
 
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
                   mode="default_config"):
@@ -77,7 +80,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     return agg_value
 
 
-def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", method=np.nanmean,
+def aggregate_variables_by_year(source, tag, years, subset_func_string, aggregation_variable="SF_12", method=np.nanmean,
                                 mode="default_config"):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
@@ -87,7 +90,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         What directory is being aggregated. E.g. output/baseline/
     mode: bool
         Is this aggregation being done on the scottish pop?
-    years, v : list
+    years, aggregation_variable : list
         What range of years are being used. What set of variables are being aggregated.
     tag: str
         The written english name of the intervention being processed in source.
@@ -98,34 +101,56 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     Returns
     -------
     aggregated_data: pd.DataFrame
-        Data frame with columns year, tag and v. Year is year of observation, tag is MINOS batch run and intervention
-        it has come from, v is aggregated variable. Usually SF12.
+        Data frame with columns year, tag and aggregation_variable. Year is year of observation, tag is MINOS batch run and intervention
+        it has come from, aggregation_variable is aggregated variable. Usually SF12.
     """
 
     aggregated_data = pd.DataFrame()
     for year in years:
         files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
-        # files = files[:10]
-        # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
-        # Therefore we are just going to get everyone alive for now
-        # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
         with Pool() as pool:
-
+            # TODO: Set this year value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
+            # dont aggregate other functions apart from the baseline reference intervention for the first year.
+            # creates a burn in that we have to explain and its ugly.
             if year > 2020 or "baseline" in source:
+                # use multiprocessing to download multiple MINOS model runs, take the desired subset of the population,
+                # and calculate the desired aggregate using the `method' function.
                 aggregated_means = pool.starmap(aggregate_csv,
-                                                zip(files, repeat(subset_func_string), repeat(v), repeat(method),
+                                                zip(files,
+                                                    repeat(subset_func_string),
+                                                    repeat(aggregation_variable),
+                                                    repeat(method),
                                                     repeat(mode)))
+
         if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
             print(
                 f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
             aggregated_means = [None]
 
+        """Different aggregation methods require some cleaning before being output into the final data frame
+        
+        for example, the weight_nanmean aggregation method simply produces a list of scalars. Each will be the mean sf12
+        for 100 runs for a given year and intervention. These 100 values are put into a dataframe with further suitable
+        information for plotting. weighted_nanmean should work well for any function that outputs a 
+        list of continuous scalars.
+        
+        Aggregation functions such as aggregate_percentage_counts instead output a list of pandas series estimating
+        proporition of individual in some k ordinal states. This pandas series requires more wrangling to get into the 
+        desired shape.
+        
+        We don't have any aggregators that output discrete values yet but if/when we do some processing will be required 
+        here to get nice csvs out for a given year and intervention to add to the main data frame.
+        """
+
         if method == weighted_nanmean or method == child_uplift_cost_sum:
-            single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
+            # create dataframe for continous scalars. add attributes needed for lineplots, put back in
+            # aggregated_data big frame.
+            single_year_aggregates = pd.DataFrame(aggregated_means, columns=[aggregation_variable])
             single_year_aggregates['year'] = year
             single_year_aggregates['tag'] = tag
             aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
-        elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
+        elif method == aggregate_percentage_counts:
+            # similar to above but for processing a list of pandas.Series rather than a list of scalars.
             for i, single_year_aggregate in enumerate(aggregated_means):
                 single_year_aggregate['time'] = year
                 single_year_aggregate['tag'] = tag
@@ -136,7 +161,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     return aggregated_data
 
 
-def relative_scaling(df, v, ref):
+def relative_scaling(df, aggregation_variable, ref):
     """ Scale aggregate data based on some reference source.
 
     For each year
@@ -150,10 +175,10 @@ def relative_scaling(df, v, ref):
     Parameters
     ----------
     df: pd.DataFrame
-        Dataframe df containing 3 columns year, tag, v. Long frame of aggregates by year and source.
+        Dataframe df containing 3 columns year, tag, aggregation_variable. Long frame of aggregates by year and source.
     years: np.arange
         List of year
-    v: str
+    aggregation_variable: str
         Variable to aggregate.
     ref: str
         Reference source to scale against.
@@ -171,9 +196,9 @@ def relative_scaling(df, v, ref):
             # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
             # <1 implies reduction.
             year_df = df.loc[df['year'] == year,].copy()
-            x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
-            year_df[v] /= x_bar
-            df.loc[df['year'] == year, v] = year_df[v]
+            x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, aggregation_variable])
+            year_df[aggregation_variable] /= x_bar
+            df.loc[df['year'] == year, aggregation_variable] = year_df[aggregation_variable]
     else:
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
     return df
@@ -200,14 +225,14 @@ def find_latest_source_file_path(file_path):
     if len(all_file_paths) > 1:
         # if more than 1, select most recent datetime
         while all_file_paths:
-            file  = all_file_paths.pop()
+            file = all_file_paths.pop()
             if date_pattern.match(file):
                 latest_file_path = file
                 break
         if not all_file_paths:
             raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
                                "aggregate. Please check the output directory.")
-        #latest_file_path = max(all_file_paths, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
+        # latest_file_path = max(all_file_paths, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
     elif len(all_file_paths) == 1:
         latest_file_path = all_file_paths[0]  # os.listdir returns a list, we only have 1 element
     else:
@@ -216,8 +241,8 @@ def find_latest_source_file_path(file_path):
     return os.path.join(file_path, latest_file_path)
 
 
-def aggregate_lineplot(df, destination, prefix, v, method):
-    """ Plot lineplot over sources and years for aggregated v.
+def aggregate_lineplot(df, destination, prefix, aggregation_variable, method):
+    """ Plot lineplot over sources and years for aggregated aggregation_variable.
 
     Parameters
     ----------
@@ -230,7 +255,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     None
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
-    df[v] -= 1  #  set centre at 0.
+    df[aggregation_variable] -= 1  #  set centre at 0.
 
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
@@ -244,17 +269,17 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     df.reset_index(drop=True, inplace=True)
 
     f = plt.figure()
-    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=aggregation_variable, hue='Legend', style='Legend', markers=True, palette='Set2')
     if prefix:
-        file_name = f"{prefix}_{v}_aggs_by_year.pdf"
+        file_name = f"{prefix}_{aggregation_variable}_aggs_by_year.pdf"
     else:
-        file_name = f"{v}_aggs_by_year.pdf"
+        file_name = f"{aggregation_variable}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
 
     # Sort out axis labels
-    if v == 'SF_12':
-        v = 'SF12 MCS'
-    plt.ylabel(f"{v} nanmean")
+    if aggregation_variable == 'SF_12':
+        aggregation_variable = 'SF12 MCS'
+    plt.ylabel(f"{aggregation_variable} nanmean")
     plt.tight_layout()
 
     dir_name = os.path.dirname(file_name)
@@ -286,20 +311,22 @@ def find_MINOS_years_range(file_path):
     return years
 
 
-def weighted_nanmean(df, v, weights = "weight", scale=1):
-    df = df.loc[df['weight'] > 0] # grab anyone with non-zero weights. (almost everybody).
-    df.loc[df.index, weights] = 1/df[weights] # reciprocate weights. needed for inverse probability weights.
-    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale # standard weighed mean formula.
+def weighted_nanmean(df, aggregation_variable, weights="weight", scale=1):
+    df = df.loc[df['weight'] > 0]  # grab anyone with non-zero weights. (almost everybody).
+    df.loc[df.index, weights] = 1 / df[weights]  # reciprocate weights. needed for inverse probability weights.
+    return np.nansum(df[aggregation_variable] * df[weights]) / sum(df[weights]) * scale  # standard weighed mean formula.
 
-def child_uplift_cost_sum(df, v, weights='weight'):
+
+def child_uplift_cost_sum(df, aggregation_variable, weights='weight'):
     # get unique households
     # get boost amount per household
     df = df.loc[df['weight'] > 0]
     group = df.groupby(['hidp'])
-    weights = 1/group[weights].sum()
-    return np.nansum(weights * group[v].min())/np.nansum(weights)
+    weights = 1 / group[weights].sum()
+    return np.nansum(weights * group[aggregation_variable].min()) / np.nansum(weights)
 
-def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
+
+def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", aggregation_variable="SF_12",
          method='nanmean'):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
@@ -309,7 +336,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     directories
     tags
     subset_function_strings
-    v
+    aggregation_variable
     method
     mode
 
@@ -340,33 +367,43 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         latest_file_path = find_latest_source_file_path(file_path)
         years = find_MINOS_years_range(latest_file_path)
 
-        print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
-        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string, v=v, method=method)
+        print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {aggregation_variable}")
+        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string, aggregation_variable=aggregation_variable,
+                                                         method=method)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    if v == "SF_12":
-        scaled_data = relative_scaling(aggregate_long_stack, v, ref)
+    """
+    When we have the aggregation stack for all desired variables over all desired years and interventions we can perform
+    further  post processing before making lineplots. For SF-12 MCS the population changes can be very small and hard to 
+    see so we use relative scaling versus some reference baseline level. For example if the baseline sf12 score was
+    50 and the SF-12 mean under the living wage intervention was 50.5 we see a 1% improvement in SF-12 MCS.
+    
+    Flexibility is high here and any postprocessing can be used depending on variable name or type. 
+    """
+    if method == weighted_nanmean:
+        scaled_data = relative_scaling(aggregate_long_stack, aggregation_variable, ref)
         print("relative scaling done. plotting.. ")
-        aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-    elif v == "boost_amount":
-        aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
+        aggregate_lineplot(scaled_data, "plots", prefix, aggregation_variable, method)
+    elif method == child_uplift_cost_sum:
+        aggregate_lineplot(aggregate_long_stack, "plots", prefix, aggregation_variable, method)
     elif method == aggregate_percentage_counts:
-        print(f"Data compiled for variable {v} using method {method.__name__}.")
-        file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
+        print(f"Data compiled for variable {aggregation_variable} using method {method.__name__}.")
+        file_path = latest_file_path + f"/{aggregation_variable}_aggregation_using_{method.__name__}.csv"
         aggregate_long_stack.to_csv(file_path)
         print(f"Saved to {file_path}.")
+
 
 if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
 
-    #define test parameters and run.
+    # define test parameters and run.
     directories = "baseline,25RelativePoverty,50RelativePoverty"
     tags = "Baseline,25 Relative Poverty,50 Relative Poverty"
     subset_function_strings = "who_below_living_wage_and_kids,who_boosted,who_boosted"
     prefix = "baseline_25_50_relative_poverty"
     mode = 'default_config'
     ref = "Baseline"
-    v = "SF_12"
+    aggregation_variable = "SF_12"
     method = 'nanmean'
     # mode = "glasgow_scaled"
     # directories = "baseline,EPCG,EBSS"
@@ -387,9 +424,8 @@ if __name__ == '__main__':
     # prefix = "baseline_living_wage"
     # mode = 'default_config'
     # ref = "Baseline"
-    # v = "housing_quality"
+    # aggregation_variable = "housing_quality"
     # method = 'percentages'
-
 
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"
@@ -397,10 +433,9 @@ if __name__ == '__main__':
     # prefix = "25rp_25uc_cost_lineplot"
     # mode = 'default_config'
     # ref = "25RelativePoverty"
-    # v = "boost_amount"
+    # aggregation_variable = "boost_amount"
     # method = 'child_uplift_cost_sum'
 
-    main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
-
+    main(directories, tags, subset_function_strings, prefix, mode, ref, aggregation_variable, method)
 
 # TODO find a way to aggregate boxplots/ridgelines together

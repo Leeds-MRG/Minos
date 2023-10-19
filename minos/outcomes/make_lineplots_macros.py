@@ -3,354 +3,195 @@
 from minos.outcomes.make_lineplots import main as lineplot_main
 import sys
 
+"""
+Macros for generating change in SF-12 MCS over time lineplots.
 
-####################
-# Old school plots #
-####################
+These functions are here to save space in the makefile definig all needed variables here
+ and only calling these functions using one argument make commands. These functions will aggregate data from the 
+ required intervention using specified aggregation methods, and plot them in a lineplot showing confidence over time.
+
+Setting up these functions requires a few things
+
+1) Create the intervention aggregation and lineplot function. This is essentially a list of arguments passed to the main aggregation functions
+in make_lineplots.py. There are several arugments to consider
+    
+    directories : Which directories are data being pulled from. E.g. livingWageIntervention for living wage intervention 
+        data. This is a string with commas seperating each individual file source. e.g.
+        `baseline,livingWageIntervention`.
+    tags : What are the names given to each intervention in the plot legend. E.g. tag `Living Wage Intervention` for 
+    source livingWageIntervention will provide the correct name in the legend. Again this is a string of variables seperated
+    by commas `Baseline,Living Wage Intervention`. 
+    subset_function_strings: Which subset of the population is used to calculate aggregates. See aggregate_subset_functions.py.
+        For example, who_below_living_wage_and_kids selects all households in a population with members under the living wage
+        and with children. Used for average treatment effect analysis. If writing new interventions its likely a new subset 
+        of the population is needed. Again a string of strings seperated by commas is used. 
+        e.g. `who_alive,who_below_living_wage_and_kids`
+    prefix : what name goes on the front of the new lineplot to make it unique and stop overwriting.
+    config_mode : what MINOS configuration has been used to generate data. usually default_config or glasgow_scaled.
+        Also helps to provide output directories.
+    aggregation_variable : Which variable is being aggregated? Usually SF_12 but looking to expand to other quantities e.g.
+        EI and discrete variables. 
+    aggregate_method : what method is used to aggregate the aggregation_variable? For continous values this is usually the nanmean or weighted_nanmean.
+    reference_population : if using relative scaling what is the reference population. For example, if using relative scaling
+    for SF12 with baseline and living wage interventions. if we have an SF12 score of 50 for baseline and 50.5 for living wage,
+    choosing the baseline as the reference population means the change in living wage SF-12 MCS will be recorded as
+    (50.5-50)/50 = 1%. Likewise if the living wage population was the reference population change in SF-12 MCS for the baseline
+    would be (50-50.5)/50.5 = 100/101 = -0.09901%
+
+
+    Other aggregators are being tested such as percentage and cumulative counts. see make_lineplots.py
+    
+    The aggregation function must define all of these variables and provide a call to make_lineplots.main like so:
+    
+def living_wage_lineplot(*args):
+    directories = "baseline,livingWageIntervention"
+    tags = "Baseline,Living Wage Intervention"
+    subset_function_strings = "who_below_living_wage_and_kids,who_boosted"
+    prefix = "baseline_living_wage"
+    config_mode = "default_config"
+    aggregation_variable = "SF_12"
+    aggregate_method = 'nanmean'
+    reference_population = "Baseline"
+    lineplot_main(directories=directories,
+                  tags=tags,
+                  subset_function_strings=subset_function_strings,
+                  prefix=prefix,
+                  mode=config_mode,
+                  ref=reference_population,
+                  aggregation_variable=aggregation_variable,
+                  method=aggregate_method)
+       
+
+2) Add this new intervention function to the string_to_lineplot_function dict just above main. The key will be some name
+given to the function e.g. `living_wage` and the value will be the corresponding aggregation function e.g. living_wage_lineplot().
+
+
+3) Write a make command in outcomes/Makefile that calls this new aggregation function. For the living wage lineplot we have
+
+living_wage_lineplot: MODE="default_config"
+living_wage_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "living_wage"
+
+"""
+
 
 def all_child_lineplot(*args):
+    # run using make all_child_lineplot
     directories = "baseline,hhIncomeChildUplift"
     tags = "Baseline,All Child Uplift"
     subset_function_strings = "who_kids,who_boosted"
     prefix = "baseline_all_child_uplift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
+    aggregation_variable = "SF_12"
+    aggregate_method = 'nanmean'
+    reference_population = "Baseline"
+    lineplot_main(directories=directories,
+                  tags=tags,
+                  subset_function_strings=subset_function_strings,
+                  prefix=prefix,
+                  mode=config_mode,
+                  ref=reference_population,
+                  aggregation_variable=aggregation_variable,
+                  method=aggregate_method)
 
 
 def poverty_line_child_lineplot(*args):
+    # run using make poverty_line_child_lineplot
+
     directories = "baseline,hhIncomePovertyLineChildUplift"
     tags = "Baseline,Poverty Line Child Uplift"
     subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
     prefix = "baseline_poverty_child_uplift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
+    aggregation_variable = "SF_12"
+    aggregate_method = 'nanmean'
+    reference_population = "Baseline"
+    lineplot_main(directories=directories,
+                  tags=tags,
+                  subset_function_strings=subset_function_strings,
+                  prefix=prefix,
+                  mode=config_mode,
+                  ref="Baseline",
+                  v=aggregation_variable,
+                  method=aggregate_method)
 
 
 def living_wage_lineplot(*args):
+    # run using make living_wage_lineplot
     directories = "baseline,livingWageIntervention"
     tags = "Baseline,Living Wage Intervention"
     subset_function_strings = "who_below_living_wage,who_boosted"
     prefix = "baseline_living_wage"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
+    aggregation_variable = "SF_12"
+    aggregate_method = 'nanmean'
+    reference_population = "Baseline"
+    lineplot_main(directories=directories,
+                  tags=tags,
+                  subset_function_strings=subset_function_strings,
+                  prefix=prefix,
+                  mode=config_mode,
+                  ref=reference_population,
+                  aggregation_variable=aggregation_variable,
+                  method=aggregate_method)
+
 
 def epcg_and_no_support_lineplot(*args):
+    # run using make all_child_lineplot
     directories = "baseline,energyDownlift,energyDownliftNoSupport"
     tags = "Baseline,EPCG,No Support"
     subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
     prefix = "baseline_energy_downlift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
-
-
-def ebss_lineplot(*args):
-    directories = "baseline,energyDownlift"
-    tags = "Baseline,Energy Downlift"
-    subset_function_strings = "who_uses_energy,who_boosted"
-    prefix = "baseline_ebss"
-    config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
-
-
-def all_five_lineplots(*args):
-    directories = "baseline,25UniversalCredit,25RelativePoverty,livingWageIntervention,energyDownlift"
-    tags = "Baseline,£25 Universal Credit Child Uplift,£25 Poverty Line Child Uplift,Living Wage Intervention, EPCG"
-    subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
-    prefix = "all_five_combined"
-    config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
-
-
-def social_science_all_plots(config_mode):
-    # all social science lineplots together.
-    epcg_and_no_support_lineplot(config_mode)
-    UC_relative_poverty(config_mode, 25)
-    UC_relative_poverty(config_mode, 50)
-    all_five_lineplots(config_mode)
-    living_wage_lineplot(config_mode)
-
-########################################
-# glasgow spatial population lineplots #
-########################################
-
-def glasgow_deciles_lineplot(config_mode, source, subset_function):
-    # directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
-    directories = f"{source}," + (f"{source}," * 10)[:-1]  # repeat 11 times and cut off last comma.
-    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    # subset_function_strings = f"""who_kids,who_kids_first_simd_decile,who_kids_second_simd_decile,who_kids_third_simd_decile,who_kids_fourth_simd_decile,who_kids_fifth_simd_decile,who_kids_sixth_simd_decile,who_kids_seventh_simd_decile,who_kids_eighth_simd_decile,who_kids_ninth_simd_decile,who_kids_tenth_simd_decile"""
-    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
-    prefix = f"25_{source}_simd_deciles"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def poverty_line_simd_deciles_lineplot(*args):
-    directories = "baseline," + ("hhIncomePovertyLineChildUplift," * 10)[:-1]  # repeat 11 times and cut off last comma.
-    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = """who_kids,who_kids_first_simd_decile,who_kids_second_simd_decile,who_kids_third_simd_decile,who_kids_fourth_simd_decile,who_kids_fifth_simd_decile,who_kids_sixth_simd_decile,who_kids_seventh_simd_decile,who_kids_eighth_simd_decile,who_kids_ninth_simd_decile,who_kids_tenth_simd_decile"""
-    prefix = "25_poverty_simd_deciles"
-    config_mode = "glasgow_scaled"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def poverty_line_first_decile_lineplot(*args):
-    directories = "baseline,hhIncomePovertyLineChildUplift"
-    tags = "National Average,First"
-    subset_function_strings = """who_poverty_kids_first_simd_decile,who_boosted_first_simd_decile"""
-    prefix = "25_poverty_first_simd_decile"
-    config_mode = "glasgow_scaled"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def poverty_line_tenth_decile_lineplot(*args):
-    directories = "baseline,hhIncomePovertyLineChildUplift"
-    tags = "National Average,Tenth"
-    subset_function_strings = """who_poverty_kids_tenth_simd_decile,who_boosted_tenth_simd_decile"""
-    prefix = "25_poverty_tenth_simd_decile"
-    config_mode = "glasgow_scaled"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    # lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def poverty_line_fifth_decile_lineplot(*args):
-    directories = "baseline,hhIncomePovertyLineChildUplift"
-    tags = "National Average,Fifth"
-    subset_function_strings = """who_poverty_kids_fifth_simd_decile,who_boosted_fifth_simd_decile"""
-    prefix = "25_poverty_fifth_simd_decile"
-    config_mode = "glasgow_scaled"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def simd_decile_baseline_lineplot(*args):
-    directories = ("baseline," * 11)[:-1]  # repeat 11 times and cut off last comma.
-    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
-    prefix = "baseline_simd_deciles"
-    config_mode = "glasgow_scaled"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def epcg_simd_deciles_lineplot(*args):
-    directories = ("EBSS," * 11)[:-1]  # repeat 11 times and cut off last comma.
-    tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
-    subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
-    prefix = "ebss_simd_deciles"
-    config_mode = "glasgow_scaled"
-    ref = "National Average"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-######################################################
-# Space for child uplifts split by amount and subset #
-######################################################
-
-
-def all_child(config_mode, boost_amount):
-    "nationwide policy"
-    directories = f"baseline,{boost_amount}All"
-    tags = f"Baseline,£{boost_amount} Nationwide"
-    subset_function_strings = "who_kids,who_boosted"
-    prefix = f"{boost_amount}_all"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def relative_poverty(config_mode, boost_amount):
-    "nationwide policy"
-    directories = f"baseline,{boost_amount}RelativePoverty"
-    tags = f"Baseline,£{boost_amount} Relative Poverty"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted"
-    prefix = f"{boost_amount}_relative_poverty"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def priority_only(config_mode, boost_amount):
-    "universal credit (the actual intervention) only lineplot"
-    directories = f"baseline,{boost_amount}Priority"
-    tags = f"Baseline,£{boost_amount} Priority Groups"
-    subset_function_strings = "who_vulnerable_subgroups,who_boosted"
-    prefix = f"{boost_amount}_priority"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def UC_priority(config_mode, boost_amount):
-    "UC and priority interventions on one lineplot."
-    directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}Priority"
-    tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} Priority Groups"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
-    prefix = f"{boost_amount}_UC_and_priority"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-def UC_relative_poverty(config_mode, boost_amount):
-    "UC and priority interventions on one lineplot."
-    directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}RelativePoverty"
-    tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} All in Relative Poverty"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
-    prefix = f"{boost_amount}_UC_and_relative_poverty"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-
-def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subset_function):
-    "The same intervention in increments from £25 to £100"
-    directories = f"baseline,25{intervention_name},50{intervention_name},75{intervention_name},100{intervention_name}"
-    tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag},£75 {intervention_tag},£100 {intervention_tag}"
-    subset_function_strings = f"{subset_function},who_boosted,who_boosted,who_boosted,who_boosted"
-    prefix = f"25_100_incremental_{intervention_name}_uplift"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subset_function):
-    "The same intervention in increments from £25 to £50"
-    directories = f"baseline,25{intervention_name},50{intervention_name}"
-    tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag}"
-    subset_function_strings = f"{subset_function},who_boosted,who_boosted"
-    prefix = f"25_50_incremental_{intervention_name}_uplift"
-    ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    aggregation_variable = "SF_12"
+    aggregate_method = 'nanmean'
+    reference_population = "Baseline"
+    lineplot_main(directories=directories,
+                  tags=tags,
+                  subset_function_strings=subset_function_strings,
+                  prefix=prefix,
+                  mode=config_mode,
+                  ref=reference_population,
+                  aggregation_variable=aggregation_variable,
+                  method=aggregate_method)
 
 
 #################
 # main function #
 #################
 
+
 string_to_lineplot_function = {
     # initial line plots
     "all_child": all_child_lineplot,
     "poverty_line_child": poverty_line_child_lineplot,
     "living_wage": living_wage_lineplot,
-    "ebss": ebss_lineplot,
-    "all_five": all_five_lineplots,
-
-    # glasgow synthpop lineplots
-    "glasgow_baseline_all_deciles": glasgow_deciles_lineplot,
-    "glasgow_poverty_all_deciles": glasgow_deciles_lineplot,
-    "glasgow_universal_credit_all_deciles": glasgow_deciles_lineplot,
-    "glasgow_priority_groups_all_deciles": glasgow_deciles_lineplot,
-
-    "glasgow_poverty_first": poverty_line_first_decile_lineplot,
-    "glasgow_poverty_fifth": poverty_line_fifth_decile_lineplot,
-    "glasgow_poverty_tenth": poverty_line_tenth_decile_lineplot,
-    "epcg_simd_lineplot": epcg_simd_deciles_lineplot,
-
-    # incremental boost amounts for UC and Priority populations
-    "25_UC_priority": UC_priority,
-    "50_UC_priority": UC_priority,
-    "75_UC_priority": UC_priority,
-    "100_UC_priority": UC_priority,
-
-    "25_all": relative_poverty,
-    "50_all": relative_poverty,
-    "75_all": relative_poverty,
-    "100_all": relative_poverty,
-
-    "25_relative_poverty_": [25],
-    "50_relative_poverty": [50],
-    "75_relative_poverty": [75],
-    "100_relative_poverty": [100],
-
-    "25_universal_credit": relative_poverty,
-    "50_universal_credit": relative_poverty,
-    "75_universal_credit": relative_poverty,
-    "100_universal_credit": relative_poverty,
-
-    "incremental_universal_credit": incremental_25_to_100,
-    "incremental_priority_groups": incremental_25_to_100,
-    "incremental_25_50_relative_poverty": incremental_25_to_50,
-    "incremental_25_50_universal_credit": incremental_25_to_50,
-
-
-    "social_science_all_plots": social_science_all_plots
+    "epcg": epcg_and_no_support_lineplot
 }
 
 string_to_lineplot_function_args = {
 
-    # glasgow synthpop lineplots
-    "glasgow_baseline_all_deciles": ["baseline", "who_kids"],
-    "glasgow_poverty_all_deciles": ["25RelativePoverty", "who_below_poverty_line_and_kids"],
-    "glasgow_universal_credit_all_deciles": ["25UniversalCredit", "who_universal_credit_and_kids"],
-    "glasgow_priority_groups_all_deciles": ["25Priority", "who_priority_subgroups"],
-
-    "25_UC_priority": [25],
-    "50_UC_priority": [50],
-    "75_UC_priority": [75],
-    "100_UC_priority": [100],
-
-    "25_all": [25],
-    "50_all": [50],
-    "75_all": [75],
-    "100_all": [100],
-
-    "25_universal_credit": [25],
-    "50_universal_credit": [50],
-    "75_universal_credit": [75],
-    "100_universal_credit": [100],
-
-    "25_relative_poverty_": [25],
-    "50_relative_poverty": [50],
-    "75_relative_poverty": [75],
-    "100_relative_poverty": [100],
-
-    "incremental_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids"],
-    "incremental_priority_groups": ["Priority", "Priority Groups", "who_priority_subgroups"],
-    "incremental_all_child": ["All", "Nationwide", "who_kids"],
-    "incremental_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
-
-    "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
-    "incremental_25_50_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
-
 }
 
-if __name__ == '__main__':
 
-    config_mode = sys.argv[1]
+def main():
+    """Get the desired lineplot aggregate functions from the makefile command. plot this function."""
+    config_mode = sys.argv[1]  # which config are data being plotted for? default_config by default.
+
+    # which interventions are being plotted.
+    # argument given from makefile and corresponds to dictionary of functions above.
     plot_choice = sys.argv[2]
     plot_function = string_to_lineplot_function[plot_choice]
+
+    # get any args associated with the requested plot function from string_to_lineplot_function_args dict.
     if plot_choice in string_to_lineplot_function_args.keys():
         plot_function_args = string_to_lineplot_function_args[plot_choice]
     else:
         plot_function_args = []
+
+    # use the plot function and its args to aggregate and create the lineplot.
     plot_function(config_mode, *plot_function_args)
+
+
+if __name__ == '__main__':
+    main()
