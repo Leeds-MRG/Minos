@@ -32,7 +32,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", 'GLMMB')
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", 'GLMMB', 'MSM')
 
   data[which(data$ncigs==-8), 'ncigs'] <- 0
 
@@ -50,13 +50,11 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       next
     }# skip this iteration if model not in valid types.
 
-
     # Get dependent and independents
     split2 <- str_split(split1[2], pattern = " ~ ")[[1]]
     dependent <- split2[1]
     independents <- split2[2]
-
-
+    
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
     if(mode == 'cross_validation') {
@@ -74,15 +72,14 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     create.if.not.exists(out.path2)
 
     print(paste0('Starting for ', dependent, '...'))
-
-    # no weight var in 2009 (wave 1)
-    use.weights <- FALSE
+    
+    #use.weights <- TRUE
     # TODO strange behaviour using weights for gees/glmms. Needs scaling? disabling for now..
-    #if(year == 2009) {
-    #  use.weights <- FALSE
-    #} else {
-    #  use.weights <- TRUE
-    #}
+    if (mod.type %in% c("GLMM", "GEE_DIFF","ORDGEE", 'GLMMB')) {
+      use.weights <- FALSE
+    } else {
+      use.weights <- TRUE
+    }
 
     if (dependent %in% c("SF_12_MCS", 'SF_12_PCS')) {
       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
@@ -123,8 +120,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
         # update model formula with _diff variable.
         dependent <-  paste0(dependent, "_diff")
-        formula.string <- paste0(dependent, " ~ ", independents)
-        form <- as.formula(formula.string)
     }
 
     # if using glmms need to be careful which time the outcome variable is from.
@@ -142,24 +137,19 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          mutate(new = lead(.data[[dependent]], order_by = time)) %>%
          rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
          dependent <-  paste0(dependent, "_new")
-         formula.string <- paste0(dependent, " ~ ", independents)
-         form <- as.formula(formula.string)
     }
-    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'matdep')) {
+    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'matdep', 'chron_disease')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(last = lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
-      # data <- data %>%
-      #   group_by(pidp) %>%
-      #   mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-      #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)
-      #
-      formula.string <- paste0(dependent, " ~ ", independents)
-      form <- as.formula(formula.string)
     }
+    
+    formula.string <- paste0(dependent, " ~ ", independents)
+    form <- as.formula(formula.string)
+    
     # get only required variables and sort by pidp/time.
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
@@ -200,6 +190,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                                   depend = dependent)
 
     } else if (tolower(mod.type) == "clmm") {
+      print('Arrived at the model estimation function call.')
 
       model <- estimate_longitudinal_clmm(data = sorted_df,
                                           formula = form,
@@ -213,6 +204,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                   reflect = do.reflect,
                                   yeo_johnson = do.yeo.johnson)
 
+    } else if (tolower(mod.type) == 'msm') {
+      
+      model <- estimate_longitudinal_msm(data = sorted_df,
+                                         formula = form,
+                                         depend = dependent,
+                                         start.year = min(year.range))
     }
 
     write_coefs <- F
@@ -286,6 +283,8 @@ scotland.mode <- args$scotland
 cross_validation <- args$crossval
 default <- args$default
 sipher7 <- args$SIPHER7
+
+default <- TRUE
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'

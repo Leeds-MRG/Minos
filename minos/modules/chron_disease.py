@@ -96,13 +96,13 @@ class ChronicDisease(Base):
                                                          list(cd_prob_df.columns),
                                                          cd_prob_df) + 1
 
-        # Chronic disease has to be absorbing, so individuals cannot drop back to lower levels
-        #pop['previous_chron_disease'] =
-        cd_prob_df['previous_chron_disease'] = pop['chron_disease']
-        cd_prob_df['chron_disease'][cd_prob_df['previous_chron_disease'] > cd_prob_df['chron_disease']] = \
-            cd_prob_df['previous_chron_disease']
+        # # Chronic disease has to be absorbing, so individuals cannot drop back to lower levels
+        # #pop['previous_chron_disease'] =
+        # cd_prob_df['previous_chron_disease'] = pop['chron_disease']
+        # cd_prob_df['chron_disease'][cd_prob_df['previous_chron_disease'] > cd_prob_df['chron_disease']] = \
+        #     cd_prob_df['previous_chron_disease']
 
-        self.population_view.update(cd_prob_df["chron_disease"].astype(float))
+        self.population_view.update(cd_prob_df["chron_disease"])
 
     def calculate_chron_disease(self, pop):
         """Calculate chron_disease transition distribution based on provided people/indices

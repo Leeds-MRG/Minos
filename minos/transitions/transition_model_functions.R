@@ -5,6 +5,7 @@ require(pscl)
 require(bestNormalize)
 require(lme4)
 require(glmmTMB)
+require(msm)
 
 ################ Model Specific Functions ################
 
@@ -276,15 +277,23 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
 
 estimate_longitudinal_clmm <- function(data, formula, depend)
 {
+  
+  print('In the function call')
+  
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
+  
+  print('Before fitting the model')
+  
+  print(formula)
+  
   model <- clmm2(formula,
-                random=factor(pidp),
-                link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data.
-                threshold="flexible",
-                nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+                  random=factor(pidp),
+                  link='probit', # logistic link function (can use probit or cloglog as well.)
+                  data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data.
+                  threshold="flexible",
+                  nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)
 }
 
@@ -308,10 +317,6 @@ estimate_beta_glmm <- function(data, formula, depend, reflect, yeo_johnson) {
   #data[[depend]][data[[depend]] == 1] = 0.999
   #data[[depend]][data[[depend]] == 0] = 0.001
 
-  print(paste0('Some data summary stats for beta GLMM ', depend))
-  print(paste0('Min value of dependent variable: ', min_value))
-  print(paste0('Max value of dependent variable: ', max(data[[depend]])))
-
   model <- glmmTMB(formula,
                    data = data,
                    family = beta_family(link = 'logit'),
@@ -329,4 +334,48 @@ estimate_beta_glmm <- function(data, formula, depend, reflect, yeo_johnson) {
   }
 
   return (model)
+}
+
+estimate_longitudinal_msm <- function(data, formula, depend, start.year) {
+  
+  data <- replace.missing(data)
+  
+  # Now set up the variable specific information the model needs such as subject, allowed transition matrix etc.
+  # Also needs some data wrangling to ensure that subjects have multiple waves of information, and that there 
+  # are no intermittent missing waves as the msm function cannot handle this
+  # TODO: Impute missing intermittent waves??
+  if (depend == 'chron_disease') {
+    print('Defining allowed transition matrix. Only unidirection transitions allowed.')
+    allowed.trans.matrix <- rbind( c( 1, 1, 1 ), c( 0, 1, 1 ), c( 0, 0, 1 ) )
+    
+    print('Preparing data for MSM model estimation...')
+    # sort dataframe by pidp and time so observations within subjects are consecutive in the data
+    data <- data %>% 
+      select(pidp, time, everything()) %>% # put pidp and time at the front of the df
+      group_by(pidp) %>%
+      filter(n() > 1) %>%  # filter individuals with only 1 observation in data
+      group_by(pidp) %>%
+      complete(time = start.year:2020) %>%  # complete the data (insert missing rows for the time period of interest)
+      filter(!cumprod(is.na(age)) & rev(!cumprod(is.na(rev(age))))) %>%  # remove leading and trailing missing rows
+      group_by(pidp) %>%
+      mutate(contains.na = if_any(everything(), is.na)) %>%  # test for any intermittent missing (i.e. if respondent misses a wave - msm model cannot handle this)
+      filter(!any(contains.na == TRUE)) %>%
+      select(pidp, time, -contains.na, everything())
+    
+    data <- data[order(data$pidp, data$time), ] # order everything by pidp and time so individuals time points are in consecutive order (msm needs this)
+    rownames(data) <- NULL
+    
+    subj <- data$pidp
+  }
+  
+  print('Fitting the MSM model...')
+  model <- msm(formula = formula,
+                  subject = subj,
+                  data = data,
+                  qmatrix = allowed.trans.matrix,
+                  gen.inits = TRUE,
+                  obstype = 1,
+                  na.action = na.omit)
+  
+  return(model)
 }
