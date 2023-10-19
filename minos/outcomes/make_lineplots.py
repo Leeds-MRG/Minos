@@ -112,7 +112,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, aggregat
             # TODO: Set this year value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
             # dont aggregate other functions apart from the baseline reference intervention for the first year.
             # creates a burn in that we have to explain and its ugly.
-            if year > 2020 or source == "baseline":
+            if year > 2020 or "baseline" in source:
                 # use multiprocessing to download multiple MINOS model runs, take the desired subset of the population,
                 # and calculate the desired aggregate using the `method' function.
                 aggregated_means = pool.starmap(aggregate_csv,
@@ -420,14 +420,14 @@ if __name__ == '__main__':
     # mode = "glasgow_scaled"
     # ref='National Average'
 
-    # directories = "baseline,livingWageIntervention"
-    # tags = "Baseline,Living Wage Intervention"
-    # subset_function_strings = "who_below_living_wage,who_boosted"
-    # prefix = "baseline_living_wage"
-    # mode = 'default_config'
-    # ref = "Baseline"
-    # aggregation_variable = "housing_quality"
-    # method = 'percentages'
+    directories = "baseline,livingWageIntervention"
+    tags = "Baseline,Living Wage Intervention"
+    subset_function_strings = "who_below_living_wage,who_boosted"
+    prefix = "baseline_living_wage"
+    mode = 'default_config'
+    ref = "Baseline"
+    aggregation_variable = "SF_12"
+    method = 'weighted_nanmean'
 
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"
