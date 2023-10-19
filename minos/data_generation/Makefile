@@ -6,7 +6,7 @@ data: ### Run all four levels of data generation from raw Understanding Society 
 ###	format with composite variables generated
 data: raw_data adj_raw_data corrected_data composite_data complete_data final_data
 
-inflated_data: data glasgow_scaled_data
+synthetic_glasgow_data: data glasgow_scaled_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2020_US_cohort.csv
