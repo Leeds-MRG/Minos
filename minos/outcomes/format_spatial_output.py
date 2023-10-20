@@ -9,7 +9,7 @@ import argparse
 import glob
 import os
 from datetime import datetime
-from aggregate_subset_functions import find_subset_function
+from aggregate_subset_functions import dynamic_subset_function
 
 
 def eightyTwenty(income):
@@ -21,7 +21,7 @@ def eightyTwenty(income):
     return eightyTwentyRatio
 
 
-def group_minos_by_pidp(source, year, v, method, subset_func):
+def group_minos_by_pidp(source, year, v, method, subset_func_string):
     """ Load files from multiple minos runs and aggregate SF12 by mean.
     Parameters
     ----------
@@ -35,8 +35,8 @@ def group_minos_by_pidp(source, year, v, method, subset_func):
     df = pd.DataFrame()
     for file in files:
         df = pd.concat([df, pd.read_csv(file, low_memory=True)])
-    if subset_func:
-        df = subset_func(df)
+    if subset_func_string:
+        df = dynamic_subset_function(df, subset_function_string)
     df = df.groupby(['pidp']).apply(lambda x: method(x[v]))
     df = pd.DataFrame(df)
     df.columns = [v]
@@ -44,7 +44,7 @@ def group_minos_by_pidp(source, year, v, method, subset_func):
     df.reset_index(drop=True, inplace=True)
     return df
 
-def main(source, year, destination, subset_function, v = "SF_12", method = np.nanmean, save_type = "geojson"):
+def main(source, year, destination, subset_function_string, v = "SF_12", method = np.nanmean, save_type = "geojson"):
 
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
@@ -69,7 +69,7 @@ def main(source, year, destination, subset_function, v = "SF_12", method = np.na
     None
     """
     print(f"Aggregating MINOS data at {source} for {year}.")
-    msim_data = group_minos_by_pidp(source, year, v, method, subset_function)
+    msim_data = group_minos_by_pidp(source, year, v, method, subset_function_string)
     print('Done. Merging with spatial data..')
 
     try:
@@ -142,6 +142,7 @@ def main(source, year, destination, subset_function, v = "SF_12", method = np.na
         with open(fname, 'w') as outfile:
             geojson.dump(map_geojson, outfile)
 
+
 if __name__ == "__main__":
     # data from some real US/minos
     # run in terminal e.g.
@@ -174,8 +175,6 @@ if __name__ == "__main__":
     save_type = args['format']
     subset_function_string = args['subset_function']
 
-    subset_function = find_subset_function(subset_function_string)
-
     if method_type == "nanmean":
         method = np.nanmean
     else:
@@ -196,4 +195,4 @@ if __name__ == "__main__":
     source = os.path.join(source, runtime)
     destination = source
 
-    main(source, year, destination, subset_function, v, method, save_type)
+    main(source, year, destination, subset_function_string, v, method, save_type)

@@ -52,16 +52,16 @@ glasgow_data_zone_subset_function <- function(data){
 }
 choose_lsoa_function <- function(mode){
   
-  if (mode == "sheffield"){
+  if (tolower(mode) == "sheffield"){
     subset_function <- sheffield_lsoa_subset_function
   }
-  else if (mode == "manchester"){
+  else if (tolower(mode) == "manchester"){
     subset_function <- manchestser_lsoa_subset_function
   }
-  else if (mode == "scotland"){
+  else if (tolower(mode) == "scotland"){
     subset_function <- scotland_data_zone_subset_function
   }
-  else if (mode == "glasgow"){
+  else if (tolower(mode) == "glasgow"){
     subset_function <- glasgow_data_zone_subset_function
   }
   else {
