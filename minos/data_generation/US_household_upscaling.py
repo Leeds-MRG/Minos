@@ -69,6 +69,8 @@ def main():
 
     merged_data['hidp'] = merged_data['new_hidp'] # replace old pidp.
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True) # removing old hidp columns
+    merged_data['pidp'] = merged_data.index # creating new pidps. 
+
     percent = 1.0 # = 0.1
     sampled_data = take_synthpop_sample(merged_data, percent)
     print(f"Taking {100*percent}% of sample giving {sampled_data.shape[0]} rows.")
