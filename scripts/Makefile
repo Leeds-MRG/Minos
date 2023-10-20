@@ -106,13 +106,21 @@ arc4_intervention_energyDownLift: setup
 arc4_intervention_energyDownLiftNoSupport: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
-arc4_all_scenarios: MODE=default_config
-arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
-arc4_all_scot_scenarios: MODE=scotland_mode
-arc4_all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
-arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
+## All default scenarios
+arc4_all_scenarios_default: MODE=default_config
+arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_all_scenarios_default: arc4_all_scenarios
+
+## All Scotland scenarios
+## DEPRECATED - these have been superseded by the glasgow synthetic population scenarios
+arc4_all_scenarios_scot: MODE=scotland_mode
+arc4_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
+arc4_all_scenarios_scot: arc4_all_scenarios
+
+arc4_all_scenarios_S7: MODE=SIPHER7
+arc4_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
 
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
@@ -199,5 +207,30 @@ S7_intervention_livingWage: setup_S7
 S7_intervention_energyDownLift: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownlift'
 
-S7_intervention_energyDownLiftNoSupport: setup
+S7_intervention_energyDownLiftNoSupport: setup_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/SIPHER7.yaml -o SIPHER7 -i 'energyDownliftNoSupport'
+
+#####################################
+# SIPHER7 - Equivalent Income - GLASGOW SCALED DATA
+#####################################
+
+S7_baseline_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow
+
+S7_intervention_hhIncome_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'hhIncomeIntervention'
+
+S7_intervention_hhIncomeChildUplift_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'hhIncomeChildUplift'
+
+S7_intervention_PovertyLineChildUplift_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'hhIncomePovertyLineChildUplift'
+
+S7_intervention_livingWage_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'livingWageIntervention'
+
+S7_intervention_energyDownLift_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'energyDownlift'
+
+S7_intervention_energyDownLiftNoSupport_glasgow: setup_glasgow_scaled_S7
+	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'energyDownliftNoSupport'

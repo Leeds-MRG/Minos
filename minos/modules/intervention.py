@@ -375,17 +375,20 @@ class livingWageIntervention(Base):
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
         logging.info(f"\tNumber of people uplifted: {sum(who_uplifted_London) + sum(who_uplifted_notLondon)}")
-        logging.info(
+        if who_uplifted_London > 0:
+            logging.info(
             f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
-        logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
-        logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
+            logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
+            logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
         logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
         logging.info(f"\t\tNot London %: {(sum(who_uplifted_notLondon) / len(pop[pop['region'] != 'London'])) * 100}")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'][pop['income_boosted'] == True].sum()}")
-        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
+        if who_uplifted_London > 0:
+            logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].sum()}")
         logging.info(f"\tMean weekly boost amount: {pop['boost_amount'][pop['income_boosted'] == True].mean()}")
-        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
+        if who_uplifted_London > 0:
+            logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
 
 

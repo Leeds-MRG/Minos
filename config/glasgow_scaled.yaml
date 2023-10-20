@@ -16,7 +16,7 @@ persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
 transition_dir: 'data/transitions'
-replenishing_dir: 'data/replenishing'
+replenishing_dir: 'data/replenishing/glasgow_scaled'
 
 cross_validation: FALSE
 
