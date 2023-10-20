@@ -217,6 +217,7 @@ map_concept_note_default_SF12: aggregate_baseline_map aggregate_baseline_energy_
 
 ### Equivalent Income
 
+# This target will generate maps for
 map_all_SIPHER7_EI: AGG_VAR=equivalent_income
 map_all_SIPHER7_EI: OUTPUT_SUBDIR=SIPHER7
 map_all_SIPHER7_EI: REGION=glasgow
@@ -224,7 +225,7 @@ map_all_SIPHER7_EI: SYNTH=false
 map_all_SIPHER7_EI: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
 
 map_all_SIPHER7_EI_synthetic: AGG_VAR=equivalent_income
-map_all_SIPHER7_EI_synthetic: OUTPUT_SUBDIR=SIPHER7
+map_all_SIPHER7_EI_synthetic: OUTPUT_SUBDIR=SIPHER7_glasgow
 map_all_SIPHER7_EI_synthetic: REGION=glasgow
 map_all_SIPHER7_EI_synthetic: SYNTH=true
 map_all_SIPHER7_EI_synthetic: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
