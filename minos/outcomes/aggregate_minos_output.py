@@ -63,12 +63,13 @@ def aggregate_variables_by_year(source, mode, years, tag, v, method, subset_func
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(v), repeat(method), repeat("who_alive"), repeat(mode)))
-        elif year == 2020 and tag != "Baseline":
-            continue # skip processing here. ignoring starting data from interventions.
         else:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(v), repeat(method), repeat(subset_func_string), repeat(mode)))
+
+        #elif year == 2020 and tag != "Baseline":
+        #    continue # skip processing here. ignoring starting data from interventions.
 
         new_df = pd.DataFrame(aggregated_means)
         new_df.columns = [v]
