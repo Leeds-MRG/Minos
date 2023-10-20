@@ -85,42 +85,53 @@ all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift interve
 .phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
 .phony: arc4_all_scenarios arc4_all_scot_scenarios arc4_cv_baseline
 
-arc4_baseline: setup
+arc4_baseline:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
-arc4_intervention_hhIncome: setup
+arc4_intervention_hhIncome:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
-arc4_intervention_hhIncomeChildUplift: setup
+arc4_intervention_hhIncomeChildUplift:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
-arc4_intervention_PovertyLineChildUplift: setup
+arc4_intervention_PovertyLineChildUplift:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
-arc4_intervention_livingWage: setup
+arc4_intervention_livingWage:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
-arc4_intervention_energyDownLift: setup
+arc4_intervention_energyDownLift:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
-arc4_intervention_energyDownLiftNoSupport: setup
+arc4_intervention_energyDownLiftNoSupport:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
 ## All default scenarios
+arc4_all_scenarios_default: setup
 arc4_all_scenarios_default: MODE=default_config
 arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios_default: arc4_all_scenarios
 
 ## All Scotland scenarios
 ## DEPRECATED - these have been superseded by the glasgow synthetic population scenarios
+arc4_all_scenarios_scot: setup
 arc4_all_scenarios_scot: MODE=scotland_mode
 arc4_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scenarios_scot: arc4_all_scenarios
 
+## All SIPHER7 Equivalent Income scenarios
+arc4_all_scenarios_S7: setup_S7
 arc4_all_scenarios_S7: MODE=SIPHER7
 arc4_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+arc4_all_scenarios_S7: arc4_all_scenarios
+
+## All SIPHER7 Equivalent Income scenarios with Glasgow synthetic data
+arc4_all_scenarios_S7_glasgow: setup_glasgow_scaled_S7
+arc4_all_scenarios_S7_glasgow: MODE=SIPHER7_glasgow
+arc4_all_scenarios_S7_glasgow: RUN_CONFIG=$(CONFIG)/S7_glasgow_scaled.yaml
+arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
 
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
