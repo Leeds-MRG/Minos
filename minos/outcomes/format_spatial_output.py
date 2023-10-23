@@ -12,6 +12,7 @@ from datetime import datetime
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 from multiprocessing import Pool
 from itertools import repeat
+import sys
 
 """
 Get spatial data.
@@ -237,14 +238,14 @@ def load_data_and_attach_spatial_component(minos_file, spatial_data, v, method=n
     return minos_data
 
 
-def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glasgow'):
+def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='glasgow'):
     # Get spatial data and subset LSOAs for desired region.
     # Pooled as there can be hundreds of datasets here and it gets silly.
 
     with Pool() as pool:
         if is_synthetic_pop:
             aggregated_spatial_data = pool.starmap(load_synthetic_data,
-                                                   zip(minos_files, repeat(subset_function)))
+                                                   zip(minos_files, repeat(subset_function), repeat(v)))
         else:
             spatial_data = get_spatial_data()
             region_lsoas = get_region_lsoas(region)
@@ -252,7 +253,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glas
             # is this the best way to do this? Dont want to load in spatial data 1000 times.
             # Are these hard copies or just refs?
             aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,
-                                                   zip(minos_files, spatial_data, repeat(subset_function)))
+                                                   zip(minos_files, spatial_data, repeat(subset_function), repeat(v)))
 
     # loop over minos files for given year. merge with spatial data and aggregate by LSOA.
     total_minos_data = pd.concat(aggregated_spatial_data)
@@ -286,7 +287,7 @@ def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.n
     """
     print(f"Aggregating MINOS data at {source} for {year} and {region} region.")
     minos_files = get_minos_files(source)
-    total_minos_data = load_minos_data(minos_files, subset_function, is_synthetic_pop)
+    total_minos_data = load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region)
 
     # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
     total_minos_data = group_by_and_aggregate(total_minos_data, "ZoneID", v, method)
@@ -298,12 +299,28 @@ def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.n
     # https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
     json_source = "persistent_data/spatial_data/UK_super_outputs.geojson"
     # json_source = "persistent_data/spatial_data/SG_DataZone_Bdry_2011.json" # scottish data has slightly nicer looking geometries with annoyingly different column names.
-    json_data = load_geojson(json_source)
+    try:
+        json_data = load_geojson(json_source)
+    except FileNotFoundError as e:
+        print(e)
+        print(f"\nThe file: {json_source} is missing or not in the correct directory. If missing, you can download from \n"
+              f"the following link: \n"
+              f"\nhttps://geoportal.statistics.gov.uk/datasets/ons::lsoa-dec-2011-boundaries-super-generalised-clipped-bsc-ew-v4/explore \n"
+              f"\nAs these files are updated regularly, the previous link may not work. If this is the case, this link will \n"
+              f"take you to a list of 2011 based census LSOA boundary files: \n"
+              f"\nhttps://geoportal.statistics.gov.uk/search?collection=Dataset&sort=name&tags=all(BDY_LSOA%2CDEC_2011) \n"
+              f"\nThe file in question will be named 'LSOA (Dec 2011) Boundaries Super Generalised Clipped (BSC) EW'. \n"
+              f"The first link above is to version 4, but this may no longer be available. The latest version should \n"
+              f"be fine. \n"
+              f"In case even that link is no longer working, the boundaries can be found by looking in the \n"
+              f"'Boundaries' drop down menu > Census Boundaries > Lower Super Output Areas > 2011 Boundaries.\n")
+        sys.exit(2)
+
     if not is_synthetic_pop:
         json_data = subset_geojson(json_data, get_spatial_data()["ZoneID"])
     else:
         json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
-    json_data = edit_geojson(json_data, spatial_dict, "SF_12")
+    json_data = edit_geojson(json_data, spatial_dict, v)
 
     # save updated geojson for use in map plots.
     print(f"GeoJSON {v} attribute added.")

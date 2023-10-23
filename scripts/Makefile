@@ -225,6 +225,10 @@ S7_intervention_energyDownLiftNoSupport: setup_S7
 # SIPHER7 - Equivalent Income - GLASGOW SCALED DATA
 #####################################
 
+S7_all_scenarios_glasgow_synthetic: S7_baseline_glasgow S7_intervention_hhIncome_glasgow S7_intervention_hhIncomeChildUplift_glasgow
+S7_all_scenarios_glasgow_synthetic: S7_intervention_PovertyLineChildUplift_glasgow S7_intervention_livingWage_glasgow
+S7_all_scenarios_glasgow_synthetic: S7_intervention_energyDownLift_glasgow S7_intervention_energyDownLiftNoSupport_glasgow
+
 S7_baseline_glasgow: setup_glasgow_scaled_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow
 
