@@ -100,7 +100,7 @@ class S7MentalHealth(Base):
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        self.population_view.update(men_health_prob_df['S7_mental_health'].astype(float))
+        self.population_view.update(men_health_prob_df['S7_mental_health'].astype(int))
 
     def calculate_S7_mental_health(self, pop):
         """Calculate income transition distribution based on provided people/indices
