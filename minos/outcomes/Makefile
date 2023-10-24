@@ -63,6 +63,8 @@ vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_outpu
 
 ######## SF_12 PLOTS ########
 
+.PHONY: all_lineplots_MCS all_lineplots_PCS
+
 # will change to SF_12_MCS when PCS is implemented
 all_lineplots_MCS: MODE=default_config
 all_lineplots_MCS: AGG_VAR=SF_12
@@ -78,12 +80,15 @@ all_lineplots_PCS: default_all_lineplots
 # NOTE: Equivalent Income is only implemented in the SIPHER7 experiment, so MODE should always be set to SIPHER7 when
 # trying to generate lineplots for equivalent_income.
 
+.PHONY: all_lineplots_EI all_lineplots_EI_glasgow
+
 all_lineplots_EI: MODE=SIPHER7
 all_lineplots_EI: AGG_VAR=equivalent_income
 all_lineplots_EI: default_all_lineplots
 
 all_lineplots_EI_glasgow: MODE=SIPHER7_glasgow
 all_lineplots_EI_glasgow: AGG_VAR=equivalent_income
+all_lineplots_EI_glasgow: REGION=glasgow_synthetic
 all_lineplots_EI_glasgow: default_all_lineplots
 
 ##########################################################################
@@ -94,45 +99,45 @@ aggregate_minos_output:	DIRECTORIES = baseline,hhIncomeChildUplift,livingWageInt
 aggregate_minos_output:	DIRECTORY_TAGS = "Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
 aggregate_minos_output:	SUBSET_FUNCTIONS = "who_alive,who_alive,who_alive,who_alive"
 aggregate_minos_output:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(DIRECTORY_SUBSETS) "all" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(DIRECTORY_SUBSETS) "all" $(AGG_VAR) $(REGION)
 
 
 aggregate_minos_output_treated:	TREATED_DIRECTORIES = baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift,livingWageIntervention,energyDownlift
 aggregate_minos_output_treated:	TREATED_DIRECTORY_TAGS="Baseline,£25 All Child Uplift,£25 Poverty Line Child Uplift, Living Wage,Energy Crisis"
 aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),$(BOOSTED),$(BOOSTED),$(BOOSTED)
 aggregate_minos_output_treated:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_living_wage:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage_treated" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_poverty_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_all_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift" $(AGG_VAR) $(REGION)
 
 #aggregate_minos_output_all_child_uplift:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift "Baseline,All Children Uplift,Poverty Line Child Uplift" who_kids,who_boosted,who_boosted "all_vs_poverty_child_uplift" $(AGG_VAR)
 
 aggregate_minos_output_disabled_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_minority_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_three_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift" $(AGG_VAR) $(REGION)
 
 # omitted due to lack of sample size
 aggregate_minos_output_young_mother_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_young_adult_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_uneducated_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift" $(AGG_VAR) $(REGION)
 
 
 aggregate_minos_output_scottish: MODE=default_config
@@ -140,19 +145,19 @@ aggregate_minos_output_scottish: DIRECTORIES=baseline,hhIncomeChildUplift,living
 aggregate_minos_output_scottish: DIRECTORY_TAGS="Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
 aggregate_minos_output_scottish: SUBSET_FUNCTIONS=who_scottish,who_scottish,who_scottish,who_scottish
 aggregate_minos_output_scottish:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(SUBSET_FUNCTIONS) "who_scottish?" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(DIRECTORIES) $(DIRECTORY_TAGS) $(SUBSET_FUNCTIONS) "who_scottish?" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_living_wage_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_scottish,who_scottish "living_wage_treated" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_scottish,who_scottish "living_wage_treated" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_all_child_uplift_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_scottish,who_scottish "all_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_scottish,who_scottish "all_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_poverty_child_uplift_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_scottish,who_scottish "poverty_line_child_uplift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_scottish,who_scottish "poverty_line_child_uplift" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_energy_scot:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_scottish,who_scottish "energy_downlift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_scottish,who_scottish "energy_downlift" $(AGG_VAR) $(REGION)
 
 lineplots_national_scottish_subsample: aggregate_minos_output_living_wage_scot aggregate_minos_output_all_child_uplift_scot aggregate_minos_output_poverty_child_uplift_scot aggregate_minos_output_energy_scot aggregate_minos_output_scottish
 
@@ -161,13 +166,13 @@ aggregate_combined_vulnerable:VULNERABLE_DIRECTORIES=baseline,hhIncomeChildUplif
 aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_TAGS="Baseline,All Children Uplift,Disabled Children Uplift,Minority Children Uplift,Three Children Uplift,Young Single Parent Children Uplift,Low Education Children Uplift"
 aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,who_disabled,who_ethnic_minority,who_three_kids,who_young_adults,who_no_formal_education
 aggregate_combined_vulnerable:
-	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_energy:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_energy_old: # old command not using intervention with no support as well
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift" $(AGG_VAR)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift" $(AGG_VAR) $(REGION)
 
 
 ####################################################################################################################################################
@@ -216,35 +221,36 @@ aggregate_baseline_map:
 	# aggregate minos outputs into LSOAs.
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i baseline -y $(AGG_YEAR) -r $(REGION) -s who_alive -p $(SYNTH) -v $(AGG_VAR)
 	# Map data now aggregated.
-	$(RSCRIPT) minos/outcomes/sf12_single_map.R -m $(OUTPUT_SUBDIR) -b baseline -r $(REGION) -y $(AGG_YEAR) -d $(PLOTDIR)/baseline_map -v $(AGG_VAR)
+	$(RSCRIPT) minos/outcomes/sf12_single_map.R -m $(OUTPUT_SUBDIR) -b baseline -r $(REGION) -y $(AGG_YEAR) -v $(AGG_VAR)
 
 aggregate_baseline_energy_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i baseline -y $(AGG_YEAR) -r $(REGION) -s who_uses_energy -p $(SYNTH) -v $(AGG_VAR)
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i energyDownlift -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i energyDownlift -r $(REGION) -y $(AGG_YEAR) -d plots/$(AGG_VAR)_baseline_energy_downlift_diff_map_$(AGG_YEAR).pdf -v $(AGG_VAR)
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i energyDownlift -r $(REGION) -y $(AGG_YEAR) -v $(AGG_VAR)
 
 aggregate_baseline_living_wage_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i baseline -y $(AGG_YEAR) -r $(REGION) -s who_below_living_wage -p $(SYNTH) -v $(AGG_VAR)
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i livingWageIntervention -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i livingWageIntervention -r $(REGION) -y $(AGG_YEAR) -d plots/$(AGG_VAR)_baseline_livingWage_diff_map_$(AGG_YEAR).pdf -v $(AGG_VAR)
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i livingWageIntervention -r $(REGION) -y $(AGG_YEAR) -v $(AGG_VAR)
 
 aggregate_baseline_all_uplift_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i baseline -y $(AGG_YEAR) -r $(REGION) -s who_kids -p $(SYNTH) -v $(AGG_VAR)
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i hhIncomeChildUplift -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i hhIncomeChildUplift -r $(REGION) -y $(AGG_YEAR) -d plots/$(AGG_VAR)_baseline_child_uplift_diff_map_$(AGG_YEAR).pdf -v $(AGG_VAR)
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i hhIncomeChildUplift -r $(REGION) -y $(AGG_YEAR) -v $(AGG_VAR)
 
 aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i baseline -y $(AGG_YEAR) -r $(REGION) -s who_below_poverty_line_and_kids -p $(SYNTH) -v $(AGG_VAR)
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i hhIncomePovertyLineChildUplift -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i hhIncomePovertyLineChildUplift -r $(REGION) -y $(AGG_YEAR) -d plots/$(AGG_VAR)_baseline_poverty_uplift_diff_map_$(AGG_YEAR).pdf -v $(AGG_VAR)
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i hhIncomePovertyLineChildUplift -r $(REGION) -y $(AGG_YEAR) -v $(AGG_VAR)
 
 epcg_ebss_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -b "EPCG" -i "EBSS" -r "glasgow" -y $(AGG_YEAR) -d "plots/$(AGG_VAR)_epcg_ebss_diff_map.pdf" -y 2025 -v $(AGG_VAR)
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -b "EPCG" -i "EBSS" -r "glasgow" -y $(AGG_YEAR) -y 2025 -v $(AGG_VAR)
 
 aggregate_all_energy_interventions:
 	python3 minos/outcomes/make_lineplots_macros.py "all_energy_lineplots"
+
 
 ## MAP ALL
 
@@ -270,7 +276,7 @@ all_intervention_maps: aggregate_baseline_map aggregate_baseline_energy_map aggr
 # as input population, the AGG_LOCATION parameter should match that region or some weird things might happen.
 
 ## SYNTH
-#
+# TODO: SOME TEXT HERE!
 
 # The current targets are all combined targets, producing maps for all interventions in one go. If you want to produce
 # just one map, say for example the living wage intervention, you will need to write a make target for just that
@@ -290,13 +296,13 @@ all_intervention_maps: aggregate_baseline_map aggregate_baseline_energy_map aggr
 
 # Currently only SF_12_MCS is implemented, but SF_12_PCS is coming soon!
 map_all_MCS: AGG_VAR=SF_12
-map_all_MCS: OUTPUT_SUBDIR=default_output
+map_all_MCS: OUTPUT_SUBDIR=default_config
 map_all_MCS: REGION=glasgow
 map_all_MCS: SYNTH=false
-map_all_MCS: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+map_all_MCS: all_intervention_maps
 
 map_concept_note_MCS: AGG_VAR=SF_12
-map_concept_note_MCS: OUTPUT_SUBDIR=default_output
+map_concept_note_MCS: OUTPUT_SUBDIR=default_config
 map_concept_note_MCS: REGION=glasgow
 map_concept_note_MCS: SYNTH=false
 map_concept_note_MCS: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map
@@ -308,13 +314,13 @@ map_all_EI: AGG_VAR=equivalent_income
 map_all_EI: OUTPUT_SUBDIR=SIPHER7
 map_all_EI: REGION=glasgow
 map_all_EI: SYNTH=false
-map_all_EI: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+map_all_EI: all_intervention_maps
 
 map_all_EI_synthetic: AGG_VAR=equivalent_income
 map_all_EI_synthetic: OUTPUT_SUBDIR=SIPHER7_glasgow
 map_all_EI_synthetic: REGION=glasgow
 map_all_EI_synthetic: SYNTH=true
-map_all_EI_synthetic: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+map_all_EI_synthetic: all_intervention_maps
 
 
 

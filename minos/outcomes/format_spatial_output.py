@@ -228,12 +228,12 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
     return minos_data
 
 
-def load_data_and_attach_spatial_component(minos_file, spatial_data, v, method=np.nanmean):
+def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_function, v, method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', v]]
-    minos_data = attach_spatial_component(minos_data, spatial_data)
+    minos_data = attach_spatial_component(minos_data, spatial_data, v)
     minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
     return minos_data
 
@@ -253,7 +253,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='g
             # is this the best way to do this? Dont want to load in spatial data 1000 times.
             # Are these hard copies or just refs?
             aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,
-                                                   zip(minos_files, spatial_data, repeat(subset_function), repeat(v)))
+                                                   zip(minos_files, repeat(spatial_data), repeat(subset_function), repeat(v)))
 
     # loop over minos files for given year. merge with spatial data and aggregate by LSOA.
     total_minos_data = pd.concat(aggregated_spatial_data)

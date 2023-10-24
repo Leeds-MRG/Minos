@@ -16,7 +16,7 @@ main <- function(){
                       Currently available are Glasgow, Sheffield, Manchester, 
                       and Scotland.')
   parser$add_argument('-y', '--year', help='What year to map data for.')
-  parser$add_argument("-d", "--plot_destination", dest='destination', help="Where to save a plot.")
+  #parser$add_argument("-d", "--plot_destination", dest='destination', help="Where to save a plot.")
   parser$add_argument("-v", "--v", dest='var', help="What variable to map.")
   
   args <- parser$parse_args()
@@ -25,7 +25,7 @@ main <- function(){
   intervention <- args$intervention
   region <- args$region
   year <- args$year
-  plot_destination <- args$destination
+  #plot_destination <- args$destination
   v <- args$var
   
   ## handle runtime subdirectory
@@ -97,6 +97,10 @@ main <- function(){
                         sec)
     geojson_file_name2 <- paste0(geojson_file_path_int, '/', str.date2, '/', geojson_file_name_int)
   }
+
+  # Generate output filename
+  plot_destination <- paste(v, region, run, intervention, year, 'diffmap.pdf', sep='_')
+  plot_destination <- paste('plots', plot_destination, sep='/')
 
   main.diff(geojson_file_name1, geojson_file_name2, plot_destination, v)
 }
