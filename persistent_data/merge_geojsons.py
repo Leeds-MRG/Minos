@@ -6,9 +6,14 @@ import pandas as pd
 def format_scotland_geojson(scot_file):
     """Format scotland geojson so it can be merged with the england and wales one.
 
-    data from https://spatialdata.gov.scot/geonetwork/srv/api/records/7d3e8709-98fa-4d71-867c-d5c8293823f2.
-    converted to geojson using mapshaper.org.
-    polygons simplified using 3% visvalingam weighted area algorithm. Lower resolution and file size.
+    -data from https://spatialdata.gov.scot/geonetwork/srv/api/records/7d3e8709-98fa-4d71-867c-d5c8293823f2.
+        converted to geojson using mapshaper.org.
+        polygons simplified using 3% visvalingam weighted area algorithm. dont have to do this but provides
+        lower resolution and file size.
+        also convert to wgs84 coordinates system (latitude and longitude) to match other UK data using command
+        line argument in mapshaper ‘-proj wgs84’
+        save to "persistent_data/spatial_data/SG_DataZone_Bdry_2011.json"
+        
     - convert Name property to name
     - convert DataZone to LSOA11Cd
     - remove every other property.
@@ -48,7 +53,7 @@ def merge_jsons(d1, d2):
 
 def add_lad_codes_and_names(merged_json):
 
-    LAD_attributes = pd.read_csv("persistent_data/lsoa_to_LA_2022.csv")
+    LAD_attributes = pd.read_csv("persistent_data/spatial_data/lsoa_to_LA_2022.csv")
     for i, item in enumerate(merged_json["features"]):
         slice = LAD_attributes.loc[LAD_attributes["lsoa11cd"] == item["properties"]["ZoneID"], ]
         LACode, LAName =  slice[['ladcd', 'ladnm']].values[0]
@@ -62,9 +67,9 @@ def save_json(merged_json, f_name):
 
 if __name__ == '__main__':
 
-    scot_json = format_scotland_geojson("persistent_data/SG_DataZone_Bdry_2011.json")
-    eng_json = format_england_geojson("persistent_data/Lower_Layer_Super_Output_Areas_(December_2011)_Boundaries_Super_Generalised_Clipped_(BSC)_EW_V3.geojson")
+    scot_json = format_scotland_geojson("persistent_data/spatial_data/SG_DataZone_Bdry_2011.json")
+    eng_json = format_england_geojson("persistent_data/spatial_data/Lower_Layer_Super_Output_Areas_(December_2011)_Boundaries_Super_Generalised_Clipped_(BSC)_EW_V3.geojson")
 
     merged_json = merge_jsons(eng_json, scot_json)
     merged_json = add_lad_codes_and_names(merged_json)
-    save_json(merged_json, "persistent_data/UK_super_outputs.geojson")
+    save_json(merged_json, "persistent_data/spatial_data/UK_super_outputs.geojson")
