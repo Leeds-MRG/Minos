@@ -204,7 +204,7 @@ def save_geojson(geojson_data, file_name):
     -------
     None
     """
-    print(f"Saving to SF12 updated geojson data to {file_name}.")
+    print(f"Saving updated geojson data to {file_name}.")
     with open(file_name, 'w') as outfile:
         geojson.dump(geojson_data, outfile)
 
