@@ -201,6 +201,28 @@ def validate_components(config_components, intervention):
     return component_list
 
 
+def type_check(data):
+    """
+    We have an unfortunate problem with some variables where the type changes when being read in by Vivarium, which the
+    framework cannot handle and so throws a paddy. This is particularly annoying with the difference between int and
+    float, where the vast majority of int variables are read in as float and so struggle with being updated each wave
+    when new values are assigned int. This function is an attempt to fix this once and for all.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+
+    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
+    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+
+    return data
+
+
 def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline
 
@@ -270,6 +292,10 @@ def RunPipeline(config, intervention=None):
     # Save population BEFORE start of the simulation. This is for comparisons and change from baseline
     pop = simulation.get_population()
     pop = utils.get_age_bucket(pop)
+
+    # Force type casting for certain problem variables
+    pop = type_check(pop)
+
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
