@@ -276,7 +276,10 @@ all_intervention_maps: aggregate_baseline_map aggregate_baseline_energy_map aggr
 # as input population, the AGG_LOCATION parameter should match that region or some weird things might happen.
 
 ## SYNTH
-# TODO: SOME TEXT HERE!
+# The synth parameter should be set to true or false (default is false), and indicates whether we are mapping the output
+# of a simulation using regular US data or synthetic data of some kind. If using results from a synthetic data run, it
+# is important that this parameter is set correctly to true as it will then use location data from the file itself,
+# instead of adding it afterwards.
 
 # The current targets are all combined targets, producing maps for all interventions in one go. If you want to produce
 # just one map, say for example the living wage intervention, you will need to write a make target for just that
