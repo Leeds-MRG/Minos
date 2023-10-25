@@ -14,7 +14,7 @@ main <- function(){
                       Currently available are Glasgow, Sheffield, Manchester, 
                       and Scotland.')
   parser$add_argument('-y', '--year', help='What year to map data for.')
-  #parser$add_argument("-d", "--plot_destination", dest='destination', help="Where to save a plot.")
+  parser$add_argument('-s', '--synthetic', help='Is this a synthetic population run being mapped?')
   parser$add_argument("-v", "--v", dest='var', help="What variable to map.")
   
   args <- parser$parse_args()
@@ -22,7 +22,7 @@ main <- function(){
   run <- args$baseline
   region <- args$region
   year <- args$year
-  #plot_destination <- args$destination
+  synth <- args$synth
   v <- args$var
 
   ## handle runtime subdirectory
@@ -60,7 +60,15 @@ main <- function(){
   }
 
   # Generate output filename
-  plot_destination <- paste(v, region, run, year, 'map.pdf', sep='_')
+  #plot_destination <- paste(v, region, run, year, 'map.pdf', sep='_')
+  
+  if (tolower(synth) == 'true'){
+    plot_destination <- paste(v, region, 'synthetic', run, year, 'map.pdf', sep='_')
+  }
+  else {
+    plot_destination <- paste(v, region, run, year, 'map.pdf', sep='_')
+  }
+
   plot_destination <- paste('plots', plot_destination, sep='/')
 
   main.single(geojson_file_name, plot_destination, v)

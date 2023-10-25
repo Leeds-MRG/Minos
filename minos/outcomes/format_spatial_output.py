@@ -303,21 +303,17 @@ def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.n
         json_data = load_geojson(json_source)
     except FileNotFoundError as e:
         print(e)
-        print(f"\nThe file: {json_source} is missing or not in the correct directory. If missing, you can download from \n"
-              f"the following link: \n"
-              f"\nhttps://geoportal.statistics.gov.uk/datasets/ons::lsoa-dec-2011-boundaries-super-generalised-clipped-bsc-ew-v4/explore \n"
-              f"\nAs these files are updated regularly, the previous link may not work. If this is the case, this link will \n"
-              f"take you to a list of 2011 based census LSOA boundary files: \n"
-              f"\nhttps://geoportal.statistics.gov.uk/search?collection=Dataset&sort=name&tags=all(BDY_LSOA%2CDEC_2011) \n"
-              f"\nThe file in question will be named 'LSOA (Dec 2011) Boundaries Super Generalised Clipped (BSC) EW'. \n"
-              f"The first link above is to version 4, but this may no longer be available. The latest version should \n"
-              f"be fine. \n"
-              f"In case even that link is no longer working, the boundaries can be found by looking in the \n"
-              f"'Boundaries' drop down menu > Census Boundaries > Lower Super Output Areas > 2011 Boundaries.\n")
+        print(f"\nThe file: {json_source} is missing or not in the correct directory. This file should be tracked by "
+              f"the repository and therefore shouldn't be missing, but in this case please contact any of the "
+              f"developers of the repository and someone should be able to provide it.\n")
         sys.exit(2)
 
     if not is_synthetic_pop:
-        json_data = subset_geojson(json_data, get_spatial_data()["ZoneID"])
+        # Subset the GB data with LSOAs from region of interest
+        region_lsoas = get_region_lsoas(region)
+        gb_data = get_spatial_data()
+        region_data = subset_lsoas_by_region(gb_data, region_lsoas)
+        json_data = subset_geojson(json_data, region_data["ZoneID"])
     else:
         json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
     json_data = edit_geojson(json_data, spatial_dict, v)
