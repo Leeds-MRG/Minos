@@ -35,6 +35,10 @@ Help()
    echo "interested in plotting, but this has now expanded to include equivalent_income and soon will include SF_12_PCS."
    echo " "
    echo "There are some other variables here such as aggregation method set to nanmean for now but open to others later."
+   echo " "
+   echo "\$6 indicates the variable of which we are plotting. Before 19/10/23 SF_12_MCS was the only variable we were "
+   echo "interested in plotting, but this has now expanded to include equivalent_income and soon will include SF_12_PCS."
+   echo " "
 }
 
 while getopts ":h" option; do
