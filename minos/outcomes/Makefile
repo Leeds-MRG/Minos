@@ -27,7 +27,7 @@ default_all_lineplots: POVERTY=who_below_poverty_line_and_kids
 default_all_lineplots: CHILD=who_kids
 default_all_lineplots: all_lineplots
 
-all_lineplots: aggregate_minos_output_treated aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
+all_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
 
 
@@ -74,6 +74,7 @@ all_lineplots_MCS: default_all_lineplots
 all_lineplots_PCS: MODE=default_config
 all_lineplots_PCS: AGG_VAR=SF_12_PCS
 all_lineplots_PCS: default_all_lineplots
+
 
 ######## Equivalent Income PLOTS ########
 
@@ -174,7 +175,6 @@ aggregate_minos_output_energy:
 aggregate_minos_output_energy_old: # old command not using intervention with no support as well
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift" $(AGG_VAR) $(REGION)
 
-
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
 ####################################################################################################################################################
@@ -251,9 +251,6 @@ epcg_ebss_map:
 aggregate_all_energy_interventions:
 	python3 minos/outcomes/make_lineplots_macros.py "all_energy_lineplots"
 
-
-## MAP ALL
-
 # Combined target for running all interventions at once
 all_intervention_maps: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
 
@@ -324,6 +321,4 @@ map_all_EI_synthetic: OUTPUT_SUBDIR=SIPHER7_glasgow
 map_all_EI_synthetic: REGION=glasgow
 map_all_EI_synthetic: SYNTH=true
 map_all_EI_synthetic: all_intervention_maps
-
-
 

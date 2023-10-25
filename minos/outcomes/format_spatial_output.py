@@ -325,6 +325,7 @@ def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.n
     print("Done!")
 
 
+
 if __name__ == "__main__":
     # parse inputs from bash script. not meant to be run directly.
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
