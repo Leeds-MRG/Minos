@@ -106,7 +106,9 @@ class hhIncomeIntervention():
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        #pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        # Reset boost amount to 0
+        pop['boost_amount'] = 0
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         who_uplifted = pop['hh_income'] <= pop['hh_income'].quantile(self.prop / 100)
         pop['income_boosted'] = who_uplifted
