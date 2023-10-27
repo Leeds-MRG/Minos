@@ -29,7 +29,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_2018):
+def expand_repl(US_2018, glasgow):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -56,7 +56,7 @@ def expand_repl(US_2018):
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
-        new_repl = repl_2018
+        new_repl = repl_2018.copy()
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
@@ -84,6 +84,13 @@ def expand_repl(US_2018):
 
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
+
+    # Luke - 20/10/23
+    # synthetic upscaled glasgow data results in some duplicate pidp's still
+    # only 10 on initial testing so I'm just going to remove these
+    if glasgow:
+        expanded_repl.drop_duplicates(subset=['pidp'],
+                                      inplace=True)
 
     assert (expanded_repl.duplicated('pidp').sum() == 0)
 
@@ -174,7 +181,7 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation, inflated):
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated, glasgow):
 
     output_dir = 'data/replenishing'
     data_source = 'final_US'
@@ -191,22 +198,28 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     if inflated:
         data_source = 'inflated_US'
         output_dir = 'data/replenishing/inflated'
+    if glasgow:
+        data_source = 'scaled_glasgow_US'
+        output_dir = 'data/replenishing/glasgow_scaled'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
-    expanded_repl = expand_repl(data)
+    expanded_repl = expand_repl(data, glasgow)
 
-    #reweighted_repl = reweight_repl(expanded_repl, projections)
+    reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(expanded_repl, transition_dir)
+    final_repl = predict_education(reweighted_repl, transition_dir)
 
+    # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
     final_repl['ncigs'] = final_repl['ncigs'].astype(int)
     final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
     final_repl['loneliness'] = final_repl['loneliness'].astype(int)
+    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
+    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
@@ -226,11 +239,14 @@ def main():
     parser.add_argument("-i", "--inflated", dest='inflated', action='store_true', default=False,
                         help="Select inflated mode to produce inflated cross-validation populations from inflated"
                              "data.")
+    parser.add_argument("-g", "--glasgow", action='store_true', default=False,
+                        help="Generate replenishing population using the glasgow scaled data.")
 
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
     inflated = args.inflated
+    glasgow = args.glasgow
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
@@ -239,7 +255,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections, scotland_mode, cross_validation, inflated)
+    generate_replenishing(projections, scotland_mode, cross_validation, inflated, glasgow)
 
 
 if __name__ == "__main__":

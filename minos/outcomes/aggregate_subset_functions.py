@@ -17,7 +17,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode = 'default_conf
                     "who_kids": [who_alive, who_kids],
                     "who_below_poverty_line_and_kids": [who_alive, who_kids, who_below_poverty_line],
                     "who_scottish": [who_alive, who_scottish],
-                    #"who_bottom_income_quintile": who_bottom_income_quintile,
+                    "who_bottom_income_quintile": who_bottom_income_quintile,
                     # Scottish gov sgugested vulnerable subgroups.
                     "who_disabled": [who_alive, who_kids, who_disabled],
                     "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],
@@ -73,10 +73,10 @@ def who_below_living_wage(df):
     return df.loc[who_uplifted_notLondon | who_uplifted_London, ] # get anyone from either group.
 
 
-#def who_bottom_income_quintile(df, k=1):
-#    df = who_alive(df)
-#    split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
-#    return df.loc[split == k, ]
+def who_bottom_income_quintile(df, k=1):
+    df = who_alive(df)
+    split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
+    return df.loc[split == k, ]
 
 
 def who_below_poverty_line(df):
@@ -131,10 +131,12 @@ def who_unemployed(df):
     # who unemployed
     return df.loc[df["labour_state"] == "Unemployed", ]
 
+
 def who_young_adults(df):
     # who aged between 16 and 25.
     df =  df.loc[df["age"] <= 25, ]
     return df.loc[df["age"] >= 16, ]
+
 
 def who_uses_energy(df):
     return df.loc[df['yearly_energy'] > 0]

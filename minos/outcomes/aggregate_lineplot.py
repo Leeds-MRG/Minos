@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 
-def main(source, destination, v, method, prefix):
+def main(source, destination, v, method, prefix, region):
     """
 
     Parameters
@@ -20,10 +20,10 @@ def main(source, destination, v, method, prefix):
     -------
 
     """
-    aggregate_lineplot(source, destination, v, method, prefix)
+    aggregate_lineplot(source, destination, v, method, prefix, region)
     #TODO looks redundant for now but more plots can go here as needed..
 
-def aggregate_lineplot(source, destination, v, method, prefix):
+def aggregate_lineplot(source, destination, v, method, prefix, region):
     """ Plot lineplot over sources and years for aggregated v.
 
     Parameters
@@ -52,15 +52,19 @@ def aggregate_lineplot(source, destination, v, method, prefix):
 
     f = plt.figure()
     sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    file_name = f"{v}_lineplot.pdf"
     if prefix:
-        file_name = f"{prefix}_{v}_lineplot.pdf"
-    else:
-        file_name = f"{v}_lineplot.pdf"
+        file_name = f"{prefix}_{file_name}"
+    if region:
+        file_name = f"{region}_{file_name}"
+
     file_name = os.path.join(destination, file_name)
 
     # Sort out axis labels
     if v == 'SF_12':
         v = 'SF12 MCS'
+    if v == 'equivalent_income':
+        v = 'Equivalent Income'
     plt.ylabel(f"{v} {method}")
     plt.tight_layout()
 
@@ -85,6 +89,8 @@ if __name__ == '__main__':
                         help="What method is used to aggregate population. Defaults to np.nanmean.")
     parser.add_argument("-p", "--prefix", required=False, default=None,
                         help="Prefix for pdf output filename. used to differenate different plot types. e.g. all population vs treated only.")
+    parser.add_argument("-r", '--region', required=False, default='',
+                        help='Region for pdf output filename. Used for naming output files.')
 
     args = vars(parser.parse_args())
     mode = args['mode']
@@ -93,6 +99,7 @@ if __name__ == '__main__':
     v = args['variable']
     method = args['aggregate_method']
     prefix = args['prefix']
+    region = args['region']
 
     sources = sources.split(",")
 
@@ -116,4 +123,4 @@ if __name__ == '__main__':
             short_directories.append(source)
 
     source = os.path.join("output/", mode, sources[0], "aggregated_" + "_".join(short_directories) + ".csv")
-    main(source, destination, v, method, prefix)
+    main(source, destination, v, method, prefix, region)
