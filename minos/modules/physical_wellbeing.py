@@ -194,7 +194,8 @@ class lmmYJPCS(Base):
                         'financial_situation',
                         'active',
                         'auditc',
-                        'chron_disease']
+                        'chron_disease',
+                        'matdep']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

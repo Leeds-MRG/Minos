@@ -143,7 +143,7 @@ class Alcohol(Base):
                                        pop,
                                        cols)
 
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'auditc')
+        # prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'auditc')
 
         return prob_df
 

@@ -152,7 +152,8 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
         currentRDF = ro.conversion.py2rpy(current)
 
     # need to cast the dependent var to an R FactorVector
-    if dependent in ['loneliness', 'neighbourhood_safety', 'housing_quality']:
+    if dependent in ['loneliness', 'neighbourhood_safety', 'housing_quality', 'auditc', 'financial_situation',
+                     'chron_disease', 'matdep']:
         dependent_index = list(currentRDF.colnames).index(dependent)
         dependent_col = FactorVector(currentRDF.rx2(dependent))
         currentRDF[dependent_index] = dependent_col
