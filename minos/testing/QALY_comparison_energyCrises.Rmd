@@ -1,0 +1,97 @@
+---
+title: "QALY Comparisons - Energy Crisis Interventions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+require(MESS)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+)
+rm(workingDir)
+```
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+```
+
+
+## Data
+
+```{r}
+# read in QALY files for baseline and interventions
+out.path <- here::here('output', 'default_config')
+
+base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
+support.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDownlift'))
+noSupport.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDownliftNoSupport'))
+
+base <- read.csv(paste0(base.path, 'qalys.csv'))
+support <- read.csv(paste0(support.path, 'qalys.csv'))
+noSupport <- read.csv(paste0(noSupport.path, 'qalys.csv'))
+```
+
+# QALY comparison
+
+```{r}
+# combine the dataframes
+combined <- rbind(base, support, noSupport)
+
+ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
+  geom_line()
+```
+
+## Area Under the Curve Comparison
+
+```{r}
+#base.auc <- sum(diff(base$time)*rollmean(base$QALYs, 2))
+base.auc <- data.frame(intervention = 'baseline', AUC = auc(x=base$year, y=base$QALYs, type = 'spline'))
+support.auc <- data.frame(intervention = 'Support', AUC = auc(x=support$year, y=support$QALYs, type = 'spline'))
+noSupport.auc <- data.frame(intervention = 'NoSupport', AUC = auc(x=noSupport$year, y=noSupport$QALYs, type = 'spline'))
+
+combined.auc <- rbind(base.auc, support.auc, noSupport.auc)
+```
+
+```{r}
+print(combined.auc)
+
+ggplot(data = combined.auc, aes(x = intervention, y = AUC, group = intervention, fill = intervention)) +
+  geom_col()
+```
+
+```{r}
+# Another version showing difference from baseline for better comparison
+combined.auc2 <- combined.auc %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = 'AUC') %>%
+  mutate(change_baseline = baseline - baseline,
+         change_Support = Support - baseline,
+         change_noSupport = NoSupport - baseline) %>%
+  pivot_longer(cols = change_baseline:change_noSupport,
+               names_to = 'intervention',
+               names_prefix = 'change_',
+               values_to = 'AUC_difference')
+
+print(combined.auc2)
+
+ggplot(combined.auc2, aes(x = intervention, y = AUC_difference, group = intervention, fill = intervention)) +
+  geom_col()
+```
+

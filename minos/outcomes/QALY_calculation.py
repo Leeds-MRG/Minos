@@ -1,0 +1,141 @@
+"""
+author: Luke Archer
+date: 30/10/23
+
+This script will calculate the QALYs for each year for a specific intervention (or baseline). First this will just be
+at the whole population level, but will be expanded soon to allow for calculations within specified groups.
+"""
+
+import argparse
+import pandas as pd
+import numpy as np
+import os
+import yaml
+from multiprocessing import Pool
+from itertools import repeat
+import glob as glob
+from aggregate_subset_functions import dynamic_subset_function
+
+import minos.utils as utils
+
+
+def aggregate_csv(filename):
+    """
+
+    Parameters
+    ----------
+    filename
+    v
+    agg_method
+    subset_func_string
+    mode
+
+    Returns
+    -------
+
+    """
+    df = pd.read_csv(filename, low_memory=False)
+    #if subset_func_string:
+        #df = dynamic_subset_function(df, subset_func_string, mode)
+    #print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
+
+    pop_size = df['alive'].value_counts()['alive']
+
+    return [pop_size, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
+
+
+def calculate_qaly(df):
+    """
+    QALY calculation comes from Lawrence and Fleishman (2004) - https://pubmed.ncbi.nlm.nih.gov/15090102/
+
+    In table 4 of the above paper, regression model coefficients were presented which allow the mapping of MCS and PCS
+    scores onto EQ-5D, from which we can calculate utility scores.
+
+    From the utility scores we can calculate QALYs by multiplying the utility score by the population size (alive).
+
+    Parameters
+    ----------
+    df
+
+    Returns
+    -------
+
+    """
+
+    # Run without any subpopulations to worry about
+
+    # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
+    df['utility'] = -1.6984 + \
+                    (df['SF_12_PCS'] * 0.07927) + \
+                    (df['SF_12_MCS'] * 0.02859) + \
+                    ((df['SF_12_PCS'] * df['SF_12_MCS']) * -0.000126) + \
+                    ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
+                    ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
+                    ((df['SF_12_PCS'] * df['SF_12_MCS'] * df['SF_12_PCS']) * 0.0000107)
+
+    # Now calculate QALYs by multiplying utility score by pop_size
+    df['QALYs'] = df['utility'] * df['pop_size']
+
+    return df
+
+
+def main(mode, intervention):
+
+    # set file directory
+    file_dir = os.path.join('output/', mode, intervention)
+    runtime_list = os.listdir(os.path.abspath(file_dir))
+    runtime = utils.get_latest_subdirectory(runtime_list)
+
+    batch_source = os.path.join(file_dir, runtime)
+    #  batch_source = os.path.join(source, directory)
+    # get years from MINOS batch run config yaml.
+    with open(f"{batch_source}/config_file.yml", "r") as stream:
+        config = yaml.safe_load(stream)
+        start_year = config['time']['start']['year']
+        end_year = config['time']['end']['year']
+        years = np.arange(start_year, end_year)
+
+    combined_output = pd.DataFrame()
+    # use multiprocessing to read in files and aggregating
+    for year in years+1:
+        files = glob.glob(os.path.join(batch_source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
+
+        # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
+        # Therefore we are just going to get everyone alive for now
+        # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
+        with Pool() as pool:
+            aggregated_means = pool.starmap(aggregate_csv, zip(files))
+
+        new_df = pd.DataFrame(aggregated_means)
+        new_df.columns = ['pop_size', 'SF_12_MCS', 'SF_12_PCS']
+        new_df['year'] = year
+        new_df['intervention'] = intervention
+        combined_output = pd.concat([combined_output, new_df])
+        print(f'Finished aggregating data for year {year}...')
+
+    print('Finished aggregating data...')
+
+    qaly_df = calculate_qaly(combined_output)
+
+    # finally, save qaly df into output directory
+    out_name = os.path.join(batch_source, 'qalys.csv')
+    qaly_df.to_csv(out_name)
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description="Arguments for calculation QALYs over different experiments or "
+                                                 "sub-populations.")
+
+    parser.add_argument("-m", "--mode", required=True,
+                        help="Which experiment are we calculating for? Options currently are default_config, SIPHER7,"
+                             "and SIPHER7_glasgow.")
+    parser.add_argument("-i", "--intervention", required=False, default="baseline",
+                        help="Is this a baseline or intervention run? Which intervention if intervention?")
+
+    args = parser.parse_args()
+
+    mode = args.mode
+    intervention = args.intervention
+
+    main(mode, intervention)

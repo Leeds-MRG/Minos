@@ -1,11 +1,37 @@
 
+OUTCOMES=$(ROOT)/minos/outcomes
 
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
 
-test_plot: MODE=default_config
-test_plot: ALIVE=who_alive
-test_plot: BOOSTED=who_boosted
-test_plot: aggregate_minos_output_energy
+#####################################
+# QALY Calculations
+#####################################
+
+.phony: QALY QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
+
+QALY_baseline: MODE=default_config
+QALY_baseline: INTERVENTION=baseline
+QALY_baseline:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_energyDownlift: MODE=default_config
+QALY_energyDownlift: INTERVENTION=energyDownlift
+QALY_energyDownlift:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_energyDownliftNoSupport: MODE=default_config
+QALY_energyDownliftNoSupport: INTERVENTION=energyDownliftNoSupport
+QALY_energyDownliftNoSupport:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_comparison_energyCrises: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
+	firefox file://$(TESTING)/QALY_comparison_energyCrises.html
+
+#test_plot: MODE=default_config
+#test_plot: ALIVE=who_alive
+#test_plot: BOOSTED=who_boosted
+#test_plot: aggregate_minos_output_energy
 
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.

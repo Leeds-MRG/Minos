@@ -136,9 +136,9 @@ if __name__ == '__main__':
     if method == "nanmean":
         method = np.nanmean
     else:
-        #TODO no better way to do this to my knowledge without eval() which shouldn't be used.
+        # TODO no better way to do this to my knowledge without eval() which shouldn't be used.
         raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
-        #TODO replace this if...else... with a try...except block around the main function below.
+        # TODO replace this if...else... with a try...except block around the main function below.
 
 
     directories = directories.split(",")
@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
         # Handle the datetime folder inside the output. Select most recent run
         runtime = os.listdir(os.path.abspath(os.path.join('output/', mode, directory)))
-        #TODO: Replace this block (or encapsulate) in a try except block for proper error handling
+        # TODO: Replace this block (or encapsulate) in a try except block for proper error handling
         if len(runtime) > 1:
             # if more than 1, select most recent datetime
             runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))
