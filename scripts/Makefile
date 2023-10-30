@@ -41,7 +41,7 @@ SIPHER7_base: setup_S7
 .phony: all_scenarios all_scot_scenarios
 
 ############################################
-## Local single runs of MINOS interventions.
+## Local single runs of MINOS SF12 experiment.
 ############################################
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
@@ -76,6 +76,33 @@ all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLin
 all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
+
+
+############################################
+## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
+############################################
+
+baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
+baseline_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled
+
+intervention_hhIncome_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'hhIncomeIntervention'
+
+intervention_hhIncomeChildUplift_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'hhIncomeChildUplift'
+
+intervention_PovertyLineChildUplift_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'hhIncomePovertyLineChildUplift'
+
+intervention_livingWage_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'livingWageIntervention'
+
+intervention_energyDownLift_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'energyDownlift'
+
+intervention_energyDownLiftNoSupport_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'energyDownliftNoSupport'
 
 #####################################
 ## Running MINOS scenarios on Arc4
@@ -112,6 +139,12 @@ arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_int
 arc4_all_scenarios_default: setup
 arc4_all_scenarios_default: MODE=default_config
 arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_all_scenarios_default: arc4_all_scenarios
+
+## All SF12 scenarios using glasgow scaled population
+arc4_all_scenarios_default: setup_glasgow_scaled
+arc4_all_scenarios_default: MODE=SF12_glasgow_scaled
+arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
 arc4_all_scenarios_default: arc4_all_scenarios
 
 ## All Scotland scenarios

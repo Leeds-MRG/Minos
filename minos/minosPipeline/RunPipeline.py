@@ -219,6 +219,8 @@ def type_check(data):
 
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
 
     return data
 

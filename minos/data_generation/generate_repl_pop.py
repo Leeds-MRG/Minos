@@ -220,6 +220,8 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['loneliness'] = final_repl['loneliness'].astype(int)
     final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
     final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
+    final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
+    final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
