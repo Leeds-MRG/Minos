@@ -36,7 +36,7 @@ source(here::here('minos', 'utils_datain.R'))
 ## Data
 
 ```{r}
-# read in QALY files for baseline and interventions
+# # read in QALY files for baseline and interventions
 out.path <- here::here('output', 'default_config')
 
 base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
@@ -55,7 +55,24 @@ noSupport <- read.csv(paste0(noSupport.path, 'qalys.csv'))
 combined <- rbind(base, support, noSupport)
 
 ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
-  geom_line()
+  geom_smooth()
+```
+
+## Groupby and Mean
+
+```{r}
+base <- base %>%
+  group_by(year) %>%
+  summarise(QALYs = mean(QALYs),
+            boost_amount = mean(total_boost))
+support <- support %>%
+  group_by(year) %>%
+  summarise(QALYs = mean(QALYs),
+            boost_amount = mean(total_boost))
+noSupport <- noSupport %>%
+  group_by(year) %>%
+  summarise(QALYs = mean(QALYs),
+            boost_amount = mean(total_boost))
 ```
 
 ## Area Under the Curve Comparison
@@ -80,7 +97,7 @@ ggplot(data = combined.auc, aes(x = intervention, y = AUC, group = intervention,
 # Another version showing difference from baseline for better comparison
 combined.auc2 <- combined.auc %>%
   pivot_wider(names_from = 'intervention',
-              values_from = 'AUC') %>%
+              values_from = c('AUC')) %>%
   mutate(change_baseline = baseline - baseline,
          change_Support = Support - baseline,
          change_noSupport = NoSupport - baseline) %>%
@@ -92,6 +109,118 @@ combined.auc2 <- combined.auc %>%
 print(combined.auc2)
 
 ggplot(combined.auc2, aes(x = intervention, y = AUC_difference, group = intervention, fill = intervention)) +
+  geom_col()
+```
+
+# Cost per QALY
+
+The [UK Government](https://www.gov.uk/government/publications/valuation-of-risks-to-life-and-health-monetary-value-of-a-life-year-voly/a-scoping-study-on-the-valuation-of-risks-to-life-and-health-the-monetary-value-of-a-life-year-voly) has set the value of 1 QALY to be equal to $60,000. This is the number we will use for our calculations.
+
+```{r}
+
+combined.cost <- combined %>%
+  select(-X, -pop_size, -SF_12_MCS, -SF_12_PCS, -utility) %>%
+  mutate(QALY_value = QALYs * 60000)
+
+ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour = intervention)) +
+  geom_line()
+
+combined.cost.change <- combined.cost %>%
+  select(-total_boost, -QALYs) %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = 'QALY_value') %>%
+  mutate(change_Support = energyDownlift - baseline,
+         change_NoSupport = energyDownliftNoSupport - baseline) %>%
+  select(-baseline, -energyDownlift, -energyDownliftNoSupport) %>%
+  pivot_longer(cols = -year,
+               names_prefix = 'change_',
+               names_to = 'intervention',
+               values_to = 'value_change')
+
+ggplot(combined.cost.change, aes(x = year, y = value_change, group = intervention, colour = intervention)) +
+  geom_line()
+
+
+
+  # select(-QALYs) %>%
+  # pivot_wider(names_from = 'intervention',
+  #             values_from = c('total_boost', 'QALY_value'),
+  #             names_sep = '000') %>%
+  # mutate(QALY_value_change000energyDownlift = QALY_value000energyDownlift - QALY_value000baseline,
+  #        QALY_value_change000energyDownliftNoSupport = QALY_value000energyDownliftNoSupport - QALY_value000baseline) %>%
+  # select(-QALY_value000baseline, -QALY_value000energyDownlift, -QALY_value000energyDownliftNoSupport, -total_boost000baseline) %>%
+  # pivot_longer(cols = total_boost000energyDownlift:QALY_value_change000energyDownliftNoSupport,
+  #              names_sep = '000',
+  #              names_to = c('.value', 'intervention'),
+  #              names_repair = 'unique') #%>%
+  # pivot_longer(cols = QALY_value_change_Support:QALY_value_change_NoSupport,
+  #              names_prefix = 'QALY_value_change_',
+  #              names_to = 'intervention2',
+  #              values_to = 'QALY_value_change')
+  
+# combined.cost <- combined %>%
+#   select(-X, -pop_size, -SF_12_MCS, -SF_12_PCS, -utility) %>%
+#   pivot_wider(names_from = 'intervention',
+#               values_from = c('mean_boost', 'QALYs')) %>%
+#   mutate(change_energyDownlift = QALYs_energyDownlift - QALYs_baseline,
+#          change_energyDownliftNoSupport = QALYs_energyDownliftNoSupport - QALYs_baseline) %>%
+#   mutate(costPerQALY_energyDownlift = change_energyDownlift / mean_boost_energyDownlift,
+#          costPerQALY_energyDownliftNoSupport = change_energyDownliftNoSupport / mean_boost_energyDownliftNoSupport) %>%
+#   pivot_longer(cols = costPerQALY_energyDownlift:costPerQALY_energyDownliftNoSupport,
+#                names_prefix = 'costPerQALY_',
+#                names_to = 'intervention',
+#                values_to = 'costPerQALY') %>%
+#   select(year, intervention, costPerQALY)
+
+# options(scipen=999)
+# 
+# ggplot(data = combined.cost, aes(x = year, y = costPerQALY, group = intervention, colour = intervention)) +
+#   geom_line()
+```
+
+```{r}
+total.combined.cost <- combined.cost %>%
+  group_by(intervention) %>%
+  summarise(total_value_change = sum(value_change))
+
+ggplot(data = total.combined.cost, aes(x = intervention, y = total_value_change, group = intervention, fill = intervention)) +
+  geom_col()
+```
+
+# Incremental Cost-Effectiveness Ratio
+
+From [NICE guidelines](https://www.nice.org.uk/process/pmg6/chapter/assessing-cost-effectiveness) about the cost-effectiveness of health interventions (7.3), and works with a statistic called the Incremental Cost-Effectiveness Ratio (ICER). The formula for calculating the ICER can be found [here](https://en.wikipedia.org/wiki/Incremental_cost-effectiveness_ratio), but in short, it represents the average incremental cost associated with 1 additional unit of the measurement of effect. In our case, the unit of measurement of effect is a QALY. 
+
+From the NICE guidelines, there is a general consensus that anything below £20,000 is cost effective, and anything above £30,000 is not. Between £20,000 and £30,000 is a grey area, and depends on the field and other factors to decide (i.e. if a rare or important condition is tackled by an intervention then the cost-effective threshold is higher). 
+
+
+```{r}
+# ICER = (C1 - C0) / (E1 - E0)
+# where
+# C1 = cost of intervention
+# E1 = effect of intervention
+# C0 = cost of control group
+# E0 = effect of control group
+
+ICER <- combined.cost %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
+  mutate(ICER_Support = (total_boost_energyDownlift - total_boost_baseline) / (QALYs_energyDownlift - QALYs_baseline),
+         ICER_NoSupport = (total_boost_energyDownliftNoSupport - total_boost_baseline) / (QALYs_energyDownliftNoSupport - QALYs_baseline)) %>%
+  select(year, ICER_Support, ICER_NoSupport) %>%
+  pivot_longer(cols = -year,
+               names_prefix = 'ICER_',
+               names_to = 'intervention',
+               values_to = 'ICER')
+
+ggplot(ICER, aes(x = year, y = ICER, group = intervention, colour = intervention)) +
+  geom_line()
+
+ICER.final <- ICER %>%
+  group_by(intervention) %>%
+  summarise(ICER = mean(ICER))
+
+ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = intervention, colour = intervention)) +
   geom_col()
 ```
 

@@ -19,7 +19,7 @@ from aggregate_subset_functions import dynamic_subset_function
 import minos.utils as utils
 
 
-def aggregate_csv(filename):
+def aggregate_csv(filename, intervention):
     """
 
     Parameters
@@ -41,7 +41,12 @@ def aggregate_csv(filename):
 
     pop_size = df['alive'].value_counts()['alive']
 
-    return [pop_size, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
+    if intervention == 'baseline':
+        total_boost = 0
+    else:
+        total_boost = df['boost_amount'].sum()
+
+    return [pop_size, total_boost, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
 
 
 def calculate_qaly(df):
@@ -100,14 +105,12 @@ def main(mode, intervention):
     for year in years+1:
         files = glob.glob(os.path.join(batch_source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
 
-        # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
-        # Therefore we are just going to get everyone alive for now
-        # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
+        # aggregate the files using multiprocessing
         with Pool() as pool:
-            aggregated_means = pool.starmap(aggregate_csv, zip(files))
+            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention)))
 
         new_df = pd.DataFrame(aggregated_means)
-        new_df.columns = ['pop_size', 'SF_12_MCS', 'SF_12_PCS']
+        new_df.columns = ['pop_size', 'total_boost', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])

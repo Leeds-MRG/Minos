@@ -24,9 +24,18 @@ QALY_energyDownliftNoSupport: INTERVENTION=energyDownliftNoSupport
 QALY_energyDownliftNoSupport:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
+QALY_livingWage: MODE=default_config
+QALY_livingWage: INTERVENTION=livingWageIntervention
+QALY_livingWage:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
 QALY_comparison_energyCrises: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	firefox file://$(TESTING)/QALY_comparison_energyCrises.html
+
+QALY_comparison_livingWage: QALY_baseline QALY_livingWage
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+	firefox file://$(TESTING)/QALY_comparison_livingWage.html
 
 #test_plot: MODE=default_config
 #test_plot: ALIVE=who_alive
