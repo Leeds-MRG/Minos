@@ -30,6 +30,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - myst-parser
   - r-glmmTMB
   - r-MESS
+  - r-scales
   - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
       - rpy2
       - pyyaml>=5.4
