@@ -89,13 +89,6 @@ wage.auc <- wage %>%
   mutate(intervention = 'LivingWage')
 
 combined.auc <- rbind(base.auc, wage.auc)
-
-# #base.auc <- sum(diff(base$time)*rollmean(base$QALYs, 2))
-# base.auc <- data.frame(intervention = 'baseline', AUC = auc(x=base$year, y=base$QALYs, type = 'spline'))
-# support.auc <- data.frame(intervention = 'Support', AUC = auc(x=support$year, y=support$QALYs, type = 'spline'))
-# noSupport.auc <- data.frame(intervention = 'NoSupport', AUC = auc(x=noSupport$year, y=noSupport$QALYs, type = 'spline'))
-# 
-# combined.auc <- rbind(base.auc, support.auc, noSupport.auc)
 ```
 
 ```{r}
@@ -135,13 +128,6 @@ ggplot(combined.auc2, aes(x = intervention, y = AUC_difference, group = interven
 The [UK Government](https://www.gov.uk/government/publications/valuation-of-risks-to-life-and-health-monetary-value-of-a-life-year-voly/a-scoping-study-on-the-valuation-of-risks-to-life-and-health-the-monetary-value-of-a-life-year-voly) has set the value of 1 QALY to be equal to $60,000. This is the number we will use for our calculations.
 
 ```{r}
-
-# pivot_longer(cols = change_baseline:change_LivingWage,
-#                names_to = 'intervention',
-#                names_prefix = 'change_',
-#                values_to = 'AUC_difference') %>%
-#   filter(intervention != 'baseline')
-
 combined.cost <- combined %>%
   select(-pop_size, -SF_12_MCS, -SF_12_PCS, -utility) %>%
   mutate(QALY_value = QALYs * 60000)
@@ -163,7 +149,7 @@ combined.cost.change <- combined.cost %>%
                values_to = 'QALY_value_change') %>%
   filter(intervention != 'baseline')
 
-ggplot(combined.cost.change, aes(x = year, y = QALY_value_change, group = intervention, fill = intervention)) +
+ggplot(combined.cost.change, aes(x = year, y = QALY_value_change, group = intervention, colour = intervention, fill = intervention)) +
   geom_smooth() +
   scale_y_continuous(label = comma)
 ```
