@@ -354,7 +354,7 @@ class livingWageIntervention(Base):
         logging.info(
             f"\tApplying effects of the living wage intervention in year {event.time.year}...")
 
-        pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
+        pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
         # reset boost amount back to 0 before applying intervention again
