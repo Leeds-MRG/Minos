@@ -94,9 +94,15 @@ combined.auc <- rbind(base.auc, wage.auc)
 ```{r}
 print(combined.auc)
 
-ggplot(data = combined.auc, aes(x = intervention, y = AUC, group = intervention, fill = intervention)) +
-  stat_summary(fun = 'mean', geom = 'bar') +
-  geom_errorbar(aes(ymin = min(AUC), ymax = max(AUC), width = 0.4)) +
+combined.auc.plot <- combined.auc %>%
+  group_by(intervention) %>%
+  summarise(sd = sd(AUC),
+            se = sd / sqrt(n()),
+            AUC = mean(AUC))
+
+ggplot(data = combined.auc.plot, aes(x = intervention, y = AUC, group = intervention, fill = intervention)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = AUC - se, ymax = AUC + se, width = 0.4, group = intervention)) +
   labs(title = 'Total AUC comparison', subtitle = 'Baseline vs Living Wage Intervention') +
   xlab('Intervention')
 ```
@@ -116,9 +122,14 @@ combined.auc2 <- combined.auc %>%
 
 print(combined.auc2)
 
-ggplot(combined.auc2, aes(x = intervention, y = AUC_difference, group = intervention, fill = intervention)) +
-  stat_summary(fun = 'mean', geom = 'bar') +
-  geom_errorbar(aes(ymin = min(AUC_difference), ymax = max(AUC_difference), width = 0.4)) +
+combined.auc2.plot <- combined.auc2 %>%
+  group_by(intervention) %>%
+  summarise(se = sd(AUC_difference) / sqrt(n()),
+            AUC_difference = mean(AUC_difference))
+
+ggplot(combined.auc2.plot, aes(x = intervention, y = AUC_difference, group = intervention, fill = intervention)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = AUC_difference - se, ymax = AUC_difference + se, width = 0.4, group = intervention)) +
   labs(title = 'Change in AUC', subtitle = 'Baseline vs Living Wage Intervention') +
   xlab('Intervention')
 ```
@@ -157,13 +168,17 @@ ggplot(combined.cost.change, aes(x = year, y = QALY_value_change, group = interv
 ```{r}
 total.combined.cost <- combined.cost.change %>%
   group_by(run_id, intervention) %>%
-  summarise(TotalChange = sum(QALY_value_change))
+  summarise(TotalChange = sum(QALY_value_change)) %>%
+  group_by(intervention) %>%
+  summarise(se = sd(TotalChange) / sqrt(n()),
+            TotalChange = mean(TotalChange))
 
 #print(paste0('Total combined cost == ', format(round(as.numeric(total.combined.cost), 1), nsmall=1, big.mark=",")))
 
 ggplot(total.combined.cost, aes(x = intervention, y = TotalChange, group = intervention, fill = intervention)) +
-  stat_summary(fun = 'mean', geom = 'bar') +
-  geom_errorbar(aes(ymin = min(TotalChange), ymax = max(TotalChange), width = 0.4)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = TotalChange - se, ymax = TotalChange + se, width = 0.4, group = intervention)) +
+  scale_y_continuous(label = comma) +
   labs(title = 'Total Change in QALY Value', subtitle = 'Baseline vs Living Wage Intervention') +
   xlab('Intervention')
 ```
@@ -195,15 +210,28 @@ ICER <- combined.cost.mean %>%
   mutate(intervention = 'LivingWage')
 
 ggplot(ICER, aes(x = year, y = ICER)) +
-  geom_smooth()
+  geom_smooth() +
+  scale_y_continuous(label=comma)
 
 ICER.final <- ICER %>%
   group_by(run_id, intervention) %>%
-  summarise(ICER = mean(ICER))
+  summarise(ICER = mean(ICER)) %>%
+  group_by(intervention) %>%
+  summarise(se = sd(ICER) / sqrt(n()),
+            ICER = mean(ICER))
 
 ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = intervention)) +
-  stat_summary(fun = 'mean', geom = 'bar') +
-  geom_errorbar(aes(ymin = min(ICER), ymax = max(ICER), width = 0.4)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = ICER - se, ymax = ICER + se, width = 0.4, group = intervention)) +
+  scale_y_continuous(label = comma) +
   labs(title = 'ICER', subtitle = 'Living Wage Intervention') +
   xlab('Intervention')
 ```
+
+
+
+
+```{r}
+
+```
+
