@@ -1,0 +1,223 @@
+---
+title: "QALY Comparison - Living Wage Intervention"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+require(MESS)
+require(scales)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  options(scipen=999)
+)
+rm(workingDir)
+```
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+```
+
+
+## Data
+
+```{r}
+# # read in QALY files for baseline and interventions
+out.path <- here::here('output', 'default_config')
+
+base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
+wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
+
+base <- read.csv(paste0(base.path, 'qalys.csv'))
+wage <- read.csv(paste0(wage.path, 'qalys.csv'))
+
+# out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+# 
+# base <- read.csv(paste0(out.path, 'qaly_baseline.csv'))
+# support <- read.csv(paste0(out.path, 'qalys_support.csv'))
+# noSupport <- read.csv(paste0(out.path, 'qalys_noSupport.csv'))
+```
+
+
+# QALY comparison
+
+```{r}
+# combine the dataframes
+combined <- rbind(base, wage)
+
+ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
+  geom_smooth()
+```
+
+...and SF_12 MCS and PCS for good measure.
+
+```{r}
+ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention)) +
+  geom_smooth()
+
+ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention)) +
+  geom_smooth()
+```
+
+## Area Under the Curve Comparison
+
+```{r}
+base.auc <- base %>%
+  group_by(run_id) %>%
+  summarise(AUC = auc(x=year, y = QALYs, type = 'spline')) %>%
+  mutate(intervention = 'baseline')
+
+wage.auc <- wage %>%
+  group_by(run_id) %>%
+  summarise(AUC = auc(x=year, y = QALYs, type = 'spline')) %>%
+  mutate(intervention = 'LivingWage')
+
+combined.auc <- rbind(base.auc, wage.auc)
+
+# #base.auc <- sum(diff(base$time)*rollmean(base$QALYs, 2))
+# base.auc <- data.frame(intervention = 'baseline', AUC = auc(x=base$year, y=base$QALYs, type = 'spline'))
+# support.auc <- data.frame(intervention = 'Support', AUC = auc(x=support$year, y=support$QALYs, type = 'spline'))
+# noSupport.auc <- data.frame(intervention = 'NoSupport', AUC = auc(x=noSupport$year, y=noSupport$QALYs, type = 'spline'))
+# 
+# combined.auc <- rbind(base.auc, support.auc, noSupport.auc)
+```
+
+```{r}
+print(combined.auc)
+
+ggplot(data = combined.auc, aes(x = intervention, y = AUC, group = intervention, fill = intervention)) +
+  stat_summary(fun = 'mean', geom = 'bar') +
+  geom_errorbar(aes(ymin = min(AUC), ymax = max(AUC), width = 0.4)) +
+  labs(title = 'Total AUC comparison', subtitle = 'Baseline vs Living Wage Intervention') +
+  xlab('Intervention')
+```
+
+```{r}
+# Another version showing difference from baseline for better comparison
+combined.auc2 <- combined.auc %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = c('AUC')) %>%
+  mutate(change_baseline = baseline - baseline,
+         change_LivingWage = LivingWage - baseline) %>%
+  pivot_longer(cols = change_baseline:change_LivingWage,
+               names_to = 'intervention',
+               names_prefix = 'change_',
+               values_to = 'AUC_difference') %>%
+  filter(intervention != 'baseline')
+
+print(combined.auc2)
+
+ggplot(combined.auc2, aes(x = intervention, y = AUC_difference, group = intervention, fill = intervention)) +
+  stat_summary(fun = 'mean', geom = 'bar') +
+  geom_errorbar(aes(ymin = min(AUC_difference), ymax = max(AUC_difference), width = 0.4)) +
+  labs(title = 'Change in AUC', subtitle = 'Baseline vs Living Wage Intervention') +
+  xlab('Intervention')
+```
+
+# Cost per QALY
+
+The [UK Government](https://www.gov.uk/government/publications/valuation-of-risks-to-life-and-health-monetary-value-of-a-life-year-voly/a-scoping-study-on-the-valuation-of-risks-to-life-and-health-the-monetary-value-of-a-life-year-voly) has set the value of 1 QALY to be equal to $60,000. This is the number we will use for our calculations.
+
+```{r}
+
+# pivot_longer(cols = change_baseline:change_LivingWage,
+#                names_to = 'intervention',
+#                names_prefix = 'change_',
+#                values_to = 'AUC_difference') %>%
+#   filter(intervention != 'baseline')
+
+combined.cost <- combined %>%
+  select(-pop_size, -SF_12_MCS, -SF_12_PCS, -utility) %>%
+  mutate(QALY_value = QALYs * 60000)
+
+ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour = intervention)) +
+  geom_smooth() +
+  scale_y_continuous(label = comma)
+
+combined.cost.change <- combined.cost %>%
+  select(-total_boost, -QALYs) %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = 'QALY_value') %>%
+  mutate(change_baseline = baseline - baseline,
+         change_LivingWage = livingWageIntervention - baseline) %>%
+  select(-baseline, -livingWageIntervention) %>%
+  pivot_longer(cols = change_baseline:change_LivingWage,
+               names_to = 'intervention',
+               names_prefix = 'change_',
+               values_to = 'QALY_value_change') %>%
+  filter(intervention != 'baseline')
+
+ggplot(combined.cost.change, aes(x = year, y = QALY_value_change, group = intervention, fill = intervention)) +
+  geom_smooth() +
+  scale_y_continuous(label = comma)
+```
+
+```{r}
+total.combined.cost <- combined.cost.change %>%
+  group_by(run_id, intervention) %>%
+  summarise(TotalChange = sum(QALY_value_change))
+
+#print(paste0('Total combined cost == ', format(round(as.numeric(total.combined.cost), 1), nsmall=1, big.mark=",")))
+
+ggplot(total.combined.cost, aes(x = intervention, y = TotalChange, group = intervention, fill = intervention)) +
+  stat_summary(fun = 'mean', geom = 'bar') +
+  geom_errorbar(aes(ymin = min(TotalChange), ymax = max(TotalChange), width = 0.4)) +
+  labs(title = 'Total Change in QALY Value', subtitle = 'Baseline vs Living Wage Intervention') +
+  xlab('Intervention')
+```
+
+# Incremental Cost-Effectiveness Ratio
+
+From [NICE guidelines](https://www.nice.org.uk/process/pmg6/chapter/assessing-cost-effectiveness) about the cost-effectiveness of health interventions (7.3), and works with a statistic called the Incremental Cost-Effectiveness Ratio (ICER). The formula for calculating the ICER can be found [here](https://en.wikipedia.org/wiki/Incremental_cost-effectiveness_ratio), but in short, it represents the average incremental cost associated with 1 additional unit of the measurement of effect. In our case, the unit of measurement of effect is a QALY. 
+
+From the NICE guidelines, there is a general consensus that anything below £20,000 is cost effective, and anything above £30,000 is not. Between £20,000 and £30,000 is a grey area, and depends on the field and other factors to decide (i.e. if a rare or important condition is tackled by an intervention then the cost-effective threshold is higher).There is also a hard limit of £100,000, where any intervention with an ICER above this value is never acceptable.
+
+
+```{r}
+combined.cost.mean <- combined.cost %>%
+  group_by(run_id, year, intervention) %>%
+  summarise(across(everything(), mean))
+
+# ICER = (C1 - C0) / (E1 - E0)
+# where
+# C1 = cost of intervention
+# E1 = effect of intervention
+# C0 = cost of control group
+# E0 = effect of control group
+
+ICER <- combined.cost.mean %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
+  mutate(ICER = (total_boost_livingWageIntervention - total_boost_baseline) / (QALYs_livingWageIntervention - QALYs_baseline)) %>%
+  select(run_id, year, ICER) %>%
+  mutate(intervention = 'LivingWage')
+
+ggplot(ICER, aes(x = year, y = ICER)) +
+  geom_smooth()
+
+ICER.final <- ICER %>%
+  group_by(run_id, intervention) %>%
+  summarise(ICER = mean(ICER))
+
+ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = intervention)) +
+  stat_summary(fun = 'mean', geom = 'bar') +
+  geom_errorbar(aes(ymin = min(ICER), ymax = max(ICER), width = 0.4)) +
+  labs(title = 'ICER', subtitle = 'Living Wage Intervention') +
+  xlab('Intervention')
+```

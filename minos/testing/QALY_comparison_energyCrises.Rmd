@@ -46,6 +46,12 @@ noSupport.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDo
 base <- read.csv(paste0(base.path, 'qalys.csv'))
 support <- read.csv(paste0(support.path, 'qalys.csv'))
 noSupport <- read.csv(paste0(noSupport.path, 'qalys.csv'))
+
+# out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+# 
+# base <- read.csv(paste0(out.path, 'qaly_baseline.csv'))
+# support <- read.csv(paste0(out.path, 'qalys_support.csv'))
+# noSupport <- read.csv(paste0(out.path, 'qalys_noSupport.csv'))
 ```
 
 # QALY comparison
@@ -123,22 +129,22 @@ combined.cost <- combined %>%
   mutate(QALY_value = QALYs * 60000)
 
 ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour = intervention)) +
-  geom_line()
+  geom_smooth()
 
 combined.cost.change <- combined.cost %>%
   select(-total_boost, -QALYs) %>%
   pivot_wider(names_from = 'intervention',
-              values_from = 'QALY_value') %>%
-  mutate(change_Support = energyDownlift - baseline,
-         change_NoSupport = energyDownliftNoSupport - baseline) %>%
-  select(-baseline, -energyDownlift, -energyDownliftNoSupport) %>%
-  pivot_longer(cols = -year,
-               names_prefix = 'change_',
-               names_to = 'intervention',
-               values_to = 'value_change')
+              values_from = 'QALY_value') #%>%
+  # mutate(change_Support = energyDownlift - baseline,
+  #        change_NoSupport = energyDownliftNoSupport - baseline) %>%
+  # select(-baseline, -energyDownlift, -energyDownliftNoSupport) %>%
+  # pivot_longer(cols = -year,
+  #              names_prefix = 'change_',
+  #              names_to = 'intervention',
+  #              values_to = 'value_change')
 
 ggplot(combined.cost.change, aes(x = year, y = value_change, group = intervention, colour = intervention)) +
-  geom_line()
+  geom_smooth()
 
 
 
@@ -179,7 +185,11 @@ ggplot(combined.cost.change, aes(x = year, y = value_change, group = interventio
 ```
 
 ```{r}
-total.combined.cost <- combined.cost %>%
+combined.cost.mean <- combined.cost %>%
+  group_by(year, intervention) %>%
+  summarise(across(everything(), mean))
+
+total.combined.cost <- combined.cost.change %>%
   group_by(intervention) %>%
   summarise(total_value_change = sum(value_change))
 
@@ -202,12 +212,12 @@ From the NICE guidelines, there is a general consensus that anything below £20,
 # C0 = cost of control group
 # E0 = effect of control group
 
-ICER <- combined.cost %>%
+ICER_test2 <- combined.cost.mean %>%
   pivot_wider(names_from = 'intervention',
               values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
   mutate(ICER_Support = (total_boost_energyDownlift - total_boost_baseline) / (QALYs_energyDownlift - QALYs_baseline),
          ICER_NoSupport = (total_boost_energyDownliftNoSupport - total_boost_baseline) / (QALYs_energyDownliftNoSupport - QALYs_baseline)) %>%
-  select(year, ICER_Support, ICER_NoSupport) %>%
+select(year, ICER_Support, ICER_NoSupport) %>%
   pivot_longer(cols = -year,
                names_prefix = 'ICER_',
                names_to = 'intervention',
@@ -222,5 +232,27 @@ ICER.final <- ICER %>%
 
 ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = intervention, colour = intervention)) +
   geom_col()
+
+
+ICER_test3 <- combined.cost.mean %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
+  mutate(C_Support = total_boost_energyDownlift - total_boost_baseline,
+         E_Support = QALYs_energyDownlift - QALYs_baseline,
+         C_NoSupport = total_boost_energyDownliftNoSupport - total_boost_baseline,
+         E_NoSupport = QALYs_energyDownliftNoSupport - QALYs_baseline) %>%
+  select(year, C_Support, E_Support, C_NoSupport, E_NoSupport) %>%
+  mutate(ICER_Support = C_Support / E_Support,
+         ICER_NoSupport = C_NoSupport / E_NoSupport)# %>%
+  #select(year, ICER_Support, ICER_NoSupport)# %>%
+#   pivot_longer(cols = -year,
+#                names_prefix = 'ICER_',
+#                names_to = 'intervention',
+#                values_to = 'ICER')
+
+```
+
+```{r}
+
 ```
 

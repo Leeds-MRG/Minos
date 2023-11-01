@@ -39,14 +39,25 @@ def aggregate_csv(filename, intervention):
         #df = dynamic_subset_function(df, subset_func_string, mode)
     #print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
 
+    # get the run_id from the filename and attach to the dataset (if batch run)
+    filename_nopath = filename.split(sep='/')[-1]
+    if filename_nopath.count('_') == 0:
+        # If no underscore in filename, this is not a batch run and run_id can be set to 1
+        run_id = 1  # 0 would be more pythonic but the batch runs start at 1 so I'm copying that
+    else:
+        # If underscores present, take run_id from filename
+        run_id = filename_nopath.split(sep='_')[0].lstrip('0')
+
+    # record size of not dead population in year
     pop_size = df['alive'].value_counts()['alive']
 
+    # record total_boost amount for intervention runs, set to 0 for baseline
     if intervention == 'baseline':
         total_boost = 0
     else:
         total_boost = df['boost_amount'].sum()
 
-    return [pop_size, total_boost, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
+    return [run_id, pop_size, total_boost, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
 
 
 def calculate_qaly(df):
@@ -110,7 +121,7 @@ def main(mode, intervention):
             aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention)))
 
         new_df = pd.DataFrame(aggregated_means)
-        new_df.columns = ['pop_size', 'total_boost', 'SF_12_MCS', 'SF_12_PCS']
+        new_df.columns = ['run_id', 'pop_size', 'total_boost', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])
@@ -121,8 +132,14 @@ def main(mode, intervention):
     qaly_df = calculate_qaly(combined_output)
 
     # finally, save qaly df into output directory
+    # reorder columns first and sort by run_id and year
+    # reorder first
+    cols_to_front = ['run_id', 'year']
+    qaly_df = qaly_df[cols_to_front + [col for col in qaly_df.columns if col not in cols_to_front]]
+    # now sort
+    qaly_df = qaly_df.sort_values(['run_id', 'year'], ascending=True)
     out_name = os.path.join(batch_source, 'qalys.csv')
-    qaly_df.to_csv(out_name)
+    qaly_df.to_csv(out_name, index=False)
 
 
 if __name__ == '__main__':

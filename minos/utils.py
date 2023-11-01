@@ -8,7 +8,7 @@ import numpy as np
 import os
 from os.path import dirname as up
 import pandas as pd
-import datetime
+from datetime import datetime
 from itertools import product
 import scipy
 from math import sqrt, log, ceil, floor
