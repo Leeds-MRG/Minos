@@ -29,7 +29,7 @@ class Nutrition(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -106,9 +106,9 @@ class Nutrition(Base):
         -------
         """
         #year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"nutrition_quality/ols/nutrition_quality_2018_2019", self.rpy2_modules, path=self.transition_dir)
         return r_utils.predict_next_timestep_ols(transition_model,
-                                                      self.rpy2Modules,
+                                                      self.rpy2_modules,
                                                       pop,
                                                       'nutrition_quality')
 
@@ -145,7 +145,7 @@ class lmmYJNutrition(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -187,9 +187,10 @@ class lmmYJNutrition(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
         # just load this once.
-        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_new_LMM", self.rpy2Modules,
+        self.transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_new_LMM", self.rpy2_modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "glmm")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -231,8 +232,8 @@ class lmmYJNutrition(Base):
         Returns
         -------
         """
-        nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                       self.rpy2Modules,
+        nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
+                                                                       self.rpy2_modules,
                                                                        pop,
                                                                        dependent='nutrition_quality_new',
                                                                        reflect=False,
@@ -270,7 +271,7 @@ class lmmDiffNutrition(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -314,7 +315,7 @@ class lmmDiffNutrition(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
         # just load this once.
-        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm_diff/nutrition_quality_LMM_DIFF", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm_diff/nutrition_quality_LMM_DIFF", self.rpy2_modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
 
@@ -377,7 +378,7 @@ class lmmDiffNutrition(Base):
         -------
         """
         nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                        self.rpy2Modules,
+                                                                        self.rpy2_modules,
                                                                         pop,
                                                                         dependent='nutrition_quality_diff',
                                                                         reflect=False,

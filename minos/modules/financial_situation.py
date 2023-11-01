@@ -79,6 +79,8 @@ class financialSituation(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
+        self.transition_model = None
+
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
 
@@ -103,6 +105,10 @@ class financialSituation(Base):
 
     def calculate_financial_situation(self, pop):
         year = 2019
-        transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='financial_situation')
+        # only do this once after 2019.
+        if not self.transition_model or (year <= 2019 and not self.cross_validation):
+            self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2_modules, pop, dependent='financial_situation')
         return nextWaveFinancialPerception

@@ -244,7 +244,7 @@ run_yearly_models <- function(transitionDir_path,
                                        depend = next.dependent)
         
       } else if(tolower(mod.type) == 'zip') {
-
+        use.weights <- F
         model <- estimate_yearly_zip(data = merged,
                                      formula = form,
                                      include_weights = use.weights,

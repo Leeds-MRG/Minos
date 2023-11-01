@@ -242,6 +242,7 @@ def RunPipeline(config, intervention=None):
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
+                    "MASS": importr("MASS"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
