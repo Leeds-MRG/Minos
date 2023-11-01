@@ -40,7 +40,7 @@ class Tobacco(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -53,20 +53,18 @@ class Tobacco(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
-                        'job_sec',
+        view_columns = ['pidp',
+                        'age',
+                        'sex',
+                        'ethnicity',
+                        'region',
                         'hh_income',
                         'SF_12',
-                        ]
+                        'education_state',
+                        'S7_labour_state',
+                        'job_sec',
+                        'alcohol_spending',
+                        'ncigs']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -78,6 +76,8 @@ class Tobacco(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=5)
+
+        self.transition_model = None
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -122,10 +122,14 @@ class Tobacco(Base):
             year = max(self.year, 2014)
             year = min(year, 2018)
 
-        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        # only do this once after 2018.
+        if self.transition_model is None or (year <= 2018 and not self.cross_validation):
+            self.transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2_modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "zip")
+
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
-                                                            rpy2Modules= self.rpy2Modules,
+        nextWaveTobacco = r_utils.predict_next_timestep_zip(model=self.transition_model,
+                                                            rpy2Modules= self.rpy2_modules,
                                                             current=pop,
                                                             dependent='ncigs')
         return nextWaveTobacco

@@ -42,7 +42,7 @@ class Income(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -139,10 +139,10 @@ class Income(Base):
         """
         # load transition model based on year.
         year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2Modules,
-                                                   path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}", self.rpy2_modules,
+                                                    path=self.transition_dir)
         nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
-                                                           self.rpy2Modules,
+                                                           self.rpy2_modules,
                                                            pop,
                                                            dependent='hh_income')
         return nextWaveIncome
@@ -167,14 +167,14 @@ class Income(Base):
             year = min(self.year, 2019)
 
         transition_model = r_utils.load_transitions(f"hh_income/ols_diff/hh_income_{year}_{year + 1}",
-                                                    self.rpy2Modules,
+                                                    self.rpy2_modules,
                                                     path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
-                                                                self.rpy2Modules,
-                                                                pop,
-                                                                dependent='hh_income',
-                                                                year=self.year)
+                                                           self.rpy2_modules,
+                                                           pop,
+                                                           dependent='hh_income',
+                                                           year=self.year)
         return nextWaveIncome
 
     def plot(self, pop, config):
@@ -214,7 +214,7 @@ class geeIncome(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -253,27 +253,27 @@ class geeIncome(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
         # just load this once.
-        self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee/hh_income_GEE", self.rpy2Modules,
-                                                         path=self.transition_dir)
+        self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee/hh_income_GEE", self.rpy2_modules,
+                                                             path=self.transition_dir)
         self.min_hh_income = None
 
     def on_initialize_simulants(self, pop_data):
-            """  Initiate columns for hh_income when new simulants are added.
-            Only column needed is the diff column for rate of change model predictions.
+        """  Initiate columns for hh_income when new simulants are added.
+        Only column needed is the diff column for rate of change model predictions.
 
-            Parameters
-            ----------
-                pop_data: vivarium.framework.population.SimulantData
-                Custom vivarium class for interacting with the population data frame.
-                It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-                creation_window, and current simulation state (setup/running/etc.).
-            """
-            # Create frame with new 3 columns and add it to the main population frame.
-            # This is the same for both new cohorts and newborn babies.
-            # Neither should be dead yet.
-            pop_update = pd.DataFrame({'hh_income_diff': 0},
-                                      index=pop_data.index)
-            self.population_view.update(pop_update)
+        Parameters
+        ----------
+            pop_data: vivarium.framework.population.SimulantData
+            Custom vivarium class for interacting with the population data frame.
+            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+            creation_window, and current simulation state (setup/running/etc.).
+        """
+        # Create frame with new 3 columns and add it to the main population frame.
+        # This is the same for both new cohorts and newborn babies.
+        # Neither should be dead yet.
+        pop_update = pd.DataFrame({'hh_income_diff': 0},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -319,7 +319,7 @@ class geeIncome(Base):
         # load transition model based on year.
 
         nextWaveIncome = r_utils.predict_next_timestep_gee(self.gee_transition_model,
-                                                           self.rpy2Modules,
+                                                           self.rpy2_modules,
                                                            pop,
                                                            dependent='hh_income')
         return nextWaveIncome + self.min_hh_income
@@ -338,11 +338,11 @@ class geeIncome(Base):
         # load transition model based on year.
         year = min(self.year, 2019)
         transition_model = r_utils.load_transitions(f"hh_income/ols/hh_income_{year}_{year + 1}",
-                                                    self.rpy2Modules,
+                                                    self.rpy2_modules,
                                                     path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveIncome = r_utils.predict_next_timestep_ols(transition_model,
-                                                           self.rpy2Modules,
+                                                           self.rpy2_modules,
                                                            pop,
                                                            dependent='hh_income',
                                                            year=self.year)
@@ -385,7 +385,7 @@ class geeYJIncome(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -437,9 +437,9 @@ class geeYJIncome(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
         # just load this once.
-        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
+        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2_modules,
         #                                             path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj_gamma/hh_income_GEE_YJ_GAMMA", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj_gamma/hh_income_GEE_YJ_GAMMA", self.rpy2_modules,
                                                              path=self.transition_dir)
         self.history_data = self.generate_history_dataframe("final_US", [2018, 2019, 2020], view_columns)
 
@@ -504,7 +504,7 @@ class geeYJIncome(Base):
     #     #if self.year != 2020:
     #     self.update_history_dataframe(pop, self.year)
     #     nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,
-    #                                                        self.rpy2Modules,
+    #                                                        self.rpy2_modules,
     #                                                        self.history_data,
     #                                                        dependent='hh_income',
     #                                                        noise_std=1)#2
@@ -527,11 +527,11 @@ class geeYJIncome(Base):
         #if self.year != 2020:
         self.update_history_dataframe(pop, self.year)
         nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_gee(self.gee_transition_model,
-                                                                       self.rpy2Modules,
-                                                                       self.history_data,
-                                                                       dependent='hh_income',
-                                                                       reflect=False,
-                                                                       noise_std=0.5)#2
+                                                                    self.rpy2_modules,
+                                                                    self.history_data,
+                                                                    dependent='hh_income',
+                                                                    reflect=False,
+                                                                    noise_std=0.5)#2
 
         return nextWaveIncome.iloc[self.history_data.loc[self.history_data['time']==self.year].index]
 
@@ -573,7 +573,7 @@ class lmmYJIncome(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -599,19 +599,21 @@ class lmmYJIncome(Base):
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        'job_sec',
-                        'SF_12',
-                        'pidp',
-                        'hh_income',
-                        'hh_income_diff'
-                        ]
-
-
+        view_columns = [
+            'hh_income',
+            'age',
+            'sex',
+            'ethnicity',
+            'region',
+            'education_state',
+            'job_sec',
+            #'job_sector',
+            'time',
+            'pidp',
+            #'weight',
+            'SF_12',
+            'hh_income_diff',
+        ]
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)# + columns_created)
@@ -626,14 +628,15 @@ class lmmYJIncome(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
         # just load this once.
-        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
+        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2_modules,
         #                                             path=self.transition_dir)
-        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
+        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2_modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"hh_income/glmm/hh_income_new_GLMM", self.rpy2Modules,
-                                                             path=self.transition_dir)
+        self.transition_model = r_utils.load_transitions(f"hh_income/glmm/hh_income_new_GLMM", self.rpy2_modules,
+                                                         path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "glmm")
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -697,13 +700,13 @@ class lmmYJIncome(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='hh_income_new',
-                                                                       yeo_johnson = True,
-                                                                       reflect=False,
-                                                                       noise_std= 0.175)#0.45 for yj. 100? for non yj.
+        nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+                                                                     self.rpy2_modules,
+                                                                     pop,
+                                                                     dependent='hh_income_new',
+                                                                     yeo_johnson = True,
+                                                                     reflect=False,
+                                                                     noise_std= 0.175)#0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -747,7 +750,7 @@ class lmmDiffIncome(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -801,11 +804,11 @@ class lmmDiffIncome(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=2)
 
         # just load this once.
-        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
+        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2_modules,
         #                                             path=self.transition_dir)
-        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
+        #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2_modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"hh_income/lmm_diff/hh_income_LMM_DIFF", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"hh_income/lmm_diff/hh_income_LMM_DIFF", self.rpy2_modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
@@ -874,7 +877,7 @@ class lmmDiffIncome(Base):
     #     #if self.year != 2020:
     #     self.update_history_dataframe(pop, self.year)
     #     nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,
-    #                                                        self.rpy2Modules,
+    #                                                        self.rpy2_modules,
     #                                                        self.history_data,
     #                                                        dependent='hh_income',
     #                                                        noise_std=1)#2
@@ -895,12 +898,12 @@ class lmmDiffIncome(Base):
         """
         # load transition model based on year.
         nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                    self.rpy2Modules,
-                                                                    pop,
-                                                                    dependent='hh_income_diff',
-                                                                    yeo_johnson = True,
-                                                                    reflect=False,
-                                                                    noise_std= 0.05)#0.45
+                                                                       self.rpy2_modules,
+                                                                       pop,
+                                                                       dependent='hh_income_diff',
+                                                                       yeo_johnson = True,
+                                                                       reflect=False,
+                                                                       noise_std= 0.05)#0.45
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -913,5 +916,3 @@ class lmmDiffIncome(Base):
         histplot(pop, x="hh_income", stat='density')
         plt.savefig(file_name)
         plt.close()
-
-

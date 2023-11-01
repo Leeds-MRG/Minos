@@ -37,7 +37,7 @@ class Loneliness(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -48,20 +48,19 @@ class Loneliness(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["age",
-                        "sex",
+        view_columns = ["sex",
+                        "S7_labour_state",
+                        "SF_12",
+                        "job_sec",
                         "ethnicity",
-                        "region",
                         "education_state",
+                        "age",
                         "housing_quality",
-                        "neighbourhood_safety",
+                        "hh_income",
                         "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
-                        'job_sec',
-                        'hh_income',
-                        'marital_status',
-                        ]
+                        "hh_comp",
+                        "marital_status",
+                        "ncigs"]
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -72,6 +71,8 @@ class Loneliness(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=5)
+
+        self.transition_model = None
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -122,9 +123,13 @@ class Loneliness(Base):
         else:
             year = min(year, 2019)
 
-        transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        # only do this once after 2019.
+        if not self.transition_model or (year <= 2019 and not self.cross_validation):
+            self.transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2_modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'loneliness')
+        prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2_modules, pop, 'loneliness')
         return prob_df
 
     def plot(self, pop, config):

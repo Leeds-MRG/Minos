@@ -49,20 +49,23 @@ class financialSituation(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
+        view_columns = ['pidp',
+                        'age',
+                        'sex',
+                        'ethnicity',
+                        'region',
                         'job_sec',
+                        #'labour_state',
+                        'education_state',
+                        'SF_12',
+                        'housing_quality',
+                        'job_sector',
                         'hh_income',
+                        'housing_tenure',
+                        'yearly_energy',
+                        'financial_situation',
                         'marital_status',
-                        'housing_tenure'
+                        'hhsize'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -75,6 +78,8 @@ class financialSituation(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
+
+        self.transition_model = None
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -90,8 +95,8 @@ class financialSituation(Base):
 
         nextWaveFinancialPerception = self.calculate_financial_situation(pop)
         nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
-                                                                list(nextWaveFinancialPerception.columns+1),
-                                                                nextWaveFinancialPerception).astype(float)
+                                                                                list(nextWaveFinancialPerception.columns+1),
+                                                                                nextWaveFinancialPerception).astype(float)
         nextWaveFinancialPerception.index = pop.index
         #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
@@ -100,6 +105,10 @@ class financialSituation(Base):
 
     def calculate_financial_situation(self, pop):
         year = 2019
-        transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='financial_situation')
+        # only do this once after 2019.
+        if not self.transition_model or (year <= 2019 and not self.cross_validation):
+            self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2_modules, pop, dependent='financial_situation')
         return nextWaveFinancialPerception

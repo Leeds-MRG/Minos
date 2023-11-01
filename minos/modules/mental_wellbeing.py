@@ -41,7 +41,7 @@ class MWB(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -146,13 +146,13 @@ class MWB(Base):
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
         transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year + 1}",
-                                                    self.rpy2Modules,
+                                                    self.rpy2_modules,
                                                     path=self.transition_dir)
 
         return r_utils.predict_next_timestep_ols(transition_model,
-                                                      self.rpy2Modules,
-                                                      pop,
-                                                      'SF_12')
+                                                 self.rpy2_modules,
+                                                 pop,
+                                                 'SF_12')
 
     def calculate_mwb_rateofchange(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -167,14 +167,14 @@ class MWB(Base):
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
         transition_model = r_utils.load_transitions(f"SF_12/ols_diff/SF_12_{year}_{year + 1}",
-                                                    self.rpy2Modules,
+                                                    self.rpy2_modules,
                                                     path=self.transition_dir)
 
         return r_utils.predict_next_timestep_ols_diff(transition_model,
-                                                 self.rpy2Modules,
-                                                 pop,
-                                                 'SF_12',
-                                                 year=self.year)
+                                                      self.rpy2_modules,
+                                                      pop,
+                                                      'SF_12',
+                                                      year=self.year)
 
     def plot(self, pop, config):
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
@@ -467,21 +467,23 @@ class lmmYJMWB(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
+        view_columns = ['pidp',
+                        'sex',
+                        'ethnicity',
+                        'age',
+                        'time',
+                        #'education_state',
+                        #'labour_state',
+                        #'job_sec',
+                        'hh_income',
                         'SF_12',
                         'SF_12_diff',
-                        'pidp',
-                        'hh_income'
-                        ]
+                        'housing_quality',
+                        #'phealth',
+                        'ncigs',
+                        'nutrition_quality',
+                        'neighbourhood_safety',
+                        'loneliness']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -496,7 +498,8 @@ class lmmYJMWB(Base):
 
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
+        self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "glmm")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -541,7 +544,7 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
+        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
                                                                self.rpy2_modules,
                                                                current= pop,
                                                                dependent='SF_12',

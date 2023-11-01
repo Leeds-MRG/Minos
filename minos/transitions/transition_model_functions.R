@@ -63,6 +63,7 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   model[[depend]] <- data[[depend]]
   data[[depend]] <- NULL
   model$class_preds <- predict(model, newdata = data, type='class')
+  model$cov_matrix <- vcov(model)[-(1:2), -(1:2)]
   return(model)
 }
 
@@ -130,7 +131,10 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
-  
+  model$cov_matrix <- vcov(model)
+  number_count_terms <- length(model$coefficients$count)
+  model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
+  model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
   return(model)
 }
 
@@ -154,7 +158,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-
+  
   if(include_weights) {
     model <- lmer(formula,  
                   weights=weight, 
@@ -173,6 +177,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
+  attr(model, "cov_matrix") <- vcov(model)
   return(model)
 }
 
@@ -185,14 +190,14 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-
+  
   if(include_weights) {
     model <- lmer(formula,  
-                   weights=weight, 
-                   data = data)
+                  weights=weight, 
+                  data = data)
   } else {
     model <- lmer(formula, 
-                   data = data)
+                  data = data)
   }
   if (yeo_johnson){
     attr(model,"transform") <- yj
@@ -221,7 +226,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-
+  
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
   
@@ -237,11 +242,12 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    family=Gamma(link='log'),
                    data = data)
   }
+  attr(model, "cov_matrix") <- vcov(model)
   attr(model,"min_value") <- min_value
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
-      }
+  }
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
@@ -255,19 +261,19 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
   data <- drop_na(data)
   if(include_weights) {
     model <- ordgee(formula,
-                   id = pidp,
-                   waves = time,
-                   mean.link = 'logit', # gaussian GEE uses canonical identity link.
-                   data = data,
-                   weights = weight,
-                   corstr="exchangeable") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+                    id = pidp,
+                    waves = time,
+                    mean.link = 'logit', # gaussian GEE uses canonical identity link.
+                    data = data,
+                    weights = weight,
+                    corstr="exchangeable") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
   } else {
     model <- ordgee(formula,
-                      id = pidp,
-                      waves = time,
-                      mean.link = 'logit', # logistic link function (can use probit or cloglog as well.)
-                      data = head(data, 100),
-                      corstr="independence") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+                    id = pidp,
+                    waves = time,
+                    mean.link = 'logit', # logistic link function (can use probit or cloglog as well.)
+                    data = head(data, 100),
+                    corstr="independence") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
   }
   #browser()
   return (model)
@@ -279,10 +285,10 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
   model <- clmm2(formula,
-                random=factor(pidp),
-                link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
-                threshold="flexible",
-                nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+                 random=factor(pidp),
+                 link='probit', # logistic link function (can use probit or cloglog as well.)
+                 data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
+                 threshold="flexible",
+                 nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)
 }

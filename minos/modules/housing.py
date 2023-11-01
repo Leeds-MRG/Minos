@@ -43,7 +43,7 @@ class Housing(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -56,18 +56,14 @@ class Housing(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["age",
-                        "sex",
+        view_columns = ["sex",
+                        "SF_12",
+                        "job_sec",
                         "ethnicity",
-                        "region",
-                        "education_state",
+                        "age",
                         "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
-                        'hh_income',
-                        'hh_income_diff',
+                        "hh_income",
+                        "hh_income_diff",
                         'housing_tenure']
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -79,6 +75,7 @@ class Housing(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        self.transition_model = None
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -132,9 +129,13 @@ class Housing(Base):
         else:
             year = min(self.year, 2019)
 
-        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        # only do this once if year is later than or equal to 2019.
+        if not self.transition_model or (year <= 2019 and not self.cross_validation):
+            self.transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2_modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'housing_quality')
+        prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2_modules, pop, 'housing_quality')
         return prob_df
 
     def plot(self, pop, config):

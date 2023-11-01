@@ -31,7 +31,7 @@ class Neighbourhood(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -44,18 +44,18 @@ class Neighbourhood(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
-                        'hh_income'
-                        ]
+        view_columns = ['pidp',
+                        'age',
+                        'sex',
+                        'ethnicity',
+                        'region',
+                        'hh_income',
+                        'neighbourhood_safety',
+                        'SF_12',
+                        'S7_labour_state',
+                        'education_state',
+                        'housing_quality',
+                        'job_sec']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -67,6 +67,8 @@ class Neighbourhood(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=5)
+
+        self.transition_model = None
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -123,9 +125,15 @@ class Neighbourhood(Base):
                 year -= 1  # e.g. 2012 moves back one year to 2011.
             year = min(year, 2017)  # transitions only go up to 2017.
 
-        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
-        # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
+        # only do this once if the year is greater than 2017.
+        if not self.transition_model or (year <= 2017 and not self.cross_validation):
+            self.transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}",
+                                                             self.rpy2_modules,
+                                                             path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+
+
+        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2_modules, pop, 'neighbourhood_safety')
         return nextWaveNeighbourhood
 
     # Special methods used by vivarium.
