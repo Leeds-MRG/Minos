@@ -37,6 +37,10 @@ QALY_comparison_livingWage: QALY_baseline QALY_livingWage
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 	firefox file://$(TESTING)/QALY_comparison_livingWage.html
 
+QALY_comparisons: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport QALY_livingWage
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+
 #test_plot: MODE=default_config
 #test_plot: ALIVE=who_alive
 #test_plot: BOOSTED=who_boosted
