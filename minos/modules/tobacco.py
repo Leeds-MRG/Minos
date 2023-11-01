@@ -65,7 +65,9 @@ class Tobacco(Base):
                         'S7_labour_state',
                         'job_sec',
                         'alcohol_spending',
-                        'ncigs']
+                        'ncigs',
+                        'housing_quality',
+                        'loneliness']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

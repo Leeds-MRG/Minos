@@ -211,30 +211,30 @@ run_yearly_models <- function(transitionDir_path,
       # CHANGE 9/10/23: We remove these variables because they're not present, 
       #                 so we should do this for all models and not just SF_12
       if(!year %in% c(2011, 2014, 2017, 2020)) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
       }
       if(!year > 2016) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(loneliness\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(loneliness\\)")
       }
       if(!year %in% c(2015, 2017, 2019)) {
-        formula.string <- str_remove(formula.string, " \\+ nutrition_quality")
-        formula.string <- str_remove(formula.string, " \\+ scale\\(nutrition_quality\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ nutrition_quality")
+        formula.string <- str_remove_all(formula.string, " \\+ scale\\(nutrition_quality\\)")
       }
       if(year < 2013) {
-        formula.string <- str_remove(formula.string, " \\+ ncigs")
-        formula.string <- str_remove(formula.string, " \\+ scale\\(ncigs\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ ncigs")
+        formula.string <- str_remove_all(formula.string, " \\+ scale\\(ncigs\\)")
       }
       if(!year %in% c(2015, 2017, 2019, 2020)) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(auditc\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(auditc\\)")
       }
       if(!year %in% c(2015, 2017, 2019, 2020)) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(active\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(active\\)")
       }
       if(!year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(matdep\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(matdep\\)")
       }
       if(year < 2011) {
-        formula.string <- str_remove(formula.string, " \\+ factor\\(chron_disease\\)")
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(chron_disease\\)")
       }
       #print(formula.string)
       # Now make string into formula
@@ -272,6 +272,8 @@ run_yearly_models <- function(transitionDir_path,
                                        depend = next.dependent)
 
       } else if(tolower(mod.type) == 'zip') {
+        
+        print(formula.string)
 
         model <- estimate_yearly_zip(data = merged,
                                      formula = form,

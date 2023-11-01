@@ -50,6 +50,7 @@ class financialSituation(Base):
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
         view_columns = ['pidp',
+                        'hidp',
                         'age',
                         'sex',
                         'ethnicity',
@@ -66,7 +67,10 @@ class financialSituation(Base):
                         'yearly_energy',
                         'financial_situation',
                         'marital_status',
-                        'hhsize'
+                        'hhsize',
+                        'loneliness',
+                        'nutrition_quality',
+                        'ncigs'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)

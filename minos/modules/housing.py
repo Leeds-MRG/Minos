@@ -69,7 +69,12 @@ class Housing(Base):
                         'urban',
                         'financial_situation',
                         "hh_income_diff",
-                        'housing_tenure']
+                        'housing_tenure',
+                        'region',
+                        'education_state',
+                        'loneliness',
+                        'nutrition_quality',
+                        'ncigs']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
