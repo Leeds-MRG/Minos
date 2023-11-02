@@ -41,7 +41,7 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
 
-def main():
+def main(bootstrapping, n):
     """
     1. Grab individual synthetic spatial population for UK.
     2. Take subset of spatial population in a specific subregion.
@@ -57,10 +57,14 @@ def main():
         print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
         raise
 
-    #synthpop_data = pd.read_csv("../data/HH2011PopEst2020S_population.csv") # this is household weighted data. not working atm. need to investigate.
+
+    # get glasgow data zones, get
     glasgow_data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"]  # glasgow data zone IDs.
     US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2020.
     subsetted_synthpop_data = subset_zone_ids(synthpop_data, glasgow_data_zones)
+
+    if bootstrapping:
+        subsetted_synthpop_data = subsetted_synthpop_data.sample(n, replace=True)
 
     subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
@@ -71,6 +75,8 @@ def main():
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
     merged_data['pidp'] = merged_data.index  # creating new pidps.
 
+    if bootstrapping:
+        percent = 1.0
     percent = 1.0 # = 0.1
     sampled_data = take_synthpop_sample(merged_data, percent)
     print(f"Taking {100*percent}% of sample giving {sampled_data.shape[0]} rows.")
@@ -86,4 +92,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    do_bootstrapping = True
+    bootstrap_sample_size = 1_000_000
+    main(do_bootstrapping, bootstrap_sample_size)
