@@ -41,10 +41,38 @@ QALY_comparisons: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
-#test_plot: MODE=default_config
-#test_plot: ALIVE=who_alive
-#test_plot: BOOSTED=who_boosted
-#test_plot: aggregate_minos_output_energy
+QALY_baseline_norepl: MODE=default_no_replenishment
+QALY_baseline_norepl: INTERVENTION=baseline
+QALY_baseline_norepl:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_energyDownlift_norepl: MODE=default_no_replenishment
+QALY_energyDownlift_norepl: INTERVENTION=energyDownlift
+QALY_energyDownlift_norepl:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_energyDownliftNoSupport_norepl: MODE=default_no_replenishment
+QALY_energyDownliftNoSupport_norepl: INTERVENTION=energyDownliftNoSupport
+QALY_energyDownliftNoSupport_norepl:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_livingWage_norepl: MODE=default_no_replenishment
+QALY_livingWage_norepl: INTERVENTION=livingWageIntervention
+QALY_livingWage_norepl:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_comparison_energyCrises_norepl: QALY_baseline_norepl QALY_energyDownlift_norepl QALY_energyDownliftNoSupport_norepl
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
+	firefox file://$(TESTING)/QALY_comparison_energyCrises.html
+
+QALY_comparison_livingWage_norepl: QALY_baseline_norepl QALY_livingWage_norepl
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+	firefox file://$(TESTING)/QALY_comparison_livingWage.html
+
+QALY_comparisons_norepl: QALY_baseline_norepl QALY_energyDownlift_norepl QALY_energyDownliftNoSupport_norepl QALY_livingWage_norepl
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+
 
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.

@@ -39,7 +39,8 @@ source(here::here('minos', 'utils_datain.R'))
 
 ```{r}
 # # read in QALY files for baseline and interventions
-out.path <- here::here('output', 'default_config')
+#out.path <- here::here('output', 'default_config')
+out.path <- here::here('output', 'default_no_replenishment')
 
 base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
 wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
@@ -62,13 +63,33 @@ Just going to plot some things here like how many people affected by an interven
 
 ```{r}
 ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = pop_boosted, group = intervention, colour = intervention)) +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = 'Number Individuals Receiving Intervention')
 
 ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = total_boost, group = intervention, colour = intervention)) +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = 'Total Boost amount by year')
 
 ggplot(combined, aes(x = year, y = alive_ratio, group = intervention, colour = intervention)) +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = 'Ratio of living to dead in output dataframe')
+
+## incidence of mortality
+deaths <- combined %>%
+  select(run_id, intervention, year, alive_pop, dead_pop) %>%
+  group_by(run_id, intervention) %>%
+  mutate(total_pop = alive_pop + dead_pop,
+         deaths_this_year = dead_pop - lag(dead_pop)) %>%
+  group_by(run_id, year, intervention) %>%
+  summarise(death_incidence = deaths_this_year / total_pop)
+
+ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour = intervention)) +
+  geom_smooth() +
+  labs(title = 'Incidence of Mortality Comparison')
+  
+  
+# pivot_wider(names_from = 'year',
+#               values_from = 'dead_pop')
 ```
 
 
@@ -76,7 +97,8 @@ ggplot(combined, aes(x = year, y = alive_ratio, group = intervention, colour = i
 
 ```{r}
 ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
-  geom_smooth()
+  geom_smooth() +
+  labs(title = 'QALYs per year')
 
 # Now change from baseline
 combined.QALY.change <- combined %>%

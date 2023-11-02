@@ -56,7 +56,7 @@ def aggregate_csv(filename, intervention):
     # from both of these pieces of information we can calculate incidence of mortality
     total_pop_size = len(df)
     alive_pop = df['alive'].value_counts()['alive']
-    dead = df['alive'].value_counts()['dead']
+    dead_pop = df['alive'].value_counts()['dead']
 
     # to investigate the mortality rate we can look at the ratio of dead to alive and compare across years
     alive_ratio = (alive_pop / total_pop_size) * 100
@@ -69,7 +69,7 @@ def aggregate_csv(filename, intervention):
         pop_boosted = df['income_boosted'].sum()
         total_boost = df['boost_amount'].sum()
 
-    return [run_id, alive_pop, pop_boosted, total_boost, alive_ratio, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
+    return [run_id, alive_pop, dead_pop, total_pop_size, pop_boosted, total_boost, alive_ratio, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
 
 
 def calculate_qaly(df):
@@ -133,7 +133,7 @@ def main(mode, intervention):
             aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention)))
 
         new_df = pd.DataFrame(aggregated_means)
-        new_df.columns = ['run_id', 'alive_pop', 'pop_boosted', 'total_boost', 'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
+        new_df.columns = ['run_id', 'alive_pop', 'dead_pop', 'total_pop_size', 'pop_boosted', 'total_boost', 'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])
