@@ -66,6 +66,9 @@ ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = pop_boost
 
 ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = total_boost, group = intervention, colour = intervention)) +
   geom_smooth()
+
+ggplot(combined, aes(x = year, y = alive_ratio, group = intervention, colour = intervention)) +
+  geom_smooth()
 ```
 
 
@@ -165,7 +168,7 @@ The [UK Government](https://www.gov.uk/government/publications/valuation-of-risk
 
 ```{r}
 combined.cost <- combined %>%
-  select(-pop_size, -SF_12_MCS, -SF_12_PCS, -utility) %>%
+  select(-alive_pop, -SF_12_MCS, -SF_12_PCS, -utility) %>%
   mutate(QALY_value = QALYs * 60000)
 
 ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour = intervention)) +
@@ -173,7 +176,7 @@ ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour
   scale_y_continuous(label = comma)
 
 combined.cost.change <- combined.cost %>%
-  select(-total_boost, -QALYs) %>%
+  select(run_id, year, intervention, QALY_value) %>%
   pivot_wider(names_from = 'intervention',
               values_from = 'QALY_value') %>%
   mutate(change_baseline = baseline - baseline,
@@ -228,6 +231,7 @@ combined.cost.mean <- combined.cost %>%
 # E0 = effect of control group
 
 ICER <- combined.cost.mean %>%
+  select(run_id, year, intervention, total_boost, QALYs, QALY_value) %>%
   pivot_wider(names_from = 'intervention',
               values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
   mutate(ICER = (total_boost_livingWageIntervention - total_boost_baseline) / (QALYs_livingWageIntervention - QALYs_baseline)) %>%

@@ -52,7 +52,14 @@ def aggregate_csv(filename, intervention):
         run_id = filename_nopath.split(sep='_')[0].lstrip('0')
 
     # record size of not dead population in year
-    pop_size = df['alive'].value_counts()['alive']
+    # record size of dead population in year
+    # from both of these pieces of information we can calculate incidence of mortality
+    total_pop_size = len(df)
+    alive_pop = df['alive'].value_counts()['alive']
+    dead = df['alive'].value_counts()['dead']
+
+    # to investigate the mortality rate we can look at the ratio of dead to alive and compare across years
+    alive_ratio = (alive_pop / total_pop_size) * 100
 
     # record boost information for intervention runs, set to 0 for baseline
     if intervention == 'baseline':
@@ -62,7 +69,7 @@ def aggregate_csv(filename, intervention):
         pop_boosted = df['income_boosted'].sum()
         total_boost = df['boost_amount'].sum()
 
-    return [run_id, pop_size, pop_boosted, total_boost, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
+    return [run_id, alive_pop, pop_boosted, total_boost, alive_ratio, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
 
 
 def calculate_qaly(df):
@@ -95,7 +102,7 @@ def calculate_qaly(df):
                     ((df['SF_12_PCS'] * df['SF_12_MCS'] * df['SF_12_PCS']) * 0.0000107)
 
     # Now calculate QALYs by multiplying utility score by pop_size
-    df['QALYs'] = df['utility'] * df['pop_size']
+    df['QALYs'] = df['utility'] * df['alive_pop']
 
     return df
 
@@ -126,7 +133,7 @@ def main(mode, intervention):
             aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention)))
 
         new_df = pd.DataFrame(aggregated_means)
-        new_df.columns = ['run_id', 'pop_size', 'pop_boosted', 'total_boost', 'SF_12_MCS', 'SF_12_PCS']
+        new_df.columns = ['run_id', 'alive_pop', 'pop_boosted', 'total_boost', 'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])
