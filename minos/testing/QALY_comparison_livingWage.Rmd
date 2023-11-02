@@ -52,17 +52,42 @@ wage <- read.csv(paste0(wage.path, 'qalys.csv'))
 # base <- read.csv(paste0(out.path, 'qaly_baseline.csv'))
 # support <- read.csv(paste0(out.path, 'qalys_support.csv'))
 # noSupport <- read.csv(paste0(out.path, 'qalys_noSupport.csv'))
+# combine the dataframes
+combined <- rbind(base, wage)
+```
+
+# Intervention Information
+
+Just going to plot some things here like how many people affected by an intervention and what the mean / total boost amounts look like.
+
+```{r}
+ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = pop_boosted, group = intervention, colour = intervention)) +
+  geom_smooth()
+
+ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = total_boost, group = intervention, colour = intervention)) +
+  geom_smooth()
 ```
 
 
 # QALY comparison
 
 ```{r}
-# combine the dataframes
-combined <- rbind(base, wage)
-
 ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
   geom_smooth()
+
+# Now change from baseline
+combined.QALY.change <- combined %>%
+  select(run_id, year, intervention, QALYs) %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = 'QALYs') %>%
+  mutate(QALYs = livingWageIntervention - baseline) %>%
+  select(run_id, year, QALYs) %>%
+  mutate(intervention = 'LivingWage')
+
+ggplot(data = combined.QALY.change, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_smooth() +
+  labs(title = 'QALY change from Baseline')
 ```
 
 ...and SF_12 MCS and PCS for good measure.

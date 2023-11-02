@@ -24,15 +24,18 @@ def aggregate_csv(filename, intervention):
 
     Parameters
     ----------
-    filename
-    v
-    agg_method
-    subset_func_string
-    mode
+    filename : basestring
+        Name of the file to be aggregated for a specific year.
+    intervention : basestring
+        Name of intervention, to specify whether to record certain values as 0 (in case of baseline) or calculate them
+        from data.
 
     Returns
     -------
-
+     : vector
+        Vector of information about that specific run for that specific year. This is to be aggregated in the
+        Multiprocessing pool to generate a dataframe with each row corresponding to a specific run in a specific
+        intervention.
     """
     df = pd.read_csv(filename, low_memory=False)
     #if subset_func_string:
@@ -51,13 +54,15 @@ def aggregate_csv(filename, intervention):
     # record size of not dead population in year
     pop_size = df['alive'].value_counts()['alive']
 
-    # record total_boost amount for intervention runs, set to 0 for baseline
+    # record boost information for intervention runs, set to 0 for baseline
     if intervention == 'baseline':
+        pop_boosted = 0
         total_boost = 0
     else:
+        pop_boosted = df['income_boosted'].sum()
         total_boost = df['boost_amount'].sum()
 
-    return [run_id, pop_size, total_boost, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
+    return [run_id, pop_size, pop_boosted, total_boost, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
 
 
 def calculate_qaly(df):
@@ -121,7 +126,7 @@ def main(mode, intervention):
             aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention)))
 
         new_df = pd.DataFrame(aggregated_means)
-        new_df.columns = ['run_id', 'pop_size', 'total_boost', 'SF_12_MCS', 'SF_12_PCS']
+        new_df.columns = ['run_id', 'pop_size', 'pop_boosted', 'total_boost', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])
