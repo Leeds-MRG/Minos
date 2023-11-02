@@ -453,14 +453,14 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def randomise_fixed_effects(model, rpy2modules, type):
+def randomise_fixed_effects(model, rpy2_modules, type):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
 
     Parameters
     ----------
     model: rpy2.RO
         What model is having fixed affects adjusted?
-    rpy2modules: dict[rpy2.RO]
+    rpy2_modules: dict[rpy2.RO]
         Dictionary of R modules used to estimate transition probabilities
     type: string
         Type of model having fixed effects adjusted. REquired variables can have different names (e.g. beta or coefs).
@@ -475,41 +475,30 @@ def randomise_fixed_effects(model, rpy2modules, type):
     if type == "glmm":
         beta = model.do_slot("beta")
         Sigma = model.do_slot("cov_matrix")
-        MASS = rpy2modules["MASS"]
+        MASS = rpy2_modules["MASS"]
         new_beta = MASS.mvrnorm(1, beta, Sigma)
         model.slots['beta'] = new_beta
     elif type == "clm":
-        #beta = model.rx2['beta']
-        #coefficients = model.rx2['coefficients']
-        #leading_entries = len(coefficients) - len(beta)
-
-        #Sigma = model.rx2["cov_matrix"]
-        #MASS = rpy2modules["MASS"]
-        #new_coefficients = MASS.mvrnorm(1, coefficients, Sigma)
-        #new_beta = new_coefficients[leading_entries:]
-        #model.rx2['beta'] = new_beta
-        #model.rx2['coefficients'] = new_coefficients
-
         beta = model.rx2['beta']
         Sigma = model.rx2["cov_matrix"]
-        MASS = rpy2modules["MASS"]
-        new_betas = MASS.mvrnorm(1, beta, Sigma)
-        #new_beta = new_coefficients[leading_entries:]
-        model.rx2['beta'] = new_betas
-        #model.rx2['coefficients'] = new_coefficients
-
+        MASS = rpy2_modules["MASS"]
+        new_beta = MASS.mvrnorm(1, beta, Sigma)
+        model.rx2['beta'] = new_beta
     elif type == "zip":
-        count_betas = model.rx2["coefficients"].rx2["count"]
-        zero_betas = model.rx2["coefficients"].rx2["zero"]
+        coefficients = model.rx2["coefficients"]
+        count_betas = coefficients.rx2["count"]
+        zero_betas = coefficients.rx2["zero"]
 
         count_Sigma = model.rx2["count_cov_matrix"]
         zero_Sigma = model.rx2["zero_cov_matrix"]
 
-        MASS = rpy2modules["MASS"]
+        MASS = rpy2_modules["MASS"]
         new_count_beta = MASS.mvrnorm(1, count_betas, count_Sigma)
         new_zero_beta = MASS.mvrnorm(1, zero_betas, zero_Sigma)
+        new_coefficients = coefficients
+        new_coefficients.rx2['count'] = new_count_beta
+        new_coefficients.rx2['zero'] = new_zero_beta
 
-        model.rx2["coefficients"].rx2["count"] = new_count_beta
-        model.rx2["coefficients"].rx2["zero"] = new_zero_beta
+        model.rx2["coefficients"] = new_coefficients
 
     return model
