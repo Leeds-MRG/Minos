@@ -77,6 +77,14 @@ all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
+qaly_scenarios: MODE=default_config
+qaly_scenarios: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
+qaly_scenarios: baseline intervention_energyDownLift intervention_energyDownLiftNoSupport intervention_livingWage
+
+qaly_scenarios_no_replenishment: MODE=default_no_replenishment
+qaly_scenarios_no_replenishment: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
+qaly_scenarios_no_replenishment: baseline intervention_energyDownLift intervention_energyDownLiftNoSupport intervention_livingWage
+
 #####################################
 ## Running MINOS scenarios on Arc4
 #####################################
@@ -116,6 +124,14 @@ arc4_all_scot_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc
 
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
+
+arc4_qaly_scenarios: MODE=default_config
+arc4_qaly_scenarios: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
+arc4_qaly_scenarios: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
+
+arc4_qaly_scenarios_no_replenishment: MODE=default_no_replenishment
+arc4_qaly_scenarios_no_replenishment: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
+arc4_qaly_scenarios_no_replenishment: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
