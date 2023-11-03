@@ -374,7 +374,7 @@ def inflation_adjustment(data, var):
     data = generate_interview_date_var(data)
     # Inflation adjustment using CPI
     # read in CPI dataset
-    cpi = pd.read_csv('persistent_data/CPI_202010.csv')
+    cpi = pd.read_csv('persistent_data/CPI_202309.csv')
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
     data = pd.merge(data, cpi, on='Date', how='left')
     data[var] = (data[var] / data['CPI']) * 100
