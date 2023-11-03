@@ -159,6 +159,7 @@ class lmmYJNutrition(Base):
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
         view_columns = ['pidp',
+                        'hidp'
                         'time',
                         'age',
                         'sex',
