@@ -6,6 +6,7 @@ import pandas as pd
 
 import US_utils
 
+
 def complete_case(data):
     """ main function for complete case.
     Parameters
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
                           "housing_tenure",
-                          "nkids_ind"]
+                          "nkids_ind", 'S7_labour_state', 'job_hours']
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -101,7 +102,7 @@ if __name__ == "__main__":
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data = complete_case_custom_years(data, 'S7_mental_health', years=list(range(2010, 2021, 1)))
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
-    data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
+    #data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
 
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',

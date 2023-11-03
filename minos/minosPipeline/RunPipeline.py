@@ -29,6 +29,7 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.job_hours import JobHours
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -81,6 +82,7 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "JobHours()": JobHours(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff

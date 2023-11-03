@@ -145,7 +145,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string) 
        }
-    else if (dependent == "SF_12")  {
+    else if (dependent %in% c("SF_12", 'job_hours'))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
