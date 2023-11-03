@@ -119,7 +119,7 @@ class Replenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.age_simulants)
+        #builder.event.register_listener('time_step', self.age_simulants)
         #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
@@ -233,18 +233,6 @@ class Replenishment(Base):
             # logging
             logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
 
-    def age_simulants(self, event):
-        """ Age everyone by the length of the simulation time step in days
-        Parameters
-        ----------
-        event : builder.event
-            some time point at which to run the method.
-        """
-        # get alive people and add time in years to their age.
-        population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['age'] += event.step_size / pd.Timedelta(days=365.25)
-        self.population_view.update(population)
-
     def update_time(self, event):
         """ Update time variable by the length of the simulation time step in days
         Parameters
@@ -346,8 +334,8 @@ class NoReplenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.age_simulants)
-        builder.event.register_listener('time_step', self.update_time)
+        #builder.event.register_listener('time_step', self.age_simulants)
+        #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
     def on_initialize_simulants(self, pop_data):

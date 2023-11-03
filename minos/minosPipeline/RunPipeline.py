@@ -13,6 +13,7 @@ from vivarium import InteractiveContext
 
 import minos.utils as utils
 
+from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.replenishment import NoReplenishment
@@ -80,6 +81,7 @@ components_map = {
     "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
+    "Ageing()": Ageing(),
     "Education()": Education(),
 }
 
