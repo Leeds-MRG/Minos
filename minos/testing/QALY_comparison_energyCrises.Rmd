@@ -32,6 +32,7 @@ rm(workingDir)
 
 ```{r}
 source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_qaly.R'))
 ```
 
 

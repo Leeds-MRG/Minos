@@ -32,6 +32,7 @@ rm(workingDir)
 
 ```{r}
 source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_qaly.R'))
 ```
 
 
@@ -205,34 +206,10 @@ ggplot(data = combined.auc.plot, aes(x = intervention, y = AUC, group = interven
 ```
 
 ```{r}
-# Another version showing difference from baseline for better comparison
-combined.auc2 <- combined.auc %>%
-  pivot_wider(names_from = 'intervention',
-              values_from = c('AUC')) %>%
-  mutate(change_baseline = baseline - baseline,
-         change_LivingWage = LivingWage - baseline) %>%
-  pivot_longer(cols = change_baseline:change_LivingWage,
-               names_to = 'intervention',
-               names_prefix = 'change_',
-               values_to = 'AUC_difference') %>%
-  filter(intervention != 'baseline')
-
-print(combined.auc2)
-
-combined.auc2.plot <- combined.auc2 %>%
-  group_by(intervention) %>%
-  summarise(se = sd(AUC_difference) / sqrt(n()),
-            AUC_difference = mean(AUC_difference))
-
-ggplot(combined.auc2.plot, aes(x = intervention, y = AUC_difference, group = intervention, fill = intervention)) +
-  geom_col() +
-  geom_errorbar(aes(ymin = AUC_difference - se, ymax = AUC_difference + se, width = 0.4, group = intervention)) +
-  labs(title = 'Change in AUC', subtitle = 'Baseline vs Living Wage Intervention') +
-  xlab('Intervention')
-
-ggplot(combined.auc2, aes(x = AUC_difference, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'Area Under Curve change by run')
+auc.plots(base = base, 
+          base.name = 'baseline',
+          intervention = wage,
+          int.name = 'LivingWage')
 ```
 
 # Cost per QALY

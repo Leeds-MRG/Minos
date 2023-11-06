@@ -33,6 +33,10 @@ QALY_comparison_energyCrises: QALY_baseline QALY_energyDownlift QALY_energyDownl
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	firefox file://$(TESTING)/QALY_comparison_energyCrises.html
 
+QALY_comparison_energyCrises_diff: QALY_energyDownlift QALY_energyDownliftNoSupport
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
+	firefox file://$(TESTING)/QALY_comparison_energyCrises_diff.html
+
 QALY_comparison_livingWage: QALY_baseline QALY_livingWage
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 	firefox file://$(TESTING)/QALY_comparison_livingWage.html
