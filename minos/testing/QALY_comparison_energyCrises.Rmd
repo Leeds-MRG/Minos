@@ -88,10 +88,6 @@ deaths <- combined %>%
 ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour = intervention)) +
   geom_smooth() +
   labs(title = 'Incidence of Mortality Comparison')
-
-
-pivot_wider(names_from = 'year',
-              values_from = 'dead_pop')
 ```
 
 # QALY comparison
