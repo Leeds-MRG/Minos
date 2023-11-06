@@ -40,7 +40,7 @@ source(here::here('minos', 'utils_datain.R'))
 ```{r}
 # # read in QALY files for baseline and interventions
 #out.path <- here::here('output', 'default_config')
-out.path <- here::here('output', 'default_no_replenishment')
+out.path <- here::here('output', 'default_config')
 
 base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
 wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
@@ -88,8 +88,8 @@ ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour =
   labs(title = 'Incidence of Mortality Comparison')
   
   
-# pivot_wider(names_from = 'year',
-#               values_from = 'dead_pop')
+pivot_wider(names_from = 'year',
+              values_from = 'dead_pop')
 ```
 
 
@@ -115,14 +115,65 @@ ggplot(data = combined.QALY.change, aes(x = year, y = QALYs, group = interventio
   labs(title = 'QALY change from Baseline')
 ```
 
+Can check histogram over each run to see the range of QALYs.
+
+```{r}
+# histogram of qalys
+ggplot(combined, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  facet_wrap(~year)
+
+ggplot(filter(combined, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'QALYs by run', subtitle = '2022')
+
+ggplot(filter(combined, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'QALYs by run', subtitle = '2028')
+
+ggplot(filter(combined, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'QALYs by run', subtitle = '2034')
+```
+
+and histograms of change...
+
+```{r}
+# histogram of qalys
+ggplot(combined.QALY.change, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  facet_wrap(~year)
+
+ggplot(filter(combined.QALY.change, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'QALY change by run', subtitle = '2022')
+
+ggplot(filter(combined.QALY.change, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'QALY change by run', subtitle = '2028')
+
+ggplot(filter(combined.QALY.change, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'QALY change by run', subtitle = '2034')
+```
+
+
 ...and SF_12 MCS and PCS for good measure.
 
 ```{r}
 ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention)) +
   geom_smooth()
 
+ggplot(combined, aes(x = SF_12_MCS, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  facet_wrap(~year)
+
 ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention)) +
   geom_smooth()
+
+ggplot(combined, aes(x = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  facet_wrap(~year)
 ```
 
 ## Area Under the Curve Comparison
@@ -182,6 +233,10 @@ ggplot(combined.auc2.plot, aes(x = intervention, y = AUC_difference, group = int
   geom_errorbar(aes(ymin = AUC_difference - se, ymax = AUC_difference + se, width = 0.4, group = intervention)) +
   labs(title = 'Change in AUC', subtitle = 'Baseline vs Living Wage Intervention') +
   xlab('Intervention')
+
+ggplot(combined.auc2, aes(x = AUC_difference, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'Area Under Curve change by run')
 ```
 
 # Cost per QALY
@@ -190,7 +245,8 @@ The [UK Government](https://www.gov.uk/government/publications/valuation-of-risk
 
 ```{r}
 combined.cost <- combined %>%
-  select(-alive_pop, -SF_12_MCS, -SF_12_PCS, -utility) %>%
+  #select(-alive_pop, -SF_12_MCS, -SF_12_PCS, -utility) %>%
+  select(run_id, year, pop_size, total_boost, intervention, QALYs) %>%
   mutate(QALY_value = QALYs * 60000)
 
 ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour = intervention)) +
@@ -231,6 +287,11 @@ ggplot(total.combined.cost, aes(x = intervention, y = TotalChange, group = inter
   scale_y_continuous(label = comma) +
   labs(title = 'Total Change in QALY Value', subtitle = 'Baseline vs Living Wage Intervention') +
   xlab('Intervention')
+
+ggplot(combined.cost.change, aes(x = QALY_value_change, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  facet_wrap(~year) +
+  labs(title = 'QALY value change')
 ```
 
 # Incremental Cost-Effectiveness Ratio
@@ -277,8 +338,33 @@ ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = 
   scale_y_continuous(label = comma) +
   labs(title = 'ICER', subtitle = 'Living Wage Intervention') +
   xlab('Intervention')
+
 ```
 
+
+
+```{r}
+ggplot(ICER, aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  facet_wrap(~year) +
+  labs(title = 'ICER by run', subtitle = 'All Years')
+
+ggplot(filter(ICER, year == 2022), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'ICER by run', subtitle = '2022')
+
+ggplot(filter(ICER, year == 2028), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'ICER by run', subtitle = '2028')
+
+ggplot(filter(ICER, year == 2031), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'ICER by run', subtitle = '2031')
+
+ggplot(filter(ICER, year == 2034), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
+  geom_histogram() +
+  labs(title = 'ICER by run', subtitle = '2034')
+```
 
 
 
