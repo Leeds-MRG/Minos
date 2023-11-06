@@ -1,6 +1,7 @@
 
 from minos.modules.base_module import Base
 import pandas as pd
+import logging
 
 class Ageing(Base):
 
@@ -46,6 +47,7 @@ class Ageing(Base):
         population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
 
         # update new population.
+        logging.info(f"Aged population to year {event.time.year}")
         self.population_view.update(population)
 
     # Special methods for vivarium.
