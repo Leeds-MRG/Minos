@@ -261,7 +261,7 @@ The [UK Government](https://www.gov.uk/government/publications/valuation-of-risk
 ```{r}
 combined.cost <- combined %>%
   #select(-pop_size, -SF_12_MCS, -SF_12_PCS, -utility) %>%
-  select(run_id, year, pop_size, total_boost, intervention, QALYs) %>%
+  select(run_id, year, alive_pop, total_boost, intervention, QALYs) %>%
   mutate(QALY_value = QALYs * 60000)
 
 ggplot(combined.cost, aes(x = year, y = QALY_value, group = intervention, colour = intervention)) +
