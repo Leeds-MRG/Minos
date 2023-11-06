@@ -100,6 +100,7 @@ class Replenishment(Base):
                         'SF_12_diff',
                         'hh_income_diff',
                         'nutrition_quality_diff',
+                        'job_hours_diff',
                         ]
 
         if config.input_data_dir == "data/scaled_glasgow_US":  # only have spatial column and new pidp for synthpop.
@@ -327,7 +328,9 @@ class NoReplenishment(Base):
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
-                        'S7_mental_health',]
+                        'S7_mental_health',
+                        'job_hours_diff',
+                        ]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

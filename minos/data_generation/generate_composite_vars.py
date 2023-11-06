@@ -958,7 +958,7 @@ def calculate_children(data,
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "SF_12", "nutrition_quality"]
+    diff_columns = ["hh_income", "SF_12", "nutrition_quality", "job_hours"]
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
