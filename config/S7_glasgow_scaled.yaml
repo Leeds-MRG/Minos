@@ -29,9 +29,9 @@ cross_validation: FALSE
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(), Mortality(), Replenishment(), nkidsFertilityAgeSpecificRates()]
-
-
+components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(),
+              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
+              Replenishment()]
 scale_rates:
     method: "constant"
     constant:

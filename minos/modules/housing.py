@@ -68,7 +68,8 @@ class Housing(Base):
                         "ncigs",
                         'hh_income',
                         'hh_income_diff',
-                        'housing_tenure']
+                        'housing_tenure',
+                        'SF_12']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
