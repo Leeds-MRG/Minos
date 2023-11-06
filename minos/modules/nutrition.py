@@ -169,6 +169,8 @@ class lmmYJNutrition(Base):
                         'hidp',
                         'nutrition_quality',
                         'nutrition_quality_diff',
+                        'ncigs',
+                        "SF_12"
                         ]
 
         #view_columns += self.transition_model.rx2('model').names

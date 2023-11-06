@@ -13,6 +13,7 @@ from vivarium import InteractiveContext
 
 import minos.utils as utils
 
+from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.replenishment import NoReplenishment
@@ -99,6 +100,7 @@ intervention_components_map = {  # Interventions
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+    "Ageing()": Ageing(),
 }
 
 replenishment_components_map = {
