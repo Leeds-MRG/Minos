@@ -381,6 +381,10 @@ def who_young_adults(df):
     #return df.loc[df['sex']=="Female", ]
     return df
 
+def who_has_newborn(df):
+    # get all households with newborns
+    return df.loc[df['has_newborn'] == True, ]
+
 def who_universal_credit(df):
     # whos on universal credit.
     # TODO extend to other legacy benefits at some point?
@@ -392,8 +396,10 @@ def who_uses_energy(df):
 
 def who_priority_subgroups(df):
     # get individual in all priority subgroups.
-    #
-    subset_functions = [who_single, who_three_kids, who_young_adults, who_ethnic_minority, who_disabled]
+    # subgroups defined as per
+    # Tackling child poverty delivery plan 2022-2026 - annex 2: child poverty evaluation strategy
+    # - updated - gov.scot (www.gov.scot)
+    subset_functions = [who_single, who_three_kids, who_young_adults, who_ethnic_minority, who_disabled, who_has_newborn]
     df['who_boosted'] = False
     for subset_function in subset_functions:
         search_index = subset_function(df).index

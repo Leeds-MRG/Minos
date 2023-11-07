@@ -265,6 +265,9 @@ class nkidsFertilityAgeSpecificRates(Base):
         self.randomness = builder.randomness.get_stream('fertility')
 
         view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp']
+        columns_created = ['has_newborn']
+        view_columns += columns_created
+
         # Add new columns to population required for module using build in sim creator.
         self.population_view = builder.population.get_view(view_columns)
 
@@ -285,7 +288,9 @@ class nkidsFertilityAgeSpecificRates(Base):
             creation_window, and current simulation state (setup/running/etc.).
         """
         # doesn't create anything. just incrementing nkids in time step which already exists.
-        pass
+        pop_update = pd.DataFrame({'has_newborn' : False},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
 
 
     def on_time_step(self, event):
@@ -315,6 +320,10 @@ class nkidsFertilityAgeSpecificRates(Base):
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
         self.population_view.update(population[['nkids']])
+
+        population['has_newborn'] = False
+        population.loc[who_had_children_households, 'has_newborn'] = True
+        self.population_view.update(population[['has_newborn']])
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
