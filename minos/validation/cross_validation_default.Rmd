@@ -376,3 +376,26 @@ cv_ordinal_plots(pivoted.df = parity.pivoted,
 
 rm(parity.pivoted)
 ```
+
+## Job Sec
+
+```{r}
+jobsec.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'job_sec')
+
+cv_ordinal_plots(pivoted.df = jobsec.pivoted, 
+                 var = 'job_sec',
+                 save = FALSE)
+rm(jobsec.pivoted)
+```
+
+## Job Hours
+
+```{r}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'job_hours')
+multi_year_boxplots(raw, cv, 'job_hours')
+q_q_comparison(raw, cv, 'job_hours')
+```
