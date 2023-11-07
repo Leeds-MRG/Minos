@@ -43,7 +43,7 @@ def main(input_raw_data, year):
     # join ages into a string seperated by -
     final_US_with_children = collaped_children_US_with_children.sort_values(by=['hidp', 'age'], ascending =True)
     final_US_with_children['age'] = final_US_with_children['age'].astype(str)
-    chained_ages = final_US_with_children.loc[final_US_with_children['is_child'] == True, ].groupby('hidp', as_index=False)['age'].apply('-'.join)
+    chained_ages = final_US_with_children.loc[final_US_with_children['is_child'] == True, ].groupby('hidp', as_index=False)['age'].apply('_'.join)
 
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
     collaped_children_US = pd.merge(final_US_with_children, chained_ages, how='left', on='hidp')
@@ -58,4 +58,6 @@ def main(input_raw_data, year):
     return collaped_children_US
 
 if __name__ == '__main__':
-    main()
+
+    output = pd.read_csv("data/raw_US/2020_US_cohort.csv")
+    main(output, 2020)

@@ -2,6 +2,7 @@
 from minos.modules.base_module import Base
 import pandas as pd
 import logging
+import numpy as np
 
 class Ageing(Base):
 
@@ -23,7 +24,8 @@ class Ageing(Base):
                         'hidp',
                         'age',
                         'nkids',
-                        'time']
+                        'time',
+                        'child_ages']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -46,9 +48,59 @@ class Ageing(Base):
         # add one to current year
         population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
 
+        # update children age chains.
+        population = self.update_child_ages(population)
+
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
-        self.population_view.update(population)
+        self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
+
+
+    def update_child_ages(self, pop):
+        """ Update age chains for all households with alive individuals.
+
+        Parameters
+        ----------
+        pop: pd.DataFrame
+
+        Returns
+        -------
+        pop: pd.DataFrame
+        """
+        pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
+                                                    #pd.DataFrame(.to_list(), index=pop.index)
+        pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
+        pop['nkids'] = pop['nkids'].astype(float)
+        return pop
+
+    def increment_age_chains(self, age_chain):
+        """
+
+        Returns
+        -------
+        age_chain: string
+            List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
+        """
+        # split age chain into list
+        new_nkids = 0 #  default if no age chain found. assume no children.
+        value = age_chain#.values[0]
+        if type(value) != float:
+            age_chain = value.split("_")
+            # increment each item by one
+            # remove item if item is over 16.
+            age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
+            #age_chain = np.sort(age_chain, ascending=True)
+            # return child ages chain and length of list.
+            if age_chain:
+                new_nkids = len(age_chain)
+                age_chain = "_".join(age_chain)
+            else:
+                new_nkids = 0
+                age_chain = np.nan
+        else:
+            age_chain = value
+        return age_chain, new_nkids
+
 
     # Special methods for vivarium.
     @property

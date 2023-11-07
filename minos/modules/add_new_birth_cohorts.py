@@ -264,7 +264,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
         # Add new columns to population required for module using build in sim creator.
         self.population_view = builder.population.get_view(view_columns)
 
@@ -314,13 +314,21 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children_hidps = population.loc[had_children, 'hidp'] # Get all HIDPs of people who've had children
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
-        self.population_view.update(population[['nkids']])
+        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
+        #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
-        self.population_view.update(population[['nkids_ind']])
+        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids']])
 
+    def add_new_child_to_chain(self, age_chain):
+
+        value = age_chain#.values[0]
+        if type(value) == float:
+            return "0"
+        else:
+            return age_chain + "_0"
 
     @staticmethod
     def load_age_specific_fertility_rate_data(builder):
