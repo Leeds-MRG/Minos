@@ -114,9 +114,9 @@ setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthet
 
 setup_glasgow_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_glasgow_repl
 
-setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthetic_scotland_repl
+setup_scotland_scaled: install synthetic_glasgow_data transitions_default synthetic_scotland_repl
 
-setup_glasgow_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_scotland_repl
+setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_scotland_repl
 
 #####################################
 ### ADDITIONAL MAKEFILES
