@@ -44,7 +44,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                     'who_priority_subgroups': [who_alive, who_kids, who_priority_subgroups],
                     'who_priority_subgroups_and_kids': [who_alive, who_kids, who_priority_subgroups],
 
-                     "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
+                    "who_first_simd_decile": [who_alive, [who_kth_simd_decile, [1]]],
                     "who_second_simd_decile": [who_alive, [who_kth_simd_decile, [2]]],
                     "who_third_simd_decile": [who_alive, [who_kth_simd_decile, [3]]],
                     "who_fourth_simd_decile": [who_alive, [who_kth_simd_decile, [4]]],
@@ -109,6 +109,25 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_priority_subgroups_eighth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [8]]],
                      "who_priority_subgroups_ninth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [9]]],
                      "who_priority_subgroups_tenth_simd_decile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_decile, [10]]],
+
+                     "who_first_simd_quintile": [who_alive, [who_kth_simd_quintile, [1]]],
+                     "who_second_simd_quintile": [who_alive, [who_kth_simd_quintile, [2]]],
+                     "who_third_simd_quintile": [who_alive, [who_kth_simd_quintile, [3]]],
+                     "who_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
+                     "who_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
+
+                     "who_uses_energy_first_simd_quintile": [who_alive, [who_kth_simd_quintile, [1]]],
+                     "who_uses_energy_second_simd_quintile": [who_alive, [who_kth_simd_quintile, [2]]],
+                     "who_uses_energy_third_simd_quintile": [who_alive, [who_kth_simd_quintile, [3]]],
+                     "who_uses_energy_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
+                     "who_uses_energy_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
+
+                     "who_boosted_first_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [1]]],
+                     "who_boosted_second_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [2]]],
+                     "who_boosted_third_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [3]]],
+                     "who_boosted_fourth_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [4]]],
+                     "who_boosted_fifth_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [5]]],
+
                      }
 
     subset_chain = subset_chains[subset_chain_string]
@@ -205,6 +224,27 @@ def get_required_intervention_variables(subset_function_string):
         "who_priority_subgroups_eighth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
         "who_priority_subgroups_ninth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
         "who_priority_subgroups_tenth_simd_decile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+
+
+        # quintile work
+
+        "who_first_simd_quintile": default_variables + ['simd_decile'],
+        "who_second_simd_quintile": default_variables + ['simd_decile'],
+        "who_third_simd_quintile": default_variables + ['simd_decile'],
+        "who_fourth_simd_quintile": default_variables + ['simd_decile'],
+        "who_fifth_simd_quintile": default_variables + ['simd_decile'],
+
+        "who_uses_energy_first_simd_quintile": default_variables + ['simd_quintile', 'yearly_energy'],
+        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+
+        "who_boosted_first_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_second_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_third_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_fourth_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],
+        "who_boosted_fifth_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],
     }
     return required_variables_dict[subset_function_string]
 
@@ -324,8 +364,14 @@ def who_priority_subgroups(df):
     who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
     df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
     return df.loc[df['who_boosted'], ]
+
+
 def who_kth_simd_decile(df, *args):
     k = args[0][0]
     return df.loc[df["simd_decile"] == k]
 
+
+def who_kth_simd_quintile(df, *args):
+    k = args[0][0]
+    return df.loc[np.ceil(df["simd_decile"]/2) == k]
 
