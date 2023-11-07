@@ -48,22 +48,23 @@ class Loneliness(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["sex",
-                        "S7_labour_state",
-                        "SF_12_MCS",
-                        "SF_12_PCS",
-                        "job_sec",
+        view_columns = ["age",
+                        "sex",
                         "ethnicity",
+                        "region",
                         "education_state",
-                        "age",
                         "housing_quality",
-                        "hh_income",
+                        "neighbourhood_safety",
                         "loneliness",
-                        "hh_comp",
-                        "marital_status",
+                        "nutrition_quality",
                         "ncigs",
-                        'region',
-                        'nutrition_quality']
+                        'job_sec',
+                        'hh_income',
+                        'marital_status',
+                        "SF_12_MCS",
+                        'SF_12_PCS',
+                        'hh_comp'
+                        ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each

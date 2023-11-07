@@ -53,21 +53,21 @@ class Tobacco(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp',
-                        'age',
-                        'sex',
-                        'ethnicity',
-                        'region',
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'job_sec',
                         'hh_income',
                         'SF_12_MCS',
                         'SF_12_PCS',
-                        'education_state',
-                        'S7_labour_state',
-                        'job_sec',
-                        'alcohol_spending',
-                        'ncigs',
-                        'housing_quality',
-                        'loneliness']
+                        ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

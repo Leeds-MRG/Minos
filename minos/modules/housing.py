@@ -56,25 +56,23 @@ class Housing(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["sex",
-                        "S7_labour_state",
-                        "SF_12_MCS",
-                        "SF_12_PCS",
-                        "job_sec",
+        view_columns = ["age",
+                        "sex",
                         "ethnicity",
-                        "age",
+                        "region",
+                        "education_state",
                         "housing_quality",
                         "hh_income",
                         'housing_tenure',
                         'urban',
                         'financial_situation',
                         "hh_income_diff",
-                        'housing_tenure',
-                        'region',
-                        'education_state',
                         'loneliness',
                         'nutrition_quality',
-                        'ncigs']
+                        'ncigs',
+                        "neighbourhood_safety",
+                        'SF_12_MCS',
+                        'SF_12_PCS']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
