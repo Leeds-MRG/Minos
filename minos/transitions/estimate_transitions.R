@@ -272,8 +272,6 @@ run_yearly_models <- function(transitionDir_path,
                                        depend = next.dependent)
 
       } else if(tolower(mod.type) == 'zip') {
-        
-        print(formula.string)
 
         model <- estimate_yearly_zip(data = merged,
                                      formula = form,

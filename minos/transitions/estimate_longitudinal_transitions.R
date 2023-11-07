@@ -284,8 +284,6 @@ cross_validation <- args$crossval
 default <- args$default
 sipher7 <- args$SIPHER7
 
-default <- TRUE
-
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
 dataDir <- 'data/final_US/'

@@ -135,15 +135,32 @@ ICER <- function(base, base.name, int, int.name, QALY_value) {
   # C0 = cost of control group
   # E0 = effect of control group
   
+  # prepare var names
+  c1 <- paste('total_boost', int.name, sep='_')
+  c0 <- paste('total_boost', base.name, sep='_')
+  e1 <- paste('QALYs', int.name, sep='_')
+  e0 <- paste('QALYs', base.name, sep='_')
+  
   ICER <- combined.cost.mean %>%
     pivot_wider(names_from = 'intervention',
                 values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
-    mutate(ICER = (total_boost_energyDownlift - total_boost_energyDownliftNoSupport) / (QALYs_energyDownlift - QALYs_energyDownliftNoSupport)) %>%
+    mutate(ICER = (.data[[c1]] - .data[[c0]]) / (.data[[e1]] - .data[[e0]])) %>%
     select(run_id, year, ICER) %>%
     pivot_longer(cols = -c(run_id, year),
                  names_prefix = 'ICER_',
                  names_to = 'intervention',
                  values_to = 'ICER')
+  
+  pc1 <- quantile(ICER$ICER, .01)
+  print(pc1)
+  print(min(ICER$ICER))
+  pc99 <- quantile(ICER$ICER, .99)
+  print(pc99)
+  print(max(ICER$ICER))
+  
+  ICER <- filter(ICER, ICER < pc99, ICER > pc1)
+  print(min(ICER$ICER))
+  print(max(ICER$ICER))
   
   p1 <- ggplot(ICER, aes(x = year, y = ICER, group = intervention, fill = intervention, colour = intervention)) +
     geom_smooth() +
