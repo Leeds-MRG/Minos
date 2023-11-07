@@ -7,6 +7,7 @@ data: ### Run all four levels of data generation from raw Understanding Society 
 data: raw_data adj_raw_data corrected_data composite_data complete_data final_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
+synthetic_scotland_data: data scotland_scaled_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2020_US_cohort.csv
@@ -53,6 +54,10 @@ glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
 
 synthetic_glasgow_repl: $(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_2019-2070.csv
 
+scotland_scaled_data : $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv synthetic_glasgow_repl
+
+synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2019-2070.csv
+
 #sheffield_scaled_data goes here.
 
 #####################################
@@ -90,7 +95,10 @@ $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv: $(SCOTDATA)/202
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland
 
 $(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_2019-2070.csv: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
-	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --glasgow
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -r 'glasgow'
+
+$(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2019-2070.csv: $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -r 'scotland'
 
 $(SPATIALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2020_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
@@ -106,4 +114,8 @@ $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINAL
 
 # synthetic input for glasgow with spatial component.
 $(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
-	$(PYTHON) $(DATAGEN)/US_household_upscaling.py
+	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'glasgow' -p 100
+
+# synthetic input for glasgow with spatial component.
+$(SCOTLANDSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
+	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'scotland' -p 100

@@ -29,7 +29,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_2018, glasgow):
+def expand_repl(US_2018, region):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -88,7 +88,7 @@ def expand_repl(US_2018, glasgow):
     # Luke - 20/10/23
     # synthetic upscaled glasgow data results in some duplicate pidp's still
     # only 10 on initial testing so I'm just going to remove these
-    if glasgow:
+    if region == "glasgow" or region == "scotland":
         expanded_repl.drop_duplicates(subset=['pidp'],
                                       inplace=True)
 
@@ -181,7 +181,7 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation, inflated, glasgow):
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
 
     output_dir = 'data/replenishing'
     data_source = 'final_US'
@@ -198,16 +198,18 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     if inflated:
         data_source = 'inflated_US'
         output_dir = 'data/replenishing/inflated'
-    if glasgow:
+    if region == 'glasgow':
         data_source = 'scaled_glasgow_US'
         output_dir = 'data/replenishing/glasgow_scaled'
-
+    elif region == 'scotland':
+        data_source = 'scaled_scotland_US'
+        output_dir = 'data/replenishing/scotland_scaled'
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
-    expanded_repl = expand_repl(data, glasgow)
+    expanded_repl = expand_repl(data, region)
 
     reweighted_repl = reweight_repl(expanded_repl, projections)
 
@@ -241,14 +243,14 @@ def main():
     parser.add_argument("-i", "--inflated", dest='inflated', action='store_true', default=False,
                         help="Select inflated mode to produce inflated cross-validation populations from inflated"
                              "data.")
-    parser.add_argument("-g", "--glasgow", action='store_true', default=False,
-                        help="Generate replenishing population using the glasgow scaled data.")
+    parser.add_argument("-r", "--region", action='store_true', default=False,
+                        help="Generate replenishing population for specified synthetic scaled data. glasgow or scotland for now.")
 
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
     inflated = args.inflated
-    glasgow = args.glasgow
+    region = args.region
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
@@ -257,7 +259,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections, scotland_mode, cross_validation, inflated, glasgow)
+    generate_replenishing(projections, scotland_mode, cross_validation, inflated, region)
 
 
 if __name__ == "__main__":
