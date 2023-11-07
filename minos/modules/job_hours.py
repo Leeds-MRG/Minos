@@ -63,7 +63,8 @@ class JobHours(Base):
                         'pidp',
                         'nkids',
                         'S7_labour_state',
-                        'job_hours'
+                        'job_hours',
+                        'job_hours_diff'
                         ]
 
 
