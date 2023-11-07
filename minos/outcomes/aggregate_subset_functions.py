@@ -116,17 +116,36 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
                      "who_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
 
-                     "who_uses_energy_first_simd_quintile": [who_alive, [who_kth_simd_quintile, [1]]],
-                     "who_uses_energy_second_simd_quintile": [who_alive, [who_kth_simd_quintile, [2]]],
-                     "who_uses_energy_third_simd_quintile": [who_alive, [who_kth_simd_quintile, [3]]],
-                     "who_uses_energy_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
-                     "who_uses_energy_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
+                     "who_priority_subgroups_first_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [1]]],
+                     "who_priority_subgroups_second_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [2]]],
+                     "who_priority_subgroups_third_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [3]]],
+                     "who_priority_subgroups_fourth_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [4]]],
+                     "who_priority_subgroups_fifth_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [5]]],
+
+                     "who_below_poverty_line_and_kids_first_simd_quintile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_quintile, [1]]],
+                     "who_below_poverty_line_and_kids_second_simd_quintile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_quintile, [2]]],
+                     "who_below_poverty_line_and_kids_third_simd_quintile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_quintile, [3]]],
+                     "who_below_poverty_line_and_kids_fourth_simd_quintile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_quintile, [4]]],
+                     "who_below_poverty_line_and_kids_fifth_simd_quintile": [who_alive, who_kids, who_below_poverty_line, [who_kth_simd_quintile, [5]]],
+
+                     "who_universal_credit_and_kids_first_simd_quintile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_quintile, [1]]],
+                     "who_universal_credit_and_kids_second_simd_quintile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_quintile, [2]]],
+                     "who_universal_credit_and_kids_third_simd_quintile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_quintile, [3]]],
+                     "who_universal_credit_and_kids_fourth_simd_quintile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_quintile, [4]]],
+                     "who_universal_credit_and_kids_fifth_simd_quintile": [who_alive, who_kids, who_universal_credit, [who_kth_simd_quintile, [5]]],
 
                      "who_boosted_first_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [1]]],
                      "who_boosted_second_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [2]]],
                      "who_boosted_third_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [3]]],
                      "who_boosted_fourth_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [4]]],
                      "who_boosted_fifth_simd_quintile": [who_alive, who_boosted, [who_kth_simd_quintile, [5]]],
+
+
+                     "who_uses_energy_first_simd_quintile": [who_alive, [who_kth_simd_quintile, [1]]],
+                     "who_uses_energy_second_simd_quintile": [who_alive, [who_kth_simd_quintile, [2]]],
+                     "who_uses_energy_third_simd_quintile": [who_alive, [who_kth_simd_quintile, [3]]],
+                     "who_uses_energy_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
+                     "who_uses_energy_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
 
                      }
 
@@ -159,7 +178,7 @@ def get_required_intervention_variables(subset_function_string):
         'who_priority_subgroups': default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state"],
 
 
-        "who_first_simd_decile": default_variables + ['simd_decile'],
+        "who_first_simd_quintile": default_variables + ['simd_decile'],
         "who_second_simd_decile": default_variables + ['simd_decile'],
         "who_third_simd_decile": default_variables + ['simd_decile'],
         "who_fourth_simd_decile": default_variables + ['simd_decile'],
@@ -234,11 +253,29 @@ def get_required_intervention_variables(subset_function_string):
         "who_fourth_simd_quintile": default_variables + ['simd_decile'],
         "who_fifth_simd_quintile": default_variables + ['simd_decile'],
 
+        "who_below_poverty_line_and_kids_first_simd_quintile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_second_simd_quintile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_third_simd_quintile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_fourth_simd_quintile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+        "who_below_poverty_line_and_kids_fifth_simd_quintile": default_variables + ["hh_income", "nkids", 'simd_decile'],
+
+        "who_universal_credit_and_kids_first_simd_quintile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_second_simd_quintile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_third_simd_quintile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_fourth_simd_quintile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+        "who_universal_credit_and_kids_fifth_simd_quintile": default_variables + ["universal_credit", "nkids", 'simd_decile'],
+
+        "who_priority_subgroups_first_simd_quintile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_second_simd_quintile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_third_simd_quintile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_fourth_simd_quintile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+        "who_priority_subgroups_fifth_simd_quintile": default_variables + ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile'],
+
         "who_uses_energy_first_simd_quintile": default_variables + ['simd_quintile', 'yearly_energy'],
-        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
-        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
-        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
-        "who_uses_energy_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_second_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_third_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_fourth_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
+        "who_uses_energy_fifth_simd_quintile": default_variables + ['simd_decile', 'yearly_energy'],
 
         "who_boosted_first_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],
         "who_boosted_second_simd_quintile": default_variables + ["income_boosted", 'simd_decile'],

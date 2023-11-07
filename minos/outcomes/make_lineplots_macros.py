@@ -164,6 +164,17 @@ def epcg_simd_deciles_lineplot(*args):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
+def glasgow_quintiles_lineplot(config_mode, source):
+    directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
+    tags = "National Average,First,Second,Third,Fourth,Fifth"
+    subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
+    prefix = f"{source}_simd_quintiles"
+    ref = "National Average"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
 ######################################################
 # Space for child uplifts split by amount and subset #
 ######################################################
@@ -302,8 +313,14 @@ string_to_lineplot_function = {
     "incremental_25_50_relative_poverty": incremental_25_to_50,
     "incremental_25_50_universal_credit": incremental_25_to_50,
 
+    "social_science_all_plots": social_science_all_plots,
 
-    "social_science_all_plots": social_science_all_plots
+    "glasgow_baseline_quintile": glasgow_quintiles_lineplot,
+    "glasgow_relative_poverty_quintile": glasgow_quintiles_lineplot,
+    "glasgow_universal_credit_quintile": glasgow_quintiles_lineplot,
+    "glasgow_epcg_quintile": glasgow_quintiles_lineplot,
+    "glasgow_living_wage_quintile": glasgow_quintiles_lineplot,
+
 }
 
 string_to_lineplot_function_args = {
@@ -341,6 +358,12 @@ string_to_lineplot_function_args = {
 
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
     "incremental_25_50_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+
+    "glasgow_baseline_quintile": ['baseline'],
+    "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
+    "glasgow_universal_credit_quintile": ['25UniversalCredit'],
+    "glasgow_epcg_quintile": ['EPCG'],
+    "glasgow_living_wage_quintile": ['livingWageIntervention'],
 
 }
 

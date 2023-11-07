@@ -62,11 +62,11 @@ aggregate_poverty_line_child_uplifts: MODE="default_config"
 aggregate_poverty_line_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_relative_poverty"
 
-aggregate_universal_credit_child_uplifts: MODE="scaled_glasgow"
+aggregate_universal_credit_child_uplifts: MODE="glasgow_scaled"
 aggregate_universal_credit_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
 
-aggregate_priority_groups_child_uplifts: MODE= "scaled_glasgow"
+aggregate_priority_groups_child_uplifts: MODE= "glasgow_scaled"
 aggregate_priority_groups_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
 
@@ -93,19 +93,19 @@ social_science_lineplots:
 # Custom subset for scotgov piece
 #################################
 
-aggregate_25_UC_vulnerable: MODE="scaled_glasgow"
+aggregate_25_UC_vulnerable: MODE="glasgow_scaled"
 aggregate_25_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_UC_priority"
 
-aggregate_50_UC_vulnerable: MODE="scaled_glasgow"
+aggregate_50_UC_vulnerable: MODE="glasgow_scaled"
 aggregate_50_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_UC_priority"
 
-aggregate_75_UC_vulnerable: MODE="scaled_glasgow"
+aggregate_75_UC_vulnerable: MODE="glasgow_scaled"
 aggregate_75_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_UC_priority"
 
-aggregate_100_UC_vulnerable: MODE="scaled_glasgow"
+aggregate_100_UC_vulnerable: MODE="glasgow_scaled"
 aggregate_100_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
 
@@ -116,25 +116,42 @@ all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_
 ########################################################
 
 baseline_all_deciles:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_baseline_all_deciles"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_all_deciles"
 
 poverty_all_deciles:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_all_deciles"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_all_deciles"
 
 universal_credit_all_deciles:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_universal_credit_all_deciles"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_all_deciles"
 
 priority_group_all_deciles:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_priority_groups_all_deciles"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_priority_groups_all_deciles"
 
 poverty_first_decile_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_first"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_first"
 
 poverty_fifth_decile_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_fifth"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_fifth"
 
 poverty_tenth_decile_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_glasgow" "glasgow_poverty_tenth"
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_tenth"
+
+
+baseline_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_quintile"
+
+25RelativePoverty_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_relative_poverty_quintile"
+
+25UniversalCredit_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_quintile"
+
+epcg_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_epcg_quintile"
+
+living_wage_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_living_wage_quintile"
+
 
 ###############################
 # energy crisis lineplots #####
@@ -314,14 +331,14 @@ epcg_ebss_map:
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
 
 uc_baseline_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/universal_credit_baseline_difff_map.pdf" -y 2025
 
 priority_baseline_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_glasgow" -s who_universal_credit_and_kids -p true -r "glasgow"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "scaled_glasgow" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_glasgow" -j "baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
 
 # experimental bash scripts.
 main_maps:

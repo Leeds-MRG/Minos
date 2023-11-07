@@ -77,7 +77,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     return agg_value
 
 
-def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", method=np.nanmean,
+def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", ref="Baseline", method=np.nanmean,
                                 mode="default_config"):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
@@ -110,8 +110,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
         with Pool() as pool:
-
-            if year > 2020 or "baseline" in source:
+            if year > 2020 or tag == ref:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(subset_func_string), repeat(v), repeat(method),
                                                     repeat(mode)))
@@ -166,13 +165,16 @@ def relative_scaling(df, v, ref):
     # if no reference column don't scale anything..
     if ref is not None:
         years = sorted(list(set(df['year'])))
-        for year in years:
+        for i, year in enumerate(years):
             # get data for each year. get reference level sf12 for each year. divide all sf12 values be reference value.
             # sf12 for ref level will be 1. for other levels values >1 implies increase relative to baseline.
             # <1 implies reduction.
+
             year_df = df.loc[df['year'] == year,].copy()
             x_bar = np.nanmean(year_df.loc[year_df['tag'] == ref, v])
             year_df[v] /= x_bar
+            if i == 0: # for first year only consider reference variable. e.g. baseline.
+                year_df = year_df.loc[year_df['tag'] == ref, ]
             df.loc[df['year'] == year, v] = year_df[v]
     else:
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
@@ -287,10 +289,11 @@ def find_MINOS_years_range(file_path):
 
 
 def weighted_nanmean(df, v, weights = "weight", scale=1):
-    df = df.loc[df['weight'] > 0]
+    #df = df.loc[df['weight'] > 0]
 
-    df.loc[df.index, weights] = 1/df[weights]
+    #df.loc[df.index, weights] = 1/df[weights]
     return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+    #return np.nanmean()
 
 def child_uplift_cost_sum(df, v, weights='weight'):
     # get unique households
@@ -342,7 +345,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         years = find_MINOS_years_range(latest_file_path)
 
         print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
-        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string, v=v, method=method)
+        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string, v=v, ref=ref, method=method)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
     if v == "SF_12":
