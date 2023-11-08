@@ -1,0 +1,118 @@
+
+\begin{tabular}{l}
+\hline
+V1\\
+\hline
+\textbackslash{}begin\{tabular\}\{l|r|r\}
+\textbackslash{}hline
+  \& Minimum Error \& First Standard Error\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+X.Intercept. \& 27.5671623 \& 48.2535711\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+X.Intercept..1 \& 0.0000000 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.sex.Male \& 1.8013007 \& 1.4872930\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI...9 \& -1.4283047 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..BAN \& -1.1781408 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..BLA \& 1.1077534 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..BLC \& -0.3640792 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..CHI \& 0.6670852 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..IND \& 0.3180061 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..MIX \& -0.7288896 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..OAS \& -0.6849285 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..OBL \& 0.7649040 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..OTH \& -1.2581221 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..PAK \& -1.5289272 \& -0.0903831\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.ethnicity...ref....WBI..WHO \& 0.2890573 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+scale.age. \& 2.4690096 \& 1.6314297\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state..8 \& 3.5050235 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.0 \& 1.0497403 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.1 \& 2.4330302 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.2 \& 2.1185740 \& 0.0483152\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.3 \& 1.9991012 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.5 \& 2.0777645 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.6 \& 2.5081687 \& 0.0948128\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.education\textbackslash{}\_state.7 \& 2.6874560 \& 0.1073915\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.S7\textbackslash{}\_labour\textbackslash{}\_state.Family.Care \& 1.2048024 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.S7\textbackslash{}\_labour\textbackslash{}\_state.FT.Education \& 4.1141872 \& 1.2361579\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.S7\textbackslash{}\_labour\textbackslash{}\_state.FT.Employed \& 1.2523770 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.S7\textbackslash{}\_labour\textbackslash{}\_state.Job.Seeking \& -0.6301928 \& -1.5740798\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.S7\textbackslash{}\_labour\textbackslash{}\_state.Not.Working \& 0.3279436 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+factor.S7\textbackslash{}\_labour\textbackslash{}\_state.PT.Employed \& 1.4965733 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1..8 \& 13.5794765 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.0 \& 15.3511172 \& -1.5424506\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.1 \& 16.7015208 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.2 \& 16.7334397 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.3 \& 16.6672206 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.4 \& 16.7021829 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.5 \& 17.4424815 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.6 \& 17.9129083 \& 0.0070475\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.7 \& 17.1872268 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.job\textbackslash{}\_sec...ref...1.8 \& 17.8906735 \& 0.0654014\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London...9 \& -5.7277857 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..East.Midlands \& 1.1377700 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..East.of.England \& 1.2770694 \& 0.0137725\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..North.East \& 0.2976499 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..North.West \& 0.6176198 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..Northern.Ireland \& 2.3529583 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..Scotland \& 1.1110397 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..South.East \& 0.9568130 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..South.West \& 1.4412092 \& 0.2071288\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..Wales \& 0.7428366 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..West.Midlands \& 0.1789139 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+relevel.factor.region...ref....London..Yorkshire.and.The.Humber \& 0.5172341 \& 0.0000000\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+scale.hh\textbackslash{}\_income. \& 0.3837998 \& 0.2738567\textbackslash{}\textbackslash{}
+\textbackslash{}hline
+\textbackslash{}end\{tabular\}\\
+\hline
+\end{tabular}

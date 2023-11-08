@@ -38,6 +38,7 @@ data/transitions/*/*coefficients.txt
 data/transitions/*
 data/transitions/*/*
 data/transitions/*/*/*
+data/replenishing/*
 
 # build stuff
 build/
@@ -79,6 +80,9 @@ persistent_data/Fertility/
 persistent_data/Fertility/*
 persistent_data/Mortality/
 persistent_data/Mortality/*
+# new WS3 data
+persistent_data/spatial_data/HH2011*
+persistent_data/spatial_data/Ind2011*
 
 # conda env.
 conda_minos
