@@ -148,10 +148,10 @@ arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios_default: arc4_all_scenarios
 
 ## All SF12 scenarios using glasgow scaled population
-arc4_all_scenarios_default: setup_glasgow_scaled
-arc4_all_scenarios_default: MODE=SF12_glasgow_scaled
-arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_all_scenarios_default: arc4_all_scenarios
+arc4_all_scenarios_default_glasgow: setup_glasgow_scaled
+arc4_all_scenarios_default_glasgow: MODE=glasgow_scaled
+arc4_all_scenarios_default_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_all_scenarios_default_glasgow: arc4_all_scenarios
 
 ## All Scotland scenarios
 ## DEPRECATED - these have been superseded by the glasgow synthetic population scenarios
