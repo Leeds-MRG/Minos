@@ -243,17 +243,17 @@ class Replenishment(Base):
             # logging
             logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
 
-    # def update_time(self, event):
-    #     """ Update time variable by the length of the simulation time step in days
-    #     Parameters
-    #     ----------
-    #     event : builder.event
-    #         some time point at which to run the method.
-    #     """
-    #     # get alive people and add time in years to their age.
-    #     population = self.population_view.get(event.index, query="alive == 'alive'")
-    #     population['time'] += event.step_size / pd.Timedelta(days=365.25)
-    #     self.population_view.update(population)
+    def update_time(self, event):
+        """ Update time variable by the length of the simulation time step in days
+        Parameters
+        ----------
+        event : builder.event
+            some time point at which to run the method.
+        """
+        # get alive people and add time in years to their age.
+        population = self.population_view.get(event.index, query="alive == 'alive'")
+        population['time'] += event.step_size / pd.Timedelta(days=365.25)
+        self.population_view.update(population)
 
 
 class NoReplenishment(Base):
@@ -441,19 +441,19 @@ class NoReplenishment(Base):
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
         self.population_view.update(population)
 
-    # def update_time(self, event):
-    #     """
-    #     Update time variable by the length of the simulation time step in days
-    #
-    #     Parameters
-    #     ----------
-    #     event : builder.event
-    #         some time point at which to run the method.
-    #     """
-    #     # get alive people and add time in years to their age.
-    #     population = self.population_view.get(event.index, query="alive == 'alive'")
-    #     population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
-    #     self.population_view.update(population)
+    def update_time(self, event):
+        """
+        Update time variable by the length of the simulation time step in days
+
+        Parameters
+        ----------
+        event : builder.event
+            some time point at which to run the method.
+        """
+        # get alive people and add time in years to their age.
+        population = self.population_view.get(event.index, query="alive == 'alive'")
+        population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
+        self.population_view.update(population)
 
     # Special methods for vivarium.
     @property
