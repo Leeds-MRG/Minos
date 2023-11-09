@@ -102,7 +102,7 @@ class ChronicDisease(Base):
         # cd_prob_df['chron_disease'][cd_prob_df['previous_chron_disease'] > cd_prob_df['chron_disease']] = \
         #     cd_prob_df['previous_chron_disease']
 
-        self.population_view.update(cd_prob_df["chron_disease"])
+        self.population_view.update(cd_prob_df["chron_disease"].astype(float))
 
     def calculate_chron_disease(self, pop):
         """Calculate chron_disease transition distribution based on provided people/indices
