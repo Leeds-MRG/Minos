@@ -179,9 +179,9 @@ arc4_qaly_scenarios: MODE=default_config
 arc4_qaly_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_qaly_scenarios: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
-arc4_qaly_scenarios: MODE=glasgow_scaled
-arc4_qaly_scenarios: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_qaly_scenarios: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
+arc4_qaly_scenarios_glasgow: MODE=glasgow_scaled
+arc4_qaly_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_qaly_scenarios_glasgow: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
 arc4_qaly_scenarios_no_replenishment: MODE=default_no_replenishment
 arc4_qaly_scenarios_no_replenishment: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
