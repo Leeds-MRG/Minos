@@ -24,7 +24,7 @@ cross_validation: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), MaterialDeprivation(), ChronicDisease(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), NoReplenishment()]
 
 
 scale_rates:

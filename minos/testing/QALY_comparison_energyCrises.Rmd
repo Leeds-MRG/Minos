@@ -40,22 +40,22 @@ source(here::here('minos', 'utils_qaly.R'))
 
 ```{r}
 # # read in QALY files for baseline and interventions
-#out.path <- here::here('output', 'default_config')
-out.path <- here::here('output', 'glasgow_scaled')
-
-base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
-support.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDownlift'))
-noSupport.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDownliftNoSupport'))
-
-base <- read.csv(paste0(base.path, 'qalys.csv'))
-support <- read.csv(paste0(support.path, 'qalys.csv'))
-noSupport <- read.csv(paste0(noSupport.path, 'qalys.csv'))
-
-# out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+# out.path <- here::here('output', 'default_config')
+# #out.path <- here::here('output', 'glasgow_scaled')
 # 
-# base <- read.csv(paste0(out.path, 'qaly_baseline.csv'))
-# support <- read.csv(paste0(out.path, 'qalys_support.csv'))
-# noSupport <- read.csv(paste0(out.path, 'qalys_noSupport.csv'))
+# base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
+# support.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDownlift'))
+# noSupport.path <- get_latest_runtime_subdirectory(here::here(out.path, 'energyDownliftNoSupport'))
+# 
+# base <- read.csv(paste0(base.path, 'qalys.csv'))
+# support <- read.csv(paste0(support.path, 'qalys.csv'))
+# noSupport <- read.csv(paste0(noSupport.path, 'qalys.csv'))
+
+out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+
+base <- read.csv(paste0(out.path, 'qalys_baseline.csv'))
+support <- read.csv(paste0(out.path, 'qalys_support.csv'))
+noSupport <- read.csv(paste0(out.path, 'qalys_nosupport.csv'))
 
 # combine the dataframes
 combined <- rbind(base, support, noSupport)

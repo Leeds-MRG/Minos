@@ -39,8 +39,8 @@ sf12.plots <- function(base, base.name, int, int.name) {
   p2 <- ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
     geom_smooth()
   
-  # print(p1)
-  # print(p2)
+  print(p1)
+  print(p2)
   
   combined.SF12 <- combined %>%
     select(run_id, year, intervention, SF_12_MCS, SF_12_PCS) %>%
