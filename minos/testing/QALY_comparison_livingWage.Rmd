@@ -191,10 +191,10 @@ and histograms of change...
 ## SF12 Change
 
 ```{r}
-sf12.plots(base = noSupport,
-           base.name = 'energyDownliftNoSupport',
-           int = support,
-           int.name = 'energyDownlift')
+sf12.plots(base = base,
+           base.name = 'baseline',
+           int = wage,
+           int.name = 'livingWageIntervention')
 ```
 
 ## Area Under the Curve Comparison
