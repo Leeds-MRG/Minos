@@ -235,6 +235,7 @@ def type_check(data):
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['chron_disease'] = data['chron_disease'].astype(float)
+    data['matdep'] = data['matdep'].astype(int)
 
     return data
 
