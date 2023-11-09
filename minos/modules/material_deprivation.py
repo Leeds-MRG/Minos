@@ -130,16 +130,7 @@ class MaterialDeprivation(Base):
                                                         list(matdep_prob_df.columns),
                                                         matdep_prob_df) + 1
 
-        # housing_prob_df.index = pop.index
-        #
-        # # convert numeric prediction into string factors (low, medium, high)
-        # housing_factor_dict = {1: 'Low',
-        #                        2: 'Medium',
-        #                        3: 'High'}
-        # housing_prob_df.replace({'matdep': housing_factor_dict},
-        #                         inplace=True)
-
-        self.population_view.update(matdep_prob_df["matdep"])
+        self.population_view.update(matdep_prob_df["matdep"].astype(float))
 
 
     def calculate_matdep(self, pop):
