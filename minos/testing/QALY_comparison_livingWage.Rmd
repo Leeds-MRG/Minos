@@ -121,84 +121,80 @@ ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour =
 # QALY comparison
 
 ```{r}
-ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
-  geom_smooth() +
-  labs(title = 'QALYs per year')
-
-# Now change from baseline
-combined.QALY.change <- combined %>%
-  select(run_id, year, intervention, QALYs) %>%
-  pivot_wider(names_from = 'intervention',
-              values_from = 'QALYs') %>%
-  mutate(QALYs = livingWageIntervention - baseline) %>%
-  select(run_id, year, QALYs) %>%
-  mutate(intervention = 'LivingWage')
-
-ggplot(data = combined.QALY.change, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
-  geom_hline(yintercept = 0, linetype = 'dashed') +
-  geom_smooth() +
-  labs(title = 'QALY change from Baseline')
+QALY_comparison(base = base,
+                base.name = 'baseline',
+                int = wage,
+                int.name = 'livingWageIntervention')
 ```
 
 Can check histogram over each run to see the range of QALYs.
 
 ```{r}
-# histogram of qalys
-ggplot(combined, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  facet_wrap(~year)
-
-ggplot(filter(combined, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'QALYs by run', subtitle = '2022')
-
-ggplot(filter(combined, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'QALYs by run', subtitle = '2028')
-
-ggplot(filter(combined, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'QALYs by run', subtitle = '2034')
+# # histogram of qalys
+# ggplot(combined, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   facet_wrap(~year)
+# 
+# ggplot(filter(combined, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   labs(title = 'QALYs by run', subtitle = '2022')
+# 
+# ggplot(filter(combined, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   labs(title = 'QALYs by run', subtitle = '2028')
+# 
+# ggplot(filter(combined, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   labs(title = 'QALYs by run', subtitle = '2034')
 ```
 
 and histograms of change...
 
 ```{r}
-# histogram of qalys
-ggplot(combined.QALY.change, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  facet_wrap(~year)
-
-ggplot(filter(combined.QALY.change, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'QALY change by run', subtitle = '2022')
-
-ggplot(filter(combined.QALY.change, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'QALY change by run', subtitle = '2028')
-
-ggplot(filter(combined.QALY.change, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  labs(title = 'QALY change by run', subtitle = '2034')
+# # histogram of qalys
+# ggplot(combined.QALY.change, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   facet_wrap(~year)
+# 
+# ggplot(filter(combined.QALY.change, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   labs(title = 'QALY change by run', subtitle = '2022')
+# 
+# ggplot(filter(combined.QALY.change, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   labs(title = 'QALY change by run', subtitle = '2028')
+# 
+# ggplot(filter(combined.QALY.change, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   labs(title = 'QALY change by run', subtitle = '2034')
 ```
 
 
 ...and SF_12 MCS and PCS for good measure.
 
 ```{r}
-ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention)) +
-  geom_smooth()
+# ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention)) +
+#   geom_smooth()
+# 
+# ggplot(combined, aes(x = SF_12_MCS, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   facet_wrap(~year)
+# 
+# ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention)) +
+#   geom_smooth()
+# 
+# ggplot(combined, aes(x = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
+#   geom_histogram() +
+#   facet_wrap(~year)
+```
 
-ggplot(combined, aes(x = SF_12_MCS, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  facet_wrap(~year)
+## SF12 Change
 
-ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention)) +
-  geom_smooth()
-
-ggplot(combined, aes(x = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
-  geom_histogram() +
-  facet_wrap(~year)
+```{r}
+sf12.plots(base = noSupport,
+           base.name = 'energyDownliftNoSupport',
+           int = support,
+           int.name = 'energyDownlift')
 ```
 
 ## Area Under the Curve Comparison

@@ -1,6 +1,75 @@
 ### QALY calculation plots and utility functions
 
 
+## QALY comparisons
+QALY_comparison <- function(base, base.name, int, int.name) {
+  
+  combined <- rbind(base, int)
+  
+  p1 <- ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
+    geom_smooth() +
+    labs(title = 'QALYs per year')
+  print(p1)
+  
+  # Now change from baseline
+  combined.QALY.change <- combined %>%
+    select(run_id, year, intervention, QALYs) %>%
+    pivot_wider(names_from = 'intervention',
+                values_from = 'QALYs') %>%
+    mutate(QALYs = .data[[int.name]] - .data[[base.name]]) %>%
+    select(run_id, year, QALYs)
+  
+  p2 <- ggplot(data = combined.QALY.change, aes(x = year, y = QALYs)) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_smooth() +
+    labs(title = 'QALY change', subtitle = paste0(int.name, ' vs ', base.name))
+  print(p2)
+}
+
+
+## SF12 Comparison Plots
+# Plot mean comparison and change from baseline for both MCS and PCS.
+sf12.plots <- function(base, base.name, int, int.name) {
+  
+  combined <- rbind(base, int)
+  
+  ## now SF12 plots for comparison
+  p1 <- ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention, fill = intervention)) +
+    geom_smooth()
+  p2 <- ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
+    geom_smooth()
+  
+  # print(p1)
+  # print(p2)
+  
+  combined.SF12 <- combined %>%
+    select(run_id, year, intervention, SF_12_MCS, SF_12_PCS) %>%
+    pivot_wider(names_from = 'intervention',
+                values_from = c('SF_12_MCS', 'SF_12_PCS')) %>%
+    mutate(MCS_diff = .data[[paste0('SF_12_MCS_', int.name)]] - .data[[paste0('SF_12_MCS_', base.name)]],
+           PCS_diff = .data[[paste0('SF_12_PCS_', int.name)]] - .data[[paste0('SF_12_PCS_', base.name)]]) %>%
+    select(run_id, year, MCS_diff, PCS_diff)
+  
+  p3 <- ggplot(combined.SF12, aes(x = year, y = MCS_diff)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Change in SF_12_MCS', subtitle = paste0(int.name, ' vs ', base.name)) +
+    xlab('Year') +
+    ylab('Change in MCS')
+  
+  p4 <- ggplot(combined.SF12, aes(x = year, y = PCS_diff)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Change in SF_12_PCS', subtitle = paste0(int.name, ' vs ', base.name)) +
+    xlab('Year') +
+    ylab('Change in MCS')
+  
+  print(p3)
+  print(p4)
+}
+
+
+
 # AUC Plots:
 # This function will plot the total AUC (which equals the total QALYs in the
 # system) for 2 interventions, and the change in AUC between the 2.

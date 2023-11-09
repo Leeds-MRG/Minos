@@ -47,6 +47,7 @@ QALY_comparison_livingWage: QALY_baseline QALY_livingWage
 QALY_comparisons: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport QALY_livingWage
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 
 QALY_baseline_norepl: MODE=default_no_replenishment
 QALY_baseline_norepl: INTERVENTION=baseline
@@ -79,6 +80,7 @@ QALY_comparison_livingWage_norepl: QALY_baseline_norepl QALY_livingWage_norepl
 QALY_comparisons_norepl: QALY_baseline_norepl QALY_energyDownlift_norepl QALY_energyDownliftNoSupport_norepl QALY_livingWage_norepl
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 
 
 QALY_baseline_glasgow: MODE=glasgow_scaled

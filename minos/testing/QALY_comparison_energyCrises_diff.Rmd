@@ -101,25 +101,23 @@ ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour =
 # QALY comparison
 
 ```{r}
-ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
-  geom_smooth() +
-  labs(title = 'QALYs per year')
-
-# Now change from baseline
-combined.QALY.change <- combined %>%
-  select(run_id, year, intervention, QALYs) %>%
-  pivot_wider(names_from = 'intervention',
-              values_from = 'QALYs') %>%
-  mutate(QALYs = energyDownlift - energyDownliftNoSupport) %>%
-  select(run_id, year, QALYs)
-
-ggplot(data = combined.QALY.change, aes(x = year, y = QALYs)) +
-  geom_hline(yintercept = 0, linetype = 'dashed') +
-  geom_smooth() +
-  labs(title = 'QALY change', subtitle = 'Support vs No Support')
+QALY_comparison(base = noSupport,
+                base.name = 'energyDownliftNoSupport',
+                int = support,
+                int.name = 'energyDownlift')
 ```
 
-## Area Under the Curve Comparison
+## SF12 Change
+
+```{r}
+sf12.plots(base = noSupport,
+           base.name = 'energyDownliftNoSupport',
+           int = support,
+           int.name = 'energyDownlift')
+```
+
+
+## Area Under the Curve
 
 ```{r}
 auc.plots(base = noSupport, 
