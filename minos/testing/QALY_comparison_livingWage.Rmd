@@ -40,19 +40,19 @@ source(here::here('minos', 'utils_qaly.R'))
 
 ```{r}
 # # read in QALY files for baseline and interventions
-# out.path <- here::here('output', 'default_config')
-# #out.path <- here::here('output', 'glasgow_scaled')
-# 
-# base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
-# wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
-# 
-# base <- read.csv(paste0(base.path, 'qalys.csv'))
-# wage <- read.csv(paste0(wage.path, 'qalys.csv'))
+out.path <- here::here('output', 'default_config')
+#out.path <- here::here('output', 'glasgow_scaled')
 
-out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
+wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
 
-base <- read.csv(paste0(out.path, 'qalys_baseline.csv'))
-wage <- read.csv(paste0(out.path, 'qalys_livwage.csv'))
+base <- read.csv(paste0(base.path, 'qalys.csv'))
+wage <- read.csv(paste0(wage.path, 'qalys.csv'))
+
+# out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+# 
+# base <- read.csv(paste0(out.path, 'qalys_baseline.csv'))
+# wage <- read.csv(paste0(out.path, 'qalys_livwage.csv'))
 
 # combine the dataframes
 combined <- rbind(base, wage)
