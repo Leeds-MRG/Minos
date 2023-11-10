@@ -40,8 +40,8 @@ source(here::here('minos', 'utils_qaly.R'))
 
 ```{r}
 # # read in QALY files for baseline and interventions
-out.path <- here::here('output', 'default_config')
-#out.path <- here::here('output', 'glasgow_scaled')
+#out.path <- here::here('output', 'default_config')
+out.path <- here::here('output', 'glasgow_scaled')
 
 base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
 wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
