@@ -198,12 +198,17 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     if inflated:
         data_source = 'inflated_US'
         output_dir = 'data/replenishing/inflated'
+
     if region == 'glasgow':
         data_source = 'scaled_glasgow_US'
         output_dir = 'data/replenishing/glasgow_scaled'
     elif region == 'scotland':
         data_source = 'scaled_scotland_US'
         output_dir = 'data/replenishing/scotland_scaled'
+    elif region == 'uk':
+        data_source = 'scaled_uk_US'
+        output_dir = 'data/replenishing/uk_scaled'
+
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
