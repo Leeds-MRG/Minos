@@ -108,7 +108,7 @@ class Replenishment(Base):
                         'chron_disease',
                         ]
 
-        if config.input_data_dir == "data/scaled_glasgow_US":  # only have spatial column and new pidp for synthpop.
+        if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
                              # "new_pidp",
                              'local_simd_deciles',
@@ -267,6 +267,7 @@ class NoReplenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
+        config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -344,6 +345,14 @@ class NoReplenishment(Base):
                         'matdep_diff',
                         'chron_disease',
                         ]
+
+        if config.synthetic:  # only have spatial column and new pidp for synthpop.
+            view_columns += ["ZoneID",
+                             # "new_pidp",
+                             'local_simd_deciles',
+                             'simd_decile',
+                             # 'cluster'
+                             ]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

@@ -110,6 +110,60 @@ intervention_energyDownLift_glasgow: setup_glasgow_scaled
 intervention_energyDownLiftNoSupport_glasgow: setup_glasgow_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'energyDownliftNoSupport'
 
+############################################
+## Local single runs of MINOS SF12 experiments using the scotland synthetic population.
+############################################
+
+baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
+baseline_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled
+
+intervention_hhIncome_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'hhIncomeIntervention'
+
+intervention_hhIncomeChildUplift_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'hhIncomeChildUplift'
+
+intervention_PovertyLineChildUplift_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'hhIncomePovertyLineChildUplift'
+
+intervention_livingWage_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'livingWageIntervention'
+
+intervention_energyDownLift_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'energyDownlift'
+
+intervention_energyDownLiftNoSupport_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'energyDownliftNoSupport'
+
+
+############################################
+## Local single runs of MINOS SF12 experiments using the UK (GB) synthetic population.
+############################################
+
+baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
+baseline_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled
+
+intervention_hhIncome_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomeIntervention'
+
+intervention_hhIncomeChildUplift_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomeChildUplift'
+
+intervention_PovertyLineChildUplift_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomePovertyLineChildUplift'
+
+intervention_livingWage_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'livingWageIntervention'
+
+intervention_energyDownLift_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'energyDownlift'
+
+intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'energyDownliftNoSupport'
+
+
 #####################################
 ## Running MINOS scenarios on Arc4
 #####################################
@@ -148,10 +202,16 @@ arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios_default: arc4_all_scenarios
 
 ## All SF12 scenarios using glasgow scaled population
-arc4_all_scenarios_default_glasgow: setup_glasgow_scaled
-arc4_all_scenarios_default_glasgow: MODE=glasgow_scaled
-arc4_all_scenarios_default_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_all_scenarios_default_glasgow: arc4_all_scenarios
+arc4_all_scenarios_glasgow: setup_glasgow_scaled
+arc4_all_scenarios_glasgow: MODE=SF12_glasgow_scaled
+arc4_all_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_all_scenarios_glasgow: arc4_all_scenarios
+
+## All SF12 scenarios using glasgow scaled population
+arc4_all_scenarios_uk: setup_uk_scaled
+arc4_all_scenarios_uk: MODE=SF12_uk_scaled
+arc4_all_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
+arc4_all_scenarios_uk: arc4_all_scenarios
 
 ## All Scotland scenarios
 ## DEPRECATED - these have been superseded by the glasgow synthetic population scenarios
