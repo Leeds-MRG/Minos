@@ -11,12 +11,12 @@ population:
 
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/scaled_glasgow_US"
+input_data_dir: "data/scaled_uk_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
 transition_dir: 'data/transitions'
-replenishing_dir: 'data/replenishing/glasgow_scaled'
+replenishing_dir: 'data/replenishing/uk_scaled'
 
 cross_validation: FALSE
 synthetic: TRUE
@@ -30,7 +30,7 @@ synthetic: TRUE
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(),
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
               nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
               Replenishment()]
 scale_rates:
