@@ -115,22 +115,22 @@ QALYs_glasgow: QALY_baseline_glasgow QALY_energysupport_glasgow QALY_energynosup
 
 ## UK scale QALYs
 
-QALY_baseline_uk: MODE=uk_scaled
+QALY_baseline_uk: MODE=SF12_uk_scaled
 QALY_baseline_uk: INTERVENTION=baseline
 QALY_baseline_uk:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_energysupport_uk: MODE=uk_scaled
+QALY_energysupport_uk: MODE=SF12_uk_scaled
 QALY_energysupport_uk: INTERVENTION=energyDownlift
 QALY_energysupport_uk:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_energynosupport_uk: MODE=uk_scaled
+QALY_energynosupport_uk: MODE=SF12_uk_scaled
 QALY_energynosupport_uk: INTERVENTION=energyDownliftNoSupport
 QALY_energynosupport_uk:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_livwage_uk: MODE=uk_scaled
+QALY_livwage_uk: MODE=SF12_uk_scaled
 QALY_livwage_uk: INTERVENTION=livingWageIntervention
 QALY_livwage_uk:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
