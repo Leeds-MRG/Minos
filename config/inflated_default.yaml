@@ -17,7 +17,11 @@ output_data_dir: "output"
 
 transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing/inflated'
+
 cross_validation: FALSE
+synthetic: FALSE
+
+component_file: 'config/SF12_components.txt'
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.

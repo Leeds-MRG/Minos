@@ -18,9 +18,13 @@ input_data_dir: "data/final_US/cross_validation/batch3"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
-transition_dir: 'data/transitions/cross_validation/version3'
+transition_dir: 'data/transitions/cross_validation/version1'
 replenishing_dir: 'data/replenishing/cross_validation'
+
 cross_validation: TRUE
+synthetic: TRUE
+
+component_file: 'config/SIPHER7_components.txt'
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(),

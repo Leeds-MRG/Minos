@@ -21,6 +21,8 @@ replenishing_dir: 'data/replenishing/uk_scaled'
 cross_validation: FALSE
 synthetic: TRUE
 
+component_file: 'SF12_components'
+
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.

@@ -257,7 +257,14 @@ def RunPipeline(config, intervention=None):
 
     # Replenishment always go last. (first in sim)
     # components = validate_components(config['components'], intervention)
-    components = validate_and_sort_components(config['components'], intervention)
+    # read in the components from the correct text file
+    component_list = []
+    with open(config['component_file']) as comp_file:
+        for line in comp_file:
+            component_list.append(line.rstrip())
+
+
+    components = validate_and_sort_components(component_list, intervention)
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
