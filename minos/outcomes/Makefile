@@ -12,6 +12,8 @@ OUTCOMES=$(ROOT)/minos/outcomes
 QALY:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
+## Default QALYs
+
 QALY_baseline: MODE=default_config
 QALY_baseline: INTERVENTION=baseline
 QALY_baseline:
@@ -49,6 +51,8 @@ QALY_comparisons: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 
+## No Replenishment QALYs (cohort)
+
 QALY_baseline_norepl: MODE=default_no_replenishment
 QALY_baseline_norepl: INTERVENTION=baseline
 QALY_baseline_norepl:
@@ -82,6 +86,7 @@ QALY_comparisons_norepl: QALY_baseline_norepl QALY_energyDownlift_norepl QALY_en
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 
+## Glasgow QALYs
 
 QALY_baseline_glasgow: MODE=glasgow_scaled
 QALY_baseline_glasgow: INTERVENTION=baseline
@@ -104,6 +109,33 @@ QALY_livwage_glasgow:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALYs_glasgow: QALY_baseline_glasgow QALY_energysupport_glasgow QALY_energynosupport_glasgow QALY_livwage_glasgow
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+
+## UK scale QALYs
+
+QALY_baseline_uk: MODE=uk_scaled
+QALY_baseline_uk: INTERVENTION=baseline
+QALY_baseline_uk:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_energysupport_uk: MODE=uk_scaled
+QALY_energysupport_uk: INTERVENTION=energyDownlift
+QALY_energysupport_uk:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_energynosupport_uk: MODE=uk_scaled
+QALY_energynosupport_uk: INTERVENTION=energyDownliftNoSupport
+QALY_energynosupport_uk:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_livwage_uk: MODE=uk_scaled
+QALY_livwage_uk: INTERVENTION=livingWageIntervention
+QALY_livwage_uk:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALYs_uk: QALY_baseline_uk QALY_energysupport_uk QALY_energynosupport_uk QALY_livwage_uk
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
