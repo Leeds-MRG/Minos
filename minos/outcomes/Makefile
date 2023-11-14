@@ -140,6 +140,10 @@ QALYs_uk: QALY_baseline_uk QALY_energysupport_uk QALY_energynosupport_uk QALY_li
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
+QALY_comparison_livingWage_uk: QALY_baseline_uk QALY_livwage_uk
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+	firefox file://$(TESTING)/QALY_comparison_livingWage.html
+
 
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.

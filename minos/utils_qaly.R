@@ -136,7 +136,7 @@ auc.plots <- function(base, base.name, intervention, int.name) {
 ## COST PER QALY
 # This function will calculate and plot the cost per QALY over time, as well 
 # as the total cost change over the length of the simulation.
-cost.per.qaly <- function(base, base.name, int, int.name, QALY_value) {
+cost.per.qaly <- function(base, base.name, int, int.name, QALY_value, int.label) {
   combined <- rbind(base, int)
   
   combined.cost <- combined %>%
@@ -161,7 +161,8 @@ cost.per.qaly <- function(base, base.name, int, int.name, QALY_value) {
                  names_to = 'intervention',
                  names_prefix = 'change_',
                  values_to = 'QALY_value_change') %>%
-    filter(intervention != 'baseline')
+    filter(intervention != 'baseline') %>%
+    mutate(intervention = int.label)
   
   p2 <- ggplot(combined.cost.change, aes(x = year, y = QALY_value_change, group = intervention, colour = intervention, fill = intervention)) +
     geom_smooth() +
@@ -187,7 +188,7 @@ cost.per.qaly <- function(base, base.name, int, int.name, QALY_value) {
 }
 
 
-ICER <- function(base, base.name, int, int.name, QALY_value) {
+ICER <- function(base, base.name, int, int.name, QALY_value, int.label) {
   combined <- rbind(base, int)
   
   combined.cost.mean <- combined %>%
@@ -215,10 +216,7 @@ ICER <- function(base, base.name, int, int.name, QALY_value) {
                 values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
     mutate(ICER = (.data[[c1]] - .data[[c0]]) / (.data[[e1]] - .data[[e0]])) %>%
     select(run_id, year, ICER) %>%
-    pivot_longer(cols = -c(run_id, year),
-                 names_prefix = 'ICER_',
-                 names_to = 'intervention',
-                 values_to = 'ICER')
+    mutate(intervention = int.label)
   
   pc1 <- quantile(ICER$ICER, .01)
   print(pc1)
