@@ -118,6 +118,50 @@ sf12.plots(base = noSupport,
            int.name = 'energyDownlift')
 ```
 
+```{r}
+base <- noSupport
+base.name <- 'energyDownliftNoSupport'
+int <- support
+int.name <- 'energyDownlift'
+
+combined <- rbind(base, int)
+
+## now SF12 plots for comparison
+p1 <- ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention, fill = intervention)) +
+  geom_smooth()
+p2 <- ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
+  geom_smooth()
+
+print(p1)
+print(p2)
+
+combined.SF12 <- combined %>%
+  select(run_id, year, intervention, SF_12_MCS, SF_12_PCS) %>%
+  pivot_wider(names_from = 'intervention',
+              values_from = c('SF_12_MCS', 'SF_12_PCS')) %>%
+  mutate(MCS_diff = .data[[paste0('SF_12_MCS_', int.name)]] - .data[[paste0('SF_12_MCS_', base.name)]],
+         PCS_diff = .data[[paste0('SF_12_PCS_', int.name)]] - .data[[paste0('SF_12_PCS_', base.name)]]) %>%
+  select(run_id, year, MCS_diff, PCS_diff)
+
+p3 <- ggplot(combined.SF12, aes(x = year, y = MCS_diff)) +
+  geom_smooth() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(title = 'Change in SF_12_MCS', subtitle = paste0(int.name, ' vs ', base.name)) +
+  xlab('Year') +
+  ylab('Change in MCS')
+
+p4 <- ggplot(combined.SF12, aes(x = year, y = PCS_diff)) +
+  geom_smooth() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(title = 'Change in SF_12_PCS', subtitle = paste0(int.name, ' vs ', base.name)) +
+  xlab('Year') +
+  ylab('Change in MCS')
+
+print(p3)
+print(p4)
+
+```
+
 
 ## Area Under the Curve
 

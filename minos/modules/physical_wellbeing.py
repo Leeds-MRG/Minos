@@ -177,16 +177,12 @@ class lmmYJPCS(Base):
                         'ethnicity',
                         'age',
                         'time',
-                        #'education_state',
-                        #'labour_state',
-                        #'job_sec',
                         'hh_income',
                         'SF_12_MCS',
                         'SF_12_MCS_diff',
                         'SF_12_PCS',
                         'SF_12_PCS_diff',
                         'housing_quality',
-                        #'phealth',
                         'ncigs',
                         'nutrition_quality',
                         'neighbourhood_safety',
@@ -244,7 +240,6 @@ class lmmYJPCS(Base):
         #print(np.mean(newWavePWB["SF_12_PCS"]))
         #print(np.std(newWavePWB["SF_12_PCS"]))
         self.population_view.update(newWavePWB[['SF_12_PCS', "SF_12_PCS_diff"]])
-
 
     def calculate_pwb(self, pop):
         """Calculate SF_12 transition distribution based on provided people/indices

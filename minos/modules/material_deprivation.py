@@ -130,7 +130,7 @@ class MaterialDeprivation(Base):
                                                         list(matdep_prob_df.columns),
                                                         matdep_prob_df) + 1
 
-        self.population_view.update(matdep_prob_df["matdep"].astype(float))
+        self.population_view.update(matdep_prob_df["matdep"].astype(int))
 
 
     def calculate_matdep(self, pop):
