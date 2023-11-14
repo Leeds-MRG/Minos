@@ -235,18 +235,22 @@ arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
+arc4_qaly_scenarios: setup
 arc4_qaly_scenarios: MODE=default_config
 arc4_qaly_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_qaly_scenarios: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
+arc4_qaly_scenarios_glasgow: setup_glasgow_scaled
 arc4_qaly_scenarios_glasgow: MODE=glasgow_scaled
 arc4_qaly_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
 arc4_qaly_scenarios_glasgow: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
+arc4_qaly_scenarios_uk: setup_uk_scaled
 arc4_qaly_scenarios_uk: MODE=SF12_uk_scaled
 arc4_qaly_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
 arc4_qaly_scenarios_uk: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
+arc4_qaly_scenarios_no_replenishment: setup
 arc4_qaly_scenarios_no_replenishment: MODE=default_no_replenishment
 arc4_qaly_scenarios_no_replenishment: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
 arc4_qaly_scenarios_no_replenishment: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
