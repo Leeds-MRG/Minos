@@ -88,7 +88,7 @@ def expand_repl(US_2018, region):
     # Luke - 20/10/23
     # synthetic upscaled glasgow data results in some duplicate pidp's still
     # only 10 on initial testing so I'm just going to remove these
-    if region == "glasgow" or region == "scotland":
+    if region == "glasgow" or region == "scotland" or region == 'uk':
         expanded_repl.drop_duplicates(subset=['pidp'],
                                       inplace=True)
 
