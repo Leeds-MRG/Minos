@@ -253,3 +253,27 @@ ICER <- function(base, base.name, int, int.name, QALY_value, int.label) {
   print(paste0('ICER == ', ICER.final$ICER, ' +- ', ICER.final$margin))
 }
 
+intervention.cost <- function(base, base.name, int, int.name, int.label) {
+  combined <- rbind(base, int)
+  
+  total.cost <- combined %>%
+    select(run_id, year, intervention, total_boost) %>%
+    group_by(run_id, intervention) %>%
+    summarise(total_cost = sum(total_boost)) %>%
+    pivot_wider(names_from = 'intervention',
+                values_from = 'total_cost') %>%
+    mutate(cost_difference = .data[[int.name]] - .data[[base.name]]) %>%
+    select(run_id, cost_difference) %>%
+    mutate(intervention = int.name) %>%
+    group_by(intervention) %>%
+    summarise(margin = (qt(0.975, df=n() - 1) * sd(cost_difference)) / sqrt(n()),
+              cost_difference = mean(cost_difference))
+  
+  p1 <- ggplot(total.cost, aes(x = intervention, y = cost_difference, group = intervention, fill = intervention, colour = intervention)) +
+    geom_col() +
+    geom_errorbar(aes(ymin = cost_difference - margin, ymax = cost_difference + margin, width = 0.4, group = intervention)) +
+    labs(title = 'Total cost of intervention', subtitle = paste0(int.name, ' vs ', base.name))
+  print(p1)
+  
+  print(paste("Total cost of the intervention over the full simulation (2020-2035) ==", total.cost$cost_difference, sep = ' '))
+}

@@ -200,82 +200,15 @@ ICER(base = noSupport,
      int.label = 'EPCG')
 ```
 
+# Total Cost of Intervention
 
 ```{r}
-#ICER <- function(base, base.name, int, int.name, QALY_value) {
-
-base <- noSupport
-base.name <- 'energyDownliftNoSupport'
-int <- support
-int.name <- 'energyDownlift'
-QALY_value <- 60000
-
-
-
-combined <- rbind(base, int)
-
-combined.cost.mean <- combined %>%
-  #select(-alive_pop, -SF_12_MCS, -SF_12_PCS, -utility) %>%
-  select(run_id, year, total_boost, intervention, QALYs) %>%
-  mutate(QALY_value = QALYs * QALY_value) %>%
-  group_by(run_id, year, intervention) %>%
-  summarise(across(everything(), mean))
-
-# ICER = (C1 - C0) / (E1 - E0)
-# where
-# C1 = cost of intervention
-# E1 = effect of intervention
-# C0 = cost of control group
-# E0 = effect of control group
-
-# prepare var names
-c1 <- paste('total_boost', int.name, sep='_')
-c0 <- paste('total_boost', base.name, sep='_')
-e1 <- paste('QALYs', int.name, sep='_')
-e0 <- paste('QALYs', base.name, sep='_')
-
-ICER <- combined.cost.mean %>%
-  pivot_wider(names_from = 'intervention',
-              values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
-  mutate(ICER = (.data[[c1]] - .data[[c0]]) / (.data[[e1]] - .data[[e0]])) %>%
-  select(run_id, year, ICER) %>%
-  mutate(intervention = int.name)
-
-pc1 <- quantile(ICER$ICER, .01)
-print(pc1)
-print(min(ICER$ICER))
-pc99 <- quantile(ICER$ICER, .99)
-print(pc99)
-print(max(ICER$ICER))
-
-ICER <- filter(ICER, ICER < pc99, ICER > pc1)
-print(min(ICER$ICER))
-print(max(ICER$ICER))
-
-p1 <- ggplot(ICER, aes(x = year, y = ICER, group = intervention, fill = intervention, colour = intervention)) +
-  geom_smooth() +
-  scale_y_continuous(label = comma) +
-  labs(title = 'ICER', subtitle = paste0(int.name, ' vs ', base.name))
-print(p1)
-
-ICER.final <- ICER %>%
-  group_by(run_id, intervention) %>%
-  summarise(ICER = mean(ICER)) %>%
-  group_by(intervention) %>%
-  summarise(margin = (qt(0.975, df=n() - 1) * sd(ICER)) / sqrt(n()),
-            ICER = mean(ICER))
-
-p2 <- ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = intervention)) +
-  geom_col() +
-  geom_errorbar(aes(ymin = ICER - margin, ymax = ICER + margin, width = 0.4, group = intervention)) +
-  scale_y_continuous(label = comma) +
-  labs(title = 'ICER', subtitle = paste0(int.name, ' vs ', base.name)) +
-  xlab('Intervention')
-print(p2)
-
-print(paste0('ICER == ', ICER.final$ICER, ' +- ', ICER.final$margin))
+intervention.cost(base = noSupport,
+                  base.name = 'energyDownliftNoSupport',
+                  int = support,
+                  int.name = 'energyDownlift',
+                  int.label = 'EPCG')
 ```
-
 
 
 

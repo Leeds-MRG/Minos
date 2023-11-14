@@ -94,12 +94,12 @@ def calculate_qaly(df):
 
     # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
     df['utility'] = -1.6984 + \
-                    (df['SF_12_PCS'] * 0.07927) + \
-                    (df['SF_12_MCS'] * 0.02859) + \
-                    ((df['SF_12_PCS'] * df['SF_12_MCS']) * -0.000126) + \
-                    ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
-                    ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
-                    ((df['SF_12_PCS'] * df['SF_12_MCS'] * df['SF_12_PCS']) * 0.0000107)
+        (df['SF_12_PCS'] * 0.07927) + \
+        (df['SF_12_MCS'] * 0.02859) + \
+        ((df['SF_12_PCS'] * df['SF_12_MCS']) * -0.000126) + \
+        ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
+        ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
+        ((df['SF_12_PCS'] * df['SF_12_PCS'] * df['SF_12_PCS']) * 0.0000107)
 
     # Now calculate QALYs by multiplying utility score by pop_size
     df['QALYs'] = df['utility'] * df['alive_pop']

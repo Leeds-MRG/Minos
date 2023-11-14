@@ -132,67 +132,6 @@ QALY_comparison(base = base,
                 int.name = 'livingWageIntervention')
 ```
 
-Can check histogram over each run to see the range of QALYs.
-
-```{r}
-# # histogram of qalys
-# ggplot(combined, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   facet_wrap(~year)
-# 
-# ggplot(filter(combined, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'QALYs by run', subtitle = '2022')
-# 
-# ggplot(filter(combined, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'QALYs by run', subtitle = '2028')
-# 
-# ggplot(filter(combined, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'QALYs by run', subtitle = '2034')
-```
-
-and histograms of change...
-
-```{r}
-# # histogram of qalys
-# ggplot(combined.QALY.change, aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   facet_wrap(~year)
-# 
-# ggplot(filter(combined.QALY.change, year == 2022), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'QALY change by run', subtitle = '2022')
-# 
-# ggplot(filter(combined.QALY.change, year == 2028), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'QALY change by run', subtitle = '2028')
-# 
-# ggplot(filter(combined.QALY.change, year == 2034), aes(x = QALYs, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'QALY change by run', subtitle = '2034')
-```
-
-
-...and SF_12 MCS and PCS for good measure.
-
-```{r}
-# ggplot(combined, aes(x = year, y = SF_12_MCS, group = intervention, colour = intervention)) +
-#   geom_smooth()
-# 
-# ggplot(combined, aes(x = SF_12_MCS, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   facet_wrap(~year)
-# 
-# ggplot(combined, aes(x = year, y = SF_12_PCS, group = intervention, colour = intervention)) +
-#   geom_smooth()
-# 
-# ggplot(combined, aes(x = SF_12_PCS, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   facet_wrap(~year)
-```
-
 ## SF12 Change
 
 ```{r}
@@ -224,30 +163,6 @@ cost.per.qaly(base = base,
               int.label <- 'LivingWage')  # QALY value == £60,000
 ```
 
-
-```{r}
-# total.combined.cost <- combined.cost.change %>%
-#   group_by(run_id, intervention) %>%
-#   summarise(TotalChange = sum(QALY_value_change)) %>%
-#   group_by(intervention) %>%
-#   summarise(se = sd(TotalChange) / sqrt(n()),
-#             TotalChange = mean(TotalChange))
-# 
-# #print(paste0('Total combined cost == ', format(round(as.numeric(total.combined.cost), 1), nsmall=1, big.mark=",")))
-# 
-# ggplot(total.combined.cost, aes(x = intervention, y = TotalChange, group = intervention, fill = intervention)) +
-#   geom_col() +
-#   geom_errorbar(aes(ymin = TotalChange - se, ymax = TotalChange + se, width = 0.4, group = intervention)) +
-#   scale_y_continuous(label = comma) +
-#   labs(title = 'Total Change in QALY Value', subtitle = 'Baseline vs Living Wage Intervention') +
-#   xlab('Intervention')
-# 
-# ggplot(combined.cost.change, aes(x = QALY_value_change, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   facet_wrap(~year) +
-#   labs(title = 'QALY value change')
-```
-
 # Incremental Cost-Effectiveness Ratio
 
 From [NICE guidelines](https://www.nice.org.uk/process/pmg6/chapter/assessing-cost-effectiveness) about the cost-effectiveness of health interventions (7.3), and works with a statistic called the Incremental Cost-Effectiveness Ratio (ICER). The formula for calculating the ICER can be found [here](https://en.wikipedia.org/wiki/Incremental_cost-effectiveness_ratio), but in short, it represents the average incremental cost associated with 1 additional unit of the measurement of effect. In our case, the unit of measurement of effect is a QALY. 
@@ -264,104 +179,15 @@ ICER(base = base,
      int.label = 'LivingWage')
 ```
 
-```{r}
-#ICER <- function(base, base.name, int, int.name, QALY_value) {
 
-base <- base
-base.name <- 'baseline'
-int <- wage
-int.name <- 'livingWageIntervention'
-QALY_value <- 60000
-int.label <- 'LivingWage'
-
-
-combined <- rbind(base, int)
-
-combined.cost.mean <- combined %>%
-  #select(-alive_pop, -SF_12_MCS, -SF_12_PCS, -utility) %>%
-  select(run_id, year, total_boost, intervention, QALYs) %>%
-  mutate(QALY_value = QALYs * QALY_value) %>%
-  group_by(run_id, year, intervention) %>%
-  summarise(across(everything(), mean))
-
-# ICER = (C1 - C0) / (E1 - E0)
-# where
-# C1 = cost of intervention
-# E1 = effect of intervention
-# C0 = cost of control group
-# E0 = effect of control group
-
-# prepare var names
-c1 <- paste('total_boost', int.name, sep='_')
-c0 <- paste('total_boost', base.name, sep='_')
-e1 <- paste('QALYs', int.name, sep='_')
-e0 <- paste('QALYs', base.name, sep='_')
-
-ICER <- combined.cost.mean %>%
-  pivot_wider(names_from = 'intervention',
-              values_from = c('total_boost', 'QALYs', 'QALY_value')) %>%
-  mutate(ICER = (.data[[c1]] - .data[[c0]]) / (.data[[e1]] - .data[[e0]])) %>%
-  select(run_id, year, ICER) %>%
-  mutate(intervention = int.label)
-
-pc1 <- quantile(ICER$ICER, .01)
-print(pc1)
-print(min(ICER$ICER))
-pc99 <- quantile(ICER$ICER, .99)
-print(pc99)
-print(max(ICER$ICER))
-
-ICER <- filter(ICER, ICER < pc99, ICER > pc1)
-print(min(ICER$ICER))
-print(max(ICER$ICER))
-
-p1 <- ggplot(ICER, aes(x = year, y = ICER, group = intervention, fill = intervention, colour = intervention)) +
-  geom_smooth() +
-  scale_y_continuous(label = comma) +
-  labs(title = 'ICER', subtitle = paste0(int.name, ' vs ', base.name))
-print(p1)
-
-ICER.final <- ICER %>%
-  group_by(run_id, intervention) %>%
-  summarise(ICER = mean(ICER)) %>%
-  group_by(intervention) %>%
-  summarise(margin = (qt(0.975, df=n() - 1) * sd(ICER)) / sqrt(n()),
-            ICER = mean(ICER))
-
-p2 <- ggplot(ICER.final, aes(x = intervention, y = ICER, group = intervention, fill = intervention)) +
-  geom_col() +
-  geom_errorbar(aes(ymin = ICER - margin, ymax = ICER + margin, width = 0.4, group = intervention)) +
-  scale_y_continuous(label = comma) +
-  labs(title = 'ICER', subtitle = paste0(int.name, ' vs ', base.name)) +
-  xlab('Intervention')
-print(p2)
-
-print(paste0('ICER == ', ICER.final$ICER, ' +- ', ICER.final$margin))
-```
-
-
+# Total Cost of Intervention
 
 ```{r}
-# ggplot(ICER, aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   facet_wrap(~year) +
-#   labs(title = 'ICER by run', subtitle = 'All Years')
-# 
-# ggplot(filter(ICER, year == 2022), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'ICER by run', subtitle = '2022')
-# 
-# ggplot(filter(ICER, year == 2028), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'ICER by run', subtitle = '2028')
-# 
-# ggplot(filter(ICER, year == 2031), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'ICER by run', subtitle = '2031')
-# 
-# ggplot(filter(ICER, year == 2034), aes(x = ICER, group = intervention, colour = intervention, fill = intervention)) +
-#   geom_histogram() +
-#   labs(title = 'ICER by run', subtitle = '2034')
+intervention.cost(base = baseline,
+                  base.name = 'baseline',
+                  int = livWage,
+                  int.name = 'livingWageIntervention',
+                  int.label = 'Living Wage')
 ```
 
 
