@@ -142,19 +142,26 @@ class JobHours(Base):
 
         # merge back onto pop so we can be sure we're updating the correct people
         pop = pop.drop(labels=['job_hours', 'job_hours_diff'], axis=1)
-
-
+        pop['job_hours'] = newWaveJobHours['job_hours']
+        #pop["job_hours"] = np.clip(pop["job_hours"], 0, 10000)  # job_hours has to be positive
+        pop['job_hours_diff'] = newWaveJobHours['job_hours_diff']
 
         #print("job_hours", np.mean(newWaveJobHours['job_hours']))
-        self.population_view.update(newWaveJobHours[['job_hours', 'job_hours_diff']])
+        self.population_view.update(pop[['job_hours', 'job_hours_diff']])
 
         # Now people not in employment
         non_working_pop = self.population_view.get(event.index,
-                                       query="alive == 'alive' and S7_labour_state == 'FT Employed' or S7_labour_state == 'PT Employed'")
+                                       query="alive == 'alive' and S7_labour_state != 'FT Employed' and S7_labour_state != 'PT Employed'")
         #  & 'S7_labour_state' == 'FT Employed' or 'S7_labour_state' == 'PT Employed'
 
-        # simply set to 0
-        #non_working_pop[]
+        # save previous value to calculate diff
+        non_working_pop['job_hours_last'] = non_working_pop['job_hours']
+        # simply set job_hours to 0 as these people are not in work
+        non_working_pop['job_hours'] = 0.0
+        # now calculate diff (although probably not useful)
+        non_working_pop['job_hours_diff'] = non_working_pop['job_hours'] - non_working_pop['job_hours']
+
+        self.population_view.update(non_working_pop[['job_hours', 'job_hours_diff']])
 
     def calculate_job_hours(self, pop):
         """Calculate income transition distribution based on provided people/indices
