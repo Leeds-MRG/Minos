@@ -183,11 +183,11 @@ ICER(base = base,
 # Total Cost of Intervention
 
 ```{r}
-intervention.cost(base = baseline,
+intervention.cost(base = base,
                   base.name = 'baseline',
-                  int = livWage,
+                  int = wage,
                   int.name = 'livingWageIntervention',
-                  int.label = 'Living Wage')
+                  int.label = 'LivingWage')
 ```
 
 
