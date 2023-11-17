@@ -24,7 +24,7 @@ cross_validation: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(),
-              Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
+              Housing(), lmmYJNutrition(), behindOnBills(), lmmYJIncome(), Education(),
               nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
               Replenishment()]
 

@@ -245,7 +245,7 @@ def main(data, save=False):
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
                  'nkids_ind_raw'] # 'ncigs', 'ndrinks']
-    fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
+    fb_columns = ["sex", "ethnicity", "birth_year", "behind_on_bills"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]
     data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)

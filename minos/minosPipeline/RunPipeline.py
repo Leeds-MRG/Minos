@@ -39,7 +39,7 @@ from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
-
+from minos.modules.behind_on_bills import behindOnBills
 from minos.modules.intervention import hhIncomeIntervention
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
@@ -74,6 +74,7 @@ components_map = {
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
+    "behindOnBills()": behindOnBills(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),

@@ -265,6 +265,7 @@ def format_ukhls_columns(year):
                       'fuelhave3': 'has_oil',  # spends money on oil
                       'fuelhave4': 'has_other',  # has some other fuel source.
                       'fuelhave96': 'has_none',  # has no fuel source.
+                      'xphsdba': "behind_on_bills", # are you up to date on all household bills? (1/2/3).
                       'fuelduel': 'gas_electric_combined', # are gas and electric bills separate or combined?
                        # Nutrition vars
                        'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
