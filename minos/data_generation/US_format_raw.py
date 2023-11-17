@@ -543,7 +543,8 @@ def format_data(year, data):
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
 
-    if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
+    #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
+    if year >= 2014:
         data = US_format_raw_children_data.main(data, year)
     data = format_analysis_weight(data, year)
 

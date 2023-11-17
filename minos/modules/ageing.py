@@ -46,8 +46,13 @@ class Ageing(Base):
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
 
         # add one to current year
-        population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
+        #population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
+        population['time'] += 1
 
+        # realign children age chains for new repl population. They don't have unique hidps yet.
+        # TODO remove this if/when we update household ids in repl.
+        # do this by getting the oldest ALIVE member of a household and give everyone in the household that age chain.
+        population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
         # update children age chains.
         population = self.update_child_ages(population)
 
@@ -84,7 +89,7 @@ class Ageing(Base):
         # split age chain into list
         new_nkids = 0 #  default if no age chain found. assume no children.
         value = age_chain#.values[0]
-        if type(value) != float:
+        if type(value) != float and value is not None:
             age_chain = value.split("_")
             # increment each item by one
             # remove item if item is over 16.

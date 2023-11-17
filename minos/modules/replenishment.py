@@ -365,7 +365,8 @@ class NoReplenishment(Base):
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
-
+            new_population['child_ages'] = ""
+            new_population['nkids'] = 0
 
         # Force index of new cohort to align with index of total population data frame
         # otherwise this will overwrite some sims.

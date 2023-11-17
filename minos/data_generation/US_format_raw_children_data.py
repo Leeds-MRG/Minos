@@ -59,5 +59,7 @@ def main(input_raw_data, year):
 
 if __name__ == '__main__':
 
-    output = pd.read_csv("data/raw_US/2020_US_cohort.csv")
-    main(output, 2020)
+    years = np.arange(2009, 2020)
+    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    data = US_utils.load_multiple_data(file_names)
+    main(data, years)
