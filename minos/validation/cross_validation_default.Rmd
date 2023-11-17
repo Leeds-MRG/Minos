@@ -388,7 +388,7 @@ format_child_age_data <- function(dataset) {
   formatted.age.data <- dataset %>%
                         dplyr::select(hidp, time, child_ages, pidp) %>%
                         filter(time >= 2014) %>%
-                        group_by(pidp, time) %>%
+                        group_by(time, pidp) %>%
                         summarise(child_ages = max(child_ages))
   
   split.ages <- strsplit(formatted.age.data$child_ages, "_")
@@ -433,7 +433,7 @@ q_q_comparison(raw.child.ages, cv.child.ages, 'expanded_child_ages')
 
 format_nkids_data <- function(dataset) {
   dataset %>%
-  group_by(time, hidp) %>%
+  group_by(hidp, time, pidp) %>%
   summarise(nkids = max(nkids)) %>%
   #group_by(time) %>%
   #summarise(nkids_by_year = sum(nkids_counts))
