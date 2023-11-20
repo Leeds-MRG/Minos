@@ -34,22 +34,46 @@ QALY_livingWage: INTERVENTION=livingWageIntervention
 QALY_livingWage:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_comparison_energyCrises: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_energyCrises.html
+################## GENERIC QALY SCRIPT ##################
+QALY_comparison:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(	\
+		experiment = $(EXPERIMENT),																\
+		baseline = $(BASELINE),																	\
+		intervention = $(INTERVENTION),															\
+		intervention_label = $(INTERVENTION_LABEL)												\
+	))"
+	#firefox file://$(TESTING)/QALY_comparison_livingWage.html
 
-QALY_comparison_energyCrises_diff: QALY_energyDownlift QALY_energyDownliftNoSupport
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_energyCrises_diff.html
+QALY_comparison_energyCrises: QALY_energyDownlift QALY_energyDownliftNoSupport
+QALY_comparison_energyCrises: EXPERIMENT=default_config
+QALY_comparison_energyCrises: BASELINE=energyDownliftNoSupport
+QALY_comparison_energyCrises: INTERVENTION=energyDownlift
+QALY_comparison_energyCrises: INTERVENTION_LABEL=EPCG
+QALY_comparison_energyCrises:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
 
 QALY_comparison_livingWage: QALY_baseline QALY_livingWage
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
+QALY_comparison_livingWage: EXPERIMENT=default_config
+QALY_comparison_livingWage: BASELINE=energyDownliftNoSupport
+QALY_comparison_livingWage: INTERVENTION=energyDownlift
+QALY_comparison_livingWage: INTERVENTION_LABEL=EPCG
+QALY_comparison_livingWage:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison_livingWage.Rmd', params = list(	\
+		experiment = $(EXPERIMENT),																				\
+		baseline = $(BASELINE),																					\
+		intervention = $(INTERVENTION),																			\
+		intervention_label = $(INTERVENTION_LABEL)																\
+	))"
 
-QALY_comparisons: QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport QALY_livingWage
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
+
+QALY_comparisons: QALY_comparison_livingWage QALY_comparison_energyCrises
+
+################## ^ GENERIC QALY SCRIPT ^ ##################
 
 ## No Replenishment QALYs (cohort)
 
@@ -73,18 +97,34 @@ QALY_livingWage_norepl: INTERVENTION=livingWageIntervention
 QALY_livingWage_norepl:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_comparison_energyCrises_norepl: QALY_baseline_norepl QALY_energyDownlift_norepl QALY_energyDownliftNoSupport_norepl
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_energyCrises.html
+QALY_comparison_energyCrises_norepl: QALY_energyDownlift_norepl QALY_energyDownliftNoSupport_norepl
+QALY_comparison_energyCrises_norepl: EXPERIMENT=default_no_replenishment
+QALY_comparison_energyCrises_norepl: BASELINE=energyDownliftNoSupport
+QALY_comparison_energyCrises_norepl: INTERVENTION=energyDownlift
+QALY_comparison_energyCrises_norepl: INTERVENTION_LABEL=EPCG
+QALY_comparison_energyCrises_norepl:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
 
 QALY_comparison_livingWage_norepl: QALY_baseline_norepl QALY_livingWage_norepl
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
+QALY_comparison_livingWage_norepl: EXPERIMENT=default_no_replenishment
+QALY_comparison_livingWage_norepl: BASELINE=energyDownliftNoSupport
+QALY_comparison_livingWage_norepl: INTERVENTION=energyDownlift
+QALY_comparison_livingWage_norepl: INTERVENTION_LABEL=EPCG
+QALY_comparison_livingWage_norepl:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
 
-QALY_comparisons_norepl: QALY_baseline_norepl QALY_energyDownlift_norepl QALY_energyDownliftNoSupport_norepl QALY_livingWage_norepl
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
+
+QALY_comparisons_norepl: QALY_comparison_livingWage_norepl QALY_comparison_energyCrises_norepl
 
 ## Glasgow QALYs
 
@@ -108,10 +148,34 @@ QALY_livwage_glasgow: INTERVENTION=livingWageIntervention
 QALY_livwage_glasgow:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALYs_glasgow: QALY_baseline_glasgow QALY_energysupport_glasgow QALY_energynosupport_glasgow QALY_livwage_glasgow
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+QALY_comparison_energyCrises_glasgow: QALY_energysupport_glasgow QALY_energynosupport_glasgow
+QALY_comparison_energyCrises_glasgow: EXPERIMENT=glasgow_scaled
+QALY_comparison_energyCrises_glasgow: BASELINE=energyDownliftNoSupport
+QALY_comparison_energyCrises_glasgow: INTERVENTION=energyDownlift
+QALY_comparison_energyCrises_glasgow: INTERVENTION_LABEL=EPCG
+QALY_comparison_energyCrises_glasgow:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
+
+QALY_comparison_livingWage_glasgow: QALY_baseline_glasgow QALY_livwage_glasgow
+QALY_comparison_livingWage_glasgow: EXPERIMENT=glasgow_scaled
+QALY_comparison_livingWage_glasgow: BASELINE=energyDownliftNoSupport
+QALY_comparison_livingWage_glasgow: INTERVENTION=energyDownlift
+QALY_comparison_livingWage_glasgow: INTERVENTION_LABEL=EPCG
+QALY_comparison_livingWage_glasgow:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
+
+
+QALY_comparisons_glasgow: QALY_comparison_livingWage_glasgow QALY_comparison_energyCrises_glasgow
 
 ## UK scale QALYs
 
@@ -135,14 +199,36 @@ QALY_livwage_uk: INTERVENTION=livingWageIntervention
 QALY_livwage_uk:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALYs_uk: QALY_baseline_uk QALY_energysupport_uk QALY_energynosupport_uk QALY_livwage_uk
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
+QALY_comparison_energyCrises_uk: QALY_energysupport_uk QALY_energynosupport_uk
+QALY_comparison_energyCrises_uk: EXPERIMENT=glasgow_scaled
+QALY_comparison_energyCrises_uk: BASELINE=energyDownliftNoSupport
+QALY_comparison_energyCrises_uk: INTERVENTION=energyDownlift
+QALY_comparison_energyCrises_uk: INTERVENTION_LABEL=EPCG
+QALY_comparison_energyCrises_uk:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
 
 QALY_comparison_livingWage_uk: QALY_baseline_uk QALY_livwage_uk
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
+QALY_comparison_livingWage_uk: EXPERIMENT=glasgow_scaled
+QALY_comparison_livingWage_uk: BASELINE=energyDownliftNoSupport
+QALY_comparison_livingWage_uk: INTERVENTION=energyDownlift
+QALY_comparison_livingWage_uk: INTERVENTION_LABEL=EPCG
+QALY_comparison_livingWage_uk:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison.Rmd', params = list(   \
+		experiment = $(EXPERIMENT),																	\
+		baseline = $(BASELINE),																		\
+		intervention = $(INTERVENTION),																\
+		intervention_label = $(INTERVENTION_LABEL)													\
+	))"
+
+
+QALY_comparisons_uk: QALY_comparison_livingWage_uk QALY_comparison_energyCrises_uk
+
+
 
 
 #####################################

@@ -12,6 +12,7 @@ params:
   experiment: experiment 
   baseline: baseline 
   intervention: intervention
+  intervention_label: intervention_label
 ---
 
 # SETUP
@@ -46,6 +47,7 @@ source(here::here('minos', 'utils_qaly.R'))
 experiment <- params$experiment
 baseline <- params$baseline
 intervention <- params$intervention
+intervention_label <- params$intervention_label
 
 out.path <- here::here('output', args$experiment)
 
@@ -54,6 +56,8 @@ int.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention))
 
 base <- read.csv(paste0(base.path, 'qalys.csv'))
 int <- read.csv(paste0(int.path, 'qalys.csv'))
+
+combined <- rbind(base, int)
 ```
 
 
@@ -122,29 +126,29 @@ ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour =
 # QALY comparison
 
 ```{r}
-QALY_comparison(base = noSupport,
-                base.name = 'energyDownliftNoSupport',
-                int = support,
-                int.name = 'energyDownlift')
+QALY_comparison(base = base,
+                base.name = baseline,
+                int = int,
+                int.name = intervention)
 ```
 
 ## SF12 Change
 
 ```{r}
-sf12.plots(base = noSupport,
-           base.name = 'energyDownliftNoSupport',
-           int = support,
-           int.name = 'energyDownlift')
+sf12.plots(base = base,
+           base.name = baseline,
+           int = int,
+           int.name = intervention)
 ```
 
 
 ## Area Under the Curve
 
 ```{r}
-auc.plots(base = noSupport, 
-          base.name = 'NoSupport',
-          intervention = support,
-          int.name = 'Support')
+auc.plots(base = base,
+          base.name = baseline,
+          int = int,
+          int.name = intervention)
 ```
 
 # Cost per QALY
@@ -152,12 +156,12 @@ auc.plots(base = noSupport,
 The [UK Government](https://www.gov.uk/government/publications/valuation-of-risks-to-life-and-health-monetary-value-of-a-life-year-voly/a-scoping-study-on-the-valuation-of-risks-to-life-and-health-the-monetary-value-of-a-life-year-voly) has set the value of 1 QALY to be equal to $60,000. This is the number we will use for our calculations.
 
 ```{r}
-cost.per.qaly(base = noSupport,
-              base.name = 'energyDownliftNoSupport',
-              int = support,
-              int.name = 'energyDownlift',
+cost.per.qaly(base = base,
+              base.name = baseline,
+              int = int,
+              int.name = intervention,
               QALY_value = 60000,  # QALY value == £60,000
-              int.label <- 'EPCG')
+              int.label <- intervention_label)
 ```
 
 # Incremental Cost-Effectiveness Ratio
@@ -167,22 +171,22 @@ From [NICE guidelines](https://www.nice.org.uk/process/pmg6/chapter/assessing-co
 From the NICE guidelines, there is a general consensus that anything below £20,000 is cost effective, and anything above £30,000 is not. Between £20,000 and £30,000 is a grey area, and depends on the field and other factors to decide (i.e. if a rare or important condition is tackled by an intervention then the cost-effective threshold is higher). 
 
 ```{r}
-ICER(base = noSupport,
-     base.name = 'energyDownliftNoSupport',
-     int = support,
-     int.name = 'energyDownlift',
+ICER(base = base,
+     base.name = baseline,
+     int = int,
+     int.name = intervention,
      QALY_value = 60000,
-     int.label = 'EPCG')
+     int.label = intervention_label)
 ```
 
 # Total Cost of Intervention
 
 ```{r}
-intervention.cost(base = noSupport,
-                  base.name = 'energyDownliftNoSupport',
-                  int = support,
-                  int.name = 'energyDownlift',
-                  int.label = 'EPCG')
+intervention.cost(base = base,
+                  base.name = baseline,
+                  int = int,
+                  int.name = intervention,
+                  int.label = intervention_label)
 ```
 
 
@@ -198,11 +202,6 @@ intervention.cost(base = noSupport,
 ```{r}
 
 ```
-
-
-
-
-
 
 
 
