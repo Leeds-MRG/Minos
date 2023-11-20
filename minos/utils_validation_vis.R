@@ -448,9 +448,10 @@ handover_boxplots <- function(raw, baseline, var) {
   combined <- drop_na(combined)
   combined <- filter(combined, .data[[var]] != -9)
   
+  # Do some filtering to remove extreme values
   if (var %in% c('hh_income', 'equivalent_income')) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
-  } else if (var == 'ncigs') {
+  } else if (var %in% c('ncigs', 'hourly_wage')) {
     #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }

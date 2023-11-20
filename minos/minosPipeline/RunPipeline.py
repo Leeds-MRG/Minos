@@ -31,6 +31,7 @@ from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
 from minos.modules.job_hours import JobHours
 from minos.modules.job_sec import JobSec
+from minos.modules.hourly_wage import HourlyWage
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -85,6 +86,7 @@ components_map = {
     "Education()": Education(),
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
+    "HourlyWage()": HourlyWage(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff

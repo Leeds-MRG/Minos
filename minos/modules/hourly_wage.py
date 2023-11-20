@@ -10,15 +10,15 @@ from seaborn import histplot
 import numpy as np
 import logging
 
-class JobHours(Base):
+class HourlyWage(Base):
 
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'job_hours'
+        return 'hourly_wage'
 
     def __repr__(self):
-        return "JobHours()"
+        return "HourlyWage()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -63,9 +63,9 @@ class JobHours(Base):
                         'pidp',
                         'nkids',
                         'S7_labour_state',
-                        'job_hours',
-                        'job_hours_diff',
-                        'hh_income'
+                        'hh_income',
+                        'hourly_wage',
+                        'hourly_wage_diff',
                         ]
 
 
@@ -87,7 +87,7 @@ class JobHours(Base):
         #                                             path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"job_hours/glmm/job_hours_GLMM", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"hourly_wage/glmm/hourly_wage_GLMM", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
@@ -106,11 +106,14 @@ class JobHours(Base):
         # Create frame with new 3 columns and add it to the main population frame.
         # This is the same for both new cohorts and newborn babies.
         # Neither should be dead yet.
-        pop_update = pd.DataFrame({'job_hours_diff': 0.,
-                                   'hourly_wage_calc': 0.},
+        pop_update = pd.DataFrame({'hourly_wage_diff': 0.},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
+
+    ## NOTE::
+    # This function was written when hourly_wage was a predicted value. This has since been replaced with a job_hours
+    # module, which takes the number of hours worked and the hh_income
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
 
@@ -126,30 +129,31 @@ class JobHours(Base):
         ## predicting job hours for employed individuals
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
-        pop['job_hours_last'] = pop['job_hours']
+        pop['hourly_wage_last'] = pop['hourly_wage']
         ## Predict next job_hours value
-        newWaveJobHours = pd.DataFrame(columns=['job_hours'])
-        newWaveJobHours['job_hours'] = self.calculate_job_hours(pop)
-        newWaveJobHours.index = pop.index
+        newWaveHourlyWage = pd.DataFrame(columns=['hourly_wage'])
+        newWaveHourlyWage['hourly_wage'] = self.calculate_hourly_wage(pop)
+        newWaveHourlyWage.index = pop.index
 
-        newWaveJobHours['job_hours_diff'] = newWaveJobHours['job_hours'] - pop['job_hours']
-        job_hours_mean = np.mean(newWaveJobHours["job_hours"])
-        std_ratio = (np.std(pop['job_hours'])/np.std(newWaveJobHours["job_hours"]))
-        newWaveJobHours["job_hours"] *= std_ratio
-        newWaveJobHours["job_hours"] -= ((std_ratio-1)*job_hours_mean)
-        # #newWaveJobHours['job_hours'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
+        newWaveHourlyWage['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage'] - pop['hourly_wage']
+        hourly_wage_mean = np.mean(newWaveHourlyWage["hourly_wage"])
+        std_ratio = (np.std(pop['hourly_wage'])/np.std(newWaveHourlyWage["hourly_wage"]))
+        newWaveHourlyWage["hourly_wage"] *= std_ratio
+        newWaveHourlyWage["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
+        # #newWaveHourlyWage['hourly_wage'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
         #print(std_ratio)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
 
         # merge back onto pop so we can be sure we're updating the correct people
-        pop = pop.drop(labels=['job_hours', 'job_hours_diff'], axis=1)
-        pop['job_hours'] = newWaveJobHours['job_hours']
-        pop["job_hours"] = np.clip(pop["job_hours"], 0, 100)  # job_hours has to be positive
-        pop['job_hours_diff'] = newWaveJobHours['job_hours_diff']
+        pop = pop.drop(labels=['hourly_wage', 'hourly_wage_diff'], axis=1)
+        pop['hourly_wage'] = newWaveHourlyWage['hourly_wage']
+        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 10000)  # limit to values we can see in raw data
+        pop['hourly_wage'][pop['hourly_wage'] < 0] = 0.0
+        pop['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage_diff']
 
         #print("job_hours", np.mean(newWaveJobHours['job_hours']))
-        self.population_view.update(pop[['job_hours', 'job_hours_diff']])
+        self.population_view.update(pop[['hourly_wage', 'hourly_wage_diff']])
 
         # Now people not in employment
         non_working_pop = self.population_view.get(event.index,
@@ -157,15 +161,19 @@ class JobHours(Base):
         #  & 'S7_labour_state' == 'FT Employed' or 'S7_labour_state' == 'PT Employed'
 
         # save previous value to calculate diff
-        non_working_pop['job_hours_last'] = non_working_pop['job_hours']
+        non_working_pop['hourly_wage_last'] = non_working_pop['hourly_wage']
         # simply set job_hours to 0 as these people are not in work
-        non_working_pop['job_hours'] = 0.0
+        non_working_pop['hourly_wage'] = 0.0
         # now calculate diff (although probably not useful)
-        non_working_pop['job_hours_diff'] = non_working_pop['job_hours'] - non_working_pop['job_hours']
+        non_working_pop['hourly_wage_diff'] = non_working_pop['hourly_wage'] - non_working_pop['hourly_wage']
 
-        self.population_view.update(non_working_pop[['job_hours', 'job_hours_diff']])
+        self.population_view.update(non_working_pop[['hourly_wage', 'hourly_wage_diff']])
 
-    def calculate_job_hours(self, pop):
+    #def on_time_step(self, pop_data):
+
+
+
+    def calculate_hourly_wage(self, pop):
         """Calculate income transition distribution based on provided people/indices
 
         Parameters
@@ -178,10 +186,10 @@ class JobHours(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        nextWaveJobHours = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
+        newWaveHourlyWage = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
                                                                        self.rpy2Modules,
                                                                        pop,
-                                                                       dependent='job_sec',
+                                                                       dependent='hourly_wage',
                                                                        yeo_johnson=False,
                                                                        reflect=False,
                                                                        noise_std=5)  # 0.45 for yj. 5? for non yj.
@@ -189,4 +197,4 @@ class JobHours(Base):
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
         #next_diffs = nextWaveIncome.iloc[new_history_data]
-        return nextWaveJobHours
+        return newWaveHourlyWage

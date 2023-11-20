@@ -145,7 +145,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string) 
        }
-    else if (dependent %in% c("SF_12", 'job_hours'))  {
+    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage'))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -163,6 +163,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # get only required variables and sort by pidp/time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
+    # remove duplicate columns (at present just pidp as its present in model definitions also)
+    sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
     
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
@@ -285,7 +287,6 @@ dataDir <- 'data/final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
-#cross_valdation <- T
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {

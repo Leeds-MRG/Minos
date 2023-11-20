@@ -428,7 +428,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent == "hh_income_new") and noise_std:
+    elif (dependent in ["hh_income_new", 'hourly_wage']) and noise_std:
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.

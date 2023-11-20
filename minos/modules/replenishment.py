@@ -101,6 +101,7 @@ class Replenishment(Base):
                         'hh_income_diff',
                         'nutrition_quality_diff',
                         'job_hours_diff',
+                        'hourly_wage_diff'
                         ]
 
         if config.input_data_dir == "data/scaled_glasgow_US":  # only have spatial column and new pidp for synthpop.
