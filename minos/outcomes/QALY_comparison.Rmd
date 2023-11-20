@@ -9,10 +9,14 @@ output:
     df_print: paged
     code_folding: hide
 params: 
-  experiment: experiment 
-  baseline: baseline 
-  intervention: intervention
-  intervention_label: intervention_label
+  experiment:
+    value: experiment 
+  baseline:
+    value: baseline 
+  intervention:
+    value: intervention
+  intervention_label:
+    value: intervention_label
 ---
 
 # SETUP
