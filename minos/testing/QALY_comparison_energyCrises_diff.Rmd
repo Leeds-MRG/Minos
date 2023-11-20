@@ -8,10 +8,6 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
-params: 
-  experiment: experiment 
-  baseline: baseline 
-  intervention: intervention
 ---
 
 # SETUP
@@ -41,21 +37,6 @@ source(here::here('minos', 'utils_qaly.R'))
 
 
 ## Data
-
-```{r read_data, include=False}
-experiment <- params$experiment
-baseline <- params$baseline
-intervention <- params$intervention
-
-out.path <- here::here('output', args$experiment)
-
-base.path <- get_latest_runtime_subdirectory(here::here(out.path, baseline))
-int.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention))
-
-base <- read.csv(paste0(base.path, 'qalys.csv'))
-int <- read.csv(paste0(int.path, 'qalys.csv'))
-```
-
 
 ```{r}
 # # read in QALY files for baseline and interventions

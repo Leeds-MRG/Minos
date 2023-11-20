@@ -35,7 +35,6 @@ QALY_livingWage:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALYs: QALY_baseline QALY_energysupport QALY_energynosupport QALY_livwage
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
@@ -71,7 +70,6 @@ QALY_livingWage_norepl:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALYs_norepl: QALY_baseline_norepl QALY_energysupport_norepl QALY_energynosupport_norepl QALY_livwage_norepl
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
@@ -102,7 +100,6 @@ QALY_livwage_glasgow:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALYs_glasgow: QALY_baseline_glasgow QALY_energysupport_glasgow QALY_energynosupport_glasgow QALY_livwage_glasgow
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
@@ -133,7 +130,6 @@ QALY_livwage_uk:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALYs_uk: QALY_baseline_uk QALY_energysupport_uk QALY_energynosupport_uk QALY_livwage_uk
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
