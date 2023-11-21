@@ -204,7 +204,7 @@ def generate_hh_income(data):
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
 
-    data['gross_hh_income'] = data['hh_income']
+    data['gross_hh_income'] = data['hh_income'].astype(float)
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
     # Adjust hh income for inflation

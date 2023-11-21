@@ -93,7 +93,7 @@ class lmmYJGrossIncome(Base):
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
-        # builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
+        builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
