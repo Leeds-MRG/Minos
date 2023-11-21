@@ -100,6 +100,21 @@ class Replenishment(Base):
                         'SF_12_diff',
                         'hh_income_diff',
                         'nutrition_quality_diff',
+                        'gross_hh_income',
+                        'oecd_equiv',
+                        'outgoings',
+                        'hh_rent',
+                        'hh_mortgage',
+                        'gas_electric_combined',
+                        'council_tax',
+                        'electric_payment',
+                        'duel_payment',
+                        'gas_payment',
+                        'yearly_oil',
+                        'yearly_gas_electric',
+                        'yearly_gas',
+                        'yearly_electric',
+                        'yearly_other_fuel'
                         ]
 
         if config.input_data_dir == "data/scaled_glasgow_US":  # only have spatial column and new pidp for synthpop.

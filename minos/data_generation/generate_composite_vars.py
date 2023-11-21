@@ -203,13 +203,18 @@ def generate_hh_income(data):
 
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
+
+    data['gross_hh_income'] = data['hh_income']
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
 
     # now drop the intermediates
-    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    #data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    #          axis=1,
+    #          inplace=True)
+    data.drop(labels=['hh_netinc'],
               axis=1,
               inplace=True)
 
@@ -484,13 +489,35 @@ def generate_energy_composite(data):
     # start composite 'yearly_energy' variable.
     data['yearly_energy'] = -8
 
+    house_time_groupby = data.groupby(["hidp", "time"])
+    # force everyone to maximum household value energy consumption to remove some missing values.
+    data['yearly_electric'] = house_time_groupby['yearly_electric'].transform(max)
+    data['yearly_gas'] = house_time_groupby['yearly_gas'].transform(max)
+    data['yearly_oil'] = house_time_groupby['yearly_oil'].transform(max)
+    data['yearly_other_fuel'] = house_time_groupby['yearly_other_fuel'].transform(max)
+    data['yearly_gas_electric'] = house_time_groupby['yearly_gas_electric'].transform(max)
+
+    data['has_electric'] = house_time_groupby['has_electric'].transform(max)
+    data['has_gas'] = house_time_groupby['has_gas'].transform(max)
+    data['has_oil'] = house_time_groupby['has_oil'].transform(max)
+    data['has_other'] = house_time_groupby['has_other'].transform(max)
+    data['gas_electric_combined'] = house_time_groupby['gas_electric_combined'].transform(max)
+    data['has_none'] = house_time_groupby['has_none'].transform(max)
+    data['energy_in_rent'] = house_time_groupby['energy_in_rent'].transform(max)
+
+    data['electric_payment'] = house_time_groupby['electric_payment'].transform(max)
+    data['gas_payment'] = house_time_groupby['gas_payment'].transform(max)
+    data['duel_payment'] = house_time_groupby['duel_payment'].transform(max)
+
+
     # has_X variables are binary indicators for if a person pays for an energy source. electric/gas/oil/other/none
-    # yearly_X bills are expenditure on a given fuel source.
+        # yearly_X bills are expenditure on a given fuel source.
 
     # first gas and electric.
     # if they pay a combined bill for gas and electric add the combined yearly bill to yearly_energy
     who_combined_bill = data['gas_electric_combined'] == 1 & ~data['yearly_gas_electric'].isin(US_utils.missing_types)
     data.loc[who_combined_bill, 'yearly_energy'] += data.loc[who_combined_bill, 'yearly_gas_electric']
+
 
     # If they pay separate bills add them separately. note remove anyone who declares they use an energy but expenditure is still missing.
     who_electric_bill = data['has_electric'] == 1 & ~data['yearly_electric'].isin(US_utils.missing_types)
@@ -544,11 +571,15 @@ def generate_energy_composite(data):
     # print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
 
     # remove all but yearly_energy variable left.
-    data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
-                      'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none',
+    #data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
+    #                  'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none',
+    #                  'energy_in_rent'],
+    #          axis=1,
+     #         inplace=True)
+    data.drop(labels=['has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none',
                       'energy_in_rent'],
               axis=1,
-              inplace=True)
+             inplace=True)
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
     return data
 
