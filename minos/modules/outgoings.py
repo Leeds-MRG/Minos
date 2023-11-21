@@ -216,10 +216,10 @@ class energyBills(Base):
         # otherwise before 2023 can use historical yearly whole pricing.
 
         if year >= 2023:
-            electric_price = self.forecasted_yearly_electric.loc[year - 2023, "Point Forecast"]
-            gas_price = self.forecasted_yearly_gas.loc[year - 2023, "Point Forecast"]
-            solid_price = self.forecasted_yearly_solid.loc[year - 2023, "Point Forecast"]
-            liquid_price = self.forecasted_yearly_liquid.loc[year - 2023, "Point Forecast"]
+            electric_price = self.forecasted_yearly_electric.loc[year - 2023, "Point.Forecast"]
+            gas_price = self.forecasted_yearly_gas.loc[year - 2023, "Point.Forecast"]
+            solid_price = self.forecasted_yearly_solid.loc[year - 2023, "Point.Forecast"]
+            liquid_price = self.forecasted_yearly_liquid.loc[year - 2023, "Point.Forecast"]
 
         else:
             electric_price = self.historic_yearly_electric.iloc[year - 1990]['x']
