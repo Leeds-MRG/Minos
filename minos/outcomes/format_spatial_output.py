@@ -82,7 +82,8 @@ def get_region_lsoas(region):
     region_file_name_dict = {"manchester": "manchester_lsoas.csv",
                              "scotland": "scotland_data_zones.csv",
                              "sheffield": "sheffield_lsoas.csv",
-                             "glasgow": "glasgow_data_zones.csv"}
+                             "glasgow": "glasgow_data_zones.csv",
+                             "edinburgh": "edinburgh_data_zones.csv"}
     lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
     return pd.read_csv(lsoas_file_path)
 
@@ -218,8 +219,12 @@ def attach_spatial_component(minos_data, spatial_data, v, method=np.nanmean):
     return minos_data
 
 
-def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
+def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
+
+    if region:
+        region_lsoas = get_region_lsoas(region)
+        minos_data = minos_data.loc[minos_data['ZoneID'].isin(region_lsoas), ]
 
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
@@ -245,7 +250,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='g
     with Pool() as pool:
         if is_synthetic_pop:
             aggregated_spatial_data = pool.starmap(load_synthetic_data,
-                                                   zip(minos_files, repeat(subset_function), repeat(v)))
+                                                   zip(minos_files, repeat(subset_function), repeat(region), repeat(v)))
         else:
             spatial_data = get_spatial_data()
             region_lsoas = get_region_lsoas(region)

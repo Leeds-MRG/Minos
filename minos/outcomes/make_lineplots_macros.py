@@ -381,8 +381,21 @@ string_to_lineplot_function = {
     "scotland_35_universal_credit_quintiles": quintiles_lineplot,
     "scotland_40_universal_credit_quintiles": quintiles_lineplot,
     "scotland_45_universal_credit_quintiles": quintiles_lineplot,
-    "scotland_50_universal_credit_quintiles": quintiles_lineplot
+    "scotland_50_universal_credit_quintiles": quintiles_lineplot,
 
+    "glasgow_25_universal_credit_quintiles": quintiles_lineplot,
+    "glasgow_30_universal_credit_quintiles": quintiles_lineplot,
+    "glasgow_35_universal_credit_quintiles": quintiles_lineplot,
+    "glasgow_40_universal_credit_quintiles": quintiles_lineplot,
+    "glasgow_45_universal_credit_quintiles": quintiles_lineplot,
+    "glasgow_50_universal_credit_quintiles": quintiles_lineplot,
+
+    "edinburgh_25_universal_credit_quintiles": quintiles_lineplot,
+    "edinburgh_30_universal_credit_quintiles": quintiles_lineplot,
+    "edinburgh_35_universal_credit_quintiles": quintiles_lineplot,
+    "edinburgh_40_universal_credit_quintiles": quintiles_lineplot,
+    "edinburgh_45_universal_credit_quintiles": quintiles_lineplot,
+    "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
 }
 
 string_to_lineplot_function_args = {
@@ -455,8 +468,21 @@ string_to_lineplot_function_args = {
     "scotland_35_universal_credit_quintiles": ['35UniversalCredit'],
     "scotland_40_universal_credit_quintiles": ['40UniversalCredit'],
     "scotland_45_universal_credit_quintiles": ['45UniversalCredit'],
-    "scotland_50_universal_credit_quintiles": ['50UniversalCredit']
+    "scotland_50_universal_credit_quintiles": ['50UniversalCredit'],
 
+    "glasgow_25_universal_credit_quintiles": ['25UniversalCredit'],
+    "glasgow_30_universal_credit_quintiles": ['30UniversalCredit'],
+    "glasgow_35_universal_credit_quintiles": ['35UniversalCredit'],
+    "glasgow_40_universal_credit_quintiles": ['40UniversalCredit'],
+    "glasgow_45_universal_credit_quintiles": ['45UniversalCredit'],
+    "glasgow_50_universal_credit_quintiles": ['50UniversalCredit'],
+
+    "edinburgh_25_universal_credit_quintiles": ['25UniversalCredit'],
+    "edinburgh_30_universal_credit_quintiles": ['30UniversalCredit'],
+    "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit'],
+    "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit'],
+    "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit'],
+    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit']
 }
 
 if __name__ == '__main__':

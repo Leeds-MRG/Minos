@@ -12,6 +12,7 @@ import numpy as np
 import sys
 
 from minos.data_generation import US_utils
+
 # import US_missing_description as USmd
 
 # suppressing a warning that isn't a problem

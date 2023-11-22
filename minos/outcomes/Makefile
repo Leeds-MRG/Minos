@@ -245,6 +245,12 @@ living_wage_all_quintiles:
 # All Scotland 25 UC Quintiles
 ##########################################
 
+25UniversalCredit_glasgow_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "glasgow_25_universal_credit_quintiles"
+
+25UniversalCredit_edinburgh_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "edinburgh_25_universal_credit_quintiles"
+
 25UniversalCredit_scotland_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_25_universal_credit_quintiles"
 

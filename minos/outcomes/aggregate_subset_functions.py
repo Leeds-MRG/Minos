@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from minos.outcomes.format_spatial_output import get_region_lsoas
 
 
 def dynamic_subset_function(data, subset_chain_string=None, mode='default_config'):
@@ -150,6 +151,13 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      }
 
     subset_chain = subset_chains[subset_chain_string]
+
+    if "glasgow" in subset_chain_string:
+        subset_chain.append(who_glasgow)
+
+    if "edinburgh" in subset_chain_string:
+        subset_chain.append(who_edinburgh)
+
 
     if mode == 'scotland_mode':  # if in scotland mode add it to the .
         subset_chain.append(who_scottish)
@@ -366,3 +374,9 @@ def who_kth_simd_quintile(df, *args):
     k = args[0][0]
     return df.loc[np.ceil(df["simd_decile"]/2) == k]
 
+
+def who_glasgow(df):
+    df.loc[df['ZoneID'].isin(get_region_lsoas("glasgow")), ]
+
+def who_edinburgh(df):
+    df.loc[df['ZoneID'].isin(get_region_lsoas("edinburgh")), ]
