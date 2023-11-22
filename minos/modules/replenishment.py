@@ -99,6 +99,16 @@ class Replenishment(Base):
                         'SF_12_diff',
                         'hh_income_diff',
                         'nutrition_quality_diff',
+                        'n_adult_oecd',
+                        'n_child_oecd',
+                        'relative_poverty_percentile',
+                        'relative_poverty',
+                        'absolute_poverty_percentile',
+                        'absolute_poverty',
+                        'material_deprivation',
+                        'low_income_material_deprivation',
+                        'relative_poverty_history',
+                        'persistent_poverty',
                         ]
 
         # Shorthand methods for readability.
