@@ -12,6 +12,7 @@ from datetime import datetime
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 from multiprocessing import Pool
 from itertools import repeat
+import sys
 
 """
 Get spatial data.
@@ -203,12 +204,12 @@ def save_geojson(geojson_data, file_name):
     -------
     None
     """
-    print(f"Saving to SF12 updated geojson data to {file_name}.")
+    print(f"Saving updated geojson data to {file_name}.")
     with open(file_name, 'w') as outfile:
         geojson.dump(geojson_data, outfile)
 
 
-def attach_spatial_component(minos_data, spatial_data, v="SF_12", method=np.nanmean):
+def attach_spatial_component(minos_data, spatial_data, v, method=np.nanmean):
     # if the MINOS input is just pure Understanding Society data it needs a spatial component adding.
     # Do this by taking
     common_pidps = spatial_data.loc[spatial_data["pidp"].isin(minos_data["pidp"]), 'pidp']
@@ -217,7 +218,7 @@ def attach_spatial_component(minos_data, spatial_data, v="SF_12", method=np.nanm
     return minos_data
 
 
-def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmean):
+def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
 
     if subset_function:
@@ -227,24 +228,24 @@ def load_synthetic_data(minos_file, subset_function, v="SF_12", method=np.nanmea
     return minos_data
 
 
-def load_data_and_attach_spatial_component(minos_file, spatial_data, v="SF_12", method=np.nanmean):
+def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_function, v, method=np.nanmean):
     minos_data = pd.read_csv(minos_file)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', v]]
-    minos_data = attach_spatial_component(minos_data, spatial_data)
+    minos_data = attach_spatial_component(minos_data, spatial_data, v)
     minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
     return minos_data
 
 
-def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glasgow', v="SF_12", method=np.nanmean):
+def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='glasgow'):
     # Get spatial data and subset LSOAs for desired region.
     # Pooled as there can be hundreds of datasets here and it gets silly.
 
     with Pool() as pool:
         if is_synthetic_pop:
             aggregated_spatial_data = pool.starmap(load_synthetic_data,
-                                                   zip(minos_files, repeat(subset_function)))
+                                                   zip(minos_files, repeat(subset_function), repeat(v)))
         else:
             spatial_data = get_spatial_data()
             region_lsoas = get_region_lsoas(region)
@@ -252,7 +253,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glas
             # is this the best way to do this? Dont want to load in spatial data 1000 times.
             # Are these hard copies or just refs?
             aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,
-                                                   zip(minos_files, spatial_data, repeat(subset_function)))
+                                                   zip(minos_files, repeat(spatial_data), repeat(subset_function), repeat(v)))
 
     # loop over minos files for given year. merge with spatial data and aggregate by LSOA.
     total_minos_data = pd.concat(aggregated_spatial_data)
@@ -261,7 +262,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, region='glas
     return total_minos_data
 
 
-def main(source, year, region, subset_function, is_synthetic_pop, v="SF_12", method=np.nanmean):
+def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.nanmean):
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
     - Merge minos data onto spatially weighted LSOAs.
@@ -286,7 +287,7 @@ def main(source, year, region, subset_function, is_synthetic_pop, v="SF_12", met
     """
     print(f"Aggregating MINOS data at {source} for {year} and {region} region.")
     minos_files = get_minos_files(source)
-    total_minos_data = load_minos_data(minos_files, subset_function, is_synthetic_pop)
+    total_minos_data = load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region)
 
     # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
     total_minos_data = group_by_and_aggregate(total_minos_data, "ZoneID", v, method)
@@ -298,18 +299,31 @@ def main(source, year, region, subset_function, is_synthetic_pop, v="SF_12", met
     # https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
     json_source = "persistent_data/spatial_data/UK_super_outputs.geojson"
     # json_source = "persistent_data/spatial_data/SG_DataZone_Bdry_2011.json" # scottish data has slightly nicer looking geometries with annoyingly different column names.
-    json_data = load_geojson(json_source)
+    try:
+        json_data = load_geojson(json_source)
+    except FileNotFoundError as e:
+        print(e)
+        print(f"\nThe file: {json_source} is missing or not in the correct directory. This file should be tracked by "
+              f"the repository and therefore shouldn't be missing, but in this case please contact any of the "
+              f"developers of the repository and someone should be able to provide it.\n")
+        sys.exit(2)
+
     if not is_synthetic_pop:
-        json_data = subset_geojson(json_data, get_spatial_data()["ZoneID"])
+        # Subset the GB data with LSOAs from region of interest
+        region_lsoas = get_region_lsoas(region)
+        gb_data = get_spatial_data()
+        region_data = subset_lsoas_by_region(gb_data, region_lsoas)
+        json_data = subset_geojson(json_data, region_data["ZoneID"])
     else:
         json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
-    json_data = edit_geojson(json_data, spatial_dict, "SF_12")
+    json_data = edit_geojson(json_data, spatial_dict, v)
 
     # save updated geojson for use in map plots.
     print(f"GeoJSON {v} attribute added.")
     fname = os.path.join(source, f"{region}_{method.__name__}_{v}_{year}.geojson")
     save_geojson(json_data, fname)
     print("Done!")
+
 
 
 if __name__ == "__main__":
@@ -328,6 +342,8 @@ if __name__ == "__main__":
                         help="What subset function is used for data frame. Usually none or who_boosted/intervened on.")
     parser.add_argument("-p", "--synthetic_pop", default="", type=str,
                         help="Is this a synthetic population? If yes it has a spatial component that can be used directly.")
+    parser.add_argument("-v", "--aggregation_variable", default="", type=str,
+                        help="Which variable should we aggregate and subsequently plot as our key outcome measure.")
 
     # get args an
     args = vars(parser.parse_args())
@@ -338,6 +354,7 @@ if __name__ == "__main__":
     region = args['region']
     subset_function = args['subset_function']
     is_synthetic_pop = args['synthetic_pop']
+    v = args['aggregation_variable']
     if is_synthetic_pop == "true":
         is_synthetic_pop = True
     else:
@@ -346,4 +363,4 @@ if __name__ == "__main__":
     # get subset function from specified subset function string.
     source = get_latest_minos_files(os.path.join("output", mode, intervention))
 
-    main(source, year, region, subset_function, is_synthetic_pop)
+    main(source, year, region, subset_function, is_synthetic_pop, v)

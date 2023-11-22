@@ -13,6 +13,7 @@ from vivarium import InteractiveContext
 
 import minos.utils as utils
 
+from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.replenishment import NoReplenishment
@@ -82,6 +83,7 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -168,7 +170,7 @@ def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
     component_priorities.update({el:0 for el in replenishment_components_map})
-    component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
+    component_priorities.update({el:1 for el in ["Ageing()", "FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
     component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
@@ -253,6 +255,30 @@ def validate_components(config_components, intervention):
     return component_list, intervention_kwargs
 
 
+def type_check(data):
+    """
+    We have an unfortunate problem with some variables where the type changes when being read in by Vivarium, which the
+    framework cannot handle and so throws a paddy. This is particularly annoying with the difference between int and
+    float, where the vast majority of int variables are read in as float and so struggle with being updated each wave
+    when new values are assigned int. This function is an attempt to fix this once and for all.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+
+    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
+    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+
+    return data
+
+
 def RunPipeline(config, intervention=None):
     """ Run the daedalus Microsimulation pipeline
 
@@ -322,6 +348,10 @@ def RunPipeline(config, intervention=None):
     # Save population BEFORE start of the simulation. This is for comparisons and change from baseline
     pop = simulation.get_population()
     pop = utils.get_age_bucket(pop)
+
+    # Force type casting for certain problem variables
+    pop = type_check(pop)
+
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)

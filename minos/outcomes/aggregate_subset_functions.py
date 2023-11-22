@@ -27,6 +27,8 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_young_adults": [who_alive, who_kids, who_young_adults],
                      "who_unemployed_adults": [who_alive, who_adult, who_kids, who_unemployed],
                      "who_no_formal_education": [who_alive, who_kids, who_no_formal_education],
+                     "who_bottom_income_quintile": who_bottom_income_quintile,
+                    # Scottish gov sgugested vulnerable subgroups.
                      # Not sure about this one? single parent may not be primrary caregiver. e.g. divorced dad without custody.
                      "who_lone_parent_families": [who_alive, who_single, who_kids],
                      # NOT IMPLEMENTED BELOW HERE YET. NO SUFFICIENT DATA IN UNDERSTANDING SOCIETY.
@@ -314,10 +316,10 @@ def who_below_living_wage(df):
     return df.loc[who_uplifted_notLondon | who_uplifted_London,]  # get anyone from either group.
 
 
-# def who_bottom_income_quintile(df, k=1):
-#    df = who_alive(df)
-#    split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
-#    return df.loc[split == k, ]
+def who_bottom_income_quintile(df, k=1):
+    df = who_alive(df)
+    split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
+    return df.loc[split == k, ]
 
 
 def who_below_poverty_line(df):
@@ -374,6 +376,7 @@ def who_unemployed(df):
     # who unemployed
     return df.loc[df["S7_labour_state"] == "Unemployed",]
 
+
 def who_young_adults(df):
     # who aged between 16 and 25.
     df = df.loc[df["age"] <= 25,]
@@ -389,6 +392,7 @@ def who_universal_credit(df):
     # whos on universal credit.
     # TODO extend to other legacy benefits at some point?
     return df.loc[df['universal_credit'] == 1, ]
+
 
 def who_uses_energy(df):
     return df.loc[df['yearly_energy'] > 0]

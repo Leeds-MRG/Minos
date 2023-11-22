@@ -1,14 +1,55 @@
 library(argparse)
 source("minos/outcomes/minos_SF12_maps.R")
 
-
-get_geojson_file_name <- function(mode, intervention, region, year) {
-  geojson_file_source <- paste0("output", "/", mode, "/", intervention, "/")
-  geojson_file_extension <- paste0(region, "_", "nanmean", "_", "SF_12", "_", year, ".geojson")
-  out.files <- list.files(geojson_file_source)
+main <- function(){
   
-  if(length(out.files) == 1) {
-    geojson_file_name <- paste0(geojson_file_source, out.files[1], '/', geojson_file_extension)
+  parser <- ArgumentParser(description="Plot a map of some MINOS geojson.")
+  parser$add_argument('-m', '--mode', help='Which experiment are we mapping? 
+                      This mainly relates to the output subdirectory we will use 
+                      to find files for aggregation and mapping.')
+  parser$add_argument('-b', '--baseline', help='Which run are we mapping? 
+                      For single maps this will most likely be the baseline run 
+                      i.e. no intervention')
+  parser$add_argument('-i', '--intervention', help='Which intervention to compare 
+                      with baseline?')
+  parser$add_argument('-r', '--region', help='Which region are we mapping? 
+                      Currently available are Glasgow, Sheffield, Manchester, 
+                      and Scotland.')
+  parser$add_argument('-y', '--year', help='What year to map data for.')
+  parser$add_argument('-s', '--synthetic', help='Is this a synthetic population run being mapped?')
+  parser$add_argument("-v", "--v", dest='var', help="What variable to map.")
+  
+  args <- parser$parse_args()
+  output_subdir <- args$mode
+  run <- args$baseline
+  intervention <- args$intervention
+  region <- args$region
+  year <- args$year
+  synth <- args$synth
+  v <- args$var
+  
+  ## handle runtime subdirectory
+  # first construct geojson file path and name from arguments
+  # baseline
+  geojson_file_path_base <- paste0('output/', output_subdir, '/', run, '/')
+  geojson_file_name_base <- paste0(region, '_nanmean_', v, '_', year, '.geojson')
+  # intervention
+  geojson_file_path_int <- paste0('output/', output_subdir, '/', intervention, '/')
+  geojson_file_name_int <- paste0(region, '_nanmean_', v, '_', year, '.geojson')
+  
+  print(geojson_file_path_base)
+  print(geojson_file_name_base)
+  print(geojson_file_path_int)
+  print(geojson_file_name_int)
+  
+  # first select only the path (not filename)
+  out.files1 <- list.files(geojson_file_path_base)
+  out.files2 <- list.files(geojson_file_path_int)
+
+  ## Check how many subdirectories, if more than 1 then pick most recent
+  # First output dir
+  if(length(out.files1) == 1) {
+    geojson_file_name1 = paste0(geojson_file_path_base, '/', out.files1[1], '/', geojson_file_name_base)
   }
   else if(length(out.files) > 1) {
     out.files.date <- as.POSIXlt(out.files, format='%Y_%m_%d_%H_%M_%S')
@@ -28,10 +69,14 @@ get_geojson_file_name <- function(mode, intervention, region, year) {
                        hour, '_',
                        min, '_',
                        sec)
-    geojson_file_name <- paste0(geojson_file_source, str.date, '/', geojson_file_extension)
+    geojson_file_name1 <- paste0(geojson_file_path_base, '/', str.date1, '/', geojson_file_name_base)
   }
-  return (geojson_file_name)
-}
+  # Second output dir
+  if(length(out.files2) == 1) {
+    geojson_file_name2 = paste0(geojson_file_path_int, '/', out.files2[1], '/', geojson_file_name_int)
+  }
+  else if(length(out.files2) > 1) {
+    out.files2.date <- as.POSIXlt(out.files2, format='%Y_%m_%d_%H_%M_%S')
 
 main <- function(){
 
@@ -43,29 +88,28 @@ main <- function(){
   parser$add_argument("-d", "--destination", dest='destination', help="Where to save to.")
   parser$add_argument("-y", "--year", dest='year', help="What year of MINOS data to map.")
 
+    str.date2 <- paste0(yr, '_',
+                        month, '_',
+                        day, '_',
+                        hour, '_',
+                        min, '_',
+                        sec)
+    geojson_file_name2 <- paste0(geojson_file_path_int, '/', str.date2, '/', geojson_file_name_int)
+  }
 
-  args <- parser$parse_args()
+  # Generate output filename
+  #plot_destination <- paste(v, region, run, intervention, year, 'diffmap.pdf', sep='_')
+  
+  if (tolower(synth) == 'true') {
+    plot_destination <- paste(v, region, 'synthetic', run, intervention, year, 'diffmap.pdf', sep='_')
+  }
+  else {
+    plot_destination <- paste(v, region, run, intervention, year, 'diffmap.pdf', sep='_')
+  }
 
-  mode <- args$mode
-  intervention1 <- args$intervention
-  intervention2 <- args$second_intervention
-  region <- args$region
-  year <- args$year
-  destination_file_name <- args$destination
-  
-  # mode <- "glasgow_scaled"
-  # intervention2 <- "EBSS"
-  # intervention1 <- "EPCG"
-  # region <- "glasgow"
-  # year <- 2025
-  # v <- "SF_12"
-  # destination_file_name <- "plots/test.pdf"
-  
-  geojson_file_name1 <- get_geojson_file_name(mode, intervention1, region, year)
-  geojson_file_name2 <- get_geojson_file_name(mode, intervention2, region, year)
-  print(geojson_file_name1)
-  print(geojson_file_name2)
-  main.diff(geojson_file_name1, geojson_file_name2, destination_file_name)
+  plot_destination <- paste('plots', plot_destination, sep='/')
+
+  main.diff(geojson_file_name1, geojson_file_name2, plot_destination, v)
 }
 
 main()

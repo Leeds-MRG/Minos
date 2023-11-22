@@ -135,7 +135,14 @@ def main():
     # get_zone_ids
     sampled_data = merge_with_spatial_attributes(sampled_data, get_knn_cluster_data(), "ZoneID")
 
-    sampled_data['weight'] = 1 # force sample weights to 1. 
+    sampled_data['weight'] = 1 # force sample weights to 1.
+
+    ## FINAL STEP
+    # replace original pidp with the newly generated new_pidp
+    sampled_data['pidp'] = sampled_data['new_pidp']
+    sampled_data.drop(labels=['new_pidp'],
+                      axis=1,
+                      inplace=True)
 
     US_utils.check_output_dir("data/scaled_US/") # check save directory exists or create it.
     US_utils.save_file(sampled_data, "data/scaled_glasgow_US/", '', 2020)

@@ -207,7 +207,9 @@ class hhIncomeIntervention():
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        #pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        # Reset boost amount to 0
+        pop['boost_amount'] = 0
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         who_uplifted = pop['hh_income'] <= pop['hh_income'].quantile(self.prop / 100)
         pop['income_boosted'] = who_uplifted
@@ -481,17 +483,20 @@ class livingWageIntervention(Base):
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
         logging.info(f"\tNumber of people uplifted: {sum(who_uplifted_London) + sum(who_uplifted_notLondon)}")
-        logging.info(
+        if who_uplifted_London.sum() > 0:  # if any London individuals in simulation being uplifted (will be not true in some synthetic population runs)
+            logging.info(
             f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
-        logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
-        logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
+            logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
+            logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
         logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
         logging.info(f"\t\tNot London %: {(sum(who_uplifted_notLondon) / len(pop[pop['region'] != 'London'])) * 100}")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'][pop['income_boosted'] == True].sum()}")
-        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
+        if who_uplifted_London.sum() > 0:
+            logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].sum()}")
         logging.info(f"\tMean weekly boost amount: {pop['boost_amount'][pop['income_boosted'] == True].mean()}")
-        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
+        if who_uplifted_London.sum() > 0:
+            logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
 
 
@@ -1086,6 +1091,8 @@ class energyPriceCapGuarantee(Base):
         self.year = event.time.year
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
+        # reset boost amount to 0 before calculating next uplift
+        pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
