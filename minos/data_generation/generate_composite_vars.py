@@ -19,6 +19,32 @@ pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWith
 
 PARITY_MAX_DEFAULT = 10
 
+# HR 13/11/23 Child material deprivation scores
+# From here: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/789756/households-below-average-income-quality-methodology-2017-2018.pdf
+# 'no' values correspond to response that hh cannot afford it/unable to use/doesn't have, etc.
+MATDEP_DICT = {'matdep1': {'score': 5.56, 'valids': [1, 2], 'no': [2]},
+               'matdep2': {'score': 5.19, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep3': {'score': 5.88, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep4': {'score': 5.40, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep5': {'score': 4.08, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep6': {'score': 4.58, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep7': {'score': 4.01, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep8': {'score': 5.41, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep9': {'score': 4.17, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep10': {'score': 4.23, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep11': {'score': 5.56, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep12': {'score': 5.98, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep13': {'score': 4.82, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep14': {'score': 3.64, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep15': {'score': 4.05, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep16': {'score': 3.82, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep17': {'score': 3.74, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep18': {'score': 4.35, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'matdep19': {'score': 4.30, 'valids': [1, 2, 3, 4], 'no': [2]},
+               'heating': {'score': 5.63, 'valids': [1, 2, 3], 'no': [2]},  # Sore thumb, should standardise this but used a lot elsewhere
+               'matdep21': {'score': 5.59, 'valids': [1, 2, 3, 4], 'no': [2]},
+               }
+
 def generate_composite_housing_quality(data):
     """
     Generate a composite housing quality variable from 6 variables found in Understanding Society (technically 7 as
@@ -201,7 +227,7 @@ def generate_hh_income(data):
 
     data["outgoings"] = 0
     data["outgoings"][data['hh_costs'] >= 0] += data["hh_costs"]
-    data["outgoings"][data['council_tax_draw'] >= 0] += data["council_tax_draw"] / 12 # council tax is yearly so divide by 12 for monthly reduction in income
+    data["outgoings"][data['council_tax_draw'] >= 0] += data["council_tax_draw"] / 12  # council tax is yearly so divide by 12 for monthly reduction in income
     data['outgoings'][(data['hh_costs'] < 0) & (data['council_tax_draw'] < 0)] = -9
 
     # Now calculate hh income before adjusting for inflation
@@ -963,6 +989,135 @@ def calculate_children(data,
     return data
 
 
+''' HR 14/11/23 To calculate material deprivation score and Boolean '''
+def generate_child_material_deprivation(data,
+                                        matdep_threshold=0.25):
+
+    print("Generating composite variable for child material deprivation from 21 US variables...")
+
+    # All setup
+    hidps = data['hidp'].unique()
+    matdep_vars = list(MATDEP_DICT)
+
+    # Get subframe of unique hidp values and calculate matdep scores from any valid values
+    # Only need to do one pass (i.e. not year by year) as hidps are NOT persistent
+    hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    hidp_sub['adjustor'] = [sum([MATDEP_DICT[var]['score'] for var in matdep_vars if hidp_sub.loc[hidp, var] in MATDEP_DICT[var]['valids']]) for hidp in hidp_sub.index]
+    hidp_sub['score'] = [sum([MATDEP_DICT[var]['score'] for var in matdep_vars if hidp_sub.loc[hidp, var] in MATDEP_DICT[var]['no']]) for hidp in hidp_sub.index]
+    hidp_sub['material_deprivation'] = ((hidp_sub['score'] / hidp_sub['adjustor']) > matdep_threshold).astype(int)
+
+    # Use dict of matdep values as map to create new Boolean column
+    matdep_dict = hidp_sub['material_deprivation'].to_dict()
+    data['material_deprivation'] = data['hidp'].map(matdep_dict)
+
+    # Drop all matdep variables as no longer needed
+    to_drop = matdep_vars
+    to_drop.remove('heating')  # Used elsewhere
+    data.drop(labels=to_drop,
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+''' HR 14/11/23 To calculate poverty variables -> income percentiles and Booleans '''
+def calculate_poverty_variables(data,
+                                income_yearly='hh_income',
+                                income_inflated='hh_income',
+                                relative_poverty_threshold=0.6,
+                                absolute_poverty_threshold=0.6,
+                                persistent_poverty_threshold=3,
+                                ):
+
+    print("Generating composite variables for relative, absolute and persistent poverty...")
+
+    ''' Must loop over all years, bearing in mind:
+        (a) median incomes are year-specific,
+        (b) persistent poverty requires previous years' data as a "history", and
+        (c) hidps are NOT persistent across waves/years, although pidps are '''
+    years = sorted(data['time'].unique())
+    sub = {}
+    for year in years:
+
+        # Get subframe for current year
+        sub[year] = data.loc[data['time'] == year]  # Get subframe for year
+
+        # Get subframe of unique hidp values and calculate median yearly and inflated incomes (for relative and absolute poverty, respectively)
+        hidp_sub = sub[year].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+        median_yearly = hidp_sub.loc[hidp_sub[income_yearly] > 0.0][income_yearly].median()
+        median_inflated = hidp_sub.loc[hidp_sub[income_inflated] > 0.0][income_inflated].median()
+
+        # print("Median income, {}: {}".format(year, median_yearly))
+
+        ''' 1. RELATIVE POVERTY '''
+        hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)
+        hidp_sub['relative_poverty'] = (hidp_sub[income_yearly] < relative_poverty_threshold*median_yearly).astype(int)
+
+        ''' 2. ABSOLUTE POVERTY '''
+        hidp_sub['absolute_poverty_percentile'] = hidp_sub[income_inflated].rank(pct=True)
+        hidp_sub['absolute_poverty'] = (hidp_sub[income_inflated] < absolute_poverty_threshold*median_inflated).astype(int)
+
+        ''' 3. LOW INCOME AND MATERIAL DEPRIVATION '''
+        hidp_sub['low_income_material_deprivation'] = ((hidp_sub['relative_poverty'] == 1) & (hidp_sub['material_deprivation'] == 1)).astype(int)
+
+        # Chuck all hidp-based variables into the original df via a map
+        vars_to_map_by_hidp = ['relative_poverty_percentile',
+                               'relative_poverty',
+                               'absolute_poverty_percentile',
+                               'absolute_poverty',
+                               'low_income_material_deprivation',
+                               ]
+
+        # Map onto master df by year
+        # Logic from here: https://stackoverflow.com/questions/20250771/remap-values-in-pandas-column-with-a-dict-preserve-nans
+        for var in vars_to_map_by_hidp:
+            var_dict = hidp_sub[var].to_dict()
+            # This try-except pattern adds new values without overwriting anything not in the mapping dictionary;
+            # fails for the first year as column doesn't exist; except clause creates it
+            try:
+                data[var] = data['hidp'].map(var_dict).fillna(data[var])
+            except:
+                data[var] = data['hidp'].map(var_dict)
+
+        ''' 4. PERSISTENT POVERTY '''
+        # Depends on relative poverty and values from previous years; must apply by pidp as hidp is NOT persistent across waves,
+        # as described here: https://www.understandingsociety.ac.uk/help/faqs/what-is-hidp
+        sub[year] = data.loc[data['time'] == year]
+        sub[year]['relative_previous'] = ''  # Initialise empty column
+        try:
+            previous_history = sub[year - 1].set_index('pidp')[
+                'relative_poverty_history'].dropna().to_dict()  # Get persistent poverty sequence from previous year
+            sub[year]['relative_previous'] = sub[year]['pidp'].map(previous_history).fillna(
+                sub[year]['relative_previous'])  # Overwrite only those present in dict
+        except:
+            pass  # Exception will be raised in first year, as no previous history, so no column exists
+
+        # Cut off first entry (i.e. oldest year) if longer than threshold
+        sub[year]['relative_previous'] = sub[year]['relative_previous'].apply(lambda x: x if len(x) <= persistent_poverty_threshold else x[1:])
+        # Append current year's relative poverty value to history
+        sub[year]['relative_poverty_history'] = sub[year]['relative_previous'] + sub[year]['relative_poverty'].astype(int).astype(str)
+        # Get sum of poverty history; can then...
+        sub[year]['persistent_poverty_sum'] = [sum([int(em) for em in el]) for el in sub[year]['relative_poverty_history']]
+        # ...determine whether persistent
+        sub[year]['persistent_poverty'] = ((sub[year]['persistent_poverty_sum'] >= persistent_poverty_threshold) & (sub[year]['relative_poverty'].astype(int) == 1)).astype(int)
+
+        # Map onto master df by year
+        cols_to_merge_by_pidp = ['persistent_poverty', 'relative_poverty_history']
+        for var in cols_to_merge_by_pidp:
+            data.loc[sub[year].index, var] = sub[year][var]  # Creates new column if not present and overwrites only at positions specified
+
+        # Older stuff used during testing, not by year
+        # previous_persistent = np.random.randint(2, size=(len(hidp_sub), persistent_poverty_threshold + 1)).tolist()  # Grab array from previous year - RANDOM VALUES FOR TESTING
+
+    # # Drop anything not required later
+    # to_drop = []
+    # data.drop(labels=to_drop,
+    #           axis=1,
+    #           inplace=True)
+
+    return data
+
+
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
@@ -997,7 +1152,9 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
-    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
+    data = generate_child_material_deprivation(data)  # Get score and Boolean based on UK/Scottish gov definition
+    data = calculate_poverty_variables(data)  # Do all relative and absolute poverty calculations
+    data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
