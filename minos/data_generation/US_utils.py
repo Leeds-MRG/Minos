@@ -2,6 +2,7 @@
 
 """
 import os
+from os.path import dirname as up
 import pandas as pd
 import numpy as np
 import json
@@ -375,6 +376,7 @@ def inflation_adjustment(data, var):
     # Inflation adjustment using CPI
     # read in CPI dataset
     cpi = pd.read_csv('persistent_data/CPI_202010.csv')
+    # cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv'))  # Workaround during child poverty testing
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
     data = pd.merge(data, cpi, on='Date', how='left')
     data[var] = (data[var] / data['CPI']) * 100
