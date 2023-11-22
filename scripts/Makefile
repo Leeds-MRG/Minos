@@ -77,6 +77,10 @@ intervention_75All: setup
 intervention_100All: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100All'
 
+##########################################################################
+# Relative Poverty Interventions.
+##########################################################################
+
 intervention_25RelativePoverty: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
 
@@ -89,8 +93,29 @@ intervention_75RelativePoverty: setup
 intervention_100RelativePoverty: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100RelativePoverty'
 
+##########################################################################
+# doing a stupid block of six interventions for now from 25 to 50 by £5.
+# probably a neater way to do this.
+##########################################################################
+
+intervention_25UniversalCredit_scotland: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c config/scotland_scaled.yaml -o scotland_scaled -i '25UniversalCredit'
+
+
 intervention_25UniversalCredit: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
+
+intervention_30UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
+
+intervention_35UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '35UniversalCredit'
+
+intervention_40UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '40UniversalCredit'
+
+intervention_45UniversalCredit: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
 intervention_50UniversalCredit: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
@@ -100,6 +125,10 @@ intervention_75UniversalCredit: setup
 
 intervention_100UniversalCredit: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
+
+##########################################################################
+# Priority Subgroups
+##########################################################################
 
 intervention_25Priority: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25Priority'
@@ -112,6 +141,8 @@ intervention_75Priority: setup
 
 intervention_100Priority: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '100Priority'
+
+##########################################################################
 
 intervention_PovertyLineChildUplift: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
@@ -273,6 +304,8 @@ arc4_intervention_hhIncomeChildUplift:
 arc4_intervention_PovertyLineChildUplift:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
+##########################################################################
+
 arc4_intervention_25All: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25All'
 
@@ -284,6 +317,8 @@ arc4_intervention_75All: setup
 
 arc4_intervention_100All: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100All'
+
+##########################################################################
 
 arc4_intervention_25RelativePoverty: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
@@ -297,8 +332,22 @@ arc4_intervention_75RelativePoverty: setup
 arc4_intervention_100RelativePoverty: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100RelativePoverty'
 
+##########################################################################
+
 arc4_intervention_25UniversalCredit: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
+
+arc4_intervention_30UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
+
+arc4_intervention_35UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '35UniversalCredit'
+
+arc4_intervention_40UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '40UniversalCredit'
+
+arc4_intervention_45UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
 arc4_intervention_50UniversalCredit: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
@@ -308,6 +357,8 @@ arc4_intervention_75UniversalCredit: setup
 
 arc4_intervention_100UniversalCredit: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
+
+##########################################################################
 
 arc4_intervention_25Priority: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25Priority'
@@ -355,14 +406,15 @@ arc4_poverty_line_child_uplifts: MODE=default_config
 arc4_poverty_line_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_50RelativePoverty arc4_intervention_75RelativePoverty arc4_intervention_100RelativePoverty
 
-arc4_universal_credit_child_uplifts: MODE=scaled_glasgow #MODE=default_config
-arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
-arc4_universal_credit_child_uplifts: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+arc4_universal_credit_child_uplifts: setup_scotland_scaled
+arc4_universal_credit_child_uplifts: MODE=scaled_scotland #MODE=default_config
+arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/scotland_scaled.yaml#/default.yaml
+arc4_universal_credit_child_uplifts: arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
+
 
 arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config
 arc4_priority_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
 arc4_priority_child_uplifts: arc4_baseline arc4_intervention_25Priority arc4_intervention_50Priority arc4_intervention_75Priority arc4_intervention_100Priority
-
 
 arc4_all_25_uplifts: MODE=default_config
 arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml

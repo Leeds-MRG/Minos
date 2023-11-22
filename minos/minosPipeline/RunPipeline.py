@@ -111,14 +111,21 @@ intervention_components_map = {        #Interventions
     "50All": childUplift(),
     "75All": childUplift(),
     "100All": childUplift(),
+
     "25RelativePoverty": childUplift(),
     "50RelativePoverty": childUplift(),
     "75RelativePoverty": childUplift(),
     "100RelativePoverty": childUplift(),
+
     "25UniversalCredit": childUplift(),
+    "30UniversalCredit": childUplift(),
+    "35UniversalCredit": childUplift(),
+    "40UniversalCredit": childUplift(),
+    "45UniversalCredit": childUplift(),
     "50UniversalCredit": childUplift(),
     "75UniversalCredit": childUplift(),
     "100UniversalCredit": childUplift(),
+
     "25Priority": childUplift(),
     "50Priority": childUplift(),
     "75Priority": childUplift(),
@@ -141,6 +148,10 @@ intervention_kwargs_dict = {
     "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
 
     "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+    "30UniversalCredit": {"uplift_amount": 30, "uplift_condition": "who_universal_credit_and_kids"},
+    "35UniversalCredit": {"uplift_amount": 35, "uplift_condition": "who_universal_credit_and_kids"},
+    "40UniversalCredit": {"uplift_amount": 40, "uplift_condition": "who_universal_credit_and_kids"},
+    "45UniversalCredit": {"uplift_amount": 45, "uplift_condition": "who_universal_credit_and_kids"},
     "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
     "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
     "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
