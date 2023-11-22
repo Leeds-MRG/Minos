@@ -231,11 +231,37 @@ baseline_all_quintiles:
 25UniversalCredit_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_quintile"
 
+25UniversalCredit_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_quintile"
+
 epcg_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_epcg_quintile"
 
 living_wage_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_living_wage_quintile"
+
+
+##########################################
+# All Scotland 25 UC Quintiles
+##########################################
+
+25UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_25_universal_credit_quintiles"
+
+30UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_30_universal_credit_quintiles"
+
+35UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_35_universal_credit_quintiles"
+
+40UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_40_universal_credit_quintiles"
+
+45UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_45_universal_credit_quintiles"
+
+50UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scotland_scaled" "scotland_50_universal_credit_quintiles"
 
 
 ###############################
@@ -413,11 +439,6 @@ aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i hhIncomePovertyLineChildUplift -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i hhIncomePovertyLineChildUplift -r $(REGION) -y $(AGG_YEAR) -s $(SYNTH) -v $(AGG_VAR)
 
-epcg_ebss_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -b "EPCG" -i "EBSS" -r "glasgow" -y $(AGG_YEAR) -y 2025 -s $(SYNTH) -v $(AGG_VAR)
-
 aggregate_all_energy_interventions:
 	python3 minos/outcomes/make_lineplots_macros.py "all_energy_lineplots"
 
@@ -506,6 +527,16 @@ priority_baseline_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
+
+25_universal_credit_baseline_glasgow_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scotland_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scotland_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/2025_25_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
+
+50_universal_credit_baseline_glasgow_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scotland_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "50UniversalCredit" -y 2025 -m "scotland_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "50UniversalCredit" -r "glasgow" -d "plots/2025_50_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
 
 # experimental bash scripts.
 main_maps:
