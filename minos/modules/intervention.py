@@ -788,11 +788,11 @@ class ChildPovertyReductionSUSTAIN(Base):
         self.population_view.update(full_pop[['boost_amount']])
         median_income = full_pop['hh_income'].median()
         # 2. Total number of kids
-        # nkids_total = full_pop['nkids'].sum()
-        # Select first instance of each hidp to avoid duplicating nkids
-        nkids_total = full_pop.drop_duplicates(subset=['hidp'], keep='first')['nkids'].sum()
+        nkids_total = full_pop['nkids'].sum()
 
         # # HR 07/11/23 Correcting method of calculating total number of kids in full pop
+        # Select first instance of each hidp to avoid duplicating nkids
+        # nkids_total = full_pop.drop_duplicates(subset=['hidp'], keep='first')['nkids'].sum()
         # full_pop_nodupes = full_pop.drop_duplicates(subset=['hidp'], keep='first')
         # nkids_pop = full_pop_nodupes['nkids'].sum()
         # print('## TOTAL KIDS ## ')
