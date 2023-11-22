@@ -229,7 +229,7 @@ def format_ukhls_columns(year):
                       #  not really applicable without random generation.
                       'pidp': 'pidp',  # personal identifier
                       'qfhigh_dv': 'education_state',  # highest education state
-                      'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
+                      'nqfhigh_dv': 'newest_education_state',  # has any new qualification been achieved.
                       # TODO another ethnicity var seems to have fewer missing? https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ethn_dv
                       'racel_dv': 'ethnicity',  # ethnicity derived.
                       'rentgrs_dv': 'hh_rent',  # household monthly rent.
@@ -256,32 +256,32 @@ def format_ukhls_columns(year):
                       'preg': 'nkids_ind_new',  # whether had a child (actually a pregnancy) since last interview
                       ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
-                      'xpelecy': 'yearly_electric',  # yearly electricty expenditure
+                      'xpelecy': 'yearly_electric',  # yearly electricity expenditure
                       'xpgasy': 'yearly_gas',  # yearly gas expenditure
                       'xpduely': 'yearly_gas_electric',  # yearly both expenditure.
                       'xpoily': 'yearly_oil',  # yearly oil expenditure.
                       'xpsfly': 'yearly_other_fuel',  # yearly other fuel (wood?)
-                      'fuelhave1': 'has_electric',  # spends money on electrictiy
+                      'fuelhave1': 'has_electric',  # spends money on electricity
                       'fuelhave2': 'has_gas',  # spends money on gas
                       'fuelhave3': 'has_oil',  # spends money on oil
                       'fuelhave4': 'has_other',  # has some other fuel source.
                       'fuelhave96': 'has_none',  # has no fuel source.
-                      'fuelduel': 'gas_electric_combined', # are gas and electric bills separate or combined?
-                       # Nutrition vars
-                       'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
-                       'fruitamt':'fruit_per_day', # amount of fruit eaten on days when eating fruit
-                       'wkvege': 'veg_days', # no. days respondent eats veg per week
-                       'vegeamt': 'veg_per_day', # amt. veg eaten on veg eating days
-                       # hourly wage stuff (Keeping self-employed and small business vars just in case)
-                       'basrate': 'hourly_rate',  # basic pay hourly rate
-                       'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
-                       'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
-                       'jbhrs': 'job_hours',  # no. of hours normally worked in a week
-                       'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
-                       'jspayu': 'job_inc',  # average income from job/business
-                       'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
-                       # Private/Public sector var for living wage intervention
-                       'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
+                      'fuelduel': 'gas_electric_combined',  # are gas and electric bills separate or combined?
+                      # Nutrition vars
+                      'wkfruit': 'fruit_days',  # number of days respondent eats fruit per week
+                      'fruitamt':'fruit_per_day',  # amount of fruit eaten on days when eating fruit
+                      'wkvege': 'veg_days',  # no. days respondent eats veg per week
+                      'vegeamt': 'veg_per_day',  # amt. veg eaten on veg eating days
+                      # hourly wage stuff (Keeping self-employed and small business vars just in case)
+                      'basrate': 'hourly_rate',  # basic pay hourly rate
+                      'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
+                      'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
+                      'jbhrs': 'job_hours',  # no. of hours normally worked in a week
+                      'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
+                      'jspayu': 'job_inc',  # average income from job/business
+                      'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
+                      # Private/Public sector var for living wage intervention
+                      'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
                       # SF12 MICE vars
                       'rentinc2': 'energy_in_rent',  # is it combined into rent?
                       'xphsdba': 'behind_on_bills',  # behind on energy bills?
@@ -302,9 +302,38 @@ def format_ukhls_columns(year):
                       'scsf7': 'health_limits_social',  # health limits social life.
                       'hhtype_dv': 'hh_composition',  # household composition
                       'mastat_dv': 'marstat',  # marital status
-                      'hhsize': 'hhsize', # number of people in household
-                      'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
-                      'urban_dv': 'urban', # urban or rural household.
+                      'hhsize': 'hhsize',  # number of people in household
+                      'tenure_dv': 'housing_tenure',  # housing tenure type (owned, rented etc.)
+                      'urban_dv': 'urban',  # urban or rural household.
+
+                      # -- All variables for child poverty interventions
+                      # Household size variables
+                      'nadoecd_dv': 'n_adult_oecd',  # Number of adults >=14 in hh, derived
+                      'nchoecd_dv': 'n_child_oecd',  # Number of children <14 in hh, derived
+                      # Child material deprivation variables
+                      'cdelply': 'matdep1',  # 1. Outdoor space
+                      'cdephave2': 'matdep2',  # 2. Own bedrooms
+                      'cdephave4': 'matdep3',  # 3. Celebrations
+                      'cdephave3': 'matdep4',  # 4. Leisure equipment
+                      'cdephave1': 'matdep5',  # 5. Holiday
+                      'cdepdo2': 'matdep6',  # 6. Hobby
+                      'cdepdo3': 'matdep7',  # 7. Friends over
+                      'cdeptrp': 'matdep8',  # 8. School trips
+                      'cplay': 'matdep9',  # 9. Toddler group
+                      'cdepdo4': 'matdep10',  # 10. Organised activity
+                      'cdepdo5': 'matdep11',  # 11. Fruit and veg
+                      'cdepdo6': 'matdep12',  # 12. Warm winter coat
+                      # Adult material deprivation variables
+                      'matdepd': 'matdep13',  # 13. House in decent state of repair
+                      'matdepa': 'matdep14',  # 14. Holiday
+                      'matdepe': 'matdep15',  # 15. Contents insurance
+                      'matdepf': 'matdep16',  # 16. Regular savings
+                      'matdepg': 'matdep17',  # 17. Replace furniture
+                      'matdeph': 'matdep18',  # 18. Repair electrical goods
+                      'matdepi': 'matdep19',  # 19. Spend on yourself
+                      # 'hheat': 'matdep20',  # 20. Keep accomm. warm enough - ALREADY HERE AS "heating"
+                      'matdepj': 'matdep21',  # 21. Keep up with bills
+                      # ------------------------------------------------
                       }
 
     # Some variables change names halfway through UKHLS.
@@ -316,7 +345,7 @@ def format_ukhls_columns(year):
     else:
         attribute_dict["hcondcode38"] = "depression"
 
-    # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
+    # All attributes have a wave dependent suffix apart from identifiers (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.
     # E.g age -> a_age, age -> b_age ... for waves of ukhls.
     attribute_columns = list(attribute_dict.keys())
