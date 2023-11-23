@@ -62,7 +62,7 @@ sf12.plots <- function(base, base.name, int, int.name) {
     geom_hline(yintercept = 0, linetype = 'dashed') +
     labs(title = 'Change in SF_12_PCS', subtitle = paste0(int.name, ' vs ', base.name)) +
     xlab('Year') +
-    ylab('Change in MCS')
+    ylab('Change in PCS')
   
   print(p3)
   print(p4)

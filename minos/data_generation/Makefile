@@ -130,8 +130,8 @@ $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2019-2070.csv: $(SCOTLA
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'scotland'
 
 # synthetic input for UK with spatial component.
-$(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
-	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'uk' -p 5
+$(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py $(PERSISTJSON)/HH2011PopEst2020UK_population_UK.csv
+	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'uk' -p 1
 
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv transitions_default $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'

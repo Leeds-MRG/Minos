@@ -6,6 +6,7 @@ require(bestNormalize)
 require(lme4)
 require(glmmTMB)
 require(msm)
+require(survival)
 
 ################ Model Specific Functions ################
 
@@ -368,14 +369,33 @@ estimate_longitudinal_msm <- function(data, formula, depend, start.year) {
     subj <- data$pidp
   }
   
+  print('This is the formula:')
+  print(formula)
+  
   print('Fitting the MSM model...')
-  model <- msm(formula = formula,
-                  subject = subj,
-                  data = data,
-                  qmatrix = allowed.trans.matrix,
-                  gen.inits = TRUE,
-                  obstype = 1,
-                  na.action = na.omit)
+  # ms_object <- msm(formula = formula,
+  #                 subject = subj,
+  #                 data = data,
+  #                 qmatrix = allowed.trans.matrix,
+  #                 gen.inits = TRUE,
+  #                 obstype = 1,
+  #                 na.action = na.omit)
+  
+  ms_object <- msm(formula = formula,
+                   subject = subj,
+                   data = data)
+  
+  ms_model <- msm1(ms_object)
+  
+  return(model)
+}
+
+estimate_survival <- function(data, formula, depend) {
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  
+  model <- survreg(formula, data = data, dist = 'extreme')
   
   return(model)
 }

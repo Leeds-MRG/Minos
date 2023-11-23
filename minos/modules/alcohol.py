@@ -1,7 +1,5 @@
 """
 Module for alcohol in Minos.
-Calculation of monthly household alcohol
-Possible extension to interaction with employment/education and any spatial/interaction effects.
 """
 
 import pandas as pd

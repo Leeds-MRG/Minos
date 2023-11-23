@@ -19,6 +19,7 @@ require(tidyverse)
 require(stringr)
 require(texreg)
 require(dplyr)
+require(survival)
 
 ###################################
 # Main loop for longitudinal models
@@ -32,7 +33,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", 'GLMMB', 'MSM')
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "SURV", 'GLMMB', 'MSM')
 
   data[which(data$ncigs==-8), 'ncigs'] <- 0
 
@@ -210,6 +211,19 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                          formula = form,
                                          depend = dependent,
                                          start.year = min(year.range))
+      
+    } else if (tolower(mod.type) == 'surv') {
+      
+      # generate new formula with survival object
+      form.string2 <- paste0('Surv(time, time + 1, ', dependent, ') ~ ', independents)
+      formula2 <- as.formula(form.string2)
+      
+      sorted_df[[dependent]] <- factor(sorted_df[[dependent]], ordered=TRUE)
+      
+      model <- estimate_survival(data = sorted_df,
+                                 formula = formula2,
+                                 depend = dependent)
+      
     }
 
     write_coefs <- F
