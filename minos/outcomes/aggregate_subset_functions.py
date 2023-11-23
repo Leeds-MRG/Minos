@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-from minos.outcomes.format_spatial_output import get_region_lsoas
 
 
 def dynamic_subset_function(data, subset_chain_string=None, mode='default_config'):
