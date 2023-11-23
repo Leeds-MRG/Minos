@@ -88,7 +88,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
         number of boostrapping samples to take.
     """
     # get synthetic data.
-    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population_UK.csv"
+    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population.csv"
     try:
         synthpop_data = pd.read_csv(synthpop_file_path)  # this is individual population weighted data.
     except FileNotFoundError as e:

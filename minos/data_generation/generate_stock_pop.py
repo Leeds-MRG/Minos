@@ -182,6 +182,25 @@ def generate_stock(projections, cross_validation):
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
     #data['housing_quality'] = data['housing_quality'].astype('int64')
 
+    # drop some columns that are not needed
+    data.drop(labels=['job_duration_m',
+                      'job_duration_y',
+                      'job_industry',
+                      'job_occupation',
+                      'alcohol_spending',
+                      'ndrinks',
+                      'job_inc',
+                      'jb_inc_per',
+                      'depression',
+                      'birth_month',
+                      'academic_year',
+                      'hourly_rate',
+                      'gross_paypm',
+                      'gross_pay_se',
+                      'job_hours_se'],
+              inplace=True,
+              axis=1)
+
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
     # Cross Validation stuff
