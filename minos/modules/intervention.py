@@ -978,7 +978,7 @@ class ChildPovertyIntervention(Base):
 
         year = event.time.year
         pop = self.population_view.get(event.index, query='alive == "alive"')
-        hidp_sub = pop.loc[pop['time'] == year].drop_duplicates(subset=['hidp'], keep='first')
+        # hidp_sub = pop.loc[pop['time'] == year].drop_duplicates(subset=['hidp'], keep='first')
 
         ''' Intervention method 1: apply Scottish Child Payment '''
         if int_method == 1:
@@ -995,6 +995,12 @@ class ChildPovertyIntervention(Base):
 
         # median_yearly = hidp_sub.loc[hidp_sub['hh_income'] > 0.0]['hh_income'].median()
         # print("Median income for year {}: {}".format(year, median_yearly))
+
+        # Update population with boosted income and associated variables
+        self.population_view.update(pop[['hh_income',
+                                         'times_boosted',
+                                         'total_boost_amount',
+                                         ]])
 
         # Output some stats
         in_pp = len(pop.loc[pop['relative_poverty'].astype(int) == 1])
