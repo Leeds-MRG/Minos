@@ -102,6 +102,7 @@ class Replenishment(Base):
                         'hh_income_diff',
                         'nutrition_quality_diff',
                         ]
+        #view_columns = pd.read_csv("data/final_US/2020_US_cohort.csv").columns
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
