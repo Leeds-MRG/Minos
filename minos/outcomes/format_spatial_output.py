@@ -9,7 +9,7 @@ import argparse
 import glob
 import os
 from datetime import datetime
-from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_region_lsoas
 from multiprocessing import Pool
 from itertools import repeat
 import sys
@@ -77,15 +77,6 @@ def get_spatial_data():
         raise
     return spatial_data
 
-
-def get_region_lsoas(region):
-    region_file_name_dict = {"manchester": "manchester_lsoas.csv",
-                             "scotland": "scotland_data_zones.csv",
-                             "sheffield": "sheffield_lsoas.csv",
-                             "glasgow": "glasgow_data_zones.csv",
-                             "edinburgh": "edinburgh_data_zones.csv"}
-    lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
-    return pd.read_csv(lsoas_file_path)
 
 
 def group_by_and_aggregate(data, group_column, v, method):

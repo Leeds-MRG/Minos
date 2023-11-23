@@ -231,9 +231,6 @@ baseline_all_quintiles:
 25UniversalCredit_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_quintile"
 
-25UniversalCredit_all_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_quintile"
-
 epcg_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_epcg_quintile"
 

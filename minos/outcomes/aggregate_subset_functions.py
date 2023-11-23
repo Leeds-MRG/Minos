@@ -380,3 +380,13 @@ def who_glasgow(df):
 
 def who_edinburgh(df):
     df.loc[df['ZoneID'].isin(get_region_lsoas("edinburgh")), ]
+
+
+def get_region_lsoas(region):
+    region_file_name_dict = {"manchester": "manchester_lsoas.csv",
+                             "scotland": "scotland_data_zones.csv",
+                             "sheffield": "sheffield_lsoas.csv",
+                             "glasgow": "glasgow_data_zones.csv",
+                             "edinburgh": "edinburgh_data_zones.csv"}
+    lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
+    return pd.read_csv(lsoas_file_path)
