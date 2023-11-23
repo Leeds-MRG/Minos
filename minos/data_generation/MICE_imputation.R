@@ -1,5 +1,5 @@
 library(mice)
-
+library(here)
 source("minos/utils_datain.R")
 source("minos/transitions/utils.R")
 main <- function(){
@@ -8,7 +8,7 @@ main <- function(){
   # MICE impuation from notebook
   # save to individual waves.
   # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
-  data <- read_raw_data_out("data/", "composite_US") 
+  data <- read_raw_data_out(here::here("data/"), "composite_US") 
   
   
   # set up MICE and cache data
