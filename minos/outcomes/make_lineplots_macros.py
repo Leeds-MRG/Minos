@@ -224,7 +224,7 @@ def universal_credit_priority_young_mothers(config_mode, boost_amount, region):
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
 def universal_credit_priority_subgroups(config_mode, boost_amount):
