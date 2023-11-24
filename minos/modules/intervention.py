@@ -941,6 +941,7 @@ class ChildPovertyIntervention(Base):
                         'relative_poverty',
                         'absolute_poverty_percentile',
                         'absolute_poverty',
+                        'low_income',
                         'low_income_material_deprivation',
                         'relative_poverty_history',
                         'persistent_poverty',
@@ -1013,6 +1014,11 @@ class ChildPovertyIntervention(Base):
         prop = 100*in_pp/all_valid
         print('Proportion of people in absolute poverty: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
 
+        in_pp = len(pop.loc[pop['low_income'].astype(int) == 1])
+        all_valid = len(pop.loc[pop['low_income'].astype(int).isin([0, 1])])
+        prop = 100*in_pp/all_valid
+        print('Proportion of people with low income: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
+
         in_pp = len(pop.loc[pop['low_income_material_deprivation'].astype(int) == 1])
         all_valid = len(pop.loc[pop['low_income_material_deprivation'].astype(int).isin([0, 1])])
         prop = 100*in_pp/all_valid
@@ -1064,10 +1070,10 @@ def apply_target_payment(data,
 #
 #     ''' HR 20/11/23 For child poverty testing '''
 #     files = ['2016_US_cohort.csv',
-#              # '2017_US_cohort.csv',
-#              # '2018_US_cohort.csv',
-#              # '2019_US_cohort.csv',
-#              # '2020_US_cohort.csv',
+#              '2017_US_cohort.csv',
+#              '2018_US_cohort.csv',
+#              '2019_US_cohort.csv',
+#              '2020_US_cohort.csv',
 #              ]
 #
 #     # Get five years data to check persistent poverty sequence logic

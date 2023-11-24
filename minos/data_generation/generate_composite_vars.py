@@ -1026,6 +1026,7 @@ def calculate_poverty_variables(data,
                                 income_inflated='hh_income',
                                 relative_poverty_threshold=0.6,
                                 absolute_poverty_threshold=0.6,
+                                low_income_threshold=0.7,
                                 persistent_poverty_threshold=3,
                                 ):
 
@@ -1058,13 +1059,15 @@ def calculate_poverty_variables(data,
         hidp_sub['absolute_poverty'] = (hidp_sub[income_inflated] < absolute_poverty_threshold*median_inflated).astype(int)
 
         ''' 3. LOW INCOME AND MATERIAL DEPRIVATION '''
-        hidp_sub['low_income_material_deprivation'] = ((hidp_sub['relative_poverty'] == 1) & (hidp_sub['material_deprivation'] == 1)).astype(int)
+        hidp_sub['low_income'] = (hidp_sub[income_yearly] < low_income_threshold*median_yearly).astype(int)
+        hidp_sub['low_income_material_deprivation'] = ((hidp_sub['low_income'] == 1) & (hidp_sub['material_deprivation'] == 1)).astype(int)
 
         # Chuck all hidp-based variables into the original df via a map
         vars_to_map_by_hidp = ['relative_poverty_percentile',
                                'relative_poverty',
                                'absolute_poverty_percentile',
                                'absolute_poverty',
+                               'low_income',
                                'low_income_material_deprivation',
                                ]
 
