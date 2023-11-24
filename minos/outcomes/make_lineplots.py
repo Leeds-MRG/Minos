@@ -79,6 +79,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     if region:
         region_lsoas = get_region_lsoas(region)
         print(region_lsoas, data['ZoneID'].value_counts())
+        print(sum(data["ZoneID"].isin(region_lsoas)))
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
 
     agg_value = aggregate_method(data, outcome_variable)
@@ -87,7 +88,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
 
 
 def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", ref="Baseline", method=np.nanmean,
-                                mode="default_config", region = None):
+                                mode="default_config", region=None):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
     Parameters
