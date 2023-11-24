@@ -245,7 +245,7 @@ arc4_qaly_scenarios_glasgow: MODE=glasgow_scaled
 arc4_qaly_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
 arc4_qaly_scenarios_glasgow: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
-arc4_qaly_scenarios_uk: setup_uk_scaled
+arc4_qaly_scenarios_uk: setup_uk_ind_scaled
 arc4_qaly_scenarios_uk: MODE=SF12_uk_scaled
 arc4_qaly_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
 arc4_qaly_scenarios_uk: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
