@@ -232,6 +232,10 @@ all_25_50_by_5_UC_scotland_uplifts: MODE="scaled_scotland"
 all_25_50_by_5_UC_scotland_uplifts:
 		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_universal_credit"
 
+all_25_50_by_5_together_UC_scotland_uplifts: MODE="scaled_scotland"
+all_25_50_by_5_together_UC_scotland_uplifts:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_universal_credit"
+
 ################################
 # priority subgroups
 ################################
