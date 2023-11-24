@@ -14,6 +14,8 @@ from multiprocessing import Pool
 from itertools import repeat
 import sys
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 """
 Get spatial data.
 Find subset of spatial data within desired lsoas (e.g. manchester)
@@ -211,7 +213,7 @@ def attach_spatial_component(minos_data, spatial_data, v, method=np.nanmean):
 
 
 def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file)
+    minos_data = pd.read_csv(minos_file, low_memory=False)
 
     if region:
         region_lsoas = get_region_lsoas(region)
@@ -225,7 +227,7 @@ def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.n
 
 
 def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_function, v, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file, dtype=True)
+    minos_data = pd.read_csv(minos_file, low_memory=False)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', v]]

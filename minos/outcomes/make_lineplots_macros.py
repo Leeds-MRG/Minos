@@ -228,7 +228,7 @@ def universal_credit_priority_young_mothers(config_mode, boost_amount, region=No
 
 
 def universal_credit_priority_subgroups(config_mode, boost_amount, region):
-    "nationwide policy"
+    "any subgroup at all"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_priority_subgroups_and_kids,who_priority_subgroups_and_kids"
@@ -240,7 +240,7 @@ def universal_credit_priority_subgroups(config_mode, boost_amount, region):
                   method=method, region=region)
 
 def universal_credit_multiple_priority_subgroups(config_mode, boost_amount, region):
-    "nationwide policy"
+    "2+ subgroups"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_multiple_priority_subgroups_and_kids,who_multiple_priority_subgroups_and_kids"

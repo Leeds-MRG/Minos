@@ -608,12 +608,12 @@ priority_baseline_map:
 25_UC_2025_glasgow_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow" -v "SF_12"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow" -v "SF_12"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/2025_25_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_scotland" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/2025_25_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
 
 25_UC_2025_edinburgh_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "edinburgh" -v "SF_12"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "50UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "edinburgh"  -v "SF_12"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "50UniversalCredit" -r "glasgow" -d "plots/2025_50_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "edinburgh"  -v "SF_12"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_scotland" -j "baseline" -i "25UniversalCredit" -r "edinburg" -d "plots/2025_50_universal_credit_baseline_edinburgh_diff_map.pdf" -y 2025
 
 all_25_UC_scotland_maps: 25_UC_2025_glasgow_map 25_UC_2025_edinburgh_map
 
