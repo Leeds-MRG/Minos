@@ -164,7 +164,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
     if drop_dead:
         data = who_alive(data)
 
-    data["who_final_boosted_subset"] = True
+    data.loc[data.index, "who_final_boosted_subset"] = True
 
     # updated the logic here such that anyone if a household contains any eligible person.
     for subset_function in subset_chain:
