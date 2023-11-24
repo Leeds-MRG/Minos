@@ -85,7 +85,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
     agg_value = aggregate_method(data, outcome_variable)
-
+    print(agg_value)
     return agg_value
 
 
