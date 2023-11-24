@@ -164,7 +164,7 @@ def epcg_simd_deciles_lineplot(*args):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def quintiles_lineplot(config_mode, source):
+def quintiles_lineplot(config_mode, source, region):
     directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth"
     subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
@@ -172,7 +172,7 @@ def quintiles_lineplot(config_mode, source):
     ref = "National Average"
     v = "SF_12"
     method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
 ######################################################
@@ -463,26 +463,26 @@ string_to_lineplot_function_args = {
     "glasgow_epcg_quintile": ['EPCG'],
     "glasgow_living_wage_quintile": ['livingWageIntervention'],
 
-    "scotland_25_universal_credit_quintiles": ['25UniversalCredit'],
-    "scotland_30_universal_credit_quintiles": ['30UniversalCredit'],
-    "scotland_35_universal_credit_quintiles": ['35UniversalCredit'],
-    "scotland_40_universal_credit_quintiles": ['40UniversalCredit'],
-    "scotland_45_universal_credit_quintiles": ['45UniversalCredit'],
-    "scotland_50_universal_credit_quintiles": ['50UniversalCredit'],
+    "scotland_25_universal_credit_quintiles": ['25UniversalCredit', "scotland"],
+    "scotland_30_universal_credit_quintiles": ['30UniversalCredit', "scotland"],
+    "scotland_35_universal_credit_quintiles": ['35UniversalCredit', "scotland"],
+    "scotland_40_universal_credit_quintiles": ['40UniversalCredit', "scotland"],
+    "scotland_45_universal_credit_quintiles": ['45UniversalCredit', "scotland"],
+    "scotland_50_universal_credit_quintiles": ['50UniversalCredit', "scotland"],
 
-    "glasgow_25_universal_credit_quintiles": ['25UniversalCredit'],
-    "glasgow_30_universal_credit_quintiles": ['30UniversalCredit'],
-    "glasgow_35_universal_credit_quintiles": ['35UniversalCredit'],
-    "glasgow_40_universal_credit_quintiles": ['40UniversalCredit'],
-    "glasgow_45_universal_credit_quintiles": ['45UniversalCredit'],
-    "glasgow_50_universal_credit_quintiles": ['50UniversalCredit'],
+    "glasgow_25_universal_credit_quintiles": ['25UniversalCredit', "glasgow"],
+    "glasgow_30_universal_credit_quintiles": ['30UniversalCredit', "glasgow"],
+    "glasgow_35_universal_credit_quintiles": ['35UniversalCredit', "glasgow"],
+    "glasgow_40_universal_credit_quintiles": ['40UniversalCredit', "glasgow"],
+    "glasgow_45_universal_credit_quintiles": ['45UniversalCredit', "glasgow"],
+    "glasgow_50_universal_credit_quintiles": ['50UniversalCredit', "glasgow"],
 
-    "edinburgh_25_universal_credit_quintiles": ['25UniversalCredit'],
-    "edinburgh_30_universal_credit_quintiles": ['30UniversalCredit'],
-    "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit'],
-    "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit'],
-    "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit'],
-    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit']
+    "edinburgh_25_universal_credit_quintiles": ['25UniversalCredit', "edinburgh"],
+    "edinburgh_30_universal_credit_quintiles": ['30UniversalCredit', "edinburgh"],
+    "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit', "edinburgh"],
+    "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit', "edinburgh"],
+    "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit', "edinburgh"],
+    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"]
 }
 
 if __name__ == '__main__':

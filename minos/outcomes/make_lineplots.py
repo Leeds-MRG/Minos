@@ -19,7 +19,7 @@ import yaml
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
-from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables, get_region_lsoas
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -52,7 +52,7 @@ def aggregate_percentage_counts(df, v):
     return new_df
 
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
-                  mode="default_config"):
+                  mode="default_config", region = None):
     """
 
     Parameters
@@ -62,6 +62,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     outcome_variable, mode: str
         What variable of MINOS is the outcome and
     aggregate_method : func
+    region : string
+        What region is being subetted? Defaults to None
     Returns
     -------
     agg_value : float
@@ -72,13 +74,17 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
                        engine='c')  # low_memory could be buggy but is faster.
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
+    if region:
+        region_lsoas = get_region_lsoas(region)
+        data = data.loc[data["ZoneID"].isin(region_lsoas), ]
+
     agg_value = aggregate_method(data, outcome_variable)
 
     return agg_value
 
 
 def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", ref="Baseline", method=np.nanmean,
-                                mode="default_config"):
+                                mode="default_config", region = None):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
     Parameters
@@ -95,6 +101,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
          E.g. source `livingWageIntervention` is the file path but `Living Wage Intervention` should go in the legend.
     method: func :
         What method is used to aggregate outcome variable data. Usually np.nanmean but nanmedian etc. can be used
+    region string:
+        Is a specific subregion of the data being used. e.g. glasgow region for scottish data.
     Returns
     -------
     aggregated_data: pd.DataFrame
@@ -113,7 +121,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
             if year > 2020 or tag == ref:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(subset_func_string), repeat(v), repeat(method),
-                                                    repeat(mode)))
+                                                    repeat(mode), repeat(region)))
         if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
             print(
                 f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
@@ -304,7 +312,7 @@ def child_uplift_cost_sum(df, v, weights='weight'):
     return np.nansum(weights * group[v].min())/np.nansum(weights)
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
-         method='nanmean'):
+         method='nanmean', region=None):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
 
@@ -316,6 +324,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     v
     method
     mode
+    region
 
     Returns
     -------
@@ -345,7 +354,9 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         years = find_MINOS_years_range(latest_file_path)
 
         print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
-        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years, subset_function_string, v=v, ref=ref, method=method)
+        new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years,
+                                                         subset_function_string, v=v, ref=ref,
+                                                         method=method, region=region)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
     if v == "SF_12":
