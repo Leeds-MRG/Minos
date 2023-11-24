@@ -225,7 +225,7 @@ def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.n
 
 
 def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_function, v, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file)
+    minos_data = pd.read_csv(minos_file, dtype=True)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', v]]
