@@ -479,6 +479,8 @@ string_to_lineplot_function_args = {
     "100_universal_credit": [100],
 
     "scotland_25_universal_credit_young_mothers": [25, "scotland"],
+    "scotland_25_universal_any_priority_subgroup": [25, "scotland"],
+    "scotland_25_universal_many_priority_subgroups": [25, "scotland"],
 
     "25_universal_credit_priority_subgroups": [25, "scotland"],
     "30_universal_credit_priority_subgroups": [30],
