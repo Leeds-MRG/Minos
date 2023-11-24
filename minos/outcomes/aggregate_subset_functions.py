@@ -24,7 +24,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_disabled": [who_alive, who_kids, who_disabled],
                      "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],
                      "who_three_kids": [who_alive, who_three_kids],
-                     "who_young_mother": [who_alive, who_young_adults, who_female, who_kids],
+                     "who_young_mothers": [who_alive, who_young_adults, who_female, who_kids],
                      "who_young_adults": [who_alive, who_kids, who_young_adults],
                      "who_unemployed_adults": [who_alive, who_adult, who_kids, who_unemployed],
                      "who_no_formal_education": [who_alive, who_kids, who_no_formal_education],
@@ -198,7 +198,7 @@ def get_required_intervention_variables(subset_function_string):
         # priority subgroups for scotgov. single groups, all groups together, and multiple groups.
         # plus some very custom functions for mapping specific quintiles. 
         "who_newborn": ['nkids', "has_newborn"],
-        "who_young_mother": ['nkids', "age", "sex"],
+        "who_young_mothers": ['nkids', "age", "sex"],
         "who_disabled":  ['nkids', "S7_labour_state"],
         "who_ethnic_minority":  ['nkids', "ethnicity"],
         "who_three_kids":  ['nkids'],
