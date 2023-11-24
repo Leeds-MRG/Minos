@@ -215,7 +215,7 @@ def universal_credit(config_mode, boost_amount):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def universal_credit_priority_young_mothers(config_mode, boost_amount):
+def universal_credit_priority_young_mothers(config_mode, boost_amount, region):
     "just the single mothers"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
@@ -224,7 +224,7 @@ def universal_credit_priority_young_mothers(config_mode, boost_amount):
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region)
 
 
 def universal_credit_priority_subgroups(config_mode, boost_amount):
@@ -461,9 +461,9 @@ string_to_lineplot_function_args = {
     "75_universal_credit": [75],
     "100_universal_credit": [100],
 
-    "scotland_25_universal_credit_young_mothers": [25],
+    "scotland_25_universal_credit_young_mothers": [25, "scotland"],
 
-    "25_universal_credit_priority_subgroups": [25],
+    "25_universal_credit_priority_subgroups": [25, "scotland"],
     "30_universal_credit_priority_subgroups": [30],
     "35_universal_credit_priority_subgroups": [35],
     "40_universal_credit_priority_subgroups": [40],
@@ -472,7 +472,7 @@ string_to_lineplot_function_args = {
     "75_universal_credit_priority_subgroups": [75],
     "100_universal_credit_priority_subgroups": [100],
 
-    "25_universal_credit_multiple_priority_subgroups": [25],
+    "25_universal_credit_multiple_priority_subgroups": [25, "scotland"],
     "30_universal_credit_multiple_priority_subgroups": [30],
     "35_universal_credit_multiple_priority_subgroups": [35],
     "40_universal_credit_multiple_priority_subgroups": [40],
