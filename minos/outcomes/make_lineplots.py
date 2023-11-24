@@ -77,8 +77,10 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
     if region:
-        print(get_region_lsoas(region))
-        region_lsoas = get_region_lsoas(region)["lsoa11cd"]
+        if region == "edinburgh":
+            region_lsoas = get_region_lsoas(region)["DZ2011_Code"]
+        else:
+            region_lsoas = get_region_lsoas(region)["lsoa11cd"]
 
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
