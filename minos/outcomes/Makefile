@@ -205,7 +205,7 @@ all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_
 ##############################################################
 
 aggregate_25_UC_scotland: MODE="scaled_scotland"
-aggregate_25_universal_credit:
+aggregate_25_UC_scotland:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
 
 aggregate_30_UC_scotland: MODE="scaled_scotland"
