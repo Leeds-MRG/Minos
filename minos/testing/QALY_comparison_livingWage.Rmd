@@ -122,6 +122,14 @@ ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour =
   labs(title = 'Incidence of Mortality Comparison')
 ```
 
+# Number people Below Living Wage
+
+```{r}
+# Only need this for the baseline 2020 input data
+base.num <- base %>%
+  filter()
+```
+
 
 # QALY comparison
 

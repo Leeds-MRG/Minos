@@ -22,7 +22,7 @@ import US_utils
 import argparse
 
 
-def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
+def merge_with_synthpop_households(synthpop, msim_data, merge_column="pidp"):
     """ Merge US data on synthetic pop individual data.
 
     Parameters
@@ -117,16 +117,16 @@ def main(region, percentage=100, bootstrapping=False, n=100_000):
         subsetted_synthpop_data = subsetted_synthpop_data.sample(n, replace=True)
 
     # merge synthetic and US data together.
-    subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
+    subsetted_synthpop_data['pidp'] = subsetted_synthpop_data['pidp']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
     merged_data = merged_data.dropna(axis=0, subset=[
         "time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
     # scramble new hidp and pidp.
-    merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
-    merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
-    merged_data['pidp'] = merged_data.index  # creating new pidps.
+    merged_data['pidp'] = merged_data['new_pidp']  # replace old pidp.
+    merged_data.drop(['new_pidp', 'pidp'], axis=1, inplace=True)  # removing old hidp columns
+    #merged_data['pidp'] = merged_data.index  # creating new pidps.
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage / 100)
@@ -140,8 +140,8 @@ def main(region, percentage=100, bootstrapping=False, n=100_000):
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
 
-    US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
+    US_utils.check_output_dir(f"data/scaled_{region}_US/ind/")  # check save directory exists or create it.
+    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/ind/", '', 2020)
 
 
 if __name__ == '__main__':
