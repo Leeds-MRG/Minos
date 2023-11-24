@@ -301,13 +301,13 @@ living_wage_all_quintiles:
 
 
 baseline_scotland_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "scotland_baseline_quintiles"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_baseline_quintiles"
 
 baseline_glasgow_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_quintiles"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "glasgow_baseline_quintiles"
 
 baseline_edinburgh_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "edinburgh_baseline_quintiles"
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "edinburgh_baseline_quintiles"
 
 25UniversalCredit_scotland_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_quintiles"
