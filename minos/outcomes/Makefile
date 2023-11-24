@@ -336,7 +336,7 @@ baseline_edinburgh_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
 
 
-make all_25_UC_quintiles: baseline_scotland_quintiles, baseline_glasgow_quintiles, baseline_edinburgh_quintiles 25UniversalCredit_scotland_all_quintiles 25UniversalCredit_glasgow_all_quintiles 25UniversalCredit_edinburgh_all_quintiles
+all_25_UC_quintiles: baseline_scotland_quintiles, baseline_glasgow_quintiles, baseline_edinburgh_quintiles 25UniversalCredit_scotland_all_quintiles 25UniversalCredit_glasgow_all_quintiles 25UniversalCredit_edinburgh_all_quintiles
 
 
 # grand daddy makefile for every scotland plot for £25 universal credit
