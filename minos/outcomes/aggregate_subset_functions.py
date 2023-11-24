@@ -363,18 +363,9 @@ def who_multiple_priority_subgroups(df):
         search_index = subset_function(df).index
         df.loc[search_index,"subgroup_counts"] += 1
     
-    # make sure household subgroup count account for everyone in the household. I.E. household with mixed ethnicities may not catch ethnic minority priority subgroup for everyone. 
-    # make sure it does. 
+    # make sure household subgroup count account for everyone in the household. I.E. household with mixed ethnicities may not catch ethnic minority priority subgroup for everyone.
     df['subgroup_counts'] = df.groupby("hidp")['subgroup_counts'].transform(max)
-
-    # get all households in more than 1 priority group.
-    print(df['subgroup_counts'])
-    df['who_boosted'] = df.loc[df['subgroup_counts']>1, ]
-    who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
-    df.loc[df['hidp'].isin(who_subsetted), 'who_boosted'] = True # set everyone who satisfies uplift condition to true.
-    #print(df['who_boosted'])
-    return df.loc[df['who_boosted'], ]
-
+    return df.loc[df['subgroup_counts'] > 1, ]
 
 
 def who_kth_simd_decile(df, *args):
