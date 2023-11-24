@@ -241,7 +241,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region=No
     with Pool() as pool:
         if is_synthetic_pop:
             aggregated_spatial_data = pool.starmap(load_synthetic_data,
-                                                   zip(minos_files, repeat(subset_function), repeat(region), repeat(v)))
+                                                   zip(minos_files, repeat(subset_function), repeat(v), repeat(region)))
         else:
             spatial_data = get_spatial_data()
             if region:
