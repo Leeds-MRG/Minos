@@ -168,7 +168,7 @@ def quintiles_lineplot(config_mode, source, region):
     directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth"
     subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
-    prefix = f"{source}_simd_quintiles"
+    prefix = f"{source}_{region}_simd_quintiles"
     ref = "National Average"
     v = "SF_12"
     method = 'nanmean'
