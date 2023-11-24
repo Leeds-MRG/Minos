@@ -20,6 +20,7 @@ replenishing_dir: 'data/replenishing/scotland'
 
 cross_validation: FALSE
 synthetic: FALSE
+scotland: TRUE
 
 component_file: 'config/SF12_components.txt'
 

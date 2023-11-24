@@ -23,6 +23,7 @@ replenishing_dir: 'data/replenishing'
 
 cross_validation: FALSE
 synthetic: FALSE
+scotland: FALSE
 
 component_file: 'config/SIPHER7_components.txt'
 

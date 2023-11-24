@@ -94,12 +94,11 @@ class Replenishment(Base):
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
-            view_columns += ["ZoneID",
-                             # "new_pidp",
-                             'local_simd_deciles',
-                             'simd_decile',
-                             # 'cluster'
-                             ]
+            view_columns += ["ZoneID"]
+
+        if config.scotland:  # add simd columns for scottish runs
+            view_columns += ['local_simd_deciles',
+                             'simd_deciles']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants

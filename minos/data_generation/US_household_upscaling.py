@@ -124,8 +124,9 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
 
     # merge with spatial_attributes
-    # get simd_deciles
-    sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+    # Get SIMD Deciles for Scottish data
+    if region in ['scotland', 'glasgow']:
+        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
