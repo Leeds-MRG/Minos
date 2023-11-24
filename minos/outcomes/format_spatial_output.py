@@ -118,7 +118,7 @@ def subset_lsoas_by_region(spatial_data, region_data):
     spatial_data : pd.DataFrame
         spatial_data only with LSOAs from specified region data.
     """
-    return spatial_data[spatial_data['ZoneID'].isin(region_data["lsoa11cd"])]
+    return spatial_data[spatial_data['ZoneID'].isin(region_data)]
 
 
 def edit_geojson(geojson_data, new_variable_dict, v):
