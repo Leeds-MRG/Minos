@@ -227,7 +227,7 @@ def universal_credit_priority_young_mothers(config_mode, boost_amount, region=No
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
-def universal_credit_priority_subgroups(config_mode, boost_amount):
+def universal_credit_priority_subgroups(config_mode, boost_amount, region):
     "nationwide policy"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
@@ -236,9 +236,10 @@ def universal_credit_priority_subgroups(config_mode, boost_amount):
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region)
 
-def universal_credit_multiple_priority_subgroups(config_mode, boost_amount):
+def universal_credit_multiple_priority_subgroups(config_mode, boost_amount, region):
     "nationwide policy"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
@@ -247,7 +248,8 @@ def universal_credit_multiple_priority_subgroups(config_mode, boost_amount):
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region)
 
 
 def priority_only(config_mode, boost_amount):
