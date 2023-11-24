@@ -209,7 +209,9 @@ def get_required_intervention_variables(subset_function_string):
         "who_unemployed_adults": ['nkids', "age", "S7_labour_state"],
         "who_no_formal_education":  ['nkids', "education_state"],
     }
-    return default_variables + required_variables_dict[subset_function_string]
+    if subset_function_string in required_variables_dict:
+        default_variables += required_variables_dict[subset_function_string]
+    return default_variables
 
 def who_alive(df):
     """ Get who is alive.
@@ -357,7 +359,7 @@ def who_multiple_priority_subgroups(df):
     df['subgroup_counts'] = df.groupby("hidp")['subgroup_counts'].transform(max)
 
     # get all households in more than 1 priority group. 
-    df['who_boosted'] = df.loc[df[subgroup_counts]>1, ]
+    df['who_boosted'] = df.loc[df['subgroup_counts']>1, ]
     who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
     df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
     return df.loc[df['who_boosted'], ]
