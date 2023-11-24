@@ -140,8 +140,8 @@ def main(region, percentage=100, bootstrapping=False, n=100_000):
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
 
-    US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
+    US_utils.check_output_dir(f"data/scaled_{region}_US/hh/")  # check save directory exists or create it.
+    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/hh/", '', 2020)
 
 
 if __name__ == '__main__':
