@@ -25,7 +25,7 @@ def poverty_line_child_lineplot(*args):
     prefix = "baseline_poverty_child_uplift"
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
-                  method='nanmean')
+                  method='nanmean',region=None)
 
 
 def living_wage_lineplot(*args):

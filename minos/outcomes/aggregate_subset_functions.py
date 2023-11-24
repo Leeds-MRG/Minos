@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def dynamic_subset_function(data, subset_chain_string=None, mode='default_config'):
+def dynamic_subset_function(data, subset_chain_string=None, mode='default_config', drop_dead=True):
     if subset_chain_string == None:
         function_string = "who_alive"
         print("No subset defined. Defaulting to who_alive..")
@@ -159,40 +159,51 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
     if mode == 'scotland_mode':  # if in scotland mode add it to the .
         subset_chain.append(who_scottish)
 
-    for subset_function in subset_chain:
-        if type(subset_function) == list:
-            subset_function, subset_args = subset_function
-            data = subset_function(data, subset_args)
-        else:
-            data = subset_function(data)
+    # dropping dead people seperately makes sense. don't want to add them back in again later when choosing individuals
+    # in any eligible households.
+    if drop_dead:
+        data = who_alive(data)
 
-    return data
+    data["who_final_boosted_subset"] = True
+
+    # updated the logic here such that anyone if a household contains any eligible person.
+    for subset_function in subset_chain:
+        if type(subset_function) == list: # if the function has additional args pass them here.
+            subset_function, subset_args = subset_function
+            data.loc[subset_function(data, subset_args).index, "who_final_boosted_subset"] *= True
+        else: # if function has no additional args pass them here.
+            data.loc[subset_function(data).index, "who_final_boosted_subset"] *= True
+
+    who_subsetted = np.unique(data.query('who_final_boosted_subset == True')['hidp'])
+    return data.loc[data['hidp'].isin(who_subsetted), ] # set everyone who satisfies uplift condition to true.
 
 
 def get_required_intervention_variables(subset_function_string):
     # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
-    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "loneliness", "ZoneID"]
+    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "loneliness"]
 
     if "boosted" in subset_function_string:
-        default_variables.append("who_boosted")
+        default_variables += ["income_boosted"]
 
-    if "decile" or "quintile" in subset_function_string:
+    if "decile" in subset_function_string or "quintile" in subset_function_string:
         default_variables += ["ZoneID", "simd_decile"]
 
     if "kids" in subset_function_string:
-        default_variables.append("nkids")
+        default_variables += ["nkids"]
 
     if "universal_credit" in subset_function_string:
-        default_variables.append("universal_credit")
+        default_variables += ['universal_credit']
     
     if "priority_subgroups" in subset_function_string:
         default_variables += ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile', 'has_newborn']
 
     if "energy" in subset_function_string:
-        default_variables.append("yearly_energy")
+        default_variables += ["yearly_energy"]
 
     if "living_wage" in subset_function_string:
         default_variables += ["region", "hourly_wage"]
+
+    #print(subset_function_string, default_variables)
 
     required_variables_dict = {        
         # priority subgroups for scotgov. single groups, all groups together, and multiple groups.
@@ -202,11 +213,11 @@ def get_required_intervention_variables(subset_function_string):
         "who_disabled":  ['nkids', "S7_labour_state"],
         "who_ethnic_minority":  ['nkids', "ethnicity"],
         "who_three_kids":  ['nkids'],
-        "who_young_mother":  ['nkids', "age", "sex"],
         "who_young_adults":  ['nkids', "age"],
         "who_unemployed_adults": ['nkids', "age", "S7_labour_state"],
         "who_no_formal_education":  ['nkids', "education_state"],
     }
+
     if subset_function_string in required_variables_dict:
         default_variables += required_variables_dict[subset_function_string]
     return default_variables
@@ -335,7 +346,7 @@ def who_priority_subgroups(df):
     df['who_boosted'] = False
     for subset_function in subset_functions:
         search_index = subset_function(df).index
-        df.loc[search_index,"who_boosted"] = True
+        df.loc[search_index,"who_boosted"] *= True
     who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
     df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
     return df.loc[df['who_boosted'], ]
