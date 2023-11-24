@@ -367,10 +367,12 @@ def who_multiple_priority_subgroups(df):
     # make sure it does. 
     df['subgroup_counts'] = df.groupby("hidp")['subgroup_counts'].transform(max)
 
-    # get all households in more than 1 priority group. 
+    # get all households in more than 1 priority group.
+    print(df['subgroup_counts'])
     df['who_boosted'] = df.loc[df['subgroup_counts']>1, ]
     who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
-    df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
+    df.loc[df['hidp'].isin(who_subsetted), 'who_boosted'] = True # set everyone who satisfies uplift condition to true.
+    #print(df['who_boosted'])
     return df.loc[df['who_boosted'], ]
 
 
