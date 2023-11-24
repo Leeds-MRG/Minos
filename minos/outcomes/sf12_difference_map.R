@@ -71,42 +71,14 @@ main <- function(){
                        sec)
     geojson_file_name1 <- paste0(geojson_file_path_base, '/', str.date1, '/', geojson_file_name_base)
   }
+  
   # Second output dir
   if(length(out.files2) == 1) {
     geojson_file_name2 = paste0(geojson_file_path_int, '/', out.files2[1], '/', geojson_file_name_int)
   }
   else if(length(out.files2) > 1) {
     out.files2.date <- as.POSIXlt(out.files2, format='%Y_%m_%d_%H_%M_%S')
-
-main <- function(){
-
-  parser <- ArgumentParser(description="Plot a map of some MINOS geojson.")
-  parser$add_argument("-m", "--mode", dest='mode', help="What source to use. e.g. defualt_config")
-  parser$add_argument("-i", "--int", dest='intervention', help="What inteverntion to map. usually baseline. ")
-  parser$add_argument("-j", "--int2", dest='second_intervention', help="What inteverntion to compare against. e.g. livingWageIntervention")
-  parser$add_argument("-r", "--region", dest='region', help="What spatial region to use. sheffield, manchester, scotland(not yet)")
-  parser$add_argument("-d", "--destination", dest='destination', help="Where to save to.")
-  parser$add_argument("-y", "--year", dest='year', help="What year of MINOS data to map.")
-
-    str.date2 <- paste0(yr, '_',
-                        month, '_',
-                        day, '_',
-                        hour, '_',
-                        min, '_',
-                        sec)
-    geojson_file_name2 <- paste0(geojson_file_path_int, '/', str.date2, '/', geojson_file_name_int)
   }
-
-  # Generate output filename
-  #plot_destination <- paste(v, region, run, intervention, year, 'diffmap.pdf', sep='_')
-  
-  if (tolower(synth) == 'true') {
-    plot_destination <- paste(v, region, 'synthetic', run, intervention, year, 'diffmap.pdf', sep='_')
-  }
-  else {
-    plot_destination <- paste(v, region, run, intervention, year, 'diffmap.pdf', sep='_')
-  }
-
   plot_destination <- paste('plots', plot_destination, sep='/')
 
   main.diff(geojson_file_name1, geojson_file_name2, plot_destination, v)
