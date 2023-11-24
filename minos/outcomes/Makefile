@@ -178,6 +178,10 @@ social_science_lineplots:
 # Custom subset for scotgov piece
 #################################
 
+####################################
+# Initial work for 25 UC and 25 Priority subgroups.
+#####################################
+
 aggregate_25_UC_vulnerable: MODE="glasgow_scaled"
 aggregate_25_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_UC_priority"
@@ -195,6 +199,56 @@ aggregate_100_UC_vulnerable:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
 
 all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable aggregate_universal_credit_child_uplifts aggregate_priority_groups_child_uplifts
+
+#############################################################
+# £25 TO £25 BY £5 increments treatment on treated lineplots.
+##############################################################
+
+aggregate_25_UC_scotland: MODE="scaled_scotland"
+aggregate_25_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_30_UC_scotland: MODE="scaled_scotland"
+aggregate_30_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_35_UC_scotland: MODE="scaled_scotland"
+aggregate_35_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_40_UC_scotland: MODE="scaled_scotland"
+aggregate_40_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_45_UC_scotland: MODE="scaled_scotland"
+aggregate_45_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_50_UC_scotland: MODE="scaled_scotland"
+aggregate_50_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_universal_credit"
+
+all_25_50_by_5_UC_scotland_uplifts: MODE="scaled_scotland"
+all_25_50_by_5_UC_scotland_uplifts:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_universal_credit"
+
+################################
+# priority subgroups
+################################
+
+aggregate_25_UC_single_mothers: MODE="scaled_scotland"
+aggregate_25_UC_single_mothers:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_credit_young_mothers"
+
+aggregate_25_UC_any_priority_subgroup: MODE="scaled_scotland"
+aggregate_25_UC_any_priority_subgroup:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_any_priority_subgroup"
+
+aggregate_25_UC_many_priority_groups: MODE="scaled_scotland"
+aggregate_25_UC_many_priority_groups:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_many_priority_subgroups"
+
+all_priority_subgroup_lineplots: aggregate_25_UC_single_mothers, aggregate_25_UC_any_priority_subgroup aggregate_25_UC_many_priority_groups
 
 ########################################################
 # SIMD decile lineplots for glasgow using spatial data #
@@ -221,7 +275,6 @@ poverty_fifth_decile_lineplot:
 poverty_tenth_decile_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_tenth"
 
-
 baseline_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_quintile"
 
@@ -242,15 +295,27 @@ living_wage_all_quintiles:
 # All Scotland 25 UC Quintiles
 ##########################################
 
+
+baseline_scotland_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "scotland_baseline_quintiles"
+
+baseline_glasgow_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_quintiles"
+
+baseline_edinburgh_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "edinburgh_baseline_quintiles"
+
+25UniversalCredit_scotland_all_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_quintiles"
+
 25UniversalCredit_glasgow_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "glasgow_25_universal_credit_quintiles"
 
 25UniversalCredit_edinburgh_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "edinburgh_25_universal_credit_quintiles"
 
-25UniversalCredit_scotland_all_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_quintiles"
-
+# increasing increments dont have the full suite of vis yet.
+# maybe a better way of encoding the increasing number of combinations with lists?
 30UniversalCredit_scotland_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_30_universal_credit_quintiles"
 
@@ -266,6 +331,13 @@ living_wage_all_quintiles:
 50UniversalCredit_scotland_all_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
 
+
+make all_25_UC_quintiles: baseline_scotland_quintiles, baseline_glasgow_quintiles, baseline_edinburgh_quintiles 25UniversalCredit_scotland_all_quintiles 25UniversalCredit_glasgow_all_quintiles 25UniversalCredit_edinburgh_all_quintiles
+
+
+# grand daddy makefile for every scotland plot for £25 universal credit
+# WARNING: this will take 2+ hours on scotland scaled data.
+make every_single_scotland_plot: all_25_50_by_5_UC_scotland_uplifts all_priority_subgroup_lineplots all_25_UC_quintiles all_25_UC_scotland_maps
 
 ###############################
 # energy crisis lineplots #####
@@ -371,8 +443,6 @@ aggregate_combined_vulnerable:
 
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
-
-all_decile_lineplots: baseline_all_deciles poverty_all_deciles poverty_fifth_decile_lineplot poverty_first_decile_lineplot poverty_tenth_decile_lineplot
 
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
@@ -531,15 +601,17 @@ priority_baseline_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_difff_map.pdf" -y 2025
 
-25_universal_credit_baseline_glasgow_map:
+25_UC_2025_glasgow_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/2025_25_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
 
-50_universal_credit_baseline_glasgow_map:
+25_UC_2025_edinburgh_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "50UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "50UniversalCredit" -r "glasgow" -d "plots/2025_50_universal_credit_baseline_glasgow_diff_map.pdf" -y 2025
+
+all_25_UC_scotland_maps: 25_UC_2025_glasgow_map 25_UC_2025_edinburgh_map
 
 # experimental bash scripts.
 main_maps:

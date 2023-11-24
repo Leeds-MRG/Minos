@@ -214,6 +214,19 @@ def universal_credit(config_mode, boost_amount):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
+
+def universal_credit_priority_young_mothers(config_mode, boost_amount):
+    "just the single mothers"
+    directories = f"baseline,{boost_amount}UniversalCredit"
+    tags = f"Baseline,£{boost_amount} Universal Credit"
+    subset_function_strings = "who_young_mothers,who_young_mothers"
+    prefix = f"{boost_amount}_universal_credit"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
 def universal_credit_priority_subgroups(config_mode, boost_amount):
     "nationwide policy"
     directories = f"baseline,{boost_amount}UniversalCredit"
@@ -297,6 +310,20 @@ def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subse
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
+def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subset_function, increment):
+    uplift_amount = 25
+    for _ in range(6):
+        "The same intervention in increments from £25 to £50"
+        directories = f"baseline,{uplift_amount}{intervention_name}"
+        tags = f"Baseline,£{uplift_amount} {intervention_tag}"
+        subset_function_strings = f"{subset_function},who_boosted,who_boosted"
+        prefix = f"{uplift_amount}_{intervention_name}_uplift"
+        ref = "Baseline"
+        v = "SF_12"
+        method = 'nanmean'
+        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+        uplift_amount += increment
+
 #################
 # main function #
 #################
@@ -366,7 +393,9 @@ string_to_lineplot_function = {
     "incremental_universal_credit": incremental_25_to_100,
     "incremental_priority_groups": incremental_25_to_100,
     "incremental_25_50_relative_poverty": incremental_25_to_50,
-    "incremental_25_50_universal_credit": incremental_25_to_50,
+
+
+    "incremental_25_50_by_5_universal_credit": incremental_25_to_50,
 
     "social_science_all_plots": social_science_all_plots,
 
@@ -376,6 +405,11 @@ string_to_lineplot_function = {
     "glasgow_epcg_quintile": quintiles_lineplot,
     "glasgow_living_wage_quintile": quintiles_lineplot,
 
+    "scotland_25_universal_credit_young_mothers": universal_credit_priority_young_mothers,
+    "scotland_25_universal_any_priority_subgroup": universal_credit_priority_subgroups,
+    "scotland_25_universal_many_priority_subgroups": universal_credit_multiple_priority_subgroups,
+
+    "scotland_baseline_quintiles": quintiles_lineplot,
     "scotland_25_universal_credit_quintiles": quintiles_lineplot,
     "scotland_30_universal_credit_quintiles": quintiles_lineplot,
     "scotland_35_universal_credit_quintiles": quintiles_lineplot,
@@ -383,6 +417,7 @@ string_to_lineplot_function = {
     "scotland_45_universal_credit_quintiles": quintiles_lineplot,
     "scotland_50_universal_credit_quintiles": quintiles_lineplot,
 
+    "glasgow_baseline_quintiles": quintiles_lineplot,
     "glasgow_25_universal_credit_quintiles": quintiles_lineplot,
     "glasgow_30_universal_credit_quintiles": quintiles_lineplot,
     "glasgow_35_universal_credit_quintiles": quintiles_lineplot,
@@ -390,6 +425,7 @@ string_to_lineplot_function = {
     "glasgow_45_universal_credit_quintiles": quintiles_lineplot,
     "glasgow_50_universal_credit_quintiles": quintiles_lineplot,
 
+    "edinburgh_baseline_quintiles": quintiles_lineplot,
     "edinburgh_25_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_30_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_35_universal_credit_quintiles": quintiles_lineplot,
@@ -425,6 +461,7 @@ string_to_lineplot_function_args = {
     "75_universal_credit": [75],
     "100_universal_credit": [100],
 
+    "scotland_25_universal_credit_young_mothers": [25],
 
     "25_universal_credit_priority_subgroups": [25],
     "30_universal_credit_priority_subgroups": [30],
@@ -455,7 +492,8 @@ string_to_lineplot_function_args = {
     "incremental_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
-    "incremental_25_50_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+
+    "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5],
 
     "glasgow_baseline_quintile": ['baseline'],
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
@@ -463,6 +501,7 @@ string_to_lineplot_function_args = {
     "glasgow_epcg_quintile": ['EPCG'],
     "glasgow_living_wage_quintile": ['livingWageIntervention'],
 
+    "scotland_baseline_quintiles": ['baseline', "scotland"],
     "scotland_25_universal_credit_quintiles": ['25UniversalCredit', "scotland"],
     "scotland_30_universal_credit_quintiles": ['30UniversalCredit', "scotland"],
     "scotland_35_universal_credit_quintiles": ['35UniversalCredit', "scotland"],
@@ -470,6 +509,7 @@ string_to_lineplot_function_args = {
     "scotland_45_universal_credit_quintiles": ['45UniversalCredit', "scotland"],
     "scotland_50_universal_credit_quintiles": ['50UniversalCredit', "scotland"],
 
+    "glasgow_baseline_quintiles": ['baseline', "glasgow"],
     "glasgow_25_universal_credit_quintiles": ['25UniversalCredit', "glasgow"],
     "glasgow_30_universal_credit_quintiles": ['30UniversalCredit', "glasgow"],
     "glasgow_35_universal_credit_quintiles": ['35UniversalCredit', "glasgow"],
@@ -477,6 +517,7 @@ string_to_lineplot_function_args = {
     "glasgow_45_universal_credit_quintiles": ['45UniversalCredit', "glasgow"],
     "glasgow_50_universal_credit_quintiles": ['50UniversalCredit', "glasgow"],
 
+    "glasgow_baseline_quintiles": ['baseline', "edinburgh"],
     "edinburgh_25_universal_credit_quintiles": ['25UniversalCredit', "edinburgh"],
     "edinburgh_30_universal_credit_quintiles": ['30UniversalCredit', "edinburgh"],
     "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit', "edinburgh"],

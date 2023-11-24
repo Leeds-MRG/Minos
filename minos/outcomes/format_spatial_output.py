@@ -215,7 +215,7 @@ def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.n
 
     if region:
         region_lsoas = get_region_lsoas(region)
-        minos_data = minos_data.loc[minos_data['ZoneID'].isin(region_lsoas), ]
+        minos_data = subset_lsoas_by_region(minos_data, region_lsoas)
 
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
@@ -234,7 +234,7 @@ def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_func
     return minos_data
 
 
-def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='glasgow'):
+def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region=None):
     # Get spatial data and subset LSOAs for desired region.
     # Pooled as there can be hundreds of datasets here and it gets silly.
 
@@ -244,8 +244,9 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='g
                                                    zip(minos_files, repeat(subset_function), repeat(region), repeat(v)))
         else:
             spatial_data = get_spatial_data()
-            region_lsoas = get_region_lsoas(region)
-            spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
+            if region:
+                region_lsoas = get_region_lsoas(region)
+                spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
             # is this the best way to do this? Dont want to load in spatial data 1000 times.
             # Are these hard copies or just refs?
             aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,
