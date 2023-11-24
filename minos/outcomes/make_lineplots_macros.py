@@ -232,7 +232,7 @@ def universal_credit_priority_subgroups(config_mode, boost_amount, region):
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_priority_subgroups_and_kids,who_priority_subgroups_and_kids"
-    prefix = f"{boost_amount}_universal_credit"
+    prefix = f"{boost_amount}_any_subgroup_universal_credit"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
@@ -244,7 +244,7 @@ def universal_credit_multiple_priority_subgroups(config_mode, boost_amount, regi
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_multiple_priority_subgroups_and_kids,who_multiple_priority_subgroups_and_kids"
-    prefix = f"{boost_amount}_universal_credit"
+    prefix = f"{boost_amount}_many_subgroups_universal_credit"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
