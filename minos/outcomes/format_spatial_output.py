@@ -250,7 +250,10 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region=No
         else:
             spatial_data = get_spatial_data()
             if region:
-                region_lsoas = get_region_lsoas(region)
+                if region == "edinburgh" or region == "scotland":
+                    region_lsoas = get_region_lsoas(region)["DZ2011_Code"]
+                else:
+                    region_lsoas = get_region_lsoas(region)["lsoa11cd"]
                 spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
             # is this the best way to do this? Dont want to load in spatial data 1000 times.
             # Are these hard copies or just refs?
