@@ -63,13 +63,13 @@ scotland_scaled_data : $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv
 
 synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2019-2070.csv
 
-uk_hh_scaled_data: $(UKSCALEDDATA)/2020_US_cohort.csv
+uk_hh_scaled_data: $(UKSCALEDDATA)/hh/2020_US_cohort.csv
 
-synthetic_uk_hh_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2019-2070.csv
+synthetic_uk_hh_repl: $(DATADIR)/replenishing/uk_scaled/hh/replenishing_pop_2019-2070.csv
 
-uk_ind_scaled_data: $(UKSCALEDDATA)/2020_US_cohort.csv
+uk_ind_scaled_data: $(UKSCALEDDATA)/ind/2020_US_cohort.csv
 
-synthetic_uk_ind_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2019-2070.csv
+synthetic_uk_ind_repl: $(DATADIR)/replenishing/uk_scaled/ind/replenishing_pop_2019-2070.csv
 
 #sheffield_scaled_data goes here.
 
