@@ -143,7 +143,7 @@ $(DATADIR)/replenishing/uk_scaled/hh/replenishing_pop_2019-2070.csv: $(UKSCALEDD
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
 
 # synthetic input for UK with spatial component - INDIVIDUALS
-$(UKSCALEDDATA)/ind/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py $(PERSISTDATA)/spatial_data/IndSPUKL_population.csv
+$(UKSCALEDDATA)/ind/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_upscaling_test.py $(PERSISTDATA)/spatial_data/IndSPUKL_population.csv
 	$(PYTHON) $(DATAGEN)/US_upscaling_test.py -r 'uk' -p 1
 
 $(DATADIR)/replenishing/uk_scaled/ind/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/ind/2020_US_cohort.csv transitions_default $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py

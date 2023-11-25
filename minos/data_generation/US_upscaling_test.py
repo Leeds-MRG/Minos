@@ -116,6 +116,10 @@ def main(region, percentage=100, bootstrapping=False, n=100_000):
     if bootstrapping:
         subsetted_synthpop_data = subsetted_synthpop_data.sample(n, replace=True)
 
+    # take subset of sample if desired. defaults to 100% for now.
+    subsetted_synthpop_data = take_synthpop_sample(subsetted_synthpop_data, percentage / 100)
+    print(f"Taking {percentage}% of sample giving {subsetted_synthpop_data.shape[0]} rows.")
+
     # merge synthetic and US data together.
     subsetted_synthpop_data['pidp'] = subsetted_synthpop_data['pidp']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
@@ -125,23 +129,23 @@ def main(region, percentage=100, bootstrapping=False, n=100_000):
 
     # scramble new hidp and pidp.
     merged_data['pidp'] = merged_data['new_pidp']  # replace old pidp.
-    merged_data.drop(['new_pidp', 'pidp'], axis=1, inplace=True)  # removing old hidp columns
+    merged_data.drop(['new_pidp'], axis=1, inplace=True)  # removing old hidp columns
     #merged_data['pidp'] = merged_data.index  # creating new pidps.
 
-    # take subset of sample if desired. defaults to 100% for now.
-    sampled_data = take_synthpop_sample(merged_data, percentage / 100)
-    print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
+    # # take subset of sample if desired. defaults to 100% for now.
+    # sampled_data = take_synthpop_sample(merged_data, percentage / 100.0)
+    # print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
 
     # merge with spatial_attributes
     # Get SIMD Deciles for Scottish data
     if region in ['scotland', 'glasgow']:
-        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+        merged_data = merge_with_spatial_attributes(merged_data, get_spatial_attribute_data(), "ZoneID")
 
-    sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
+    merged_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/ind/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/ind/", '', 2020)
+    US_utils.save_file(merged_data, f"data/scaled_{region}_US/ind/", '', 2020)
 
 
 if __name__ == '__main__':
