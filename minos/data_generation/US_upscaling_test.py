@@ -121,7 +121,7 @@ def main(region, percentage=100, bootstrapping=False, n=100_000):
     print(f"Taking {percentage}% of sample giving {subsetted_synthpop_data.shape[0]} rows.")
 
     # merge synthetic and US data together.
-    subsetted_synthpop_data['pidp'] = subsetted_synthpop_data['pidp']
+    #subsetted_synthpop_data['pidp'] = subsetted_synthpop_data['pidp']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
     merged_data = merged_data.dropna(axis=0, subset=[
         "time"])  # remove rows that are missing in spatial data and aren't merged properly.

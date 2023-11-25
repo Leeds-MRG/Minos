@@ -207,7 +207,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scotland_scaled'
     elif region == 'uk':
         data_source = 'scaled_uk_US/ind'
-        output_dir = 'data/replenishing/ind/uk_scaled'
+        output_dir = 'data/replenishing/uk_scaled/ind'
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"

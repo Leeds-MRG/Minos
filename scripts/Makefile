@@ -145,22 +145,22 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled
 
-intervention_hhIncome_uk: setup_uk_hh_scaled
+intervention_hhIncome_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomeIntervention'
 
-intervention_hhIncomeChildUplift_uk: setup_uk_hh_scaled
+intervention_hhIncomeChildUplift_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomeChildUplift'
 
-intervention_PovertyLineChildUplift_uk: setup_uk_hh_scaled
+intervention_PovertyLineChildUplift_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomePovertyLineChildUplift'
 
-intervention_livingWage_uk: setup_uk_hh_scaled
+intervention_livingWage_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'livingWageIntervention'
 
-intervention_energyDownLift_uk: setup_uk_hh_scaled
+intervention_energyDownLift_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'energyDownlift'
 
-intervention_energyDownLiftNoSupport_uk: setup_uk_hh_scaled
+intervention_energyDownLiftNoSupport_uk: setup_uk_ind_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'energyDownliftNoSupport'
 
 
