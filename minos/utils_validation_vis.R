@@ -140,6 +140,9 @@ handover_ordinal <- function(raw.dat, base.dat, var, save=FALSE) {
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'baseline_output')
+  
+  raw.var[[var]] <- as.factor(raw.var[[var]])
+  base.var[[var]] <- as.factor(base.var[[var]])
 
   merged <- rbind(raw.var, base.var)
   merged[[var]] <- as.factor(merged[[var]])

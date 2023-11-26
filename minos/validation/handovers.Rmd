@@ -540,6 +540,7 @@ rm(raw.s, base.s, spag)
 handover_ordinal(raw.dat, base.dat, var = 'chron_disease', save = shall.we.save)
 ```
 
+
 ```{r}
 raw.s <- raw.dat %>%
   select(pidp, age, time, chron_disease) %>%
@@ -549,6 +550,8 @@ base.s <- base.dat %>%
   filter(!chron_disease %in% miss.values)
 
 spag <- rbind(raw.s, base.s)
+
+spag$chron_disease <- as.numeric(spag$chron_disease)
 
 spaghetti_plot(spag, 'chron_disease',
                save = shall.we.save,
@@ -569,3 +572,8 @@ spaghetti_highlight_max_plot(spag.sample, 'chron_disease',
 
 rm(raw.s, base.s, spag)
 ```
+
+```{r}
+
+```
+
