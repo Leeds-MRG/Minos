@@ -75,6 +75,9 @@ all_lineplots_PCS: MODE=default_config
 all_lineplots_PCS: AGG_VAR=SF_12_PCS
 all_lineplots_PCS: default_all_lineplots
 
+lineplot_livingWage: MODE=default_config
+lineplot_livingWage: AGG_VAR=SF_12
+lineplot_livingWage: aggregate_minos_output_living_wage
 
 ######## Equivalent Income PLOTS ########
 
