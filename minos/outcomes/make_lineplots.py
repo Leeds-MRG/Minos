@@ -52,7 +52,7 @@ def aggregate_percentage_counts(df, v):
     return new_df
 
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
-                  mode="default_config", region = None):
+                  mode="default_config", region=None):
     """
 
     Parameters

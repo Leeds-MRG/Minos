@@ -168,7 +168,7 @@ def quintiles_lineplot(config_mode, source, region):
     directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth"
     subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
-    prefix = f"{source}_{region}_simd_quintiles"
+    prefix = f"{source}_{region}_simd_quintiles_"
     ref = "National Average"
     v = "SF_12"
     method = 'nanmean'
@@ -517,7 +517,6 @@ string_to_lineplot_function_args = {
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
     "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", "scotland"],
 
-    "glasgow_baseline_quintile": ['baseline'],
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
     "glasgow_epcg_quintile": ['EPCG'],
