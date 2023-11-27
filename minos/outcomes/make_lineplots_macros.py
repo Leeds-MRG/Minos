@@ -333,7 +333,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         uplift_amount = 25
         for _ in range(6):
             directories += f",{uplift_amount}{intervention_name}"
-            tags = f",£{uplift_amount} {intervention_tag}"
+            tags += f",£{uplift_amount} {intervention_tag}"
             uplift_amount += 5
         subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
         prefix = f"25_50_by_5_together{intervention_name}_uplift"
