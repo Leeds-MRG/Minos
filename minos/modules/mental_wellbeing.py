@@ -481,6 +481,7 @@ class lmmYJMWB(Base):
                         'SF_12_diff',
                         'pidp',
                         'hh_income'
+                        'old_pidp'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -520,9 +521,9 @@ class lmmYJMWB(Base):
 
         sf12_mean = np.median(pop["SF_12"])
         std_ratio = (np.std(newWaveMWB["SF_12"])/np.std(pop["SF_12"]))
-        newWaveMWB["SF_12"] *= std_ratio
-        newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
-        newWaveMWB["SF_12"] -= 1.5
+        #newWaveMWB["SF_12"] *= std_ratio
+        #newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
+        #newWaveMWB["SF_12"] -= 1.5
         #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]

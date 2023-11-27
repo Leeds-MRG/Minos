@@ -193,7 +193,7 @@ def format_ukhls_columns(year):
     """
     # TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
     # Converted these into one dict because its annoying to edit two data frames.
-    attribute_dict = {'ben_base4': "universal_income", # receives core benefits (I.E. universal credit/means tested benefits).
+    attribute_dict = {#'ben_base4': "universal_income", # receives core benefits (I.E. universal credit/means tested benefits).
                       # There are dozens of benefits variables in US this seems like
                       # the simplest and most complete for our purposes.
                       'birthy': "birth_year",  # birth year.

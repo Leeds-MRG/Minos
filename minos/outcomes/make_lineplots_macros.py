@@ -340,9 +340,6 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         ref = "Baseline"
         v = "SF_12"
         method = 'nanmean'
-        print(directories)
-        print(tags)
-        print(subset_function_strings)
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 #################

@@ -12,7 +12,6 @@ import numpy as np
 import sys
 
 from minos.data_generation import US_utils
-
 # import US_missing_description as USmd
 
 # suppressing a warning that isn't a problem
@@ -1002,6 +1001,9 @@ def main():
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
+
+    data['old_pidp'] = data['pidp']
+    data['old_hidp'] = data['hidp']
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
