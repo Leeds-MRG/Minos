@@ -340,6 +340,9 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         ref = "Baseline"
         v = "SF_12"
         method = 'nanmean'
+        print(directories)
+        print(tags)
+        print(subset_function_strings)
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 #################
@@ -515,7 +518,7 @@ string_to_lineplot_function_args = {
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
-    "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", "scotland"],
+    "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", "scotland"],
 
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
