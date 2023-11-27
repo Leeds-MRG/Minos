@@ -331,7 +331,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         directories = "baseline"
         tags = "Baseline"
         uplift_amount = 25
-        for _ in range(6):
+        for _ in range(5):
             directories += f",{uplift_amount}{intervention_name}"
             tags = f",£{uplift_amount} {intervention_tag}"
             uplift_amount += 5
