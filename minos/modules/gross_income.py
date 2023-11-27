@@ -86,7 +86,7 @@ class lmmYJGrossIncome(Base):
                         "council_tax",
                         ]
 
-        columns_created = ['gross_hh_income_diff']
+        columns_created = ['gross_hh_income_diff', "FP10"]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)  # + columns_created)
 
@@ -123,7 +123,8 @@ class lmmYJGrossIncome(Base):
         # Create frame with new 3 columns and add it to the main population frame.
         # This is the same for both new cohorts and newborn babies.
         # Neither should be dead yet.
-        pop_update = pd.DataFrame({'gross_hh_income_diff': 0.},
+        pop_update = pd.DataFrame({'gross_hh_income_diff': 0.,
+                                   "FP10": 0,},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -157,12 +158,13 @@ class lmmYJGrossIncome(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         # print("income", np.mean(newWaveIncome['hh_income']))
-        newWaveGrossIncome[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax"]] = pop[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax"]]
+        newWaveGrossIncome[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy"]] = pop[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy"]]
         newWaveGrossIncome['hh_income'] = self.subtract_outgoings(newWaveGrossIncome)
         newWaveGrossIncome['hh_income_diff'] = newWaveGrossIncome['hh_income'] - pop['hh_income']
+        newWaveGrossIncome['FP10'] = (newWaveGrossIncome['yearly_energy'] / newWaveGrossIncome['hh_income'] > 0.1)
 
         self.population_view.update(
-            newWaveGrossIncome[['gross_hh_income', 'hh_income', 'hh_income_diff', 'gross_hh_income_diff']])
+            newWaveGrossIncome[['gross_hh_income', 'hh_income', 'hh_income_diff', 'gross_hh_income_diff', "FP10"]])
 
     def calculate_gross_income(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -192,7 +194,7 @@ class lmmYJGrossIncome(Base):
 
     def subtract_outgoings(self, pop):
         """After calculating household income subtract outgoings including rent, mortgages, and other bills."""
-        pop["outgoings"] = pop["hh_rent"] + pop["hh_mortgage"] + pop["council_tax"]
+        pop["outgoings"] = pop["hh_rent"] + pop["hh_mortgage"] + pop["council_tax"] + pop['yearly_energy']
         return (pop["gross_hh_income"] - pop["outgoings"]) / pop["oecd_equiv"]
 
     def plot(self, pop, config):
