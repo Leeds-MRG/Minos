@@ -86,15 +86,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     if (dependent == "SF_12") {
       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed. 
-    }
-    else {
+    } else {
       do.reflect=FALSE
     }
     
     if (dependent == "SF_12" || dependent == "hh_income") {
       do.yeo.johnson = T #
-    }
-    else {
+    } else {
       do.yeo.johnson = F
     }
     
@@ -287,6 +285,12 @@ dataDir <- 'data/final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
+
+################################################################################
+# REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
+#default <- T
+# REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
+################################################################################
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {

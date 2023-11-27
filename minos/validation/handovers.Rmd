@@ -818,30 +818,3 @@ print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$h
 
 ```
 
-
-## Job Hours
-
-```{r}
-handover_boxplots(raw.dat, base.dat, 'job_hours')
-handover_lineplots(raw.dat, base.dat, 'job_hours')
-```
-
-```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, job_hours)
-base.s <- base.dat %>%
-  select(pidp, age, time, job_hours)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'job_hours',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
-```
-
-```{r}
-
-```
-

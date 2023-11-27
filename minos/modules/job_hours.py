@@ -87,7 +87,7 @@ class JobHours(Base):
         #                                             path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"job_hours/glmm/job_hours_GLMM", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"job_hours/lmm/job_hours_LMM", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
