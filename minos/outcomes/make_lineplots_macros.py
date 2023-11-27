@@ -539,7 +539,7 @@ string_to_lineplot_function_args = {
     "glasgow_45_universal_credit_quintiles": ['45UniversalCredit', "glasgow"],
     "glasgow_50_universal_credit_quintiles": ['50UniversalCredit', "glasgow"],
 
-    "glasgow_baseline_quintiles": ['baseline', "edinburgh"],
+    "edinburgh_baseline_quintiles": ['baseline', "edinburgh"],
     "edinburgh_25_universal_credit_quintiles": ['25UniversalCredit', "edinburgh"],
     "edinburgh_30_universal_credit_quintiles": ['30UniversalCredit', "edinburgh"],
     "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit', "edinburgh"],
