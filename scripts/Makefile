@@ -414,7 +414,7 @@ arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25Universal
 
 arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config
 arc4_priority_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
-arc4_priority_child_uplifts: arc4_baseline arc4_intervention_25Priority arc4_intervention_50Priority arc4_intervention_75Priority arc4_intervention_100Priority
+arc4_priority_child_uplifts: arc4_scotland_baseline arc4_intervention_25Priority arc4_intervention_50Priority arc4_intervention_75Priority arc4_intervention_100Priority
 
 arc4_all_25_uplifts: MODE=default_config
 arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
