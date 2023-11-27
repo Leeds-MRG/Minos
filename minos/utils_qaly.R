@@ -256,15 +256,29 @@ ICER <- function(base, base.name, int, int.name, QALY_value, int.label) {
 intervention.cost <- function(base, base.name, int, int.name, int.label) {
   combined <- rbind(base, int)
   
-  total.cost <- combined %>%
+  total.cost.byYear <- combined %>%
     select(run_id, year, intervention, total_boost) %>%
-    group_by(run_id, intervention) %>%
-    summarise(total_cost = sum(total_boost)) %>%
+    group_by(run_id, year, intervention) %>%
+    summarise(total_yearly_cost = sum(total_boost)) %>%
     pivot_wider(names_from = 'intervention',
-                values_from = 'total_cost') %>%
+                values_from = 'total_yearly_cost') %>%
     mutate(cost_difference = .data[[int.name]] - .data[[base.name]]) %>%
-    select(run_id, cost_difference) %>%
-    mutate(intervention = int.name) %>%
+    select(run_id, year, cost_difference) %>%
+    mutate(intervention = int.name)
+  
+  p2 <- ggplot(total.cost.byYear, aes(x = year, y = cost_difference, group = intervention, fill = intervention, colour = intervention)) +
+    geom_smooth() +
+    labs(title = 'Intervention Cost by Year', subtitle = paste0(int.name, ' vs ', base.name))
+  print(p2)
+  
+  total.cost.2021 <- total.cost.byYear %>%
+    filter(year == 2021)
+  
+  print(paste("Cost of intervention in the first year (2021) ==", total.cost.2021$cost_difference, sep = ' '))
+  
+  total.cost <- total.cost.byYear %>%
+    group_by(intervention, run_id) %>%
+    summarise(cost_difference = sum(cost_difference)) %>%
     group_by(intervention) %>%
     summarise(margin = (qt(0.975, df=n() - 1) * sd(cost_difference)) / sqrt(n()),
               cost_difference = mean(cost_difference))
@@ -272,7 +286,8 @@ intervention.cost <- function(base, base.name, int, int.name, int.label) {
   p1 <- ggplot(total.cost, aes(x = intervention, y = cost_difference, group = intervention, fill = intervention, colour = intervention)) +
     geom_col() +
     geom_errorbar(aes(ymin = cost_difference - margin, ymax = cost_difference + margin, width = 0.4, group = intervention)) +
-    labs(title = 'Total cost of intervention', subtitle = paste0(int.name, ' vs ', base.name))
+    labs(title = 'Total cost of intervention', subtitle = paste0(int.name, ' vs ', base.name)) +
+    scale_y_continuous(label = comma)
   print(p1)
   
   print(paste("Total cost of the intervention over the full simulation (2020-2035) ==", total.cost$cost_difference, sep = ' '))

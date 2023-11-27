@@ -38,7 +38,7 @@ QALYs: QALY_baseline QALY_energysupport QALY_energynosupport QALY_livwage
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 
-QALY_comparison_livingWage: QALY_baseline QALY_livwage
+QALY_comparison_livingWage: QALY_baseline QALY_livingWage
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
 	firefox file://$(TESTING)/QALY_comparison_livingWage.html
 
