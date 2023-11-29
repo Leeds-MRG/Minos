@@ -100,6 +100,7 @@ papers/
 # Plots (can be made by the model so should not be saved on git)
 plots/
 plots/*
+minos/outcomes/paper1_plots/*
 
 # HR 21/12/22 Windows utils stuff to ignore
 minos/windowsutils/output/
