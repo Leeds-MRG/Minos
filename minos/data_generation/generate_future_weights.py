@@ -25,22 +25,22 @@ def main(years, save):
         data['time'] = year
         print('Reweighting by sex, ethnic group, and year...')
         # first group_by sex and year and sum weight for totals, then rename before merge
-        new_weights =  reweight_stock(data, projections)[['pidp', 'weight']]
-        new_weights.columns = ['pidp', f'{year}_weight']
-        data = data.merge(new_weights, on=['pidp'])
-        data = data.replace(np.nan, 0) # nans if pidp not found in stock pop. default to 0.
+        new_weights = reweight_stock(data, projections)[['pidp', 'weight']]
+        new_weights.columns = ['pidp', 'plus_5_weight']
+        data = data.merge(new_weights, on=['pidp'], how='left')
+        data['plus_5_weight'] = data["plus_5_weight"].replace(np.nan, 0) # nans if pidp not found in stock pop. default to 0.
 
     data['time'] = main_time # reset time back to 2013 at the end.
 
     if save:
-        data.to_csv(f"data/extrapolated_weights_data_{years[0]}.csv")
+        data['plus_5_weight'].to_csv(f"data/extrapolated_weights_data_{years[0]}.csv")
     return data
 
 
 if __name__ == '__main__':
-    start_years = [2011, 2012, 2013, 2014]
+    start_years = [2011, 2012, 2013]
     intervals = 5
-    n_intervals = 2
+    n_intervals = 1
 
     for start_year in start_years:
         years = list(range(start_year, start_year + (n_intervals * (intervals+1)), intervals))

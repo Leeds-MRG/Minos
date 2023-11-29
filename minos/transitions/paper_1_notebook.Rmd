@@ -1,0 +1,43 @@
+---
+title: "Paper 1 Notebook"
+output: html_notebook
+---
+
+```{r "preamble"}
+source("minos/transitions/utils.R")
+source("minos/transitions/transition_model_functions.R")
+library(dplyr)
+```
+
+
+```{r "OLS"}
+
+model_formula_string <- "SF_12 ~ factor(sex) + 
+                  relevel(factor(data$ethnicity), ref='WBI') + 
+                  scale(age) + 
+                  factor(education_state) + 
+                  factor(labour_state_raw) + 
+                  relevel(factor(data$job_sec), ref=1) +
+                  relevel(factor(data$region), ref='London') +
+                  scale(hh_netinc)"
+model_formula <- as.formula(model_formula_string)
+
+dataDir <- "data/raw_US/"
+filelist <- list.files(dataDir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')[21:23] # get files for 2011-2013.
+raw.data <- do.call(rbind, lapply(filelist, read.csv))
+
+raw.data <- raw.data[, append(all.vars(model_formula), c("time", 'pidp', 'weight'))]
+
+raw.data <- raw.data %>%
+        group_by(pidp) %>%
+        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        mutate(last = lag(.data[["SF_12"]], order_by = time)) %>%
+        rename_with(.fn = ~paste0('SF_12_', .), .cols = last)  # add the dependent as prefix to the calculated diff
+
+```
+
+
+

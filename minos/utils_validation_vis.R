@@ -434,7 +434,7 @@ q_q_comparison <- function(raw, cv, var) {
 # handover vis
 ###############################################
 
-handover_boxplots <- function(raw, baseline, var) {
+handover_boxplots <- function(raw, baseline, var, save.path, filename.prefix) {
   raw.var <- raw %>%
     dplyr::select(pidp, time, all_of(var))
   raw.var$source <- 'final_US'
@@ -467,13 +467,13 @@ handover_lineplots <- function(raw, base, var) {
     dplyr::select(pidp, time, var) %>%
     group_by(time) %>%
     summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
-    mutate(source = 'final_US')
+    mutate(source = 'Raw Data')
   
   base.means <- base %>%
     dplyr::select(pidp, time, var) %>%
     group_by(time) %>%
     summarise(summary_var = mean(!!sym(var))) %>%
-    mutate(source = 'baseline_output')
+    mutate(source = 'Predicted Data')
   
   # merge before plot
   combined <- rbind(raw.means, base.means)
@@ -484,5 +484,6 @@ handover_lineplots <- function(raw, base, var) {
     geom_vline(xintercept=start.year, linetype='dotted') +
     labs(title = var, subtitle = 'Full Sample') +
     xlab('Year') +
-    ylab(var)
+    ylab(var) +
+    ggsave(filename = paste0(save.path, "/", filename.prefix))
 }
