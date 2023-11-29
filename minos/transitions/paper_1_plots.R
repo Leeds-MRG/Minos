@@ -252,3 +252,14 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
   }
   return(output_plot)
 }
+
+get_tex_table_caption <- function(variable, mod.type) {
+  
+  output <- paste0("Model ", mod.type)
+  output <- paste0(output, " coefficients for estimation of variable: ")
+  output <- paste0(output, variable)
+  output <- paste0(output, ".")
+  
+}
+
+
