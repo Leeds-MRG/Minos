@@ -55,11 +55,12 @@ main <- function(){
   data <- cbind(mice.data, other.data)
   
 
-  mice_set <- mice(data = data[,imp_columns], method=method,
-                   m = 1, maxit = 1,
-                   #m = 2, maxit = 2,
-                   remove.collinear=T)
-  final.mice.data <- complete(mice_set) 
+  #mice_set <- mice(data = data[,imp_columns], method=method,
+  #                 m = 1, maxit = 1,
+  #                 #m = 2, maxit = 2,
+  #                 remove.collinear=T)
+  #final.mice.data <- complete(mice_set)
+  final.mice.data <- data
   # add weights, time and pidps back in. 
   mice.data <- cbind(final.mice.data, other.data)
   create.if.not.exists("data/mice_US")
