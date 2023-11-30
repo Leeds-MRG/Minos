@@ -757,7 +757,48 @@ spaghetti_plot(spag, 'nkids_ind',
 rm(raw.s, base.s, spag)
 ```
 
+
+## Child Ages
+
 ```{r}
+base.child.ages <- base.dat %>%
+  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
+  filter(time > 2009) %>%
+  group_by(time, hidp) %>%
+  summarise(child_ages = find_mode(child_ages))
+
+s<- strsplit(base.child.ages$child_ages, "_")
+
+base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(s, length)), expanded_child_ages = unlist(s))
+base.child.ages.expanded <- base.child.ages.expanded %>%
+  group_by(time, expanded_child_ages) %>%
+  summarise(age_counts = n())
+  
+ggplot(data = base.child.ages.expanded, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
+  geom_line() +
+  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+  scale_colour_viridis_d() +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = base.child.ages.expanded, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
+  geom_line() +
+  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+  scale_colour_viridis_d() +
+  xlab('Year') +
+  ylab('Count')
+
+base.child.ages.nkids <- base.dat %>%
+  group_by(time, hidp) %>%
+  summarise(nkids_counts = mean(nkids)) %>%
+  group_by(time) %>%
+  summarise(nkids_by_year = sum(nkids_counts))
+
+ggplot(data = base.child.ages.nkids, mapping = aes(x = time, y = nkids_by_year)) +
+  geom_line() +
+  labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
 
 ```
 

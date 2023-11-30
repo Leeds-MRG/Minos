@@ -223,3 +223,8 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
   
   return(grouped)
 }
+
+
+extract_child_ages <- function(child_ages_string){
+  return (as.numeric(unlist(strsplit(child_ages_string, "_"))))
+}
