@@ -206,19 +206,22 @@ class lmmYJNutrition(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         pop = pop.sort_values('pidp')
         #pop['nutrition_quality_new'] = pop['nutrition_quality']
+        print(pop['nutrition_quality'])
 
         ## Predict next nutrition value
         newWaveNutrition = pd.DataFrame(columns=["nutrition_quality"])
         newWaveNutrition['nutrition_quality'] = self.calculate_nutrition(pop).round(0).astype(int)
+        print(newWaveNutrition['nutrition_quality'])
 
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = pop.index
         nutrition_mean = np.mean(newWaveNutrition["nutrition_quality"])
         std_ratio = (np.std(pop["nutrition_quality"])/np.std(newWaveNutrition["nutrition_quality"]))
+        print(nutrition_mean, std_ratio)
         newWaveNutrition["nutrition_quality"] *= std_ratio
         newWaveNutrition["nutrition_quality"] -= ((std_ratio-1)*nutrition_mean)
         newWaveNutrition["nutrition_quality"] = newWaveNutrition["nutrition_quality"].astype(int)
-
+        print(newWaveNutrition['nutrition_quality'])
 
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
         newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 150) # clipping because of idiot that eats 150 vegetables per week.

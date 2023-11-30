@@ -678,12 +678,9 @@ class lmmYJIncome(Base):
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
-        print(np.mean(newWaveIncome['hh_income']))
         income_mean = np.nanmedian(newWaveIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
-        print(income_mean, std_ratio)
         newWaveIncome["hh_income"] *= std_ratio
-        print(np.mean(newWaveIncome['hh_income']))
         newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
@@ -691,8 +688,6 @@ class lmmYJIncome(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print("income", np.mean(newWaveIncome['hh_income']))
-        print(np.mean(newWaveIncome['hh_income']))
-
         # Household income is a household level measure, despite this we predict it for each individual
         # because of this, we need to ensure that all members of a household have the same value after prediction.
         # To this end, I'm going to take one random member of each household and fix everybody else in the house to
@@ -706,7 +701,6 @@ class lmmYJIncome(Base):
 
         # Finally calculate diff
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
-        print(np.mean(newWaveIncome['hh_income']))
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
