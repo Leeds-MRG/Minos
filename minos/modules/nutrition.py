@@ -248,7 +248,7 @@ class lmmYJNutrition(Base):
                                                                        dependent='nutrition_quality_new',
                                                                        reflect=False,
                                                                        yeo_johnson= False,
-                                                                       noise_std=0)#way bigger
+                                                                       noise_std=3)#way bigger
 
         return nextWaveNutrition
     # Special methods used by vivarium.
