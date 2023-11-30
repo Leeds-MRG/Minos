@@ -703,7 +703,7 @@ class lmmYJIncome(Base):
 
         # Finally calculate diff
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
-
+        print(np.mean(newWaveIncome['hh_income']))
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):

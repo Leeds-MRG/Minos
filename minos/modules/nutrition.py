@@ -217,7 +217,7 @@ class lmmYJNutrition(Base):
         std_ratio = (np.std(pop["nutrition_quality"])/np.std(newWaveNutrition["nutrition_quality"]))
         newWaveNutrition["nutrition_quality"] *= std_ratio
         newWaveNutrition["nutrition_quality"] -= ((std_ratio-1)*nutrition_mean)
-        #newWaveNutrition["nutrition_quality"] = newWaveNutrition["nutrition_quality"].astype(int)
+        newWaveNutrition["nutrition_quality"] = newWaveNutrition["nutrition_quality"].astype(int)
 
 
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
