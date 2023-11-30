@@ -678,7 +678,7 @@ class lmmYJIncome(Base):
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
-
+        print(np.mean(newWaveIncome['hh_income']))
         income_mean = np.median(newWaveIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
         newWaveIncome["hh_income"] *= std_ratio
