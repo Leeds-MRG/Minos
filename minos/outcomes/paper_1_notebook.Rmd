@@ -241,11 +241,6 @@ method <- c("pmm",
 #aggr(subset(final.data[,reg_columns], select=-c(y)), sortVars=T,  oma=c(8,4,4,4), numbers=T, cex.axis=1.0, col = c(blue, orange), prop=F, combined=T, cex.numbers=0.5)
 #dev.off()
 
-mice.data$ethnicity <- factor(mice.data$ethnicity)
-mice.data$S7_labour_state <- factor(mice.data$S7_labour_state)
-mice.data$region <- factor(mice.data$region)
-
-
 aggr_columns <- c("SF_12",
                  "job_sec",
                  "education_state",
@@ -264,17 +259,79 @@ dev.off()
 
 
 
+mice_columns <- c("age", 
+                  "region", 
+                  #"heating", 
+                  "job_sec", 
+                  "ncigs",
+                  "education_state",            
+                  "ethnicity",
+                  "loneliness",
+                  "sex", 
+                  "SF_12",
+                  #"SF_12p",
+                  "smoker",
+                  "nkids",       
+                  "behind_on_bills",
+                  "financial_situation",
+                  "future_financial_situation",
+                  "likely_move",
+                  "ghq_depression",
+                  "ghq_happiness",
+                  "clinical_depression", 
+                  "scsf1",
+                  "health_limits_social",
+                  #"hhsize",
+                  #"housing_tenure",
+                  #"urban", 
+                  "housing_quality",
+                  "hh_income",
+                  "neighbourhood_safety",
+                  "S7_labour_state",
+                  #"yearly_energy",
+                  "nutrition_quality"
+                  #"hh_comp", 
+                  #"marital_status"
+)
+
+
+mice.data$ethnicity <- factor(mice.data$ethnicity)
+mice.data$S7_labour_state <- factor(mice.data$S7_labour_state)
+mice.data$region <- factor(mice.data$region)
+mice.data$heating <- factor(mice.data$heating)
+mice.data$job_sec <- factor(mice.data$job_sec)
+mice.data$education_state <- factor(mice.data$education_state)
+mice.data$sex <- factor(mice.data$sex)
+mice.data$smoker <- factor(mice.data$smoker)
+mice.data$behind_on_bills <- factor(mice.data$behind_on_bills)
+mice.data$ghq_depression <- factor(mice.data$ghq_depression)
+mice.data$ghq_happiness <- factor(mice.data$ghq_happiness)
+mice.data$clinical_depression <- factor(mice.data$clinical_depression)
+mice.data$scsf1 <- factor(mice.data$scsf1)
+mice.data$health_limits_social <- factor(mice.data$ghq_depression)
+mice.data$housing_tenure <- factor(mice.data$housing_tenure)
+mice.data$urban <- factor(mice.data$urban)
+mice.data$marital_status <- factor(mice.data$marital_status)
+
+
+
+
+
 load_cache <- F
 if (load_cache) {
   mice_set <- readRDS("data/transitions/MICE_set.rds")
 } else {
-  n_iter <- 20
-  max_iter <- 5
+  n_iter <- 30
+  max_iter <- 10
+  ignore_cols = c("birth_year")
   # future mice is parallelised version of MICE.
-  mice_set <- futuremice(data = mice.data, #method=method,
-                   #m = 10, maxit = 30,
-                   m = n_iter, maxit = max_iter,
-                   remove.collinear=T)
+  #mice_set <- mice(data = mice.data[, mice_columns], #method=method,
+  #                 m = n_iter, maxit = max_iter,
+  #                 remove.collinear=T)
+  
+  mice_set <- futuremice(data = mice.data[, imp_columns], #method=method,
+                   m = n_iter, minit = max_iter,
+                   remove.collinear=T, progressor = progressor)
   saveRDS(mice_set, "data/transitions/MICE_set.rds")
 }
 
