@@ -689,6 +689,7 @@ class lmmYJIncome(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print("income", np.mean(newWaveIncome['hh_income']))
+        print(np.mean(newWaveIncome['hh_income']))
 
         # Household income is a household level measure, despite this we predict it for each individual
         # because of this, we need to ensure that all members of a household have the same value after prediction.
