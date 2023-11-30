@@ -681,7 +681,9 @@ class lmmYJIncome(Base):
         print(np.mean(newWaveIncome['hh_income']))
         income_mean = np.median(newWaveIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        print(income_mean, std_ratio)
         newWaveIncome["hh_income"] *= std_ratio
+        print(np.mean(newWaveIncome['hh_income']))
         newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
