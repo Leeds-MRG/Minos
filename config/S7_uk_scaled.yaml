@@ -11,12 +11,12 @@ population:
 
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/scaled_glasgow_US"
+input_data_dir: "data/scaled_uk_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
 transition_dir: 'data/transitions'
-replenishing_dir: 'data/replenishing/glasgow_scaled'
+replenishing_dir: 'data/replenishing/uk_scaled'
 
 cross_validation: FALSE
 synthetic: TRUE

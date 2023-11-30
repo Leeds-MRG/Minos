@@ -45,6 +45,7 @@ class Ageing(Base):
         population = self.population_view.get(event.index, query="alive == 'alive'")
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
 
+
         # add one to current year
         #population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
         population['time'] += 1
