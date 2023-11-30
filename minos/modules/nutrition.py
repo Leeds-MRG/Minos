@@ -206,7 +206,7 @@ class lmmYJNutrition(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         pop = pop.sort_values('pidp')
         #pop['nutrition_quality_new'] = pop['nutrition_quality']
-        print(pop['nutrition_quality'])
+        print(np.mean(pop['nutrition_quality']))
 
         ## Predict next nutrition value
         newWaveNutrition = pd.DataFrame(columns=["nutrition_quality"])
@@ -248,7 +248,7 @@ class lmmYJNutrition(Base):
                                                                        dependent='nutrition_quality_new',
                                                                        reflect=False,
                                                                        yeo_johnson= False,
-                                                                       noise_std=3)#way bigger
+                                                                       noise_std=0)#way bigger
 
         return nextWaveNutrition
     # Special methods used by vivarium.
