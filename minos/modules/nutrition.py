@@ -204,10 +204,10 @@ class lmmYJNutrition(Base):
 
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        pop = pop.sort_values('pidp')
+        #pop = pop.sort_values('pidp')
         #pop['nutrition_quality_new'] = pop['nutrition_quality']
         print(np.mean(pop['nutrition_quality']))
-
+        print(pop.isna().sum())
         ## Predict next nutrition value
         newWaveNutrition = pd.DataFrame(columns=["nutrition_quality"])
         newWaveNutrition['nutrition_quality'] = self.calculate_nutrition(pop).round(0).astype(int)
