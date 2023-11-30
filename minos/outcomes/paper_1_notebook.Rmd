@@ -268,13 +268,13 @@ load_cache <- F
 if (load_cache) {
   mice_set <- readRDS("data/transitions/MICE_set.rds")
 } else {
-  n_iter <- 30
-  max_iter <- 10
+  n_iter <- 20
+  max_iter <- 5
   # future mice is parallelised version of MICE.
   mice_set <- futuremice(data = mice.data, #method=method,
                    #m = 10, maxit = 30,
                    m = n_iter, maxit = max_iter,
-                   remove.collinear=F)
+                   remove.collinear=T)
   saveRDS(mice_set, "data/transitions/MICE_set.rds")
 }
 
@@ -335,6 +335,7 @@ residual_density_plot(res, paste0(save.path,'mice_ols_densities.pdf'), guide='no
 
 # coefficient forest plot. 
 forest_plot(mice.lm.object, paste0(save.path,'mice_SF12_forest.pdf'))
+qq_plot(resid(mice.lm.object), paste0(save.path, "mice_qq.pdf"))
 
 
 # writing coefficients table for MICE. 

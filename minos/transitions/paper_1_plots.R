@@ -1,6 +1,9 @@
 library(ggplot2)
 
 
+miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
+                 -10., -9., -8., -7., -3., -2., -1.)
+
 # forest plot for lm models. 
 forest_plot_lm <- function(model, file_name){
   
