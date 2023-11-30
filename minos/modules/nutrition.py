@@ -213,10 +213,10 @@ class lmmYJNutrition(Base):
 
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = pop.index
-        #nutrition_mean = np.mean(newWaveNutrition["nutrition_quality"])
-        #std_ratio = (np.std(pop["nutrition_quality"])/np.std(newWaveNutrition["nutrition_quality"]))
-        #newWaveNutrition["nutrition_quality"] *= std_ratio
-        #newWaveNutrition["nutrition_quality"] -= ((std_ratio-1)*nutrition_mean)
+        nutrition_mean = np.mean(newWaveNutrition["nutrition_quality"])
+        std_ratio = (np.std(pop["nutrition_quality"])/np.std(newWaveNutrition["nutrition_quality"]))
+        newWaveNutrition["nutrition_quality"] *= std_ratio
+        newWaveNutrition["nutrition_quality"] -= ((std_ratio-1)*nutrition_mean)
         #newWaveNutrition["nutrition_quality"] = newWaveNutrition["nutrition_quality"].astype(int)
 
 

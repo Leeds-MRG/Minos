@@ -530,6 +530,7 @@ class lmmYJMWB(Base):
         # Update population with new SF12
         #print(np.mean(newWaveMWB["SF_12"]))
         #print(np.std(newWaveMWB["SF_12"]))
+        print(np.mean(newWaveMWB["SF_12"]))
         self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
 
