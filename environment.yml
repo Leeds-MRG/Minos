@@ -26,6 +26,9 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-scales
   - r-ggextra
   - r-mice
+  - r-progressr
+  - r-furrr
+  - r-purrr
   - pandoc
   - sphinx
   - myst-parser
