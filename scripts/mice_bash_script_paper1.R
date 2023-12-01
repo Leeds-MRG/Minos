@@ -89,30 +89,6 @@ method <- c("pmm",
             "pmm",
             "pmm")
 
-# structure plots for adding in auxliary variables
-
-#pdf("papers/phd1/plots/total_missingness_structure2.pdf")
-#aggr(subset(final.data[,reg_columns], select=-c(y)), sortVars=T,  oma=c(8,4,4,4), numbers=T, cex.axis=1.0, col = c(blue, orange), prop=F, combined=T, cex.numbers=0.5)
-#dev.off()
-
-aggr_columns <- c("SF_12",
-                  "job_sec",
-                  "education_state",
-                  "S7_labour_state", 
-                  "ethnicity", 
-                  "hh_income",
-                  "neighbourhood_safety",
-                  "loneliness",
-                  "ncigs",
-                  'nutrition_quality'
-)
-# initial missingness structure for 2011-2013 US data.
-pdf(paste0(save.path, "total_missingness_structure1.pdf"))
-aggr(mice.data[,aggr_columns], sortVars=T, prop=T, combined=F,varheight=T, oma=c(10,5,0,2), gap=0)
-dev.off()
-
-
-
 mice_columns <- c("age", 
                   "region", 
                   #"heating", 

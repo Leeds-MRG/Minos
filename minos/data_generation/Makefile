@@ -112,4 +112,4 @@ $(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAG
 	
 full_mice_dataset: composite_data
 full_mice_dataset:
-	bash scripts/arc_mice_run.sh
+	qsub 'scripts/arc_mice_run.sh'
