@@ -1,25 +1,7 @@
 source("minos/transitions/utils.R")
-source("minos/transitions/transition_model_functions.R")
-source("minos/transitions/paper_1_plots.R")
-library(dplyr)
-library(texreg)
-library(lme4)
-library(glmnet)
 library(mice)
-library(sjPlot)
-library(visreg)
-library(ggplot2)
-library(ggpattern)
-library(VIM)
-library(caret)
-library(tidyverse)
-library(performance)
-library(broom.mixed)
-library(ggridges)
 save.path <- "minos/outcomes/paper1_plots/"
-raw.data.dir <- "data/raw_US/"
 mice.data.dir <- "data/composite_US/"
-final.data.dir <- mice.data.dir
 
 
 
@@ -146,15 +128,14 @@ mice.data$marital_status <- factor(mice.data$marital_status)
 
 n_iter <- 30
 max_iter <- 10
-ignore_cols = c("birth_year")
 # future mice is parallelised version of MICE.
 #mice_set <- mice(data = mice.data[, imp_columns], #method=method,
 #                 m = n_iter, maxit = max_iter,
 #                 remove.collinear=T)
 
 mice_set <- with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
-                m = n_iter, maxit = max_iter,
-                 remove.collinear=T, quiet=F,
-                 progressor = progressr::handlers("progress")))
+                                     m = n_iter, maxit = max_iter,
+                                     quiet=F,
+                                     progressor = progressr::handlers("progress")))
 saveRDS(mice_set, "data/transitions/MICE_set.rds")
 
