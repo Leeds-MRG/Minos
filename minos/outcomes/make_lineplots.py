@@ -116,6 +116,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     """
 
     aggregated_data = pd.DataFrame()
+    aggregated_means = []
     for year in years:
         files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
         # files = files[:10]
