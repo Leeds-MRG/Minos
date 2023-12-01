@@ -69,11 +69,15 @@ def all_five_lineplots(*args):
 
 def social_science_all_plots(config_mode):
     # all social science lineplots together.
-    epcg_and_no_support_lineplot(config_mode)
-    UC_relative_poverty(config_mode, 25)
-    UC_relative_poverty(config_mode, 50)
-    all_five_lineplots(config_mode)
-    living_wage_lineplot(config_mode)
+    #epcg_and_no_support_lineplot(config_mode)
+    #UC_relative_poverty(config_mode, 25)
+    #UC_relative_poverty(config_mode, 50)
+    #all_five_lineplots(config_mode)
+    #living_wage_lineplot(config_mode)
+
+    incremental_25_to_50("UniversalCredit", "Universal Credit", "who_universal_credit_and_kids")
+    incremental_25_to_50("RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids")
+
 
 ########################################
 # glasgow spatial population lineplots #
