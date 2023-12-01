@@ -73,12 +73,14 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation',# 'SF_12',
-                          "housing_tenure", 'hh_income', "nkids_ind", "child_ages"]  # many of these
+                          "housing_tenure", 'hh_income', "nkids_ind"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars) # remove any household with dodgy age chains.
+    # wierd missing data for child ages.
+    data = data.loc[~(data['child_ages'].str.contains('-9') == True)] # remove any household with dodgy age chains
 
-                       # Need to do correction on some variables individually as they are only in the dataset in specific years
+    # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
     # make sure its int not float (need to convert NA to 0 for this to work)
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
