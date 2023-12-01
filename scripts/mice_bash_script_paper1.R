@@ -14,6 +14,7 @@ mice.filelist <- list.files(mice.data.dir,
 mice.data <- do.call(rbind, lapply(mice.filelist, read.csv))
 
 # missingness MICE model formula
+
 mice_formula_string <- "SF_12 ~ 
                         factor(sex) + 
                         relevel(factor(ethnicity), ref='WBI') + 
@@ -134,6 +135,7 @@ max_iter <- 10
 #                 m = n_iter, maxit = max_iter,
 #                 remove.collinear=T)
 
+print("starting mice")
 mice_set <- progressr::with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
                                      m = n_iter, maxit = max_iter,
                                      quiet=F,
