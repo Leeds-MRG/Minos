@@ -329,9 +329,10 @@ if (load_cache) {
   #                 m = n_iter, maxit = max_iter,
   #                 remove.collinear=T)
   
-  mice_set <- futuremice(data = mice.data[, imp_columns], #method=method,
-                   m = n_iter, minit = max_iter,
-                   remove.collinear=T, progressor = progressor)
+  mice_set <- with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
+                   m = n_iter, maxit = max_iter,
+                   remove.collinear=T, 
+                   progressor = progressr::handlers("progress")))
   saveRDS(mice_set, "data/transitions/MICE_set.rds")
 }
 
