@@ -24,4 +24,4 @@
 
 # create these if they dont exist. Will crash arc4 if you dont do this.
 
-Rscript minos/outcomes/mice_bash_script_paper1.R
+Rscript scripts/mice_bash_script_paper1.R
