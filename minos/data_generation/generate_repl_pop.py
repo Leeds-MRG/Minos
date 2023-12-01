@@ -66,7 +66,7 @@ def expand_repl(US_2018, region):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 - new_repl.index
 
         # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
