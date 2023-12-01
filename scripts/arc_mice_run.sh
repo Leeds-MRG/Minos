@@ -11,7 +11,7 @@
 ## Email if a run aborts
 #$ -m a
 ## Select memory
-#$ -l h_vmem=10G # was 15 for big runs
+#$ -l h_vmem=2G # was 15 for big runs
 ## Choose cores. See arc website for more details. 30 high memory cores chosen here.
 #$ -pe smp 30
 ## Set logs directories
