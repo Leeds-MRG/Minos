@@ -480,7 +480,7 @@ class lmmYJMWB(Base):
                         'SF_12',
                         'SF_12_diff',
                         'pidp',
-                        'hh_income'
+                        'hh_income',
                         'old_pidp'
                         ]
 
