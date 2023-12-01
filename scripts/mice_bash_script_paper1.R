@@ -1,5 +1,6 @@
 source("minos/transitions/utils.R")
 library(mice)
+library(progressr)
 save.path <- "minos/outcomes/paper1_plots/"
 mice.data.dir <- "data/composite_US/"
 
@@ -133,7 +134,7 @@ max_iter <- 10
 #                 m = n_iter, maxit = max_iter,
 #                 remove.collinear=T)
 
-mice_set <- with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
+mice_set <- progressr::with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
                                      m = n_iter, maxit = max_iter,
                                      quiet=F,
                                      progressor = progressr::handlers("progress")))
