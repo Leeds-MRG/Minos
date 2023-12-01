@@ -270,7 +270,7 @@ mice_columns <- c("age",
                   "sex", 
                   "SF_12",
                   #"SF_12p",
-                  "smoker",
+                  #"smoker",
                   "nkids",       
                   "behind_on_bills",
                   "financial_situation",
@@ -302,7 +302,7 @@ mice.data$heating <- factor(mice.data$heating)
 mice.data$job_sec <- factor(mice.data$job_sec)
 mice.data$education_state <- factor(mice.data$education_state)
 mice.data$sex <- factor(mice.data$sex)
-mice.data$smoker <- factor(mice.data$smoker)
+#mice.data$smoker <- factor(mice.data$smoker)
 mice.data$behind_on_bills <- factor(mice.data$behind_on_bills)
 mice.data$ghq_depression <- factor(mice.data$ghq_depression)
 mice.data$ghq_happiness <- factor(mice.data$ghq_happiness)
@@ -325,14 +325,14 @@ if (load_cache) {
   max_iter <- 10
   ignore_cols = c("birth_year")
   # future mice is parallelised version of MICE.
-  #mice_set <- mice(data = mice.data[, mice_columns], #method=method,
-  #                 m = n_iter, maxit = max_iter,
-  #                 remove.collinear=T)
-  
-  mice_set <- with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
+  mice_set <- mice(data = mice.data[, imp_columns], #method=method,
                    m = n_iter, maxit = max_iter,
-                   remove.collinear=T, 
-                   progressor = progressr::handlers("progress")))
+                   remove.collinear=T)
+  
+  #mice_set <- with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
+  #                m = n_iter, maxit = max_iter,
+  #                 remove.collinear=T, quiet=F,
+  #                 progressor = progressr::handlers("progress")))
   saveRDS(mice_set, "data/transitions/MICE_set.rds")
 }
 

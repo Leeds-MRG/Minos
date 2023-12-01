@@ -107,3 +107,8 @@ $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINAL
 # synthetic input for glasgow with spatial component.
 $(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py
+	
+	
+	
+full_mice_dataset: composite_data
+full_mice_dataset: bash scripts/arc_mice_run.sh
