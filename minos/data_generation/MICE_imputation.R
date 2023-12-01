@@ -8,7 +8,7 @@ main <- function(){
   # MICE impuation from notebook
   # save to individual waves.
   # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
-  data <- read_raw_data_out(here::here("data/"), "composite_US") 
+  start.data <- read_raw_data_out(here::here("data/"), "composite_US") 
   
   
   # set up MICE and cache data
@@ -49,8 +49,8 @@ main <- function(){
                 'pmm',
                 'pmm')
   
-  other.data <- data[, !names(data) %in% imp_columns]
-  mice.data <- data[, c(imp_columns)]
+  other.data <- start.data[, !names(start.data) %in% imp_columns]
+  mice.data <- start.data[, c(imp_columns)]
   mice.data <- replace.missing(mice.data)
   data <- cbind(mice.data, other.data)
   
@@ -60,11 +60,11 @@ main <- function(){
   #                 #m = 2, maxit = 2,
   #                 remove.collinear=T)
   #final.mice.data <- complete(mice_set)
-  final.mice.data <- data
+  final.mice.data <- start.data
   # add weights, time and pidps back in. 
-  mice.data <- cbind(final.mice.data, other.data)
+  #final.mice.data <- cbind(final.mice.data, other.data)
   create.if.not.exists("data/mice_US")
-  save_raw_data_in(mice.data, "data/mice_US/")
+  save_raw_data_in(final.mice.data, "data/mice_US/")
 }#
 
 
