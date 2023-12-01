@@ -123,27 +123,28 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
-        with Pool() as pool:
-            if year > 2020 or tag == ref:
+
+        if year > 2020 or tag == ref:
+            with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
-                                                zip(files, repeat(subset_func_string), repeat(v), repeat(method),
-                                                    repeat(mode), repeat(region)))
+                                                    zip(files, repeat(subset_func_string), repeat(v), repeat(method),
+                                                        repeat(mode), repeat(region)))
                 if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
                     print(
                         f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
                     aggregated_means = [None]
 
-        if method == weighted_nanmean or method == child_uplift_cost_sum:
-            single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
-            single_year_aggregates['year'] = year
-            single_year_aggregates['tag'] = tag
-            aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
-        elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
-            for i, single_year_aggregate in enumerate(aggregated_means):
-                single_year_aggregate['time'] = year
-                single_year_aggregate['tag'] = tag
-                single_year_aggregate['id'] = i
-                aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+                if method == weighted_nanmean or method == child_uplift_cost_sum:
+                    single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
+                    single_year_aggregates['year'] = year
+                    single_year_aggregates['tag'] = tag
+                    aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
+                elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
+                    for i, single_year_aggregate in enumerate(aggregated_means):
+                        single_year_aggregate['time'] = year
+                        single_year_aggregate['tag'] = tag
+                        single_year_aggregate['id'] = i
+                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
 
     aggregated_data.reset_index(drop=True, inplace=True)
     return aggregated_data
