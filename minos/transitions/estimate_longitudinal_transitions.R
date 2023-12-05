@@ -24,7 +24,7 @@ require(dplyr)
 # Main loop for longitudinal models 
 ###################################
 
-run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data, mode)
+run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, orig_data, mode)
 {
   # process is much simpler here than the yearly models. 
   # get model type and some data frame containing X years of data.
@@ -34,10 +34,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   
   valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM")
   
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
+  orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
   
   repeat{
+    # first thing, take copy of the orig_data to ensure we get the same starting point each time
+    data <- orig_data
+    
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
     
@@ -90,7 +93,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.reflect=FALSE
     }
     
-    if (dependent == "SF_12" || dependent == "hh_income") {
+    if (dependent %in% c("SF_12", "hh_income")) {
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
@@ -109,6 +112,21 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #   formula.string <- paste0(dependent, " ~ ", independents)
     #   form <- as.formula(formula.string)
     # }
+    
+    # READ THIS FOR HOURLY_WAGE
+    # Luke : 4/12/23
+    # hourly_wage var in raw data is plagued by a few extreme values each year in the
+    # raw data. This is problematic as it throws our predictive models off, and these
+    # models struggle to handle extreme points that are only seen for a single time point
+    # (e.g. hourly_wage goes from £30 -> £7500 -> £35 across 3 consecutive years)
+    # Because of this, we are going to remove the crazy outliers in the data
+    # For a first pass, I will remove any values over £500. This will remove
+    # only 15/6893 individuals (in 2020), so is a very small proportion of the data
+    if (dependent == 'hourly_wage') {
+      # remove hourly_wage over £500
+      data <- data %>%
+        filter(hourly_wage < 300)
+    }
     
 
     # differencing data for difference models using dplyr lag.
@@ -278,6 +296,13 @@ scotland.mode <- args$scotland
 cross_validation <- args$crossval
 default <- args$default
 sipher7 <- args$SIPHER7
+
+###################################################################
+# DELETE ME
+#default <- TRUE
+#cross_validation <- TRUE
+# DELETE ME
+###################################################################
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'

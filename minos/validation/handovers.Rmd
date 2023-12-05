@@ -776,7 +776,7 @@ spaghetti_plot(spag, 'hourly_wage',
 
 # now a version limited to 0-100
 spag <- spag %>%
-  filter(hourly_wage <= 100)
+  filter(hourly_wage <= 300)
 spaghetti_plot(spag, 'hourly_wage',
                save = shall.we.save,
                save.path = save.path)

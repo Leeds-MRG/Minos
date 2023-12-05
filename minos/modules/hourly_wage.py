@@ -66,6 +66,7 @@ class HourlyWage(Base):
                         'hh_income',
                         'hourly_wage',
                         'hourly_wage_diff',
+                        'time'
                         ]
 
 
@@ -80,7 +81,7 @@ class HourlyWage(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
@@ -141,10 +142,10 @@ class HourlyWage(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
 
-        # merge back onto pop so we can be sure we're updating the correct people
+        # merge back onto pop, so we can be sure we're updating the correct people
         pop = pop.drop(labels=['hourly_wage', 'hourly_wage_diff'], axis=1)
         pop['hourly_wage'] = newWaveHourlyWage['hourly_wage']
-        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 10000)  # limit to values we can see in raw data
+        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 1000)  # limit to 1000 max value. This is a test
         pop['hourly_wage'][pop['hourly_wage'] < 0] = 0.0
         pop['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage_diff']
 
@@ -183,12 +184,12 @@ class HourlyWage(Base):
         """
         # load transition model based on year.
         newWaveHourlyWage = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='hourly_wage',
-                                                                       yeo_johnson=False,
-                                                                       reflect=False,
-                                                                       noise_std=10)  # 0.45 for yj. 5? for non yj.
+                                                                          self.rpy2Modules,
+                                                                          pop,
+                                                                          dependent='hourly_wage',
+                                                                          yeo_johnson=False,
+                                                                          reflect=False,
+                                                                          noise_std=10)  # 0.45 for yj. 5? for non yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

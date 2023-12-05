@@ -23,6 +23,7 @@ CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+TESTING = $(SOURCEDIR)/testing
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
@@ -154,6 +155,10 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*/*.txt
 	rm -rf data/transitions/scotland/*/*.rds
 
 clean_scotland: ### Clean all files related to Scotland mode

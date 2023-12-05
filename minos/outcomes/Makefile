@@ -78,6 +78,10 @@ all_lineplots_PCS: default_all_lineplots
 lineplot_livingWage: MODE=default_config
 lineplot_livingWage: AGG_VAR=SF_12
 lineplot_livingWage: aggregate_minos_output_living_wage
+lineplot_livingWage:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/testing_livingWage_intervention.Rmd')"
+	# open html file in firefox
+	firefox file://$(TESTING)/testing_livingWage_intervention.html
 
 ######## Equivalent Income PLOTS ########
 

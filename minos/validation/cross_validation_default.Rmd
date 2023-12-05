@@ -400,10 +400,3 @@ multi_year_boxplots(raw, cv, 'hourly_wage')
 q_q_comparison(raw, cv, 'hourly_wage')
 ```
 
-## Job Hours
-
-```{r}
-cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'job_hours')
-multi_year_boxplots(raw, cv, 'job_hours')
-q_q_comparison(raw, cv, 'job_hours')
-```
