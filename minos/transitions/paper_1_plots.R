@@ -57,7 +57,7 @@ gamma_forest_plot <- function(model, file_name){
   p <- p +  scale_shape_manual(name='Significance Level',
                                breaks=c('n.s.', "*", "**", "***"),
                                values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
-  #p <- p + ylim(0.1, 1.9)
+  p <- p + ylim(c(-0.1, 0.1))
   plot(p)
   dev.off()
 }
@@ -79,8 +79,8 @@ residual_density_plot <- function(res, file_name, guide=NULL){
 
 qq_plot <- function(res, file_name){
   pdf(file_name)
-  print(qqnorm(scale(res)))
-  print(qqline(scale(res)))
+  qqnorm(scale(res))
+  qqline(scale(res))
   dev.off()
   print("saved qq plot to")
   print(file_name)
@@ -124,7 +124,10 @@ handover_boxplots <- function(raw, baseline, var, save.path, filename.prefix) {
   ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
+  ggsave(paste0(save.path, '/', filename.prefix, ".pdf"))
 }
+
+
 
 # summarise(summary_var = weighted.mean(x = .data[[var]], w = weight)) %>%
 handover_lineplots <- function(raw, base, var) {
@@ -232,7 +235,8 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     geom_density_ridges(aes(y=time, color=time, linetype=time), alpha=0.6) +
     #scale_color_viridis_d() +
     scale_color_cyclical(values=c("#F8766D", "#00BA38","#619CFF")) +
-    scale_linetype_cyclical(values=c(1, 2, 3))
+    scale_linetype_cyclical(values=c(1, 2, 3)) +
+    xlim(c(0, 70))
   
   if(save) {
     if(is.null(save.path)) {
@@ -240,9 +244,9 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     }
     # add handover to filename if handover
     if (handover) {
-      save.filename <- paste0('density_ridges_handover_', v, '.png')
+      save.filename <- paste0('density_ridges_', v, '.pdf')
     } else {
-      save.filename <- paste0('density_ridges_output_', v, '.png')
+      save.filename <- paste0('density_ridges_', v, '.pdf')
     }
     # add tag to filename if provided
     if (!is.null(filename.tag)) {

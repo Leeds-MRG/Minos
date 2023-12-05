@@ -25,6 +25,8 @@ library(tidyverse)
 library(performance)
 library(broom.mixed)
 library(ggridges)
+library(ggmice)
+library(MASS)
 save.path <- "minos/outcomes/paper1_plots/"
 raw.data.dir <- "data/raw_US/"
 mice.data.dir <- "data/composite_US/"
@@ -53,7 +55,7 @@ raw_model_formula_string <- "SF_12 ~ factor(sex) +
                   scale(age) + 
                   factor(education_state) + 
                   factor(labour_state_raw) + 
-                  relevel(factor(job_sec), ref=1) +
+                  relevel(factor(NSSEC), ref=1) +
                   relevel(factor(region), ref='London') +
                   scale(hh_netinc)"
 
@@ -62,8 +64,12 @@ raw_model_formula <- as.formula(raw_model_formula_string)
 variables <- all.vars(raw_model_formula)
 
 # get only needed variables and replace missing codes with NA.
+raw.data.colnames <- colnames(raw.data)
+raw.data.colnames[which( colnames(raw.data)=="job_sec" )] <- "NSSEC"
+colnames(raw.data) <- raw.data.colnames
 raw.data <- raw.data[, append(variables, c("time", 'pidp', 'weight'))]
 raw.data <- replace.missing(raw.data)
+
 
 raw.data <- drop_na(raw.data)
 
@@ -74,7 +80,9 @@ full.raw.filelist <- list.files(raw.data.dir,
                        pattern = '[0-9]{4}_US_cohort.csv')[21:30] # get files for 2011-2013.
 # load raw data.
 full.raw.data <- do.call(rbind, lapply(full.raw.filelist, read.csv))
-
+full.raw.data.colnames <- colnames(full.raw.data)
+full.raw.data.colnames[which( colnames(full.raw.data)=="job_sec" )] <- "NSSEC"
+colnames(full.raw.data) <- full.raw.data.colnames
 # get only needed variables and replace missing codes with NA.
 full.raw.data <- full.raw.data[, append(variables, c("time", 'pidp', 'weight'))]
 full.raw.data <- replace.missing(full.raw.data)
@@ -123,7 +131,7 @@ residual_density_plot(res=resid(sf12.lm), file_name=paste0(save.path, "presentat
 squareRootRes <- sqrt(abs(scale(resid(sf12.lm))))
 fitted_residuals <- as.data.frame(cbind(fitted(sf12.lm), squareRootRes))
 colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
-fitted_residual_plot(fitted_residuals, paste0(save.path, "presentation_fitted_residual_plot.pdf"))
+fitted_residual_plot(fitted_residuals, paste0(save.path, "presentation_scale_location_plot.pdf"))
 
 # raw data handovers from 2011-2020. 
 
@@ -159,6 +167,10 @@ mice.filelist <- list.files(mice.data.dir,
                        pattern = '[0-9]{4}_US_cohort.csv')
 mice.data <- do.call(rbind, lapply(mice.filelist, read.csv))
 
+mice.data.colnames <- colnames(mice.data)
+mice.data.colnames[which(colnames(mice.data)=="job_sec" )] <- "NSSEC"
+colnames(mice.data) <- mice.data.colnames
+
 # missingness MICE model formula
 mice_formula_string <- "SF_12 ~ 
                         factor(sex) + 
@@ -166,7 +178,7 @@ mice_formula_string <- "SF_12 ~
                         scale(age) + 
                         factor(education_state) + 
                         factor(S7_labour_state) + 
-                        relevel(factor(job_sec), ref=1) +
+                        relevel(factor(NSSEC), ref=1) +
                         relevel(factor(region), ref='London') +
                         scale(hh_income) + 
                         scale(I(hh_income**2)) +
@@ -203,7 +215,7 @@ mice.2018.weights <- mice.data[which(mice.data$time %in% c(2016, 2017, 2018)), "
 
 imp_columns <- c("SF_12",
                  'sex',
-                 "job_sec",
+                 "NSSEC",
                  "education_state",
                  "S7_labour_state", 
                  "region", 
@@ -242,7 +254,7 @@ method <- c("pmm",
 #dev.off()
 
 aggr_columns <- c("SF_12",
-                 "job_sec",
+                 "NSSEC",
                  "education_state",
                  "S7_labour_state", 
                  "ethnicity", 
@@ -254,7 +266,7 @@ aggr_columns <- c("SF_12",
 )
 # initial missingness structure for 2011-2013 US data.
 pdf(paste0(save.path, "total_missingness_structure1.pdf"))
-aggr(mice.data[,aggr_columns], sortVars=T, prop=T, combined=F,varheight=T, oma=c(10,5,0,2), gap=0)
+aggr(mice.data[,aggr_columns], sortVars=T, prop=T, combined=F,varheight=T, oma=c(10,5,1,2), gap=0)
 dev.off()
 
 
@@ -262,7 +274,7 @@ dev.off()
 mice_columns <- c("age", 
                   "region", 
                   #"heating", 
-                  "job_sec", 
+                  "NSSEC", 
                   "ncigs",
                   "education_state",            
                   "ethnicity",
@@ -318,7 +330,7 @@ mice.data$loneliness <- factor(mice.data$loneliness)
 
 
 
-load_cache <- F
+load_cache <- T
 if (load_cache) {
   mice_set <- readRDS("data/transitions/MICE_set.rds")
 } else {
@@ -326,7 +338,7 @@ if (load_cache) {
   max_iter <- 10
   ignore_cols = c("birth_year")
   # future mice is parallelised version of MICE.
-  mice_set <- mice(data = mice.data[, imp_columns], #method=method,
+  mice_set <- mice(data = mice.data[, imp_columns],
                    m = n_iter, maxit = max_iter,
                    remove.collinear=T)
   
@@ -349,6 +361,10 @@ mice.long <- complete(mice_set, action = "long", include=T)
 mice.long$pidp <- mice.data$pidp
 mice.long$weight <- mice.data$weight
 mice.long$time <- mice.data$time
+mice.long.colnames <- colnames(mice.long)
+mice.long.colnames[which( colnames(mice.long)=="job_sec" )] <- "NSSEC"
+colnames(mice.long) <- mice.long.colnames
+
 mice_set.full <- as.mids(mice.long)
 
 mice.long.subset <- mice.long[which(mice.long$time %in% c(2011, 2012, 2013)), ]
@@ -357,7 +373,8 @@ mice_set.subset <- as.mids(mice.long.subset)
 
 # convergence plots needs to be done on full mice subset. 
 pdf(paste0(paste0(save.path,"ols_mice_convergence.pdf")))
-print(plot(mice_set, SF_12 = SF_12 ~ .it | .ms))
+#print(plot(mice_set, SF_12 = SF_12 ~ .it | .ms))
+plot_trace(mice_set, "SF_12") + theme(legend.position="none")
 dev.off()
 
 # pooling OLS estimate together. 
@@ -529,7 +546,7 @@ for (i in 1:7){
 
 handover_boxplots(crossval.mice.data, handover.data, "SF_12", save.path, "mice_SF12_boxplots")
 density_ridges(crossval.mice.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "mice_raw_ridges")
-density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "mice_handover_ridges")
+density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "mice_validation_ridges")
 
 ```
 
@@ -549,7 +566,52 @@ for (i in 1:7){
 
 handover_boxplots(crossval.mice.data, handover.data, "SF_12", save.path, "crossval_SF12_boxplot")
 density_ridges(crossval.mice.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "crossval_raw_ridges")
-density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "crossval_handover_ridges")
+density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.tag = "crossval_validation_ridges")
+
+```
+
+###
+
+```{r random_coefficients}
+
+# for 100 iterations
+randomised.mice.model.data <- data.frame()
+random.mice.lm.object <- lm(mice_formula_string, data = complete(mice_set.subset, 1))
+
+
+for (i in 1:100) {
+  # choose a random OLS model
+  # randomise its coefficients from MVN dist from MASS.
+  #model.choice.ix <- ceiling(runif(1)*30)
+  #model.choice <- mice.sf12.lm$analyses[model.choice.ix]
+  model.choice <- random.mice.lm.object
+  model.choice$coefficients <- MASS::mvrnorm(n=1, mu=mice.lm.object$coefficients[, 1], Sigma=vcov(mice.lm.object))
+  # add to pool
+  # commentary
+  random.start.data <- crossval.mice.data[which(crossval.mice.data$time==2013),]
+  #random.start.data[, c("run_id")] <- i
+  #random.rolling.data <- random.start.data[, c("SF_12", "time", "run_id")]
+  #random.handover.data <- rolling.data
+  for (j in 1:7){
+    random.start.data$SF_12 <- predict(model.choice, random.start.data)
+    #random.start.data$SF_12 <- random.rolling.data$SF_12
+    #random.rolling.data[, 'time'] <- random.rolling.data[, 'time'] +1
+    #random.handover.data <- rbind(random.handover.data, random.rolling.data)
+  }
+  individual.density <- density(random.start.data$SF_12)
+  new.data.frame <- cbind(individual.density$x, individual.density$y, i)
+  colnames(new.data.frame) <- c("SF_12", "Density", "run_id")
+  randomised.mice.model.data <- rbind(randomised.mice.model.data, new.data.frame)
+
+}
+
+p <- ggplot(randomised.mice.model.data, aes(x=SF_12, y=Density, group=factor(run_id))) +
+     geom_line(alpha=0.1) + ylim(0, 0.15) + xlim(15,60)
+ggsave(paste0(save.path, "/", "randomised_coefficients_2020_density.pdf"))
+#ggplot(randomised.mice.model.data, aes(x=SF_12, y=Density)) +
+#    geom_line(alpha=0.2) + geom_ribbon()
+
+
 
 ```
 
@@ -577,25 +639,26 @@ pdf(paste0(save.path, 'ols_cv_lasso_2013.pdf'))
 plot(cv.lasso)
 dev.off()
 
-print(coef(cv.lasso, s = "lambda.min"))
-print(coef(cv.lasso, s = "lambda.1se"))
-  
 # bind two sets of coefficients into a data frame
 # load them into a tex table using the latex package?
-lasso_coefs <- cbind(coef(cv.lasso, s = "lambda.min")[, 's1'], coef(cv.lasso, s = "lambda.1se")[, 's1'])
-colnames(lasso_coefs) <- c("Minimum Error", "First Standard Error")
-#lasso_coefs <- kable(as.data.frame(as.matrix(lasso_coefs)), "latex")
-
+lasso.min.coefs <- coef(cv.lasso, s=cv.lasso$lambda.min)
+lasso.1se.coefs <- coef(cv.lasso, s=cv.lasso$lambda.1se)
+lasso_model_names <- c("Minimum Error", "First Standard Error")
 
 texreg_file <- paste0(save.path, 'SF12_Lasso_coefficients.txt')
 tex_label <- paste0("table: sf12_lasso_coefficients") 
-tex_headers <- c(texreg::names2latex("SF_12 LASSO"))
+tex_headers <- c(texreg::names2latex("Minimum Error"), texreg::names2latex("First Standard Error"))
 tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "lasso"))    
-lassoTexReg <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,1], se=lasso_coefs[,2])
+#lassoTexReg <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,1], se=lasso_coefs[,2], model.names=c("Minimum Error", "First Standard Error"))
+
+lasso.min <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso.min.coefs[, "s1"])
+lasso.1se <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso.1se.coefs[, "s1"])
+
+
 #lassoTexReg2 <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,2])#, lasso_coefs[, 2]))#, pvalues=lasso_coefs[,2])
 #matrixLassoTexReg <- matrixreg(list(lassoTexReg, lassoTexReg2))
 
-texreg(lassoTexReg, # what model to save coefs for. 
+texreg(c(lasso.min, lasso.1se), # what model to save coefs for. 
        file=texreg_file,  # where to save.
        custom.model.names = tex_headers, # title of table.
        caption=tex_caption, # \caption command option. 
@@ -671,7 +734,7 @@ extrapolated_weights.filelist <- list.files("data/",
                        full.names = TRUE,
                        pattern = 'extrapolated_weights_data_[0-9]{4}.csv')[1:3]# get files for 2016-2018.
 
-iextrapolated.weights.data <- do.call(rbind, lapply(extrapolated_weights.filelist, read.csv))
+extrapolated.weights.data <- do.call(rbind, lapply(extrapolated_weights.filelist, read.csv))
 extrapolated.weights.data <- replace.missing(extrapolated.weights.data)
 extrapolated.weights <- extrapolated.weights.data[, c("plus_5_weight")]
 
@@ -726,7 +789,7 @@ texreg(list(sf12.lm.weighted.2013,sf12.lm.weighted.2018), # what model to save c
 
 # yoink transition model function pre processing
 reflect <- T
-yeo_johnson <- T
+yeo_johnson <- F
 include_weights <- T
 depend <- "SF_12"
 dependent_data <- complete(mice_set.subset)$SF_12
@@ -735,16 +798,16 @@ glmm.mice.long.subset <- complete(mice_set.subset, "long", include=T)
 
 if (reflect) {
     max_value <- nanmax(mice.data[[depend]])
-    glmm.mice.long.subset[, c(depend)] <- max_value - glmm.mice.long.subset[, c(depend)] 
+    glmm.mice.long.subset[, c(depend)] <- max_value - glmm.mice.long.subset[, c(depend)] + 0.001
   }
 if (yeo_johnson)
 {
   yj <- yeojohnson(glmm.mice.long.subset[["SF_12"]])
   glmm.mice.long.subset[["SF_12"]] <- predict(yj)
+  
+  min_value <- nanmin(glmm.mice.long.subset [[depend]])
+  glmm.mice.long.subset[[depend]] <- glmm.mice.long.subset[[depend]] - min_value + 0.001
 }
-
-min_value <- nanmin(glmm.mice.long.subset [[depend]])
-glmm.mice.long.subset[[depend]] <- glmm.mice.long.subset[[depend]] - min_value + 0.001
 
 
 glmm.mice.long.subset <- glmm.mice.long.subset %>%
@@ -754,14 +817,14 @@ glmm.mice.long.subset <- glmm.mice.long.subset %>%
             rename_with(.fn = ~paste0('SF_12_', .), .cols = last)  # add the dependent as prefix to the calculated diff
 glmm.mice.set <- as.mids(glmm.mice.long.subset)
 
-
+asd <- "SF_12_last +"
 glmm_model_formula_string <- "SF_12 ~ SF_12_last +
                   factor(sex) + 
                   relevel(factor(ethnicity), ref='WBI') + 
                   scale(age) + 
                   factor(education_state) + 
                   factor(S7_labour_state) + 
-                  relevel(factor(job_sec), ref=1) +
+                  relevel(factor(NSSEC), ref=1) +
                   relevel(factor(region), ref='London') +
                   scale(hh_income) + 
                   scale(I(hh_income**2)) +
@@ -769,13 +832,13 @@ glmm_model_formula_string <- "SF_12 ~ SF_12_last +
                   factor(neighbourhood_safety) +
                   factor(loneliness) + 
                   nutrition_quality + 
-                  ncigs + 
+                  ncigs + time +
                   (1|pidp)"
 
 sf12.glmm.model <- with(glmm.mice.set, glmer(glmm_model_formula_string,  
                nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
-               family=Gamma(link='log'), # gamma family with log link.
-               weights=weight))
+               family=Gamma(link='log')#, weights=weight# gamma family with log link.
+               ))
 
 sf12.glmm.pool <- pool(sf12.glmm.model)
 
@@ -818,16 +881,32 @@ if (write_coefs)
 }
 
 # + rnorm(nrow(complete(glmm.mice.set ,1)), 0,0.75)
-glmm.fitted <- (max_value - predict(yj, predict(mice.glmm.object, type='response') + min_value +rnorm(predict(mice.glmm.object, type='response'),0,0.2), inverse=T))#
+if (yeo_johnson == T) {
+  glmm.fitted <- (max_value - predict(yj, predict(mice.glmm.object, type='response') + min_value #+rnorm(predict(mice.glmm.object, type='response'),0,0.2)
+                                    , inverse=T))#
+} else {
+  glmm.fitted <-  max_value - predict(mice.glmm.object, type='response')
+}
+
+
 #glmm.fitted <- (max_value - predict(mice.glmm.object, type='response') + min_value + rnorm(nrow(glmm.mice.long.subset), 0, 1))
-glmm.fitted <- trunc(glmm.fitted, 0 , 100)
-qq_plot(residuals(mice.glmm.object, type='pearson'), paste0(save.path, "glmm_qq.pdf"))
+#glmm.mean <- mean(glmm.fitted)
+#glmm.sd <- sd(glmm.fitted)
+#glmm.fitted <- glmm.fitted * (glmm.sd/sd(raw.data$SF_12))
+#glmm.fitted <- glmm.fitted - (glmm.mean*(glmm.sd/sd(raw.data$SF_12)-1))
+#glmm.fitted <- trunc(glmm.fitted, 0 , 100) #+ rnorm(length(glmm.fitted),0,2)
+
+qq_plot(scale(residuals(mice.glmm.object, type='pearson')), paste0(save.path, "glmm_qq.pdf"))
+qq_plot(scale(residuals(mice.glmm.object, type='deviance')), paste0(save.path, "glmm_qq.pdf"))
+
 residual_density_plot(res=residuals(mice.glmm.object) , file_name=paste0(save.path, "glmm_residual_density.pdf"), guide="normal")
 
-squareRootRes <- sqrt(residuals(mice.glmm.object, type='pearson'))
+squareRootRes <- sqrt(residuals(mice.glmm.object, type='pearson')**2)
+#squareRootRes <- residuals(mice.glmm.object, type='pearson')
+
 fitted_residuals <- as.data.frame(cbind(glmm.fitted, squareRootRes))
 colnames(fitted_residuals) <- c("fitted", "sqrt_residuals")
-fitted_residual_plot(fitted_residuals, paste0(save.path, "glmm_fitted_residual_plot.pdf"))
+fitted_residual_plot(fitted_residuals, paste0(save.path, "glmm_scale_location_plot.pdf"))
 
 
 #TODO change cofficient and std scaling.
@@ -862,7 +941,12 @@ handover.data <- start.data
 
 rolling.data <- start.data
 for (i in 1:7){
-  rolling.data$SF_12 <- max_value - predict(yj,  predict(mice.glmm.object, start.data, type='response',allow.new.levels=T) + rnorm(nrow(rolling.data),0,0.25)+min_value, inverse=T)
+  if (yeo_johnson) {
+      rolling.data$SF_12 <- max_value - predict(yj,  predict(mice.glmm.object, start.data, type='response',allow.new.levels=T) +min_value, inverse=T)
+  }
+  else {
+    rolling.data$SF_12 <- max_value - predict(mice.glmm.object, start.data,type='response',allow.new.levels=T) + rnorm(nrow(rolling.data), 0, 1)
+  }
   #rolling.data$SF_12 <- max_value - rolling.data$SF_12
   rolling.data$SF_12 <- trunc(rolling.data$SF_12, 0 , 100)
   rolling.data$SF_12_last <- rolling.data$SF_12

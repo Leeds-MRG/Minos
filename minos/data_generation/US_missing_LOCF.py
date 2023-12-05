@@ -259,6 +259,27 @@ def main(data, save=False):
         US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
     return data
 
+def main_post_composites(data, save=False):
+
+    US_missing_description.missingness_table(data)
+
+    #f_columns = ["education_state", "depression", "depression_change",
+    #             "labour_state", "job_duration_m", "job_duration_y", "job_occupation",
+    #             "job_industry", "job_sec", "heating"]  # add more variables here.
+    # define columns to be forward filled, back filled, and linearly interpolated.
+    # note columns can be forward and back filled for immutables like ethnicity.
+    f_columns = ['neighbourhood_safety', "ncigs"] # 'ncigs', 'ndrinks']
+    fb_columns = ["nutrition_quality"]  # or here if they're immutable.
+    mf_columns = []
+    data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
+    print("After LOCF correction of composite variables.")
+    US_missing_description.missingness_table(data)
+
+    if save:
+        US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
+    return data
+
+
 if __name__ == "__main__":
     # Load in data.
     # Process data by year and pidp.

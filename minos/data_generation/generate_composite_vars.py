@@ -13,6 +13,7 @@ import sys
 
 from minos.data_generation import US_utils
 # import US_missing_description as USmd
+from minos.data_generation.US_missing_LOCF import main_post_composites
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -990,6 +991,8 @@ def main():
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
 
+
+    data = main_post_composites(data)
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
 

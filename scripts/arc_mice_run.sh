@@ -11,12 +11,12 @@
 ## Email if a run aborts
 #$ -m a
 ## Select memory
-#$ -l h_vmem=2G # was 15 for big runs
-## Choose cores. See arc website for more details. 30 high memory cores chosen here.
-#$ -pe smp 30
+## just use one node
+##$ -l nodes=1
+#$ -pe ib 30
 ## Set logs directories
 #$ -o ./logs/log
-#$ -e ./logs/errors
+
 
 ############## SET NUMBER OF RUNS HERE ##############
 ## Tell computer this is an array job with tasks from 1 to N

@@ -135,10 +135,15 @@ max_iter <- 10
 #                 m = n_iter, maxit = max_iter,
 #                 remove.collinear=T)
 
+start.time <- Sys.time()
 print("starting mice")
+# tried to get progress bar working to no avail. think it needs an interactive session. 
 mice_set <- progressr::with_progress(futuremice(data = mice.data[, mice_columns], #method=method,
                                      m = n_iter, maxit = max_iter,
                                      quiet=F,
                                      progressor = progressr::handlers("progress")))
+end.time <- Sys.time()
 saveRDS(mice_set, "data/transitions/MICE_set.rds")
+print("Time Elapsed: ")
+print(end.time-start.time)
 
