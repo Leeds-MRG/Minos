@@ -394,3 +394,63 @@ class netZeroGasReplacement(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.population_view.update(pop[['gross_hh_income', 'income_boosted', 'boost_amount']])
 
+
+
+
+
+class EPCG(Base):
+    @property
+    def name(self):
+        return "hheat_switch"
+
+    def __repr__(self):
+        return "hheatSwitch()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hheat", "pidp", "alive", "housing_quality"]
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the energy downlift intervention in year {event.time.year}...")
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop.loc[pop['hheat']==0, "housing_quality"] += 1
+        pop['hheat'] = 1
+
+        # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
+        self.population_view.update(pop[['hheat', "housing_quality"]])
+
+        #TODO logging for this intervention
+        #logging.info(f"\tNumber of people downlifted: {sum(pop['income_boosted'])}")
+        #logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        #logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        #logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
+
