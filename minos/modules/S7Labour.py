@@ -117,9 +117,9 @@ class S7Labour(Base):
         #year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2019
+            year = 2020
         else:
-            year = min(self.year, 2019)
+            year = min(self.year, 2020)
 
         transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (9xn) of next ordinal state.

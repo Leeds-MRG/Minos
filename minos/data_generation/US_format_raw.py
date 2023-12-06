@@ -581,7 +581,6 @@ def main(wave_years: list, file_source: str, verbose: bool, file_output: str) ->
 if __name__ == "__main__":
 
     maxyr = US_utils.get_data_maxyr()
-
     years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
 
     # Take source from command line args (or most likely from Makefile variable)

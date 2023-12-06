@@ -239,11 +239,11 @@ class lmmYJNutrition(Base):
                                                                        noise_std=1)#
 
         return nextWaveNutrition
+
     # Special methods used by vivarium.
     @property
     def name(self):
         return 'lmmYJNutrition'
-
 
     def __repr__(self):
         return "lmmYJNutrition()"

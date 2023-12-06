@@ -229,7 +229,8 @@ def longitudinal_hist(data):
 
 def main():
     # Load in data.
-    wave_years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+    wave_years  = np.arange(1991, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in wave_years]
     full_US_data = US_utils.load_multiple_data(file_names)
     # Summary table of missing values by variable.
