@@ -6,6 +6,7 @@ import pandas as pd
 
 import US_utils
 
+
 def complete_case(data):
     """ main function for complete case.
     Parameters
@@ -81,27 +82,27 @@ if __name__ == "__main__":
     # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
     # make sure its int not float (need to convert NA to 0 for this to work)
-    data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020])
+    data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020, 2021])
     # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
     # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
     data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
-    data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
+    data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2022, 1)))
     # Nutrition only present in 2014
-    data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
+    data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019, 2021])
 
     # Complete case for some vars in 2014 as it was messing up the cross-validation runs
     #data = complete_case_custom_years(data, 'job_sector', years=[2014])
-    data = complete_case_custom_years(data, 'hh_income', years=[2014])
+    data = complete_case_custom_years(data, 'hh_income', years=[2015])
 
     # SIPHER 7 complete case stuff
-    data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2021, 1)))
+    data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2022, 1)))
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
-    data = complete_case_custom_years(data, 'S7_mental_health', years=list(range(2010, 2021, 1)))
+    data = complete_case_custom_years(data, 'S7_mental_health', years=list(range(2010, 2022, 1)))
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
-    data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
+    data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2022, 1)))
 
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
