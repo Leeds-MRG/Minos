@@ -34,12 +34,12 @@ inflated_data: ### Inflate the data to account for survey weights, with records 
 inflated_data: $(INFLATEDDATA)/2020_US_cohort.csv
 
 inflated_repl: ### Replenishing population generated from inflated data.
-inflated_repl: $(DATADIR)/replenishing/inflated/replenishing_pop_2019-2070.csv
+inflated_repl: $(DATADIR)/replenishing/inflated/replenishing_pop_2015-2070.csv
 
 replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
-replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2019-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
+replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2015-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
-scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
+scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2015-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
 spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
 ### version of the final data to be used in spatial analyses (of Sheffield only)
@@ -49,7 +49,7 @@ scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
 cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
 
-cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv
+cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2015-2070.csv
 
 # creating spatial populations from WS3 data
 
@@ -92,13 +92,13 @@ $(FINALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/20
 $(INFLATEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/weight_inflate_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/weight_inflate_pop.py
 
-$(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/replenishing_pop_2015-2070.csv: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
-$(DATADIR)/replenishing/inflated/replenishing_pop_2019-2070.csv: $(INFLATEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/inflated/replenishing_pop_2015-2070.csv: $(INFLATEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --inflated
 
-$(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv: $(SCOTDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/scotland/replenishing_pop_2015-2070.csv: $(SCOTDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland
 
 $(SPATIALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2020_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
@@ -110,7 +110,7 @@ $(SCOTDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv
 $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_stock_pop.py --cross_validation
 
-$(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/cross_validation/replenishing_pop_2015-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation
 
 ### Synthetic Populations
@@ -119,19 +119,19 @@ $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINAL
 $(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'glasgow' -p 100
 
-$(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_2019-2070.csv: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_2015-2070.csv: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'glasgow'
 
 # synthetic input for glasgow with spatial component.
 $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'scotland' -p 100
 
-$(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2019-2070.csv: $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2015-2070.csv: $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'scotland'
 
 # synthetic input for UK with spatial component.
 $(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'uk' -p 1
 
-$(DATADIR)/replenishing/uk_scaled/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
