@@ -98,7 +98,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
 
     data_zones = get_data_zones(region)
-    US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2020.
+    US_data = pd.read_csv("data/final_US/2021_US_cohort.csv")  # only expanding on one year of US data for 2021.
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
@@ -131,7 +131,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # but still updating weights helps with weighted aggregates later.
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
+    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2021)
 
 
 if __name__ == '__main__':
