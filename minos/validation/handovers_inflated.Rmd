@@ -57,7 +57,7 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ## Constants
 
 ```{r}
-start.year <- 2020
+start.year <- 2021
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
