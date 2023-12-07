@@ -52,7 +52,14 @@ main <- function(){
                     #"marital_status"
   )
   
+  # minimal imp set for debugging.
+  mice_columns <- c("age", 
+                    "region", 
+                    "sex", 
+                    "SF_12"
+  )
   
+  # get all non-imputed variables to add back in later.
   other.variables <- setdiff(colnames(mice.data), mice_columns)
   
   mice.data$ethnicity <- factor(mice.data$ethnicity)
@@ -74,8 +81,8 @@ main <- function(){
   mice.data$marital_status <- factor(mice.data$marital_status)
   
   
-  n_iter <- 2
-  max_iter <- 1
+  n_iter <- 30
+  max_iter <- 10
   # future mice is parallelised version of MICE.
   #mice_set <- mice(data = mice.data[, imp_columns], #method=method,
   #                 m = n_iter, maxit = max_iter,
@@ -87,16 +94,15 @@ main <- function(){
   mice_set <- futuremice(data = mice.data[, mice_columns], #method=method,
                                                   m = n_iter, maxit = max_iter)
   end.time <- Sys.time()
+  print("Time Elapsed: ")
+  print(end.time-start.time)
+  saveRDS(mice_set, "data/transitions/MICE_set2.rds") # failsafe so we don't have to impute twice.
   
+  # adding in all non-imputed variables and cast back to mids object. 
   mice.long <- complete(mice_set, action = "long", include=T)
   mice.long[, c(other.variables)] <-  mice.data[, c(other.variables)]
   mice_set.full <- as.mids(mice.long)
-  
-  
-  
   saveRDS(mice_set.full, "data/transitions/MICE_set2.rds")
-  print("Time Elapsed: ")
-  print(end.time-start.time)
 }
 
 main()

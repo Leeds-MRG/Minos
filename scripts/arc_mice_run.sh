@@ -22,4 +22,4 @@
 ## Tell computer this is an array job with tasks from 1 to N
 #$ -t 1-1
 
-Rscript minos/data_generation/mice_bash_script_paper1.R
+Rscript minos/data_generation/mice_arc4_imputation.R
