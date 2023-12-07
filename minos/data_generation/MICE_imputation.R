@@ -63,6 +63,11 @@ main <- function(){
   final.mice.data <- start.data
   # add weights, time and pidps back in. 
   #final.mice.data <- cbind(final.mice.data, other.data)
+  cached <- TRUE
+  if (cached) {
+    mice.set <- readRDS("data/mice_US/mice_set.rds")
+    final.mice.data <- complete(mice.set, 1)
+  }
   create.if.not.exists("data/mice_US")
   save_raw_data_in(final.mice.data, "data/mice_US/")
 }#

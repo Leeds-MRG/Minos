@@ -7,6 +7,7 @@ library(sp) # ^
 library(sf) # ^ Also sucks to install. no longer used for geojsonio.
 library(tibble) # converting spatial objects to data frames.
 # library(ggrepel) # for geom_text_repel labels
+library(ggthemes)
 
 subset_geojson <- function(data, subset_function){
   # Subset national MINOS geoJSON output by some subset function.
@@ -132,7 +133,8 @@ minos_diff_map <- function(data, destination_file_name, v, do_save=T){
     geom_sf(color='black', lwd=0.01) + # add black borders to lsoas for clarity
     # Add split colour scheme.
     #scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
-    scale_fill_distiller(palette = "PuOr", limits=c(-scale_limit, scale_limit), direction=-1) +
+    #scale_fill_distiller(palette = "PuOr", limits=c(-scale_limit, scale_limit), direction=-1) +
+    scale_fill_gradient2_tableau(palette = "Orange-Blue Diverging", limits=c(-scale_limit, scale_limit)) +
     labs(fill=paste0('Relative ', v, ' Difference (%)'))  + # label colour bar
     theme(aspect.ratio=9/16) +
     #ggtitle("Difference in SF12 spatial distribution for minos vs real US data in Sheffield.") +
