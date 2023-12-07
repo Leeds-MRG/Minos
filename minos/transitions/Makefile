@@ -21,7 +21,7 @@ scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income
 cv_transitions: $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds $(TRANSITION_DATA)/cross_validation/version5/SF_12/glmm/SF_12_GLMM.rds
 
 cv_S7_transitions: | $(TRANSITION_DATA)
-cv_S7_transitions: $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health/clm/S7_mental_health_2019_2020.rds
+cv_S7_transitions: $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/cross_validation/version5/hh_income/glmm/hh_income_new_GLMM.rds
 
 $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(FINALDATA)/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default
@@ -43,6 +43,9 @@ $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds: $(FINALDATA)/2021_US_c
 
 $(TRANSITION_DATA)/cross_validation/version5/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --cross_validation
+
+$(TRANSITION_DATA)/cross_validation/version5/hh_income/glmm/hh_income_new_GLMM.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt
+	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --cross_validation --sipher7
 
 $(TRANSITION_DATA):
 	@echo "Creating transition data directory"
