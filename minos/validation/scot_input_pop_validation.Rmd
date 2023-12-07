@@ -1,0 +1,181 @@
+---
+title: "Scotpop validation notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+This notebook is for validation of the scottish population for child poverty interventions. It contains descriptive statistics for the population and validated against provided child poverty data spatially and nationally. 
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(sf)
+library(sp)
+library(tibble) # converting spatial objects to data frames.
+library(broom)
+library(here)
+library(ggplot2)
+
+
+source( here::here("minos", "outcomes", "minos_SF12_maps.R"))
+```
+
+```{r}
+scotland.data <- read.csv("data/scaled_scotland_US/2020_US_cohort.csv")
+#scotland.data <- drop_na(scotland.data)
+uk.geojson <- st_read("persistent_data/spatial_data/UK_super_outputs.geojson")
+uk.geojson <- geojson_to_tibble(uk.geojson)
+
+scotland.data.zones <- read.csv("persistent_data/spatial_data/scotland_data_zones.csv")
+glasgow.data.zones <- read.csv("persistent_data/spatial_data/glasgow_data_zones.csv")
+edinburgh.data.zones <- read.csv("persistent_data/spatial_data/edinburgh_data_zones.csv")
+
+scotland.geojson <- uk.geojson[which(uk.geojson$ZoneID %in% (scotland.data.zones$LSOA11CD)), ]
+glasgow.geojson <- uk.geojson[which(uk.geojson$ZoneID %in% (glasgow.data.zones)$LSOA11CD), ]
+edinburgh.geojson <- uk.geojson[which(uk.geojson$ZoneID %in% (edinburgh.data.zones)$LSOA11CD), ]
+
+scotland.LADs.geojson <-  st_read("persistent_data/spatial_data/scotland_LADs.json")
+scotland.LADs.geojson <- geojson_to_tibble(scotland.LADs.geojson)
+scotland.LADs.geojson[6, "LAD13NM"] <- "Na h-Eileanan Siar" # conflicting name. Think this has been updated since 2013?
+
+```
+
+
+Description of SF12 MCS
+
+```{r}
+hist(scotland.data$SF_12, breaks=100)
+print(summary(scotland.data$SF_12))
+print(sd(scotland.data$SF_12))
+```
+
+```{r}
+#https://www.gov.scot/publications/tackling-child-poverty-delivery-plan-forecasting-child-poverty-scotland/pages/4/
+glasgow.poverty.stats <- read.csv("persistent_data/spatial_data/Child-Poverty-Glasgow-City-2021-22.csv")
+#glasgow.poverty.stats$X..of.children.in.poverty <- glasgow.poverty.stats$X..of.children.in.poverty %% 100
+# getting households in relative poverty
+scotland.relative_poverty <- scotland.data %>%
+                                filter(hh_income < 0.7*median(hh_income))
+
+glasgow.relative_poverty.map <- scotland.relative_poverty %>%
+                                  filter(ZoneID %in% (glasgow.data.zones)) %>%
+                                  group_by(ZoneID) %>%
+                                  summarize(sf12_mean = mean(SF_12, na.rm=T))
+
+
+glasgow.relative_poverty.map.data <- merge(glasgow.geojson, glasgow.relative_poverty.map, by ='ZoneID')
+                           
+glasgow.relative.poverty.map <- ggplot(data = glasgow.relative_poverty.map.data , aes(geometry = geometry, fill=.data[["sf12_mean"]])) +
+  #geom_sf() + # black outlines on borders for clarity.
+  geom_sf(color=NA) + # black outlines on borders for clarity.
+  scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+  labs(fill="sf12_mean")  + # colour bar label.
+  theme(aspect.ratio=9/16) + # change plot to widescreen dimensions.
+  xlab("Longitude") + # axis labels
+  ylab("Latitude")
+plot(glasgow.relative.poverty.map)
+```
+
+```{r}
+
+glasgow.percentage.relative.poverty.data <- scotland.data %>%
+                                  filter(ZoneID %in% (glasgow.data.zones)) %>%
+                                  mutate(in_relative_poverty = hh_income < 0.75*median(hh_income)) %>%
+                                  group_by(hidp) %>%
+                                  summarize(ZoneID= max(ZoneID), nkids = max(nkids), in_relative_poverty = max(in_relative_poverty)) %>%
+                                  group_by(ZoneID) %>%
+                                  summarize(relative.poverty.freq = 100 * sum(nkids*in_relative_poverty)/sum(nkids))
+
+glasgow.percentage.relative.poverty.map.data <- merge(glasgow.geojson, glasgow.percentage.relative.poverty.data, by ='ZoneID')
+
+glasgow.percentage.relative.poverty.map <- ggplot(data = glasgow.percentage.relative.poverty.map.data  , aes(geometry = geometry, fill=.data[["relative.poverty.freq"]])) +
+  #geom_sf() + # black outlines on borders for clarity.
+  geom_sf(color=NA) + # black outlines on borders for clarity.
+  scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+  labs(fill="Percentage Poverty")  + # colour bar label.
+  theme(aspect.ratio=9/16) + # change plot to widescreen dimensions.
+  xlab("Longitude") + # axis labels
+  ylab("Latitude")
+plot(glasgow.percentage.relative.poverty.map)
+
+
+glasgow.percentage.relative.poverty.diff <- merge(glasgow.percentage.relative.poverty.map.data, glasgow.poverty.stats, by.x = "ZoneID", by.y="DataZone")
+glasgow.percentage.relative.poverty.diff$diff <- glasgow.percentage.relative.poverty.diff$X..of.children.in.poverty - glasgow.percentage.relative.poverty.diff$relative.poverty.freq
+
+# bluer indicates the synth pop underestimates percentage poverty. orange indicates overestimation. 
+minos_diff_map(glasgow.percentage.relative.poverty.diff, "plots/poverty_diff_map.pdf", "PP", F)
+print("MAE:")
+print(mean(abs(glasgow.percentage.relative.poverty.diff$diff)))
+hist(abs(glasgow.percentage.relative.poverty.diff$diff))
+```
+
+
+```{r}
+#https://www.healthscotland.scot/media/2607/child-poverty-scales-and-trends.pdf
+scotland.lad.poverty.data <- scotland.data[, c("hh_income", "nkids", "hidp", "ZoneID")]
+scotland.lad.poverty.data <- merge(scotland.lad.poverty.data, scotland.geojson, by = "ZoneID")
+scotland.lad.poverty.data <- scotland.lad.poverty.data[, c("hh_income", "nkids", "hidp", "LAName")]
+
+scotland.lad.percentage.relative.poverty.data <- scotland.lad.poverty.data %>%
+                                  mutate(in_relative_poverty = hh_income < 0.6*median(hh_income)) %>%
+                                  group_by(hidp) %>%
+                                  summarize(LAName= max(LAName), nkids = max(nkids), in_relative_poverty = max(in_relative_poverty)) %>%
+                                  group_by(LAName) %>%
+                                  summarize(relative.poverty.freq = 100 * sum(nkids*in_relative_poverty)/sum(nkids))
+
+scotland.lad.percentage.relative.poverty.map.data  <- merge(scotland.lad.percentage.relative.poverty.data, scotland.LADs.geojson, by.x = "LAName", by.y="LAD13NM")
+
+
+scotland.lad.percentage.relative.poverty.map <- ggplot(data = scotland.lad.percentage.relative.poverty.map.data  , aes(geometry = geometry, fill=.data[["relative.poverty.freq"]])) +
+  #geom_sf() + # black outlines on borders for clarity.
+  geom_sf(color=NA) + # black outlines on borders for clarity.
+  scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+  labs(fill="Percentage Poverty")  + # colour bar label.
+  xlab("Longitude") + # axis labels
+  ylab("Latitude")
+plot(scotland.lad.percentage.relative.poverty.map)
+print(mean(scotland.lad.percentage.relative.poverty.map.data$relative.poverty.freq))
+
+
+# download from here https://www.jrf.org.uk/data/uk-child-poverty-rates-local-authority.
+rowntree.percentage.child.poverty <- readxl::read_xlsx("persistent_data/spatial_data/6_chld_pov_rate_by_la.xlsx")
+rowntree.percentage.child.poverty <- rowntree.percentage.child.poverty[which(rowntree.percentage.child.poverty$`Title:` %in% scotland.LADs.geojson$LAD13NM), ]
+rowntree.percentage.child.poverty$percentage_poverty <- as.numeric(rowntree.percentage.child.poverty$`Child poverty rate estimate by local authority`) * 100
+  
+  
+scotland.lad.percentage.relative.poverty.diff <- merge(scotland.lad.percentage.relative.poverty.map.data, rowntree.percentage.child.poverty, by.x = "LAName", by.y="Title:")
+scotland.lad.percentage.relative.poverty.diff $diff <- scotland.lad.percentage.relative.poverty.diff$percentage_poverty - scotland.lad.percentage.relative.poverty.diff$relative.poverty.freq
+
+# bluer indicates the synth pop underestimates percentage poverty. orange indicates overestimation. 
+minos_diff_map(scotland.lad.percentage.relative.poverty.diff, "plots/poverty_diff_map.pdf", "PP", F)
+print("MAE:")
+print(mean(abs(scotland.lad.percentage.relative.poverty.diff$diff)))
+hist(abs(scotland.lad.percentage.relative.poverty.diff$diff), breaks=100)
+
+```
+
+Description of Household Income
+
+```{r}
+
+```
+
+Description of Household (Absolute/Relative) Poverty.
+
+
+```{r}
+
+```
+
+Description of Material Deprivation and Low Income
+
+```{r}
+
+```
+
+Description of Persistent poverty? Not sure this is feasible with one year of synth data. 
+
+```{r}
+
+```

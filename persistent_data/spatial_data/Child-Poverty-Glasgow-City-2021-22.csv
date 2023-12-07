@@ -1,0 +1,747 @@
+"DataZone","Name","Council","% of children in poverty"
+"S01009758","Darnley East - 01","Glasgow City",21.4
+"S01009759","Darnley East - 02","Glasgow City",44.6
+"S01009760","Darnley East - 03","Glasgow City",30.4
+"S01009761","Darnley East - 04","Glasgow City",35.6
+"S01009762","Darnley East - 05","Glasgow City",33.7
+"S01009763","Darnley East - 06","Glasgow City",19.7
+"S01009764","Darnley North - 01","Glasgow City",37.8
+"S01009765","Darnley North - 02","Glasgow City",46.2
+"S01009766","Darnley North - 03","Glasgow City",11.5
+"S01009767","Darnley North - 04","Glasgow City",18.3
+"S01009768","Darnley West - 01","Glasgow City",33.3
+"S01009769","Darnley West - 02","Glasgow City",20.4
+"S01009770","Darnley West - 03","Glasgow City",23.5
+"S01009771","Darnley West - 04","Glasgow City",26.8
+"S01009772","Darnley West - 05","Glasgow City",31.8
+"S01009773","Darnley West - 06","Glasgow City",28.4
+"S01009774","Darnley West - 07","Glasgow City",25.3
+"S01009775","Nitshill - 01","Glasgow City",33.9
+"S01009776","Nitshill - 02","Glasgow City",53.8
+"S01009777","Nitshill - 03","Glasgow City",63.4
+"S01009778","Nitshill - 04","Glasgow City",54.9
+"S01009779","Nitshill - 05","Glasgow City",48.4
+"S01009780","Nitshill - 06","Glasgow City",40.7
+"S01009781","Nitshill - 07","Glasgow City",46.9
+"S01009782","Nitshill - 08","Glasgow City",35.6
+"S01009783","Nitshill - 09","Glasgow City",31.5
+"S01009784","Crookston South - 01","Glasgow City",35
+"S01009785","Crookston South - 02","Glasgow City",31.5
+"S01009786","Crookston South - 03","Glasgow City",46.3
+"S01009787","Crookston South - 04","Glasgow City",41.7
+"S01009788","Crookston North - 01","Glasgow City",29.9
+"S01009789","Crookston North - 02","Glasgow City",26
+"S01009790","Crookston North - 03","Glasgow City",27.8
+"S01009791","Crookston North - 04","Glasgow City",39.8
+"S01009792","Pollok South and West - 01","Glasgow City",22
+"S01009793","Pollok South and West - 02","Glasgow City",8.7
+"S01009794","Pollok South and West - 03","Glasgow City",21.4
+"S01009795","Pollok South and West - 04","Glasgow City",20.5
+"S01009796","Pollok South and West - 05","Glasgow City",17.4
+"S01009797","Pollok South and West - 06","Glasgow City",20.2
+"S01009798","Pollok South and West - 07","Glasgow City",21.9
+"S01009799","Pollok North and East - 01","Glasgow City",45.1
+"S01009800","Pollok North and East - 02","Glasgow City",41.7
+"S01009801","Pollok North and East - 03","Glasgow City",30.2
+"S01009802","Pollok North and East - 04","Glasgow City",46.4
+"S01009803","Pollok North and East - 05","Glasgow City",33.8
+"S01009804","Pollok North and East - 06","Glasgow City",15.8
+"S01009805","Pollok North and East - 07","Glasgow City",37.4
+"S01009806","Cardonald South and East - 01","Glasgow City",30.8
+"S01009807","Cardonald South and East - 02","Glasgow City",25.6
+"S01009808","Cardonald South and East - 03","Glasgow City",16.5
+"S01009809","Cardonald South and East - 04","Glasgow City",21.4
+"S01009810","Cardonald North - 01","Glasgow City",27.5
+"S01009811","Cardonald North - 02","Glasgow City",25.3
+"S01009812","Cardonald North - 03","Glasgow City",20.7
+"S01009813","Cardonald North - 04","Glasgow City",46.4
+"S01009814","Cardonald North - 05","Glasgow City",19.6
+"S01009815","Cardonald West and Central - 01","Glasgow City",22.5
+"S01009816","Cardonald West and Central - 02","Glasgow City",35.3
+"S01009817","Cardonald West and Central - 03","Glasgow City",11.1
+"S01009818","Cardonald West and Central - 04","Glasgow City",17.4
+"S01009819","Cardonald West and Central - 05","Glasgow City",29.6
+"S01009820","Cardonald West and Central - 06","Glasgow City",20.8
+"S01009821","Cardonald West and Central - 07","Glasgow City",15.8
+"S01009822","Penilee - 01","Glasgow City",19.8
+"S01009823","Penilee - 02","Glasgow City",46.3
+"S01009824","Penilee - 03","Glasgow City",23.9
+"S01009825","Penilee - 04","Glasgow City",32.1
+"S01009826","Penilee - 05","Glasgow City",37.7
+"S01009827","Penilee - 06","Glasgow City",29.2
+"S01009828","Penilee - 07","Glasgow City",33.8
+"S01009829","Hillington - 01","Glasgow City",26
+"S01009830","Hillington - 02","Glasgow City",29.2
+"S01009831","Hillington - 03","Glasgow City",21.7
+"S01009832","Hillington - 04","Glasgow City",25.9
+"S01009833","Drumoyne and Shieldhall - 01","Glasgow City",5.7
+"S01009834","Drumoyne and Shieldhall - 02","Glasgow City",42.7
+"S01009835","Drumoyne and Shieldhall - 03","Glasgow City",40.3
+"S01009836","Drumoyne and Shieldhall - 04","Glasgow City",14.5
+"S01009837","Drumoyne and Shieldhall - 05","Glasgow City",37.5
+"S01009838","Drumoyne and Shieldhall - 06","Glasgow City",31
+"S01009839","Drumoyne and Shieldhall - 07","Glasgow City",31.5
+"S01009840","Drumoyne and Shieldhall - 08","Glasgow City",29.6
+"S01009841","Govan and Linthouse - 01","Glasgow City",46.8
+"S01009842","Govan and Linthouse - 02","Glasgow City",33.3
+"S01009843","Govan and Linthouse - 03","Glasgow City",34.7
+"S01009844","Govan and Linthouse - 04","Glasgow City",52.5
+"S01009845","Govan and Linthouse - 05","Glasgow City",44.8
+"S01009846","Govan and Linthouse - 06","Glasgow City",46.4
+"S01009847","Govan and Linthouse - 07","Glasgow City",23.8
+"S01009848","Craigton - 01","Glasgow City",29.6
+"S01009849","Craigton - 02","Glasgow City",31
+"S01009850","Craigton - 03","Glasgow City",36.4
+"S01009851","Craigton - 04","Glasgow City",21.8
+"S01009852","Mosspark - 01","Glasgow City",35.8
+"S01009853","Mosspark - 02","Glasgow City",37.1
+"S01009854","Mosspark - 03","Glasgow City",27.1
+"S01009855","Mosspark - 04","Glasgow City",20
+"S01009856","Mosspark - 05","Glasgow City",39.3
+"S01009857","Mosspark - 06","Glasgow City",17.1
+"S01009858","Mosspark - 07","Glasgow City",27.6
+"S01009859","Ibrox - 01","Glasgow City",49.8
+"S01009860","Ibrox - 02","Glasgow City",25.4
+"S01009861","Ibrox - 03","Glasgow City",30.7
+"S01009862","Ibrox East and Cessnock - 01","Glasgow City",39.9
+"S01009863","Ibrox East and Cessnock - 02","Glasgow City",44.6
+"S01009864","Ibrox East and Cessnock - 03","Glasgow City",34.3
+"S01009865","Ibrox East and Cessnock - 04","Glasgow City",41.7
+"S01009866","Kinning Park and Festival Park - 01","Glasgow City",37.2
+"S01009867","Kinning Park and Festival Park - 02","Glasgow City",25.5
+"S01009868","Kinning Park and Festival Park - 03","Glasgow City",29.4
+"S01009869","Kinning Park and Festival Park - 04","Glasgow City",46.6
+"S01009870","Kinning Park and Festival Park - 05","Glasgow City",38.3
+"S01009871","Kingston West and Dumbreck - 01","Glasgow City",40.5
+"S01009872","Kingston West and Dumbreck - 02","Glasgow City",69.7
+"S01009873","Kingston West and Dumbreck - 03","Glasgow City",21.9
+"S01009874","Kingston West and Dumbreck - 04","Glasgow City",24
+"S01009875","Pollokshields West - 01","Glasgow City",53.8
+"S01009876","Pollokshields West - 02","Glasgow City",61.8
+"S01009877","Pollokshields West - 03","Glasgow City",18.6
+"S01009878","Pollokshields West - 04","Glasgow City",65.8
+"S01009879","Pollokshields West - 05","Glasgow City",7.8
+"S01009880","Pollokshields West - 06","Glasgow City",48.6
+"S01009881","Pollokshields East - 01","Glasgow City",52.8
+"S01009882","Pollokshields East - 02","Glasgow City",42.6
+"S01009883","Pollokshields East - 03","Glasgow City",54.3
+"S01009884","Pollokshields East - 04","Glasgow City",64.6
+"S01009885","Pollokshields East - 05","Glasgow City",42.2
+"S01009886","Pollokshields East - 06","Glasgow City",47.3
+"S01009887","Govanhill West - 01","Glasgow City",110
+"S01009888","Govanhill West - 02","Glasgow City",70.6
+"S01009889","Govanhill West - 03","Glasgow City",110.3
+"S01009890","Govanhill West - 04","Glasgow City",63.7
+"S01009891","Govanhill West - 05","Glasgow City",67.4
+"S01009892","Govanhill West - 06","Glasgow City",83.7
+"S01009893","Govanhill West - 07","Glasgow City",81.8
+"S01009894","Govanhill East and Aikenhead - 01","Glasgow City",60.4
+"S01009895","Govanhill East and Aikenhead - 02","Glasgow City",49
+"S01009896","Govanhill East and Aikenhead - 03","Glasgow City",74
+"S01009897","Govanhill East and Aikenhead - 04","Glasgow City",73.9
+"S01009898","Govanhill East and Aikenhead - 05","Glasgow City",67.7
+"S01009899","Battlefield - 01","Glasgow City",30
+"S01009900","Battlefield - 02","Glasgow City",13.2
+"S01009901","Battlefield - 03","Glasgow City",17.7
+"S01009902","Battlefield - 04","Glasgow City",26.4
+"S01009903","Battlefield - 05","Glasgow City",42.6
+"S01009904","Battlefield - 06","Glasgow City",24.3
+"S01009905","Strathbungo - 01","Glasgow City",76.6
+"S01009906","Strathbungo - 02","Glasgow City",80.5
+"S01009907","Strathbungo - 03","Glasgow City",91.7
+"S01009908","Strathbungo - 04","Glasgow City",26.2
+"S01009909","Strathbungo - 05","Glasgow City",21.2
+"S01009910","Strathbungo - 06","Glasgow City",28.9
+"S01009911","Strathbungo - 07","Glasgow City",6.7
+"S01009912","Maxwell Park - 01","Glasgow City",12.8
+"S01009913","Maxwell Park - 02","Glasgow City",23.2
+"S01009914","Maxwell Park - 03","Glasgow City",15.7
+"S01009915","Maxwell Park - 04","Glasgow City",25
+"S01009916","Maxwell Park - 05","Glasgow City",22.4
+"S01009917","Maxwell Park - 06","Glasgow City",8.1
+"S01009918","Maxwell Park - 07","Glasgow City",27.6
+"S01009919","Shawlands West - 01","Glasgow City",56.9
+"S01009920","Shawlands West - 02","Glasgow City",28.6
+"S01009921","Shawlands West - 03","Glasgow City",11.4
+"S01009922","Shawlands West - 04","Glasgow City",9.5
+"S01009923","Shawlands East - 01","Glasgow City",8.7
+"S01009924","Shawlands East - 02","Glasgow City",27.6
+"S01009925","Shawlands East - 03","Glasgow City",17.9
+"S01009926","Shawlands East - 04","Glasgow City",40.4
+"S01009927","Langside - 01","Glasgow City",17
+"S01009928","Langside - 02","Glasgow City",0
+"S01009929","Langside - 03","Glasgow City",10.2
+"S01009930","Langside - 04","Glasgow City",12.3
+"S01009931","Langside - 05","Glasgow City",25.5
+"S01009932","Langside - 06","Glasgow City",13.3
+"S01009933","Pollokshaws - 01","Glasgow City",48.1
+"S01009934","Pollokshaws - 02","Glasgow City",8.6
+"S01009935","Pollokshaws - 03","Glasgow City",31.9
+"S01009936","Pollokshaws - 04","Glasgow City",20
+"S01009937","Pollokshaws - 05","Glasgow City",11.9
+"S01009938","Pollokshaws - 06","Glasgow City",40.5
+"S01009939","Carnwadric West - 01","Glasgow City",57.8
+"S01009940","Carnwadric West - 02","Glasgow City",43
+"S01009941","Carnwadric West - 03","Glasgow City",47.9
+"S01009942","Carnwadric West - 04","Glasgow City",62.1
+"S01009943","Carnwadric West - 05","Glasgow City",53.6
+"S01009944","Carnwadric East - 01","Glasgow City",35.9
+"S01009945","Carnwadric East - 02","Glasgow City",37.6
+"S01009946","Carnwadric East - 03","Glasgow City",33.3
+"S01009947","Carnwadric East - 04","Glasgow City",37.7
+"S01009948","Newlands - 01","Glasgow City",40.9
+"S01009949","Newlands - 02","Glasgow City",38.4
+"S01009950","Newlands - 03","Glasgow City",10.8
+"S01009951","Newlands - 04","Glasgow City",16.1
+"S01009952","Newlands - 05","Glasgow City",6.5
+"S01009953","Newlands - 06","Glasgow City",16.1
+"S01009954","Newlands - 07","Glasgow City",30.1
+"S01009955","Merrylee and Millbrae - 01","Glasgow City",29.7
+"S01009956","Merrylee and Millbrae - 02","Glasgow City",20.6
+"S01009957","Merrylee and Millbrae - 03","Glasgow City",0
+"S01009958","Merrylee and Millbrae - 04","Glasgow City",8.1
+"S01009959","Muirend and Old Cathcart - 01","Glasgow City",12.1
+"S01009960","Muirend and Old Cathcart - 02","Glasgow City",6.9
+"S01009961","Muirend and Old Cathcart - 03","Glasgow City",11.8
+"S01009962","Muirend and Old Cathcart - 04","Glasgow City",9.7
+"S01009963","Muirend and Old Cathcart - 05","Glasgow City",7.7
+"S01009964","Muirend and Old Cathcart - 06","Glasgow City",14.2
+"S01009965","Carmunnock North - 01","Glasgow City",7.2
+"S01009966","Carmunnock North - 02","Glasgow City",6.3
+"S01009967","Carmunnock North - 03","Glasgow City",7.2
+"S01009968","Carmunnock North - 04","Glasgow City",14.2
+"S01009969","Carmunnock South - 01","Glasgow City",4.4
+"S01009970","Carmunnock South - 02","Glasgow City",48.7
+"S01009971","Carmunnock South - 03","Glasgow City",34.4
+"S01009972","Carmunnock South - 04","Glasgow City",16.6
+"S01009973","Glenwood South - 01","Glasgow City",31.9
+"S01009974","Glenwood South - 02","Glasgow City",47.1
+"S01009975","Glenwood South - 03","Glasgow City",38.9
+"S01009976","Glenwood South - 04","Glasgow City",59.2
+"S01009977","Glenwood South - 05","Glasgow City",41.3
+"S01009978","Glenwood South - 06","Glasgow City",41.7
+"S01009979","Glenwood South - 07","Glasgow City",23.5
+"S01009980","Glenwood North - 01","Glasgow City",31.3
+"S01009981","Glenwood North - 02","Glasgow City",39.7
+"S01009982","Glenwood North - 03","Glasgow City",38.8
+"S01009983","Glenwood North - 04","Glasgow City",43.5
+"S01009984","Glenwood North - 05","Glasgow City",31.7
+"S01009985","Glenwood North - 06","Glasgow City",57.6
+"S01009986","Castlemilk - 01","Glasgow City",36.8
+"S01009987","Castlemilk - 02","Glasgow City",41.5
+"S01009988","Castlemilk - 03","Glasgow City",53.2
+"S01009989","Castlemilk - 04","Glasgow City",20.6
+"S01009990","Castlemilk - 05","Glasgow City",27.2
+"S01009991","Castlemilk - 06","Glasgow City",25.2
+"S01009992","Castlemilk - 07","Glasgow City",55.2
+"S01009993","Kingspark South - 01","Glasgow City",20.4
+"S01009994","Kingspark South - 02","Glasgow City",20.2
+"S01009995","Kingspark South - 03","Glasgow City",30.8
+"S01009996","Kingspark South - 04","Glasgow City",38.8
+"S01009997","Kingspark South - 05","Glasgow City",34
+"S01009998","Kingspark South - 06","Glasgow City",12.4
+"S01009999","Kingspark North - 01","Glasgow City",27.6
+"S01010000","Kingspark North - 02","Glasgow City",26
+"S01010001","Kingspark North - 03","Glasgow City",31.2
+"S01010002","Kingspark North - 04","Glasgow City",25.9
+"S01010003","Kingspark North - 05","Glasgow City",20
+"S01010004","Kingspark North - 06","Glasgow City",15.2
+"S01010005","Cathcart - 01","Glasgow City",25.4
+"S01010006","Cathcart - 02","Glasgow City",29.7
+"S01010007","Cathcart - 03","Glasgow City",6.2
+"S01010008","Cathcart - 04","Glasgow City",26.8
+"S01010009","Cathcart - 05","Glasgow City",8.1
+"S01010010","Cathcart - 06","Glasgow City",13.8
+"S01010011","Mount Florida - 01","Glasgow City",28.6
+"S01010012","Mount Florida - 02","Glasgow City",11
+"S01010013","Mount Florida - 03","Glasgow City",7.6
+"S01010014","Mount Florida - 04","Glasgow City",19
+"S01010015","Mount Florida - 05","Glasgow City",24.1
+"S01010016","Toryglen and Oatlands - 01","Glasgow City",34.7
+"S01010017","Toryglen and Oatlands - 02","Glasgow City",40.1
+"S01010018","Toryglen and Oatlands - 03","Glasgow City",37.9
+"S01010019","Toryglen and Oatlands - 04","Glasgow City",44.1
+"S01010020","Toryglen and Oatlands - 05","Glasgow City",18.4
+"S01010021","Toryglen and Oatlands - 06","Glasgow City",30.4
+"S01010022","Toryglen and Oatlands - 07","Glasgow City",24.3
+"S01010023","Gorbals and Hutchesontown - 01","Glasgow City",82.9
+"S01010024","Gorbals and Hutchesontown - 02","Glasgow City",53.8
+"S01010025","Gorbals and Hutchesontown - 03","Glasgow City",36.5
+"S01010026","Gorbals and Hutchesontown - 04","Glasgow City",30.8
+"S01010027","Gorbals and Hutchesontown - 05","Glasgow City",32.5
+"S01010028","Gorbals and Hutchesontown - 06","Glasgow City",31.1
+"S01010029","Gorbals and Hutchesontown - 07","Glasgow City",58.8
+"S01010030","Gorbals and Hutchesontown - 08","Glasgow City",20.6
+"S01010031","Laurieston and Tradeston - 01","Glasgow City",25
+"S01010032","Laurieston and Tradeston - 02","Glasgow City",13.3
+"S01010033","Laurieston and Tradeston - 03","Glasgow City",43
+"S01010034","Laurieston and Tradeston - 04","Glasgow City",37.7
+"S01010035","Laurieston and Tradeston - 05","Glasgow City",6.6
+"S01010036","Laurieston and Tradeston - 06","Glasgow City",18.2
+"S01010037","Calton and Gallowgate - 01","Glasgow City",42.4
+"S01010038","Calton and Gallowgate - 02","Glasgow City",46
+"S01010039","Calton and Gallowgate - 03","Glasgow City",8.8
+"S01010040","Calton and Gallowgate - 04","Glasgow City",24.2
+"S01010041","Calton and Gallowgate - 05","Glasgow City",14.3
+"S01010042","Bridgeton - 01","Glasgow City",28.5
+"S01010043","Bridgeton - 02","Glasgow City",57
+"S01010044","Bridgeton - 03","Glasgow City",36.2
+"S01010045","Bridgeton - 04","Glasgow City",50.3
+"S01010046","Dalmarnock - 01","Glasgow City",41.4
+"S01010047","Dalmarnock - 02","Glasgow City",59
+"S01010048","Dalmarnock - 03","Glasgow City",47.3
+"S01010049","Parkhead West and Barrowfield - 01","Glasgow City",40.1
+"S01010050","Parkhead West and Barrowfield - 02","Glasgow City",30.2
+"S01010051","Parkhead West and Barrowfield - 03","Glasgow City",48.8
+"S01010052","Parkhead West and Barrowfield - 04","Glasgow City",38.1
+"S01010053","Parkhead West and Barrowfield - 05","Glasgow City",50
+"S01010054","Parkhead West and Barrowfield - 06","Glasgow City",29
+"S01010055","Parkhead West and Barrowfield - 07","Glasgow City",39.5
+"S01010056","Parkhead East and Braidfauld North - 01","Glasgow City",50
+"S01010057","Parkhead East and Braidfauld North - 02","Glasgow City",26.7
+"S01010058","Parkhead East and Braidfauld North - 03","Glasgow City",30.8
+"S01010059","Parkhead East and Braidfauld North - 04","Glasgow City",22.5
+"S01010060","Parkhead East and Braidfauld North - 05","Glasgow City",33.1
+"S01010061","Braidfauld - 01","Glasgow City",28
+"S01010062","Braidfauld - 02","Glasgow City",40.1
+"S01010063","Braidfauld - 03","Glasgow City",44.8
+"S01010064","Braidfauld - 04","Glasgow City",40.2
+"S01010065","Braidfauld - 05","Glasgow City",33.3
+"S01010066","Braidfauld - 06","Glasgow City",37.3
+"S01010067","Braidfauld - 07","Glasgow City",49.4
+"S01010068","Braidfauld - 08","Glasgow City",31.3
+"S01010069","Shettleston South - 01","Glasgow City",21.1
+"S01010070","Shettleston South - 02","Glasgow City",33.8
+"S01010071","Shettleston South - 03","Glasgow City",19.8
+"S01010072","Shettleston South - 04","Glasgow City",14.8
+"S01010073","Shettleston South - 05","Glasgow City",15.6
+"S01010074","Carmyle and Mount Vernon South - 01","Glasgow City",12.3
+"S01010075","Carmyle and Mount Vernon South - 02","Glasgow City",21.8
+"S01010076","Carmyle and Mount Vernon South - 03","Glasgow City",21.8
+"S01010077","Carmyle and Mount Vernon South - 04","Glasgow City",36
+"S01010078","Mount Vernon North and Sandyhills - 01","Glasgow City",22.2
+"S01010079","Mount Vernon North and Sandyhills - 02","Glasgow City",5.3
+"S01010080","Mount Vernon North and Sandyhills - 03","Glasgow City",25.3
+"S01010081","Mount Vernon North and Sandyhills - 04","Glasgow City",9.3
+"S01010082","Mount Vernon North and Sandyhills - 05","Glasgow City",4.9
+"S01010083","Baillieston West - 01","Glasgow City",27.9
+"S01010084","Baillieston West - 02","Glasgow City",46.7
+"S01010085","Baillieston West - 03","Glasgow City",10.5
+"S01010086","Baillieston West - 04","Glasgow City",29.2
+"S01010087","Baillieston West - 05","Glasgow City",13.7
+"S01010088","Baillieston East - 01","Glasgow City",8.1
+"S01010089","Baillieston East - 02","Glasgow City",14.1
+"S01010090","Baillieston East - 03","Glasgow City",28.7
+"S01010091","Baillieston East - 04","Glasgow City",17.1
+"S01010092","Baillieston East - 05","Glasgow City",25.8
+"S01010093","Baillieston East - 06","Glasgow City",25.9
+"S01010094","Garrowhill West - 01","Glasgow City",9.6
+"S01010095","Garrowhill West - 02","Glasgow City",10.7
+"S01010096","Garrowhill West - 03","Glasgow City",9.1
+"S01010097","Garrowhill West - 04","Glasgow City",15.9
+"S01010098","Garrowhill West - 05","Glasgow City",7.7
+"S01010099","Garrowhill West - 06","Glasgow City",18.3
+"S01010100","Garrowhill East and Swinton - 01","Glasgow City",21.7
+"S01010101","Garrowhill East and Swinton - 02","Glasgow City",29.4
+"S01010102","Garrowhill East and Swinton - 03","Glasgow City",22.1
+"S01010103","Garrowhill East and Swinton - 04","Glasgow City",23.6
+"S01010104","Garrowhill East and Swinton - 05","Glasgow City",11.2
+"S01010105","Easterhouse East - 01","Glasgow City",46.2
+"S01010106","Easterhouse East - 02","Glasgow City",28.9
+"S01010107","Easterhouse East - 03","Glasgow City",42.5
+"S01010108","Easterhouse East - 04","Glasgow City",31.2
+"S01010109","Easterhouse East - 05","Glasgow City",30.9
+"S01010110","Central Easterhouse - 01","Glasgow City",49
+"S01010111","Central Easterhouse - 02","Glasgow City",49.3
+"S01010112","Central Easterhouse - 03","Glasgow City",36.6
+"S01010113","Garthamlock, Auchinlea and Gartloch - 01","Glasgow City",48.7
+"S01010114","Garthamlock, Auchinlea and Gartloch - 02","Glasgow City",45.2
+"S01010115","Garthamlock, Auchinlea and Gartloch - 03","Glasgow City",46.6
+"S01010116","Garthamlock, Auchinlea and Gartloch - 04","Glasgow City",22.3
+"S01010117","Garthamlock, Auchinlea and Gartloch - 05","Glasgow City",16.8
+"S01010118","North Barlanark and Easterhouse South - 01","Glasgow City",30.6
+"S01010119","North Barlanark and Easterhouse South - 02","Glasgow City",37.2
+"S01010120","North Barlanark and Easterhouse South - 03","Glasgow City",50.5
+"S01010121","North Barlanark and Easterhouse South - 04","Glasgow City",46
+"S01010122","North Barlanark and Easterhouse South - 05","Glasgow City",46.2
+"S01010123","Barlanark - 01","Glasgow City",38.5
+"S01010124","Barlanark - 02","Glasgow City",37.5
+"S01010125","Barlanark - 03","Glasgow City",44.9
+"S01010126","Barlanark - 04","Glasgow City",26.1
+"S01010127","Barlanark - 05","Glasgow City",22.9
+"S01010128","Barlanark - 06","Glasgow City",52.6
+"S01010129","Barlanark - 07","Glasgow City",55.9
+"S01010130","Barlanark - 08","Glasgow City",17.4
+"S01010131","Greenfield - 01","Glasgow City",5.6
+"S01010132","Greenfield - 02","Glasgow City",31
+"S01010133","Greenfield - 03","Glasgow City",25.6
+"S01010134","Greenfield - 04","Glasgow City",29.6
+"S01010135","Greenfield - 05","Glasgow City",21.6
+"S01010136","Greenfield - 06","Glasgow City",32.3
+"S01010137","Shettleston North - 01","Glasgow City",33.3
+"S01010138","Shettleston North - 02","Glasgow City",26.4
+"S01010139","Shettleston North - 03","Glasgow City",26.5
+"S01010140","Shettleston North - 04","Glasgow City",16.9
+"S01010141","Shettleston North - 05","Glasgow City",37.8
+"S01010142","Tollcross - 01","Glasgow City",35.2
+"S01010143","Tollcross - 02","Glasgow City",34.5
+"S01010144","Tollcross - 03","Glasgow City",24.4
+"S01010145","Tollcross - 04","Glasgow City",22.1
+"S01010146","Tollcross - 05","Glasgow City",54.4
+"S01010147","Old Shettleston and Parkhead North - 01","Glasgow City",52.7
+"S01010148","Old Shettleston and Parkhead North - 02","Glasgow City",27.7
+"S01010149","Old Shettleston and Parkhead North - 03","Glasgow City",22
+"S01010150","Old Shettleston and Parkhead North - 04","Glasgow City",25.7
+"S01010151","Old Shettleston and Parkhead North - 05","Glasgow City",35.6
+"S01010152","Carntyne - 01","Glasgow City",20.4
+"S01010153","Carntyne - 02","Glasgow City",20.8
+"S01010154","Carntyne - 03","Glasgow City",39.4
+"S01010155","Carntyne - 04","Glasgow City",24.7
+"S01010156","Cranhill, Lightburn and Queenslie South - 01","Glasgow City",36.4
+"S01010157","Cranhill, Lightburn and Queenslie South - 02","Glasgow City",32.4
+"S01010158","Cranhill, Lightburn and Queenslie South - 03","Glasgow City",29.7
+"S01010159","Cranhill, Lightburn and Queenslie South - 04","Glasgow City",41.8
+"S01010160","Cranhill, Lightburn and Queenslie South - 05","Glasgow City",54.3
+"S01010161","Cranhill, Lightburn and Queenslie South - 06","Glasgow City",33.7
+"S01010162","Cranhill, Lightburn and Queenslie South - 07","Glasgow City",51.3
+"S01010163","Cranhill, Lightburn and Queenslie South - 08","Glasgow City",33.8
+"S01010164","Cranhill, Lightburn and Queenslie South - 09","Glasgow City",27.8
+"S01010165","Craigend and Ruchazie - 01","Glasgow City",55.7
+"S01010166","Craigend and Ruchazie - 02","Glasgow City",17.8
+"S01010167","Craigend and Ruchazie - 03","Glasgow City",29.3
+"S01010168","Craigend and Ruchazie - 04","Glasgow City",31.6
+"S01010169","Craigend and Ruchazie - 05","Glasgow City",49
+"S01010170","Craigend and Ruchazie - 06","Glasgow City",35.9
+"S01010171","Craigend and Ruchazie - 07","Glasgow City",45.2
+"S01010172","Riddrie and Hogganfield - 01","Glasgow City",29
+"S01010173","Riddrie and Hogganfield - 02","Glasgow City",32.4
+"S01010174","Riddrie and Hogganfield - 03","Glasgow City",20.5
+"S01010175","Riddrie and Hogganfield - 04","Glasgow City",27.1
+"S01010176","Riddrie and Hogganfield - 05","Glasgow City",31.2
+"S01010177","Riddrie and Hogganfield - 06","Glasgow City",57.8
+"S01010178","Riddrie and Hogganfield - 07","Glasgow City",37.4
+"S01010179","Blackhill and Barmulloch East - 01","Glasgow City",33.5
+"S01010180","Blackhill and Barmulloch East - 02","Glasgow City",25.8
+"S01010181","Blackhill and Barmulloch East - 03","Glasgow City",30.6
+"S01010182","Blackhill and Barmulloch East - 04","Glasgow City",12.5
+"S01010183","Blackhill and Barmulloch East - 05","Glasgow City",31.6
+"S01010184","Blackhill and Barmulloch East - 06","Glasgow City",55.3
+"S01010185","Blackhill and Barmulloch East - 07","Glasgow City",44
+"S01010186","Robroyston and Millerston - 01","Glasgow City",16.8
+"S01010187","Robroyston and Millerston - 02","Glasgow City",12.9
+"S01010188","Robroyston and Millerston - 03","Glasgow City",12.7
+"S01010189","Robroyston and Millerston - 04","Glasgow City",13.5
+"S01010190","Robroyston and Millerston - 05","Glasgow City",14
+"S01010191","Robroyston and Millerston - 06","Glasgow City",15.7
+"S01010192","Robroyston and Millerston - 07","Glasgow City",32
+"S01010193","Robroyston and Millerston - 08","Glasgow City",13.4
+"S01010194","Balornock - 01","Glasgow City",34.6
+"S01010195","Balornock - 02","Glasgow City",32.3
+"S01010196","Balornock - 03","Glasgow City",38.2
+"S01010197","Balornock - 04","Glasgow City",46.5
+"S01010198","Balornock - 05","Glasgow City",32.3
+"S01010199","Barmulloch - 01","Glasgow City",24.3
+"S01010200","Barmulloch - 02","Glasgow City",25.6
+"S01010201","Barmulloch - 03","Glasgow City",43.8
+"S01010202","Barmulloch - 04","Glasgow City",35.6
+"S01010203","Petershill - 01","Glasgow City",12.5
+"S01010204","Petershill - 02","Glasgow City",37.7
+"S01010205","Petershill - 03","Glasgow City",34.8
+"S01010206","Petershill - 04","Glasgow City",0
+"S01010207","Petershill - 05","Glasgow City",63.8
+"S01010208","Petershill - 06","Glasgow City",20.3
+"S01010209","Springburn - 01","Glasgow City",37.8
+"S01010210","Springburn - 02","Glasgow City",20.6
+"S01010211","Springburn - 03","Glasgow City",40.3
+"S01010212","Springburn - 04","Glasgow City",48.8
+"S01010213","Springburn - 05","Glasgow City",36.6
+"S01010214","Springburn East and Cowlairs - 01","Glasgow City",20.8
+"S01010215","Springburn East and Cowlairs - 02","Glasgow City",27
+"S01010216","Springburn East and Cowlairs - 03","Glasgow City",44
+"S01010217","Springburn East and Cowlairs - 04","Glasgow City",44.9
+"S01010218","Springburn East and Cowlairs - 05","Glasgow City",47.7
+"S01010219","Cowlairs and Port Dundas - 01","Glasgow City",9.4
+"S01010220","Cowlairs and Port Dundas - 02","Glasgow City",11.9
+"S01010221","Cowlairs and Port Dundas - 03","Glasgow City",39.5
+"S01010222","Cowlairs and Port Dundas - 04","Glasgow City",43.4
+"S01010223","Cowlairs and Port Dundas - 05","Glasgow City",28.8
+"S01010224","Cowlairs and Port Dundas - 06","Glasgow City",42.9
+"S01010225","Sighthill - 01","Glasgow City",39.7
+"S01010226","Sighthill - 02","Glasgow City",0
+"S01010227","Sighthill - 03","Glasgow City",0
+"S01010228","Roystonhill, Blochairn, and Provanmill - 01","Glasgow City",30.3
+"S01010229","Roystonhill, Blochairn, and Provanmill - 02","Glasgow City",24.5
+"S01010230","Roystonhill, Blochairn, and Provanmill - 03","Glasgow City",62.8
+"S01010231","Roystonhill, Blochairn, and Provanmill - 04","Glasgow City",43.8
+"S01010232","Roystonhill, Blochairn, and Provanmill - 05","Glasgow City",28.6
+"S01010233","Roystonhill, Blochairn, and Provanmill - 06","Glasgow City",35.9
+"S01010234","Dennistoun North - 01","Glasgow City",7.4
+"S01010235","Dennistoun North - 02","Glasgow City",8.3
+"S01010236","Dennistoun North - 03","Glasgow City",41.2
+"S01010237","Dennistoun North - 04","Glasgow City",41
+"S01010238","Dennistoun North - 05","Glasgow City",40.3
+"S01010239","Alexandra Parade - 01","Glasgow City",28.7
+"S01010240","Alexandra Parade - 02","Glasgow City",15.2
+"S01010241","Alexandra Parade - 03","Glasgow City",11.8
+"S01010242","Carntyne West and Haghill - 01","Glasgow City",38.4
+"S01010243","Carntyne West and Haghill - 02","Glasgow City",71.4
+"S01010244","Carntyne West and Haghill - 03","Glasgow City",55.9
+"S01010245","Carntyne West and Haghill - 04","Glasgow City",57.1
+"S01010246","Carntyne West and Haghill - 05","Glasgow City",36.7
+"S01010247","Carntyne West and Haghill - 06","Glasgow City",37.4
+"S01010248","Dennistoun - 01","Glasgow City",9.1
+"S01010249","Dennistoun - 02","Glasgow City",12.8
+"S01010250","Dennistoun - 03","Glasgow City",29.3
+"S01010251","Dennistoun - 04","Glasgow City",19.3
+"S01010252","Dennistoun - 05","Glasgow City",38.4
+"S01010253","Dennistoun - 06","Glasgow City",29
+"S01010254","Gallowgate North and Bellgrove - 01","Glasgow City",40.4
+"S01010255","Gallowgate North and Bellgrove - 02","Glasgow City",64.4
+"S01010256","Gallowgate North and Bellgrove - 03","Glasgow City",44.9
+"S01010257","Gallowgate North and Bellgrove - 04","Glasgow City",23.8
+"S01010258","Gallowgate North and Bellgrove - 05","Glasgow City",0
+"S01010259","City Centre East - 01","Glasgow City",59.3
+"S01010260","City Centre East - 02","Glasgow City",33.3
+"S01010261","City Centre East - 03","Glasgow City",39.4
+"S01010262","City Centre East - 04","Glasgow City",18.8
+"S01010263","City Centre East - 05","Glasgow City",18.5
+"S01010264","City Centre East - 06","Glasgow City",13.5
+"S01010265","City Centre East - 07","Glasgow City",11.6
+"S01010266","City Centre West - 01","Glasgow City",21.1
+"S01010267","City Centre West - 02","Glasgow City",23.2
+"S01010268","City Centre West - 03","Glasgow City",12.2
+"S01010269","City Centre West - 04","Glasgow City",20.3
+"S01010270","City Centre West - 05","Glasgow City",13.7
+"S01010271","City Centre West - 06","Glasgow City",13.4
+"S01010272","City Centre South - 01","Glasgow City",43.3
+"S01010273","City Centre South - 02","Glasgow City",97.2
+"S01010274","City Centre South - 03","Glasgow City",15.9
+"S01010275","City Centre South - 04","Glasgow City",39.1
+"S01010276","Anderston - 01","Glasgow City",0
+"S01010277","Anderston - 02","Glasgow City",23.8
+"S01010278","Anderston - 03","Glasgow City",72.3
+"S01010279","Anderston - 04","Glasgow City",29.3
+"S01010280","Anderston - 05","Glasgow City",11.5
+"S01010281","Anderston - 06","Glasgow City",11.9
+"S01010282","Finnieston and Kelvinhaugh - 01","Glasgow City",24.1
+"S01010283","Finnieston and Kelvinhaugh - 02","Glasgow City",33
+"S01010284","Finnieston and Kelvinhaugh - 03","Glasgow City",16
+"S01010285","Finnieston and Kelvinhaugh - 04","Glasgow City",31.2
+"S01010286","Finnieston and Kelvinhaugh - 05","Glasgow City",21.6
+"S01010287","Finnieston and Kelvinhaugh - 06","Glasgow City",16.7
+"S01010288","Finnieston and Kelvinhaugh - 07","Glasgow City",20
+"S01010289","Woodlands - 01","Glasgow City",7.4
+"S01010290","Woodlands - 02","Glasgow City",14.9
+"S01010291","Woodlands - 03","Glasgow City",15.9
+"S01010292","Woodlands - 04","Glasgow City",18.3
+"S01010293","Woodlands - 05","Glasgow City",50.8
+"S01010294","Woodlands - 06","Glasgow City",50
+"S01010295","Woodlands - 07","Glasgow City",24
+"S01010296","Woodlands - 08","Glasgow City",46
+"S01010297","Woodside - 01","Glasgow City",39.8
+"S01010298","Woodside - 02","Glasgow City",32.9
+"S01010299","Woodside - 03","Glasgow City",38.6
+"S01010300","Woodside - 04","Glasgow City",23.8
+"S01010301","Firhill - 01","Glasgow City",24.1
+"S01010302","Firhill - 02","Glasgow City",75.7
+"S01010303","Firhill - 03","Glasgow City",81.8
+"S01010304","Firhill - 04","Glasgow City",33
+"S01010305","Firhill - 05","Glasgow City",26.2
+"S01010306","Firhill - 06","Glasgow City",21.4
+"S01010307","Firhill - 07","Glasgow City",10.5
+"S01010308","Firhill - 08","Glasgow City",13.6
+"S01010309","Keppochhill - 01","Glasgow City",44.8
+"S01010310","Keppochhill - 02","Glasgow City",43.6
+"S01010311","Keppochhill - 03","Glasgow City",54.2
+"S01010312","Keppochhill - 04","Glasgow City",41.5
+"S01010313","Keppochhill - 05","Glasgow City",47.8
+"S01010314","Keppochhill - 06","Glasgow City",40.3
+"S01010315","Ruchill - 01","Glasgow City",35.3
+"S01010316","Ruchill - 02","Glasgow City",35.8
+"S01010317","Ruchill - 03","Glasgow City",15.6
+"S01010318","Ruchill - 04","Glasgow City",33.9
+"S01010319","Ruchill - 05","Glasgow City",19.2
+"S01010320","Ruchill - 06","Glasgow City",32.4
+"S01010321","Ruchill - 07","Glasgow City",40.8
+"S01010322","Ruchill - 08","Glasgow City",15.6
+"S01010323","Possil Park - 01","Glasgow City",58.3
+"S01010324","Possil Park - 02","Glasgow City",23.6
+"S01010325","Possil Park - 03","Glasgow City",33.9
+"S01010326","Possil Park - 04","Glasgow City",47.4
+"S01010327","Possil Park - 05","Glasgow City",43.3
+"S01010328","Possil Park - 06","Glasgow City",22
+"S01010329","Possil Park - 07","Glasgow City",22.6
+"S01010330","Milton West - 01","Glasgow City",44
+"S01010331","Milton West - 02","Glasgow City",27.3
+"S01010332","Milton West - 03","Glasgow City",31.4
+"S01010333","Milton West - 04","Glasgow City",40.6
+"S01010334","Milton West - 05","Glasgow City",24
+"S01010335","Milton East - 01","Glasgow City",33.7
+"S01010336","Milton East - 02","Glasgow City",41.5
+"S01010337","Milton East - 03","Glasgow City",30.1
+"S01010338","Milton East - 04","Glasgow City",50
+"S01010339","Milton East - 05","Glasgow City",50
+"S01010340","Summerston Central and West - 01","Glasgow City",33.7
+"S01010341","Summerston Central and West - 02","Glasgow City",13.7
+"S01010342","Summerston Central and West - 03","Glasgow City",13.8
+"S01010343","Summerston Central and West - 04","Glasgow City",23
+"S01010344","Summerston Central and West - 05","Glasgow City",45.5
+"S01010345","Summerston Central and West - 06","Glasgow City",7.7
+"S01010346","Summerston North - 01","Glasgow City",7.3
+"S01010347","Summerston North - 02","Glasgow City",39.6
+"S01010348","Summerston North - 03","Glasgow City",20.3
+"S01010349","Summerston North - 04","Glasgow City",36.8
+"S01010350","Maryhill East - 01","Glasgow City",35.9
+"S01010351","Maryhill East - 02","Glasgow City",32.1
+"S01010352","Maryhill East - 03","Glasgow City",27.9
+"S01010353","Maryhill East - 04","Glasgow City",77.2
+"S01010354","Maryhill West - 01","Glasgow City",28.1
+"S01010355","Maryhill West - 02","Glasgow City",33.5
+"S01010356","Maryhill West - 03","Glasgow City",27
+"S01010357","Maryhill West - 04","Glasgow City",52.9
+"S01010358","Wyndford - 01","Glasgow City",46.4
+"S01010359","Wyndford - 02","Glasgow City",41.3
+"S01010360","Wyndford - 03","Glasgow City",34.8
+"S01010361","Wyndford - 04","Glasgow City",31.6
+"S01010362","Wyndford - 05","Glasgow City",27.4
+"S01010363","Kelvindale - 01","Glasgow City",11.7
+"S01010364","Kelvindale - 02","Glasgow City",4.2
+"S01010365","Kelvindale - 03","Glasgow City",0
+"S01010366","Kelvindale - 04","Glasgow City",13.1
+"S01010367","Kelvindale - 05","Glasgow City",4.5
+"S01010368","Kelvindale - 06","Glasgow City",8.5
+"S01010369","North Kelvin - 01","Glasgow City",20.5
+"S01010370","North Kelvin - 02","Glasgow City",0
+"S01010371","North Kelvin - 03","Glasgow City",0
+"S01010372","North Kelvin - 04","Glasgow City",5.3
+"S01010373","North Kelvin - 05","Glasgow City",11.7
+"S01010374","Kelvingrove and University - 01","Glasgow City",7.8
+"S01010375","Kelvingrove and University - 02","Glasgow City",0
+"S01010376","Kelvingrove and University - 03","Glasgow City",11.6
+"S01010377","Kelvingrove and University - 04","Glasgow City",17.9
+"S01010378","Kelvingrove and University - 05","Glasgow City",12.7
+"S01010379","Kelvingrove and University - 06","Glasgow City",23.5
+"S01010380","Kelvingrove and University - 07","Glasgow City",0
+"S01010381","Hillhead - 01","Glasgow City",0
+"S01010382","Hillhead - 02","Glasgow City",10.2
+"S01010383","Hillhead - 03","Glasgow City",47
+"S01010384","Hillhead - 04","Glasgow City",8.2
+"S01010385","Hillhead - 05","Glasgow City",20.7
+"S01010386","Hillhead - 06","Glasgow City",21.7
+"S01010387","Hillhead - 07","Glasgow City",21.8
+"S01010388","Glasgow Harbour and Partick South - 01","Glasgow City",46.2
+"S01010389","Glasgow Harbour and Partick South - 02","Glasgow City",4.7
+"S01010390","Glasgow Harbour and Partick South - 03","Glasgow City",54.9
+"S01010391","Glasgow Harbour and Partick South - 04","Glasgow City",25
+"S01010392","Glasgow Harbour and Partick South - 05","Glasgow City",2.8
+"S01010393","Partick - 01","Glasgow City",8.2
+"S01010394","Partick - 02","Glasgow City",23.9
+"S01010395","Partick - 03","Glasgow City",16.3
+"S01010396","Partick - 04","Glasgow City",19.8
+"S01010397","Partickhill and Hyndland - 01","Glasgow City",0
+"S01010398","Partickhill and Hyndland - 02","Glasgow City",10.5
+"S01010399","Partickhill and Hyndland - 03","Glasgow City",11.5
+"S01010400","Partickhill and Hyndland - 04","Glasgow City",4.8
+"S01010401","Partickhill and Hyndland - 05","Glasgow City",0
+"S01010402","Partickhill and Hyndland - 06","Glasgow City",4.5
+"S01010403","Dowanhill - 01","Glasgow City",0
+"S01010404","Dowanhill - 02","Glasgow City",0
+"S01010405","Dowanhill - 03","Glasgow City",0
+"S01010406","Dowanhill - 04","Glasgow City",6.3
+"S01010407","Dowanhill - 05","Glasgow City",0
+"S01010408","Kelvinside and Jordanhill - 01","Glasgow City",6.5
+"S01010409","Kelvinside and Jordanhill - 02","Glasgow City",3.7
+"S01010410","Kelvinside and Jordanhill - 03","Glasgow City",7
+"S01010411","Kelvinside and Jordanhill - 04","Glasgow City",2.1
+"S01010412","Kelvinside and Jordanhill - 05","Glasgow City",0
+"S01010413","Kelvinside and Jordanhill - 06","Glasgow City",0
+"S01010414","Kelvinside and Jordanhill - 07","Glasgow City",3.3
+"S01010415","Broomhill - 01","Glasgow City",25.9
+"S01010416","Broomhill - 02","Glasgow City",8.2
+"S01010417","Broomhill - 03","Glasgow City",0
+"S01010418","Broomhill - 04","Glasgow City",0
+"S01010419","Broomhill - 05","Glasgow City",7.4
+"S01010420","Victoria Park - 01","Glasgow City",4.3
+"S01010421","Victoria Park - 02","Glasgow City",0
+"S01010422","Victoria Park - 03","Glasgow City",6.4
+"S01010423","Whiteinch - 01","Glasgow City",48.6
+"S01010424","Whiteinch - 02","Glasgow City",37.6
+"S01010425","Whiteinch - 03","Glasgow City",30.8
+"S01010426","Whiteinch - 04","Glasgow City",23
+"S01010427","Scotstoun North and East - 01","Glasgow City",52.3
+"S01010428","Scotstoun North and East - 02","Glasgow City",13
+"S01010429","Scotstoun North and East - 03","Glasgow City",3.9
+"S01010430","Scotstoun North and East - 04","Glasgow City",62
+"S01010431","Scotstoun North and East - 05","Glasgow City",5
+"S01010432","Scotstoun South and West - 01","Glasgow City",57.6
+"S01010433","Scotstoun South and West - 02","Glasgow City",66.9
+"S01010434","Scotstoun South and West - 03","Glasgow City",61.2
+"S01010435","Scotstoun South and West - 04","Glasgow City",27
+"S01010436","Scotstoun South and West - 05","Glasgow City",50
+"S01010437","Yoker South - 01","Glasgow City",39.1
+"S01010438","Yoker South - 02","Glasgow City",44.6
+"S01010439","Yoker South - 03","Glasgow City",33.7
+"S01010440","Yoker South - 04","Glasgow City",48.2
+"S01010441","Yoker South - 05","Glasgow City",17.4
+"S01010442","Yoker South - 06","Glasgow City",47.2
+"S01010443","Yoker North - 01","Glasgow City",16.7
+"S01010444","Yoker North - 02","Glasgow City",33.8
+"S01010445","Yoker North - 03","Glasgow City",28
+"S01010446","Yoker North - 04","Glasgow City",26.2
+"S01010447","Knightswood West - 01","Glasgow City",32.8
+"S01010448","Knightswood West - 02","Glasgow City",21.5
+"S01010449","Knightswood West - 03","Glasgow City",19.5
+"S01010450","Knightswood East - 01","Glasgow City",17
+"S01010451","Knightswood East - 02","Glasgow City",45.2
+"S01010452","Knightswood East - 03","Glasgow City",29.7
+"S01010453","Knightswood East - 04","Glasgow City",64.1
+"S01010454","Knightswood East - 05","Glasgow City",29.7
+"S01010455","Knightswood Park West - 01","Glasgow City",38.2
+"S01010456","Knightswood Park West - 02","Glasgow City",13.5
+"S01010457","Knightswood Park West - 03","Glasgow City",13.7
+"S01010458","Knightswood Park West - 04","Glasgow City",33.8
+"S01010459","Knightswood Park West - 05","Glasgow City",6.9
+"S01010460","Knightswood Park East - 01","Glasgow City",6.4
+"S01010461","Knightswood Park East - 02","Glasgow City",31.2
+"S01010462","Knightswood Park East - 03","Glasgow City",62
+"S01010463","Knightswood Park East - 04","Glasgow City",6.9
+"S01010464","Knightswood Park East - 05","Glasgow City",11.9
+"S01010465","Anniesland East - 01","Glasgow City",18.4
+"S01010466","Anniesland East - 02","Glasgow City",10.8
+"S01010467","Anniesland East - 03","Glasgow City",23.3
+"S01010468","Anniesland East - 04","Glasgow City",10.3
+"S01010469","Anniesland East - 05","Glasgow City",20
+"S01010470","Anniesland West - 01","Glasgow City",9.5
+"S01010471","Anniesland West - 02","Glasgow City",27.7
+"S01010472","Anniesland West - 03","Glasgow City",36.2
+"S01010473","Anniesland West - 04","Glasgow City",26.4
+"S01010474","Anniesland West - 05","Glasgow City",13.9
+"S01010475","Anniesland West - 06","Glasgow City",16.7
+"S01010476","Anniesland West - 07","Glasgow City",16.9
+"S01010477","Anniesland West - 08","Glasgow City",11.9
+"S01010478","Blairdardie East - 01","Glasgow City",24.8
+"S01010479","Blairdardie East - 02","Glasgow City",24.6
+"S01010480","Blairdardie East - 03","Glasgow City",18.3
+"S01010481","Blairdardie East - 04","Glasgow City",55.5
+"S01010482","Blairdardie East - 05","Glasgow City",16.2
+"S01010483","Blairdardie East - 06","Glasgow City",29
+"S01010484","Blairdardie East - 07","Glasgow City",41.3
+"S01010485","Blairdardie West - 01","Glasgow City",14.1
+"S01010486","Blairdardie West - 02","Glasgow City",8
+"S01010487","Blairdardie West - 03","Glasgow City",17.7
+"S01010488","Drumchapel South - 01","Glasgow City",44.5
+"S01010489","Drumchapel South - 02","Glasgow City",29.3
+"S01010490","Drumchapel South - 03","Glasgow City",44.1
+"S01010491","Drumchapel North - 01","Glasgow City",37.5
+"S01010492","Drumchapel North - 02","Glasgow City",60.3
+"S01010493","Drumchapel North - 03","Glasgow City",48.7
+"S01010494","Drumchapel North - 04","Glasgow City",50.4
+"S01010495","Drumchapel North - 05","Glasgow City",53.4
+"S01010496","Drumry East - 01","Glasgow City",37
+"S01010497","Drumry East - 02","Glasgow City",41.5
+"S01010498","Drumry East - 03","Glasgow City",40
+"S01010499","Drumry East - 04","Glasgow City",38.5
+"S01010500","Drumry West - 01","Glasgow City",32
+"S01010501","Drumry West - 02","Glasgow City",30.4
+"S01010502","Drumry West - 03","Glasgow City",25.2
+"S01010503","Drumry West - 04","Glasgow City",43.8
