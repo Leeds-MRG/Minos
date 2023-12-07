@@ -19,6 +19,8 @@ transition_dir: 'data/transitions/scotland'
 replenishing_dir: 'data/replenishing/scotland'
 cross_validation: FALSE
 
+synthetic: FALSE
+
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.

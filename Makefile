@@ -165,6 +165,10 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*/*.txt
 	rm -rf data/transitions/scotland/*/*.rds
 
 clean_scotland: ### Clean all files related to Scotland mode

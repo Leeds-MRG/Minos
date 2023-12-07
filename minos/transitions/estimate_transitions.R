@@ -109,7 +109,7 @@ run_yearly_models <- function(transitionDir_path,
     # crossval needs to start in 2010, whereas default model can have reduced timespan
     # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(max(data$time) - 3, (max(data$time)-1))
+      year.range <- seq(max(data$time) - 4, (max(data$time)-1))
     } else {
       year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
@@ -133,7 +133,7 @@ run_yearly_models <- function(transitionDir_path,
         {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-        }# skip this iteration if model not in valid types. 
+      }# skip this iteration if model not in valid types. 
       
       # reset the formula string for each year
       formula.string <- formula.string.orig
@@ -350,8 +350,9 @@ modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
 
-create.if.not.exists(transitionDir)
+cross_validation <- T
 
+create.if.not.exists(transitionDir)
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {

@@ -150,10 +150,11 @@ def generate_stock(projections, cross_validation):
     data['max_educ'] = data['education_state']
 
     # # copy 2017 loneliness data onto 2014 for cross-validation runs
-    # data = wave_data_copy(data,
-    #                       var='loneliness',
-    #                       copy_year=2017,
-    #                       paste_year=2014)
+    data = wave_data_copy(data,
+                          var='loneliness',
+                          copy_year=2017,
+                          paste_year=2015,
+                          var_type='ordinal')
     # # copy wave 11 nutrition_quality onto wave 12
     # data = wave_data_copy(data,
     #                       var='nutrition_quality',
@@ -168,6 +169,11 @@ def generate_stock(projections, cross_validation):
                           var='neighbourhood_safety',
                           copy_year=2020,
                           paste_year=2021,
+                          var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='neighbourhood_safety',
+                          copy_year=2014,
+                          paste_year=2015,
                           var_type='ordinal')
 
     # Set loneliness and ncigs as int

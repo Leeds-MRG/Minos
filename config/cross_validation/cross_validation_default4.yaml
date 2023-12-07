@@ -22,6 +22,8 @@ transition_dir: 'data/transitions/cross_validation/version4'
 replenishing_dir: 'data/replenishing/cross_validation'
 cross_validation: TRUE
 
+synthetic: FALSE
+
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
               nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
