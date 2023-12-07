@@ -138,3 +138,8 @@ $(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/U
 
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
+
+
+full_mice_dataset: composite_data
+full_mice_dataset:
+	qsub 'scripts/arc_mice_run.sh'

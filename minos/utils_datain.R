@@ -13,9 +13,23 @@ create.if.not.exists <- function(path) {
 # Args: 
 #       out.path - path to top level output directory
 #       scenario - string scenario name of which output files to read
+read_all_UKHLS_waves <- function(out.path, scenario) {
+  ## Start with scenario name
+  # get runtime directory
+  # list files
+  # return do.call(...)
+  
+  scen.path <- paste0(out.path, scenario)
+  files <- list.files(scen.path,
+                      pattern = '[0-9]{4}_US_cohort.csv',
+                      full.names = TRUE)
+  dat <- do.call(rbind, lapply(files, read.csv))
+  return(dat)
+}
+
+
 read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   ## Start with scenario name
-  # attach full output path
   # get runtime directory
   # list files
   # return do.call(...)
@@ -168,4 +182,17 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
               nutrition_quality = mean(nutrition_quality))
   
   return(grouped)
+}
+
+
+
+save_raw_data_in <- function(data, data.path) {
+  ## save all data after processing.
+  
+  for (year_time in unique(data$time)) {
+    yearly_file_name <- paste0(data.path, year_time, "_US_cohort.csv")
+    yearly_df <- data[which(data$time == year_time),]
+    write.csv(yearly_df, file=yearly_file_name, row.names=FALSE)
+    print(paste0("Saved file to: ", yearly_file_name, "."))
+  }
 }

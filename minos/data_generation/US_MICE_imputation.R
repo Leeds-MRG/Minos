@@ -8,7 +8,7 @@ main <- function(){
   # MICE impuation from notebook
   # save to individual waves.
   # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
-  data <- read_raw_data_out(here::here("data/"), "composite_US") 
+  start.data <- read_all_UKHLS_waves(here::here("data/"), "composite_US") 
   
   
   # set up MICE and cache data
@@ -49,25 +49,28 @@ main <- function(){
                 'pmm',
                 'pmm')
   
-  other.data <- data[, !names(data) %in% imp_columns]
-  mice.data <- data[, c(imp_columns)]
+  other.data <- start.data[, !names(start.data) %in% imp_columns]
+  mice.data <- start.data[, c(imp_columns)]
   mice.data <- replace.missing(mice.data)
   data <- cbind(mice.data, other.data)
   
   
-  mice_set <- mice(data = data[,imp_columns], method=method,
-                   m = 1, maxit = 1,
-                   #m = 2, maxit = 2,
-                   remove.collinear=T)
-  final.mice.data <- complete(mice_set) 
-  # add weights, time and pidps back in. 
-  mice.data <- cbind(final.mice.data, other.data)
+
+  cached <- TRUE
+  if (cached) {
+    mice.set <- readRDS("data/mice_US/mice_set.rds")
+    final.mice.data <- complete(mice.set, 1)
+  }
+  else {
+    #mice_set <- mice(data = data[,imp_columns], method=method,
+    #                 m = 1, maxit = 1,
+    #                 #m = 2, maxit = 2,
+    #                 remove.collinear=T)
+    #final.mice.data <- complete(mice_set, 1)   
+  }
+  # adding other necessary components back in.
   create.if.not.exists("data/mice_US")
-  save_raw_data_in(mice.data, "data/mice_US/")
+  save_raw_data_in(final.mice.data, "data/mice_US/")
 }#
 
-do_imputation <- T
-
-if (do_imputation){
-  main()
-}
+main()
