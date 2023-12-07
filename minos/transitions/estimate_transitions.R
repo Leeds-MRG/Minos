@@ -272,11 +272,12 @@ run_yearly_models <- function(transitionDir_path,
         texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.rds')
         texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
       }
-      saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
+      save.path <- paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds')
+      saveRDS(model, file=save.path)
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
-
     }
     print(paste0("Finished for ", dependent, '.'))
+    print(paste0('Files saved to ', out.path2))
   }
   # close and remove connection object from memory
   close(modDefs)
@@ -349,8 +350,6 @@ dataDir <- 'data/final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
-
-cross_validation <- T
 
 create.if.not.exists(transitionDir)
 
