@@ -31,7 +31,8 @@ cross_validation: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 #components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment(), ChildPovertyIntervention]
-components : [Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment(), lmmYJIncome(), ChildPovertyIntervention]  # Basic set of components for speed testing
+#components : [Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment(), lmmYJIncome(), MaterialDeprivation(), ChildPovertyIntervention]  # Basic set of components for speed testing - doesn't work as transition model fails for matdep
+components : [Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment(), lmmYJIncome(), ChildPovertyIntervention]  # Without mat dep, for testing
 
 scale_rates:
     method: "constant"
