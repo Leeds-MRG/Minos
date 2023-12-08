@@ -4,14 +4,14 @@ source("minos/utils_datain.R")
 source("minos/transitions/utils.R")
 main <- function(){
   do_mice <- F
+  # load in all post LOCFcorrected data? maybe composite?
+  # MICE impuation from notebook
+  # save to individual waves.
+  # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
+  start.data <- read_raw_data_out(here::here("data/"), "composite_US") 
   if (do_mice) {
     
-    # load in all post LOCFcorrected data? maybe composite?
-    # MICE impuation from notebook
-    # save to individual waves.
-    # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
-    start.data <- read_raw_data_out(here::here("data/"), "composite_US") 
-    
+
     
     # set up MICE and cache data
     # plots of missingness pre and post raw US
