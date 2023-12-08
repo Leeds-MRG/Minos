@@ -37,6 +37,7 @@ from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
+from minos.modules.material_deprivation import MaterialDeprivation
 from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention
@@ -67,6 +68,7 @@ components_map = {
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
     "Heating()": Heating(),
+    "MaterialDeprivation()": MaterialDeprivation(),
     "Housing()": Housing(),
     "geeIncome()": geeIncome(),
     "geeYJIncome()": geeYJIncome(),
@@ -127,7 +129,7 @@ def get_priorities():
     component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
+    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']})  # New income-based components to be added here
     component_priorities.update({el:4 for el in intervention_components_map})
     everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
     component_priorities.update({el:5 for el in everything_else})
