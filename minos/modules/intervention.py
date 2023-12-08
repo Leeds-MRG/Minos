@@ -13,6 +13,10 @@ from minos.data_generation import generate_composite_vars as gcv
 import os
 from os.path import dirname as up
 
+POVERTY_INTERVENTION_DICT = {1: "Child payment",
+                             2: "Direct income supplementation",
+                             }
+
 
 class hhIncomeIntervention():
 
@@ -934,9 +938,12 @@ class ChildPovertyIntervention(Base):
         # Specify and create/add all variables required for operation of intervention
         view_columns = ['time',
                         "hh_income",
+                        "hh_income_raw",
                         'nkids',
                         'hidp',
                         'pidp',
+                        'material_deprivation',
+                        'material_deprivation_score',
                         'relative_poverty_percentile',
                         'relative_poverty',
                         'absolute_poverty_percentile',
@@ -964,9 +971,6 @@ class ChildPovertyIntervention(Base):
 
     def on_time_step(self, event):
 
-        logging.info("INTERVENTION:")
-        logging.info(f"\tApplying effects of the child poverty reduction intervention in year {event.time.year}...")
-
         cpt = self.intervention_parameters['child_poverty_target']
         int_amount = self.intervention_parameters['intervention_amount']
         int_method = self.intervention_parameters['intervention_method']
@@ -977,9 +981,51 @@ class ChildPovertyIntervention(Base):
         print('Intervention method {}'.format(int_method))
         print('Payment amount: {} p/c p/w'.format(int_amount))
 
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the child poverty intervention in year {event.time.year}...")
+        logging.info(f"\tIntervention type: {int_method} ({POVERTY_INTERVENTION_DICT[int_method]})")
+
         year = event.time.year
         pop = self.population_view.get(event.index, query='alive == "alive"')
-        # hidp_sub = pop.loc[pop['time'] == year].drop_duplicates(subset=['hidp'], keep='first')
+
+        ''' Update poverty variables '''
+        # 1. Material deprivation
+        # NOT DONE HERE, should be via logit transition model
+
+        # 2. Household-level poverty variables
+        if not hasattr(self, 'median_reference'):
+            self.median_reference = gcv.get_reference_year_income()  # Can move to overridden __init__ if causes issues
+        pop = gcv.update_poverty_vars_hh(pop,
+                                         median_reference=self.median_reference)  # Passing 2010/11 median here saves recalculating at each time step
+
+        # 3. Individual-level poverty variables
+        pop = gcv.update_poverty_vars_ind(pop)
+
+        # 4. Update master population with all poverty variables
+        updated_vars = ['relative_poverty_percentile',
+                        'relative_poverty',
+                        'absolute_poverty_percentile',
+                        'absolute_poverty',
+                        'low_income',
+                        'low_income_material_deprivation',
+                        'relative_poverty_history',
+                        'persistent_poverty',
+                        # 'persistent_poverty_sum,  # Superfluous but leaving here for future reference
+                        ]
+
+        # 06/12/23 Bodge to avoid Vivarium type error (actually PopulationError)
+        vars_to_cast = {'relative_poverty': float,
+                        'absolute_poverty': float,
+                        'low_income': float,
+                        'low_income_material_deprivation': float,
+                        'relative_poverty_history': int,
+                        'persistent_poverty': float,
+                        }
+
+        for var, _type in vars_to_cast.items():
+            pop[var] = pop[var].astype(_type)
+
+        self.population_view.update(pop[updated_vars])
 
         ''' Intervention method 1: apply Scottish Child Payment '''
         if int_method == 1:
@@ -987,7 +1033,8 @@ class ChildPovertyIntervention(Base):
                                       poverty_state=POVERTY_STATE_MAP[cpt],
                                       amount=int_amount)
 
-        ''' Intervention method 2: supplement hh_income such that CP target met by target year, aka "inverse" method '''
+        ''' Intervention method 2: direct supplementation of hh_income such that CP target met by target year,
+            aka "inverse" method '''
         if int_method == 2:
             pop = apply_target_payment(pop,
                                        poverty_state=POVERTY_STATE_MAP[cpt],
@@ -1003,31 +1050,8 @@ class ChildPovertyIntervention(Base):
                                          'total_boost_amount',
                                          ]])
 
-        # Output some stats
-        in_pp = len(pop.loc[pop['relative_poverty'].astype(int) == 1])
-        all_valid = len(pop.loc[pop['relative_poverty'].astype(int).isin([0, 1])])
-        prop = 100*in_pp/all_valid
-        print('Proportion of people in relative poverty: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
-
-        in_pp = len(pop.loc[pop['absolute_poverty'].astype(int) == 1])
-        all_valid = len(pop.loc[pop['absolute_poverty'].astype(int).isin([0, 1])])
-        prop = 100*in_pp/all_valid
-        print('Proportion of people in absolute poverty: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
-
-        in_pp = len(pop.loc[pop['low_income'].astype(int) == 1])
-        all_valid = len(pop.loc[pop['low_income'].astype(int).isin([0, 1])])
-        prop = 100*in_pp/all_valid
-        print('Proportion of people with low income: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
-
-        in_pp = len(pop.loc[pop['low_income_material_deprivation'].astype(int) == 1])
-        all_valid = len(pop.loc[pop['low_income_material_deprivation'].astype(int).isin([0, 1])])
-        prop = 100*in_pp/all_valid
-        print('Proportion of people with low income and material deprivation: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
-
-        in_pp = len(pop.loc[pop['persistent_poverty'].astype(int) == 1])
-        all_valid = len(pop.loc[pop['persistent_poverty'].astype(int).isin([0, 1])])
-        prop = 100*in_pp/all_valid
-        print('Proportion of people in persistent poverty: {}/{} = {:.3f}'.format(in_pp, all_valid, prop))
+        ''' Calculate and print poverty stats '''
+        gcv.get_poverty_metrics(pop, who='children')
 
 
 ''' HR 21/11/23 Scottish Child Payment implementation
@@ -1038,7 +1062,7 @@ def apply_child_payment(data,
                         ):
 
     # Payment is weekly, so must convert to monthly to agree with hh_income
-    monthly_amount = 52*amount/12
+    monthly_amount = (365.24/7)*amount/12
     # print("Weekly/monthly amount: {}/{}".format(amount, monthly_amount))
 
     # Create map of children per eligible household; slight overkill to avoid duplicate values of nkids per hh
@@ -1069,25 +1093,52 @@ def apply_target_payment(data,
 # if __name__ == "__main__":
 #
 #     ''' HR 20/11/23 For child poverty testing '''
-#     files = ['2016_US_cohort.csv',
-#              '2017_US_cohort.csv',
-#              '2018_US_cohort.csv',
-#              '2019_US_cohort.csv',
-#              '2020_US_cohort.csv',
+#     # files = ['2016_US_cohort.csv',
+#     #          '2017_US_cohort.csv',
+#     #          '2018_US_cohort.csv',
+#     #          '2019_US_cohort.csv',
+#     #          '2020_US_cohort.csv',
+#     #          ]
+#
+#     files = ['2010_US_cohort.csv',
+#              '2011_US_cohort.csv',
+#              '2012_US_cohort.csv',
+#              '2013_US_cohort.csv',
+#              '2014_US_cohort.csv',
 #              ]
 #
+#
+#     ''' 1. Testing for composite generation '''
 #     # Get five years data to check persistent poverty sequence logic
 #     # Copied some from US_utils.load_multiple_data
+#
 #     data = pd.concat([pd.read_csv(os.path.join(up(up(up(__file__))), 'data', 'corrected_US', el)) for el in files])
 #     data = data.reset_index(drop=True)
 #
 #     data = gcv.generate_hh_income(data)
 #     data = gcv.generate_child_material_deprivation(data)
-#     data = gcv.calculate_poverty_variables(data)
+#     median_reference = gcv.get_reference_year_income(data)  # Needed during calculation of poverty variables below
+#     # data = gcv.calculate_poverty_composites_hh(data,
+#     #                                            median_reference=median_reference)  # Do all relative and absolute poverty calculations
+#     data = gcv.calculate_poverty_composites_hh(data)
+#     data = gcv.calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
+
+#     # data['times_boosted'] = 0
+#     # data['total_boost_amount'] = 0.0
+#     # data = apply_child_payment(data)
 #
-#     data['times_boosted'] = 0
-#     data['total_boost_amount'] = 0.0
-#     data = apply_child_payment(data)
+
+#     ''' 2. Testing for individual year, i.e. runtime update '''
+#     # data = pd.read_csv(os.path.join(up(up(up(__file__))), 'data', 'corrected_US', files[0]))
+#     # data = gcv.generate_hh_income(data)
+#     # data = gcv.generate_child_material_deprivation(data)
+#     # data = gcv.update_poverty_vars_hh(data)
+#     #
+#     # # Add poverty history column of random so poverty method doesn't break
+#     # history = np.random.randint(2, size=(len(data), 4)).tolist()
+#     # data['relative_poverty_history'] = [''.join(str(em) for em in el) for el in history]
+#     # data = gcv.update_poverty_vars_ind(data)
+
 
 
 ### some test on time steps for variious scotland interventions
