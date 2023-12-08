@@ -59,6 +59,8 @@ class Ageing(Base):
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
+
+        population['nkids'] = population['nkids'].astype(int)
         self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
 
 
