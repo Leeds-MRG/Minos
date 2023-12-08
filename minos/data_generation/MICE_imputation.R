@@ -70,6 +70,8 @@ main <- function(){
       mice.set <- readRDS("data/mice_US/mice_set.rds")
       final.mice.data <- complete(mice.set, 1)
     }
+  } else {
+    final.mice.data <- start.data
   }
   create.if.not.exists("data/mice_US")
   save_raw_data_in(final.mice.data, "data/mice_US/")
