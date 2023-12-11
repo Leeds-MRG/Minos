@@ -225,6 +225,11 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
   
+  if (depend == 'hourly_wage') {
+    # Histogram of hourly_wage_diff
+    hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
+  }
+  
   if(include_weights) {
     model <- glmer(formula,  
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
@@ -242,6 +247,52 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
       }
+  if (reflect) {
+    attr(model,"max_value") <- max_value # Works though.
+  }
+  return(model)
+}
+
+estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
+  
+  # Sort out dependent type (factor)
+  data <- replace.missing(data)
+  #data <- drop_na(data)
+  if (reflect) {
+    max_value <- nanmax(data[[depend]])
+    data[, c(depend)] <- max_value - data[, c(depend)] 
+  }
+  if (yeo_johnson)
+  {
+    yj <- yeojohnson(data[,c(depend)])
+    data[, c(depend)] <- predict(yj)
+  }
+  
+  min_value <- nanmin(data[[depend]])
+  data[[depend]] <- data[[depend]] - min_value + 0.001
+  
+  if (depend == 'hourly_wage') {
+    # Histogram of hourly_wage_diff
+    hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
+  }
+  
+  if(include_weights) {
+    model <- lmer(formula,  
+                   nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
+                   family=gaussian(link='identity'), # Gaussian family with identity link
+                   weights=weight, 
+                   data = data)
+  } else {
+    model <- lmer(formula, 
+                   nAGQ=0, 
+                   family=gaussian(link='identity'),
+                   data = data)
+  }
+  attr(model,"min_value") <- min_value
+  
+  if (yeo_johnson){
+    attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+  }
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }

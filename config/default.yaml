@@ -20,16 +20,16 @@ output_data_dir: "output"
 
 transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing'
+
 cross_validation: FALSE
+synthetic: FALSE
+scotland: FALSE
 
 synthetic: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(),
-              Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
-              nkidsFertilityAgeSpecificRates(),
-              Ageing(), Mortality(),
-              Replenishment()]
+components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), HourlyWage(), JobSec(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+
 
 scale_rates:
     method: "constant"

@@ -100,6 +100,8 @@ class Replenishment(Base):
                         'SF_12_diff',
                         'hh_income_diff',
                         'nutrition_quality_diff',
+                        'job_hours_diff',
+                        'hourly_wage_diff'
                         'child_ages'
                         ]
 
@@ -307,7 +309,9 @@ class NoReplenishment(Base):
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
-                        'S7_mental_health',]
+                        'S7_mental_health',
+                        'job_hours_diff',
+                        ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",

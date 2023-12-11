@@ -755,6 +755,68 @@ spaghetti_plot(spag, 'nkids_ind',
 rm(raw.s, base.s, spag)
 ```
 
+## Hourly Wage
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'hourly_wage')
+handover_lineplots(raw.dat, base.dat, 'hourly_wage')
+```
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, hourly_wage)
+base.s <- base.dat %>%
+  select(pidp, age, time, hourly_wage)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'hourly_wage',
+               save = shall.we.save,
+               save.path = save.path)
+
+# now a version limited to 0-100
+spag <- spag %>%
+  filter(hourly_wage <= 300)
+spaghetti_plot(spag, 'hourly_wage',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+```{r}
+# some basic statistics about hourly_wage variable
+print("Some basic statistics on hourly_wage. These are all for 2020.")
+raw.2020 <- raw.dat %>% filter(time == 2020)
+print('All living people in 2020')
+print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
+# number individuals with an hourly_wage > 0
+print('People not in work')
+print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
+
+# Number in work
+print('People in work')
+print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
+
+# Extreme hourly_wage values
+print('Extreme hourly wage values: HIGH')
+print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
+print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
+print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
+print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
+print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
+print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
+
+raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
+print('Extreme hourly wage values: LOW (non-zero)')
+print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
+print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
+print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
+print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
+```
+
 ## S7 Labour State
 
 ```{r}

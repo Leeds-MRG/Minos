@@ -163,14 +163,15 @@ def calculate_hourly_wage(data):
     # data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
 
     # add in missing codes for known missings
-    data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = -1
-    data["hourly_wage"][data["labour_state_raw"] == "Retired"] = -2
-    data["hourly_wage"][data["labour_state_raw"] == "Sick/Disabled"] = -3
-    data["hourly_wage"][data["labour_state_raw"] == "Student"] = -4
+    # CHANGE 03/10/23 - replacing all these with 0 instead of missing codes
+    data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = 0
+    data["hourly_wage"][data["labour_state_raw"] == "Retired"] = 0
+    data["hourly_wage"][data["labour_state_raw"] == "Sick/Disabled"] = 0
+    data["hourly_wage"][data["labour_state_raw"] == "Student"] = 0
     data["hourly_wage"][data["labour_state_raw"].isin(["Government Training",
                                                        "Maternity Leave",
                                                        "Family Care",
-                                                       "Other"])] = -5
+                                                       "Other"])] = 0
     # now replace all still nan with -9
     data["hourly_wage"].fillna(-9, inplace=True)
 
@@ -963,7 +964,7 @@ def calculate_children(data,
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "SF_12", "nutrition_quality"]
+    diff_columns = ["hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)

@@ -341,6 +341,9 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         #yj = model.rx2('transform') # use yj from fitted model for latest year.
         currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
 
+    # explicitly convert to matrix to overcome error in predict_merMod below
+    #currentRDF_matrix = matrix.as_matrix(currentRDF)
+
     ols_data = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)  # estimate next income using OLS.
 
     # if dependent == "SF_12":
@@ -428,7 +431,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent == "hh_income_new") and noise_std:
+    elif (dependent in ["hh_income_new", 'hourly_wage']) and noise_std:
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
