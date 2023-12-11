@@ -48,7 +48,7 @@ main <- function(){
     mice.data <- replace.missing(mice.data)
     
     if (cached) {
-      mice_set <- readRDS("data/transitions/MICE_set2.rds")
+      mice_set <- readRDS("data/transitions/MICE_set.rds")
     }
     else {
       data <- cbind(mice.data, other.data)
