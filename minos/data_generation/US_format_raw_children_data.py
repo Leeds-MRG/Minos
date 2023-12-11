@@ -37,7 +37,7 @@ def main(input_raw_data, year):
     # sanity check for number of child rows vs declared nkids
     actual_children = collaped_children_US_with_children.groupby(['hidp'])['is_child'].sum()
     declared_children = collaped_children_US_with_children.groupby(['hidp'])['nkids'].max()
-    print(sum(np.abs(actual_children - declared_children))) # Sum absolute error. lower is better.
+    # print(sum(np.abs(actual_children - declared_children))) # Sum absolute error. lower is better.
 
     # grab children
     # join ages into a string seperated by -
