@@ -1146,7 +1146,7 @@ def generate_child_material_deprivation(data,
     return data
 
 
-''' HR 14/11/23 To calculate material deprivation score and Boolean '''
+''' HR 14/11/23 To calculate child material deprivation score and Boolean '''
 def update_material_deprivation_vars(data,
                                      matdep_threshold=0.25,
                                      _drop=True):
@@ -1164,11 +1164,11 @@ def update_material_deprivation_vars(data,
     # Get all valid material deprivation variables present and scale by sum -> "adjustor"
     hidp_sub['adjustor'] = [sum([MATDEP_DICT[var]['score'] for var in matdep_vars if hidp_sub.loc[hidp, var] in MATDEP_DICT[var]['valids']]) for hidp in hidp_sub.index]
     hidp_sub['score'] = [sum([MATDEP_DICT[var]['score'] for var in matdep_vars if hidp_sub.loc[hidp, var] in MATDEP_DICT[var]['no']]) for hidp in hidp_sub.index]
-    hidp_sub['material_deprivation_score'] = hidp_sub['score'] / hidp_sub['adjustor']
-    hidp_sub['material_deprivation'] = (hidp_sub['material_deprivation_score'] > matdep_threshold).astype(int)
+    hidp_sub['matdep_child_score'] = hidp_sub['score'] / hidp_sub['adjustor']
+    hidp_sub['matdep_child'] = (hidp_sub['matdep_child_score'] > matdep_threshold).astype(int)
 
     # Use dict of matdep values as map to create new Boolean columns
-    matdep_vars = ['material_deprivation_score', 'material_deprivation']
+    matdep_vars = ['matdep_child_score', 'matdep_child']
     for var in matdep_vars:
         matdep_dict = hidp_sub[var].to_dict()
         data[var] = data['hidp'].map(matdep_dict)
@@ -1224,8 +1224,8 @@ def update_poverty_vars_hh(data,
 
     ''' 4. LOW INCOME AND MATERIAL DEPRIVATION '''
     hidp_sub['low_income'] = (hidp_sub[income_yearly] < low_income_threshold * median_yearly).astype(int)
-    hidp_sub['low_income_material_deprivation'] = (
-                (hidp_sub['low_income'] == 1) & (hidp_sub['material_deprivation'] == 1)).astype(int)
+    hidp_sub['low_income_matdep_child'] = (
+                (hidp_sub['low_income'] == 1) & (hidp_sub['matdep_child'] == 1)).astype(int)
 
     # Chuck all hidp-based variables into the original df via a map
     vars_to_map_by_hidp = ['relative_poverty_percentile',
@@ -1233,7 +1233,7 @@ def update_poverty_vars_hh(data,
                            'absolute_poverty_percentile',
                            'absolute_poverty',
                            'low_income',
-                           'low_income_material_deprivation',
+                           'low_income_matdep_child',
                            ]
 
     # Map onto master df by year
@@ -1265,7 +1265,7 @@ def calculate_poverty_composites_hh(data,
 
     # Generate from US composite stage if not passed
     if median_reference is None:
-        median_reference = get_reference_year_income()
+        median_reference = get_reference_year_income(data)
 
     ''' Must loop over all years, bearing in mind:
         (a) median incomes are year-specific,
@@ -1374,8 +1374,8 @@ def get_poverty_metrics(pop,
         poverty_vars = ['relative_poverty',
                         'absolute_poverty',
                         'low_income',
-                        'material_deprivation',
-                        'low_income_material_deprivation',
+                        'matdep_child',
+                        'low_income_matdep_child',
                         'persistent_poverty',
                         ]
 

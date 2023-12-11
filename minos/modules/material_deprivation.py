@@ -1,4 +1,4 @@
-"""Module for estimating change in material deprivation variable derived from 21 US variables"""
+"""Module for estimating change in child material deprivation variable derived from 21 US variables"""
 
 
 import pandas as pd
@@ -8,13 +8,13 @@ from minos.modules.base_module import Base
 import logging
 from datetime import datetime as dt
 
-class MaterialDeprivation(Base):
+class MaterialDeprivationChild(Base):
     @property
     def name(self):
-        return "material_deprivation"
+        return "material_deprivation_child"
 
     def __repr__(self):
-        return "MaterialDeprivation()"
+        return "MaterialDeprivationChild()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -65,7 +65,7 @@ class MaterialDeprivation(Base):
         #                 "housing_tenure",
         #                 "financial_situation"]
         ''' HR 30/11/23 Bare bones variables  '''
-        view_columns = ['material_deprivation',
+        view_columns = ['matdep_child',
                         'hh_income',
                         # 'S7_labour_state',
                         ]
@@ -82,7 +82,7 @@ class MaterialDeprivation(Base):
 
 
     def on_time_step(self, event):
-        """Produces material deprivation status on time steps.
+        """Produces child material deprivation status on time steps.
 
         Parameters
         ----------
@@ -99,15 +99,15 @@ class MaterialDeprivation(Base):
         matdep_prob_df = self.calculate_matdep(pop)
         matdep_prob_df[0.] = 1 - matdep_prob_df[1.0]
         matdep_prob_df.index = pop.index
-        matdep_prob_df["material_deprivation"] = self.random.choice(matdep_prob_df.index,
-                                                                    list(matdep_prob_df.columns),
-                                                                    matdep_prob_df)
+        matdep_prob_df["matdep_child"] = self.random.choice(matdep_prob_df.index,
+                                                            list(matdep_prob_df.columns),
+                                                            matdep_prob_df)
         matdep_prob_df.index = pop.index
-        matdep_prob_df['material_deprivation'] = matdep_prob_df['material_deprivation'].astype(int)
-        self.population_view.update(matdep_prob_df["material_deprivation"])
+        matdep_prob_df['matdep_child'] = matdep_prob_df['matdep_child'].astype(int)
+        self.population_view.update(matdep_prob_df["matdep_child"])
 
     def calculate_matdep(self, pop):
-        """Calculate material deprivation transition distribution based on provided people/indices.
+        """Calculate child material deprivation transition distribution based on provided people/indices.
 
         Parameters
         ----------
@@ -118,8 +118,8 @@ class MaterialDeprivation(Base):
         """
         # load transition model based on year.
         year = 2019
-        transition_model = r_utils.load_transitions(f"material_deprivation/logit/material_deprivation_{year}_{year+1}", self.rpy2_modules)
+        transition_model = r_utils.load_transitions(f"matdep_child/logit/matdep_child_{year}_{year+1}", self.rpy2_modules)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'material_deprivation')
+        prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'matdep_child')
         prob_df.columns = [1.]
         return prob_df

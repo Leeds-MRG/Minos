@@ -37,7 +37,7 @@ from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
-from minos.modules.material_deprivation import MaterialDeprivation
+from minos.modules.material_deprivation import MaterialDeprivationChild
 from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention
@@ -68,7 +68,7 @@ components_map = {
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
     "Heating()": Heating(),
-    "MaterialDeprivation()": MaterialDeprivation(),
+    "MaterialDeprivationChild()": MaterialDeprivationChild(),
     "Housing()": Housing(),
     "geeIncome()": geeIncome(),
     "geeYJIncome()": geeYJIncome(),

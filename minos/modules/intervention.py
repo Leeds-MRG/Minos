@@ -898,7 +898,7 @@ CONFIG_DEFAULT = {'child_poverty_target': 1,
 
 POVERTY_STATE_MAP = {1: 'relative_poverty',
                      2: 'absolute_poverty',
-                     3: 'low_income_material_deprivation',
+                     3: 'low_income_matdep_child',
                      4: 'persistent_poverty'}
 
 
@@ -942,14 +942,14 @@ class ChildPovertyIntervention(Base):
                         'nkids',
                         'hidp',
                         'pidp',
-                        'material_deprivation',
-                        'material_deprivation_score',
+                        'matdep_child',
+                        'matdep_child_score',
                         'relative_poverty_percentile',
                         'relative_poverty',
                         'absolute_poverty_percentile',
                         'absolute_poverty',
                         'low_income',
-                        'low_income_material_deprivation',
+                        'low_income_matdep_child',
                         'relative_poverty_history',
                         'persistent_poverty',
                         ]
@@ -989,7 +989,7 @@ class ChildPovertyIntervention(Base):
         pop = self.population_view.get(event.index, query='alive == "alive"')
 
         ''' Update poverty variables '''
-        # 1. Material deprivation
+        # 1. Child material deprivation
         # NOT DONE HERE, should be via logit transition model
 
         # 2. Household-level poverty variables
@@ -1007,7 +1007,7 @@ class ChildPovertyIntervention(Base):
                         'absolute_poverty_percentile',
                         'absolute_poverty',
                         'low_income',
-                        'low_income_material_deprivation',
+                        'low_income_matdep_child',
                         'relative_poverty_history',
                         'persistent_poverty',
                         # 'persistent_poverty_sum,  # Superfluous but leaving here for future reference
@@ -1017,7 +1017,7 @@ class ChildPovertyIntervention(Base):
         vars_to_cast = {'relative_poverty': float,
                         'absolute_poverty': float,
                         'low_income': float,
-                        'low_income_material_deprivation': float,
+                        'low_income_matdep_child': float,
                         'relative_poverty_history': int,
                         'persistent_poverty': float,
                         }
