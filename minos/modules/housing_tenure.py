@@ -123,12 +123,12 @@ class HousingTenure(Base):
         # load transition model based on year.
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2019
+            year = 2020
         else:
-            year = min(self.year, 2019)
+            year = min(self.year, 2020)
 
-        # 2019 model doesn't have the 'Rented private furnished' category. Set differently for years before this
-        if year == 2019:
+        # 2019+ model doesn't have the 'Rented private furnished' category. Set differently for years before this
+        if year >= 2019:
             cols = ['Owned outright', 'Owned with mortgage', 'Local authority rent', 'Housing assoc rented',
                     'Rented from employer', 'Rented private unfurnished', 'Other']
         elif year < 2019:

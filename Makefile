@@ -26,6 +26,7 @@ GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 TESTING = $(SOURCEDIR)/testing
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
+TESTING = $(SOURCEDIR)/testing
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')

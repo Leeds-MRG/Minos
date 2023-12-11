@@ -1,8 +1,8 @@
 randomness:
     key_columns: ['entrance_time', 'age']
 time:
-    start: {year: 2020, month: 10, day: 15}
-    end:   {year: 2038, month: 10, day: 15}
+    start: {year: 2021, month: 10, day: 15}
+    end:   {year: 2036, month: 10, day: 15}
     step_size: 365.25  # Days
     num_years: 19
 population:
@@ -18,6 +18,8 @@ output_data_dir: "output"
 transition_dir: 'data/transitions/scotland'
 replenishing_dir: 'data/replenishing/scotland'
 cross_validation: FALSE
+
+synthetic: FALSE
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.

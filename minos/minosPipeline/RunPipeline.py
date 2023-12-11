@@ -230,6 +230,7 @@ def type_check(data):
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['job_sec'] = data['job_sec'].astype(int)
+    #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
 
     return data
 

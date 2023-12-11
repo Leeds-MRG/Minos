@@ -144,7 +144,8 @@ def main(data):
 
 if __name__ == "__main__":
     # Load in data.
-    years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(2009, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data, before, after = main()

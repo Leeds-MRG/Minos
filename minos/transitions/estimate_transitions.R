@@ -112,7 +112,7 @@ run_yearly_models <- function(transitionDir_path,
     # crossval needs to start in 2010, whereas default model can have reduced timespan
     # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(max(data$time) - 3, (max(data$time)-1))
+      year.range <- seq(max(data$time) - 4, (max(data$time)-1))
     } else {
       year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
@@ -136,7 +136,7 @@ run_yearly_models <- function(transitionDir_path,
         {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-        }# skip this iteration if model not in valid types. 
+      }# skip this iteration if model not in valid types. 
       
       # reset the formula string for each year
       formula.string <- formula.string.orig
@@ -151,9 +151,9 @@ run_yearly_models <- function(transitionDir_path,
 
       ## Some models don't run in certain years (data issues) so break here
       # nutrition_quality only estimated for 2018
-      if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
-      # labour_state only estimated for 2018
-      if(dependent == 'education_state' & year != 2018) { next }
+      if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018, 2020)) { next }
+      # education_state only estimated for 2020->2021
+      if(dependent == 'education_state' & year != 2020) { next }
       # loneliness only estimated for waves starting 2017 and 2018
       if(dependent == 'loneliness' & !year > 2016) { next }
       # neighbourhood only estimated for wave 2011, 2014, and 2017
@@ -162,8 +162,7 @@ run_yearly_models <- function(transitionDir_path,
       if(grepl('neighbourhood_safety', dependent)){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
-      #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
-      # SF_12 predictor (physical health score) not available in wave 1
+      # Can't fit a time lagged model to SF12 in first wave
       if(dependent == 'SF_12' & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
@@ -205,7 +204,7 @@ run_yearly_models <- function(transitionDir_path,
       if(!year > 2016) {
         formula.string <- str_remove_all(formula.string, " \\+ factor\\(loneliness\\)")
       }
-      if(!year %in% c(2015, 2017, 2019)) {
+      if(!year %in% c(2015, 2017, 2019, 2021)) {
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(nutrition_quality\\)")
       }
       if(year < 2013) {
@@ -276,11 +275,12 @@ run_yearly_models <- function(transitionDir_path,
         texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.rds')
         texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
       }
-      saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
+      save.path <- paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds')
+      saveRDS(model, file=save.path)
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
-
     }
     print(paste0("Finished for ", dependent, '.'))
+    print(paste0('Files saved to ', out.path2))
   }
   # close and remove connection object from memory
   close(modDefs)
@@ -355,7 +355,6 @@ transitionDir <- 'data/transitions/'
 mode <- 'default'
 
 create.if.not.exists(transitionDir)
-
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {

@@ -99,7 +99,7 @@ class financialSituation(Base):
         self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
-        year = 2019
+        year = 2020
         transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
         nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='financial_situation')
         return nextWaveFinancialPerception

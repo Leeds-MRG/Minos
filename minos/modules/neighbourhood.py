@@ -134,7 +134,6 @@ class Neighbourhood(Base):
     def name(self):
         return 'neighbourhood'
 
-
     def __repr__(self):
         return "Neighbourhood()"
 

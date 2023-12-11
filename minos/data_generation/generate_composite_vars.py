@@ -451,6 +451,12 @@ def generate_SIPHER_7_employment(data):
               axis=1,
               inplace=True)
 
+    ############################################################
+    # THIS IS BAD BUT NECESSARY, REPLACE WHEN POSSIBLE!!!!!!
+    # Need to copy the wave 12 PT employment information as we are missing this info in wave 13
+    PT_pidps_2020 = data['pidp'][(data['time'] == 2020) & (data['S7_labour_state'] == 'PT Employed')]
+    data['S7_labour_state'][(data['pidp'].isin(PT_pidps_2020)) & (data['time'] == 2021)] = 'PT Employed'
+
     return data
 
 
