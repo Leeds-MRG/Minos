@@ -3,7 +3,7 @@ library(here)
 source("minos/utils_datain.R")
 source("minos/transitions/utils.R")
 main <- function(){
-  do_mice <- F
+  do_mice <- T
   # load in all post LOCFcorrected data? maybe composite?
   # MICE impuation from notebook
   # save to individual waves.
