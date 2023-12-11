@@ -19,6 +19,7 @@ transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing/glasgow_scaled'
 
 cross_validation: FALSE
+synthetic: TRUE
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
@@ -29,9 +30,9 @@ cross_validation: FALSE
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-
-
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
+              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
+              Replenishment()]
 scale_rates:
     method: "constant"
     constant:
