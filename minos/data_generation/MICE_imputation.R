@@ -58,10 +58,10 @@ main <- function(){
       #final.mice.data <- cbind(final.mice.data, other.data)
     }
     final.mice.data <- complete(mice_set, 1)
+    final.mice.data <- cbind(final.mice.data, other.data)
     
   } else {
     final.mice.data <- read_raw_data_out(here::here("data/"), "composite_US") 
-    
   }
   create.if.not.exists("data/mice_US")
   save_raw_data_in(final.mice.data, "data/mice_US/")
