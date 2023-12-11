@@ -62,12 +62,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    if(mode == 'cross_validation') {
-      year.range <- seq(min(data$time) , (max(data$time)))
-    } else {
-      year.range <- seq(max(data$time) - 5, (max(data$time)))
-      #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
-    }
+    year.range <- seq(min(data$time) , (max(data$time)))
+    # if(mode == 'cross_validation') {
+    #   year.range <- seq(min(data$time) , (max(data$time)))
+    # } else {
+    #   year.range <- seq(max(data$time) - 5, (max(data$time)))
+    #   #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
+    # }
     
 
     # set up output directory
