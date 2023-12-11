@@ -117,10 +117,10 @@ class Tobacco(Base):
         # load transition model based on year.
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2018
+            year = 2020
         else:
             year = max(self.year, 2014)
-            year = min(year, 2018)
+            year = min(year, 2020)
 
         transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
