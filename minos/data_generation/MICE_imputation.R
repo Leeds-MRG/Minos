@@ -59,6 +59,8 @@ main <- function(){
       #final.mice.data <- cbind(final.mice.data, other.data)
     }
     final.mice.data <- complete(mice_set, 1)
+    print(nrow(final.mice.data))
+    print(nrow(other.data))
     final.mice.data <- cbind(final.mice.data, other.data)
     
   } else {
