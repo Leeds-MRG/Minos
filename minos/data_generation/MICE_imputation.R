@@ -67,7 +67,7 @@ main <- function(){
     #final.mice.data <- cbind(final.mice.data, other.data)
     cached <- TRUE
     if (cached) {
-      mice.set <- readRDS("data/mice_US/mice_set.rds")
+      mice.set <- readRDS("data/mice_US/MICE_set2.rds")
       final.mice.data <- complete(mice.set, 1)
     }
   } else {
