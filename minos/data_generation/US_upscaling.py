@@ -115,7 +115,7 @@ def main():
 
     #synthpop_data = pd.read_csv("../data/HH2011PopEst2020S_population.csv") # this is household weighted data. not working atm. need to investigate.
     glasgow_data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"] # glasgow data zone IDs.
-    US_data = pd.read_csv("data/final_US/2020_US_cohort.csv") # only expanding on one year of US data for 2020.
+    US_data = pd.read_csv("data/final_US/2021_US_cohort.csv") # only expanding on one year of US data for 2021.
 
     # merge spatial and US data.
     # TODO should generalise this to any subset of lsoas but no point for now.
@@ -145,7 +145,7 @@ def main():
                       inplace=True)
 
     US_utils.check_output_dir("data/scaled_US/") # check save directory exists or create it.
-    US_utils.save_file(sampled_data, "data/scaled_glasgow_US/", '', 2020)
+    US_utils.save_file(sampled_data, "data/scaled_glasgow_US/", '', 2021)
 
 
 if __name__ == '__main__':

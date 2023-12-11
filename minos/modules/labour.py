@@ -4,6 +4,10 @@ Upgrade of household appliances
 Possible future work for moving households and changing household composition (e.g. marrying/births)
 """
 
+#############################################################################################
+# DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT
+#############################################################################################
+
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils

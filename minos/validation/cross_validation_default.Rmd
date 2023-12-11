@@ -110,35 +110,35 @@ For all analyses, results will be calculated on each output separately and poole
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hh_income')
 multi_year_boxplots(raw, cv, 'hh_income')
-snapshot_OP_plots(raw, cv, 'hh_income', target.years = c(2014, 2016, 2018, 2020))
+snapshot_OP_plots(raw, cv, 'hh_income', target.years = c(2015, 2017, 2019, 2021))
 q_q_comparison(raw, cv, 'hh_income')
 ```
 ```{r}
 inc.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
-                                 target.year = 2014)
+                                 target.year = 2015)
 print(inc.14)
 ```
 ```{r}
 inc.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
-                                 target.year = 2016)
+                                 target.year = 2017)
 print(inc.16)
 ```
 ```{r}
 inc.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
-                                 target.year = 2018)
+                                 target.year = 2019)
 print(inc.18)
 ```
 ```{r}
 inc.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'hh_income', 
-                                 target.year = 2020)
+                                 target.year = 2021)
 print(inc.20)
 rm(inc.14, inc.16, inc.18, inc.20)
 ```
@@ -148,35 +148,35 @@ rm(inc.14, inc.16, inc.18, inc.20)
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
 multi_year_boxplots(raw, cv, 'SF_12')
-snapshot_OP_plots(raw, cv, 'SF_12', target.years = c(2014, 2016, 2018, 2020))
+snapshot_OP_plots(raw, cv, 'SF_12', target.years = c(2015, 2017, 2019, 2021))
 q_q_comparison(raw, cv, 'SF_12')
 ```
 ```{r}
 sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
-                                 target.year = 2014)
+                                 target.year = 2015)
 print(sf12.14)
 ```
 ```{r}
 sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
-                                 target.year = 2016)
+                                 target.year = 2017)
 print(sf12.16)
 ```
 ```{r}
 sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
-                                 target.year = 2018)
+                                 target.year = 2019)
 print(sf12.18)
 ```
 ```{r}
 sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
                                  var = 'SF_12', 
-                                 target.year = 2020)
+                                 target.year = 2021)
 print(sf12.20)
 rm(sf12.14, sf12.16, sf12.18, sf12.20)
 ```
@@ -271,6 +271,21 @@ cv_ordinal_plots(pivoted.df = heat.pivoted,
                  var = 'heating',
                  save = FALSE)
 rm(heat.pivoted)
+```
+
+# S7 Labour State
+
+```{r}
+labstate.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = labstate.pivoted, 
+                 var = 'S7_labour_state',
+                 save = FALSE)
+rm(labstate.pivoted)
 ```
 
 # SECONDARY VARS
