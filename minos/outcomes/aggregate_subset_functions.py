@@ -170,9 +170,9 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
     for subset_function in subset_chain:
         if type(subset_function) == list: # if the function has additional args pass them here.
             subset_function, subset_args = subset_function
-            data.loc[subset_function(data, subset_args).index, "who_final_boosted_subset"] = data.loc[subset_function(data, subset_args).index, "who_final_boosted_subset"] * True
+            data.loc[list(set(data.index) - set(subset_function(data, subset_args)).index), "who_final_boosted_subset"] *= False
         else: # if function has no additional args pass them here.
-            data.loc[subset_function(data).index, "who_final_boosted_subset"] = data.loc[subset_function(data).index, "who_final_boosted_subset"] * True
+            data.loc[list(set(data.index) - set(subset_function(data).index)), "who_final_boosted_subset"] *= False
 
     who_subsetted = np.unique(data.query('who_final_boosted_subset == True')['hidp'])
     return data.loc[data['hidp'].isin(who_subsetted), ] # set everyone who satisfies uplift condition to true.
