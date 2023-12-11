@@ -13,10 +13,9 @@
 ## Select memory
 ## just use one node
 ##$ -l nodes=1
-#$ -pe ib 30
 ## Set logs directories
 #$ -o ./logs/log
-
+#$ -e ./logs/errors
 
 ############## SET NUMBER OF RUNS HERE ##############
 ## Tell computer this is an array job with tasks from 1 to N
