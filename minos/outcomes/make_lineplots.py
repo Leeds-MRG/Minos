@@ -51,6 +51,25 @@ def aggregate_percentage_counts(df, v):
     new_df.reset_index(inplace=True, drop=True)
     return new_df
 
+def aggregate_boosted_counts(df, v):
+    # get number of individuals boosted and the size of the overall population.
+    new_df = pd.DataFrame(df[v])
+    new_df['prct'] = new_df[new_df.columns[0]]
+    new_df[v] = new_df.index
+    new_df.reset_index(inplace=True, drop=True)
+    return sum(df['income_boosted']), new_df.shape[1]
+
+def aggregate_cumulative_score(df, v):
+    # count the overall sum of a quantity. e.g. sf-12 mcs absolute score.
+    return sum(df[v])
+
+def aggregate_boosted_counts_and_cumulative_score(df, v):
+    # get number of individuals boosted and the size of the overall population.
+    new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
+    new_df["number_boosted"] = [df.shape[0]]
+    new_df[f'summed_{v}'] = [sum(df[v])]
+    return new_df
+
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
                   mode="default_config", region=None):
     """
@@ -141,7 +160,13 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                     aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
                 elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
                     for i, single_year_aggregate in enumerate(aggregated_means):
-                        single_year_aggregate['time'] = year
+                        single_year_aggregate['year'] = year
+                        single_year_aggregate['tag'] = tag
+                        single_year_aggregate['id'] = i
+                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+                elif method == aggregate_boosted_counts_and_cumulative_score:
+                    for i, single_year_aggregate in enumerate(aggregated_means):
+                        single_year_aggregate['year'] = year
                         single_year_aggregate['tag'] = tag
                         single_year_aggregate['id'] = i
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
@@ -247,7 +272,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     None
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
-    df[v] -= 1  #  set centre at 0.
+    df[v] -= 1  # set centre at 0.
 
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
@@ -269,9 +294,17 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     file_name = os.path.join(destination, file_name)
 
     # Sort out axis labels
+    y_label = v
     if v == 'SF_12':
-        v = 'SF12 MCS'
-    plt.ylabel(f"{v} nanmean")
+        y_label = 'SF12 MCS'
+
+    if method == weighted_nanmean:
+        y_label += " Weighted Mean"
+
+    elif method == aggregate_boosted_counts_and_cumulative_score:
+        y_label += " AUC"
+
+    plt.ylabel(y_label)
     plt.tight_layout()
 
     dir_name = os.path.dirname(file_name)
@@ -345,6 +378,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         method = aggregate_percentage_counts
     elif method == "child_uplift_cost_sum":
         method = child_uplift_cost_sum
+    elif method == "SF12_AUC":
+        method = aggregate_boosted_counts_and_cumulative_score
     else:
         raise ValueError(
             "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
@@ -366,10 +401,15 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                                                          method=method, region=region)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    if v == "SF_12":
+    if v == "SF_12" and method == weighted_nanmean:
         scaled_data = relative_scaling(aggregate_long_stack, v, ref)
         print("relative scaling done. plotting.. ")
         aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+    elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
+        aggregate_long_stack["sf12_auc"] = aggregate_long_stack[f"summed_{v}"]/aggregate_long_stack['number_boosted']
+        scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
+        print("relative scaling done. plotting.. ")
+        aggregate_lineplot(scaled_data, "plots", prefix, "sf12_auc", method)
     elif v == "boost_amount":
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
     elif method == aggregate_percentage_counts:
@@ -388,8 +428,8 @@ if __name__ == '__main__':
     prefix = "baseline_25_50_relative_poverty"
     mode = 'default_config'
     ref = "Baseline"
-    v = "SF_12"
-    method = 'nanmean'
+    v = "SF12"
+    method = 'percentages'
     # mode = "glasgow_scaled"
     # directories = "baseline,EPCG,EBSS"
     # tags = "Baseline,Energy Price Cap Guarantee,Energy Bill Support Scheme"
@@ -403,14 +443,14 @@ if __name__ == '__main__':
     # mode = "glasgow_scaled"
     # ref='National Average'
 
-    # directories = "baseline,livingWageIntervention"
-    # tags = "Baseline,Living Wage Intervention"
-    # subset_function_strings = "who_below_living_wage,who_boosted"
-    # prefix = "baseline_living_wage"
-    # mode = 'default_config'
-    # ref = "Baseline"
-    # v = "housing_quality"
-    # method = 'percentages'
+    directories = "baseline,livingWageIntervention"
+    tags = "Baseline,Living Wage Intervention"
+    subset_function_strings = "who_below_living_wage,who_boosted"
+    prefix = "baseline_living_wage_auc"
+    mode = 'default_config'
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'SF12_AUC'
 
 
     # directories = "25RelativePoverty,25UniversalCredit"
