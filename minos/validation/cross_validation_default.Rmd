@@ -273,6 +273,21 @@ cv_ordinal_plots(pivoted.df = heat.pivoted,
 rm(heat.pivoted)
 ```
 
+# S7 Labour State
+
+```{r}
+labstate.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = labstate.pivoted, 
+                 var = 'S7_labour_state',
+                 save = FALSE)
+rm(labstate.pivoted)
+```
+
 # SECONDARY VARS
 
 ## Marital Status
