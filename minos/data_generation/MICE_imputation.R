@@ -42,6 +42,7 @@ main <- function(){
                   'pmm',
                   'pmm')
     
+    start.data <- read_raw_data_out(here::here("data/"), "composite_US") 
     other.data <- start.data[, !names(start.data) %in% imp_columns]
     mice.data <- start.data[, c(imp_columns)]
     mice.data <- replace.missing(mice.data)
