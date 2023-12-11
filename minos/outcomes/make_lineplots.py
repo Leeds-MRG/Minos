@@ -68,6 +68,8 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
     new_df["number_boosted"] = [df.shape[0]]
     new_df[f'summed_{v}'] = [sum(df[v])]
+    if "boost_amount" in df.columns:
+        new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
 
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
@@ -167,6 +169,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
+                        if source == ref:
+                            single_year_aggregate['intervention_cost'] = np.nan
                         single_year_aggregate['year'] = year
                         single_year_aggregate['tag'] = tag
                         single_year_aggregate['id'] = i
@@ -273,7 +277,8 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     None
     """
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
-    df[v] -= 1  # set centre at 0.
+    if method == weighted_nanmean:
+        df[v] -= 1  # set centre at 0.
 
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
@@ -301,9 +306,10 @@ def aggregate_lineplot(df, destination, prefix, v, method):
 
     if method == weighted_nanmean:
         y_label += " Weighted Mean"
-
-    elif method == aggregate_boosted_counts_and_cumulative_score:
+    elif v == "SF_12_AUC":
         y_label += " AUC"
+    elif v == "SF_12_ICER":
+        y_label += " ICER"
 
     plt.ylabel(y_label)
     plt.tight_layout()
@@ -315,6 +321,10 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     plt.savefig(file_name)
     print(f"Lineplot saved to {file_name}")
 
+    # this is dumb but these changes are global for some reason.
+    df.rename(columns={"Year": "year",
+                       "Legend": "tag"},
+              inplace=True)
 
 def find_MINOS_years_range(file_path):
     """ Calculate the number of years in MINOS output data.
@@ -407,10 +417,19 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         print("relative scaling done. plotting.. ")
         aggregate_lineplot(scaled_data, "plots", prefix, v, method)
     elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
-        aggregate_long_stack["sf12_auc"] = aggregate_long_stack[f"summed_{v}"]/aggregate_long_stack['number_boosted']
-        scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
+        # groupby intervention and cumsum over time.
+        aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()
+        #scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
         print("relative scaling done. plotting.. ")
-        aggregate_lineplot(scaled_data, "plots", prefix, "sf12_auc", method)
+        aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
+        aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
+
+        aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
+        baseline_cumulative = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"]
+        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
+        aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative.values[1:])/aggregate_long_stack['intervention_cost_cumulative']
+        aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
+
     elif v == "boost_amount":
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
     elif method == aggregate_percentage_counts:
@@ -444,10 +463,10 @@ if __name__ == '__main__':
     # mode = "glasgow_scaled"
     # ref='National Average'
 
-    directories = "baseline,livingWageIntervention"
-    tags = "Baseline,Living Wage Intervention"
-    subset_function_strings = "who_below_living_wage,who_boosted"
-    prefix = "baseline_living_wage_auc"
+    directories = "baseline,25RelativePoverty"
+    tags = "Baseline,£25 Relative Poverty"
+    subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
+    prefix = "baseline_25RP"
     mode = 'default_config'
     ref = "Baseline"
     v = "SF_12"

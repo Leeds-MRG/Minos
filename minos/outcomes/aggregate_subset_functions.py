@@ -183,7 +183,7 @@ def get_required_intervention_variables(subset_function_string):
     default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "loneliness"]
 
     if "boosted" in subset_function_string:
-        default_variables += ["income_boosted"]
+        default_variables += ["income_boosted", "boost_amount"]
 
     if "decile" in subset_function_string or "quintile" in subset_function_string:
         default_variables += ["ZoneID", "simd_decile"]
@@ -193,7 +193,10 @@ def get_required_intervention_variables(subset_function_string):
 
     if "universal_credit" in subset_function_string:
         default_variables += ['universal_credit']
-    
+
+    if "below_poverty_line" in subset_function_string:
+        default_variables += []
+
     if "priority_subgroups" in subset_function_string:
         default_variables += ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile', 'has_newborn']
 

@@ -121,7 +121,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
-    print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
+    print(f"Taking {percentage}% of sample with {merged_data.shape[0]} giving {sampled_data.shape[0]} rows.")
 
     # merge with spatial_attributes
     # get simd_deciles
