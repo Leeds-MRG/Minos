@@ -155,6 +155,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                     print(
                         f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
                     aggregated_means = [None]
+                    continue
 
                 if method == weighted_nanmean or method == child_uplift_cost_sum:
                     single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
@@ -424,14 +425,16 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
         aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
 
+        aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
         datetimes = pd.to_datetime(aggregate_long_stack['year'])
         aggregate_long_stack['year'] = datetimes.dt.year
+        print(aggregate_long_stack['year'].value_counts())
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] > 2020, ] # looking at non-baseline years obviously.\
-        aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
-        baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"]
+        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 3035, ] #
+        baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"].values
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
         #baseline_cumulative_values = baseline_cumulative_values.values.reshape(-1,15)[:,1:].flatten() # remove every 15th entry that isnt needed.
-        aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values.values)/aggregate_long_stack['intervention_cost_cumulative']
+        aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values)/aggregate_long_stack['intervention_cost_cumulative']
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
 
     elif v == "boost_amount":
@@ -471,6 +474,15 @@ if __name__ == '__main__':
     tags = "Baseline,£25 Relative Poverty"
     subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
     prefix = "baseline_25RP"
+    mode = 'default_config'
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'SF12_AUC'
+
+    directories = "baseline,25RelativePoverty,50RelativePoverty"
+    tags = "Baseline,£25 Relative Poverty,£50 Relative Poverty"
+    subset_function_strings = "who_below_poverty_line_and_kids,who_boosted,who_boosted"
+    prefix = "baseline_25_50_RP"
     mode = 'default_config'
     ref = "Baseline"
     v = "SF_12"
