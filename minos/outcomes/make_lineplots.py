@@ -139,6 +139,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
 
     aggregated_data = pd.DataFrame()
     aggregated_means = [None]
+    print(years)
     for year in years:
         files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
         # files = files[:10]
@@ -151,11 +152,11 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 aggregated_means = pool.starmap(aggregate_csv,
                                                     zip(files, repeat(subset_func_string), repeat(v), repeat(method),
                                                         repeat(mode), repeat(region)))
-                if aggregated_means == [] or aggregated_means == [None]:  # if no datasets found for given year supply a dummy row.
+
+                if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
                     print(
                         f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
                     aggregated_means = [None]
-                    continue
 
                 if method == weighted_nanmean or method == child_uplift_cost_sum:
                     single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
@@ -170,6 +171,11 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
+                        if single_year_aggregate == None:
+                            single_year_aggregate = pd.DataFrame([0], columns = ['number_boosted'])
+                            single_year_aggregate["number_boosted"] = np.nan
+                            single_year_aggregate[f"summed_{v}"] = np.nan
+                            single_year_aggregate["intervention_cost"] = np.nan
                         if source == ref:
                             single_year_aggregate['intervention_cost'] = np.nan
                         single_year_aggregate['year'] = year
@@ -344,7 +350,7 @@ def find_MINOS_years_range(file_path):
         config = yaml.safe_load(stream)
     start_year = config['time']['start']['year']
     end_year = config['time']['end']['year']
-    years = np.arange(start_year, end_year)
+    years = np.arange(start_year, end_year+1)
     return years
 
 
@@ -430,7 +436,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack['year'] = datetimes.dt.year
         print(aggregate_long_stack['year'].value_counts())
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] > 2020, ] # looking at non-baseline years obviously.\
-        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 3035, ] #
+        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 3035, ] # any wierd stragglers..
         baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"].values
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
         #baseline_cumulative_values = baseline_cumulative_values.values.reshape(-1,15)[:,1:].flatten() # remove every 15th entry that isnt needed.
