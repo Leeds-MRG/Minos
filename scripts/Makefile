@@ -320,10 +320,10 @@ arc4_intervention_100All: setup
 
 ##########################################################################
 
-arc4_intervention_25RelativePoverty: setup
+arc4_intervention_25RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25RelativePoverty'
 
-arc4_intervention_50RelativePoverty: setup
+arc4_intervention_50RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
 
 arc4_intervention_75RelativePoverty: setup
@@ -334,10 +334,10 @@ arc4_intervention_100RelativePoverty: setup
 
 ##########################################################################
 
-arc4_intervention_25UniversalCredit: setup
+arc4_intervention_25UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
 
-arc4_intervention_30UniversalCredit: setup
+arc4_intervention_30UniversalCredit: 
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
 
 arc4_intervention_35UniversalCredit: setup
