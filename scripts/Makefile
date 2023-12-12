@@ -337,7 +337,7 @@ arc4_intervention_100RelativePoverty: setup
 arc4_intervention_25UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
 
-arc4_intervention_30UniversalCredit: 
+arc4_intervention_30UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
 
 arc4_intervention_35UniversalCredit: setup
