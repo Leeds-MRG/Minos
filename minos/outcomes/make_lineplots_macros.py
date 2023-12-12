@@ -34,7 +34,9 @@ def living_wage_lineplot(*args):
     subset_function_strings = "who_below_living_wage,who_boosted"
     prefix = "baseline_living_wage"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    ref="Baseline"
+    v="SF_12"
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method='nanmean')
     method = 'SF12_AUC'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
@@ -47,7 +49,7 @@ def epcg_and_no_support_lineplot(*args):
     config_mode = "default_config"
     ref="Baseline"
     v = "SF_12"
-    method = 'nanmean'
+    method = "nanmean"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method)
     method = 'SF12_AUC'
