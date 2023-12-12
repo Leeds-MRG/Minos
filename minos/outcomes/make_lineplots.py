@@ -428,7 +428,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         baseline_cumulative = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"]
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
         baseline_cumulative.values = baseline_cumulative.values.reshape(-1,15)[:,1:].flatten()
-        aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative.values)/aggregate_long_stack['intervention_cost_cumulative']
+        aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-set(baseline_cumulative.values))/aggregate_long_stack['intervention_cost_cumulative']
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
 
     elif v == "boost_amount":
