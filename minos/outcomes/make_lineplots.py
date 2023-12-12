@@ -170,7 +170,10 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
+                        if year == 2036:
+                            print("good year")
                         if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
+                            print(source, tag, year)
                             single_year_aggregate = pd.DataFrame([0], columns = ['number_boosted'])
                             single_year_aggregate["number_boosted"] = np.nan
                             single_year_aggregate[f"summed_{v}"] = np.nan
@@ -435,8 +438,9 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack['year'] = datetimes.dt.year
         print(aggregate_long_stack['year'].value_counts())
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] > 2020, ] # looking at non-baseline years obviously.\
-        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 3035, ] # any wierd stragglers..
+        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 2035, ] # any wierd stragglers..
         baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"].values
+        baseline_cumulative_values = np.repeat(baseline_cumulative_values, len(np.unique(aggregate_long_stack['tag']))-1)
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
         #baseline_cumulative_values = baseline_cumulative_values.values.reshape(-1,15)[:,1:].flatten() # remove every 15th entry that isnt needed.
         aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values)/aggregate_long_stack['intervention_cost_cumulative']
