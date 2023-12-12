@@ -36,6 +36,8 @@ def living_wage_lineplot(*args):
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
+    method = 'SF12_AUC'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 def epcg_and_no_support_lineplot(*args):
     directories = "baseline,energyDownlift,energyDownliftNoSupport"
@@ -45,6 +47,8 @@ def epcg_and_no_support_lineplot(*args):
     config_mode = "default_config"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
+    method = 'SF12_AUC'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
 def ebss_lineplot(*args):
@@ -69,11 +73,11 @@ def all_five_lineplots(*args):
 
 def social_science_all_plots(config_mode):
     # all social science lineplots together.
-    #epcg_and_no_support_lineplot(config_mode)
+    epcg_and_no_support_lineplot(config_mode)
     #UC_relative_poverty(config_mode, 25)
     #UC_relative_poverty(config_mode, 50)
     #all_five_lineplots(config_mode)
-    #living_wage_lineplot(config_mode)
+    living_wage_lineplot(config_mode)
 
     incremental_25_to_50(config_mode, "UniversalCredit", "Universal Credit", "who_universal_credit_and_kids")
     incremental_25_to_50(config_mode, "RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids")
