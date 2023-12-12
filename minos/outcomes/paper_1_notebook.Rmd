@@ -54,19 +54,17 @@ raw_model_formula_string <- "SF_12 ~ factor(sex) +
                   relevel(factor(ethnicity), ref='WBI') + 
                   scale(age) + 
                   factor(education_state) + 
-                  factor(labour_state_raw) + 
+                  factor(labour_state) + 
                   relevel(factor(NSSEC), ref=1) +
                   relevel(factor(region), ref='London') +
-                  scale(hh_netinc)"
+                  scale(hh_income)"
 
 # Calculate required variables for regression to run. 
 raw_model_formula <- as.formula(raw_model_formula_string)
 variables <- all.vars(raw_model_formula)
 
 # get only needed variables and replace missing codes with NA.
-raw.data.colnames <- colnames(raw.data)
-raw.data.colnames[which( colnames(raw.data)=="job_sec" )] <- "NSSEC"
-colnames(raw.data) <- raw.data.colnames
+raw.data <- update_column_names(raw.data)
 raw.data <- raw.data[, append(variables, c("time", 'pidp', 'weight'))]
 raw.data <- replace.missing(raw.data)
 
@@ -80,9 +78,8 @@ full.raw.filelist <- list.files(raw.data.dir,
                        pattern = '[0-9]{4}_US_cohort.csv')[21:30] # get files for 2011-2013.
 # load raw data.
 full.raw.data <- do.call(rbind, lapply(full.raw.filelist, read.csv))
-full.raw.data.colnames <- colnames(full.raw.data)
-full.raw.data.colnames[which( colnames(full.raw.data)=="job_sec" )] <- "NSSEC"
-colnames(full.raw.data) <- full.raw.data.colnames
+full.raw.data <- update_column_names(full.raw.data)
+
 # get only needed variables and replace missing codes with NA.
 full.raw.data <- full.raw.data[, append(variables, c("time", 'pidp', 'weight'))]
 full.raw.data <- replace.missing(full.raw.data)
@@ -95,7 +92,7 @@ full.raw.data <- replace.missing(full.raw.data)
 sf12.lm <- lm(raw_model_formula_string,
               data= raw.data)
 # print summary statistics
-print(summary(sf12.lm))
+#print(summary(sf12.lm))
 
 # create save.path if it doesn't exist and save OLS coefficients as a latex table there. 
 create.if.not.exists(save.path)
@@ -136,9 +133,16 @@ fitted_residual_plot(fitted_residuals, paste0(save.path, "presentation_scale_loc
 # raw data handovers from 2011-2020. 
 
 start.data <- raw.data[which(raw.data$time==2013),]
+start.data.colnames <- colnames(start.data)
+start.data.colnames[which( colnames(start.data)=="job_sec" )] <- "NSSEC"
+start.data.colnames[which( colnames(start.data)=="hh_netinc" )] <- "hh_income"
+start.data.colnames[which( colnames(start.data)=="labour_state_raw" )] <- "labour_state"
+colnames(start.data) <- start.data.colnames
 handover.data <- start.data[, c("pidp", "SF_12", "time")]
+rolling.data <- start.data 
+
 for (i in 1:7){
-  start.data$SF_12 <- predict(sf12.lm, start.data)
+  start.data$SF_12 <- predict(sf12.lm, rolling.data)
   start.data[, 'time'] <- start.data[, 'time'] +1
   handover.data <- rbind(handover.data, start.data[, c("pidp", "SF_12", "time")])
 }
@@ -167,9 +171,7 @@ mice.filelist <- list.files(mice.data.dir,
                        pattern = '[0-9]{4}_US_cohort.csv')
 mice.data <- do.call(rbind, lapply(mice.filelist, read.csv))
 
-mice.data.colnames <- colnames(mice.data)
-mice.data.colnames[which(colnames(mice.data)=="job_sec" )] <- "NSSEC"
-colnames(mice.data) <- mice.data.colnames
+mice.data <- update_column_names(mice.data)
 
 # missingness MICE model formula
 mice_formula_string <- "SF_12 ~ 
@@ -202,6 +204,9 @@ mice.weights <- mice.data[which(mice.data$time %in% c(2011, 2012, 2013)), "weigh
 mice.2018.pidp <- mice.data[which(mice.data$time %in% c(2016, 2017, 2018)), "pidp"]
 mice.2018.time <- mice.data[which(mice.data$time %in% c(2016, 2017, 2018)), "time"]
 mice.2018.weights <- mice.data[which(mice.data$time %in% c(2016, 2017, 2018)), "weight"]
+
+lm.no.mice <- lm(mice_formula_string, data=mice.data)
+forest_plot(lm.no.mice,  paste0(save.path, "no_mice_forest.pdf"))
 ```
 
 
@@ -217,7 +222,7 @@ imp_columns <- c("SF_12",
                  'sex',
                  "NSSEC",
                  "education_state",
-                 "S7_labour_state", 
+                 "labour_state", 
                  "region", 
                  "ethnicity", 
                  "age", 
@@ -256,7 +261,7 @@ method <- c("pmm",
 aggr_columns <- c("SF_12",
                  "NSSEC",
                  "education_state",
-                 "S7_labour_state", 
+                 "labour_state", 
                  "ethnicity", 
                  "hh_income",
                  "neighbourhood_safety",
@@ -299,7 +304,7 @@ mice_columns <- c("age",
                   "housing_quality",
                   "hh_income",
                   "neighbourhood_safety",
-                  "S7_labour_state",
+                  "labour_state",
                   #"yearly_energy",
                   "nutrition_quality"
                   #"hh_comp", 
@@ -361,10 +366,7 @@ mice.long <- complete(mice_set, action = "long", include=T)
 mice.long$pidp <- mice.data$pidp
 mice.long$weight <- mice.data$weight
 mice.long$time <- mice.data$time
-mice.long.colnames <- colnames(mice.long)
-mice.long.colnames[which( colnames(mice.long)=="job_sec" )] <- "NSSEC"
-colnames(mice.long) <- mice.long.colnames
-
+mice.long <- update_column_names(mice.long)
 mice_set.full <- as.mids(mice.long)
 
 mice.long.subset <- mice.long[which(mice.long$time %in% c(2011, 2012, 2013)), ]
@@ -517,7 +519,7 @@ if (write_coefs)
 
 
 
-```{r cross_val_handovers}
+```{r mice_cross_val_handovers_data}
 # boxplots for handovers
 #.estimating from 2014-2020.
 # get data for 2013- 2020
@@ -529,18 +531,19 @@ if (write_coefs)
 crossval.mice.data <- complete(mice_set.full, 1, include = F)
 crossval.mice.data <- replace.missing(crossval.mice.data)
 crossval.mice.data <- drop_na(crossval.mice.data)
+crossval.mice.data <- update_column_names(crossval.mice.data)
 ```
 
 
 ```{r mice_handovers}
 start.data <- crossval.mice.data[which(crossval.mice.data$time==2013),]
-rolling.data <- start.data[, c("pidp", "SF_12", "time")]
-handover.data <- rolling.data
+rolling.data <- start.data#[, c("pidp", "SF_12", "time")]
+handover.data <- rolling.data[, c("pidp", "SF_12", "time")]
 for (i in 1:7){
-  rolling.data$SF_12 <- predict(pooled_lm, start.data)
+  rolling.data$SF_12 <- predict(pooled_lm, newdata = rolling.data)
   start.data$SF_12 <- rolling.data$SF_12
   rolling.data[, 'time'] <- rolling.data[, 'time'] +1
-  handover.data <- rbind(handover.data, rolling.data)
+  handover.data <- rbind(handover.data, rolling.data[, c("pidp", "SF_12", "time")])
 }
 
 
@@ -551,16 +554,16 @@ density_ridges(handover.data, "SF_12", save=TRUE, save.path=save.path, filename.
 ```
 
 
-```{r cross_val_handovers}
+```{r cross_val_mice_handovers}
 start.data <- crossval.mice.data[which(crossval.mice.data$time==2013),]
-rolling.data <- start.data[, c("pidp", "SF_12", "time")]
-handover.data <- rolling.data
+rolling.data <- start.data
+handover.data <- rolling.data[, c("pidp", "SF_12", "time")]
 
 for (i in 1:7){
-  rolling.data$SF_12 <- predict(cross.val.sf12.model, start.data)
+  rolling.data$SF_12 <- predict(cross.val.sf12.model, rolling.data)
   start.data$SF_12 <- rolling.data$SF_12
   rolling.data[, 'time'] <- rolling.data[, 'time'] +1
-  handover.data <- rbind(handover.data, rolling.data)
+  handover.data <- rbind(handover.data, rolling.data[, c("pidp", "SF_12", "time")])
 }
 
 
@@ -651,8 +654,8 @@ tex_headers <- c(texreg::names2latex("Minimum Error"), texreg::names2latex("Firs
 tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "lasso"))    
 #lassoTexReg <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,1], se=lasso_coefs[,2], model.names=c("Minimum Error", "First Standard Error"))
 
-lasso.min <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso.min.coefs[, "s1"])
-lasso.1se <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso.1se.coefs[, "s1"])
+lasso.min <-createTexreg(coef.names=rownames(lasso.min.coefs), coef = lasso.min.coefs[, "s1"])
+lasso.1se <-createTexreg(coef.names=rownames(lasso.min.coefs), coef = lasso.1se.coefs[, "s1"])
 
 
 #lassoTexReg2 <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,2])#, lasso_coefs[, 2]))#, pvalues=lasso_coefs[,2])
@@ -682,15 +685,12 @@ sf12.lm.weighted <- with(mice_set.subset, lm(as.formula(mice_formula_string), we
 summary(sf12.lm.weighted)
 
 #coefficients go here.
-texreg_file <- paste0(save.path, 'SF12_Lasso_coefficients.txt')
-tex_label <- paste0("table: sf12_lasso_coefficients") 
-tex_headers <- c(texreg::names2latex("SF_12 LASSO"))
-tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "lasso"))    
-lassoTexReg <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,1], se=lasso_coefs[,2])
-#lassoTexReg2 <-createTexreg(coef.names=rownames(lasso_coefs), coef = lasso_coefs[,2])#, lasso_coefs[, 2]))#, pvalues=lasso_coefs[,2])
-#matrixLassoTexReg <- matrixreg(list(lassoTexReg, lassoTexReg2))
+texreg_file <- paste0(save.path, 'SF12_weighted_OLS_coefficients.txt')
+tex_label <- paste0("table: sf12_weighted_coefficients") 
+tex_headers <- c(texreg::names2latex("SF_12 Weighted OLS"))
+tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "weighted_OLS"))    
 
-texreg(lassoTexReg, # what model to save coefs for. 
+texreg(pool(sf12.lm.weighted), # what model to save coefs for. 
        file=texreg_file,  # where to save.
        custom.model.names = tex_headers, # title of table.
        caption=tex_caption, # \caption command option. 
@@ -789,7 +789,7 @@ texreg(list(sf12.lm.weighted.2013,sf12.lm.weighted.2018), # what model to save c
 
 # yoink transition model function pre processing
 reflect <- T
-yeo_johnson <- F
+yeo_johnson <- T
 include_weights <- T
 depend <- "SF_12"
 dependent_data <- complete(mice_set.subset)$SF_12
@@ -823,7 +823,7 @@ glmm_model_formula_string <- "SF_12 ~ SF_12_last +
                   relevel(factor(ethnicity), ref='WBI') + 
                   scale(age) + 
                   factor(education_state) + 
-                  factor(S7_labour_state) + 
+                  factor(labour_state) + 
                   relevel(factor(NSSEC), ref=1) +
                   relevel(factor(region), ref='London') +
                   scale(hh_income) + 
@@ -916,9 +916,9 @@ fitted_residual_plot(fitted_residuals, paste0(save.path, "glmm_scale_location_pl
 
 #mice.glmm.object@beta <- mice.glmm.object@beta
   
-mice.glmm.object@beta <- -mice.glmm.object@beta 
+#mice.glmm.object@beta <- -mice.glmm.object@beta 
 gamma_forest_plot(mice.glmm.object, paste0(save.path, "glmm_forest.pdf"))
-mice.glmm.object@beta <- -mice.glmm.object@beta 
+#mice.glmm.object@beta <- -mice.glmm.object@beta 
 
 ```
 
@@ -934,22 +934,29 @@ crossval.glmm.data <- drop_na(crossval.glmm.data)
 
 start.data <- complete(glmm.mice.set, 1)
 start.data <- start.data[which(start.data$time==2013),]
-start.data$SF_12 <- crossval.glmm.data[which(crossval.glmm.data$time==2013),]$SF_12
+#start.data$SF_12 <- crossval.glmm.data[which(crossval.glmm.data$time==2013),]$SF_12
+if (yeo_johnson == T) {
+start.data$SF_12 <- max_value - predict(yj, start.data$SF_12 +min_value, inverse=T)
 start.data <- drop_na(start.data)
-
+} else {
+  start.data$SF_12 <- max_value - start.data$SF_12
+}
+#start.data$SF_12_last <- max_value - start.data$SF_12_last
 handover.data <- start.data
 
 rolling.data <- start.data
 for (i in 1:7){
-  if (yeo_johnson) {
-      rolling.data$SF_12 <- max_value - predict(yj,  predict(mice.glmm.object, start.data, type='response',allow.new.levels=T) +min_value, inverse=T)
+  if (yeo_johnson == T) {
+      rolling.data$SF_12 <- predict(mice.glmm.object, rolling.data, type='response',allow.new.levels=T)
+      rolling.data$SF_12_last <- rolling.data$SF_12                           
+      rolling.data$SF_12 <- max_value - predict(yj,  rolling.data$SF_12 +min_value+ rnorm(nrow(rolling.data), 0, 0.3), inverse=T)
   }
   else {
-    rolling.data$SF_12 <- max_value - predict(mice.glmm.object, start.data,type='response',allow.new.levels=T) + rnorm(nrow(rolling.data), 0, 1)
+    rolling.data$SF_12 <- max_value - predict(mice.glmm.object, rolling.data, type='response',allow.new.levels=T) + rnorm(nrow(rolling.data), 0, 1)
+    rolling.data$SF_12_last <- rolling.data$SF_12
   }
   #rolling.data$SF_12 <- max_value - rolling.data$SF_12
   rolling.data$SF_12 <- trunc(rolling.data$SF_12, 0 , 100)
-  rolling.data$SF_12_last <- rolling.data$SF_12
   rolling.data[, 'time'] <- rolling.data[, 'time'] +1
   handover.data <- rbind(handover.data, rolling.data)
 }

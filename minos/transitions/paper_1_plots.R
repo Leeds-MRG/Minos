@@ -57,7 +57,7 @@ gamma_forest_plot <- function(model, file_name){
   p <- p +  scale_shape_manual(name='Significance Level',
                                breaks=c('n.s.', "*", "**", "***"),
                                values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
-  p <- p + ylim(c(-0.1, 0.1))
+  p <- p + ylim(c(-0.5, 0.1))
   plot(p)
   dev.off()
 }
@@ -267,6 +267,17 @@ get_tex_table_caption <- function(variable, mod.type) {
   output <- paste0(output, variable)
   output <- paste0(output, ".")
   
+}
+
+
+update_column_names <- function(data) {
+  data.colnames <- colnames(data)
+  data.colnames[which( data.colnames=="job_sec" )] <- "NSSEC"
+  data.colnames[which( data.colnames=="hh_netinc" )] <- "hh_income"
+  data.colnames[which( data.colnames=="labour_state_raw" )] <- "labour_state"
+  data.colnames[which( data.colnames=="S7_labour_state" )] <- "labour_state"
+  colnames(data) <-data.colnames
+  return(data)
 }
 
 
