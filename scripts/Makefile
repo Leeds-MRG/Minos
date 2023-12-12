@@ -360,10 +360,10 @@ arc4_intervention_100UniversalCredit: setup
 
 ##########################################################################
 
-arc4_intervention_25Priority: setup
+arc4_intervention_25Priority:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25Priority'
 
-arc4_intervention_50Priority: setup
+arc4_intervention_50Priority:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50Priority'
 
 arc4_intervention_75Priority: setup
@@ -372,7 +372,7 @@ arc4_intervention_75Priority: setup
 arc4_intervention_100Priority: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100Priority'
 
-arc4_intervention_livingWage: setup
+arc4_intervention_livingWage:
 arc4_intervention_livingWage:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
@@ -464,7 +464,7 @@ arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
 
 arc4_all_social_science_concept_scenarios: MODE=default_config
 arc4_all_social_science_concept_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_all_social_science_concept_scenarios: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_25RelativePoverty arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_all_social_science_concept_scenarios arc4_intervention_50UniversalCredit arc4_intervention_50RelativePoverty
+arc4_all_social_science_concept_scenarios: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_25RelativePoverty arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_50UniversalCredit arc4_intervention_50RelativePoverty
 
 arc4_concept_note_child_lineplots: setup
 arc4_concept_note_child_lineplots: MODE=default_config
