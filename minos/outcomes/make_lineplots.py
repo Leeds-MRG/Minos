@@ -90,7 +90,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     agg_value : float
         Scalar aggregate of a single MINOS output dataset. E.g. the mean SF12 value for all individuals in the desired subset.
     """
-    if not os.path.isfile(fname): # no file found default to nothing for safety and consistent data frames. warning appears later. 
+    if not os.path.isfile(fname): # no file found default to nothing for safety and consistent data frames. warning appears later.
         return None
 
     required_columns = get_required_intervention_variables(subset_function_string)
@@ -180,10 +180,6 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
-                        if i == 99 and tag == "No Support":
-                            #print(single_year_aggregate)
-                            #print(year)
-                            #print(len(aggregated_means))
                         if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
                             print(source, tag, year)
                             single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
