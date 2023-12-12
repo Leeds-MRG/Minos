@@ -143,7 +143,9 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     aggregated_data = pd.DataFrame()
     aggregated_means = [None]
     for year in years:
-        files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
+        #files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
+        files = [os.path.join(source, f"run_id_{str(ix).zfill(4)}*{year}.csv") for ix in range(100)]
+        print(files)
         # files = files[:10]
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
