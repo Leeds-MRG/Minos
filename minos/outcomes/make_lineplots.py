@@ -110,9 +110,6 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
     agg_value = aggregate_method(data, outcome_variable)
-    if "2035" in file:
-        print(file)
-        print(agg_value)
     return agg_value
 
 
@@ -181,7 +178,6 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
                         if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
-                            print(source, tag, year)
                             single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
                             single_year_aggregate["number_boosted"] = np.nan
                             single_year_aggregate[f"summed_{v}"] = np.nan
