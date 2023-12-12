@@ -12,7 +12,7 @@
 #$ -m a
 ## Select memory
 ## just use one node
-##$ -l nodes=1
+#$ -l nodes=1
 ## Set logs directories
 #$ -o ./logs/log
 #$ -e ./logs/errors
