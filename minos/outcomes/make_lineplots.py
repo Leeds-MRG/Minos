@@ -90,7 +90,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     agg_value : float
         Scalar aggregate of a single MINOS output dataset. E.g. the mean SF12 value for all individuals in the desired subset.
     """
-    if not os.path.isfile(fname): # no file found default to nothing for safety and consistent data frames. warning appears later.
+    if not os.path.isfile(file): # no file found default to nothing for safety and consistent data frames. warning appears later.
         return None
 
     required_columns = get_required_intervention_variables(subset_function_string)
