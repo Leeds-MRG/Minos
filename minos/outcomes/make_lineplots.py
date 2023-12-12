@@ -173,7 +173,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         if i == 99 and tag == "No Support":
                             print(years)
                             print(single_year_aggregate)
-                            print(aggregated_means[99])
+                            print(len(aggregated_means))
                         if year == 2036:
                             print("good year")
                         if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
