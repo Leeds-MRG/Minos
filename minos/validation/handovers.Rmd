@@ -868,28 +868,48 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ## Child Ages
 
 ```{r}
+raw.child.ages <- raw.dat %>%
+  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
+  filter(time > 2013) %>%
+  group_by(time, hidp) %>%
+  summarise(child_ages = find_mode(child_ages))
+
+r.s<- strsplit(raw.child.ages$child_ages, "_")
+
+raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
+raw.child.ages.expanded <- raw.child.ages.expanded %>%
+  group_by(time, expanded_child_ages) %>%
+  summarise(age_counts = n()) %>%
+  mutate(source = 'final_US') %>%
+  filter(expanded_child_ages <= 16)
+
 base.child.ages <- base.dat %>%
   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
   filter(time > 2009) %>%
   group_by(time, hidp) %>%
   summarise(child_ages = find_mode(child_ages))
 
-s<- strsplit(base.child.ages$child_ages, "_")
+b.s<- strsplit(base.child.ages$child_ages, "_")
 
-base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(s, length)), expanded_child_ages = unlist(s))
+base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
 base.child.ages.expanded <- base.child.ages.expanded %>%
   group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n())
+  summarise(age_counts = n()) %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
   
-ggplot(data = base.child.ages.expanded, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
+ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
   geom_line() +
+  geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
   scale_colour_viridis_d() +
   xlab('Year') +
   ylab('Count')
 
-ggplot(data = base.child.ages.expanded, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
+ggplot(data = combined, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
   geom_line() +
+  geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
   scale_colour_viridis_d() +
   xlab('Year') +
@@ -899,13 +919,27 @@ base.child.ages.nkids <- base.dat %>%
   group_by(time, hidp) %>%
   summarise(nkids_counts = mean(nkids)) %>%
   group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts))
+  summarise(nkids_by_year = sum(nkids_counts)) %>%
+  mutate(source = 'baseline')
 
-ggplot(data = base.child.ages.nkids, mapping = aes(x = time, y = nkids_by_year)) +
+raw.child.ages.nkids <- raw.dat %>%
+  group_by(time, hidp) %>%
+  summarise(nkids_counts = mean(nkids)) %>%
+  group_by(time) %>%
+  summarise(nkids_by_year = sum(nkids_counts)) %>%
+  mutate(source = 'final_US')
+
+combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
+
+ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
   geom_line() +
   labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
   xlab('Year') +
   ylab('Count')
+
+```
+
+```{r}
 
 ```
 
