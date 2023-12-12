@@ -144,7 +144,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     aggregated_means = [None]
     for year in years:
         #files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
-        files = [os.path.join(source, f"{str(ix).zfill(4)}_run_id_{year}.csv") for ix in range(100)]
+        files = [os.path.join(source, f"{str(ix).zfill(4)}_run_id_{year}.csv") for ix in range(1, 101)]
         print(files)
         # files = files[:10]
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
