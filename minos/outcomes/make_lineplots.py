@@ -170,6 +170,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
+                        if id == 99 and tag == "No Support":
+                            print(aggregated_means)
                         if year == 2036:
                             print("good year")
                         if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
