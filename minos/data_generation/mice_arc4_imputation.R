@@ -100,7 +100,7 @@ main <- function(){
   
   # adding in all non-imputed variables and cast back to mids object. 
   mice.long <- complete(mice_set, action = "long", include=T)
-  mice.long[, c(other.variables)] <-  mice.data[, c(other.variables)]
+  #mice.long[, c(other.variables)] <-  mice.data[, c(other.variables)]
   mice_set.full <- as.mids(mice.long)
   saveRDS(mice_set.full, "data/transitions/MICE_set2.rds")
 }
