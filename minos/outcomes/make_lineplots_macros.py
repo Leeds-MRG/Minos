@@ -45,6 +45,7 @@ def epcg_and_no_support_lineplot(*args):
     subset_function_strings = "who_uses_energy,who_boosted,who_boosted"
     prefix = "baseline_energy_downlift"
     config_mode = "default_config"
+    ref="Baseline"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
                   method='nanmean')
     method = 'SF12_AUC'

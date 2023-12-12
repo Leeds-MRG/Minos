@@ -171,7 +171,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == aggregate_boosted_counts_and_cumulative_score:
                     for i, single_year_aggregate in enumerate(aggregated_means):
-                        if single_year_aggregate == None:
+                        if single_year_aggregate == None: # if no data available create a dummy frame to preserve data frame structure.
                             single_year_aggregate = pd.DataFrame([0], columns = ['number_boosted'])
                             single_year_aggregate["number_boosted"] = np.nan
                             single_year_aggregate[f"summed_{v}"] = np.nan
