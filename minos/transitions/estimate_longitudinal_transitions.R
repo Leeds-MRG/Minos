@@ -19,6 +19,11 @@ require(tidyverse)
 require(stringr)
 require(texreg)
 require(dplyr)
+require(ordinal)
+require(nnet)
+require(pscl)
+require(bestNormalize)
+require(lme4)
 
 ###################################
 # Main loop for longitudinal models 
