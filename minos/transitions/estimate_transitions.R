@@ -174,7 +174,7 @@ run_yearly_models <- function(transitionDir_path,
       if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
-      if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018)) { next }
+      if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) { next }
       if(dependent %in% c('chron_disease') & year < 2011) { next }
 
       print(paste0('Starting estimation for ', dependent, ' in ', year))
@@ -380,6 +380,8 @@ transitionDir <- 'data/transitions/'
 mode <- 'default'
 
 create.if.not.exists(transitionDir)
+
+#default <- T
 
 
 # Set different paths for scotland mode, cross-validation etc.
