@@ -36,8 +36,9 @@ def living_wage_lineplot(*args):
     config_mode = "default_config"
     ref="Baseline"
     v="SF_12"
+    method = "nanmean"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
-                  method='nanmean')
+                  method=method)
     method = 'SF12_AUC'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 

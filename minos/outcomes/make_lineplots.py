@@ -440,9 +440,9 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
         datetimes = pd.to_datetime(aggregate_long_stack['year'])
         aggregate_long_stack['year'] = datetimes.dt.year
-        print(aggregate_long_stack['year'].value_counts())
-        print(aggregate_long_stack['id'].value_counts())
-        print(aggregate_long_stack['tag'].value_counts())
+        #print(aggregate_long_stack['year'].value_counts())
+        #print(aggregate_long_stack['id'].value_counts())
+        #print(aggrelong_stack['tag'].value_counts())
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] > 2020, ] # looking at non-baseline years obviously.\
         aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 2035, ] # any wierd stragglers..
         baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"].values
