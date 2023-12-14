@@ -117,7 +117,7 @@ parser$add_argument('-i', '--itererations_per_population',
                     help='How many iterations per imputed population?')
 
 args <- parser$parse_args()
-n_imputed_populations <- args$n_imputed_populations
-itererations_per_population <- args$itererations_per_population
+n_imputed_populations <- as.numeric(args$n_imputed_populations)
+itererations_per_population <- as.numeric(args$itererations_per_population)
 
 main(n_imputed_populations, itererations_per_population)
