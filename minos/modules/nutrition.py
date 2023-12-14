@@ -172,6 +172,8 @@ class lmmYJNutrition(Base):
                         'ncigs',
                         "SF_12"
                         ]
+        if self.config.synthetic:
+            view_columns += ["old_pidp", "old_hidp"]
 
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)

@@ -610,7 +610,8 @@ class lmmYJIncome(Base):
                         'hh_income',
                         'hh_income_diff'
                         ]
-
+        if self.config.synthetic:
+            view_columns += ["old_pidp"]
 
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names

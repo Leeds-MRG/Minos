@@ -482,6 +482,8 @@ class lmmYJMWB(Base):
                         'pidp',
                         'hh_income'
                         ]
+        if self.config.synthetic:
+            view_columns += ["old_pidp"]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
