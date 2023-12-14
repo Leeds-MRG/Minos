@@ -87,7 +87,7 @@ $(COMPOSITEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
 $(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
-	qsub 'scripts/arc_mice_run.sh'
+	Rscript $(DATAGEN)/US_MICE_imputation.R -n 1 -i 10
 
 $(COMPLETEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(MICEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
@@ -146,6 +146,7 @@ $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2019-2070.csv: $(MICEDATA)/20
 # FOR TRANSITION DATA: COMPOSITE_US -> COMPLETE_CASE_US -> FINAL_US
 # IN THE FUTURE BOTH WILL USE THE MICE SET I THINK. JUST NEEDS TO REWORK ESTIMATE TRANSITIONS USING with() COMMAND IN MICE. CAN CREATE SOME BIG MODELS
 # THIS MAKE COMMAND IS SUPERCEDED BY INCLUSION IN THE MAIN DATA PIPELINE ABOVE.
-#full_mice_dataset: composite_data
-#full_mice_dataset:
-#	qsub 'scripts/arc_mice_run.sh'
+# THIS CAN ONLY BE RUN ON ARC4. DONT RUN IT LOCALLY UNLESS YOU HAVE 10+ CORES IT WILL TAKE DAYS.
+full_mice_dataset: composite_data
+full_mice_dataset:
+	qsub 'scripts/arc_mice_run.sh'
