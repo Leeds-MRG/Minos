@@ -118,7 +118,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
     # scramble new hidp and pidp.
-    merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
+    merged_data['old_hidp'] = merged_data['hidp']  # replace old hidp.
+    merged_data['hidp'] = merged_data['new_hidp']
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
 
     merged_data['old_pidp'] = merged_data["pidp"]
