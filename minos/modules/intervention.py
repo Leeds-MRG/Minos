@@ -952,6 +952,7 @@ class ChildPovertyIntervention(Base):
                         'low_income_matdep_child',
                         'relative_poverty_history',
                         'persistent_poverty',
+                        'persistent_poverty_sum',
                         ]
         columns_created = ["total_boost_amount",
                            "times_boosted",
@@ -984,48 +985,10 @@ class ChildPovertyIntervention(Base):
         logging.info("INTERVENTION:")
         logging.info(f"\tApplying effects of the child poverty intervention in year {event.time.year}...")
         logging.info(f"\tIntervention type: {int_method} ({POVERTY_INTERVENTION_DICT[int_method]})")
+        logging.info(f"\tPayment amount (if intervention type 1): {int_amount})")
 
         year = event.time.year
         pop = self.population_view.get(event.index, query='alive == "alive"')
-
-        ''' Update poverty variables '''
-        # 1. Child material deprivation
-        # NOT DONE HERE, should be via logit transition model
-
-        # 2. Household-level poverty variables
-        if not hasattr(self, 'median_reference'):
-            self.median_reference = gcv.get_reference_year_income()  # Can move to overridden __init__ if causes issues
-        pop = gcv.update_poverty_vars_hh(pop,
-                                         median_reference=self.median_reference)  # Passing 2010/11 median here saves recalculating at each time step
-
-        # 3. Individual-level poverty variables
-        pop = gcv.update_poverty_vars_ind(pop)
-
-        # 4. Update master population with all poverty variables
-        updated_vars = ['relative_poverty_percentile',
-                        'relative_poverty',
-                        'absolute_poverty_percentile',
-                        'absolute_poverty',
-                        'low_income',
-                        'low_income_matdep_child',
-                        'relative_poverty_history',
-                        'persistent_poverty',
-                        # 'persistent_poverty_sum,  # Superfluous but leaving here for future reference
-                        ]
-
-        # 06/12/23 Bodge to avoid Vivarium type error (actually PopulationError)
-        vars_to_cast = {'relative_poverty': float,
-                        'absolute_poverty': float,
-                        'low_income': float,
-                        'low_income_matdep_child': float,
-                        'relative_poverty_history': int,
-                        'persistent_poverty': float,
-                        }
-
-        for var, _type in vars_to_cast.items():
-            pop[var] = pop[var].astype(_type)
-
-        self.population_view.update(pop[updated_vars])
 
         ''' Intervention method 1: apply Scottish Child Payment '''
         if int_method == 1:
@@ -1041,6 +1004,7 @@ class ChildPovertyIntervention(Base):
                                        target_year=target_year,
                                        target_proportion=target_proportion)
 
+        # # For testing/output
         # median_yearly = hidp_sub.loc[hidp_sub['hh_income'] > 0.0]['hh_income'].median()
         # print("Median income for year {}: {}".format(year, median_yearly))
 
@@ -1123,9 +1087,9 @@ def apply_target_payment(data,
 #     data = gcv.calculate_poverty_composites_hh(data)
 #     data = gcv.calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
 
-#     # data['times_boosted'] = 0
-#     # data['total_boost_amount'] = 0.0
-#     # data = apply_child_payment(data)
+    # data['times_boosted'] = 0
+    # data['total_boost_amount'] = 0.0
+    # data = apply_child_payment(data)
 #
 
 #     ''' 2. Testing for individual year, i.e. runtime update '''
