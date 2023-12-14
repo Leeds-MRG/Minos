@@ -7,7 +7,7 @@ source("minos/transitions/utils.R")
 
 main <- function(n_imputations, iterations_per_imputation){
   
-  log_file_path <- file.path(here::here("minos", "data", "mice_US"), "test.log")
+  log_file_path <- file.path(here::here("data", "mice_US"), "test.log")
   create.if.not.exists(paste0(here::here("data"),"/mice_US/"))
   lf <- log_open(log_file_path)
   log_print("loading data.")
