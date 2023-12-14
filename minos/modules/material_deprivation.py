@@ -48,26 +48,16 @@ class MaterialDeprivationChild(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        ''' HR 30/11/23 Retaining these from heating module for reference '''
-        # view_columns = ["sex",
-        #                 #"labour_state",
-        #                 "SF_12",
-        #                 "job_sec",
-        #                 "ethnicity",
-        #                 "age",
-        #                 "housing_quality",
-        #                 "hh_income",
-        #                 "ncigs",
-        #                 "heating",
-        #                 "marital_status",
-        #                 "urban",
-        #                 'hhsize',
-        #                 "housing_tenure",
-        #                 "financial_situation"]
-        ''' HR 30/11/23 Bare bones variables  '''
+        ''' HR 14/12/23 From Luke's suggestion for model '''
         view_columns = ['matdep_child',
                         'hh_income',
-                        # 'S7_labour_state',
+                        'hhsize',
+                        'ethnicity',
+                        'region',
+                        'education_state',
+                        'nkids_ind',
+                        'financial_situation',
+                        'marital_status',
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
