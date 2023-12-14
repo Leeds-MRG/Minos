@@ -120,7 +120,4 @@ args <- parser$parse_args()
 n_imputed_populations <- args$n_imputed_populations
 itererations_per_population <- args$itererations_per_population
 
-n_imputed_populations <- 2
-itererations_per_population <- 20
-
 main(n_imputed_populations, itererations_per_population)
