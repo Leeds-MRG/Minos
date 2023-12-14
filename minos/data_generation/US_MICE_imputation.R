@@ -75,7 +75,7 @@ main <- function(n_imputations, iterations_per_imputation){
   start.time <- Sys.time()
   
   if (n_imputations == 1) {
-    mice_set <- mice(data = data[mice_columns],
+    mice_set <- mice(data = data[, mice_columns],
                      m = n_imputations, maxit = iterations_per_imputation,
                      remove.collinear=T)
     final.mice.data <- complete(mice_set, 1)
