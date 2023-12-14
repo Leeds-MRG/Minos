@@ -108,6 +108,7 @@ class Replenishment(Base):
                              'local_simd_deciles',
                              'simd_decile',
                              # 'cluster'
+                             "old_pidp"
                              ]
 
         # Shorthand methods for readability.
@@ -328,7 +329,9 @@ class NoReplenishment(Base):
                              'local_simd_deciles',
                              'simd_decile',
                              # 'cluster'
-                             'old_hidp', 'old_pidp', 'child_ages'
+                             'old_hidp',
+                             'old_pidp',
+                             'child_ages'
                              ]
 
         # Shorthand methods for readability.
