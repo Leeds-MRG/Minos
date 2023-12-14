@@ -247,7 +247,6 @@ def main(data, save=False):
                  'nkids_ind_raw'] # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
-    print(data["education_state"].value_counts())
     li_columns = ["age"]
     data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
