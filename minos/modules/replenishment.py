@@ -320,7 +320,7 @@ class NoReplenishment(Base):
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
-                        'S7_mental_health',]
+                        'S7_mental_health', "universal_credit"]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
@@ -328,6 +328,7 @@ class NoReplenishment(Base):
                              'local_simd_deciles',
                              'simd_decile',
                              # 'cluster'
+                             'old_hidp', 'old_pidp', 'child_ages'
                              ]
 
         # Shorthand methods for readability.
