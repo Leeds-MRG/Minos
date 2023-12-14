@@ -610,7 +610,8 @@ class lmmYJIncome(Base):
                         'hh_income',
                         'hh_income_diff'
                         ]
-        if self.config.synthetic:
+        config = builder.configuration
+        if config.synthetic:
             view_columns += ["old_pidp"]
 
         #columns_created = ['hh_income_diff']
