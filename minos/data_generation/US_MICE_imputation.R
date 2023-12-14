@@ -79,7 +79,6 @@ main <- function(n_imputations, iterations_per_imputation){
                      m = n_imputations, maxit = iterations_per_imputation,
                      remove.collinear=T)
     final.mice.data <- complete(mice_set, 1)
-    final.mice.data <- cbind(final.mice.data, other.data)   
   }
   else {
     mice_set <- futuremice(data = mice.data[,mice_columns],
