@@ -530,7 +530,7 @@ def generate_energy_composite(data):
 
     # check over households. if someone is missing but another person in the house has a value. assign the missing person that value.
     # groupby to find max by hidp.
-    data['yearly_energy'] = data.groupby('pidp')['yearly_energy'].transform('max')
+    data['yearly_energy'] = data.groupby(['hidp', 'time'])['yearly_energy'].transform('max')
 
     # TODO combined imputation rather than just adding to everyone who has missing in each category?
     # helps to preserve missing values.

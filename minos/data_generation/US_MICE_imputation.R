@@ -46,7 +46,7 @@ main <- function(n_imputations, iterations_per_imputation){
                     "hh_income",
                     "neighbourhood_safety",
                     "S7_labour_state",
-                    #"yearly_energy",
+                    "yearly_energy",
                     "nutrition_quality"
                     #"hh_comp", 
                     #"marital_status"
