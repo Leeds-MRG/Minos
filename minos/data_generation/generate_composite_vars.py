@@ -1105,22 +1105,22 @@ def get_reference_year_income(data=None,
         data = data.loc[data['time'] == ref_year]
     else:
         # Option 2: Get 2010 data from cached US composite data (for microsim runtime)
-        filename = str(ref_year) + "_US_cohort" + ".csv"
+        filename = str(ref_year) + "_US_cohort.csv"
         file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
         data = pd.read_csv(file_fullpath)
 
     # Get subframe of unique household IDs
-    sub = data.loc[data['hh_income'] > 0.0].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    sub = data.loc[data['hh_income_raw'] > 0.0].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
 
     # Adjust for inflation within reference year, by reference month (October = 10, as this is mid-tax year);
     # this is pedantic but I CAN'T HELP IT
     if adjust_for_inflation:
-        result_before = sub['hh_income'].median()
+        result_before = sub['hh_income_raw'].median()
         print("Median (before inflation adjustment): {}".format(result_before))
         inflation_dict = get_inflation_map(reference_year=ref_year)
-        sub['hh_income'] = sub['hh_income'] / sub['Date'].map(inflation_dict)
+        sub['hh_income_raw'] = sub['hh_income_raw'] / sub['Date'].map(inflation_dict)
 
-    result = sub['hh_income'].median()  # Filter out any invalid or zero values
+    result = sub['hh_income_raw'].median()  # Filter out any invalid or zero values
     print("Median: {}".format(result))
 
     return result
