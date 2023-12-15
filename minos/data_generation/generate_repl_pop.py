@@ -29,7 +29,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_2018, region):
+def expand_repl(US_wave, region):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -47,16 +47,16 @@ def expand_repl(US_2018, region):
     """
 
     # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
-    repl_2018 = US_2018[(US_2018['age'].isin([16, 17]))]
-    repl_2018['age'] = 16
+    repl_wave = US_wave[(US_wave['age'].isin([16, 17]))]
+    repl_wave['age'] = 16
     # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
-    repl_2018['education_state'][repl_2018['education_state'] > 2] = 2
+    repl_wave['education_state'][repl_wave['education_state'] > 2] = 2
 
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
-    for year in range(2018, 2071, 1):
+    for year in range(2014, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
-        new_repl = repl_2018.copy()
+        new_repl = repl_wave.copy()
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
@@ -171,7 +171,7 @@ def predict_education(repl, transition_dir):
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
                     }
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2020_2021", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan
@@ -184,7 +184,7 @@ def predict_education(repl, transition_dir):
 def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
 
     output_dir = 'data/replenishing'
-    data_source = 'final_US'
+    data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
 
     if scotland_mode:
@@ -192,7 +192,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/batch1'
+        data_source = 'imputed_final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
     if inflated:
@@ -210,7 +210,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/uk_scaled'
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2020_US_cohort.csv"
+    file_name = f"data/{data_source}/2021_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
@@ -229,10 +229,11 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+    final_repl['job_sec'] = final_repl['job_sec'].astype(int)
 
     US_utils.check_output_dir(output_dir)
-    final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
-    print('Replenishing population generated for 2019 - 2070')
+    final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
+    print('Replenishing population generated for 2015 - 2070')
 
 
 def main():

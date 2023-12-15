@@ -23,6 +23,7 @@ CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+TESTING = $(SOURCEDIR)/testing
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
 MICEDATA = $(DATADIR)/mice_US
@@ -165,6 +166,10 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*/*.txt
 	rm -rf data/transitions/scotland/*/*.rds
 
 clean_scotland: ### Clean all files related to Scotland mode

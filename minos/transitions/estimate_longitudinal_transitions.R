@@ -19,12 +19,17 @@ require(tidyverse)
 require(stringr)
 require(texreg)
 require(dplyr)
+require(ordinal)
+require(nnet)
+require(pscl)
+require(bestNormalize)
+require(lme4)
 
 ###################################
 # Main loop for longitudinal models 
 ###################################
 
-run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, data, mode)
+run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path, mod_def_name, orig_data, mode)
 {
   # process is much simpler here than the yearly models. 
   # get model type and some data frame containing X years of data.
@@ -34,10 +39,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   
   valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM")
   
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
+  orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
   
   repeat{
+    # first thing, take copy of the orig_data to ensure we get the same starting point each time
+    data <- orig_data
+    
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
     
@@ -59,12 +67,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
     ## Yearly model estimation loop
     # Need to construct dataframes for each year that have independents from time T and dependents from time T+1
-    if(mode == 'cross_validation') {
-      year.range <- seq(min(data$time) , (max(data$time)))
-    } else {
-      year.range <- seq(max(data$time) - 5, (max(data$time)))
-      #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
-    }
+    year.range <- seq(min(data$time) , (max(data$time)))
+    # if(mode == 'cross_validation') {
+    #   year.range <- seq(min(data$time) , (max(data$time)))
+    # } else {
+    #   year.range <- seq(max(data$time) - 5, (max(data$time)))
+    #   #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
+    # }
     
 
     # set up output directory
@@ -86,15 +95,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     if (dependent == "SF_12") {
       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed. 
-    }
-    else {
+    } else {
       do.reflect=FALSE
     }
     
-    if (dependent == "SF_12" || dependent == "hh_income") {
+    if (dependent %in% c("SF_12", "hh_income")) {
       do.yeo.johnson = T #
-    }
-    else {
+    } else {
       do.yeo.johnson = F
     }
     
@@ -111,6 +118,21 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #   formula.string <- paste0(dependent, " ~ ", independents)
     #   form <- as.formula(formula.string)
     # }
+    
+    # READ THIS FOR HOURLY_WAGE
+    # Luke : 4/12/23
+    # hourly_wage var in raw data is plagued by a few extreme values each year in the
+    # raw data. This is problematic as it throws our predictive models off, and these
+    # models struggle to handle extreme points that are only seen for a single time point
+    # (e.g. hourly_wage goes from £30 -> £7500 -> £35 across 3 consecutive years)
+    # Because of this, we are going to remove the crazy outliers in the data
+    # For a first pass, I will remove any values over £500. This will remove
+    # only 15/6893 individuals (in 2020), so is a very small proportion of the data
+    if (dependent == 'hourly_wage') {
+      # remove hourly_wage over £500
+      data <- data %>%
+        filter(hourly_wage < 300)
+    }
     
 
     # differencing data for difference models using dplyr lag.
@@ -145,7 +167,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string) 
        }
-    else if (dependent == "SF_12")  {
+    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage'))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -163,6 +185,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # get only required variables and sort by pidp/time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
+    # remove duplicate columns (at present just pidp as its present in model definitions also)
+    sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
     
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
@@ -279,13 +303,25 @@ cross_validation <- args$crossval
 default <- args$default
 sipher7 <- args$SIPHER7
 
+###################################################################
+# DELETE ME
+#default <- TRUE
+#cross_validation <- TRUE
+# DELETE ME
+###################################################################
+
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
 dataDir <- 'data/final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
-#cross_valdation <- T
+
+################################################################################
+# REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
+#default <- T
+# REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
+################################################################################
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {

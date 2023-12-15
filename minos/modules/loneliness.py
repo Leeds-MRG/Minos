@@ -120,9 +120,9 @@ class Loneliness(Base):
 
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2019
+            year = 2020
         else:
-            year = min(year, 2019)
+            year = min(year, 2020)
 
         transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.

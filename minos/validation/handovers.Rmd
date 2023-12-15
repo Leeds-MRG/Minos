@@ -72,7 +72,7 @@ base.dat <- read_singular_local_out(out.path, intervention, drop.dead = TRUE)
 ## Constants
 
 ```{r}
-start.year <- 2020
+start.year <- 2021
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
@@ -765,6 +765,190 @@ spaghetti_plot(spag, 'nkids_ind',
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
+```
+
+## Hourly Wage
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'hourly_wage')
+handover_lineplots(raw.dat, base.dat, 'hourly_wage')
+```
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, hourly_wage)
+base.s <- base.dat %>%
+  select(pidp, age, time, hourly_wage)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'hourly_wage',
+               save = shall.we.save,
+               save.path = save.path)
+
+# now a version limited to 0-100
+spag <- spag %>%
+  filter(hourly_wage <= 300)
+spaghetti_plot(spag, 'hourly_wage',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+```{r}
+# some basic statistics about hourly_wage variable
+print("Some basic statistics on hourly_wage. These are all for 2020.")
+raw.2020 <- raw.dat %>% filter(time == 2020)
+print('All living people in 2020')
+print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
+# number individuals with an hourly_wage > 0
+print('People not in work')
+print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
+
+# Number in work
+print('People in work')
+print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
+
+# Extreme hourly_wage values
+print('Extreme hourly wage values: HIGH')
+print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
+print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
+print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
+print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
+print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
+print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
+
+raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
+print('Extreme hourly wage values: LOW (non-zero)')
+print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
+print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
+print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
+print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
+```
+
+## S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
+
+lab.state <- prepped.list$var
+lab.state.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_labour_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_labour_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+## Child Ages
+
+```{r}
+raw.child.ages <- raw.dat %>%
+  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
+  filter(time > 2013) %>%
+  group_by(time, hidp) %>%
+  summarise(child_ages = find_mode(child_ages))
+
+r.s<- strsplit(raw.child.ages$child_ages, "_")
+
+raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
+raw.child.ages.expanded <- raw.child.ages.expanded %>%
+  group_by(time, expanded_child_ages) %>%
+  summarise(age_counts = n()) %>%
+  mutate(source = 'final_US') %>%
+  filter(expanded_child_ages <= 16)
+
+base.child.ages <- base.dat %>%
+  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
+  filter(time > 2009) %>%
+  group_by(time, hidp) %>%
+  summarise(child_ages = find_mode(child_ages))
+
+b.s<- strsplit(base.child.ages$child_ages, "_")
+
+base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
+base.child.ages.expanded <- base.child.ages.expanded %>%
+  group_by(time, expanded_child_ages) %>%
+  summarise(age_counts = n()) %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
+  
+ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+  scale_colour_viridis_d() +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = combined, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+  scale_colour_viridis_d() +
+  xlab('Year') +
+  ylab('Count')
+
+base.child.ages.nkids <- base.dat %>%
+  group_by(time, hidp) %>%
+  summarise(nkids_counts = mean(nkids)) %>%
+  group_by(time) %>%
+  summarise(nkids_by_year = sum(nkids_counts)) %>%
+  mutate(source = 'baseline')
+
+raw.child.ages.nkids <- raw.dat %>%
+  group_by(time, hidp) %>%
+  summarise(nkids_counts = mean(nkids)) %>%
+  group_by(time) %>%
+  summarise(nkids_by_year = sum(nkids_counts)) %>%
+  mutate(source = 'final_US')
+
+combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
+
+ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
+  geom_line() +
+  labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
 ```
 
 ```{r}
