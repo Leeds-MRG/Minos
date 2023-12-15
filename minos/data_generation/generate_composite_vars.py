@@ -47,14 +47,9 @@ MATDEP_DICT = {'matdep1': {'score': 5.56, 'valids': [1, 2], 'no': [2]},
                'matdep21': {'score': 5.59, 'valids': [1, 2, 3, 4], 'no': [2]},
                }
 
-# Reference year to be used for comparison of CPI-adjusted equivalised hh income, as spedified in UK/Scot. Gov. definitions of absolute poverty
-HH_INCOME_REFERENCE_YEAR = 2010
-# Equivalised disposable income reference file
-# From here: https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/bulletins/householddisposableincomeandinequality/financialyearending2022
-EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"
-
-# Composite vars folder created during GCV
+# Some folder paths for ease later
 COMPOSITE_VARS_DIR = os.path.join(up(up(up(__file__))), 'data', 'composite_US')
+PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
 
 
 def generate_composite_housing_quality(data):
@@ -245,9 +240,6 @@ def generate_hh_income(data):
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
-
-    # Grab uninflated hh income before applying inflation
-    data['hh_income_raw'] = data['hh_income']
 
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
@@ -1014,118 +1006,6 @@ def calculate_children(data,
     return data
 
 
-''' HR 30/11/23 Get CPI inflation reference data '''
-def get_cpi_ref():
-    cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv')).set_index('Date')
-    cpi.drop(labels=cpi.columns[0], axis=1, inplace=True)
-    return cpi
-
-
-''' HR 30/11/23 Calculate inflation factor for a specific pair of dates
-    Use get_inflation_map for bulk map '''
-def get_inflation_factor(reference_year,
-                         target_year,
-                         reference_month=10,
-                         target_month=10,
-                         cpi=None,
-                         n_years=10):
-
-    if cpi is None:
-        cpi = get_cpi_ref()
-
-    cpi_dict = cpi['CPI'].to_dict()
-
-    reference_my = int(str(reference_year) + str(reference_month))
-    target_my = int(str(target_year) + str(target_month))
-
-    ''' Generate CPI factor; exception raised if target year not in reference data,
-        in which case an average rate from the most recent 10 years will be calculated and applied '''
-    try:
-        factor = cpi_dict[target_my] / cpi_dict[reference_my]
-        # print("Got from reference file")
-    except KeyError:
-        most_recent_my = sorted(cpi_dict)[-1]
-        most_recent_value = cpi_dict[most_recent_my]
-
-        year, month = str(most_recent_my)[:-2], str(most_recent_my)[-2:]
-        previous_my = int(str(int(year)-n_years) + month)
-
-        cpi_average = (cpi_dict[most_recent_my] / cpi_dict[previous_my])**(1/n_years)
-        years_to_inflate = target_year-int(year) + (target_month-int(month))/12
-        target_value = most_recent_value * cpi_average**years_to_inflate
-        factor = target_value / cpi_dict[reference_my]
-        # print("Calculated (not in reference file)")
-
-    # print(factor)
-    return factor
-
-
-''' HR 29/11/23 Return inflation map for bulk mapping, e.g. hh income '''
-def get_inflation_map(reference_year,
-                      reference_month=10,
-                      cpi=None):
-
-    if cpi is None:
-        cpi = get_cpi_ref()
-
-    reference_my = int(str(reference_year) + str(reference_month))
-    reference_factor = cpi.loc[reference_my][0]
-
-    inflation_map = (cpi['CPI'] / reference_factor).to_dict()
-
-    return inflation_map
-
-
-''' HR 30/11/23 Get median equivalised disposable household income, historical UK, 1977-2021 '''
-def get_equivalised_income_history():
-    file_fullpath = os.path.join(up(up(up(__file__))), "persistent_data", EQUIVALISED_INCOME_REFERENCE)
-    inc = pd.read_excel(file_fullpath,
-                        sheet_name='Table 1',
-                        header=7-1,
-                        usecols=['Year', 'Median'],
-                        )
-    inc = inc[:-2]
-    inc['Year'] = [int(str(el).split('/')[0]) for el in inc['Year']]  # Year format changes halfway from Y to Y/Y+1
-
-    inc_dict = dict(zip(inc['Year'], inc['Median']))
-    return inc, inc_dict
-
-
-''' HR 29/11/23 To get hh income data for 2010/11 tax year, as absolute poverty is calculated based on that reference year
-    Grabs value from all-years data during GCV, else (i.e. at sim runtime) grabs from US composite data for 2010
-    Awkward but necessary if we use US data to calculate the inflated median, rather than all-UK median wages '''
-def get_reference_year_income(data=None,
-                              ref_year=HH_INCOME_REFERENCE_YEAR,
-                              ref_month=10,
-                              adjust_for_inflation=False):
-
-    # Grab reference year data
-    if data is not None:
-        # Option: Get 2010 data during GCV (during composite variable calculations)
-        data = data.loc[data['time'] == ref_year]
-    else:
-        # Option 2: Get 2010 data from cached US composite data (for microsim runtime)
-        filename = str(ref_year) + "_US_cohort.csv"
-        file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
-        data = pd.read_csv(file_fullpath)
-
-    # Get subframe of unique household IDs
-    sub = data.loc[data['hh_income_raw'] > 0.0].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
-
-    # Adjust for inflation within reference year, by reference month (October = 10, as this is mid-tax year);
-    # this is pedantic but I CAN'T HELP IT
-    if adjust_for_inflation:
-        result_before = sub['hh_income_raw'].median()
-        print("Median (before inflation adjustment): {}".format(result_before))
-        inflation_dict = get_inflation_map(reference_year=ref_year)
-        sub['hh_income_raw'] = sub['hh_income_raw'] / sub['Date'].map(inflation_dict)
-
-    result = sub['hh_income_raw'].median()  # Filter out any invalid or zero values
-    print("Median: {}".format(result))
-
-    return result
-
-
 ''' HR 28/11/23 Placeholder for later, to be developed after deciding on method for moving on mat dep values in sim '''
 def generate_child_material_deprivation(data,
                                         matdep_threshold=0.25,
@@ -1179,8 +1059,8 @@ def update_material_deprivation_vars(data,
 ''' HR 27/11/23 All-purpose method for hh poverty variable calculation'''
 def update_poverty_vars_hh(data,
                            median_reference=None,
-                           income_yearly='hh_income_raw',
-                           income_inflated='hh_income_raw',
+                           income_yearly='hh_income',
+                           income_inflated='hh_income',
                            relative_poverty_threshold=0.6,
                            absolute_poverty_threshold=0.6,
                            low_income_threshold=0.7,
@@ -1189,29 +1069,20 @@ def update_poverty_vars_hh(data,
 
     # Generate from US composite stage if not passed
     if median_reference is None:
-        median_reference = get_reference_year_income()
+        median_reference = US_utils.get_reference_year_equivalised_income()
 
     # Get subframe of unique hidp values and calculate median yearly and inflated incomes (for relative and absolute poverty, respectively)
     hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
     median_yearly = hidp_sub.loc[hidp_sub[income_yearly] > 0.0][income_yearly].median()
+    median_inflated = median_reference
 
     if year is None:
         year = hidp_sub['time'].unique()[0]  # Just grab first value, as should always be single value in data passed
 
-    ''' HR 29/11/23 Creating median based on inflated 2010/11 median '''
-    # Old version: no different from yearly median (i.e. wrong)
-    # median_inflated = median_yearly  # Placeholder; not correct
-
-    # New version: get median at reference year-month (October 2010, i.e. midpoint of 2010/2011 financial year)
-    cpi = get_cpi_ref()
-    inflation_factor = get_inflation_factor(reference_year=2010,
-                                            target_year=year)
-    median_inflated = median_reference*inflation_factor
-
-    # print("Median income (yearly), {}: {}".format(year, median_yearly))
-    # print("Annual: {}".format(median_yearly*12))
-    # print("Median income (inflated), {}: {}".format(year, median_inflated))
-    # print("Annual: {}".format(median_inflated*12))
+    print("Median income (yearly), {}: {}".format(year, median_yearly))
+    print("Annual: {}".format(median_yearly*12))
+    print("Median income (inflated), {}: {}".format(year, median_inflated))
+    print("Annual: {}".format(median_inflated*12))
 
     ''' 2. RELATIVE POVERTY '''
     hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)
@@ -1265,7 +1136,7 @@ def calculate_poverty_composites_hh(data,
 
     # Generate from US composite stage if not passed
     if median_reference is None:
-        median_reference = get_reference_year_income(data)
+        median_reference = US_utils.get_reference_year_equivalised_income()
 
     ''' Must loop over all years, bearing in mind:
         (a) median incomes are year-specific,

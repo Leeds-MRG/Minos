@@ -8,6 +8,7 @@ from minos.modules.base_module import Base
 import logging
 from datetime import datetime as dt
 from minos.data_generation import generate_composite_vars as gcv
+from minos.data_generation import US_utils
 
 class ChildPovertyMetrics(Base):
     @property
@@ -34,24 +35,12 @@ class ChildPovertyMetrics(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
 
         """
-
-        # # Load in inputs from pre-setup.
-        # self.rpy2_modules = builder.data.load("rpy2_modules")
-        #
-        # # Build vivarium objects for calculating transition probabilities.
-        # # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
-        #
-        # # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
-        # self.random = builder.randomness.get_stream(self.generate_random_crn_key())
-
-
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ['hidp',
                         'hh_income',
-                        'hh_income_raw',
                         'relative_poverty',
                         'relative_poverty_percentile',
                         'absolute_poverty',
@@ -74,8 +63,8 @@ class ChildPovertyMetrics(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
         # Grab reference year hh income for absolute poverty calculations; saved recalculating at each timestep
-        self.median_reference = gcv.get_reference_year_income()
-
+        # self.median_reference = gcv.get_reference_year_income()
+        self.median_reference = US_utils.get_reference_year_equivalised_income()
 
     def on_time_step(self, event):
         """Produces poverty variables on time steps.

@@ -59,7 +59,6 @@ class Replenishment(Base):
                         'Date',
                         'housing_quality',
                         'hh_income',
-                        'hh_income_raw',
                         'neighbourhood_safety',
                         'ncigs',
                         'alcohol_spending',
