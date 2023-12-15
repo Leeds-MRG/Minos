@@ -951,7 +951,6 @@ class ChildPovertyIntervention(Base):
                         'low_income_matdep_child',
                         'relative_poverty_history',
                         'persistent_poverty',
-                        'persistent_poverty_sum',
                         ]
         columns_created = ["total_boost_amount",
                            "times_boosted",
