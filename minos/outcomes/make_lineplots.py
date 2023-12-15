@@ -444,7 +444,9 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                                                                                    'number_boosted': "mean",
                                                                                    'population_size': "mean"})
         aggregate_long_stack2 = aggregate_long_stack2.reset_index(drop = False)
-        aggregate_long_stack2.to_csv("plots/" + "".join(directories) + "_counts_over_time.csv")
+        file_name = "plots/" + "".join(directories) + "_counts_over_time.csv"
+        aggregate_long_stack2.to_csv(file_name)
+        print(f"Summary data for interventions saved to {file_name}.")
         #aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
         #datetimes = pd.to_datetime(aggregate_long_stack['year'])
         #aggregate_long_stack['year'] = datetimes.dt.year
