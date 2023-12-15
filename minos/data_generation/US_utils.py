@@ -192,7 +192,7 @@ def wave_prefix(columns, year):
     return columns
 
 
-def subset_data(data, required_columns, column_names, substitute = True):
+def subset_data(data, required_columns, column_names, verbose, substitute = True):
     """ Take desired columns from US data and rename them.
 
     Parameters
@@ -221,8 +221,9 @@ def subset_data(data, required_columns, column_names, substitute = True):
         for item in required_columns:
             if item not in data.columns:
                 data[item] = -9
-                print(f"Warning! {item} not found in current wave. Substituting a dummy column. "
-                      + "Set substitute = False in the subset_data function to suppress this behaviour.")
+                if verbose:
+                    print(f"Warning! {item} not found in current wave. Substituting a dummy column. "
+                          + "Set substitute = False in the subset_data function to suppress this behaviour.")
     # Take subset of data for required columns and rename them.
     data = data[required_columns]
     data.columns = column_names
@@ -374,7 +375,7 @@ def inflation_adjustment(data, var):
     data = generate_interview_date_var(data)
     # Inflation adjustment using CPI
     # read in CPI dataset
-    cpi = pd.read_csv('persistent_data/CPI_202010.csv')
+    cpi = pd.read_csv('persistent_data/CPI_202309.csv')
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
     data = pd.merge(data, cpi, on='Date', how='left')
     data[var] = (data[var] / data['CPI']) * 100

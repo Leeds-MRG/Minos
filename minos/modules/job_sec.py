@@ -4,27 +4,25 @@ Upgrade of household appliances
 Possible future work for moving households and changing household composition (e.g. marrying/births)
 """
 
-#############################################################################################
-# DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT
-#############################################################################################
-
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
-import random
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
 import logging
+from datetime import datetime as dt
 
-class Labour(Base):
-    # Special methods used by vivarium.
+class JobSec(Base):
+
     @property
     def name(self):
-        return 'labour'
+        return "job_sec"
 
     def __repr__(self):
-        return "Labour()"
+        return "JobSec()"
+
+    # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -44,32 +42,21 @@ class Labour(Base):
 
         """
 
-        # Load in any inputs from pre-setup.
+        # Load in inputs from pre-setup.
         self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
-        # Assign randomness streams. Keeps aspects of the msim the same on repeat runs to reduce uncertainty.
-        # same CRN seed for every run.
-        #self.random = builder.randomness.get_stream(f"labour")
-        # random CRN seed for every run.
+        # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["sex",
-                        "labour_state",
-                        "SF_12",
-                        "job_sec",
-                        "ethnicity",
-                        "age",
-                        "housing_quality",
-                        "hh_income",
-                        "education_state",
-                        "alcohol_spending",]
+        view_columns = []
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -90,29 +77,30 @@ class Labour(Base):
             The event time_step that called this function.
         """
 
-        logging.info("LABOUR STATE")
+        logging.info("JOB SEC")
 
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
-        #TODO: Handle students properly now that max education is predicted.
-        # Separate the population into current students and everyone else. Then see if students max_educ is larger than
-        # current education_state, if yes maintain student, if no predict new labour_state
-
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
-        labour_prob_df = self.calculate_labour(pop)
+        job_sec_prob_df = self.calculate_job_sec(pop)
 
-        labour_prob_df["labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
-        labour_prob_df.index = pop.index
+        job_sec_prob_df["job_sec"] = self.random.choice(job_sec_prob_df.index,
+                                                                list(job_sec_prob_df.columns),
+                                                                job_sec_prob_df) + 1
 
-        self.population_view.update(labour_prob_df["labour_state"])
+        job_sec_prob_df.index = pop.index
 
+        pop['job_sec'] = job_sec_prob_df['job_sec']
+        pop['job_sec'][~pop['S7_labour_state'].isin(['PT Employed', 'FT Employed'])] = 0
 
-    def calculate_labour(self, pop):
-        """Calculate labour transition distribution based on provided people/indices.
+        self.population_view.update(job_sec_prob_df["job_sec"])
+
+    def calculate_job_sec(self, pop):
+        """Calculate housing transition distribution based on provided people/indices.
 
         Parameters
         ----------
@@ -121,24 +109,25 @@ class Labour(Base):
         Returns
         -------
         """
-        # set up list of columns
-        cols = ["Employed", "Family Care", "Maternity Leave", "PT Employed", "Retired", "Self-employed",
-                "Sick/Disabled", "Student", "Unemployed"]
-
         # load transition model based on year.
-        year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
-        transition_model = r_utils.load_transitions(f"labour/nnet/labour_nnet_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2019
+        else:
+            year = min(self.year, 2019)
+
+        transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        # returns probability matrix (3xn) of next ordinal state.
+        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'job_sec')
         return prob_df
 
     def plot(self, pop, config):
 
-        file_name = config.output_plots_dir + f"labour_barplot_{self.year}.pdf"
-        densities = pd.DataFrame(pop['labour_state'].value_counts(normalize=True))
+        file_name = config.output_plots_dir + f"job_sec_barplot_{self.year}.pdf"
+        densities = pd.DataFrame(pop['job_sec'].value_counts(normalize=True))
         densities.columns = ['densities']
-        densities['labour_state'] = densities.index
+        densities['job_sec'] = densities.index
         f = plt.figure()
-        cat = catplot(data=densities, y='labour_state', x='densities', kind='bar', orient='h')
+        cat = catplot(data=densities, y='job_sec', x='densities', kind='bar', orient='h')
         plt.savefig(file_name)
         plt.close()

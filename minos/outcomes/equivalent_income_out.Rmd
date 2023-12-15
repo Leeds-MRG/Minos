@@ -171,7 +171,7 @@ equivalent_income_comparison_treated <- function(base, int, int.name, save=FALSE
   
   boosted <- merged %>%
     filter(pidp %in% boosted.pidps$pidp) %>%
-    filter(income_boosted == 'True' | time == 2020) %>%
+    filter(income_boosted == 'True' | time == 2021) %>%
     select(-income_boosted) %>%
     pivot_longer(cols = baseline:.data[[int.name]],
                  names_to = 'scenario',
@@ -236,7 +236,7 @@ boosted.pidps <- allchild.sub2 %>%
 
 allchild.boosted <- allchild.merged %>%
   filter(pidp %in% boosted.pidps$pidp) %>%
-  filter(income_boosted == 'True' | time == 2020) %>%
+  filter(income_boosted == 'True' | time == 2021) %>%
   mutate(adjusted_EI = allchild - boost_amount) %>%
   select(-allchild, -income_boosted, -boost_amount) %>%
   group_by(time) %>%

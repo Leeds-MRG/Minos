@@ -30,6 +30,9 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.job_hours import JobHours
+from minos.modules.job_sec import JobSec
+from minos.modules.hourly_wage import HourlyWage
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -82,6 +85,9 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "JobHours()": JobHours(),
+    "JobSec()": JobSec(),
+    "HourlyWage()": HourlyWage(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -223,6 +229,8 @@ def type_check(data):
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+    data['job_sec'] = data['job_sec'].astype(int)
+    #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
 
     return data
 
@@ -267,7 +275,7 @@ def RunPipeline(config, intervention=None):
                     "zeroinfl": importr("pscl"),
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
-                    "lme4": importr("lme4"),
+                    "lme4": importr("lme4")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

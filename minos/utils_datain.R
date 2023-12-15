@@ -184,8 +184,6 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
   return(grouped)
 }
 
-
-
 save_raw_data_in <- function(data, data.path) {
   ## save all data after processing.
   
@@ -195,4 +193,8 @@ save_raw_data_in <- function(data, data.path) {
     write.csv(yearly_df, file=yearly_file_name, row.names=FALSE)
     print(paste0("Saved file to: ", yearly_file_name, "."))
   }
+}
+=======
+extract_child_ages <- function(child_ages_string){
+  return (as.numeric(unlist(strsplit(child_ages_string, "_"))))
 }
