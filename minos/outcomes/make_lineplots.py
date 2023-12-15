@@ -98,6 +98,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         required_columns.append("ZoneID")
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
+    population_size = data.shape[0]
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
     if region:
@@ -110,6 +111,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
     agg_value = aggregate_method(data, outcome_variable)
+    if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
+        agg_value["population_size"] = population_size
     return agg_value
 
 
@@ -143,8 +146,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
     aggregated_data = pd.DataFrame()
     aggregated_means = [None]
     for year in years:
-        #files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
-        files = [os.path.join(source, f"{str(ix).zfill(4)}_run_id_{year}.csv") for ix in range(1, 101)]
+        files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
+        #files = [os.path.join(source, f"{str(ix).zfill(4)}_run_id_{year}.csv") for ix in range(1, 101)]
         #print(files)
         # files = files[:10]
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
@@ -433,24 +436,29 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         # groupby intervention and cumsum over time.
         aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()
         #scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
-        print("relative scaling done. plotting.. ")
-        aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
-        aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
-
-        aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
-        datetimes = pd.to_datetime(aggregate_long_stack['year'])
-        aggregate_long_stack['year'] = datetimes.dt.year
+        #print("relative scaling done. plotting.. ")
+        #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
+        #aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
+        aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean",
+                                                                                   'intervention_cost': 'mean',
+                                                                                   'number_boosted': "mean",
+                                                                                   'population_size': "mean"})
+        aggregate_long_stack2 = aggregate_long_stack2.reset_index(drop = False)
+        aggregate_long_stack2.to_csv("plots/" + "".join(directories) + "_counts_over_time.csv")
+        #aggregate_long_stack['intervention_cost_cumulative'] = aggregate_long_stack.groupby(['tag', 'id'])['intervention_cost'].cumsum()
+        #datetimes = pd.to_datetime(aggregate_long_stack['year'])
+        #aggregate_long_stack['year'] = datetimes.dt.year
         #print(aggregate_long_stack['year'].value_counts())
         #print(aggregate_long_stack['id'].value_counts())
         #print(aggrelong_stack['tag'].value_counts())
-        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] > 2020, ] # looking at non-baseline years obviously.\
-        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 2035, ] # any wierd stragglers..
-        baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"].values
-        baseline_cumulative_values = np.repeat(baseline_cumulative_values, len(np.unique(aggregate_long_stack['tag']))-1)
-        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
+        #aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] > 2020, ] # looking at non-baseline years obviously.\
+        #aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['year'] <= 2035, ] # any wierd stragglers..
+        #baseline_cumulative_values = aggregate_long_stack.loc[aggregate_long_stack['tag'] == ref, f"{v}_AUC"].values
+        #baseline_cumulative_values = np.repeat(baseline_cumulative_values, len(np.unique(aggregate_long_stack['tag']))-1)
+        #aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']!=ref, ] # looking at non-baseline years obviously.\
         #baseline_cumulative_values = baseline_cumulative_values.values.reshape(-1,15)[:,1:].flatten() # remove every 15th entry that isnt needed.
-        aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values)/aggregate_long_stack['intervention_cost_cumulative']
-        aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
+        #aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values)/aggregate_long_stack['intervention_cost_cumulative']
+        #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
 
     elif v == "boost_amount":
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
