@@ -938,7 +938,6 @@ class ChildPovertyIntervention(Base):
         # Specify and create/add all variables required for operation of intervention
         view_columns = ['time',
                         "hh_income",
-                        "hh_income_raw",
                         'nkids',
                         'hidp',
                         'pidp',
@@ -1081,15 +1080,12 @@ def apply_target_payment(data,
 #
 #     data = gcv.generate_hh_income(data)
 #     data = gcv.generate_child_material_deprivation(data)
-#     median_reference = gcv.get_reference_year_income(data)  # Needed during calculation of poverty variables below
-#     # data = gcv.calculate_poverty_composites_hh(data,
-#     #                                            median_reference=median_reference)  # Do all relative and absolute poverty calculations
 #     data = gcv.calculate_poverty_composites_hh(data)
 #     data = gcv.calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
 
-    # data['times_boosted'] = 0
-    # data['total_boost_amount'] = 0.0
-    # data = apply_child_payment(data)
+#     data['times_boosted'] = 0
+#     data['total_boost_amount'] = 0.0
+#     data = apply_child_payment(data)
 #
 
 #     ''' 2. Testing for individual year, i.e. runtime update '''
