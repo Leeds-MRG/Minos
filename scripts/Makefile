@@ -340,16 +340,17 @@ arc4_intervention_25UniversalCredit:
 arc4_intervention_30UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
 
-arc4_intervention_35UniversalCredit: setup
+arc4_intervention_35UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '35UniversalCredit'
 
-arc4_intervention_40UniversalCredit: setup
+arc4_intervention_40UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '40UniversalCredit'
 
-arc4_intervention_45UniversalCredit: setup
+arc4_intervention_45UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
-arc4_intervention_50UniversalCredit: setup
+arc4_intervention_50UniversalCredit:
+arc4_intervention_50UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
 
 arc4_intervention_75UniversalCredit: setup
