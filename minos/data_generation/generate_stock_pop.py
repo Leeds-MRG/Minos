@@ -243,17 +243,20 @@ def generate_input_stock(projections, cross_validation):
     data = wave_data_copy(data,
                           var='loneliness',
                           copy_year=2017,
-                          paste_year=2014)
+                          paste_year=2014,
+                          var_type='ordinal')
     # copy wave 11 nutrition_quality onto wave 12
     data = wave_data_copy(data,
                           var='nutrition_quality',
                           copy_year=2019,
-                          paste_year=2020)
-    # copy wave 7 nutrition_quality onto wave 6
+                          paste_year=2020,
+                          var_type='continuous')
+    # copy wave 7 nutrition_quality onto wave
     data = wave_data_copy(data,
                           var='nutrition_quality',
                           copy_year=2015,
-                          paste_year=2014)
+                          paste_year=2014,
+                          var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
