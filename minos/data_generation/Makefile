@@ -25,7 +25,7 @@ composite_data: ### Generate composite variables
 composite_data: $(COMPOSITEDATA)/2021_US_cohort.csv
 
 mice_data: ### Generate MICE imputed data
-mice_data: $(MICEDATA)/2020_US_cohort.csv
+mice_data: $(MICEDATA)/2021_US_cohort.csv
 
 complete_data: ### Generate a complete version of the data, after running complete case correction
 complete_data: $(COMPLETEDATA)/2021_US_cohort.csv
