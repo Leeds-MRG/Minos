@@ -72,10 +72,12 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure", 'hh_income', "nkids_ind"]  # many of these
+                          "housing_tenure", 'hh_income', "nkids_ind",
+                          "heating"]  # many of these
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
+    data['heating'] = data['heating'].astype(int)
 
     # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
