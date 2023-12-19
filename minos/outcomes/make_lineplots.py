@@ -66,7 +66,7 @@ def aggregate_cumulative_score(df, v):
 def aggregate_boosted_counts_and_cumulative_score(df, v):
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
-    new_df["number_boosted"] = [df.shape[0]]
+    new_df["number_boosted"] = [df.shape[0]] + np.sum(df.groupby("hidp")['nkids'].max())
     new_df[f'summed_{v}'] = [sum(df[v])]
     if "boost_amount" in df.columns:
         new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
@@ -112,7 +112,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         #print(data.shape)
     agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
-        agg_value["population_size"] = population_size
+        agg_value["population_size"] = population_size + np.sum(data.groupby("hidp")['nkids'].max())
     return agg_value
 
 
