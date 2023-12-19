@@ -4,7 +4,7 @@ source("minos/utils_datain.R")
 source("minos/transitions/utils.R")
 main <- function(){
   
-  do_mice <- T
+  do_mice <- F
   if (do_mice) {
     cached <- TRUE
     imp_columns <- c("SF_12", # continuous variables.
