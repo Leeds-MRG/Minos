@@ -55,6 +55,8 @@ raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
 out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+# out.path <- here::here('output', 'child_poverty_config/')
+# base.dat <- read_singular_local_out(out.path, 'ChildPovertyIntervention', drop.dead = TRUE)
 ```
 
 ## Constants
@@ -761,43 +763,7 @@ rm(raw.s, base.s, spag)
 ```
 
 
-## Poverty
-
-### Absolute poverty
-
-```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'absolute_poverty')
-
-var <- prepped.list$var
-norm <- prepped.list$norm
-
-tit <- 'Absolute Poverty'
-
-# Now plot
-ggplot(data = var, mapping = aes(x = time, y = n, group = absolute_poverty, colour = absolute_poverty)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = tit, subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = norm, mapping = aes(x = time, y = prct, fill=absolute_poverty)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = tit) +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'absolute_poverty.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, var, norm, tit)
-```
-
+## CHILD POVERTY VARS
 
 ### Relative poverty
 
@@ -835,7 +801,43 @@ rm(prepped.list, var, norm, tit)
 ```
 
 
-### Persistent poverty
+### Absolute Poverty
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'absolute_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Absolute Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = absolute_poverty, colour = absolute_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=absolute_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'absolute_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+### Persistent Poverty
 
 ```{r}
 prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'persistent_poverty')
@@ -872,10 +874,10 @@ rm(prepped.list, var, norm, tit)
 ```
 
 
-### Material Deprivation
+### Low Income and Material Deprivation
 
 ```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'matdep_child')
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'low_income_matdep_child')
 
 var <- prepped.list$var
 norm <- prepped.list$norm
@@ -883,14 +885,14 @@ norm <- prepped.list$norm
 tit <- 'Material Deprivation Child'
 
 # Now plot
-ggplot(data = var, mapping = aes(x = time, y = n, group = matdep_child, colour = matdep_child)) +
+ggplot(data = var, mapping = aes(x = time, y = n, group = low_income_matdep_child, colour = low_income_matdep_child)) +
   geom_line() +
   geom_vline(xintercept=start.year, linetype='dotted') +
   labs(title = tit, subtitle = 'Counts by Level') +
   xlab('Year') +
   ylab('Count')
 
-ggplot(data = norm, mapping = aes(x = time, y = prct, fill=matdep_child)) +
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=low_income_matdep_child)) +
   geom_bar(stat = 'identity') +
   geom_vline(xintercept=start.year, linetype='dotted') +
   labs(title = tit) +
@@ -898,7 +900,7 @@ ggplot(data = norm, mapping = aes(x = time, y = prct, fill=matdep_child)) +
   ylab('Proportion')
 
 if (shall.we.save) {
-  ggsave(filename = 'matdep_child.png',
+  ggsave(filename = 'low_income_matdep_child.png',
          plot = last_plot(),
          path = save.path)
 }

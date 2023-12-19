@@ -290,7 +290,7 @@ cv_ordinal_plots(pivoted.df = mstat.pivoted,
 rm(mstat.pivoted)
 ```
 
-## hhsize
+## Household Size
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hhsize')
@@ -298,7 +298,7 @@ multi_year_boxplots(raw, cv, 'hhsize')
 q_q_comparison(raw, cv, 'hhsize')
 ```
 
-## housing tenure
+## Housing Tenure
 
 ```{r}
 tenure.pivoted <- combine_and_pivot_long(df1 = cv, 
@@ -375,4 +375,83 @@ cv_ordinal_plots(pivoted.df = parity.pivoted,
                  save = FALSE)
 
 rm(parity.pivoted)
+```
+
+# CHILD POVERTY VARS
+
+## Relative Poverty
+
+```{r}
+relative_poverty.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                   df1.name = 'simulated', 
+                                                   df2 = raw, 
+                                                   df2.name = 'raw', 
+                                                   var = 'relative_poverty')
+
+cv_ordinal_plots(pivoted.df = relative_poverty.pivoted, 
+                 var = 'relative_poverty',
+                 save = FALSE)
+rm(relative_poverty.pivoted)
+```
+
+## Absolute Poverty
+
+```{r}
+absolute_poverty.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                   df1.name = 'simulated', 
+                                                   df2 = raw, 
+                                                   df2.name = 'raw', 
+                                                   var = 'absolute_poverty')
+
+cv_ordinal_plots(pivoted.df = absolute_poverty.pivoted, 
+                 var = 'absolute_poverty',
+                 save = FALSE)
+rm(absolute_poverty.pivoted)
+```
+
+## Material Deprivation
+
+```{r}
+matdep_child.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                               df1.name = 'simulated', 
+                                               df2 = raw, 
+                                               df2.name = 'raw', 
+                                               var = 'matdep_child')
+
+cv_ordinal_plots(pivoted.df = matdep_child.pivoted, 
+                 var = 'matdep_child',
+                 save = FALSE)
+rm(matdep_child.pivoted)
+```
+
+
+## Low Income and Material Deprivation
+
+```{r}
+low_income_matdep_child.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                          df1.name = 'simulated', 
+                                                          df2 = raw, 
+                                                          df2.name = 'raw', 
+                                                          var = 'low_income_matdep_child')
+
+cv_ordinal_plots(pivoted.df = low_income_matdep_child.pivoted, 
+                 var = 'low_income_matdep_child',
+                 save = FALSE)
+rm(low_income_matdep_child.pivoted)
+```
+
+
+## Persistent Poverty
+
+```{r}
+persistent_poverty.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                     df1.name = 'simulated', 
+                                                     df2 = raw, 
+                                                     df2.name = 'raw', 
+                                                     var = 'persistent_poverty')
+
+cv_ordinal_plots(pivoted.df = persistent_poverty.pivoted, 
+                 var = 'persistent_poverty',
+                 save = FALSE)
+rm(persistent_poverty.pivoted)
 ```
