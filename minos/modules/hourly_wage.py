@@ -88,7 +88,9 @@ class HourlyWage(Base):
         #                                             path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"hourly_wage/lmm/hourly_wage_LMM", self.rpy2Modules,
+        # self.gee_transition_model = r_utils.load_transitions(f"hourly_wage/lmm/hourly_wage_LMM", self.rpy2Modules,
+        #                                                      path=self.transition_dir)
+        self.rf_transition_model = r_utils.load_transitions(f"hourly_wage/rf/hourly_wage_RF", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
@@ -168,8 +170,6 @@ class HourlyWage(Base):
 
     #def on_time_step(self, pop_data):
 
-
-
     def calculate_hourly_wage(self, pop):
         """Calculate income transition distribution based on provided people/indices
 
@@ -183,13 +183,17 @@ class HourlyWage(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        newWaveHourlyWage = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                          self.rpy2Modules,
-                                                                          pop,
-                                                                          dependent='hourly_wage',
-                                                                          yeo_johnson=False,
-                                                                          reflect=False,
-                                                                          noise_std=10)  # 0.45 for yj. 5? for non yj.
+        # newWaveHourlyWage = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
+        #                                                                   self.rpy2Modules,
+        #                                                                   pop,
+        #                                                                   dependent='hourly_wage',
+        #                                                                   yeo_johnson=False,
+        #                                                                   reflect=False,
+        #                                                                   noise_std=10)  # 0.45 for yj. 5? for non yj.
+        newWaveHourlyWage = r_utils.predict_next_rf(self.rf_transition_model,
+                                                    self.rpy2Modules,
+                                                    pop,
+                                                    dependent='hourly_wage')
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
