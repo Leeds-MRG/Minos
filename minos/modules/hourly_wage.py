@@ -134,22 +134,38 @@ class HourlyWage(Base):
         newWaveHourlyWage['hourly_wage'] = self.calculate_hourly_wage(pop)
         newWaveHourlyWage.index = pop.index
 
-        newWaveHourlyWage['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage'] - pop['hourly_wage']
-        hourly_wage_mean = np.mean(newWaveHourlyWage["hourly_wage"])
-        std_ratio = (np.std(pop['hourly_wage'])/np.std(newWaveHourlyWage["hourly_wage"]))
-        newWaveHourlyWage["hourly_wage"] *= std_ratio
-        newWaveHourlyWage["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
-        # #newWaveHourlyWage['hourly_wage'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
-        #print(std_ratio)
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-
-        # merge back onto pop, so we can be sure we're updating the correct people
-        pop = pop.drop(labels=['hourly_wage', 'hourly_wage_diff'], axis=1)
+        # add new_hourly_wage back to pop
         pop['hourly_wage'] = newWaveHourlyWage['hourly_wage']
-        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 1000)  # limit to 1000 max value. This is a test
-        pop['hourly_wage'][pop['hourly_wage'] < 0] = 0.0
-        pop['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage_diff']
+
+        # handle minimum wage adjustment - value varies by age group
+        # all values from here: https://www.gov.uk/national-minimum-wage-rates
+        # less than 18
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 5.28) & (pop['age'] < 18)] = 5.28
+        # 18 - 20
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 7.49) & (pop['age'] >= 18) & (pop['age'] <= 20)] = 7.49
+        # 21 - 22
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 10.18) & (pop['age'] >= 21) & (
+                        pop['age'] <= 22)] = 10.18
+        # 23 & over
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 10.18) & (pop['age'] >= 23)] = 10.42
+
+        ######## TESTING ########
+        # Testing limiting the predicted values to a max of 1000. This value could and probably should change or be
+        # removed
+        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 1000)
+
+        pop['hourly_wage_diff'] = pop['hourly_wage'] - pop['hourly_wage_last']
+
+        hourly_wage_mean = np.mean(pop["hourly_wage"])
+        std_ratio = (np.std(pop['hourly_wage'])/np.std(pop["hourly_wage_last"]))
+        pop["hourly_wage"] *= std_ratio
+        pop["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
+        # #newWaveHourlyWage['hourly_wage'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
+        # print(std_ratio)
 
         #print("job_hours", np.mean(newWaveJobHours['job_hours']))
         self.population_view.update(pop[['hourly_wage', 'hourly_wage_diff']])

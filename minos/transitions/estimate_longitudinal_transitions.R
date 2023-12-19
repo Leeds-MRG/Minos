@@ -129,11 +129,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # Because of this, we are going to remove the crazy outliers in the data
     # For a first pass, I will remove any values over £500. This will remove
     # only 15/6893 individuals (in 2020), so is a very small proportion of the data
-    if (dependent == 'hourly_wage') {
-      # remove hourly_wage over £500
-      data <- data %>%
-        filter(hourly_wage < 300)
-    }
+    ## UPDATE 19/12/23 - switched to RandomForest model, better at handling outliers so
+    # having a look at it without
+    # if (dependent == 'hourly_wage') {
+    #   # remove hourly_wage over £500
+    #   data <- data %>%
+    #     filter(hourly_wage < 300)
+    # }
     
 
     # differencing data for difference models using dplyr lag.
