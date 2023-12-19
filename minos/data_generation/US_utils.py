@@ -403,7 +403,7 @@ def get_reference_year_equivalised_income(income_dict=None,
     if monthly:
         value = value/12
 
-    print("Reference year income: {}".format(value))
+    # print("Reference year income: {}".format(value))
 
     return value
 
