@@ -610,6 +610,7 @@ class lmmYJIncome(Base):
             'region',
             'education_state',
             'job_sec',
+            'S7_labour_state',
             #'job_sector',
             'time',
             'pidp',
