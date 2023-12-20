@@ -208,6 +208,9 @@ all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift interve
 ## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
 ############################################
 
+test_baseline:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/test_config.yaml -o test_config
+
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 baseline_glasgow: setup_glasgow_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled

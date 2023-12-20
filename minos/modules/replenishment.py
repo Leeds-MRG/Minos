@@ -115,6 +115,11 @@ class Replenishment(Base):
 
         columns_created = ["entrance_time"]
 
+        if config.is_test == True:
+            self.is_test = True
+        else:
+            self.is_test = False
+
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns + columns_created)  # view simulants
         self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
@@ -147,6 +152,8 @@ class Replenishment(Base):
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
             new_population = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
+            if self.is_test:
+                new_population = new_population.head(500) # much smaller pop for testing.
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
             logging.info(f"Starting cohort loaded for {self.current_year}.")
