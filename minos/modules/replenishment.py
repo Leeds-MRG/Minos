@@ -115,8 +115,8 @@ class Replenishment(Base):
 
         columns_created = ["entrance_time"]
 
-        if config.is_test == True:
-            self.is_test = True
+        if config.is_test is not None:
+            self.is_test = config.is_test
         else:
             self.is_test = False
 
