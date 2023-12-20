@@ -61,7 +61,7 @@ class Ageing(Base):
         logging.info(f"Aged population to year {event.time.year}")
 
         #if type(population['nkids'][0]) == float:
-        #    population['nkids'] = population['nkids'].astype(int)
+        population['nkids'] = population['nkids'].astype(int)
         self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
 
 
@@ -79,7 +79,6 @@ class Ageing(Base):
         pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
                                                     #pd.DataFrame(.to_list(), index=pop.index)
         pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
-        pop['nkids'] = pop['nkids'].astype(float)
         return pop
 
     def increment_age_chains(self, age_chain):
