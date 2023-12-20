@@ -1079,10 +1079,10 @@ def update_poverty_vars_hh(data,
     if year is None:
         year = hidp_sub['time'].unique()[0]  # Just grab first value, as should always be single value in data passed
 
-    print("Median income (yearly), {}: {}".format(year, median_yearly))
-    print("Annual: {}".format(median_yearly*12))
-    print("Median income (inflated), {}: {}".format(year, median_inflated))
-    print("Annual: {}".format(median_inflated*12))
+    # print("Median income (yearly), {}: {}".format(year, median_yearly))
+    # print("Annual: {}".format(median_yearly*12))
+    # print("Median income (inflated), {}: {}".format(year, median_inflated))
+    # print("Annual: {}".format(median_inflated*12))
 
     ''' 2. RELATIVE POVERTY '''
     hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)
