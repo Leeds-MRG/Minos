@@ -414,7 +414,7 @@ class livingWageIntervention(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ['hh_income', 'hidp', 'pidp', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
+        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector', "hidp", "age"]
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -428,6 +428,7 @@ class livingWageIntervention(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
+
     def on_initialize_simulants(self, pop_data):
         """
         Parameters
@@ -436,10 +437,11 @@ class livingWageIntervention(Base):
         Returns
         -------
         """
-        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
-                                   'boost_amount': 0.},  # hh income boosted by how much?
+        pop_update = pd.DataFrame({'income_boosted': False, # who boosted?
+                                   'boost_amount': 0.}, # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
+
 
     def on_time_step(self, event):
         """
@@ -454,38 +456,68 @@ class livingWageIntervention(Base):
         logging.info(
             f"\tApplying effects of the living wage intervention in year {event.time.year}...")
 
-        pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
+        pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        # pop['hh_income'] -= pop['boost_amount']
-        # pop['boost_amount'] = 0
+        #pop['hh_income'] -= pop['boost_amount']
+        # reset boost amount to 0 before calculating next uplift
+        pop['boost_amount'] = 0
+
+        # 03/11/23 - Changing living wage values to match the living wage foundation, recently had an increase
+        #            Alongside this we're also rebasing the inflation adjustment to 2023 to match these pounds
         # Now get who gets uplift (different for London/notLondon)
         who_uplifted_London = pop['hourly_wage'] > 0
         who_uplifted_London *= pop['region'] == 'London'
-        who_uplifted_London *= pop['hourly_wage'] < 11.95
+        who_uplifted_London *= pop['hourly_wage'] < 13.15
+        who_uplifted_London *= pop['job_hours'] > 0
+
         who_uplifted_notLondon = pop['hourly_wage'] > 0
         who_uplifted_notLondon *= pop['region'] != 'London'
-        who_uplifted_notLondon *= pop['hourly_wage'] < 10.90
+        who_uplifted_notLondon *= pop['hourly_wage'] < 12.00
+        who_uplifted_notLondon *= pop['job_hours'] > 0
+
+        # bumping hourly wage to minimum wage for everybody as per 2020 minimum wage based on age
+        # https://www.gov.uk/national-minimum-wage-rates
+        # minimum wage for all under 18
+        # TODO adjustment by forecasts?
+        pop.loc[pop['age']>= 0., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=0., "hourly_wage"], 4.55)
+        # 18-20
+        pop.loc[pop['age']>=18., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=18., "hourly_wage"], 6.45)
+        # 21-24
+        pop.loc[pop['age']>=21., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=21., "hourly_wage"], 8.20)
+        # 25+
+        pop.loc[pop['age']>=25., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=25., "hourly_wage"], 8.72)
+
         # Calculate boost amount (difference between hourly wage and living wage multiplied by hours worked in a week (extended to month))
         # boost_amount = hourly_wage_diff * hours_worked_monthly
-        pop['boost_amount'] = (11.95 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_London
-        pop['boost_amount'] += (10.90 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
+        pop['boost_amount'] = (13.15 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_London
+        pop['boost_amount'] += (12.00 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
 
+
+        # propagate living wage boost to all household members.
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
-        pop['income_boosted'] = who_uplifted_notLondon | who_uplifted_London
+        who_boosted = pop.loc[who_uplifted_notLondon | who_uplifted_London, "hidp"]
+        pop['income_boosted'] = False
+        pop.loc[pop['hidp'].isin(who_boosted), "income_boosted"] = True
 
-        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
-        pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+        # sum boost amounts by household together in case of multiple boosts.
+        #
+        boost_amount_by_house = dict(pop.groupby(['hidp'])['boost_amount'].sum())
+        pop["boost_amount"] = pop['hidp'].map(boost_amount_by_house)
+
 
         #pop.drop(labels='who_uplifted', inplace=True)
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
+
+
+
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of household composition.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
         logging.info(f"\tNumber of people uplifted: {sum(who_uplifted_London) + sum(who_uplifted_notLondon)}")
         if who_uplifted_London.sum() > 0:  # if any London individuals in simulation being uplifted (will be not true in some synthetic population runs)
             logging.info(
-            f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
+                f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
             logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
             logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
         logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
@@ -498,7 +530,6 @@ class livingWageIntervention(Base):
         if who_uplifted_London.sum() > 0:
             logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
-
 
 class energyDownlift(Base):
     @property
