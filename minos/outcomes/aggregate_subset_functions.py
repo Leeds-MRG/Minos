@@ -204,7 +204,7 @@ def get_required_intervention_variables(subset_function_string):
         default_variables += ["yearly_energy"]
 
     if "living_wage" in subset_function_string:
-        default_variables += ["region", "hourly_wage", "age"]
+        default_variables += ["region", "hourly_wage", "age", "job_hours"]
 
     #print(subset_function_string, default_variables)
 
