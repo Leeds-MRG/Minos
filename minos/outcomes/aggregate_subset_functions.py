@@ -245,13 +245,27 @@ def who_adult(df):
 
 def who_below_living_wage(df):
     # Who earns below the living wage?
+    df.loc[df['age']>= 0., "hourly_wage"] = np.maximum(df.loc[df['age']>=0., "hourly_wage"], 4.55)
+    # 18-20
+    df.loc[df['age']>=18., "hourly_wage"] = np.maximum(df.loc[df['age']>=18., "hourly_wage"], 6.45)
+    # 21-24
+    df.loc[df['age']>=21., "hourly_wage"] = np.maximum(df.loc[df['age']>=21., "hourly_wage"], 8.20)
+    # 25+
+    df.loc[df['age']>=25., "hourly_wage"] = np.maximum(df.loc[df['age']>=25., "hourly_wage"], 8.72)
+
+    # who in london, works, and is below living wage of £13.15
     who_uplifted_London = df['hourly_wage'] > 0
     who_uplifted_London *= df['region'] == 'London'
-    who_uplifted_London *= df['hourly_wage'] < 11.95
+    who_uplifted_London *= df['hourly_wage'] < 13.15
+    who_uplifted_London *= df['job_hours'] > 0
+
+    # who not in london, works, and is below living wage of £12.00
     who_uplifted_notLondon = df['hourly_wage'] > 0
     who_uplifted_notLondon *= df['region'] != 'London'
-    who_uplifted_notLondon *= df['hourly_wage'] < 10.90
-    return df.loc[who_uplifted_notLondon | who_uplifted_London,]  # get anyone from either group.
+    who_uplifted_notLondon *= df['hourly_wage'] < 12.00
+    who_uplifted_notLondon *= df['job_hours'] > 0
+
+    return df.loc[who_uplifted_notLondon | who_uplifted_London, ]  # get anyone from either group.
 
 
 def who_bottom_income_quintile(df, k=1):
