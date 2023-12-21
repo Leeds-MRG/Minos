@@ -244,14 +244,6 @@ def who_adult(df):
 
 
 def who_below_living_wage(df):
-    # Who earns below the living wage?
-    df.loc[df['age']>= 0., "hourly_wage"] = np.maximum(df.loc[df['age']>=0., "hourly_wage"], 4.55)
-    # 18-20
-    df.loc[df['age']>=18., "hourly_wage"] = np.maximum(df.loc[df['age']>=18., "hourly_wage"], 6.45)
-    # 21-24
-    df.loc[df['age']>=21., "hourly_wage"] = np.maximum(df.loc[df['age']>=21., "hourly_wage"], 8.20)
-    # 25+
-    df.loc[df['age']>=25., "hourly_wage"] = np.maximum(df.loc[df['age']>=25., "hourly_wage"], 8.72)
 
     # who in london, works, and is below living wage of £13.15
     who_uplifted_London = df['hourly_wage'] > 0
