@@ -72,7 +72,7 @@ def expand_repl(US_2018, region):
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
         # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
         # bit shifting makes number that only relies on clock to improve uniqueness but less random.
-        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e12)
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e24)
         # [(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
 
         # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
