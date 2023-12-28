@@ -364,9 +364,8 @@ def find_MINOS_years_range(file_path):
 
 
 def weighted_nanmean(df, v, weights = "weight", scale=1):
-    #df = df.loc[df['weight'] > 0]
-
-    #df.loc[df.index, weights] = 1/df[weights]
+    df = df.loc[df['weight'] > 0]
+    df.loc[df.index, weights] = 1/df[weights]
     return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
     #return np.nanmean()
 
