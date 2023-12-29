@@ -694,13 +694,14 @@ class lmmYJIncome(Base):
         # To this end, I'm going to take one random member of each household and fix everybody else in the house to
         # this value
         newWaveIncome['hidp'] = pop['hidp']
-        random_income_within_household = newWaveIncome.groupby('hidp').apply(
-            lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
-        newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
-            random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
+        #random_income_within_household = newWaveIncome.groupby('hidp').apply(
+        #    lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
+        #newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
+        #    random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
         #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
-        #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
+        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
 
+        print(np.median(newWaveIncome['hh_income']))
         # Finally calculate diff
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
