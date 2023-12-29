@@ -90,8 +90,8 @@ class childUplift():
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # print(np.mean(pop['hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
-        if self.uplift_condition == "who_below_poverty_line_and_kids":
-            pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
+        #if self.uplift_condition == "who_below_poverty_line_and_kids":
+        #    pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
         pop['income_boosted'] = False
         uplifted_households = np.unique(dynamic_subset_function(pop, self.uplift_condition)['hidp'])
         pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
