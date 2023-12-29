@@ -693,7 +693,7 @@ class lmmYJIncome(Base):
         # because of this, we need to ensure that all members of a household have the same value after prediction.
         # To this end, I'm going to take one random member of each household and fix everybody else in the house to
         # this value
-        #newWaveIncome['hidp'] = pop['hidp']
+        newWaveIncome['hidp'] = pop['hidp']
         #random_income_within_household = newWaveIncome.groupby('hidp').apply(
         #    lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
         #newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
