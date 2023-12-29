@@ -268,8 +268,8 @@ def who_bottom_income_quintile(df, k=1):
 
 def who_below_poverty_line(df):
     "who below poverty line?. Defined as 60% of national median hh income."
-    return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
-    #return df.loc[df['hh_income'] <= 1300.0,]
+    #return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
+    return df.loc[df['hh_income'] <= 1300.0,]
 
 
 def who_boosted(df):
