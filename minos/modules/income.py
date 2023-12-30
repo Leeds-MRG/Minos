@@ -679,10 +679,10 @@ class lmmYJIncome(Base):
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
-        income_mean = np.nanmedian(newWaveIncome["hh_income"])
-        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
-        newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+        #income_mean = np.nanmedian(newWaveIncome["hh_income"])
+        #std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        #newWaveIncome["hh_income"] *= std_ratio
+        #newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         #print(std_ratio)
@@ -694,12 +694,12 @@ class lmmYJIncome(Base):
         # To this end, I'm going to take one random member of each household and fix everybody else in the house to
         # this value
         newWaveIncome['hidp'] = pop['hidp']
-        random_income_within_household = newWaveIncome.groupby('hidp').apply(
-            lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
-        newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
-            random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
+        #random_income_within_household = newWaveIncome.groupby('hidp').apply(
+        #    lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
+        #newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
+        #    random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
         #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
-        #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
+        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
 
         print(np.median(newWaveIncome['hh_income']))
         # Finally calculate diff
@@ -725,7 +725,7 @@ class lmmYJIncome(Base):
                                                                        dependent='hh_income_new',
                                                                        yeo_johnson = True,
                                                                        reflect=False,
-                                                                       noise_std= 0.05)#0.175 for yj.
+                                                                       noise_std= 0.175)#0.175 for yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
