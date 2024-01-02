@@ -92,15 +92,18 @@ class S7MentalHealth(Base):
         # Predict next neighbourhood value
         men_health_prob_df = self.calculate_S7_mental_health(pop)
 
-        men_health_prob_df["S7_mental_health"] = self.random.choice(men_health_prob_df.index,
-                                                                       list(men_health_prob_df.columns),
-                                                                       men_health_prob_df) + 1
+        # attach onto pop for updating
+        pop['S7_mental_health'] = men_health_prob_df['S7_mental_health']
 
-        men_health_prob_df.index = men_health_prob_df.index.astype(int)
+        # men_health_prob_df["S7_mental_health"] = self.random.choice(men_health_prob_df.index,
+        #                                                                list(men_health_prob_df.columns),
+        #                                                                men_health_prob_df) + 1
+        #
+        # men_health_prob_df.index = men_health_prob_df.index.astype(int)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        self.population_view.update(men_health_prob_df['S7_mental_health'])
+        self.population_view.update(pop['S7_mental_health'])
 
     def calculate_S7_mental_health(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -119,8 +122,12 @@ class S7MentalHealth(Base):
         else:
             year = min(self.year, 2020)
         
-        transition_model = r_utils.load_transitions(f"S7_mental_health/clm/S7_mental_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        return r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_mental_health')
+        #transition_model = r_utils.load_transitions(f"S7_mental_health/clm/S7_mental_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"S7_mental_health/rf/S7_mental_health_RF",
+                                                    self.rpy2Modules, path=self.transition_dir)
+        #prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_mental_health')
+        prob_df = r_utils.predict_next_rf(transition_model, self.rpy2Modules, pop, 'S7_mental_health')
+        return prob_df
 
     def plot(self, pop, config):
 

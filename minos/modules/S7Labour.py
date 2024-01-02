@@ -95,14 +95,20 @@ class S7Labour(Base):
 
         labour_prob_df = self.calculate_labour(pop)
 
+        # attach onto pop for updating
+        pop['S7_labour_state'] = labour_prob_df['S7_labour_state']
+
+        pop['S7_labour_state'] = pop['S7_labour_state'].astype(object)
+
         # Crossval 2 fails due to the presence of 0s after normalising probabilities. Trying to add a small number to
         # every element to see if this fixes it
-        labour_prob_df = labour_prob_df + 0.01
+        # LA 2/1/24 - Changed model to RandomForest, shouldn't need this now
+        #labour_prob_df = labour_prob_df + 0.01
 
-        labour_prob_df["S7_labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
-        labour_prob_df.index = labour_prob_df.index.astype(int)
+        # labour_prob_df["S7_labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
+        # labour_prob_df.index = labour_prob_df.index.astype(int)
 
-        self.population_view.update(labour_prob_df["S7_labour_state"])
+        self.population_view.update(pop["S7_labour_state"])
 
     def calculate_labour(self, pop):
         """Calculate labour transition distribution based on provided people/indices.
@@ -121,9 +127,12 @@ class S7Labour(Base):
         #year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
         year = 2018
 
-        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        #transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        transition_model = r_utils.load_transitions(f"S7_labour_state/rf/S7_labour_state_RF",
+                                                    self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        #prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_next_rf(transition_model, self.rpy2Modules, pop, 'S7_labour_state')
         return prob_df
 
     def plot(self, pop, config):

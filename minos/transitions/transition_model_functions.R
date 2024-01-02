@@ -339,12 +339,27 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   return (model)
 }
 
-estimate_RandomForest <- function(data, formula, depend) {
+estimate_RandomForest <- function(data, formula, depend, depend.type) {
   
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
   
   data <- replace.missing(data)
   data <- drop_na(data)
+  
+  # set var type to properly distinguish between continuous and ordinal
+  if (depend.type == 'continuous') {
+    data[[depend]] <- as.numeric(data[[depend]])
+  } else if (depend.type == 'ordinal') {
+    data[[depend]] <- factor(data[[depend]])
+  } else {
+    print('Data type for this dependent variable has not been specified. In the 
+          estimate_longitudinal_transitions.R script on lines 196-200 (as of 2/1/24),
+          the type of the dependent variable must be specified as either continuous or
+          ordinal. If this is a new variable, or trying the RF model for the first
+          time on this variable, this should be a quick and easy fix.')
+    stop('Unknown type of dependent variable, please set this in estimate_longitudinal_transitions.R')
+  }
+  
   model <- randomForest(formula, data = data, ntree = 100)
   
   return(model)

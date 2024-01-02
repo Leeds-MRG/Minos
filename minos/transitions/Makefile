@@ -30,9 +30,9 @@ $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/2020_US_cohort.csv $(
 ############# SIPHER7 #############
 
 transitions_SIPHER7: | $(TRANSITION_DATA)
-transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds
+transitions_SIPHER7: final_data $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds
 
-$(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --sipher7
 
 $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R

@@ -148,9 +148,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
         # update model formula with _diff variable. 
         dependent <-  paste0(dependent, "_diff")
-        formula.string <- paste0(dependent, " ~ ", independents)
-        form <- as.formula(formula.string) 
-        }
+    }
 
     # if using glmms need to be careful which time the outcome variable is from.
     # for nutrition quality and SF12 using previous wave information to predict next 
@@ -167,10 +165,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          mutate(new = lead(.data[[dependent]], order_by = time)) %>%
          rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
          dependent <-  paste0(dependent, "_new")
-         formula.string <- paste0(dependent, " ~ ", independents)
-         form <- as.formula(formula.string) 
-       }
-    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage'))  {
+    }
+    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage', 'loneliness', 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_labour_state', 'S7_physical_health', 'S7_mental_health'))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -182,14 +178,26 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       #   mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
       #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)
       # 
-      formula.string <- paste0(dependent, " ~ ", independents)
-      form <- as.formula(formula.string)
-      }
+    }
+    
+    # LA 2/1/24
+    # Moving the formula logic out of the if blocks above as its always the same
+    formula.string <- paste0(dependent, " ~ ", independents)
+    form <- as.formula(formula.string)
+    
     # get only required variables and sort by pidp/time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
+    
+    # LA 2/1/24
+    # Have to set type for RandomForest model to correctly set factors before fitting
+    if (mod.type == 'RF' & dependent %in% c('loneliness', 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_labour_state', 'S7_physical_health', 'S7_mental_health')) {
+      dep.type <- 'ordinal'
+    } else if (mod.type == 'RF') {
+      dep.type <- 'continuous'
+    }
     
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
@@ -236,7 +244,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,
-                                     depend = dependent)
+                                     depend = dependent,
+                                     depend.type = dep.type)
     }
     
     write_coefs <- F
