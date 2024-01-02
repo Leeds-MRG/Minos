@@ -88,7 +88,9 @@ class HourlyWage(Base):
         #                                             path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
         #                                                     path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"hourly_wage/lmm/hourly_wage_LMM", self.rpy2Modules,
+        # self.gee_transition_model = r_utils.load_transitions(f"hourly_wage/lmm/hourly_wage_LMM", self.rpy2Modules,
+        #                                                      path=self.transition_dir)
+        self.rf_transition_model = r_utils.load_transitions(f"hourly_wage/rf/hourly_wage_RF", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
@@ -132,22 +134,38 @@ class HourlyWage(Base):
         newWaveHourlyWage['hourly_wage'] = self.calculate_hourly_wage(pop)
         newWaveHourlyWage.index = pop.index
 
-        newWaveHourlyWage['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage'] - pop['hourly_wage']
-        hourly_wage_mean = np.mean(newWaveHourlyWage["hourly_wage"])
-        std_ratio = (np.std(pop['hourly_wage'])/np.std(newWaveHourlyWage["hourly_wage"]))
-        newWaveHourlyWage["hourly_wage"] *= std_ratio
-        newWaveHourlyWage["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
-        # #newWaveHourlyWage['hourly_wage'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
-        #print(std_ratio)
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-
-        # merge back onto pop, so we can be sure we're updating the correct people
-        pop = pop.drop(labels=['hourly_wage', 'hourly_wage_diff'], axis=1)
+        # add new_hourly_wage back to pop
         pop['hourly_wage'] = newWaveHourlyWage['hourly_wage']
-        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 1000)  # limit to 1000 max value. This is a test
-        pop['hourly_wage'][pop['hourly_wage'] < 0] = 0.0
-        pop['hourly_wage_diff'] = newWaveHourlyWage['hourly_wage_diff']
+
+        # handle minimum wage adjustment - value varies by age group
+        # all values from here: https://www.gov.uk/national-minimum-wage-rates
+        # less than 18
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 5.28) & (pop['age'] < 18)] = 5.28
+        # 18 - 20
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 7.49) & (pop['age'] >= 18) & (pop['age'] <= 20)] = 7.49
+        # 21 - 22
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 10.18) & (pop['age'] >= 21) & (
+                        pop['age'] <= 22)] = 10.18
+        # 23 & over
+        pop['hourly_wage'][
+            (pop['hourly_wage'] > 0) & (pop['hourly_wage'] < 10.18) & (pop['age'] >= 23)] = 10.42
+
+        ######## TESTING ########
+        # Testing limiting the predicted values to a max of 1000. This value could and probably should change or be
+        # removed
+        pop["hourly_wage"] = np.clip(pop["hourly_wage"], 0, 1000)
+
+        pop['hourly_wage_diff'] = pop['hourly_wage'] - pop['hourly_wage_last']
+
+        #hourly_wage_mean = np.mean(pop["hourly_wage"])
+        #std_ratio = (np.std(pop['hourly_wage'])/np.std(pop["hourly_wage_last"]))
+        #pop["hourly_wage"] *= std_ratio
+        #pop["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
+        # #newWaveHourlyWage['hourly_wage'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
+        # print(std_ratio)
 
         #print("job_hours", np.mean(newWaveJobHours['job_hours']))
         self.population_view.update(pop[['hourly_wage', 'hourly_wage_diff']])
@@ -168,8 +186,6 @@ class HourlyWage(Base):
 
     #def on_time_step(self, pop_data):
 
-
-
     def calculate_hourly_wage(self, pop):
         """Calculate income transition distribution based on provided people/indices
 
@@ -183,13 +199,17 @@ class HourlyWage(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        newWaveHourlyWage = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                          self.rpy2Modules,
-                                                                          pop,
-                                                                          dependent='hourly_wage',
-                                                                          yeo_johnson=False,
-                                                                          reflect=False,
-                                                                          noise_std=10)  # 0.45 for yj. 5? for non yj.
+        # newWaveHourlyWage = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
+        #                                                                   self.rpy2Modules,
+        #                                                                   pop,
+        #                                                                   dependent='hourly_wage',
+        #                                                                   yeo_johnson=False,
+        #                                                                   reflect=False,
+        #                                                                   noise_std=10)  # 0.45 for yj. 5? for non yj.
+        newWaveHourlyWage = r_utils.predict_next_rf(self.rf_transition_model,
+                                                    self.rpy2Modules,
+                                                    pop,
+                                                    dependent='hourly_wage')
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

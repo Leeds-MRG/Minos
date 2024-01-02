@@ -4,6 +4,7 @@ require(nnet)
 require(pscl)
 require(bestNormalize)
 require(lme4)
+require(randomForest)
 
 ################ Model Specific Functions ################
 
@@ -336,4 +337,15 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
                 threshold="flexible",
                 nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)
+}
+
+estimate_RandomForest <- function(data, formula, depend) {
+  
+  print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  model <- randomForest(formula, data = data, ntree = 100)
+  
+  return(model)
 }
