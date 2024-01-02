@@ -160,10 +160,10 @@ class HourlyWage(Base):
 
         pop['hourly_wage_diff'] = pop['hourly_wage'] - pop['hourly_wage_last']
 
-        hourly_wage_mean = np.mean(pop["hourly_wage"])
-        std_ratio = (np.std(pop['hourly_wage'])/np.std(pop["hourly_wage_last"]))
-        pop["hourly_wage"] *= std_ratio
-        pop["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
+        #hourly_wage_mean = np.mean(pop["hourly_wage"])
+        #std_ratio = (np.std(pop['hourly_wage'])/np.std(pop["hourly_wage_last"]))
+        #pop["hourly_wage"] *= std_ratio
+        #pop["hourly_wage"] -= ((std_ratio-1)*hourly_wage_mean)
         # #newWaveHourlyWage['hourly_wage'] += self.generate_gaussian_noise(working_pop.index, 0, 1000)
         # print(std_ratio)
 
