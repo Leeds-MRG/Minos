@@ -356,6 +356,77 @@ if (load_cache) {
 
 ```
 
+```{r mar_analyses}
+
+aux_vars <- c("SF_12",
+              #"SF_12p",
+              #"smoker",
+              "nkids",       
+              "behind_on_bills",
+              "financial_situation",
+              "future_financial_situation",
+              "likely_move",
+              "ghq_depression",
+              "ghq_happiness",
+              "clinical_depression", 
+              "scsf1",
+              "health_limits_social")
+ggmice::plot_corr(mice.data[, aux_vars])
+
+pre.mice.lm <- lm(mice_formula_string, data=mice.data, weights = weight)
+forest_plot(pre.mice.lm , paste0(save.path,'mice_SF12_forest.pdf'))
+qq_plot(resid(pre.mice.lm ), paste0(save.path, "mice_qq.pdf"))
+
+
+# writing coefficients table for MICE. 
+# is there a version for pool table?
+write_coefs <- T
+if (write_coefs)
+{
+  texreg_file <- paste0(save.path, 'SF12_without_MICE_OLS_coefficients.txt')
+  tex_label <- paste0("table: without_MICE_OLS_coefficients") 
+  tex_headers <- c(texreg::names2latex("Without MICE SF_12 OLS"))
+  tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "without_mice"))    
+  texreg(mice.lm.object, # what model to save coefs for. 
+         file=texreg_file,  # where to save.
+         custom.model.names = tex_headers, # title of table.
+         stars = c(0.001, 0.01, 0.05), # p-value significance symbols. 
+         digits=4, # p values significant figures.
+         caption=tex_caption, # \caption command option. 
+         label = tex_label, # \label command option. 
+         dcolumn=T,# nice column alignment. 
+         booktabs=T, # nice hlines. (recommended)
+         tabular=T,# tabular env.
+         single.row = T, # nicer one row formatting.
+         longtable=T, # allows tables to wrap over pages
+         use.packages=F, # don't add \usepackage commands to allow for direct importing of files as inputs
+         fontsize='small') # small font
+  
+  # same again for MICE pool. 
+  texreg_file <- paste0(save.path, 'SF12_MICE_pool_OLS_coefficients.txt')
+  tex_label <- paste0("table: MICE_pool_OLS_coefficients") 
+  tex_headers <- c(texreg::names2latex("MICE SF_12 OLS Pool"))
+  tex_caption <- texreg::names2latex(get_tex_table_caption("SF_12", "ols"))    
+  texreg(final.pool, # what model to save coefs for. 
+         file=texreg_file,  # where to save.
+         custom.model.names = tex_headers, # title of table.
+         stars = c(0.001, 0.01, 0.05), # p-value significance symbols. 
+         digits=4, # p values significant figures.
+         caption=tex_caption, # \caption command option. 
+         label = tex_label, # \label command option. 
+         dcolumn=T,# nice column alignment. 
+         booktabs=T, # nice hlines. (recommended)
+         tabular=T,# tabular env.
+         single.row = T, # nicer one row formatting.
+         longtable=T, # allows tables to wrap over pages
+         use.packages=F, # don't add \usepackage commands to allow for direct importing of files as inputs
+         fontsize='small') # small font
+}
+
+
+```
+
+
 ```{r mice_output}
 
 # only looking at 2011-2013 subset of data. convert to data frame, subset, and back to MICE mids. 
