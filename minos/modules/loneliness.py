@@ -90,10 +90,12 @@ class Loneliness(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
+        pop['loneliness_last'] = pop['loneliness']
+
         loneliness_prob_df = self.calculate_loneliness(pop)
 
         # attach onto pop for updating
-        pop['loneliness'] = loneliness_prob_df['loneliness']
+        pop['loneliness'] = loneliness_prob_df['loneliness'].values
 
         # loneliness_prob_df["loneliness"] = self.random.choice(loneliness_prob_df.index,
         #                                                       list(loneliness_prob_df.columns),

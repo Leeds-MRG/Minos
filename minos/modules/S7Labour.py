@@ -93,10 +93,12 @@ class S7Labour(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
+        pop['S7_labour_state_last'] = pop['S7_labour_state']
+
         labour_prob_df = self.calculate_labour(pop)
 
         # attach onto pop for updating
-        pop['S7_labour_state'] = labour_prob_df['S7_labour_state']
+        pop['S7_labour_state'] = labour_prob_df['S7_labour_state'].values
 
         pop['S7_labour_state'] = pop['S7_labour_state'].astype(object)
 

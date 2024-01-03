@@ -324,6 +324,7 @@ sipher7 <- args$SIPHER7
 # DELETE ME
 #default <- TRUE
 #cross_validation <- TRUE
+#sipher7 <- TRUE
 # DELETE ME
 ###################################################################
 

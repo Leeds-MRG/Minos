@@ -90,11 +90,13 @@ class S7PhysicalHealth(Base):
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
+        pop['S7_physical_health_last'] = pop['S7_physical_health']
+
         # Predict next neighbourhood value
         phys_health_prob_df = self.calculate_S7_physical_health(pop)
 
         # attach onto pop for updating
-        pop['S7_physical_health'] = phys_health_prob_df['S7_physical_health']
+        pop['S7_physical_health'] = phys_health_prob_df['S7_physical_health'].values.astype(int)
 
         # phys_health_prob_df["S7_physical_health"] = self.random.choice(phys_health_prob_df.index,
         #                                                                       list(phys_health_prob_df.columns),

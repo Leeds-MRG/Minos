@@ -346,6 +346,12 @@ estimate_RandomForest <- function(data, formula, depend, depend.type) {
   data <- replace.missing(data)
   data <- drop_na(data)
   
+  # drop missing weight values
+  #data <- data[!is.na(data$weight), ]
+  # drop zero weight values
+  #data <- data %>% filter(weight > 0)
+  data <- data %>% select(-weight)
+    
   # set var type to properly distinguish between continuous and ordinal
   if (depend.type == 'continuous') {
     data[[depend]] <- as.numeric(data[[depend]])
@@ -360,7 +366,7 @@ estimate_RandomForest <- function(data, formula, depend, depend.type) {
     stop('Unknown type of dependent variable, please set this in estimate_longitudinal_transitions.R')
   }
   
-  model <- randomForest(formula, data = data, ntree = 100)
+  model <- randomForest(formula, data = data, ntree = 100, weights = data$weight)
   
   return(model)
 }

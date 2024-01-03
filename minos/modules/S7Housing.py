@@ -62,7 +62,8 @@ class S7Housing(Base):
                         "ethnicity",
                         "age",
                         "S7_housing_quality",
-                        "hh_income",]
+                        "hh_income",
+                        "region",]
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -89,10 +90,12 @@ class S7Housing(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
+        pop['S7_housing_quality_last'] = pop['S7_housing_quality']
+
         housing_prob_df = self.calculate_housing(pop)
 
         # attach onto pop for updating
-        pop['S7_housing_quality'] = housing_prob_df['S7_housing_quality']
+        pop['S7_housing_quality'] = housing_prob_df['S7_housing_quality'].values
 
         # housing_prob_df["S7_housing_quality"] = self.random.choice(housing_prob_df.index,
         #                                                         list(housing_prob_df.columns),
@@ -107,6 +110,7 @@ class S7Housing(Base):
         # housing_prob_df.replace({'S7_housing_quality': housing_factor_dict},
         #                         inplace=True)
 
+        pop['S7_housing_quality'] = pop['S7_housing_quality'].astype(object)
 
         self.population_view.update(pop["S7_housing_quality"])
 

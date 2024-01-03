@@ -87,13 +87,15 @@ class S7MentalHealth(Base):
         self.year = event.time.year
 
         # Get living people to update their income
-        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = self.population_view.get(event.index, query="alive == 'alive'")
+
+        pop['S7_mental_health_last'] = pop['S7_mental_health']
 
         # Predict next neighbourhood value
         men_health_prob_df = self.calculate_S7_mental_health(pop)
 
         # attach onto pop for updating
-        pop['S7_mental_health'] = men_health_prob_df['S7_mental_health']
+        pop['S7_mental_health'] = men_health_prob_df['S7_mental_health'].values.astype(int)
 
         # men_health_prob_df["S7_mental_health"] = self.random.choice(men_health_prob_df.index,
         #                                                                list(men_health_prob_df.columns),

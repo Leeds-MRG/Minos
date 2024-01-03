@@ -1,8 +1,8 @@
+RF : S7_mental_health ~ age + sex + ethnicity + region + education_state + loneliness + hh_income + S7_physical_health + S7_mental_health_last
 RF : loneliness ~ age + sex + SF_12 + education_state + job_sec + hh_income + hh_comp + marital_status + ethnicity
 NNET : education_state ~ factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'Scotland')
 RF : S7_housing_quality ~ age + sex + ethnicity + region + SF_12 + hh_income
 RF : S7_neighbourhood_safety ~ age + sex + job_sec + ethnicity + hh_income + housing_quality + region
 RF : S7_labour_state ~ age + sex + ethnicity + region + education_state + hh_income + S7_physical_health + S7_mental_health
-RF : S7_physical_health ~ age + sex + ethnicity + region + education_state + loneliness + hh_income + S7_physical_health + S7_mental_health
-RF : S7_mental_health ~ age + sex + ethnicity + region + education_state + loneliness + hh_income + S7_physical_health + S7_mental_health
+RF : S7_physical_health ~ age + sex + ethnicity + region + education_state + loneliness + hh_income + S7_physical_health_last + S7_mental_health
 GLMM : hh_income ~ scale(hh_income) + scale(hh_income_diff) + scale(age) + I(scale(age)**2) +  I(scale(age)**3) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(region), ref = 'Scotland') + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + (1|pidp)

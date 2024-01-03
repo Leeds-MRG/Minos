@@ -80,11 +80,13 @@ class S7Neighbourhood(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
+        pop['S7_neighbourhood_safety_last'] = pop['S7_neighbourhood_safety']
+
         # Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
         # attach onto pop for updating
-        pop['S7_neighbourhood_safety'] = neighbourhood_prob_df['S7_neighbourhood_safety']
+        pop['S7_neighbourhood_safety'] = neighbourhood_prob_df['S7_neighbourhood_safety'].values
 
         # neighbourhood_prob_df["S7_neighbourhood_safety"] = self.random.choice(neighbourhood_prob_df.index,
         #                                                                    list(neighbourhood_prob_df.columns),
@@ -100,6 +102,9 @@ class S7Neighbourhood(Base):
         #                         inplace=True)
 
         # Draw individuals next states randomly from this distribution.
+
+        pop['S7_neighbourhood_safety'] = pop['S7_neighbourhood_safety'].astype(object)
+
         # Update population with new neighbourhood
         self.population_view.update(pop['S7_neighbourhood_safety'])
 
