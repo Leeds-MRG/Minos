@@ -154,7 +154,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
 
-        if (year > 2020 or tag == ref) or method=="SF12_AUC":
+        if (year > 2020 or tag == ref) or method == aggregate_boosted_counts_and_cumulative_score:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                     zip(files, repeat(subset_func_string), repeat(v), repeat(method),
