@@ -8,6 +8,25 @@ test_plot: BOOSTED=who_boosted
 test_plot: aggregate_minos_output_energy
 
 #####################################
+# SIPHER 7 Equivalent Income Outcomes (lol)
+#####################################
+
+S7_outcomes:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/equivalent_income_out.Rmd')"
+	# open html file in firefox
+	firefox file://$(OUTCOMES)/equivalent_income_out.html
+
+S7_batch_outcomes:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/equivalent_income_out_batch.Rmd')"
+	# open html file in firefox
+	firefox file://$(OUTCOMES)/equivalent_income_out_batch.html
+
+S7_batch_outcomes_2:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/EI_allScen_Plots.Rmd')"
+	# open html file in firefox
+	firefox file://$(OUTCOMES)/EI_allScen_Plots.html
+
+#####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
 
