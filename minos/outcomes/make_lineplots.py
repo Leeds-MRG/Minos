@@ -73,7 +73,7 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
         #df = df.loc[df['weight']>0, ]
         #df['weight'] = 1/df['weight']
         #new_df[f"prct_below_45.6"] = sum(df['weight']*(df['SF_12'] < 45.6))/sum(df['weight'])
-        new_df[f"prct_below_45.6"] = sum((df['SF_12'] < 45.6))/df.shape[0]
+        new_df[f"prct_below_45.6"] = sum(df['SF_12'] < 45.6)/df.shape[0]
     if "boost_amount" in df.columns:
         new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
