@@ -417,7 +417,6 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     aggregate_long_stack = pd.DataFrame()
     for directory, tag, subset_function_string in zip(directories, tags, subset_function_strings):
         file_path = os.path.abspath(os.path.join('output/', mode, directory))
-        # TODO needs regex here rather than every file. Keeps catching .DS_Store and my will to live.
         latest_file_path = find_latest_source_file_path(file_path)
         years = find_MINOS_years_range(latest_file_path)
 
@@ -466,11 +465,14 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         #divide by cost
         # lineplot that bad boy.
         # save
-        aggregate_long_stack3 = aggregate_long_stack
+        aggregate_long_stack3 = aggregate_long_stack.copy()
         aggregate_long_stack3.reset_index(inplace=True, drop=True)
         aggregate_long_stack3.loc[aggregate_long_stack['tag'] != ref, f"{v}_AUC"] += aggregate_long_stack3.loc[0, f"{v}_AUC"]
-        aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC"]
+        aggregate_long_stack3_diff = np.tile(aggregate_long_stack3.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC"], len(np.unique(aggregate_long_stack3['tag'])))
+        #aggregate_long_stack3_diff.reset_index(drop=True, inplace=True)
+        aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3_diff
         aggregate_long_stack3[f"{v}_AUC"] /= aggregate_long_stack3['intervention_cost']
+        aggregate_long_stack3[f"{v}_AUC"] = aggregate_long_stack3[f"{v}_AUC"].fillna(0)
         aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC" + prefix, f"{v}_AUC", method)
 
 
