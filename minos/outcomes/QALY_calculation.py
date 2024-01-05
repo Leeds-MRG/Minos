@@ -61,6 +61,8 @@ def aggregate_csv(filename, intervention):
     # to investigate the mortality rate we can look at the ratio of dead to alive and compare across years
     alive_ratio = (alive_pop / total_pop_size) * 100
 
+    # drop zero weight samples
+    df = df[df['weight'] > 0]
     # adjust SF_12 values by sampling weight
     df['SF_12_MCS'] = (df['SF_12_MCS'] * ((1 / df['weight']) / df['weight'].sum()))
     df['SF_12_PCS'] = (df['SF_12_PCS'] * ((1 / df['weight']) / df['weight'].sum()))
