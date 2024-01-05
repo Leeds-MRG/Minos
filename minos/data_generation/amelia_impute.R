@@ -81,11 +81,11 @@ impute_missing_columns_by_wave <- function(data, time_column, missing_data_by_wa
       
       print(paste0('Var is ', column_to_impute, ' and year is ', wave, ' and var type is ', model_type))
       
-      if (model_type == 'classification') {
-        # Check distribution before imputation
-        print(paste("Distribution of", column_to_impute, "before imputation:"))
-        print(table(data_for_model_complete[[column_to_impute]]))
-      }
+      # if (model_type == 'classification') {
+      #   # Check distribution before imputation
+      #   # print(paste("Distribution of", column_to_impute, "before imputation:"))
+      #   # print(table(data_for_model_complete[[column_to_impute]]))
+      # }
       
       # Building a Random Forest model
       model_formula <- as.formula(paste(column_to_impute, "~", paste(features, collapse = "+")))
@@ -100,11 +100,11 @@ impute_missing_columns_by_wave <- function(data, time_column, missing_data_by_wa
       # Combining the datasets back
       data <- rbind(data_other_waves, data_wave_missing)
       
-      if (model_type == 'classification') {
-        # Check distribution before imputation
-        print(paste("Distribution of", column_to_impute, "before imputation:"))
-        print(table(data[[column_to_impute]]))
-      }
+      # if (model_type == 'classification') {
+      #   # Check distribution before imputation
+      #   # print(paste("Distribution of", column_to_impute, "after imputation:"))
+      #   # print(table(data[[column_to_impute]]))
+      # }
       
       print(paste0("Imputation of '", column_to_impute, "' for year ", wave, " is complete."))
     }
@@ -180,8 +180,10 @@ calculate_equivalent_income <- function(data) {
   data$hh_income_abs <- abs(data$hh_income)
   data$equivalent_income <- data$hh_income_abs * exp(data$EI_exp_term)
   
+  print(sum(is.na(data$equivalent_income)))
+  
   # Adjusting the sign of the equivalent income based on the original income sign
-  data$equivalent_income[data$hh_income < 0] <- -data$equivalent_income[data$hh_income < 0]
+  data$equivalent_income[(data$hh_income < 0) & !is.na(data$hh_income)] <- data$equivalent_income[(data$hh_income < 0) & !is.na(data$hh_income)] * -1
   
   
   # Handling missing values
@@ -228,40 +230,41 @@ is_all_numeric <- function(x) {
 # # Read 2021 composite datafile in
 # comp.2021.file <- here::here('data', 'composite_US', '2021_US_cohort.csv')
 # comp.dat <- read.csv(comp.2021.file)
+# 
+# # Read raw datafiles in
+# raw.files <- list.files(here::here('data', 'composite_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+# raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+# 
+# # Some variables are not required in the model, but cause problems for Amelia to impute. Remove these variables here
+# data <- raw.dat %>%
+#   select(-child_ages, -ndrinks, -gross_pay_se, -newest_education_state, -smoker,
+#          -job_hours_se, -job_inc, -jb_inc_per, -clinical_depression, -depression,
+#          -hourly_rate, -gross_paypm, -future_financial_situation, -likely_move,
+#          -job_duration_m, -job_duration_y, -nobs, -job_hours, -job_hours_diff,
+#          -job_occupation, -job_industry)
+# 
+# 
+# # Replace missing values with NA
+# miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
+#                  -10., -9., -8., -7., -3., -2., -1.,
+#                  '-10', '-9', '-8', '-7', '-3', '-2', '-1')
+# data <- data.frame(sapply(data, function(x) replace(x, x %in% miss.values, NA)))
+# 
+# 
+# ###################### PREPARATION FOR AMELIA ######################
+# # Identify columns with fully missing data in a wave
+# missing_data_by_wave <- identify_missing_columns_by_wave(data, "time")
+# 
+# # Impute completely null columns before Amelia imputation
+# selected_features <- c('age', 'sex', 'ethnicity', 'hh_income', 'SF_12', 'region', 'nkids_ind', 'yearly_energy')
+# data <- impute_missing_columns_by_wave(data, "year", missing_data_by_wave, selected_features, -housing_quality, -neighbourhood_safety)
+# 
+# data <- data %>%
+#   mutate_if(is_all_numeric,as.numeric)
+# 
 
-# Read raw datafiles in
-raw.files <- list.files(here::here('data', 'composite_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
-raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
-
-
-# Some variables are not required in the model, but cause problems for Amelia to impute. Remove these variables here
-data <- raw.dat %>%
-  select(-child_ages, -ndrinks, -gross_pay_se, -newest_education_state, -smoker, 
-         -job_hours_se, -job_inc, -jb_inc_per, -clinical_depression, -depression,
-         -hourly_rate, -gross_paypm, -future_financial_situation, -likely_move,
-         -job_duration_m, -job_duration_y, -nobs, -job_hours, -job_hours_diff,
-         -job_occupation, -job_industry)
-
-
-# Replace missing values with NA
-miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
-                 -10., -9., -8., -7., -3., -2., -1.,
-                 '-10', '-9', '-8', '-7', '-3', '-2', '-1')
-
-data <- data.frame(sapply(data, function(x) replace(x, x %in% miss.values, NA)))
-
-
-###################### PREPARATION FOR AMELIA ######################
-
-# Identify columns with fully missing data in a wave
-missing_data_by_wave <- identify_missing_columns_by_wave(data, "time")
-
-# Impute completely null columns before Amelia imputation
-selected_features <- c('age', 'sex', 'ethnicity', 'hh_income', 'SF_12', 'region', 'nkids_ind', 'yearly_energy')
-data <- impute_missing_columns_by_wave(data, "year", missing_data_by_wave, selected_features)
-
-data <- data %>% 
-  mutate_if(is_all_numeric,as.numeric)
+# Data Checkpoint
+data <- read.csv('temp_data.csv')
 
 # Specifying var types
 # Classify variables
@@ -276,7 +279,9 @@ continuous_vars <- names(var_types[var_types == "continuous"])
 
 print('Beginning Amelia imputation...')
 print('Imputing data for years 2015-2021')
-data <- data %>% filter(time == 2015)
+#data <- data %>% filter(time == 2015)
+
+
 
 # Calculate equivalent income before imputing
 data <- calculate_equivalent_income(data)
@@ -284,20 +289,45 @@ data <- calculate_equivalent_income(data)
 data <- data %>% 
   mutate_if(is_all_numeric,as.numeric)
 
+#data <- data %>%
+#  select(-time)
+
+# Removing 'time' from the vector
+#ordinal_vars <- setdiff(ordinal_vars, "time")
+
+# take a 10% sample for testing imputation
+# Assuming 'data' is your dataframe and 'year' is the column with year information
+min_group_size <- data %>%
+  group_by(time) %>%
+  summarize(count = n()) %>%
+  pull(count) %>%
+  min()
+
+set.seed(123)  # Setting a seed for reproducibility
+data_sample <- data %>%
+  group_by(time) %>%
+  sample_n(size = min_group_size) %>%
+  ungroup()
+
+table(data_sample$time)
+nrow(data_sample)
+
+
 # Perform multiple imputation
 # Key variables: pidp and hidp
-amelia_output <- amelia(x = data, 
-                        m = 5,
+amelia_output <- amelia(x = data_sample, 
+                        m = 1,
+                        ts = 'time',
                         idvars = c("pidp", "hidp"),
-                        ords = ordinal_vars,
-                        noms = nominal_vars)
+                        ords = setdiff(ordinal_vars, c("time", "pidp", "hidp")),
+                        noms = setdiff(nominal_vars, c("time", "pidp", "hidp")))
 
 imp1 <- amelia_output$imp1
 
 # Final step is to calculate equivalent income again with the newly imputed data
 imp1 <- calculate_equivalent_income(imp1)
 
-data <- data %>% 
+imp1 <- imp1 %>% 
   mutate_if(is_all_numeric,as.numeric)
 
 ###################### WRITING DATA ######################
@@ -314,7 +344,7 @@ for (year in imp1$time) {
   # and sim start years (say 2019-2021). We only need full data from here (for
   # now). However REMEMBER TO CHANGE THIS IF WE NEED A DIFFERENT YEAR
   # also see chunk at top of script in identify_missing_columns_by_wave() ^
-  if (!year %in% c(2015, 2019, 2020, 2021)) next
+  if (!year %in% c(2015, 2016, 2017, 2018, 2019, 2020, 2021)) next
   
   new.dat <- imp1 %>% filter(time == year)
   write.csv(x = new.dat,
@@ -341,24 +371,21 @@ print(paste0('Imputation complete, datafiles saved to ', out.path))
 # Assuming 'data' is your dataframe
 na_counts_data <- data %>% 
   summarise_all(~sum(is.na(.)))
-
-print(na_counts_data)
+#print(na_counts_data)
 
 
 na_counts_imp1 <- data %>% 
   summarise_all(~sum(is.na(.)))
-print(na_counts_imp1)
+#print(na_counts_imp1)
 
 
 # Checking for complete cases in the data for the year 2015
 complete_cases_2015 <- data %>% filter(time == 2015) %>% complete.cases()
-print(sum(complete_cases_2015))
+#print(sum(complete_cases_2015))
 
 
 
 # Checking missing values in key variables for the year 2015
-missing_values_key_vars <- data %>% 
-  filter(time == 2015) %>% 
+missing_values_key_vars <- data %>%
   summarise(across(everything(), ~sum(is.na(.))))
-
-print(missing_values_key_vars)
+#print(missing_values_key_vars)

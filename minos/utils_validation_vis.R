@@ -2,13 +2,10 @@
 require(ggplot2)
 require(ggridges)
 require(viridis)
-
-require(ggplot2)
 require(ggExtra)
 require(here)
 require(scales)
 require(gghighlight)
-require(viridis)
 
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)

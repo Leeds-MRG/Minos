@@ -38,7 +38,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "CLMM")
   
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
@@ -188,7 +188,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # get only required variables and sort by pidp/time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
-    # remove duplicate columns (at present just pidp as its present in model definitions also)
+    # remove duplicate columns (at present just pidp as its present in some model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
     
     # LA 2/1/24
@@ -235,6 +235,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                                   depend = dependent)
       
     } else if (tolower(mod.type) == "clmm") {
+
+      print(colnames(sorted_df))
       
       model <- estimate_longitudinal_clmm(data = sorted_df,
                                           formula = form, 

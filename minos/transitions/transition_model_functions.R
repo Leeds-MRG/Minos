@@ -325,15 +325,17 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
   return (model)
 }
 
-estimate_longitudinal_clmm <- function(data, formula, depend) 
+estimate_longitudinal_clmm <- function(data, formula, depend)
 {
+  print(depend)
+
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
-  model <- clmm2(formula,
+  model <- clmm(formula,
                 random=factor(pidp),
                 link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
+                data = data,  #tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data.
                 threshold="flexible",
                 nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)

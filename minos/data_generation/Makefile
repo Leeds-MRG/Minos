@@ -4,7 +4,7 @@
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
-data: raw_data adj_raw_data corrected_data composite_data complete_data final_data
+data: raw_data adj_raw_data corrected_data composite_data complete_data final_data amelia_imputed_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
 
@@ -32,6 +32,8 @@ final_data: $(FINALDATA)/2021_US_cohort.csv
 
 inflated_data: ### Inflate the data to account for survey weights, with records duplicated (weight * 100) times
 inflated_data: $(INFLATEDDATA)/2021_US_cohort.csv
+
+amelia_imputed_data: $(IMPUTEDDATA)/2021_US_cohort.csv
 
 inflated_repl: ### Replenishing population generated from inflated data.
 inflated_repl: $(DATADIR)/replenishing/inflated/replenishing_pop_2015-2070.csv
@@ -91,6 +93,9 @@ $(FINALDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/20
 
 $(INFLATEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/weight_inflate_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/weight_inflate_pop.py
+
+$(IMPUTEDDATA)/2021_US_cohort.csv: $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py  $(PERSISTJSON)/*.json
+	$(RSCRIPT) $(DATAGEN)/amelia_impute.R
 
 $(DATADIR)/replenishing/replenishing_pop_2015-2070.csv: $(FINALDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
