@@ -467,7 +467,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         # save
         aggregate_long_stack3 = aggregate_long_stack.copy()
         aggregate_long_stack3.reset_index(inplace=True, drop=True)
-        aggregate_long_stack3.loc[aggregate_long_stack['tag'] != ref, f"{v}_AUC"] += aggregate_long_stack3.loc[0, f"{v}_AUC"]
+        aggregate_long_stack3.loc[aggregate_long_stack3['tag'] != ref, f"{v}_AUC"] += aggregate_long_stack3.loc[0, f"{v}_AUC"]
         aggregate_long_stack3_diff = np.tile(aggregate_long_stack3.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC"], len(np.unique(aggregate_long_stack3['tag'])))
         #aggregate_long_stack3_diff.reset_index(drop=True, inplace=True)
         aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3_diff
