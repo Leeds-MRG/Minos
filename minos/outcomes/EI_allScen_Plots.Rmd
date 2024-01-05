@@ -276,7 +276,10 @@ income_equivinc_percent_change_batch <- function(base.batch, int.batch, int.name
     ylab('Percent Change')
 }
 
-income_equivinc_percent_change_batch(base.batch, int.batch, int.name, group.var = 'income.quint')
+income_equivinc_percent_change_batch(base.batch, energy.batch, 'Energy Crisis', group.var = 'income.quint')
+income_equivinc_percent_change_batch(base.batch, wage.batch, 'Living Wage', group.var = 'income.quint')
+income_equivinc_percent_change_batch(base.batch, child.batch, 'All Child Uplift', group.var = 'income.quint')
+income_equivinc_percent_change_batch(base.batch, pov.batch, 'Povety Child Uplift', group.var = 'income.quint')
 ```
 
 
@@ -352,6 +355,9 @@ S7_ordinal_pathway_batch <- function(base.bat, int.bat, int.name, var) {
 }
 
 S7_ordinal_pathway_batch(base.batch, energy.batch, 'Energy Crisis', 'S7_housing_quality')
+S7_ordinal_pathway_batch(base.batch, wage.batch, 'Living Wage', 'S7_housing_quality')
+S7_ordinal_pathway_batch(base.batch, child.batch, 'All Child Uplift', 'S7_housing_quality')
+S7_ordinal_pathway_batch(base.batch, pov.batch, 'Poverty Child Uplift', 'S7_housing_quality')
 ```
 
 ```{r}
@@ -426,11 +432,11 @@ S7_pathway_change_byGroup <- function(base.batch, int.batch, group.var, var) {
 ```
 
 ```{r}
-S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
-S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_neighbourhood_safety')
-S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_physical_health')
-S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_mental_health')
-S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'loneliness')
+# S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
+# S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_neighbourhood_safety')
+# S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_physical_health')
+# S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_mental_health')
+# S7_pathway_change_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'loneliness')
 ```
 
 ```{r}
@@ -479,21 +485,21 @@ S7_cumulative_pathwayChange_byGroup <- function(base.batch, int.batch, group.var
 ## Income Quintile
 
 ```{r}
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_neighbourhood_safety')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_physical_health')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_mental_health')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'loneliness')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_neighbourhood_safety')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_physical_health')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_mental_health')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'income.quint', var = 'loneliness')
 ```
 
 ## Age Group
 
 ```{r}
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_housing_quality')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_neighbourhood_safety')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_physical_health')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_mental_health')
-S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'loneliness')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_housing_quality')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_neighbourhood_safety')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_physical_health')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'S7_mental_health')
+# S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.group', var = 'loneliness')
 ```
 
 
@@ -501,54 +507,54 @@ S7_cumulative_pathwayChange_byGroup(base.batch, energy.batch, group.var = 'age.g
 # SIMPLIFIED Positive v Negative Change
 
 ```{r}
-group.var <- 'income.quint'
-var <- 'S7_mental_health'
-
-base.sub <- base.batch %>%
-  select(pidp, time, run_id, all_of(group.var), all_of(var)) %>%
-  rename(Baseline_var = S7_mental_health,
-         Baseline_income.quint = income.quint)
-
-int.sub <- energy.batch %>%
-  select(pidp, time, run_id, all_of(group.var), all_of(var)) %>%
-  rename(Intervention_var = S7_mental_health,
-         Intervention_income.quint = income.quint)
-
-merged <- merge(base.sub, int.sub,
-                by=c('pidp', 'time', 'run_id'),
-                all = FALSE)
-
-#combined <- rbind(base.sub, int.sub)
+# group.var <- 'income.quint'
+# var <- 'S7_mental_health'
+# 
+# base.sub <- base.batch %>%
+#   select(pidp, time, run_id, all_of(group.var), all_of(var)) %>%
+#   rename(Baseline_var = S7_mental_health,
+#          Baseline_income.quint = income.quint)
+# 
+# int.sub <- energy.batch %>%
+#   select(pidp, time, run_id, all_of(group.var), all_of(var)) %>%
+#   rename(Intervention_var = S7_mental_health,
+#          Intervention_income.quint = income.quint)
+# 
+# merged <- merge(base.sub, int.sub,
+#                 by=c('pidp', 'time', 'run_id'),
+#                 all = FALSE)
+# 
+# #combined <- rbind(base.sub, int.sub)
 
 
 ```
 
 ```{r}
 # move further analysis here so we don't have to do that expensive merge every time
-merged2 <- merged %>%
-  mutate(varChange = Intervention_var - Baseline_var,
-         effect = case_when(varChange > 0 ~ "Positive",
-                            varChange < 0 ~ "Negative",
-                            varChange == 0 ~ "No_Change")) %>%
-  select(-Baseline_var, -Intervention_var, -Intervention_income.quint, -varChange) %>%
-  rename(income.quint = Baseline_income.quint) %>%
-  group_by(time, run_id, .data[[group.var]], effect) %>%
-  count() %>%
-  group_by(time, run_id, .data[[group.var]]) %>%
-  mutate(total = sum(n),
-         effect_prop = n / total) %>%
-  select(-n, -total) %>%
-  group_by(time, .data[[group.var]], effect) %>%
-  summarise(effect_prop = mean(effect_prop)) %>%
-  pivot_wider(names_from = 'effect',
-              values_from = 'effect_prop') %>%
-  mutate(change = Positive - Negative) %>%
-  select(-Positive, -Negative, -No_Change, -time) %>%
-  group_by(.data[[group.var]]) %>%
-  summarise(change = sum(change))
-
-ggplot(data = merged2, aes(x = income.quint, y = change)) +
-  geom_col()
+# merged2 <- merged %>%
+#   mutate(varChange = Intervention_var - Baseline_var,
+#          effect = case_when(varChange > 0 ~ "Positive",
+#                             varChange < 0 ~ "Negative",
+#                             varChange == 0 ~ "No_Change")) %>%
+#   select(-Baseline_var, -Intervention_var, -Intervention_income.quint, -varChange) %>%
+#   rename(income.quint = Baseline_income.quint) %>%
+#   group_by(time, run_id, .data[[group.var]], effect) %>%
+#   count() %>%
+#   group_by(time, run_id, .data[[group.var]]) %>%
+#   mutate(total = sum(n),
+#          effect_prop = n / total) %>%
+#   select(-n, -total) %>%
+#   group_by(time, .data[[group.var]], effect) %>%
+#   summarise(effect_prop = mean(effect_prop)) %>%
+#   pivot_wider(names_from = 'effect',
+#               values_from = 'effect_prop') %>%
+#   mutate(change = Positive - Negative) %>%
+#   select(-Positive, -Negative, -No_Change, -time) %>%
+#   group_by(.data[[group.var]]) %>%
+#   summarise(change = sum(change))
+# 
+# ggplot(data = merged2, aes(x = income.quint, y = change)) +
+#   geom_col()
 ```
 
 ```{r}
@@ -729,11 +735,11 @@ simplified_component_change_BOXPLOT <- function(base.batch, int.batch, group.var
 
 
 ```{r}
-simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality', print = TRUE)
-simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_neighbourhood_safety', print = TRUE)
-simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_mental_health', print = TRUE)
-simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_physical_health', print = TRUE)
-simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'loneliness', print = TRUE)
+# simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality', print = TRUE)
+# simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_neighbourhood_safety', print = TRUE)
+# simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_mental_health', print = TRUE)
+# simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_physical_health', print = TRUE)
+# simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'loneliness', print = TRUE)
 ```
 
 
@@ -743,28 +749,37 @@ simplified_component_change(base.batch, energy.batch, group.var = 'income.quint'
 varlist <- c('S7_neighbourhood_safety', 'loneliness',
              'S7_physical_health', 'S7_mental_health')
 
-df <- simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
-colnames(df) <- c('Income_Quintile', 'S7_housing_quality')
-for (S7_var in varlist) {
-  df2 <- simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = S7_var)
-  colnames(df2) <- c('Income_Quintile', S7_var)
-  df <- merge(df, df2, by = c('Income_Quintile'))
-}
-rm(df2)
-
-# finally pivot_longer for ggplot and facet_wrap to take over
-df2 <- df %>%
-  pivot_longer(cols = S7_housing_quality:S7_mental_health,
-               names_to = 'Variable',
-               values_to = 'Change')
-
-ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, fill = Variable)) +
+sccb_all_vars <- function(base.batch, int.batch, group.var, varlist) {
+  df <- simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
+  colnames(df) <- c('Income_Quintile', 'S7_housing_quality')
+  for (S7_var in varlist) {
+    df2 <- simplified_component_change(base.batch, energy.batch, group.var = 'income.quint', var = S7_var)
+    colnames(df2) <- c('Income_Quintile', S7_var)
+    df <- merge(df, df2, by = c('Income_Quintile'))
+  }
+  rm(df2)
+  
+  # finally pivot_longer for ggplot and facet_wrap to take over
+  df2 <- df %>%
+    pivot_longer(cols = S7_housing_quality:S7_mental_health,
+                 names_to = 'Variable',
+                 values_to = 'Change')
+  p1 <- ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, fill = Variable)) +
   geom_col() +
   facet_wrap(~ Income_Quintile, nrow = 1) +
   theme(legend.position = 'bottom',
         axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank())
+  print(p1)
+}
+
+
+sccb_all_vars(base.batch, energy.batch, group.var = 'income.quint', varlist = varlist)
+sccb_all_vars(base.batch, wage.batch, group.var = 'income.quint', varlist = varlist)
+sccb_all_vars(base.batch, child.batch, group.var = 'income.quint', varlist = varlist)
+sccb_all_vars(base.batch, pov.batch, group.var = 'income.quint', varlist = varlist)
+
 ```
 
 # BOXPLOT Change in ALL vars
@@ -773,29 +788,37 @@ ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, f
 varlist <- c('S7_neighbourhood_safety', 'loneliness',
              'S7_physical_health', 'S7_mental_health')
 
-df <- simplified_component_change_BOXPLOT(base.batch, energy.batch, group.var = 'income.quint', var = 'S7_housing_quality')
-colnames(df) <- c('run_id', 'Income_Quintile', 'S7_housing_quality')
-for (S7_var in varlist) {
-  df2 <- simplified_component_change_BOXPLOT(base.batch, energy.batch, group.var = 'income.quint', var = S7_var)
-  colnames(df2) <- c('run_id', 'Income_Quintile', S7_var)
-  df <- merge(df, df2, by = c('run_id', 'Income_Quintile'))
+sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, group.var, varlist) {
+  df <- simplified_component_change_BOXPLOT(base.batch, energy.batch, group.var = group.var, var = 'S7_housing_quality')
+  colnames(df) <- c('run_id', 'Income_Quintile', 'S7_housing_quality')
+  for (S7_var in varlist) {
+    df2 <- simplified_component_change_BOXPLOT(base.batch, energy.batch, group.var = 'income.quint', var = S7_var)
+    colnames(df2) <- c('run_id', 'Income_Quintile', S7_var)
+    df <- merge(df, df2, by = c('run_id', 'Income_Quintile'))
+  }
+  rm(df2)
+  
+  # finally pivot_longer for ggplot and facet_wrap to take over
+  df2 <- df %>%
+    pivot_longer(cols = S7_housing_quality:S7_mental_health,
+                 names_to = 'Variable',
+                 values_to = 'Change')
+  
+  p1 <- ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, fill = Variable)) +
+    geom_boxplot(notch = FALSE) +
+    facet_wrap(~ Income_Quintile, nrow = 1) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    theme(legend.position = 'bottom',
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank())
+  print(p1)
 }
-rm(df2)
 
-# finally pivot_longer for ggplot and facet_wrap to take over
-df2 <- df %>%
-  pivot_longer(cols = S7_housing_quality:S7_mental_health,
-               names_to = 'Variable',
-               values_to = 'Change')
-
-ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, fill = Variable)) +
-  geom_boxplot(notch = FALSE) +
-  facet_wrap(~ Income_Quintile, nrow = 1) +
-  geom_hline(yintercept = 0, linetype = 'dashed') +
-  theme(legend.position = 'bottom',
-        axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
+sccb_all_vars_BOXPLOT(base.batch, energy.batch, group.var = 'income.quint', varlist = varlist)
+sccb_all_vars_BOXPLOT(base.batch, wage.batch, group.var = 'income.quint', varlist = varlist)
+sccb_all_vars_BOXPLOT(base.batch, child.batch, group.var = 'income.quint', varlist = varlist)
+sccb_all_vars_BOXPLOT(base.batch, pov.batch, group.var = 'income.quint', varlist = varlist)
 ```
 
 
