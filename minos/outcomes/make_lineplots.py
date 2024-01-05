@@ -443,7 +443,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean",
                                                                                    'intervention_cost': 'mean',
                                                                                    'number_boosted': "mean",
-                                                                                   'population_size': "mean"})
+                                                                                   'population_size': "mean",
+                                                                                   "prct_below_45.6": "mean"})
         aggregate_long_stack2 = aggregate_long_stack2.reset_index(drop = False)
         file_name = "plots/" + "".join(directories) + "_counts_over_time.csv"
         aggregate_long_stack2.to_csv(file_name)
