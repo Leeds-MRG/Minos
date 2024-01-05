@@ -467,12 +467,13 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         # save
         aggregate_long_stack3 = aggregate_long_stack.copy()
         aggregate_long_stack3.reset_index(inplace=True, drop=True)
-        aggregate_long_stack3.loc[aggregate_long_stack3['tag'] != ref, f"{v}_AUC"] += aggregate_long_stack3.loc[0, f"{v}_AUC"]
-        aggregate_long_stack3_diff = np.tile(aggregate_long_stack3.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC"], len(np.unique(aggregate_long_stack3['tag'])))
+        rescale_AUC = np.mean(aggregate_long_stack3.loc[aggregate_long_stack3['time']==2020 & aggregate_long_stack3['tag'] == ref, f"{v}_AUC"])
+        aggregate_long_stack3.loc[aggregate_long_stack3['tag'] != ref, f"{v}_AUC"] += rescale_AUC
+        aggregate_long_stack3_diff = np.tile(aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean"}), len(np.unique(aggregate_long_stack3['tag'])))
         #aggregate_long_stack3_diff.reset_index(drop=True, inplace=True)
         aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3_diff
         aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC_not_scaled_" + prefix, f"{v}_AUC", method)
- 
+
         aggregate_long_stack3[f"{v}_AUC"] /= aggregate_long_stack3['intervention_cost']
         aggregate_long_stack3[f"{v}_AUC"] = aggregate_long_stack3[f"{v}_AUC"].fillna(0)
         aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC_scaled_" + prefix, f"{v}_AUC", method)
