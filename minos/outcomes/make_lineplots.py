@@ -471,9 +471,12 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack3_diff = np.tile(aggregate_long_stack3.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC"], len(np.unique(aggregate_long_stack3['tag'])))
         #aggregate_long_stack3_diff.reset_index(drop=True, inplace=True)
         aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3_diff
-        aggregate_long_stack3[f"{v}_AUC"] /= aggregate_long_stack3['intervention_cost']
+        aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC_not_scaled_" + prefix, f"{v}_AUC", method)
+
+
+    aggregate_long_stack3[f"{v}_AUC"] /= aggregate_long_stack3['intervention_cost']
         aggregate_long_stack3[f"{v}_AUC"] = aggregate_long_stack3[f"{v}_AUC"].fillna(0)
-        aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC" + prefix, f"{v}_AUC", method)
+        aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC_scaled_" + prefix, f"{v}_AUC", method)
 
 
     elif v == "boost_amount":
