@@ -68,6 +68,8 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
     new_df["number_boosted"] = [df.shape[0]] + np.sum(df.groupby("hidp")['nkids'].max())
     new_df[f'summed_{v}'] = [sum(df[v])]
+    if v == "SF_12":
+        new_df[f"prct_below_45.6"] = sum(df['SF_12']<45.6)/df.shape[1]
     if "boost_amount" in df.columns:
         new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
@@ -472,7 +474,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
         aggregate_long_stack3.loc[aggregate_long_stack3['tag'] != ref, f"{v}_AUC"] += rescale_AUC
         aggregate_long_stack_baseline_means = aggregate_long_stack3.loc[aggregate_long_stack3['tag']==ref, ].groupby(["tag", "year"]).agg({'SF_12_AUC': "mean"}).values.flatten()
-        aggregate_long_stack3_diff = np.tile(aggregate_long_stack_baseline_means, len(np.unique(aggregate_long_stack3['tag'])))
+        aggregate_long_stack3_diff = np.tile(aggregate_long_stack_baseline_means, len(np.unique(aggregate_long_stack3['tag'])*len*np.unique(aggregate_long_stack3['id'])))
         #aggregate_long_stack3_diff.reset_index(drop=True, inplace=True)
         aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3_diff
         aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC_not_scaled_" + prefix, f"{v}_AUC", method)
