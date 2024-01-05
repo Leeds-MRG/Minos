@@ -66,14 +66,14 @@ def aggregate_csv(filename, intervention):
     # adjust SF_12 values by sampling weight
     df['SF_12_MCS'] = (df['SF_12_MCS'] * ((1 / df['weight']) / df['weight'].sum()))
     df['SF_12_PCS'] = (df['SF_12_PCS'] * ((1 / df['weight']) / df['weight'].sum()))
-    # also adjust boost_amount
-    df['boost_amount'] = (df['boost_amount'] * ((1 / df['weight']) / df['weight'].sum()))
 
     # record boost information for intervention runs, set to 0 for baseline
     if intervention == 'baseline':
         pop_boosted = 0
         total_boost = 0
     else:
+        # also adjust boost_amount
+        df['boost_amount'] = (df['boost_amount'] * ((1 / df['weight']) / df['weight'].sum()))
         pop_boosted = df['income_boosted'].sum()
         total_boost = df['boost_amount'].sum()
 
