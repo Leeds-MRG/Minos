@@ -61,6 +61,12 @@ def aggregate_csv(filename, intervention):
     # to investigate the mortality rate we can look at the ratio of dead to alive and compare across years
     alive_ratio = (alive_pop / total_pop_size) * 100
 
+    # adjust SF_12 values by sampling weight
+    df['SF_12_MCS'] = (df['SF_12_MCS'] * ((1 / df['weight']) / df['weight'].sum()))
+    df['SF_12_PCS'] = (df['SF_12_PCS'] * ((1 / df['weight']) / df['weight'].sum()))
+    # also adjust boost_amount
+    df['boost_amount'] = (df['boost_amount'] * ((1 / df['weight']) / df['weight'].sum()))
+
     # record boost information for intervention runs, set to 0 for baseline
     if intervention == 'baseline':
         pop_boosted = 0
@@ -100,6 +106,9 @@ def calculate_qaly(df):
         ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
         ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
         ((df['SF_12_PCS'] * df['SF_12_PCS'] * df['SF_12_PCS']) * 0.0000107)
+
+    # adjust for sample weight
+    df['utility'] = df['utility'] * (df['weight'] / df['weight'].sum())
 
     # Now calculate QALYs by multiplying utility score by pop_size
     df['QALYs'] = df['utility'] * df['alive_pop']
