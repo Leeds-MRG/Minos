@@ -109,9 +109,6 @@ def calculate_qaly(df):
         ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
         ((df['SF_12_PCS'] * df['SF_12_PCS'] * df['SF_12_PCS']) * 0.0000107)
 
-    # adjust for sample weight
-    df['utility'] = df['utility'] * (df['weight'] / df['weight'].sum())
-
     # Now calculate QALYs by multiplying utility score by pop_size
     df['QALYs'] = df['utility'] * df['alive_pop']
 
