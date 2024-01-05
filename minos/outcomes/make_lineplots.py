@@ -159,38 +159,38 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 aggregated_means = pool.starmap(aggregate_csv,
                                                     zip(files, repeat(subset_func_string), repeat(v), repeat(method),
                                                         repeat(mode), repeat(region)))
-                #if tag == "No Support" and year == 2035:
-                #    #print(len(aggregated_means))
-                #    #print([type(item) for item in aggregated_means])
-                if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
-                    print(
-                        f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
-                    aggregated_means = [None]
+            #if tag == "No Support" and year == 2035:
+            #    #print(len(aggregated_means))
+            #    #print([type(item) for item in aggregated_means])
+            if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
+                print(
+                    f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
+                aggregated_means = [None]
 
-                if method == weighted_nanmean or method == child_uplift_cost_sum:
-                    single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
-                    single_year_aggregates['year'] = year
-                    single_year_aggregates['tag'] = tag
-                    aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
-                elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
-                    for i, single_year_aggregate in enumerate(aggregated_means):
-                        single_year_aggregate['year'] = year
-                        single_year_aggregate['tag'] = tag
-                        single_year_aggregate['id'] = i
-                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
-                elif method == aggregate_boosted_counts_and_cumulative_score:
-                    for i, single_year_aggregate in enumerate(aggregated_means):
-                        if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
-                            single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
-                            single_year_aggregate["number_boosted"] = np.nan
-                            single_year_aggregate[f"summed_{v}"] = np.nan
-                            single_year_aggregate["intervention_cost"] = np.nan
-                        if source == ref:
-                            single_year_aggregate['intervention_cost'] = np.nan
-                        single_year_aggregate['year'] = year
-                        single_year_aggregate['tag'] = tag
-                        single_year_aggregate['id'] = i
-                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+            if method == weighted_nanmean or method == child_uplift_cost_sum:
+                single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
+                single_year_aggregates['year'] = year
+                single_year_aggregates['tag'] = tag
+                aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
+            elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
+                for i, single_year_aggregate in enumerate(aggregated_means):
+                    single_year_aggregate['year'] = year
+                    single_year_aggregate['tag'] = tag
+                    single_year_aggregate['id'] = i
+                    aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+            elif method == aggregate_boosted_counts_and_cumulative_score:
+                for i, single_year_aggregate in enumerate(aggregated_means):
+                    if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
+                        single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
+                        single_year_aggregate["number_boosted"] = np.nan
+                        single_year_aggregate[f"summed_{v}"] = np.nan
+                        single_year_aggregate["intervention_cost"] = np.nan
+                    if source == ref:
+                        single_year_aggregate['intervention_cost'] = np.nan
+                    single_year_aggregate['year'] = year
+                    single_year_aggregate['tag'] = tag
+                    single_year_aggregate['id'] = i
+                    aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
 
     aggregated_data.reset_index(drop=True, inplace=True)
     return aggregated_data
@@ -438,6 +438,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         #print("relative scaling done. plotting.. ")
         #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
         #aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
+
         aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean",
                                                                                    'intervention_cost': 'mean',
                                                                                    'number_boosted': "mean",
@@ -460,6 +461,18 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         #baseline_cumulative_values = baseline_cumulative_values.values.reshape(-1,15)[:,1:].flatten() # remove every 15th entry that isnt needed.
         #aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values)/aggregate_long_stack['intervention_cost_cumulative']
         #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
+
+        # add baseline AUC
+        #divide by cost
+        # lineplot that bad boy.
+        # save
+        aggregate_long_stack3 = aggregate_long_stack
+        aggregate_long_stack3.reset_index(inplace=True, drop=True)
+        aggregate_long_stack3.loc[aggregate_long_stack['tag'] != ref, f"{v}_AUC"] += aggregate_long_stack3.loc[0, f"{v}_AUC"]
+        aggregate_long_stack3[f"{v}_AUC"] -= aggregate_long_stack3.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC"]
+        aggregate_long_stack3[f"{v}_AUC"] /= aggregate_long_stack3['intervention_cost']
+        aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC" + prefix, f"{v}_AUC", method)
+
 
     elif v == "boost_amount":
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
@@ -512,7 +525,14 @@ if __name__ == '__main__':
     v = "SF_12"
     method = 'SF12_AUC'
 
-
+    directories = "baseline,livingWageIntervention"
+    tags = "Baseline,Living Wage Intervention"
+    subset_function_strings = "who_below_living_wage,who_boosted"
+    prefix = "baseline_living_wage"
+    mode = 'default_config'
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'SF12_AUC'
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"
     # subset_function_strings = "who_boosted,who_boosted"
