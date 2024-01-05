@@ -25,8 +25,8 @@ cross_validation: FALSE
 synthetic: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(),
-              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
+components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), JobSec(), HourlyWage(), Urban(),
+              Education(), nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
               Replenishment()]
 
 scale_rates:

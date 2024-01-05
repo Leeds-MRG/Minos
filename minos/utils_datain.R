@@ -122,7 +122,7 @@ read_batch_out_1year <- function(out.path, scenario, year, var.list) {
   return(final)
 }
 
-read_batch_out_all_years <- function(out.path, scenario, start.year=2020, end.year=2035, var.list, verbose=FALSE) {
+read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.year=2036, var.list, verbose=FALSE) {
   print(paste0("Starting aggregation of output files for ", scenario, '...'))
   var.list <- c('pidp', 'time', 'weight', var.list, 'alive')
   large.df = data.frame()
