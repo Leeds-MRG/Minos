@@ -4,7 +4,7 @@
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
-data: raw_data adj_raw_data corrected_data composite_data complete_data final_data amelia_imputed_data
+data: raw_data adj_raw_data corrected_data composite_data complete_data final_data #amelia_imputed_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
 

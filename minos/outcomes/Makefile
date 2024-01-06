@@ -26,6 +26,31 @@ S7_batch_outcomes_2:
 	# open html file in firefox
 	firefox file://$(OUTCOMES)/EI_allScen_Plots.html
 
+S7_clustering:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='livingWageIntervention', type='single'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomeChildUplift', type='single'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomePovertyLineChildUplift', type='single'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='energyDownlift', type='single'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='energyDownliftNoSupport', type='single'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+
+S7_clustering_batch:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='livingWageIntervention', type='batch'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='hhIncomeChildUplift', type='batch'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='hhIncomePovertyLineChildUplift', type='batch'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='energyDownlift', type='batch'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='energyDownliftNoSupport', type='batch'))"
+	firefox file://$(OUTCOMES)/clustering_EI.html
+
+
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
