@@ -4,5 +4,5 @@ scenarios=('baseline', 'livingWageIntervention', 'energyDownlift', 'energyDownli
 for i in "${scenarios[@]}"
 do
   echo "Aggregating output files for scenario: $i"
-	bash scripts/arc_batch_combine.sh "$i"
+	qsub scripts/arc_batch_combine.sh "$i"
 done
