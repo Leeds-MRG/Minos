@@ -1,4 +1,4 @@
-scenarios=('baseline', 'livingWageIntervention', 'energyDownlift', 'energyDownliftNoSupport', 'hhIncomeChildUplift', 'hhIncomePovertyLineChildUplift')
+scenarios=('baseline' 'livingWageIntervention' 'energyDownlift' 'energyDownliftNoSupport' 'hhIncomeChildUplift' 'hhIncomePovertyLineChildUplift')
 
 
 for i in "${scenarios[@]}"
