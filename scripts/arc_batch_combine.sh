@@ -16,5 +16,11 @@
 #$ -o ./logs/batchread/log
 #$ -e ./logs/batchread/errors
 
+# create these if they dont exist. Will crash arc4 if you dont do this.
+mkdir -p logs
+mkdir -p logs/batchread
+mkdir -p logs/batchread/log
+mkdir -p logs/batchread/errors
+
 
 Rscript minos/testing/read_and_summarise_batch.R

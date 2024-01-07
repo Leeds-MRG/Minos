@@ -241,5 +241,5 @@ S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
 for (scen in scenarios) {
   print(paste0('Starting aggregation for ', scen))
   dat <- read_batch_out_summarise(out.path, scen, start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-  write.csv(dat, file = paste0(scen, '_summary.csv'))
+  write.csv(dat, file = paste0('output/', scen, '_summary.csv'))
 }
