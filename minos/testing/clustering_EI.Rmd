@@ -28,7 +28,6 @@ require(cluster)
 require(foreach)
 require(doParallel)
 require(clustMixType)
-require(ggplot2)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')

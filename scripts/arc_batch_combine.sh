@@ -1,0 +1,20 @@
+# This script must be run with qsub if running on Arc
+
+## Set current working directory
+#$ -cwd
+## Use current environment variables and modules
+#$ -V
+## Request hours of runtime
+#$ -l h_rt=6:00:00
+## Email if a run aborts
+#$ -m a
+## Select memory
+#$ -l h_vmem=6G # Reading lots of reasonably large data files to summarise, needs quite a lot of memory
+## Choose cores. See arc website for more details. 5 high memory cores chosen here.
+#$ -pe smp 1
+## Set logs directories
+#$ -o ./logs/batchread/log
+#$ -e ./logs/batchread/errors
+
+
+Rscript minos/testing/read_and_summarise_batch.R
