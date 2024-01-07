@@ -57,8 +57,11 @@ get_latest_runtime_subdirectory <- function(path) {
 #       year - single year of batch output to aggregate
 #       var.list - list of variables to keep in the returned dataframe
 read_batch_out_1year <- function(out.path, scenario, year, var.list) {
+  print(paste0('Reading batch files for year ', year))
   scen.path <- paste0(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
+
+  print(paste0('Path is: ', scen.path))
 
   # Create file strings using year from args
   target.pattern <- paste0('[0-9]*_run_id_', year, '.csv')
@@ -69,6 +72,8 @@ read_batch_out_1year <- function(out.path, scenario, year, var.list) {
   # generate sequence of run IDs from length of the filepath.list
   num.run.ids <- length(filepath.list)
   run.id.vector <- 1:num.run.ids
+
+  print(paste0('Run ID ranges from ', min(run.id.vector), ' to ', max(run.id.vector)))
 
   # read each file in the list and store in a different list
   loaded.file.list <- lapply(filepath.list, read.csv)
