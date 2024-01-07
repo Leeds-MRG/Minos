@@ -13,8 +13,8 @@
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 1
 ## Set logs directories
-#$ -o ./logs/batchread/log
-#$ -e ./logs/batchread/errors
+#$ -o logs/batchread/log
+#$ -e logs/batchread/errors
 
 # create these if they dont exist. Will crash arc4 if you dont do this.
 mkdir -p logs
