@@ -9,7 +9,7 @@
 ## Email if a run aborts
 #$ -m a
 ## Select memory
-#$ -l h_vmem=6G # Reading lots of reasonably large data files to summarise, needs quite a lot of memory
+#$ -l h_vmem=20G # Reading lots of reasonably large data files to summarise, needs quite a lot of memory
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 1
 ## Set logs directories
