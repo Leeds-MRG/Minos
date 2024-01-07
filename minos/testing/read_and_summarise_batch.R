@@ -238,13 +238,14 @@ S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
                  'ethnicity', 'age', 'sex', 'region', 'job_sec', 'education_state', 'nkids_ind', 'hourly_wage')
 
+args = commandArgs(trailingOnly = TRUE)
 
-# dat <- read_batch_out_summarise(out.path, 'livingWageIntervention_Short', start.year = 2021, var.list = S7.var.list, verbose=TRUE)
-# write.csv(dat, file = 'livingWageIntervention_summary.csv')
+dat <- read_batch_out_summarise(out.path, args[0], start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
+write.csv(dat, file = paste0('output/', args[0], '_summary.csv'))
 
 
-for (scen in scenarios) {
-  print(paste0('Starting aggregation for ', scen))
-  dat <- read_batch_out_summarise(out.path, scen, start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-  write.csv(dat, file = paste0('output/', scen, '_summary.csv'))
-}
+# for (scen in scenarios) {
+#   print(paste0('Starting aggregation for ', scen))
+#   dat <- read_batch_out_summarise(out.path, scen, start.year = 2021, var.list = S7.var.list, verbose=FALSE)
+#   write.csv(dat, file = paste0('output/', scen, '_summary.csv'))
+# }
