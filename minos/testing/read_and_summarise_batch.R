@@ -232,7 +232,7 @@ read_batch_out_summarise <- function(out.path, scenario, start.year=2021, end.ye
 
 scenarios <- c('baseline', 'livingWageIntervention', 'energyDownlift', 'energyDownliftNoSupport', 'hhIncomeChildUplift', 'hhIncomePovertyLineChildUplift')
 
-out.path <- 'output/SIPHER7_batch/'
+out.path <- 'output/SIPHER7/'
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
