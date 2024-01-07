@@ -240,8 +240,13 @@ S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
 
 args = commandArgs(trailingOnly = TRUE)
 
-dat <- read_batch_out_summarise(out.path, args[0], start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
-write.csv(dat, file = paste0('output/', args[0], '_summary.csv'))
+#print('Check args:')
+#print(args)
+args_path = paste0(args, '/')
+#print(args)
+
+dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
+write.csv(dat, file = paste0('output/', args, '_summary.csv'))
 
 
 # for (scen in scenarios) {

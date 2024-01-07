@@ -23,4 +23,4 @@ mkdir -p logs/batchread/log
 mkdir -p logs/batchread/errors
 
 
-Rscript minos/testing/read_and_summarise_batch.R
+Rscript minos/testing/read_and_summarise_batch.R $1
