@@ -244,9 +244,18 @@ args = commandArgs(trailingOnly = TRUE)
 #print(args)
 args_path = paste0(args, '/')
 #print(args)
+if (args == 'baseline') {
+  dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
+  dat$boost_amount <- 0
+  dat$income_boosted <- 0
+  write.csv(dat, file = paste0('output/', args, '_summary.csv'))
+} else {
+  S7.var.list.int <- c(S7.var.list, 'boost_amount', 'income_boosted')
+  dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list.int, verbose=TRUE)
+  write.csv(dat, file = paste0('output/', args, '_summary.csv'))
+}
 
-dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
-write.csv(dat, file = paste0('output/', args, '_summary.csv'))
+
 
 
 # for (scen in scenarios) {
