@@ -15,18 +15,19 @@ source(here::here('minos', 'utils_validation_vis.R'))
 source(here::here('minos', 'validation', 'utils.r'))
 
 args = commandArgs(trailingOnly = TRUE)
-args_path = paste0(args, '/')
+#args_path = paste0(args, '/')
 
-out.path.batch <- here::here('output', 'SIPHER7')
+out.path.batch <- here::here('output', 'SIPHER7/')
 intervention <- args
+
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
-out.path.batch <- here::here('output', 'SIPHER7/')
 
-base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=FALSE)
+
+base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=TRUE)
+int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=TRUE)
 
 # add income_boosted and boost_amount to baseline
 base.batch$income_boosted <- 0
@@ -139,7 +140,7 @@ simplified_component_change_BOXPLOT <- function(base.batch, int.batch, var, prin
     mutate(change = Positive - Negative) %>%
     select(-Positive, -Negative, -No_Change) %>%
     group_by(run_id) %>%
-    summarise(sum.change = sum(change))
+    summarise(sum.change = sum(change, na.rm = TRUE))
 
   p1 <- ggplot(data = merged2, aes(y = sum.change)) +
     geom_boxplot(notch = FALSE) +
