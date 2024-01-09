@@ -1,0 +1,216 @@
+---
+params:
+    out_path: '' # default arguments. specify others in command line.
+    intervention: ''
+title: "`r paste(params$file_path, ' ', params$intervention, ' ANALYSIS')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+```{r, include=FALSE}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+```{r}
+out.path.batch <- here::here('output', params$out_path)
+intervention <- params$intervention
+
+S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
+                 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
+                 'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
+out.path.batch <- here::here('output', 'SIPHER7/')
+
+base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
+int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=FALSE)
+
+# add income_boosted and boost_amount to baseline
+base.batch$income_boosted <- 0
+base.batch$boost_amount <- 0
+```
+
+
+
+
+```{r}
+# S7_pathway_change_byGroup <- function(base.batch, int.batch, group.var, var) {
+#   base.sub <- base.batch %>%
+#     select(pidp, time, run_id, equivalent_income, all_of(group.var), all_of(var)) %>%
+#     group_by(time, run_id, .data[[group.var]], .data[[var]]) %>%
+#     count() %>%
+#     group_by(time, run_id, .data[[group.var]]) %>%
+#     mutate(total = sum(n),
+#            base_prop = n / total) %>%
+#     select(-n, -total)
+#
+#   int.sub <- energy.batch %>%
+#     select(pidp, time, run_id, equivalent_income, all_of(group.var), all_of(var)) %>%
+#     group_by(time, run_id, .data[[group.var]], .data[[var]]) %>%
+#     count() %>%
+#     group_by(time, run_id, .data[[group.var]]) %>%
+#     mutate(total = sum(n),
+#            int_prop = n / total) %>%
+#     select(-n, -total)
+#
+#   combined <- merge(base.sub, int.sub, by = c('time', 'run_id', group.var, var))
+#   combined$prop_diff <- combined$int_prop - combined$base_prop
+#
+#   combined[[var]] <- as.factor(combined[[var]])
+#
+#   ggplot(data = combined, aes(x = time, y = prop_diff, group = .data[[var]], color = .data[[var]])) +
+#     geom_smooth() +
+#     facet_wrap(~ .data[[group.var]], nrow=1) +
+#     theme(axis.title.x = element_blank(),
+#           axis.text.x = element_blank(),
+#           axis.ticks.x = element_blank())
+# }
+```
+
+
+
+
+```{r}
+simplified_component_change_BOXPLOT <- function(base.batch, int.batch, var, print = FALSE) {
+
+  # it would be lovely if this was completely generic, but for some things that
+  # is more hassle than its worth. Handling string vars here is one of these
+  # things
+
+  if (var == 'S7_housing_quality') {
+    base.batch$S7_housing_quality <- as.numeric(factor(base.batch$S7_housing_quality,
+                                            levels = c('No to all',
+                                                       'Yes to some',
+                                                       'Yes to all'),
+                                            labels = c(1, 2, 3)))
+    int.batch$S7_housing_quality <- as.numeric(factor(int.batch$S7_housing_quality,
+                                            levels = c('No to all',
+                                                       'Yes to some',
+                                                       'Yes to all'),
+                                            labels = c(1, 2, 3)))
+  } else if (var == 'S7_neighbourhood_safety') {
+    base.batch$S7_neighbourhood_safety <- as.numeric(factor(base.batch$S7_neighbourhood_safety,
+                                                 levels = c('Often',
+                                                            'Some of the time',
+                                                            'Hardly ever'),
+                                                 labels = c(1, 2, 3)))
+    int.batch$S7_neighbourhood_safety <- as.numeric(factor(int.batch$S7_neighbourhood_safety,
+                                                 levels = c('Often',
+                                                            'Some of the time',
+                                                            'Hardly ever'),
+                                                 labels = c(1, 2, 3)))
+  } else if (var == 'loneliness') {
+    base.batch$loneliness <- as.numeric(factor(base.batch$loneliness,
+                                    levels = c(1, 2, 3),
+                                    labels = c(3, 2, 1)))
+    int.batch$loneliness <- as.numeric(factor(int.batch$loneliness,
+                                    levels = c(1, 2, 3),
+                                    labels = c(3, 2, 1)))
+  }
+
+  base.sub <- base.batch %>%
+    select(pidp, time, run_id, all_of(var)) %>%
+    rename(Baseline_var = .data[[var]])
+
+  int.sub <- int.batch %>%
+    select(pidp, time, run_id, all_of(var)) %>%
+    rename(Intervention_var = .data[[var]])
+
+  merged <- merge(base.sub, int.sub,
+                  by=c('pidp', 'time', 'run_id'),
+                  all = FALSE)
+
+  merged2 <- merged %>%
+    mutate(varChange = Intervention_var - Baseline_var,
+           effect = case_when(varChange > 0 ~ "Positive",
+                              varChange < 0 ~ "Negative",
+                              varChange == 0 ~ "No_Change")) %>%
+    select(-Baseline_var, -Intervention_var, -varChange) %>%
+    group_by(time, run_id, effect) %>%
+    count() %>%
+    group_by(time, run_id) %>%
+    mutate(total = sum(n),
+           effect_prop = n / total) %>%
+    select(-n, -total) %>%
+    pivot_wider(names_from = 'effect',
+                values_from = 'effect_prop') %>%
+    mutate(change = Positive - Negative) %>%
+    select(-Positive, -Negative, -No_Change) %>%
+    group_by(run_id) %>%
+    summarise(sum.change = sum(change))
+
+  p1 <- ggplot(data = merged2, aes(y = sum.change)) +
+    geom_boxplot(notch = FALSE) +
+    labs(title = paste0('Change in ', var)) +
+    ylab('% Change')
+
+  if(print) {
+    print(p1)
+  }
+
+  return(merged2)
+}
+```
+
+```{r}
+varlist <- c('S7_neighbourhood_safety', 'loneliness',
+             'S7_physical_health', 'S7_mental_health')
+
+sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
+  df <- simplified_component_change_BOXPLOT(base.batch, int.batch, var = 'S7_housing_quality')
+  colnames(df) <- c('run_id', 'S7_housing_quality')
+  for (S7_var in varlist) {
+    df2 <- simplified_component_change_BOXPLOT(base.batch, int.batch, var = S7_var)
+    colnames(df2) <- c('run_id', S7_var)
+    df <- merge(df, df2, by = c('run_id'))
+  }
+  rm(df2)
+
+  # finally pivot_longer for ggplot and facet_wrap to take over
+  df2 <- df %>%
+    pivot_longer(cols = S7_housing_quality:S7_mental_health,
+                 names_to = 'Variable',
+                 values_to = 'Change')
+
+  p1 <- ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, fill = Variable)) +
+    geom_boxplot(notch = FALSE) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    theme(legend.position = 'bottom',
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank())
+  print(p1)
+}
+
+sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)
+
+```

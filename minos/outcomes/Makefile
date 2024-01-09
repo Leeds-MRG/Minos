@@ -26,29 +26,59 @@ S7_batch_outcomes_2:
 	# open html file in firefox
 	firefox file://$(OUTCOMES)/EI_allScen_Plots.html
 
-S7_clustering:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='livingWageIntervention', type='single'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomeChildUplift', type='single'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomePovertyLineChildUplift', type='single'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='energyDownlift', type='single'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='energyDownliftNoSupport', type='single'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
+#S7_clustering:
+#	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='livingWageIntervention'))"
+#	firefox file://$(OUTCOMES)/clustering_EI.html
+#	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomeChildUplift'))"
+#	firefox file://$(OUTCOMES)/clustering_EI.html
+#	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomePovertyLineChildUplift'))"
+#	firefox file://$(OUTCOMES)/clustering_EI.html
+#	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='energyDownlift'))"
+#	firefox file://$(OUTCOMES)/clustering_EI.html
+#	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7/',intervention='energyDownliftNoSupport'))"
+#	firefox file://$(OUTCOMES)/clustering_EI.html
 
 S7_clustering_batch:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='livingWageIntervention', type='batch'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='hhIncomeChildUplift', type='batch'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='hhIncomePovertyLineChildUplift', type='batch'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='energyDownlift', type='batch'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_batch/',intervention='energyDownliftNoSupport', type='batch'))"
-	firefox file://$(OUTCOMES)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_sum/',intervention='livingWageIntervention', clusters='3', baseline='baseline'))"
+	firefox file://$(TESTING)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_sum/',intervention='hhIncomeChildUplift', clusters='3', baseline='baseline'))"
+	firefox file://$(TESTING)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_sum/',intervention='hhIncomePovertyLineChildUplift', clusters='3', baseline='baseline'))"
+	firefox file://$(TESTING)/clustering_EI.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_sum/',intervention='energyDownlift', clusters='3', baseline='energyDownliftNoSupport'))"
+	firefox file://$(TESTING)/clustering_EI.html
+
+
+S7_cluster_test:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/num_clusters_test.Rmd', param=list(out_path='SIPHER7_sum/',intervention='livingWageIntervention', baseline='baseline'))"
+	firefox file://$(TESTING)/num_clusters_test.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/num_clusters_test.Rmd', param=list(out_path='SIPHER7_sum/',intervention='hhIncomeChildUplift', baseline='baseline'))"
+	firefox file://$(TESTING)/num_clusters_test.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/num_clusters_test.Rmd', param=list(out_path='SIPHER7_sum/',intervention='hhIncomePovertyLineChildUplift', baseline='baseline'))"
+	firefox file://$(TESTING)/num_clusters_test.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/num_clusters_test.Rmd', param=list(out_path='SIPHER7_sum/',intervention='energyDownliftNoSupport', baseline='energyDownlift'))"
+	firefox file://$(TESTING)/num_clusters_test.html
+
+S7_quick_test:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/num_clusters_test.Rmd', param=list(out_path='SIPHER7_sum/',intervention='energyDownliftNoSupport', baseline='energyDownlift'))"
+	firefox file://$(TESTING)/num_clusters_test.html
+
+S7_comp_change_boxplot:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/S7_comp_change_boxplot.Rmd', param=list(out_path='SIPHER7/',intervention='livingWageIntervention'))"
+	#firefox file://$(TESTING)/S7_comp_change_boxplot.html
+	mv $(TESTING)/S7_comp_change_boxplot.html $(TESTING)/S7_comp_change_boxplot_livingWageIntervention.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/S7_comp_change_boxplot.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomeChildUplift'))"
+	#firefox file://$(TESTING)/S7_comp_change_boxplot.html
+	mv $(TESTING)/S7_comp_change_boxplot.html $(TESTING)/S7_comp_change_boxplot_hhIncomeChildUplift.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/S7_comp_change_boxplot.Rmd', param=list(out_path='SIPHER7/',intervention='hhIncomePovertyLineChildUplift'))"
+	#firefox file://$(TESTING)/S7_comp_change_boxplot.html
+	mv $(TESTING)/S7_comp_change_boxplot.html $(TESTING)/S7_comp_change_boxplot_hhIncomePovertyLineChildUplift.html
+
+
+#$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/clustering_EI.Rmd', param=list(out_path='SIPHER7_sum/',intervention='energyDownliftNoSupport', clusters='', baseline='baseline'))"
+ #	firefox file://$(TESTING)/clustering_EI.html
+#	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/num_clusters_test.Rmd', param=list(out_path='SIPHER7_sum/',intervention='energyDownlift'))"
+ #	firefox file://$(TESTING)/num_clusters_test.html
 
 
 #####################################
