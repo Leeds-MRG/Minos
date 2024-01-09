@@ -210,7 +210,7 @@ sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
           axis.ticks.x = element_blank())
   print(p1)
   
-  ggsave(filename = paste0('sccb_boxplot_', intervention, '.png'),
+  ggsave(filename = paste0('sccb_boxplot_', intervention, '_top10.png'),
          plot = p1,
          path = 'plots/')
 }
