@@ -197,6 +197,10 @@ read_batch_out_summarise <- function(out.path, scenario, start.year=2021, end.ye
   continuous_vars <- c('hh_income', 'equivalent_income', 'weight', 'age', 'nkids_ind', 'hourly_wage')
   static_vars <- c('ethnicity', 'region', 'sex')
 
+  if (scenario != 'baseline') {
+    continuous_vars <- c(continuous_vars, 'income_boosted', 'boost_amount')
+  }
+
   #print(nominal_vars)
 
   print("ABOUT TO SUMMARISE")
@@ -232,30 +236,32 @@ read_batch_out_summarise <- function(out.path, scenario, start.year=2021, end.ye
 
 scenarios <- c('baseline', 'livingWageIntervention', 'energyDownlift', 'energyDownliftNoSupport', 'hhIncomeChildUplift', 'hhIncomePovertyLineChildUplift')
 
-out.path <- 'output/SIPHER7/'
+out.path <- 'output/SIPHER7_batch/'
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
                  'ethnicity', 'age', 'sex', 'region', 'job_sec', 'education_state', 'nkids_ind', 'hourly_wage')
 
-args = commandArgs(trailingOnly = TRUE)
+# args = commandArgs(trailingOnly = TRUE)
+#
+# #print('Check args:')
+# #print(args)
+# args_path = paste0(args, '/')
+# #print(args)
+# if (args == 'baseline') {
+#   dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
+#   dat$boost_amount <- 0
+#   dat$income_boosted <- 0
+#   write.csv(dat, file = paste0('output/', args, '_summary.csv'))
+# } else {
+#   S7.var.list.int <- c(S7.var.list, 'boost_amount', 'income_boosted')
+#   dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list.int, verbose=TRUE)
+#   write.csv(dat, file = paste0('output/', args, '_summary.csv'))
+# }
 
-#print('Check args:')
-#print(args)
-args_path = paste0(args, '/')
-#print(args)
-if (args == 'baseline') {
-  dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list, verbose=TRUE)
-  dat$boost_amount <- 0
-  dat$income_boosted <- 0
-  write.csv(dat, file = paste0('output/', args, '_summary.csv'))
-} else {
-  S7.var.list.int <- c(S7.var.list, 'boost_amount', 'income_boosted')
-  dat <- read_batch_out_summarise(out.path, args_path, start.year = 2021, end.year = 2036, var.list = S7.var.list.int, verbose=TRUE)
-  write.csv(dat, file = paste0('output/', args, '_summary.csv'))
-}
-
-
+S7.var.list.int <- c(S7.var.list, 'boost_amount', 'income_boosted')
+dat <- read_batch_out_summarise(out.path, 'livingWageIntervention_Short', start.year = 2021, var.list = S7.var.list.int, verbose=FALSE)
+# write.csv(dat, file = paste0('output/', scen, '_summary.csv'))
 
 
 # for (scen in scenarios) {
