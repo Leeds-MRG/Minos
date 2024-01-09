@@ -1,5 +1,5 @@
 ---
-title: "TOP10 COMPONENT ANALYSIS - Living Wage"
+title: "COMPONENT ANALYSIS - Living Wage"
 output:
   html_document:
     toc: true
@@ -209,6 +209,10 @@ sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank())
   print(p1)
+  
+  ggsave(filename = paste0('sccb_boxplot_', intervention, '.png'),
+         plot = p1,
+         path = 'plots/')
 }
 
 sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)

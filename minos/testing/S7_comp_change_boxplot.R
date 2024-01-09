@@ -1,6 +1,9 @@
 ---
-title: "TOP10 COMPONENT ANALYSIS - Living Wage"
-output:
+params:
+    out_path: '' # default arguments. specify others in command line.
+    intervention: ''
+title: "`r paste(params$file_path, ' ', params$intervention, ' ANALYSIS')`"
+output: 
   html_document:
     toc: true
     toc_float: true
@@ -40,11 +43,8 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 ```{r}
-# out.path.batch <- here::here('output', params$out_path)
-# intervention <- params$intervention
-
-out.path.batch <- here::here('output', 'SIPHER7')
-intervention <- 'livingWageIntervention'
+out.path.batch <- here::here('output', params$out_path)
+intervention <- params$intervention
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
@@ -63,37 +63,37 @@ base.batch$boost_amount <- 0
 
 
 ```{r}
-# select only top 10% of equivalent income increases
-base.sub <- base.batch %>%
-  select(pidp, time, equivalent_income) %>%
-  rename(baseline = equivalent_income)
-
-int.sub <- int.batch %>%
-  select(pidp, time, equivalent_income) %>%
-  rename(intervention = equivalent_income)
-
-merged <- merge(x = base.sub,
-                y = int.sub,
-                by = c('pidp', 'time'))
-
-rm(base.sub, int.sub)
-
-top10p <- merged %>%
-  mutate(diff = intervention - baseline) %>%
-  group_by(pidp) %>%
-  summarise(sum_diff = sum(diff)) %>%
-  filter(sum_diff > quantile(sum_diff, .9))
-
-rm(merged)
-
-print(paste0('Top 10% of improvers: n = ', nrow(top10p)))
-
-base.batch <- base.batch %>%
-  filter(pidp %in% unique(top10p$pidp))
-int.batch <- int.batch %>%
-  filter(pidp %in% unique(top10p$pidp))
-
-rm(top10p)
+# S7_pathway_change_byGroup <- function(base.batch, int.batch, group.var, var) {
+#   base.sub <- base.batch %>%
+#     select(pidp, time, run_id, equivalent_income, all_of(group.var), all_of(var)) %>%
+#     group_by(time, run_id, .data[[group.var]], .data[[var]]) %>%
+#     count() %>%
+#     group_by(time, run_id, .data[[group.var]]) %>%
+#     mutate(total = sum(n),
+#            base_prop = n / total) %>%
+#     select(-n, -total)
+#   
+#   int.sub <- energy.batch %>%
+#     select(pidp, time, run_id, equivalent_income, all_of(group.var), all_of(var)) %>%
+#     group_by(time, run_id, .data[[group.var]], .data[[var]]) %>%
+#     count() %>%
+#     group_by(time, run_id, .data[[group.var]]) %>%
+#     mutate(total = sum(n),
+#            int_prop = n / total) %>%
+#     select(-n, -total)
+#   
+#   combined <- merge(base.sub, int.sub, by = c('time', 'run_id', group.var, var))
+#   combined$prop_diff <- combined$int_prop - combined$base_prop
+#   
+#   combined[[var]] <- as.factor(combined[[var]])
+#   
+#   ggplot(data = combined, aes(x = time, y = prop_diff, group = .data[[var]], color = .data[[var]])) +
+#     geom_smooth() +
+#     facet_wrap(~ .data[[group.var]], nrow=1) +
+#     theme(axis.title.x = element_blank(),
+#           axis.text.x = element_blank(),
+#           axis.ticks.x = element_blank())
+# }
 ```
 
 
@@ -101,11 +101,11 @@ rm(top10p)
 
 ```{r}
 simplified_component_change_BOXPLOT <- function(base.batch, int.batch, var, print = FALSE) {
-
+  
   # it would be lovely if this was completely generic, but for some things that
-  # is more hassle than its worth. Handling string vars here is one of these
+  # is more hassle than its worth. Handling string vars here is one of these 
   # things
-
+  
   if (var == 'S7_housing_quality') {
     base.batch$S7_housing_quality <- as.numeric(factor(base.batch$S7_housing_quality,
                                             levels = c('No to all',
@@ -136,19 +136,19 @@ simplified_component_change_BOXPLOT <- function(base.batch, int.batch, var, prin
                                     levels = c(1, 2, 3),
                                     labels = c(3, 2, 1)))
   }
-
+  
   base.sub <- base.batch %>%
     select(pidp, time, run_id, all_of(var)) %>%
     rename(Baseline_var = .data[[var]])
-
+  
   int.sub <- int.batch %>%
     select(pidp, time, run_id, all_of(var)) %>%
     rename(Intervention_var = .data[[var]])
-
+  
   merged <- merge(base.sub, int.sub,
                   by=c('pidp', 'time', 'run_id'),
                   all = FALSE)
-
+  
   merged2 <- merged %>%
     mutate(varChange = Intervention_var - Baseline_var,
            effect = case_when(varChange > 0 ~ "Positive",
@@ -167,16 +167,16 @@ simplified_component_change_BOXPLOT <- function(base.batch, int.batch, var, prin
     select(-Positive, -Negative, -No_Change) %>%
     group_by(run_id) %>%
     summarise(sum.change = sum(change))
-
+  
   p1 <- ggplot(data = merged2, aes(y = sum.change)) +
     geom_boxplot(notch = FALSE) +
     labs(title = paste0('Change in ', var)) +
     ylab('% Change')
-
+  
   if(print) {
     print(p1)
   }
-
+  
   return(merged2)
 }
 ```
@@ -194,13 +194,13 @@ sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
     df <- merge(df, df2, by = c('run_id'))
   }
   rm(df2)
-
+  
   # finally pivot_longer for ggplot and facet_wrap to take over
   df2 <- df %>%
     pivot_longer(cols = S7_housing_quality:S7_mental_health,
                  names_to = 'Variable',
                  values_to = 'Change')
-
+  
   p1 <- ggplot(df2, aes(x = Variable, y = Change, group = Variable, colour = Variable, fill = Variable)) +
     geom_boxplot(notch = FALSE) +
     geom_hline(yintercept = 0, linetype = 'dashed') +
