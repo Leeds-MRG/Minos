@@ -13,13 +13,13 @@
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 1
 ## Set logs directories
-#$ -o logs/batchread/log
-#$ -e logs/batchread/errors
+#$ -o logs/comp/log
+#$ -e logs/comp/errors
 
 # create these if they dont exist. Will crash arc4 if you dont do this.
 mkdir -p logs
-mkdir -p logs/batchread
-mkdir -p logs/batchread/log
-mkdir -p logs/batchread/errors
+mkdir -p logs/comp
+mkdir -p logs/comp/log
+mkdir -p logs/comp/errors
 
-Rscript minos/testing/S7_comp_change_boxplot.Rmd $1
+Rscript minos/testing/S7_comp_change_boxplot.R $1

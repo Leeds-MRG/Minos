@@ -1,4 +1,3 @@
-
 # SETUP
 
 
@@ -9,6 +8,8 @@ require(dplyr)
 require(tidyr)
 require(purrr)
 
+
+
 source(here::here('minos', 'utils_datain.R'))
 source(here::here('minos', 'utils_validation_vis.R'))
 source(here::here('minos', 'validation', 'utils.r'))
@@ -18,6 +19,9 @@ args_path = paste0(args, '/')
 
 out.path.batch <- here::here('output', 'SIPHER7')
 intervention <- args
+
+out.path.batch <- here::here('output', params$out_path)
+intervention <- params$intervention
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
@@ -33,7 +37,42 @@ base.batch$boost_amount <- 0
 
 
 
+# select only top 10% of equivalent income increases
+base.sub <- base.batch %>%
+  select(pidp, time, equivalent_income) %>%
+  rename(baseline = equivalent_income)
 
+int.sub <- int.batch %>%
+  select(pidp, time, equivalent_income) %>%
+  rename(intervention = equivalent_income)
+
+merged <- merge(x = base.sub,
+                y = int.sub,
+                by = c('pidp', 'time'))
+
+rm(base.sub, int.sub)
+
+top10p <- merged %>%
+  mutate(diff = intervention - baseline) %>%
+  group_by(pidp) %>%
+  summarise(sum_diff = sum(diff))
+
+threshold <- quantile(top10p$sum_diff, 0.9)
+print(threshold)
+
+top10p <- top10p %>%
+  filter(sum_diff > threshold)
+
+rm(merged)
+
+print(paste0('Top 10% of improvers: n = ', nrow(top10p)))
+
+base.batch <- base.batch %>%
+  filter(pidp %in% unique(top10p$pidp))
+int.batch <- int.batch %>%
+  filter(pidp %in% unique(top10p$pidp))
+
+rm(top10p)
 
 
 
@@ -45,33 +84,33 @@ simplified_component_change_BOXPLOT <- function(base.batch, int.batch, var, prin
 
   if (var == 'S7_housing_quality') {
     base.batch$S7_housing_quality <- as.numeric(factor(base.batch$S7_housing_quality,
-                                            levels = c('No to all',
-                                                       'Yes to some',
-                                                       'Yes to all'),
-                                            labels = c(1, 2, 3)))
+                                                       levels = c('No to all',
+                                                                  'Yes to some',
+                                                                  'Yes to all'),
+                                                       labels = c(1, 2, 3)))
     int.batch$S7_housing_quality <- as.numeric(factor(int.batch$S7_housing_quality,
-                                            levels = c('No to all',
-                                                       'Yes to some',
-                                                       'Yes to all'),
-                                            labels = c(1, 2, 3)))
+                                                      levels = c('No to all',
+                                                                 'Yes to some',
+                                                                 'Yes to all'),
+                                                      labels = c(1, 2, 3)))
   } else if (var == 'S7_neighbourhood_safety') {
     base.batch$S7_neighbourhood_safety <- as.numeric(factor(base.batch$S7_neighbourhood_safety,
-                                                 levels = c('Often',
-                                                            'Some of the time',
-                                                            'Hardly ever'),
-                                                 labels = c(1, 2, 3)))
+                                                            levels = c('Often',
+                                                                       'Some of the time',
+                                                                       'Hardly ever'),
+                                                            labels = c(1, 2, 3)))
     int.batch$S7_neighbourhood_safety <- as.numeric(factor(int.batch$S7_neighbourhood_safety,
-                                                 levels = c('Often',
-                                                            'Some of the time',
-                                                            'Hardly ever'),
-                                                 labels = c(1, 2, 3)))
+                                                           levels = c('Often',
+                                                                      'Some of the time',
+                                                                      'Hardly ever'),
+                                                           labels = c(1, 2, 3)))
   } else if (var == 'loneliness') {
     base.batch$loneliness <- as.numeric(factor(base.batch$loneliness,
-                                    levels = c(1, 2, 3),
-                                    labels = c(3, 2, 1)))
+                                               levels = c(1, 2, 3),
+                                               labels = c(3, 2, 1)))
     int.batch$loneliness <- as.numeric(factor(int.batch$loneliness,
-                                    levels = c(1, 2, 3),
-                                    labels = c(3, 2, 1)))
+                                              levels = c(1, 2, 3),
+                                              labels = c(3, 2, 1)))
   }
 
   base.sub <- base.batch %>%
@@ -145,11 +184,9 @@ sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
           axis.ticks.x = element_blank())
   print(p1)
 
-  ggsave(filename = paste0('sccb_boxplot_', intervention, '.png'),
+  ggsave(filename = paste0('sccb_boxplot_', intervention, '_top10.png'),
          plot = p1,
          path = 'plots/')
 }
 
 sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)
-
-
