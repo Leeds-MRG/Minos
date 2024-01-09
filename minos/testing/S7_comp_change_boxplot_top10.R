@@ -20,9 +20,6 @@ args_path = paste0(args, '/')
 out.path.batch <- here::here('output', 'SIPHER7')
 intervention <- args
 
-out.path.batch <- here::here('output', params$out_path)
-intervention <- params$intervention
-
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
