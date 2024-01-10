@@ -5,9 +5,7 @@
 require(tidyverse)
 require(ggplot2)
 require(here)
-require(dplyr)
-require(tidyr)
-require(purrr)
+
 
 source(here::here('minos', 'utils_datain.R'))
 source(here::here('minos', 'utils_validation_vis.R'))
@@ -16,7 +14,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 args = commandArgs(trailingOnly = TRUE)
 #args_path = paste0(args, '/')
 
-out.path.batch <- here::here('output', 'SIPHER7/')
+out.path.batch <- here::here('output', 'TEST_BATCH/')
 intervention <- args
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
@@ -24,15 +22,12 @@ S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
 
 
-base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=FALSE)
+base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=TRUE)
+int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=TRUE)
 
 # add income_boosted and boost_amount to baseline
 base.batch$income_boosted <- 0
 base.batch$boost_amount <- 0
-
-
-
 
 
 
@@ -147,9 +142,20 @@ sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
 
   ggsave(filename = paste0('sccb_boxplot_', intervention, '.png'),
          plot = p1,
-         path = 'plots/')
+         path = 'plots/',
+         scale = 1,
+         width = 9)
+  return(p1)
 }
 
-sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)
+plot <- sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)
 
 
+print('SAVING THE PLOT (PLEASE GOD PLEASE)')
+ggsave(filename = paste0('sccb_boxplot_', intervention, '.png'),
+       plot = plot,
+       path = 'plots/',
+       scale = 1,
+       width = 9)
+
+rm(base.batch, int.batch, plot)

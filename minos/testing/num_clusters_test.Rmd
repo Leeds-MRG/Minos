@@ -1,10 +1,9 @@
 ---
 params:
-    out_path: 'SIPHER7_sum/' # default arguments. specify others in command line.
-    intervention: 'livingWageIntervention'
-    clusters: '3'
-    baseline: 'baseline'
-title: "`r paste(params$file_path, ' ', params$intervention, ' CLUSTER ANALYSIS')`"
+    out_path: '' # default arguments. specify others in command line.
+    intervention: ''
+    baseline: ''
+title: "`r paste(params$file_path, ' ', params$intervention, ' NUM CLUSTER CHECK')`"
 output: 
   html_document:
     toc: true
@@ -14,7 +13,6 @@ output:
     df_print: paged
     code_folding: hide
 ---
-
 
 # SETUP
 
@@ -26,7 +24,6 @@ require(knitr)
 require(here)
 require(cluster)
 require(clustMixType)
-require(klaR)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -49,38 +46,8 @@ source(here::here('minos', 'utils_S7.R'))
 ## Data
 
 ```{r}
-# ## Parameters
-# out.path.batch <- here::here('output', params$out_path)
-# intervention <- params$intervention
-# out.type <- params$type
-# 
-# # base.dat <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-# # wage.dat <- read_batch_out_all_years(out.path.batch, 'livingWageIntervention', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-# # energy.dat <- read_batch_out_all_years(out.path.batch, 'energyDownlift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-# # child.dat <- read_batch_out_all_years(out.path.batch, 'hhIncomeChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-# # pov.dat <- read_batch_out_all_years(out.path.batch, 'hhIncomePovertyLineChildUplift', start.year = 2021, var.list = c('income_boosted', S7.var.list), verbose=FALSE)
-# 
-# if (out.type == 'batch') {
-#   S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
-#                  'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness',  # SIPHER 7 variables
-#                  'ethnicity', 'age', 'sex', 'region', 'job_sec', 'education_state', 'nkids_ind', 'hourly_wage')
-#   
-#   base.dat <- read_batch_out_summarise(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=FALSE)
-#   int.dat <- read_batch_out_summarise(out.path.batch, paste0(intervention, '/'), start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list))
-# } else if (out.type == 'single') {
-#   base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
-#   int.dat <- read_singular_local_out(out.path, intervention, drop.dead = TRUE)
-# } else {
-#   print('You have supplied an incorrect output type. The options are batch or
-#         single.')
-# }
-```
-
-```{r}
 out.path.batch <- here::here('output', params$out_path)
 intervention <- params$intervention
-num_clusters <- as.numeric(params$clusters)
-
 baseline <- params$baseline
 if (baseline == '') {
   baseline <- 'baseline'
@@ -89,51 +56,6 @@ if (baseline == '') {
 base.dat <- read.csv(file = paste0(out.path.batch, baseline, '_summary.csv'))
 int.dat <- read.csv(file = paste0(out.path.batch, intervention, '_summary.csv'))
 ```
-
-
-```{r}
-
-# large_df <- base.dat
-# 
-# # Function to identify variable types
-# variable_type <- function(x) {
-#   if (is.numeric(x) && !is.integer(x)) {
-#     return("continuous")  # float values
-#   } else if (is.numeric(x) && is.integer(x) && length(unique(x)) > 15) {
-#     return("continuous")  # int but lots of unique values
-#   } else if (is.numeric(x) && is.integer(x) && length(unique(x)) < 15) {
-#     return("ordinal")
-#   } else if (is.character(x)) {
-#     return("nominal")
-#   } else {
-#     return("other")
-#   }
-# }
-# 
-# # Now identify columns and calculate summary values
-# # Define a list of columns to group by
-# group_cols <- c("pidp", "hidp", "time")
-# 
-# # Identify variable types
-# var_types <- sapply(large_df, variable_type)
-# 
-# # Separate variables by type
-# continuous_vars <- names(var_types[var_types == "continuous"])
-# ordinal_vars <- names(var_types[var_types == "ordinal"])
-# nominal_vars <- names(var_types[var_types == "nominal"])
-# 
-# # Calculate mean for continuous variables and mode for ordinal and nominal variables
-# result_df <- large_df %>%
-#   group_by(across(all_of(group_cols))) %>%
-#   summarize(
-#     across(all_of(setdiff(continuous_vars, group_cols)), mean, na.rm = TRUE),
-#     across(all_of(ordinal_vars), ~ mode(.x)),
-#     across(all_of(nominal_vars), ~ mode(.x))
-#   )
-```
-
-
-Some data preparation.
 
 ```{r}
 calc_age_group <- function(batch.dat) {
@@ -155,17 +77,7 @@ int.dat <- calc_age_group(int.dat)
 
 base.dat <- calc_income_quintile(base.dat)
 int.dat <- calc_income_quintile(int.dat)
-
-
-
-
-# SCALE!!!!!
- #STANDARDISE WITH Z SCORE
 ```
-
-# Calculate Equivalent Income
-
-For some reason EI isn't being calculated properly for 2021 (start year). I will fix it properly eventually but for now let's just recalculate here.
 
 ```{r}
 # Function to calculate equivalent income using SIPHER calculation
@@ -253,28 +165,6 @@ base.dat <- calculate_equivalent_income(base.dat)
 int.dat <- calculate_equivalent_income(int.dat)
 ```
 
-
-# CLUSTERING
-
-Going to start with the k-prototypes algorithm as this is a clustering algorithm that can handle ordinal and continuous input variables.
-
-Also need to be clear about the structure of this clustering. I am going to cluster individuals in a single year (start wit 2030) based on the change in each component variable (i.e. S7_mental_health) and the change in Equivalent Income. I can then investigate the clusters and look at things like:
-- age range
-- other demographics characteristics (sex, ethnicity, region, education_state)
-- Change in components (is one group dominated by people who improved housing_quality for example?)
-- Change in Equivalent Income
-
-```{r}
-# # first add scenario column to each
-# base <- base.dat %>%
-#   mutate(scenario = 'baseline',
-#          boost_amount = 0,
-#          income_boosted = 0)
-# int <- int.dat %>%
-#   mutate(scenario = 'LivingWage')
-```
-
-
 ```{r}
 # so need a function to generate a dataframe with all those additional metrics for the clustering
 
@@ -289,24 +179,17 @@ calculate_clustering_metrics <- function(base.dat, base.name, int.dat, int.name,
     mutate(scenario = int.name)
   
   miss.cols <- setdiff(names(int.dat), names(base.dat))
-  # print('Missing Columns!')
-  # print(miss.cols)
+  print('Missing Columns!')
+  print(miss.cols)
   
   # now bind together before subsetting
   combined <- rbind(base.dat, int.dat)
-  
-  combined$hh_income <- as.numeric(combined$hh_income)
-  combined$equivalent_income <- as.numeric(combined$equivalent_income)
-  
-  combined$hh_income <- scale(combined$hh_income)
-  combined$equivalent_income <- scale(combined$equivalent_income)
-  
   
   # drop the original datafiles now for better memory handling with batch
   rm(base.dat, int.dat)
   
   combined <- combined %>%
-    select(pidp, time, scenario, age, age.group, sex, ethnicity, region, education_state, hh_income, equivalent_income, S7_housing_quality, S7_neighbourhood_safety, S7_physical_health, S7_mental_health, S7_labour_state, loneliness, job_sec, nkids_ind, income.quint) #hidp hourly_wage
+    select(pidp, time, scenario, age, age.group, sex, ethnicity, region, education_state, hh_income, equivalent_income, S7_housing_quality, S7_neighbourhood_safety, S7_physical_health, S7_mental_health, S7_labour_state, loneliness, job_sec, nkids_ind) #hidp hourly_wage
   
   
   # combined$S7_housing_quality <- as.numeric(factor(combined$S7_housing_quality,
@@ -345,18 +228,14 @@ calculate_clustering_metrics <- function(base.dat, base.name, int.dat, int.name,
   
   ############# Now calculate the difference between intervention and baseline in target.year ###########
   # List of variables to ignore (no difference calculation)
-  ignore_vars <- c('pidp', 'time', 'nkids_ind', 'income.quint') #'hidp'
-  rename_vars <- c("age", "sex", "ethnicity", "region", "age.group", "S7_labour_state", "education_state", 'job_sec')
+  ignore_vars <- c('pidp', 'time', 'nkids_ind') #'hidp'
+  rename_vars <- c("age", "sex", "ethnicity", "region", "age.group", "S7_labour_state", "education_state")
   
   #return(combined)
   
-  #print(colnames(combined))
-  
-  #print(typeof(combined$age_energyDownliftNoSupport))
-  
   for (var in rename_vars) {
     combined <- combined %>%
-      select(-paste0(var, '_', intervention)) %>%
+      select(-contains(paste0(var, '_', intervention))) %>%
       rename(!!var := .data[[paste0(var, '_', base.name)]])
   }
   
@@ -386,18 +265,19 @@ calculate_clustering_metrics <- function(base.dat, base.name, int.dat, int.name,
   combined <- combined %>%
     mutate(!!ei_base := as.numeric(.data[[ei_base]]),
            !!ei_var := as.numeric(.data[[ei_var]]))
+
   
-  # print('Type of equivalent_income:')
-  # print(typeof(combined[[paste0('equivalent_income_', base.name)]]))
-  # print(typeof(combined[[paste0('equivalent_income_', intervention)]]))
+  print('Type of equivalent_income:')
+  print(typeof(combined[[paste0('equivalent_income_', base.name)]]))
+  print(typeof(combined[[paste0('equivalent_income_', intervention)]]))
   
   print('About to start final calculation')
 
   for (var in remaining_vars) {
     base.var <- paste0(var, '_', base.name)
     int.var <- paste0(var, '_', int.name)
-    # print(base.var)
-    # print(int.var)
+    print(base.var)
+    print(int.var)
     
     combined <- combined %>%
       mutate(!!var := !!sym(int.var) - !!sym(base.var)) %>%
@@ -417,145 +297,66 @@ combined <- calculate_clustering_metrics(base.dat, base.name = baseline, int.dat
 #rm(base.dat, int.dat)
 ```
 
-```{r}
-run_clustering <- function(combined, num_clusters) {
-  
-  combined <- combined %>%
-    select(S7_housing_quality, S7_neighbourhood_safety, S7_physical_health, S7_mental_health, S7_labour_state, loneliness)
-  
-  # Identify categorical columns
-  categorical_cols <- c('S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness')
-  
-  # Convert categorical variables to factors
-  combined[, categorical_cols] <- lapply(combined[, categorical_cols], as.factor)
-  
-  cluster_model <- kmodes(x = combined,
-                    k = num_clusters, 
-                    num_rounds = 20, 
-                    verbose = FALSE, 
-                    cat.vars = which(names(combined) %in% categorical_cols))
-  
-  return(cluster_model)
-}
 
-clust <- run_clustering(combined, num_clusters)
-
-
-
-# STANDARDISE WITH Z SCORES 
-
-#combined$cluster <- clust$cluster
-```
-
-
-## Plotting
+# Testing Number of Clusters
 
 ```{r}
-# Now analyze the clustering output
-table(clust$cluster)
+# so need a function to generate a dataframe with all those additional metrics for the clustering
+#base.data <- base.dat
+base.name <- baseline
+int.name <- intervention
 
-cluster_profiles <- aggregate(combined, by = list(clust$cluster), FUN = function(x) {
-  if (is.numeric(x)) mean(x) else names(sort(table(x), decreasing = TRUE)[1])
-})
-
-plot.vars <- c('equivalent_income', 'hh_income', 'income.quint', 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness', 'age', 'region', 'education_state', 'job_sec', 'nkids_ind')
-
-for (var in plot.vars) {
-  p1 <-ggplot(combined, aes(x = factor(clust$cluster), y = .data[[var]])) +
-    geom_boxplot() +
-    labs(title = intervention, x = "Cluster", y = var) +
-    theme_minimal()
-  print(p1)
-}
-```
-
-
-# Fancy Plot
-
-```{r}
-combined$cluster <- clust$cluster
-
-# Subset of continuous variables to plot
-subset_vars_cont <- c('equivalent_income', 'hh_income', 'age', 'boost_amount')
-
-# Subset of nominal variables to plot
-subset_vars_nom <- c('S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'loneliness') # , 'S7_labour_state'
-
-# Create a long format data frame suitable for ggplot (for continuous variables)
-long_data_cont <- combined %>%
-  select(all_of(subset_vars_cont), cluster) %>%
-  pivot_longer(cols = all_of(subset_vars_cont), names_to = "variable", values_to = "value")
-
-# Plotting continuous variables
-p_cont <- ggplot(long_data_cont, aes(x = factor(cluster), y = value)) +
-  geom_boxplot() +
-  facet_wrap(~variable, scales = "free_y") +
-  labs(title = "Cluster Analysis - Continuous Variables", x = "Cluster", y = "Value") +
-  theme_minimal()
-
-print(p_cont)
-
-
-# Create a long format data frame suitable for ggplot (for nominal variables)
-long_data_nom <- combined %>%
-  select(all_of(subset_vars_nom), cluster) %>%
-  pivot_longer(cols = all_of(subset_vars_nom), names_to = "variable", values_to = "value") %>%
-  group_by(cluster, variable) %>%
-  count(value) %>%
-  mutate(proportion = n / sum(n)) %>%
-  ungroup()
-
-# Plotting nominal variables with proportions
-p_nom <- ggplot(long_data_nom, aes(x = value, y = proportion, fill = factor(cluster))) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~variable, scales = "free_x") +
-  labs(title = "Cluster Analysis - Nominal Variables (Proportions)", x = "Value", y = "Proportion") +
-  theme_minimal()
-
-print(p_nom)
-
-
-```
-
-# Better Fancy Plot
-
-Boxplots of component variables over the whole population.
-
-PICK THE TOP 10% IMPROVERS in EQUIVALENT INCOME CHANGE, DRILL DOWN INTO COMPONENT CHANGE FOR THESE PEOPLE. WHAT DRIVES CHANGE IN EQUIVALENT INCOME APART FROM INCOME?
-
-GAINERS AND LOSERS PLOT.
-
-IF WE HAVE LOSERS, IGNORE. JUST FOCUS ON BIG GAINERS - CAN SHOW DEMOGRAPHICS OF THIS GROUP AND HOW PATHWAYS CHANGE. DOES HOUSING QUALITY CHANGE? MENTAL HEALTHA ND PHYSICAL HEALTH. 
-
-Need boost amount. 
-
-USE SIMILAR IDEA TO VITTAL IN HIS PRES!
-
-Show Gainers and Losers in nominal factor plots above. Colour by 
-
-```{r}
-
-```
-
-
-# Plotting Change in Components
-
-```{r}
-# varlist <- c('S7_neighbourhood_safety', 'loneliness',
-#              'S7_physical_health', 'S7_mental_health')
+# # first add scenario column to each
+# base <- base.dat %>%
+#   mutate(scenarios = base.name)
+# int <- int.dat %>%
+#   mutate(scenarios = int.name)
 # 
-# sccb_all_vars_BOXPLOT(base.dat, int.dat, group.var = 'income.quint', varlist = varlist)
+# # now bind together before subsetting
+# combined2 <- rbind(base, int)
+# combined2 <- combined2 %>%
+#   select(pidp, time, age, sex, ethnicity, region, education_state, hh_income, equivalent_income, S7_housing_quality, S7_neighbourhood_safety, S7_physical_health, S7_mental_health, S7_labour_state, loneliness, job_sec, nkids_ind, hourly_wage)
+
+
+
+# Identify categorical columns
+categorical_cols <- c('sex', 'ethnicity', 'region', 'education_state', 'S7_housing_quality', 'S7_neighbourhood_safety', 'S7_physical_health', 'S7_mental_health', 'S7_labour_state', 'loneliness', 'job_sec')
+
+# Convert categorical variables to factors
+combined[, categorical_cols] <- lapply(combined[, categorical_cols], as.factor)
+
+# Choose a range of values for 'k' (number of clusters)
+k_values <- 2:6 # You can adjust the range
+
+# Initialize vectors to store evaluation metrics
+wss <- vector('numeric', length(k_values))  # Within-cluster sum of squares
+#silhouette_scores <- vector('numeric', length(k_values))
+
+
+# Iterate through different values of 'k'
+for (i in 1:length(k_values)) {
+  # Fit the k-prototypes model
+  kp_model <- kproto(combined, k = k_values[i], num_rounds = 20, verbose = FALSE, cat.vars = which(names(combined2) %in% categorical_columns))
+  # Compute within-cluster sum of squares
+  wss[i] <- kp_model$tot.withinss
+  # Compute silhouette score
+  # Silhouette score measures the quality of clustering (higher is better)
+  #silhouette_scores[i] <- silhouette(kp_model$cluster, dist(combined))$avg.width
+}
+
+# Plot the elbow curve
+#par(mfrow = c(1, 2))
+plot(k_values, wss, type = "b", pch = 19, xlab = "Number of Clusters (k)", ylab = "Within-Cluster Sum of Squares (WSS)", main = "Elbow Method")
+#plot(k_values, silhouette_scores, type = "b", pch = 19, xlab = "Number of Clusters (k)", ylab = "Silhouette Score", main = "Silhouette Score Method")
+
+# Use the elbow or silhouette method to select the optimal number of clusters
+# Elbow method: Look for an 'elbow point' where the WSS starts to level off
+# Silhouette method: Look for the highest silhouette score
 ```
 
 
 
+```{r}
 
-
-
-
-
-
-
-
-
+```
 

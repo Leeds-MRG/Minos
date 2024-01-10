@@ -81,8 +81,13 @@ rm(base.sub, int.sub)
 top10p <- merged %>%
   mutate(diff = intervention - baseline) %>%
   group_by(pidp) %>%
-  summarise(sum_diff = sum(diff)) %>%
-  filter(sum_diff > quantile(sum_diff, .9))
+  summarise(sum_diff = sum(diff))
+
+threshold <- quantile(top10p$sum_diff, 0.9)
+print(threshold)
+
+top10p <- top10p %>%
+  filter(sum_diff > threshold)
 
 rm(merged)
 

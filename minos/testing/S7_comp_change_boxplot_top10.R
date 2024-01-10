@@ -4,9 +4,6 @@
 require(tidyverse)
 require(ggplot2)
 require(here)
-require(dplyr)
-require(tidyr)
-require(purrr)
 
 
 
@@ -17,8 +14,8 @@ source(here::here('minos', 'validation', 'utils.r'))
 args = commandArgs(trailingOnly = TRUE)
 #args_path = paste0(args, '/')
 
-out.path.batch <- here::here('output', 'SIPHER7/')
-intervention <- args
+out.path.batch <- here::here('output', 'TEST_BATCH/')
+intervention <- 'livingWageIntervention'
 
 
 S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
@@ -26,51 +23,64 @@ S7.var.list <- c('hh_income', 'equivalent_income',  # Income variables
                  'ethnicity', 'age', 'region', 'job_sec', 'education_state', 'nkids_ind', 'housing_tenure', 'urban')
 
 
-base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2021, var.list = S7.var.list, verbose=TRUE)
-int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2021, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=TRUE)
+base.batch <- read_batch_out_all_years(out.path.batch, 'baseline', start.year = 2024, var.list = S7.var.list, verbose=TRUE)
+int.batch <- read_batch_out_all_years(out.path.batch, intervention, start.year = 2024, var.list = c('income_boosted', 'boost_amount', S7.var.list), verbose=TRUE)
 
 # add income_boosted and boost_amount to baseline
 base.batch$income_boosted <- 0
 base.batch$boost_amount <- 0
 
+base.batch <- base.batch %>%
+  filter(run_id < 51)
+int.batch <- int.batch %>%
+  filter(run_id < 51)
 
-
-# select only top 10% of equivalent income increases
-base.sub <- base.batch %>%
-  select(pidp, time, equivalent_income) %>%
-  rename(baseline = equivalent_income)
-
-int.sub <- int.batch %>%
-  select(pidp, time, equivalent_income) %>%
-  rename(intervention = equivalent_income)
-
-merged <- merge(x = base.sub,
-                y = int.sub,
-                by = c('pidp', 'time'))
-
-rm(base.sub, int.sub)
-
-top10p <- merged %>%
-  mutate(diff = intervention - baseline) %>%
-  group_by(pidp) %>%
-  summarise(sum_diff = sum(diff))
-
-threshold <- quantile(top10p$sum_diff, 0.9)
-print(threshold)
-
-top10p <- top10p %>%
-  filter(sum_diff > threshold)
-
-rm(merged)
-
-print(paste0('Top 10% of improvers: n = ', nrow(top10p)))
+boosted.pidps <- int.batch %>%
+  filter(income.boosted = TRUE) %>%
+  select(pidp)
 
 base.batch <- base.batch %>%
-  filter(pidp %in% unique(top10p$pidp))
-int.batch <- int.batch %>%
-  filter(pidp %in% unique(top10p$pidp))
+  filter(pidp %in% boosted.pidps$pidp)
 
-rm(top10p)
+int.batch <- int.batch %>%
+  filter(pidp %in% boosted.pidps$pidp)
+
+# # select only top 10% of equivalent income increases
+# base.sub <- base.batch %>%
+#   select(pidp, time, equivalent_income) %>%
+#   rename(baseline = equivalent_income)
+#
+# int.sub <- int.batch %>%
+#   select(pidp, time, equivalent_income) %>%
+#   rename(intervention = equivalent_income)
+#
+# merged <- merge(x = base.sub,
+#                 y = int.sub,
+#                 by = c('pidp', 'time'))
+#
+# rm(base.sub, int.sub)
+#
+# top10p <- merged %>%
+#   mutate(diff = intervention - baseline) %>%
+#   group_by(pidp) %>%
+#   summarise(sum_diff = sum(diff))
+#
+# threshold <- quantile(top10p$sum_diff, 0.9)
+# print(threshold)
+#
+# top10p <- top10p %>%
+#   filter(sum_diff > threshold)
+#
+# rm(merged)
+#
+# print(paste0('Top 10% of improvers: n = ', nrow(top10p)))
+#
+# base.batch <- base.batch %>%
+#   filter(pidp %in% unique(top10p$pidp))
+# int.batch <- int.batch %>%
+#   filter(pidp %in% unique(top10p$pidp))
+#
+# rm(top10p)
 
 
 
@@ -184,7 +194,21 @@ sccb_all_vars_BOXPLOT <- function(base.batch, int.batch, varlist) {
 
   ggsave(filename = paste0('sccb_boxplot_', intervention, '_top10.png'),
          plot = p1,
-         path = 'plots/')
+         path = 'plots/',
+         scale = 1,
+         width = 9)
+
+  return(p1)
 }
 
-sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)
+plot <- sccb_all_vars_BOXPLOT(base.batch, int.batch, varlist = varlist)
+
+
+print('SAVING THE PLOT (PLEASE GOD PLEASE)')
+ggsave(filename = paste0('sccb_boxplot_', intervention, '_top10.png'),
+        plot = plot,
+        path = 'plots/',
+       scale = 1,
+       width = 9)
+
+rm(base.batch, int.batch, plot)
