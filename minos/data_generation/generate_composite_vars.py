@@ -1056,6 +1056,60 @@ def update_material_deprivation_vars(data,
     return data
 
 
+''' HR 20/12/23 Copied from branch #283 for now; delete/refactor after merging '''
+def weighted_nanmean(df, v, weights = "weight", scale=1):
+    #df = df.loc[df['weight'] > 0]
+
+    #df.loc[df.index, weights] = 1/df[weights]
+    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+    #return np.nanmean()
+
+
+''' HR 20/12/23 Weighted median, ignoring NaN values
+    Copies format of weighted_nanmean
+    Adapted from here: https://stackoverflow.com/questions/20601872/numpy-or-scipy-to-calculate-weighted-median '''
+def weighted_nanquantile(df, v, weights='weight', scale=1, quantile=0.5, interpolate=True):
+
+    vl = df[v].values
+    wl = df[weights].values
+    indices_sorted = np.argsort(wl)
+
+    v_sorted = vl[indices_sorted]
+    w_sorted = wl[indices_sorted]
+    Sn = w_sorted.cumsum()
+
+    if interpolate:
+        Pn = (Sn - w_sorted/2) / Sn[-1]
+        value = np.interp(quantile, Pn, v_sorted)
+    else:
+        value = v_sorted[np.searchsorted(Sn, quantile * Sn[-1])]
+
+    return value
+
+
+''' HR 10/01/24 Moving to method to test options and allow easy changes elsewhere
+    Added options for applying weights (experimental but dumping here so all in one place) '''
+def get_median(data,
+               exclude_negative_values=True,
+               income_var='hh_income',
+               weight_var='weight',
+               apply_weights=(False, False)):  # Whether to apply weights and which method
+
+    if exclude_negative_values:
+        sub = data.loc[data[income_var] > 0.0]
+    else:
+        sub = data
+
+    if not apply_weights[0]:
+        median = sub[income_var].median()
+    else:
+        if apply_weights[1]:
+            median = (sub[income_var] * sub[weight_var]).median()
+        else:
+            median = weighted_nanquantile(sub, income_var, quantile=0.5)
+    return median
+
+
 ''' HR 27/11/23 All-purpose method for hh poverty variable calculation'''
 def update_poverty_vars_hh(data,
                            median_reference=None,
@@ -1067,22 +1121,22 @@ def update_poverty_vars_hh(data,
                            year=None,
                            ):
 
-    # Generate from US composite stage if not passed
+    # Generate adjusted UK-wide median (for absolute poverty)
     if median_reference is None:
         median_reference = US_utils.get_reference_year_equivalised_income()
-
-    # Get subframe of unique hidp values and calculate median yearly and inflated incomes (for relative and absolute poverty, respectively)
-    hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
-    median_yearly = hidp_sub.loc[hidp_sub[income_yearly] > 0.0][income_yearly].median()
     median_inflated = median_reference
+
+    # Get subframe of unique hidp values and calculate median (for relative poverty)
+    hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    median_yearly = get_median(hidp_sub, income_var=income_yearly)
 
     if year is None:
         year = hidp_sub['time'].unique()[0]  # Just grab first value, as should always be single value in data passed
 
-    # print("Median income (yearly), {}: {}".format(year, median_yearly))
-    # print("Annual: {}".format(median_yearly*12))
-    # print("Median income (inflated), {}: {}".format(year, median_inflated))
-    # print("Annual: {}".format(median_inflated*12))
+    print("Median income (yearly), {}: {}".format(year, median_yearly))
+    print("Annual: {}".format(median_yearly*12))
+    print("Median income (inflated), {}: {}".format(year, median_inflated))
+    print("Annual: {}".format(median_inflated*12))
 
     ''' 2. RELATIVE POVERTY '''
     hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)

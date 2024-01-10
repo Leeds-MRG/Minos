@@ -1055,20 +1055,8 @@ def apply_target_payment(data,
 # if __name__ == "__main__":
 #
 #     ''' HR 20/11/23 For child poverty testing '''
-#     # files = ['2016_US_cohort.csv',
-#     #          '2017_US_cohort.csv',
-#     #          '2018_US_cohort.csv',
-#     #          '2019_US_cohort.csv',
-#     #          '2020_US_cohort.csv',
-#     #          ]
-#
-#     files = ['2010_US_cohort.csv',
-#              '2011_US_cohort.csv',
-#              '2012_US_cohort.csv',
-#              '2013_US_cohort.csv',
-#              '2014_US_cohort.csv',
-#              ]
-#
+#     year_range = [2011, 2021]
+#     files = [str(year) + '_US_cohort.csv' for year in range(*year_range)]
 #
 #     ''' 1. Testing for composite generation '''
 #     # Get five years data to check persistent poverty sequence logic
@@ -1081,6 +1069,38 @@ def apply_target_payment(data,
 #     data = gcv.generate_child_material_deprivation(data)
 #     data = gcv.calculate_poverty_composites_hh(data)
 #     data = gcv.calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
+#
+#     import minos
+#     median_reference = minos.data_generation.US_utils.get_reference_year_equivalised_income()
+#
+#     years = sorted(data['time'].unique())
+#     ysub = {}
+#     hsub = {}
+#     for year in years:
+#         ysub[year] = data.loc[data['time'] == year]
+#         print('\n YEAR: {}'.format(year))
+#
+#         hsub[year] = ysub[year].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+#         factor = ysub[year]['weight'].sum() / hsub[year]['weight'].sum()
+#
+#         m1 = gcv.get_median(hsub[year], exclude_negative_values=False)
+#         m2 = gcv.get_median(hsub[year])
+#
+#         ''' Option 1: Try weighted nanmedian '''
+#         # m3 = gcv.get_median(hsub[year], exclude_negative_values=False, apply_weights=(True, True))
+#         # m4 = gcv.get_median(hsub[year], apply_weights=(True, True))
+#         ''' Option 2: Simple median of weighted incomes '''
+#         m3 = gcv.get_median(hsub[year], exclude_negative_values=False, apply_weights=(True, True))
+#         m4 = gcv.get_median(hsub[year], apply_weights=(True, True))
+#
+#         print("Median, reference/inflated: {}".format(median_reference))
+#
+#         print("Median, all earnings, unweighted: {}".format(m1))
+#         print("Median, earnings > 0, unweighted: {}".format(m2))
+#         print("Median, all earnings, weighted: {}".format(m3))
+#         print("Median, earnings > 0, weighted: {}".format(m4))
+
+
 
 #     data['times_boosted'] = 0
 #     data['total_boost_amount'] = 0.0
