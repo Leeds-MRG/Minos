@@ -1,6 +1,5 @@
 """Module for updating amy useful deterministic variables that happen not to be updated anywhere"""
 
-
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
@@ -9,6 +8,7 @@ import logging
 from datetime import datetime as dt
 from minos.data_generation import generate_composite_vars as gcv
 from minos.data_generation import US_utils
+
 
 class ChildPovertyMetrics(Base):
     @property
@@ -96,12 +96,12 @@ class ChildPovertyMetrics(Base):
                         ]
 
         # 06/12/23 Bodge to avoid Vivarium type error (actually PopulationError)
-        vars_to_cast = {'relative_poverty': float,
-                        'absolute_poverty': float,
-                        'low_income': float,
-                        'low_income_matdep_child': float,
+        vars_to_cast = {'relative_poverty': int,
+                        'absolute_poverty': int,
+                        'low_income': int,
+                        'low_income_matdep_child': int,
                         'relative_poverty_history': int,
-                        'persistent_poverty': float,
+                        'persistent_poverty': int,
                         }
 
         for var, _type in vars_to_cast.items():

@@ -158,22 +158,23 @@ class lmmYJNutrition(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp',
-                        'time',
-                        'age',
-                        'sex',
-                        'ethnicity',
-                        'region',
-                        'SF_12',
-                        'education_state',
-                        #'labour_state',
-                        'job_sec',
-                        'job_sector',
+        view_columns = ['time',
+                        "age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
                         'hh_income',
-                        #'alcohol_spending',
-                        'ncigs',
+                        'pidp',
+                        'hidp',
                         'nutrition_quality',
-                        'nutrition_quality_diff']
+                        'nutrition_quality_diff',
+                        'ncigs',
+                        "SF_12",
+                        'old_pidp',
+                        'old_hidp'
+                        ]
+
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -203,17 +204,20 @@ class lmmYJNutrition(Base):
 
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        pop = pop.sort_values('pidp')
-        pop['nutrition_quality_new'] = pop['nutrition_quality']
-
+        #pop = pop.sort_values('pidp')
+        #pop['nutrition_quality_new'] = pop['nutrition_quality']
         ## Predict next nutrition value
         newWaveNutrition = pd.DataFrame(columns=["nutrition_quality"])
         newWaveNutrition['nutrition_quality'] = self.calculate_nutrition(pop).round(0).astype(int)
-
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = pop.index
+        nutrition_mean = np.mean(newWaveNutrition["nutrition_quality"])
+        std_ratio = (np.std(pop["nutrition_quality"])/np.std(newWaveNutrition["nutrition_quality"]))
+        newWaveNutrition["nutrition_quality"] *= std_ratio
+        newWaveNutrition["nutrition_quality"] -= ((std_ratio-1)*nutrition_mean)
+        newWaveNutrition["nutrition_quality"] = newWaveNutrition["nutrition_quality"].astype(int)
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
-        newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 110) # clipping because of idiot that eats 150 vegetables per week.
+        newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 150) # clipping because of idiot that eats 150 vegetables per week.
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(int)
         # Draw individuals next states randomly from this distribution.
@@ -237,7 +241,7 @@ class lmmYJNutrition(Base):
                                                                        dependent='nutrition_quality_new',
                                                                        reflect=False,
                                                                        yeo_johnson= False,
-                                                                       noise_std=1)#
+                                                                       noise_std=3)#way bigger
 
         return nextWaveNutrition
     # Special methods used by vivarium.

@@ -29,101 +29,119 @@ class Replenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
-
+        config = builder.configuration
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
-        view_columns = ['pidp',
-                        'age',
-                        'sex',
-                        'education_state',
-                        'alive',
-                        'ethnicity',
-                        'entrance_time',
-                        'time',
-                        'exit_time',
-                        'job_industry',
-                        'job_occupation',
-                        'job_sec',
-                        'job_duration_m',
-                        'job_duration_y',
-                        'depression',
-                        'academic_year',
-                        'hidp',
-                        'birth_month',
-                        'birth_year',
-                        'nobs',
-                        'region',
-                        'SF_12',
-                        'hh_int_y',
-                        'hh_int_m',
-                        'Date',
-                        'housing_quality',
-                        'hh_income',
-                        'neighbourhood_safety',
-                        'ncigs',
-                        'alcohol_spending',
-                        'smoker',
-                        'loneliness',
-                        'weight',
-                        'nkids',
-                        'nkids_ind',
-                        'ndrinks',
-                        'max_educ',
-                        'yearly_energy',
-                        'job_sector',
-                        'SF_12p',
-                        'gross_pay_se',
-                        'nutrition_quality',
-                        'job_hours_se',
-                        'hourly_rate',
-                        'job_hours',
-                        'job_inc',
-                        'jb_inc_per',
-                        'hourly_wage',
-                        'gross_paypm',
-                        'phealth',
-                        'marital_status',
-                        'hh_comp',
-                        #'labour_state',
-                        'S7_labour_state',
-                        'S7_housing_quality',
-                        'S7_neighbourhood_safety',
-                        'S7_physical_health',
-                        'S7_mental_health',
-                        'equivalent_income',
-                        'heating',
-                        'hhsize',
-                        'financial_situation',
-                        'housing_tenure',
-                        'urban',
-                        'SF_12_diff',
-                        'hh_income_diff',
-                        'nutrition_quality_diff',
-                        'n_adult_oecd',
-                        'n_child_oecd',
-                        'matdep_child',
-                        'matdep_child_score',
-                        'relative_poverty_percentile',
-                        'relative_poverty',
-                        'absolute_poverty_percentile',
-                        'absolute_poverty',
-                        'low_income',
-                        'low_income_matdep_child',
-                        'relative_poverty_history',
-                        'persistent_poverty',
-                        ]
+        # view_columns = ['pidp',
+        #                 'age',
+        #                 'sex',
+        #                 'education_state',
+        #                 'alive',
+        #                 'ethnicity',
+        #                 'entrance_time',
+        #                 'time',
+        #                 'exit_time',
+        #                 'job_industry',
+        #                 'job_occupation',
+        #                 'job_sec',
+        #                 'job_duration_m',
+        #                 'job_duration_y',
+        #                 'depression',
+        #                 'academic_year',
+        #                 'hidp',
+        #                 'birth_month',
+        #                 'birth_year',
+        #                 'region',
+        #                 'SF_12',
+        #                 'hh_int_y',
+        #                 'hh_int_m',
+        #                 'Date',
+        #                 'housing_quality',
+        #                 'hh_income',
+        #                 'neighbourhood_safety',
+        #                 'ncigs',
+        #                 'alcohol_spending',
+        #                 'smoker',
+        #                 'loneliness',
+        #                 'weight',
+        #                 'nkids',
+        #                 'nkids_ind',
+        #                 'ndrinks',
+        #                 'max_educ',
+        #                 'yearly_energy',
+        #                 'job_sector',
+        #                 'SF_12p',
+        #                 'gross_pay_se',
+        #                 'nutrition_quality',
+        #                 'job_hours_se',
+        #                 'hourly_rate',
+        #                 'job_hours',
+        #                 'job_inc',
+        #                 'jb_inc_per',
+        #                 'hourly_wage',
+        #                 'gross_paypm',
+        #                 'phealth',
+        #                 'marital_status',
+        #                 'hh_comp',
+        #                 'universal_income',
+        #                 #'council_tax',
+        #                 #'labour_state',
+        #                 'S7_labour_state',
+        #                 'S7_housing_quality',
+        #                 'S7_neighbourhood_safety',
+        #                 'S7_physical_health',
+        #                 'S7_mental_health',
+        #                 'equivalent_income',
+        #                 'heating',
+        #                 'hhsize',
+        #                 'financial_situation',
+        #                 'housing_tenure',
+        #                 'urban',
+        #                 'universal_credit',
+        #                 'SF_12_diff',
+        #                 'hh_income_diff',
+        #                 'nutrition_quality_diff',
+        # # HR 283-285 check all vars below (from 285) present/carried through sim
+        #                 'n_adult_oecd',
+        #                 'n_child_oecd',
+        #                 'matdep_child',
+        #                 'matdep_child_score',
+        #                 'relative_poverty_percentile',
+        #                 'relative_poverty',
+        #                 'absolute_poverty_percentile',
+        #                 'absolute_poverty',
+        #                 'low_income',
+        #                 'low_income_matdep_child',
+        #                 'relative_poverty_history',
+        #                 'persistent_poverty',
+        #                 ]
+        # stop defining the input columns manually its dumb.
+        view_columns = list(pd.read_csv(config.input_data_dir + "/2020_US_cohort.csv").columns)
+
+        #if config.synthetic:  # only have spatial column and new pidp for synthpop.
+        #    view_columns += ["ZoneID",
+        #                     # "new_pidp",
+        #                     'local_simd_deciles',
+        #                     'simd_decile',
+        #                     # 'cluster'
+        #                     ]
+
+        columns_created = ["entrance_time"]
+
+        #if config.is_test is not None:
+        #    self.is_test = config.is_test
+        #else:
+        #    self.is_test = False
 
         # Shorthand methods for readability.
-        self.population_view = builder.population.get_view(view_columns)  # view simulants
+        self.population_view = builder.population.get_view(view_columns + columns_created)  # view simulants
         self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
         self.register = builder.randomness.register_simulants  # register new simulants to CRN streams (seed them).
 
         # Defines how this module initialises simulants when self.simulant_creater is called.
         builder.population.initializes_simulants(self.on_initialize_simulants,
-                                                 creates_columns=view_columns)
+                                                 creates_columns=view_columns+columns_created)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.age_simulants)
-        #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
     def on_initialize_simulants(self, pop_data):
@@ -147,13 +165,18 @@ class Replenishment(Base):
             # Load in initial data frame.
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
             new_population = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
+            #if self.is_test:
+            #    new_population = new_population.head(500) # much smaller pop for testing.
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            logging.info(f"Starting cohort loaded for {self.current_year}.")
+
         elif pop_data.user_data["cohort_type"] == "replenishment":
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            logging.info(f"Replenishing cohort added for {self.current_year}.")
 
         elif pop_data.user_data["cohort_type"] == "births":
             # If we're adding new births need to generate all US data columns from scratch (yay).
@@ -162,6 +185,7 @@ class Replenishment(Base):
             new_population = pd.DataFrame(index=pop_data.index)
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = 0.
+            logging.info(f"Births cohort added for {self.current_year}.")
 
         # Force index of new cohort to align with index of total population data frame
         # otherwise this will overwrite some sims.
@@ -191,7 +215,7 @@ class Replenishment(Base):
         pop = self.population_view.get(event.index, query='pidp > 0')
         if event.time.month == 10 and event.time.year == self.current_year + 1:
             self.current_year += 1
-            pop['time'] += 1
+            #pop['time'] += 1
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
             new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2019-2070.csv")
@@ -236,30 +260,6 @@ class Replenishment(Base):
             # logging
             logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
 
-    def age_simulants(self, event):
-        """ Age everyone by the length of the simulation time step in days
-        Parameters
-        ----------
-        event : builder.event
-            some time point at which to run the method.
-        """
-        # get alive people and add time in years to their age.
-        population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['age'] += event.step_size / pd.Timedelta(days=365.25)
-        self.population_view.update(population)
-
-    def update_time(self, event):
-        """ Update time variable by the length of the simulation time step in days
-        Parameters
-        ----------
-        event : builder.event
-            some time point at which to run the method.
-        """
-        # get alive people and add time in years to their age.
-        population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['time'] += event.step_size / pd.Timedelta(days=365.25)
-        self.population_view.update(population)
-
 
 class NoReplenishment(Base):
 
@@ -272,6 +272,7 @@ class NoReplenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
+        config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -332,6 +333,14 @@ class NoReplenishment(Base):
                         'S7_physical_health',
                         'S7_mental_health',]
 
+        if config.synthetic:  # only have spatial column and new pidp for synthpop.
+            view_columns += ["ZoneID",
+                             # "new_pidp",
+                             'local_simd_deciles',
+                             'simd_decile',
+                             # 'cluster'
+                             ]
+
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
         self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
@@ -349,8 +358,8 @@ class NoReplenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.age_simulants)
-        builder.event.register_listener('time_step', self.update_time)
+        #builder.event.register_listener('time_step', self.age_simulants)
+        #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
     def on_initialize_simulants(self, pop_data):
@@ -389,7 +398,8 @@ class NoReplenishment(Base):
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
-
+            new_population['child_ages'] = ""
+            new_population['nkids'] = 0
 
         # Force index of new cohort to align with index of total population data frame
         # otherwise this will overwrite some sims.

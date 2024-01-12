@@ -18,17 +18,18 @@ import numpy as np
 from numpy.random import choice
 import argparse
 import os
+from uuid import uuid4
 from rpy2.robjects.packages import importr
 
 import US_utils
 from minos.modules import r_utils
-
+from uuid import uuid4
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_2018):
+def expand_repl(US_2018, region):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -55,7 +56,7 @@ def expand_repl(US_2018):
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
-        new_repl = repl_2018
+        new_repl = repl_2018.copy()
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
@@ -65,9 +66,17 @@ def expand_repl(US_2018):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 - new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)  # Another older method
 
-        #print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
+        # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
+        # in python. Developed in the 80s such that odds of repeat values is astronomical.
+        # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
+        # bit shifting makes number that only relies on clock to improve uniqueness but less random.
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e24)
+        # [(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
+
+        # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
 
         ## Previously tried duplicating the 16 year olds but this is hard in Scotland mode as there are only 3 people
         # Duplicate this population(TWICE) so we have double the number of 16-year-olds to work with
@@ -77,7 +86,14 @@ def expand_repl(US_2018):
         # now append to original repl
         expanded_repl = pd.concat([expanded_repl, new_repl], axis=0)
 
-    assert(expanded_repl.duplicated('pidp').sum() == 0)
+    # Luke - 20/10/23
+    # synthetic upscaled glasgow data results in some duplicate pidp's still
+    # only 10 on initial testing so I'm just going to remove these
+    if region == "glasgow" or region == "scotland":
+        expanded_repl.drop_duplicates(subset=['pidp'],
+                                      inplace=True)
+
+    assert (expanded_repl.duplicated('pidp').sum() == 0)
 
     # reset index for the predict_education step
     expanded_repl.reset_index(drop=True, inplace=True)
@@ -166,7 +182,7 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation, inflated):
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
 
     output_dir = 'data/replenishing'
     data_source = 'final_US'
@@ -184,17 +200,27 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'inflated_US'
         output_dir = 'data/replenishing/inflated'
 
+    if region == 'glasgow':
+        data_source = 'scaled_glasgow_US'
+        output_dir = 'data/replenishing/glasgow_scaled'
+    elif region == 'scotland':
+        data_source = 'scaled_scotland_US'
+        output_dir = 'data/replenishing/scotland_scaled'
+    elif region == 'uk':
+        data_source = 'scaled_uk_US'
+        output_dir = 'data/replenishing/uk_scaled'
+
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
-    expanded_repl = expand_repl(data)
+    expanded_repl = expand_repl(data, region)
 
-    #reweighted_repl = reweight_repl(expanded_repl, projections)
+    reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(expanded_repl, transition_dir)
+    final_repl = predict_education(reweighted_repl, transition_dir)
 
     # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
     final_repl['ncigs'] = final_repl['ncigs'].astype(int)
@@ -208,6 +234,14 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     # final_repl['matdep'] = final_repl['matdep'].astype(int)
     final_repl['heating'] = final_repl['heating'].astype(int)
 
+    # All child poverty metrics
+    final_repl['relative_poverty'] = final_repl['relative_poverty'].astype(int)
+    final_repl['absolute_poverty'] = final_repl['absolute_poverty'].astype(int)
+    final_repl['low_income'] = final_repl['low_income'].astype(int)
+    final_repl['low_income_matdep_child'] = final_repl['low_income_matdep_child'].astype(int)
+    final_repl['relative_poverty_history'] = final_repl['relative_poverty_history'].astype(int)
+    final_repl['persistent_poverty'] = final_repl['persistent_poverty'].astype(int)
+
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
     print('Replenishing population generated for 2019 - 2070')
@@ -216,9 +250,11 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
 def main():
 
     # Use argparse to select between normal and scotland mode
-    parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
+    parser = argparse.ArgumentParser(description="Generating replenishing populations.",
                                      usage='use "%(prog)s --help" for more information')
 
+    parser.add_argument("-r", "--region", default="",
+                        help="Generate replenishing population for specified synthetic scaled data. glasgow or scotland for now.")
     parser.add_argument("-s", "--scotland", action='store_true', default=False,
                         help="Select Scotland mode to only produce replenishing using scottish sample.")
     parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
@@ -231,6 +267,7 @@ def main():
     scotland_mode = args.scotland
     cross_validation = args.crossval
     inflated = args.inflated
+    region = args.region
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
@@ -239,7 +276,7 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections, scotland_mode, cross_validation, inflated)
+    generate_replenishing(projections, scotland_mode, cross_validation, inflated, region)
 
 
 if __name__ == "__main__":

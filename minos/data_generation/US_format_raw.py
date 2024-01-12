@@ -8,6 +8,8 @@ import argparse
 
 import US_utils
 
+import US_format_raw_children_data
+
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
@@ -305,6 +307,9 @@ def format_ukhls_columns(year):
                       'hhsize': 'hhsize',  # number of people in household
                       'tenure_dv': 'housing_tenure',  # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban',  # urban or rural household.
+                      # There are dozens of benefits variables in US this seems like
+                      # the simplest and most complete for our purposes.
+                      'benbase4': 'universal_credit',  # receives core benefits (I.E. universal credit/means tested benefits).
 
                       # -- All variables for child poverty interventions
                       # Household size variables
@@ -571,6 +576,9 @@ def format_data(year, data):
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
 
+    #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
+    if year >= 2014:
+        data = US_format_raw_children_data.main(data, year)
     data = format_analysis_weight(data, year)
 
     return data

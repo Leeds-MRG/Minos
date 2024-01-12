@@ -22,7 +22,10 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
-OUTCOMES = $(ROOT)/minos/outcomes
+OUTCOMES = $(CURDIR)/minos/outcomes
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
+UKSCALEDDATA = $(DATADIR)/scaled_uk_US
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
@@ -108,6 +111,18 @@ scot_setup: install scot_data scot_transitions scot_replenishing
 cv_setup: install cv_data cv_transitions cv_replenishing
 
 cv_S7_setup: install data cv_S7_transitions cv_replenishing
+
+setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthetic_glasgow_repl
+
+setup_glasgow_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_glasgow_repl
+
+setup_scotland_scaled: install synthetic_scotland_data transitions_default synthetic_scotland_repl
+
+setup_scotland_scaled_S7: install synthetic_scotland_data transitions_SIPHER7 synthetic_scotland_repl
+
+setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
+
+setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
 #####################################
 ### ADDITIONAL MAKEFILES

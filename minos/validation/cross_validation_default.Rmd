@@ -377,6 +377,86 @@ cv_ordinal_plots(pivoted.df = parity.pivoted,
 rm(parity.pivoted)
 ```
 
+
+## CHILDREN AGEING
+
+Children ageing is now calculated in MINOS.
+
+```{r}
+
+
+format_child_age_data <- function(dataset) {
+  formatted.age.data <- dataset %>%
+                        dplyr::select(hidp, time, child_ages, pidp) %>%
+                        filter(time >= 2014) %>%
+                        group_by(time, pidp) %>%
+                        summarise(child_ages = max(child_ages))
+
+  split.ages <- strsplit(formatted.age.data$child_ages, "_")
+
+  child.ages.expanded <- data.frame(time = rep(formatted.age.data$time, sapply(split.ages, length)),
+                                    #hidp= rep(formatted.age.data$hidp, sapply(split.ages, length)),
+                                    pidp= rep(formatted.age.data$pidp, sapply(split.ages, length)),
+                                    expanded_child_ages = as.numeric(unlist(split.ages)))
+
+  #child.ages.expanded <- child.ages.expanded %>%
+  #  group_by(pidp, time) %>%
+  #  summarise(expanded_child_ages = median(expanded_child_ages))
+
+  return (child.ages.expanded)
+}
+
+find_mode <- function(x) {
+  u <- unique(x)
+  tab <- tabulate(match(x, u))
+  u[tab == max(tab)]
+}
+
+cv.child.ages <- format_child_age_data(cv)
+cv1.child.ages <- format_child_age_data(cv1)
+cv2.child.ages <- format_child_age_data(cv2)
+cv3.child.ages <- format_child_age_data(cv3)
+cv4.child.ages <- format_child_age_data(cv4)
+cv5.child.ages <- format_child_age_data(cv5)
+raw.child.ages <- format_child_age_data(raw.dat)
+
+
+cv.mean.plots(cv1.child.ages, cv2.child.ages, cv3.child.ages, cv4.child.ages, cv5.child.ages, raw.child.ages, 'expanded_child_ages')
+multi_year_boxplots(raw.child.ages, cv.child.ages, 'expanded_child_ages')
+q_q_comparison(raw.child.ages, cv.child.ages, 'expanded_child_ages')
+
+
+```
+
+
+```{r}
+#nkids
+
+format_nkids_data <- function(dataset) {
+  dataset %>%
+  group_by(hidp, time, pidp) %>%
+  summarise(nkids = max(nkids)) %>%
+  #group_by(time) %>%
+  #summarise(nkids_by_year = sum(nkids_counts))
+  return (dataset)
+}
+
+
+cv.nkids <- format_nkids_data(cv)
+cv1.nkids <- format_nkids_data(cv1)
+cv2.nkids <- format_nkids_data(cv2)
+cv3.nkids <- format_nkids_data(cv3)
+cv4.nkids <- format_nkids_data(cv4)
+cv5.nkids <- format_nkids_data(cv5)
+raw.nkids <- format_nkids_data(raw.dat)
+
+
+cv.mean.plots(cv1.nkids, cv2.nkids, cv3.nkids, cv4.nkids, cv5.nkids, raw.nkids, 'nkids')
+multi_year_boxplots(raw.nkids, cv.nkids, 'nkids')
+q_q_comparison(raw.nkids, cv.nkids, 'nkids')
+```
+
+
 # CHILD POVERTY VARS
 
 ## Relative Poverty

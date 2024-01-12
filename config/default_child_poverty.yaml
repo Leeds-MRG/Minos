@@ -30,8 +30,13 @@ cross_validation: FALSE
 intervention_amount: 25
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-#components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment(), ChildPovertyIntervention]
-components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment(), Heating(), financialSituation(), MaterialDeprivationChild(), ChildPovertyMetrics(), ChildPovertyIntervention]
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(),
+              Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
+              Heating(), financialSituation(), MaterialDeprivationChild(), ChildPovertyMetrics(),
+              nkidsFertilityAgeSpecificRates(),
+              Ageing(), Mortality(),
+              Replenishment(),
+              ChildPovertyIntervention]
 
 scale_rates:
     method: "constant"

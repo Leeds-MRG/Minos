@@ -37,6 +37,60 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   return(dat)
 }
 
+read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
+  ## Start with scenario name
+  # attach full output path
+  # get runtime directory
+  # list files
+  # return do.call(...)
+  
+  scen.path <- paste0(out.path, scenario)
+  scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  files <- list.files(scen.path,
+                      pattern = '0001_run_id_[0-9]{4}.csv',
+                      full.names = TRUE)
+  dat <- do.call(rbind, lapply(files, read.csv))
+  
+  # remove dead people
+  if(drop.dead) {
+    dat <- dat %>%
+      filter(alive != 'dead')
+  }
+  
+  return(dat)
+}
+
+
+
+read_raw_data_out <- function(data.path, section, drop.dead=FALSE) {
+  ## get all data 
+  
+  scen.path <- paste0(data.path, section)
+  files <- list.files(scen.path,
+                      pattern = '[0-9]{4}_US_cohort.csv',
+                      full.names = TRUE)
+  dat <- do.call(rbind, lapply(files, read.csv))
+  # remove dead people
+  if(drop.dead) {
+    dat <- dat %>%
+      filter(alive != 'dead')
+  }
+  
+  return(dat)
+}
+
+save_raw_data_in <- function(data, data.path) {
+  ## save all data after processing.
+  
+  for (year_time in unique(data$time)) {
+    yearly_file_name <- paste0(data.path, year_time, "_US_cohort.csv")
+    yearly_df <- data[which(data$time == year_time),]
+    write.csv(yearly_df, file=yearly_file_name, row.names=FALSE)
+    print(paste0("Saved file to: ", yearly_file_name, "."))
+  }
+}
+
 
 # Function to find the latest runtime subdirectory (most recent)
 # Reads all directories in a given path and returns the most recent subdir
@@ -168,4 +222,9 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
               nutrition_quality = mean(nutrition_quality))
   
   return(grouped)
+}
+
+
+extract_child_ages <- function(child_ages_string){
+  return (as.numeric(unlist(strsplit(child_ages_string, "_"))))
 }

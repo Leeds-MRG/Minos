@@ -13,6 +13,7 @@ from vivarium import InteractiveContext
 
 import minos.utils as utils
 
+from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.replenishment import NoReplenishment
@@ -41,11 +42,11 @@ from minos.modules.material_deprivation import MaterialDeprivationChild
 from minos.modules.poverty_metrics import ChildPovertyMetrics
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention
+from minos.modules.intervention import hhIncomeIntervention, childUplift
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
+from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme, energyDownliftNoSupport
 from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN, ChildPovertyIntervention
 
 # for viz.
@@ -86,6 +87,7 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -97,17 +99,74 @@ SIPHER7_components_map = {  # SIPHER7 stuff
     "S7EquivalentIncome()": S7EquivalentIncome()
 }
 
-intervention_components_map = {  # Interventions
+
+intervention_components_map = {        #Interventions
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+
+    "EPCG": energyPriceCapGuarantee(),
+    "EBSS": energyBillSupportScheme(),
+
+    "25All": childUplift(),
+    "50All": childUplift(),
+    "75All": childUplift(),
+    "100All": childUplift(),
+
+    "25RelativePoverty": childUplift(),
+    "50RelativePoverty": childUplift(),
+    "75RelativePoverty": childUplift(),
+    "100RelativePoverty": childUplift(),
+
+    "25UniversalCredit": childUplift(),
+    "30UniversalCredit": childUplift(),
+    "35UniversalCredit": childUplift(),
+    "40UniversalCredit": childUplift(),
+    "45UniversalCredit": childUplift(),
+    "50UniversalCredit": childUplift(),
+    "75UniversalCredit": childUplift(),
+    "100UniversalCredit": childUplift(),
+
+    "25Priority": childUplift(),
+    "50Priority": childUplift(),
+    "75Priority": childUplift(),
+    "100Priority": childUplift(),
+
     "ChildPovertyReductionRANDOM": ChildPovertyReductionRANDOM(),
     "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
     "ChildPovertyIntervention": ChildPovertyIntervention(),
 }
+
+
+intervention_kwargs_dict = {
+    "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
+    "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+
+    "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
+
+    "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+    "30UniversalCredit": {"uplift_amount": 30, "uplift_condition": "who_universal_credit_and_kids"},
+    "35UniversalCredit": {"uplift_amount": 35, "uplift_condition": "who_universal_credit_and_kids"},
+    "40UniversalCredit": {"uplift_amount": 40, "uplift_condition": "who_universal_credit_and_kids"},
+    "45UniversalCredit": {"uplift_amount": 45, "uplift_condition": "who_universal_credit_and_kids"},
+    "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+    "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+    "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
+
+    "25Priority": {"uplift_amount": 25, "uplift_condition": "who_vulnerable_subgroups"},
+    "50Priority": {"uplift_amount": 50, "uplift_condition": "who_vulnerable_subgroups"},
+    "75Priority": {"uplift_amount": 75, "uplift_condition": "who_vulnerable_subgroups"},
+    "100Priority": {"uplift_amount": 100, "uplift_condition": "who_vulnerable_subgroups"},
+}
+
 
 replenishment_components_map = {
     "Replenishment()": Replenishment(),
@@ -115,7 +174,6 @@ replenishment_components_map = {
     "ReplenishmentNowcast()": ReplenishmentNowcast(),
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
-
 
 # HR 31/07/23 Updated priorities based on recent development
 # Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
@@ -128,7 +186,7 @@ def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
     component_priorities.update({el:0 for el in replenishment_components_map})
-    component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
+    component_priorities.update({el:1 for el in ["Ageing()", "FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
     component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']})  # New income-based components to be added here
@@ -182,6 +240,7 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
+
     component_list = []
     replenishment_component = []
     print("Initial components list:", config_components)
@@ -205,8 +264,11 @@ def validate_components(config_components, intervention):
         component_list.append(intervention_components_map[intervention])
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
-    print("Final components list:", component_list)
-    return component_list
+    
+    intervention_kwargs = {}  # default to em
+    if intervention in intervention_kwargs_dict.keys():
+        intervention_kwargs = intervention_kwargs_dict[intervention]
+    return component_list, intervention_kwargs
 
 
 def type_check(data):
@@ -233,6 +295,14 @@ def type_check(data):
     # data['matdep'] = data['matdep'].astype(int)
     data['heating'] = data['heating'].astype(int)
 
+    # All child poverty metrics
+    data['relative_poverty'] = data['relative_poverty'].astype(int)
+    data['absolute_poverty'] = data['absolute_poverty'].astype(int)
+    data['low_income'] = data['low_income'].astype(int)
+    data['low_income_matdep_child'] = data['low_income_matdep_child'].astype(int)
+    data['relative_poverty_history'] = data['relative_poverty_history'].astype(int)
+    data['persistent_poverty'] = data['persistent_poverty'].astype(int)
+
     return data
 
 
@@ -252,8 +322,8 @@ def RunPipeline(config, intervention=None):
     # Check each of the modules is present.
 
     # Replenishment always go last. (first in sim)
-    # components = validate_components(config['components'], intervention)
-    components = validate_and_sort_components(config['components'], intervention)
+    components, intervention_kwargs = validate_components(config['components'], intervention)
+    config.update({'intervention_parameters': intervention_kwargs}) #add dict of intervention kwargs to config.
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -305,6 +375,10 @@ def RunPipeline(config, intervention=None):
     # Save population BEFORE start of the simulation. This is for comparisons and change from baseline
     pop = simulation.get_population()
     pop = utils.get_age_bucket(pop)
+
+    # Force type casting for certain problem variables
+    pop = type_check(pop)
+
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)

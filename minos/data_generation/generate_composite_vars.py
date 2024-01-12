@@ -592,6 +592,9 @@ def generate_energy_composite(data):
               axis=1,
               inplace=True)
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
+
+    #put everyone's energy usage to match the maximum in the household.
+    data['yearly_energy'] = data.groupby(['hidp'])['yearly_energy'].transform(max)
     return data
 
 
@@ -947,7 +950,7 @@ def calculate_equivalent_income(data):
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "SF_12", "nutrition_quality"]
+    diff_columns = ["hh_income", "SF_12", "nutrition_quality", "job_hours", "hourly_wage"]
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
@@ -1006,7 +1009,7 @@ def calculate_children(data,
     return data
 
 
-''' HR 28/11/23 Placeholder for later, to be developed after deciding on method for moving on mat dep values in sim '''
+''' HR 28/11/23 Get child mat dep variables '''
 def generate_child_material_deprivation(data,
                                         matdep_threshold=0.25,
                                         _drop=True):
@@ -1382,6 +1385,9 @@ def main():
     data = calculate_poverty_composites_hh(data)
     data = calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
     # --
+
+    data['old_pidp'] = data['pidp']
+    data['old_hidp'] = data['hidp']
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

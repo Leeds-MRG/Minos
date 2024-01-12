@@ -94,6 +94,7 @@ if __name__ == '__main__':
 
     data['council_tax'] = data['council_tax'].map(band_dict)
 
+    print("Simulating household council tax from bands...")
     data["council_tax_lower"] = data.apply(lambda x: lower_bound(x, ct_bands), axis=1)  # establish individual lower and upper bounds.
     data["council_tax_upper"] = data.apply(lambda x: upper_bound(x, ct_bands), axis=1)
     data["council_tax_draw"] = data.apply(random_draw, axis=1)  # draw randomly between these bounds.

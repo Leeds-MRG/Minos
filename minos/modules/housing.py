@@ -56,15 +56,20 @@ class Housing(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["sex",
-                        "SF_12",
-                        "job_sec",
+        view_columns = ["age",
+                        "sex",
                         "ethnicity",
-                        "age",
+                        "region",
+                        "education_state",
                         "housing_quality",
-                        "hh_income",
-                        "hh_income_diff",
-                        'housing_tenure']
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'hh_income',
+                        'hh_income_diff',
+                        'housing_tenure',
+                        'SF_12']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each

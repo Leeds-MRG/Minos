@@ -18,6 +18,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-geojsonsf
   - r-sp
   - r-texreg
+  - r-reticulate
   - r-shadowtext
   - r-lme4
   - r-VGAM
@@ -25,6 +26,9 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-here
   - r-scales
   - r-ggextra
+  - r-mice
+  - r-ggridges
+  - r-gghighlight
   - pandoc
   - sphinx
   - myst-parser
@@ -42,9 +46,11 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
       - geojson
       - seaborn
       - matplotlib
+      #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
       - sphinx-rtd-theme
       - sphinxcontrib-bibtex
       - nbsphinx
+      - uuid
       #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
 
 prefix:

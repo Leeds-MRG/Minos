@@ -467,23 +467,22 @@ class lmmYJMWB(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp',
-                        'sex',
-                        'ethnicity',
-                        'age',
-                        'time',
-                        #'education_state',
-                        #'labour_state',
-                        #'job_sec',
-                        'hh_income',
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
                         'SF_12',
                         'SF_12_diff',
-                        'housing_quality',
-                        #'phealth',
-                        'ncigs',
-                        'nutrition_quality',
-                        'neighbourhood_safety',
-                        'loneliness']
+                        'pidp',
+                        'hh_income',
+                        'old_pidp'
+                        ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -520,17 +519,18 @@ class lmmYJMWB(Base):
         newWaveMWB.index = pop.index
         #newWaveMWB["SF_12"] -= 1
 
-        sf12_mean = np.mean(newWaveMWB["SF_12"])
-        std_ratio = (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] *= (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
-        newWaveMWB["SF_12"] -= 1.5
+        #sf12_mean = np.mean(pop["SF_12"])
+        #std_ratio = (np.std(newWaveMWB["SF_12"])/np.std(pop["SF_12"]))
+        #newWaveMWB["SF_12"] *= std_ratio
+        #newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
+        #newWaveMWB["SF_12"] -= 1.5
         #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
         # Update population with new SF12
         #print(np.mean(newWaveMWB["SF_12"]))
         #print(np.std(newWaveMWB["SF_12"]))
+        print(np.mean(newWaveMWB["SF_12"]))
         self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
 
@@ -549,7 +549,7 @@ class lmmYJMWB(Base):
                                                                dependent='SF_12',
                                                                reflect=True,
                                                                yeo_johnson= True,
-                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
+                                                               noise_std= 0.35)# 0.15 for non yj, 0.35 for yj
         return out_data
 
 

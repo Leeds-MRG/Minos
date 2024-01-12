@@ -17,6 +17,105 @@ POVERTY_INTERVENTION_DICT = {1: "Child payment",
                              2: "Direct income supplementation",
                              }
 
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
+
+def get_monthly_boost_amount(data, boost_amount):
+    """Calculate monthly uplift for eligible households. number of children * 30.436875/7 weeks * boost amount
+    """
+    return boost_amount * 30.436875 * data['nkids'] / 7
+
+class childUplift():
+
+    @property
+    def name(self):
+        return "child_uplift"
+
+    def __repr__(self):
+        return "childUplift()"
+
+    def pre_setup(self, config, simulation):
+        self.uplift_condition = config['intervention_parameters']['uplift_condition']
+        self.uplift_amount = config['intervention_parameters']['uplift_amount']
+        print(f"Running child uplift with condition {self.uplift_condition} and uplift amount {self.uplift_amount}.")
+        return simulation
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income",
+                        'nkids',
+                        'alive',
+                        'universal_credit',
+                        'hidp',
+                        "S7_labour_state",
+                        "marital_status",
+                        'age',
+                        'ethnicity']
+        columns_created = ["income_boosted", "boost_amount"]
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the hh_income child uplift intervention in year {event.time.year}...")
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        # print(np.mean(pop['hh_income'])) # for debugging purposes.
+        # TODO probably a faster way to do this than resetting the whole column.
+        if self.uplift_condition == "who_below_poverty_line_and_kids":
+            pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
+        else:
+            pop['income_boosted'] = False
+        uplifted_households = np.unique(dynamic_subset_function(pop, self.uplift_condition)['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+        pop['boost_amount'] = pop['income_boosted'] * get_monthly_boost_amount(pop, self.uplift_amount) # £25 per week * 30.463/7 weeks per average month * nkids.
+        #pop['income_boosted'] = (pop['boost_amount'] != 0)
+        pop['hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
+        # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
+
+
 
 class hhIncomeIntervention():
 
@@ -90,7 +189,7 @@ class hhIncomeIntervention():
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income"]
+        view_columns = ["hh_income", 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -117,7 +216,9 @@ class hhIncomeIntervention():
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        #pop['hh_income'] -= (self.uplift * pop["income_boosted"])  # reset boost if people move out of bottom decile.
+        # Reset boost amount to 0
+        pop['boost_amount'] = 0
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
         who_uplifted = pop['hh_income'] <= pop['hh_income'].quantile(self.prop / 100)
         pop['income_boosted'] = who_uplifted
@@ -167,7 +268,7 @@ class hhIncomeChildUplift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids']
+        view_columns = ["hh_income", 'nkids', 'hidp']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -322,7 +423,7 @@ class livingWageIntervention(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector']
+        view_columns = ['hh_income', 'hourly_wage', 'job_hours', 'region', 'sex', 'ethnicity', 'alive', 'job_sector', "hidp", "age"]
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -336,6 +437,7 @@ class livingWageIntervention(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
+
     def on_initialize_simulants(self, pop_data):
         """
         Parameters
@@ -344,10 +446,11 @@ class livingWageIntervention(Base):
         Returns
         -------
         """
-        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
-                                   'boost_amount': 0.},  # hh income boosted by how much?
+        pop_update = pd.DataFrame({'income_boosted': False, # who boosted?
+                                   'boost_amount': 0.}, # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
+
 
     def on_time_step(self, event):
         """
@@ -362,44 +465,80 @@ class livingWageIntervention(Base):
         logging.info(
             f"\tApplying effects of the living wage intervention in year {event.time.year}...")
 
-        pop = self.population_view.get(event.index, query="alive =='alive' and job_sector == 2")
+        pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        # pop['hh_income'] -= pop['boost_amount']
-        # pop['boost_amount'] = 0
+        #pop['hh_income'] -= pop['boost_amount']
+        # reset boost amount to 0 before calculating next uplift
+        pop['boost_amount'] = 0
+
+        # 03/11/23 - Changing living wage values to match the living wage foundation, recently had an increase
+        #            Alongside this we're also rebasing the inflation adjustment to 2023 to match these pounds
         # Now get who gets uplift (different for London/notLondon)
         who_uplifted_London = pop['hourly_wage'] > 0
         who_uplifted_London *= pop['region'] == 'London'
-        who_uplifted_London *= pop['hourly_wage'] < 11.95
+        who_uplifted_London *= pop['hourly_wage'] < 13.15
+        who_uplifted_London *= pop['job_hours'] > 0
+
         who_uplifted_notLondon = pop['hourly_wage'] > 0
         who_uplifted_notLondon *= pop['region'] != 'London'
-        who_uplifted_notLondon *= pop['hourly_wage'] < 10.90
+        who_uplifted_notLondon *= pop['hourly_wage'] < 12.00
+        who_uplifted_notLondon *= pop['job_hours'] > 0
+
+        # bumping hourly wage to minimum wage for everybody as per 2020 minimum wage based on age
+        # https://www.gov.uk/national-minimum-wage-rates
+        # minimum wage for all under 18
+        # TODO adjustment by forecasts?
+        pop.loc[pop['age']>= 0., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=0., "hourly_wage"], 4.55)
+        # 18-20
+        pop.loc[pop['age']>=18., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=18., "hourly_wage"], 6.45)
+        # 21-24
+        pop.loc[pop['age']>=21., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=21., "hourly_wage"], 8.20)
+        # 25+
+        pop.loc[pop['age']>=25., "hourly_wage"] = np.maximum(pop.loc[pop['age']>=25., "hourly_wage"], 8.72)
+
         # Calculate boost amount (difference between hourly wage and living wage multiplied by hours worked in a week (extended to month))
         # boost_amount = hourly_wage_diff * hours_worked_monthly
-        pop['boost_amount'] = (11.95 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_London
-        pop['boost_amount'] += (10.90 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
+        pop['boost_amount'] = (13.15 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_London
+        pop['boost_amount'] += (12.00 - pop['hourly_wage']) * (pop['job_hours'] * 4.2) * who_uplifted_notLondon
 
+
+        # propagate living wage boost to all household members.
         # pop['income_deciles'] = pd.qcut(pop["hh_income"], int(100/self.prop), labels=False)
-        pop['income_boosted'] = who_uplifted_notLondon | who_uplifted_London
-        # pop.drop(labels='who_uplifted', inplace=True)
+        who_boosted = pop.loc[who_uplifted_notLondon | who_uplifted_London, "hidp"]
+        pop['income_boosted'] = False
+        pop.loc[pop['hidp'].isin(who_boosted), "income_boosted"] = True
+
+        # sum boost amounts by household together in case of multiple boosts.
+        #
+        boost_amount_by_house = dict(pop.groupby(['hidp'])['boost_amount'].sum())
+        pop["boost_amount"] = pop['hidp'].map(boost_amount_by_house)
+
+
+        #pop.drop(labels='who_uplifted', inplace=True)
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
+
+
+
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of household composition.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
         logging.info(f"\tNumber of people uplifted: {sum(who_uplifted_London) + sum(who_uplifted_notLondon)}")
-        logging.info(
-            f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
-        logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
-        logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
+        if who_uplifted_London.sum() > 0:  # if any London individuals in simulation being uplifted (will be not true in some synthetic population runs)
+            logging.info(
+                f"\t...which is {((sum(who_uplifted_London) + sum(who_uplifted_notLondon)) / len(pop)) * 100}% of the total population.")
+            logging.info(f"\t\tLondon n: {sum(who_uplifted_London)}")
+            logging.info(f"\t\tLondon %: {(sum(who_uplifted_London) / len(pop[pop['region'] == 'London'])) * 100}")
         logging.info(f"\t\tNot London n: {sum(who_uplifted_notLondon)}")
         logging.info(f"\t\tNot London %: {(sum(who_uplifted_notLondon) / len(pop[pop['region'] != 'London'])) * 100}")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'][pop['income_boosted'] == True].sum()}")
-        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
+        if who_uplifted_London.sum() > 0:
+            logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].sum()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].sum()}")
         logging.info(f"\tMean weekly boost amount: {pop['boost_amount'][pop['income_boosted'] == True].mean()}")
-        logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
+        if who_uplifted_London.sum() > 0:
+            logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
-
 
 class energyDownlift(Base):
     @property
@@ -431,7 +570,7 @@ class energyDownlift(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'yearly_energy']
+        view_columns = ["hh_income", 'yearly_energy', 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -464,12 +603,15 @@ class energyDownlift(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
-        pop['boost_amount'] = (
-                    -(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
@@ -511,7 +653,7 @@ class energyDownliftNoSupport(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'yearly_energy']
+        view_columns = ["hh_income", 'yearly_energy', 'hidp']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -541,12 +683,15 @@ class energyDownliftNoSupport(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        pop['boost_amount'] = (
-                    -(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
-        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
@@ -1157,3 +1302,210 @@ def apply_target_payment(data,
 # debt relief on most financially vulnerable. (again no debt variables.) have financial condition variables which may be useful instead?
 
 # island households fund. spatial policy should be easy to cut by island super outputs but need a list of them from somewhere (spatial policy...).
+
+# subtract income based on yearly energy.
+# change by year according to EPG caps.
+# Apr 2021 - £1138
+# Oct 2021 - £1277
+# Apr 2022 - £1971
+# Oct 2022 - £2500
+# Apr 2023 - £3000
+# TODO this is a bit naive. can it be improved? see broadbent paper.
+energy_cap_prices = {2017: 1300, #TODO could be refined tobe more precise
+                     2018: 1300,
+                     2019: 1308,
+                     2020: 1286,
+                     2021: 1333,
+                     2022: 2316,
+                     2023: 3500}
+
+class energyPriceCapGuarantee(Base):
+    @property
+    def name(self):
+        return "energyPriceCapGuarantee"
+
+    def __repr__(self):
+        return "energyPriceCapGuarantee()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income", 'yearly_energy', 'hidp']
+        columns_created = ["income_boosted", 'boost_amount']
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
+                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+
+    def on_time_step(self, event):
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        self.year = event.time.year
+        # TODO probably a faster way to do this than resetting the whole column.
+        #pop['hh_income'] -= pop['boost_amount']
+        # reset boost amount to 0 before calculating next uplift
+        pop['boost_amount'] = 0
+        # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
+        # About £800 as of 2020 + adjustment for inflation.
+        # Subset everyone who is under poverty line.
+        # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
+        # TODO is an 80% increase correct? More dynamic assumption needed?
+        year = min(self.year, 2023)
+        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300-1))  # 80% of monthly fuel bill subtracted from dhi.
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300))  # 80% of monthly fuel bill subtracted from dhi.
+        # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
+
+        pop['income_boosted'] = pop['boost_amount'] != 0
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
+        pop['hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
+        # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+class energyBillSupportScheme(Base):
+    @property
+    def name(self):
+        return "energyBillSupportScheme"
+
+    def __repr__(self):
+        return "energyBillSupportScheme()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ['yearly_energy',
+                        "region",
+                        "hidp",
+                        "labour_state",
+                        'hh_income',
+                        "universal_income",
+                        "council_tax"]
+        columns_created = ["income_boosted", 'boost_amount']
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step)
+
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
+                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+
+    def on_time_step(self, event):
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        self.year = event.time.year
+        # DONT SUBTRACT FROM INCOME AS IT SEEMS TO UNDO ITSELF AAAAAAAAA.
+        #pop['hh_income'] -= pop['boost_amount']
+        # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
+        # About £800 as of 2020 + adjustment for inflation.
+        # Subset everyone who is under poverty line.
+        year = min(self.year, 2023)
+        pop['yearly_energy'] = pop.groupby(['hidp'])['yearly_energy'].transform(max) # set households to have max energy expenditure for all individuals within that house.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300))  # 80% of monthly fuel bill subtracted from dhi.
+        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
+
+        # Energy Bill Support Schemes (EBSS) interventions
+        # £400 to all households base. £600 in Northern Ireland and Wales.
+        if self.year >= 2022:
+            pop['boost_amount'] += 400
+            pop.loc[pop['region']=="Northern Ireland", 'boost_amount'] += 200
+            pop.loc[pop['region']=="Wales", 'boost_amount'] += 200
+
+            # £900 for those on means tested (need benefits variables)
+            # TODO how is this determined? Needs extra variable from US. Work out what 'means tested' is and any US mapping.
+            # £300 for households with pensioners (labour states)
+            pensioner_houses = pop.loc[pop['labour_state']=="Retired", 'hidp']
+            pop.loc[pop['hidp'].isin(pensioner_houses), 'boost_amount'] += 300
+            # £150 for households with long term sick/disabled individuals.
+            disability_houses = pop.loc[pop['labour_state']=="Sick/Disabled", 'hidp']
+            pop.loc[pop['hidp'].isin(disability_houses), 'boost_amount'] += 150
+            # £650 for those on universal credit
+            universal_credit_houses = pop.loc[pop['universal_income']==1, 'hidp']
+            pop.loc[pop['hidp'].isin(universal_credit_houses), 'boost_amount'] += 650
+            # £150 for council tax bands A-D. Work out who has council_tax value between 1 and 4 in two stages.
+            ct_band_D_houses = pop.loc[pop['council_tax']<=4, ['council_tax', 'hidp']]
+            ct_band_A_D_houses = ct_band_D_houses.loc[ct_band_D_houses['council_tax']>=1, 'hidp']
+            pop.loc[pop['hidp'].isin(ct_band_A_D_houses), 'boost_amount'] += 150
+
+        # discounting based on tariff type (prepayment meters/fixed rate tariffs/ all different (cant do this..)
+            # TODO see elecpay/gaspay.
+            # Long term government net zero plans. estimating 15% reduction in household energy bills
+            # for now assume linear reduction in energy costs from 0% to 15% by 2030.
+            # TODO naive?
+            # TODO any other boosts suggested by new gov plans. any specifically by subgroups?
+        pop['boost_amount'] = pop['boost_amount'].clip(upper=0.001) # real intervention only gave households money until they reached £0 energy bills. they cant 'gain' money.
+
+        uplifted_households = np.unique(pop.loc[pop['income_boosted'],]['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+        pop['income_boosted'] = pop['boost_amount'] != 0
+        pop['hh_income'] += pop['boost_amount']
+
+        # print(np.mean(pop['hh_income'])) # for debugging.
+        # TODO assumes no social change. just go very negative which has major detrimental effects.
+        # TODO add in reduction due to energy crisis that varies by year.
+
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
