@@ -298,9 +298,12 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     -------
     None
     """
+
+    df[v] *= 100
+
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     if method == weighted_nanmean:
-        df[v] -= 1  # set centre at 0.
+        df[v] -= 100  # set centre at 0.
 
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
@@ -324,7 +327,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     # Sort out axis labels
     y_label = v
     if v == 'SF_12':
-        y_label = 'SF12 MCS'
+        y_label = 'SF12 MCS Percentage Change'
 
     if method == weighted_nanmean:
         y_label += " Weighted Mean"
