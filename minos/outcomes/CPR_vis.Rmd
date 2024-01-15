@@ -118,12 +118,76 @@ full.sample.change.SF12 <- function(base.dat, int.dat) {
   ggplot(combined, aes(x = time, y = diff)) +
     geom_line() +
     geom_hline(yintercept = 0, linetype='dashed') +
-    labs(title = 'Relative change in SF12') +
+    labs(title = 'Relative change in SF12', subtitle = 'Whole population') +
     xlab('Year') +
     ylab('Difference')
 }
 
 full.sample.change.SF12(base, int)
+```
+
+### MCS - Families with children
+
+Now focused only on families with children.
+ 
+```{r}
+all.families.change.SF12 <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Families with children') +
+    xlab('Year') +
+    ylab('Difference')
+}
+all.families.change.SF12(base, int)
+```
+
+### MCS - Treatment on the Treated
+
+```{r}
+treatment.on.treated.change.SF12 <- function(base.dat, int.dat) {
+  boosted.byyear <- int.dat %>%
+    filter(income_boosted == 'True')
+  
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Treatment on the treated') +
+    xlab('Year') +
+    ylab('Difference')
+}
+
+treatment.on.treated.change.SF12(base, int)
 ```
 
 
@@ -180,5 +244,11 @@ sample_information <- function(int.dat, target.year) {
 }
 
 sample_information(int, target.year = 2030)
+```
+
+
+
+```{r, echo=FALSE}
+
 ```
 
