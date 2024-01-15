@@ -1,4 +1,4 @@
-"""Module for estimating change in hheat variable for subjective ability to heat ones home"""
+"""Module for estimating change in child material deprivation variable derived from 21 US variables"""
 
 
 import pandas as pd
@@ -8,13 +8,13 @@ from minos.modules.base_module import Base
 import logging
 from datetime import datetime as dt
 
-class Heating(Base):
+class MaterialDeprivationChild(Base):
     @property
     def name(self):
-        return "heating"
+        return "material_deprivation_child"
 
     def __repr__(self):
-        return "Heating()"
+        return "MaterialDeprivationChild()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -48,21 +48,16 @@ class Heating(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
+        ''' HR 14/12/23 From Luke's suggestion for model '''
+        view_columns = ['matdep_child',
                         'hh_income',
-                        'urban',
-                        'housing_tenure',
+                        'hhsize',
+                        'ethnicity',
+                        'region',
+                        'education_state',
+                        'nkids_ind',
                         'financial_situation',
-                        'heating',
+                        'marital_status',
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -77,7 +72,7 @@ class Heating(Base):
 
 
     def on_time_step(self, event):
-        """Produces new children and updates parent status on time steps.
+        """Produces child material deprivation status on time steps.
 
         Parameters
         ----------
@@ -85,24 +80,24 @@ class Heating(Base):
             The event time_step that called this function.
         """
         # Construct transition probability distributions.
-        # Draw individuals next states randomly from this distribution.
-        # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
+        # Draw next states randomly from this distribution.
+        # Adjust other variables according to changes in state.
 
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
-        heating_prob_df = self.calculate_heating(pop)
-        heating_prob_df[0.] = 1 - heating_prob_df[1.0]
-        heating_prob_df.index = pop.index
-        heating_prob_df["heating"] = self.random.choice(heating_prob_df.index,
-                                                        list(heating_prob_df.columns),
-                                                        heating_prob_df)
-        heating_prob_df.index = pop.index
-        heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
-        self.population_view.update(heating_prob_df["heating"])
+        matdep_prob_df = self.calculate_matdep(pop)
+        matdep_prob_df[0.] = 1 - matdep_prob_df[1.0]
+        matdep_prob_df.index = pop.index
+        matdep_prob_df["matdep_child"] = self.random.choice(matdep_prob_df.index,
+                                                            list(matdep_prob_df.columns),
+                                                            matdep_prob_df)
+        matdep_prob_df.index = pop.index
+        matdep_prob_df['matdep_child'] = matdep_prob_df['matdep_child'].astype(int)
+        self.population_view.update(matdep_prob_df["matdep_child"])
 
-    def calculate_heating(self, pop):
-        """Calculate heating transition distribution based on provided people/indices.
+    def calculate_matdep(self, pop):
+        """Calculate child material deprivation transition distribution based on provided people/indices.
 
         Parameters
         ----------
@@ -113,8 +108,8 @@ class Heating(Base):
         """
         # load transition model based on year.
         year = 2019
-        transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}", self.rpy2_modules)
+        transition_model = r_utils.load_transitions(f"matdep_child/logit/matdep_child_{year}_{year+1}", self.rpy2_modules)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'heating')
+        prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'matdep_child')
         prob_df.columns = [1.]
         return prob_df

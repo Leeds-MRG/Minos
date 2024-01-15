@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import US_utils
 import US_missing_description
+from generate_composite_vars import MATDEP_DICT
 from multiprocessing import Pool, cpu_count
 from functools import partial
 from scipy import interpolate
@@ -112,7 +113,7 @@ def interpolate(data, interpolate_columns, type='linear'):
     data_groupby = data.groupby('pidp', sort=False, as_index=False)
     new_columns = data_groupby[interpolate_columns].apply(lambda x: x.interpolate(method=type, limit_direction='both', axis=0))
     new_columns = new_columns.reset_index(drop=True)
-    data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+    data = data.reset_index(drop=True)  # groupby messes with the index. make them unique again.
 
     new_columns.columns = interpolate_columns
     data[interpolate_columns] = new_columns
@@ -230,7 +231,7 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns
         # Forward fill monotonic
         fill = applyParallelLOCF(pid_groupby[mf_columns], mffill_groupby)
         data[mf_columns] = fill[mf_columns]
-    data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+    data = data.reset_index(drop=True)  # groupby messes with the index. make them unique again.
     return data
 
 def main(data, save=False):
@@ -244,7 +245,9 @@ def main(data, save=False):
     # note columns can be forward and back filled for immutables like ethnicity.
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
-                 'nkids_ind_raw', 'universal_credit'] # 'ncigs', 'ndrinks']
+                 'nkids_ind_raw', 'universal_credit', # 'ncigs', 'ndrinks']
+                 'n_adult_oecd', 'n_child_oecd']  # Derived US variables for hh size
+    f_columns.extend([el for el in MATDEP_DICT.keys() if str(el).startswith('mat')])  # Add all material deprivation variables (heating already added above)
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]

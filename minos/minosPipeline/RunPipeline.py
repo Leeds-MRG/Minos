@@ -38,6 +38,8 @@ from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
+from minos.modules.material_deprivation import MaterialDeprivationChild
+from minos.modules.poverty_metrics import ChildPovertyMetrics
 from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention, childUplift
@@ -45,7 +47,7 @@ from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme, energyDownliftNoSupport
-from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN
+from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN, ChildPovertyIntervention
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -68,6 +70,8 @@ components_map = {
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
     "Heating()": Heating(),
+    'ChildPovertyMetrics()': ChildPovertyMetrics(),
+    "MaterialDeprivationChild()": MaterialDeprivationChild(),
     "Housing()": Housing(),
     "geeIncome()": geeIncome(),
     "geeYJIncome()": geeYJIncome(),
@@ -133,6 +137,7 @@ intervention_components_map = {        #Interventions
 
     "ChildPovertyReductionRANDOM": ChildPovertyReductionRANDOM(),
     "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
+    "ChildPovertyIntervention": ChildPovertyIntervention(),
 }
 
 
@@ -184,7 +189,7 @@ def get_priorities():
     component_priorities.update({el:1 for el in ["Ageing()", "FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
+    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']})  # New income-based components to be added here
     component_priorities.update({el:4 for el in intervention_components_map})
     everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
     component_priorities.update({el:5 for el in everything_else})
@@ -286,6 +291,17 @@ def type_check(data):
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+    # data['chron_disease'] = data['chron_disease'].astype(int)
+    # data['matdep'] = data['matdep'].astype(int)
+    data['heating'] = data['heating'].astype(int)
+
+    # All child poverty metrics
+    data['relative_poverty'] = data['relative_poverty'].astype(int)
+    data['absolute_poverty'] = data['absolute_poverty'].astype(int)
+    data['low_income'] = data['low_income'].astype(int)
+    data['low_income_matdep_child'] = data['low_income_matdep_child'].astype(int)
+    data['relative_poverty_history'] = data['relative_poverty_history'].astype(int)
+    data['persistent_poverty'] = data['persistent_poverty'].astype(int)
 
     return data
 
@@ -389,6 +405,9 @@ def RunPipeline(config, intervention=None):
 
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
+
+        # Force type casting for certain problem variables
+        pop = type_check(pop)
 
         # File name and save
         output_data_filename = get_output_data_filename(config, year)

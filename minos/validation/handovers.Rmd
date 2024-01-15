@@ -55,8 +55,13 @@ raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
 out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+
 #out.path <- here::here('output', 'scotland_scaled/')
 #base.dat <- read_first_singular_local_out(out.path, '25UniversalCredit', drop.dead = TRUE)
+
+# HR 283-285 older version (285)
+# out.path <- here::here('output', 'child_poverty_config/')
+# base.dat <- read_singular_local_out(out.path, 'ChildPovertyIntervention', drop.dead = TRUE)
 ```
 
 ## Constants
@@ -68,6 +73,7 @@ create.if.not.exists(save.path)
 
 shall.we.save <- FALSE
 ```
+
 
 # PATHWAYS
 
@@ -252,6 +258,7 @@ if (shall.we.save) {
 rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
+
 ## Housing Quality
 
 ```{r}
@@ -316,6 +323,7 @@ rm(raw.housing, base.housing, housing, housing.norm)
 # 
 # rm(raw.s, base.s, spag)
 ```
+
 
 ## Neighbourhood Safety
 
@@ -383,6 +391,7 @@ if (shall.we.save) {
 # rm(raw.s, base.s, spag)
 ```
 
+
 ## Loneliness
 
 ```{r}
@@ -448,6 +457,7 @@ rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 # 
 # rm(raw.s, base.s, spag)
 ```
+
 
 ## Nutrition Quality
 
@@ -519,6 +529,7 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 # 
 # rm(raw.nut, base.nut, nut.spag)
 ```
+
 
 ## Physical Health
 
@@ -619,6 +630,7 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 # rm(raw.s, base.s, spag)
 ```
 
+
 ## Education
 
 ```{r}
@@ -654,8 +666,6 @@ if (shall.we.save) {
 rm(prepped.list, var, norm, tit)
 ```
 
-
-
 ```{r}
 pivoted <- combine_and_pivot_long(df1 = base.dat,
                                        df1.name = 'simulated',
@@ -685,6 +695,7 @@ cv_ordinal_plots(pivoted.df = pivoted,
 # 
 # rm(raw.s, base.s, spag)
 ```
+
 
 ## Parity
 
@@ -739,7 +750,6 @@ cv_ordinal_plots(pivoted.df = pivoted,
                  save.path = save.path)
 ```
 
-
 ### Spaghetti
 
 ```{r}
@@ -773,7 +783,7 @@ base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(s
 base.child.ages.expanded <- base.child.ages.expanded %>%
   group_by(time, expanded_child_ages) %>%
   summarise(age_counts = n())
-  
+
 ggplot(data = base.child.ages.expanded, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
   geom_line() +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
@@ -802,3 +812,150 @@ ggplot(data = base.child.ages.nkids, mapping = aes(x = time, y = nkids_by_year))
 
 ```
 
+
+## CHILD POVERTY VARS
+
+### Relative poverty
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'relative_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Relative Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = relative_poverty, colour = relative_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=relative_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'relative_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+### Absolute Poverty
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'absolute_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Absolute Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = absolute_poverty, colour = absolute_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=absolute_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'absolute_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+### Persistent Poverty
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'persistent_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Persistent Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = persistent_poverty, colour = persistent_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=persistent_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'persistent_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+
+```
+
+
+### Low Income and Material Deprivation
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'low_income_matdep_child')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Material Deprivation Child'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = low_income_matdep_child, colour = low_income_matdep_child)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=low_income_matdep_child)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'low_income_matdep_child.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+
+```

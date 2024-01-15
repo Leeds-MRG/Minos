@@ -67,6 +67,7 @@ def expand_repl(US_2018, region):
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
         # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 - new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)  # Another older method
 
         # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
@@ -229,6 +230,17 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+    # final_repl['chron_disease'] = final_repl['chron_disease'].astype(int)
+    # final_repl['matdep'] = final_repl['matdep'].astype(int)
+    final_repl['heating'] = final_repl['heating'].astype(int)
+
+    # All child poverty metrics
+    final_repl['relative_poverty'] = final_repl['relative_poverty'].astype(int)
+    final_repl['absolute_poverty'] = final_repl['absolute_poverty'].astype(int)
+    final_repl['low_income'] = final_repl['low_income'].astype(int)
+    final_repl['low_income_matdep_child'] = final_repl['low_income_matdep_child'].astype(int)
+    final_repl['relative_poverty_history'] = final_repl['relative_poverty_history'].astype(int)
+    final_repl['persistent_poverty'] = final_repl['persistent_poverty'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)

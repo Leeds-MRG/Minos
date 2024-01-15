@@ -290,7 +290,7 @@ cv_ordinal_plots(pivoted.df = mstat.pivoted,
 rm(mstat.pivoted)
 ```
 
-## hhsize
+## Household Size
 
 ```{r}
 cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'hhsize')
@@ -298,7 +298,7 @@ multi_year_boxplots(raw, cv, 'hhsize')
 q_q_comparison(raw, cv, 'hhsize')
 ```
 
-## housing tenure
+## Housing Tenure
 
 ```{r}
 tenure.pivoted <- combine_and_pivot_long(df1 = cv, 
@@ -377,9 +377,10 @@ cv_ordinal_plots(pivoted.df = parity.pivoted,
 rm(parity.pivoted)
 ```
 
-## Children Ageing
 
-Children ageing is now calculated in MINOS. 
+## CHILDREN AGEING
+
+Children ageing is now calculated in MINOS.
 
 ```{r}
 
@@ -390,18 +391,18 @@ format_child_age_data <- function(dataset) {
                         filter(time >= 2014) %>%
                         group_by(time, pidp) %>%
                         summarise(child_ages = max(child_ages))
-  
+
   split.ages <- strsplit(formatted.age.data$child_ages, "_")
 
-  child.ages.expanded <- data.frame(time = rep(formatted.age.data$time, sapply(split.ages, length)), 
-                                    #hidp= rep(formatted.age.data$hidp, sapply(split.ages, length)), 
-                                    pidp= rep(formatted.age.data$pidp, sapply(split.ages, length)), 
+  child.ages.expanded <- data.frame(time = rep(formatted.age.data$time, sapply(split.ages, length)),
+                                    #hidp= rep(formatted.age.data$hidp, sapply(split.ages, length)),
+                                    pidp= rep(formatted.age.data$pidp, sapply(split.ages, length)),
                                     expanded_child_ages = as.numeric(unlist(split.ages)))
-                                    
+
   #child.ages.expanded <- child.ages.expanded %>%
   #  group_by(pidp, time) %>%
   #  summarise(expanded_child_ages = median(expanded_child_ages))
-  
+
   return (child.ages.expanded)
 }
 
@@ -418,7 +419,7 @@ cv3.child.ages <- format_child_age_data(cv3)
 cv4.child.ages <- format_child_age_data(cv4)
 cv5.child.ages <- format_child_age_data(cv5)
 raw.child.ages <- format_child_age_data(raw.dat)
-  
+
 
 cv.mean.plots(cv1.child.ages, cv2.child.ages, cv3.child.ages, cv4.child.ages, cv5.child.ages, raw.child.ages, 'expanded_child_ages')
 multi_year_boxplots(raw.child.ages, cv.child.ages, 'expanded_child_ages')
@@ -428,7 +429,7 @@ q_q_comparison(raw.child.ages, cv.child.ages, 'expanded_child_ages')
 ```
 
 
-```{r} 
+```{r}
 #nkids
 
 format_nkids_data <- function(dataset) {
@@ -448,9 +449,89 @@ cv3.nkids <- format_nkids_data(cv3)
 cv4.nkids <- format_nkids_data(cv4)
 cv5.nkids <- format_nkids_data(cv5)
 raw.nkids <- format_nkids_data(raw.dat)
-  
+
 
 cv.mean.plots(cv1.nkids, cv2.nkids, cv3.nkids, cv4.nkids, cv5.nkids, raw.nkids, 'nkids')
 multi_year_boxplots(raw.nkids, cv.nkids, 'nkids')
 q_q_comparison(raw.nkids, cv.nkids, 'nkids')
+```
+
+
+# CHILD POVERTY VARS
+
+## Relative Poverty
+
+```{r}
+relative_poverty.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                   df1.name = 'simulated', 
+                                                   df2 = raw, 
+                                                   df2.name = 'raw', 
+                                                   var = 'relative_poverty')
+
+cv_ordinal_plots(pivoted.df = relative_poverty.pivoted, 
+                 var = 'relative_poverty',
+                 save = FALSE)
+rm(relative_poverty.pivoted)
+```
+
+## Absolute Poverty
+
+```{r}
+absolute_poverty.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                   df1.name = 'simulated', 
+                                                   df2 = raw, 
+                                                   df2.name = 'raw', 
+                                                   var = 'absolute_poverty')
+
+cv_ordinal_plots(pivoted.df = absolute_poverty.pivoted, 
+                 var = 'absolute_poverty',
+                 save = FALSE)
+rm(absolute_poverty.pivoted)
+```
+
+## Material Deprivation
+
+```{r}
+matdep_child.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                               df1.name = 'simulated', 
+                                               df2 = raw, 
+                                               df2.name = 'raw', 
+                                               var = 'matdep_child')
+
+cv_ordinal_plots(pivoted.df = matdep_child.pivoted, 
+                 var = 'matdep_child',
+                 save = FALSE)
+rm(matdep_child.pivoted)
+```
+
+
+## Low Income and Material Deprivation
+
+```{r}
+low_income_matdep_child.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                          df1.name = 'simulated', 
+                                                          df2 = raw, 
+                                                          df2.name = 'raw', 
+                                                          var = 'low_income_matdep_child')
+
+cv_ordinal_plots(pivoted.df = low_income_matdep_child.pivoted, 
+                 var = 'low_income_matdep_child',
+                 save = FALSE)
+rm(low_income_matdep_child.pivoted)
+```
+
+
+## Persistent Poverty
+
+```{r}
+persistent_poverty.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                                     df1.name = 'simulated', 
+                                                     df2 = raw, 
+                                                     df2.name = 'raw', 
+                                                     var = 'persistent_poverty')
+
+cv_ordinal_plots(pivoted.df = persistent_poverty.pivoted, 
+                 var = 'persistent_poverty',
+                 save = FALSE)
+rm(persistent_poverty.pivoted)
 ```

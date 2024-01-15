@@ -101,6 +101,19 @@ class Replenishment(Base):
         #                 'SF_12_diff',
         #                 'hh_income_diff',
         #                 'nutrition_quality_diff',
+        # # HR 283-285 check all vars below (from 285) present/carried through sim
+        #                 'n_adult_oecd',
+        #                 'n_child_oecd',
+        #                 'matdep_child',
+        #                 'matdep_child_score',
+        #                 'relative_poverty_percentile',
+        #                 'relative_poverty',
+        #                 'absolute_poverty_percentile',
+        #                 'absolute_poverty',
+        #                 'low_income',
+        #                 'low_income_matdep_child',
+        #                 'relative_poverty_history',
+        #                 'persistent_poverty',
         #                 ]
         # stop defining the input columns manually its dumb.
         view_columns = list(pd.read_csv(config.input_data_dir + "/2020_US_cohort.csv").columns)
