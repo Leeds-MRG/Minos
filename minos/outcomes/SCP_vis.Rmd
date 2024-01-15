@@ -1,0 +1,109 @@
+---
+title: "Scottish Child Payment Interventions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+#source(here::here('minos', 'utils_validation_vis.R'))
+#source(here::here('minos', 'validation', 'utils.r'))
+```
+
+
+```{r}
+out.path <- here::here('output', 'default_config')
+
+# define subset of variables to reduce size of batch output
+var.list <- c('pidp', 'hidp', 'time', 'weight', 
+              'age', 'ethnicity', 'education_state', 'region', 
+              'hh_income',
+              'housing_quality', 'neighbourhood_safety', 'loneliness', 'ncigs', 'nutrition_quality', 'financial_situation', 'urban', 'housing_tenure',
+              'SF_12', 'matdep_child')
+
+base <- read_output(out.path, 
+                    scenario = 'baseline', 
+                    var.list = var.list,
+                    verbose = TRUE)
+int25All <- read_output(out.path, 
+                        scenario = '25All', 
+                        var.list = var.list,
+                        verbose = TRUE)
+int50All <- read_output(out.path, 
+                        scenario = '50All', 
+                        var.list = var.list,
+                        verbose = TRUE)
+int75All <- read_output(out.path, 
+                        scenario = '75All', 
+                        var.list = var.list,
+                        verbose = TRUE)
+int100All <- read_output(out.path, 
+                        scenario = '100All', 
+                        var.list = var.list,
+                        verbose = TRUE)
+
+int.list <- c(int25All, int50All, int75All, int100All)
+```
+
+
+# PLOTS
+
+## MCS - Whole Population
+
+```{r}
+full.sample.change.SF12 <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Whole population') +
+    xlab('Year') +
+    ylab('Difference')
+}
+
+full.sample.change.SF12(base, int)
+```
+
+
