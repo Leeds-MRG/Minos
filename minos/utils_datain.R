@@ -7,6 +7,157 @@ create.if.not.exists <- function(path) {
   }
 }
 
+## Creating a function to automatically determine between batch and single output
+# This makes it easier to switch between local and arc outputs
+read_output <- function(out.path, scenario, start.year=2020, end.year=2035, var.list, verbose=FALSE, drop.dead=TRUE) {
+  
+  #scen.path <- paste0(out.path, scenario)
+  scen.path <- here::here(out.path, scenario)
+  scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  files <- list.files(scen.path,
+                      pattern = '[0-9]{4}.csv',
+                      full.names = TRUE)
+  
+  if (length(files) > 0) {
+    print('Running in singular output mode')
+    # files fit the single run pattern, using singular function
+    data <- read_singular_local_out(out.path, scenario, drop.dead)
+  } else {
+    print('Running in batch output mode')
+    data <- read_batch_out_all_years(out.path, scenario, start.year, end.year, var.list, verbose, drop.dead)
+  }
+  return(data)
+}
+
+
+############################## BATCH OUTPUT ############################## 
+
+# This function will read all files from a batch run of MINOS for a specific 
+# year, select only a list of variables we are interested in, and collapse
+# them into a single dataframe with a `run_id` variable to denote individual
+# runs.
+# This function will likely use a LOT of memory, so we're going to remove 
+# objects wherever we can to avoid problems
+# Args: 
+#       out.path - path to top level output directory
+#       scenario - string scenario name of which output files to read
+#       year - single year of batch output to aggregate
+#       var.list - list of variables to keep in the returned dataframe
+read_batch_out_1year <- function(out.path, scenario, year, var.list, drop.dead = TRUE) {
+  scen.path <- scen.path <- here::here(out.path, scenario)
+  scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  # Create file strings using year from args
+  target.pattern <- paste0('[0-9]*_run_id_', year, '.csv')
+  filepath.list <- list.files(path = scen.path,
+                              pattern = target.pattern,
+                              full.names = TRUE)
+  
+  # generate sequence of run IDs from length of the filepath.list
+  num.run.ids <- length(filepath.list)
+  run.id.vector <- 1:num.run.ids
+  
+  # read each file in the list and store in a different list
+  loaded.file.list <- lapply(filepath.list, read.csv)
+  rm(filepath.list, num.run.ids)
+  
+  # subset with vars from var.list
+  subsetted.file.list <- lapply(loaded.file.list, function(x) select(x, all_of(var.list)))
+  rm(loaded.file.list)
+  
+  # add a run_id variable to each df in the list
+  augmented.list <- Map(cbind, subsetted.file.list, run_id = run.id.vector)
+  rm(subsetted.file.list, run.id.vector)
+  
+  # finally coalesce into a single df
+  final <- do.call(rbind, augmented.list)
+  rm(augmented.list)
+  
+  # remove dead people
+  if(drop.dead) {
+    final <- final %>%
+      filter(alive != 'dead')
+  }
+  
+  return(final)
+}
+
+read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.year=2036, var.list, verbose=FALSE, drop.dead = TRUE) {
+  print(paste0("Starting aggregation of output files for ", scenario, '...'))
+  var.list <- c('pidp', 'hidp', 'time', 'weight', var.list, 'alive')
+  large.df = data.frame()
+  for (i in start.year:end.year) {
+    if (verbose) { print(paste0("Aggregating files for year ", i)) }
+    new.df <- read_batch_out_1year(out.path, scenario, year=i, var.list, drop.dead)
+    new.df <- new.df %>%
+      filter(alive != 'dead') %>%
+      select(-alive)
+    large.df <- rbind(large.df, new.df)
+  }
+  print("All output files successfully aggregated.")
+  return(large.df)
+}
+
+# Function to identify variable types
+variable_type <- function(x) {
+  if (is.numeric(x) && !is.integer(x)) {
+    return("continuous")  # float values
+  } else if (is.numeric(x) && is.integer(x) && length(unique(x)) > 15) {
+    return("continuous")  # int but lots of unique values
+  } else if (is.numeric(x) && is.integer(x) && length(unique(x)) < 15) {
+    return("ordinal")
+  } else if (is.character(x)) {
+    return("nominal")
+  } else {
+    return("other")
+  }
+}
+
+read_batch_out_summarise <- function(out.path, scenario, start.year=2021, end.year=2036, var.list, verbose=FALSE) {
+  # First use other function to get batch output
+  large_df <- read_batch_out_all_years(out.path, scenario, start.year, end.year, var.list, verbose)
+  
+  print('LARGE_DF GENERATED...')
+  
+  #print(colnames(large_df))
+  
+  # Now identify columns and calculate summary values
+  # Define a list of columns to group by
+  group_cols <- c("pidp", "time")
+  
+  # Identify variable types
+  var_types <- sapply(large_df, variable_type)
+  
+  #print("VAR_TYPES:")
+  #print(var_types)
+  
+  # Separate variables by type
+  continuous_vars <- names(var_types[var_types == "continuous"])
+  ordinal_vars <- names(var_types[var_types == "ordinal"])
+  nominal_vars <- names(var_types[var_types == "nominal"])
+  
+  print("ABOUT TO SUMMARISE")
+  
+  #return(large_df)
+  
+  #print("This should not be happening")
+  
+  # Calculate mean for continuous variables and median for ordinal variables
+  result_df <- large_df %>%
+    group_by(across(all_of(group_cols))) %>%
+    summarize(
+      across(all_of(setdiff(continuous_vars, group_cols)), mean, na.rm = TRUE),
+      across(all_of(ordinal_vars), ~ mode(.x)),
+      across(all_of(nominal_vars), ~ mode(.x))
+    )
+  return(result_df)
+}
+
+
+############################## SINGULAR OUTPUT ############################## 
+
+
 # Function to read all output files from a singular (non-batch) local simulation run
 # This will read output files for all years within the latest runtime subdirectory
 # (which is automatically determined)
@@ -20,9 +171,9 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   # list files
   # return do.call(...)
   
-  scen.path <- paste0(out.path, scenario)
+  scen.path <- here::here(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
-  
+
   files <- list.files(scen.path,
                       pattern = '[0-9]{4}.csv',
                       full.names = TRUE)
@@ -44,8 +195,12 @@ read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE)
   # list files
   # return do.call(...)
   
-  scen.path <- paste0(out.path, scenario)
+  print('Starting singular output read...')
+  
+  scen.path <- here::here(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  print(scen.path)
   
   files <- list.files(scen.path,
                       pattern = '0001_run_id_[0-9]{4}.csv',
@@ -66,7 +221,7 @@ read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE)
 read_raw_data_out <- function(data.path, section, drop.dead=FALSE) {
   ## get all data 
   
-  scen.path <- paste0(data.path, section)
+  scen.path <- here::here(data.path, section)
   files <- list.files(scen.path,
                       pattern = '[0-9]{4}_US_cohort.csv',
                       full.names = TRUE)
