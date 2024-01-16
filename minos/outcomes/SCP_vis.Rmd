@@ -42,11 +42,11 @@ source(here::here('minos', 'utils_datain.R'))
 
 
 ```{r}
-out.path <- here::here('output', 'default_config')
+out.path <- here::here('output', 'default_config_batch')
 
 # define subset of variables to reduce size of batch output
 var.list <- c('pidp', 'hidp', 'time', 'weight', 
-              'age', 'ethnicity', 'education_state', 'region', 
+              'age', 'ethnicity', 'education_state', 'region', 'nkids',
               'hh_income',
               'housing_quality', 'neighbourhood_safety', 'loneliness', 'ncigs', 'nutrition_quality', 'financial_situation', 'urban', 'housing_tenure',
               'SF_12', 'matdep_child')
@@ -73,6 +73,20 @@ int100All <- read_output(out.path,
                         verbose = TRUE)
 
 int.list <- c(int25All, int50All, int75All, int100All)
+
+# set up a boolean tag for batch or not
+# this is necessary because batch runs need slightly different processing before visualisation
+if ('run_id' %in% names(base)) {
+  batch <- TRUE
+} else {
+  batch <- FALSE
+}
+
+# Save path and save flag
+save.path <- here::here('plots', 'SCOTGOV', 'CPR')
+shall.we.save <- FALSE
+plot.width <- 10
+plot.height <- 5
 ```
 
 
@@ -81,18 +95,35 @@ int.list <- c(int25All, int50All, int75All, int100All)
 ## MCS - Whole Population
 
 ```{r}
-full.sample.change.SF12 <- function(base.dat, int.dat) {
-  base.all.SF12 <- base.dat %>%
+SF12.change.full.sample.single <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+  base <- base.dat %>%
     select(time, weight, SF_12) %>%
     group_by(time) %>%
     summarise(base.SF12 = weighted.mean(SF_12, w = weight))
   
-  int.all.SF12 <- int.dat %>%
+  int1 <- int.dat1 %>%
     select(time, weight, SF_12) %>%
     group_by(time) %>%
-    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+    summarise(int1.SF12 = weighted.mean(SF_12, w = weight))
+  int2 <- int.dat2 %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int2.SF12 = weighted.mean(SF_12, w = weight))
+  int3 <- int.dat3 %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int3.SF12 = weighted.mean(SF_12, w = weight))
+  int4 <- int.dat4 %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int4.SF12 = weighted.mean(SF_12, w = weight))
   
-  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  # now combine all data together and calculate differences
+  combined <- merge(x = base, y = int1, by = 'time')
+  combined <- merge(x = merged, y = int2, by = 'time')
+  combined <- merge(x = merged, y = int3, by = 'time')
+  combined <- merge(x = merged, y = int4, by = 'time')
+  
   combined$diff <- combined$int.SF12 - combined$base.SF12
   
   ggplot(combined, aes(x = time, y = diff)) +
@@ -106,4 +137,70 @@ full.sample.change.SF12 <- function(base.dat, int.dat) {
 full.sample.change.SF12(base, int)
 ```
 
+```{r}
+SF12.change.full.sample.single <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Whole population') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  if (shall.we.save) {
+    filename <- paste0(save.path, 'SF12_whole_pop_single.png')
+
+    ggsave(filename = filename,
+           plot = p1,
+           width = plot.width,
+           height = plot.height)
+  }
+}
+
+SF12.change.full.sample.batch <- function(base.dat, int.dat, batch) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, run_id, SF_12) %>%
+    group_by(time, run_id) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, run_id, SF_12) %>%
+    group_by(time, run_id) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = c('time', 'run_id'))
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Whole population') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  if (shall.we.save) {
+    filename <- paste0(save.path, 'SF12_whole_pop_batch.png')
+    ggsave(filename = filename,
+           plot = p1,
+           width = plot.width,
+           height = plot.height)
+  }
+}
+```
 

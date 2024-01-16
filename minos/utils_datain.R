@@ -16,7 +16,7 @@ read_output <- function(out.path, scenario, start.year=2020, end.year=2035, var.
   scen.path <- get_latest_runtime_subdirectory(scen.path)
   
   files <- list.files(scen.path,
-                      pattern = '[0-9]{4}.csv',
+                      pattern = '^[0-9]{4}.csv$',
                       full.names = TRUE)
   
   if (length(files) > 0) {
@@ -85,7 +85,10 @@ read_batch_out_1year <- function(out.path, scenario, year, var.list, drop.dead =
 
 read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.year=2036, var.list, verbose=FALSE, drop.dead = TRUE) {
   print(paste0("Starting aggregation of output files for ", scenario, '...'))
+  
+  # variable list to keep output dataframes as small as possible
   var.list <- c('pidp', 'hidp', 'time', 'weight', var.list, 'alive')
+  
   large.df = data.frame()
   for (i in start.year:end.year) {
     if (verbose) { print(paste0("Aggregating files for year ", i)) }
@@ -94,7 +97,17 @@ read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.ye
       filter(alive != 'dead') %>%
       select(-alive)
     large.df <- rbind(large.df, new.df)
+    
+    # add boost vars to var.list after 2020 only for intervention outputs
+    if ((scenario != 'baseline') && (i == 2020)) { var.list <- c('pidp', 'hidp', 'time', 'weight', 'boost_amount', 'income_boosted', var.list, 'alive') }
   }
+  
+  # Add boost vars to baseline (no boost but need the columns)
+  if (scenario == 'baseline') {
+    large.df$income_boosted <- FALSE
+    large.df$boost_amount <- 0
+  }
+  
   print("All output files successfully aggregated.")
   return(large.df)
 }
