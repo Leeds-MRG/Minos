@@ -416,6 +416,7 @@ arc4_all_scenarios: MODE=default_config
 arc4_all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
+arc4_all_child_uplifts: setup
 arc4_all_child_uplifts: MODE=default_config #MODE=scaled_glasgow
 arc4_all_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml #glasgow_scaled.yaml
 arc4_all_child_uplifts: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
