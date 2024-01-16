@@ -67,8 +67,8 @@ if __name__ == "__main__":
     maxyr = US_utils.get_data_maxyr()
 
     years = np.arange(2009, maxyr)
-    #file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
-    file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
+    #file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
     # HR 283-285 check this var list and next block are okay
