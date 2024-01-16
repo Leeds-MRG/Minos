@@ -55,13 +55,14 @@ base <- read_output(out.path,
                         scenario = 'baseline', 
                         var.list = var.list,
                         verbose = TRUE)
+
+### NOTE: READING INTERVENTION OUTPUTS IS CURRENTLY BROKEN FOR BATCH RUNS
+#         THIS IS BECAUSE WE ARE NO LONGER USING BOOST_AMOUNT
+
 int <- read_output(out.path, 
                             scenario = 'ChildPovertyReductionSUSTAIN', 
                             var.list = var.list,
                             verbose = TRUE)
-
-# base$income_boosted <- FALSE
-# base$boost_amount <- 0
 
 # set up a boolean tag for batch or not
 # this is necessary because batch runs need slightly different processing before visualisation
@@ -202,7 +203,7 @@ SF12.change.families.batch <- function(base.dat, int.dat) {
   p1 <- ggplot(combined, aes(x = time, y = diff)) +
     geom_smooth() +
     geom_hline(yintercept = 0, linetype='dashed') +
-    labs(title = 'Relative change in SF12', subtitle = 'Families with children') +
+    labs(title = 'Relative change in SF12', subtitle = 'Households with children') +
     xlab('Year') +
     ylab('Difference')
   
