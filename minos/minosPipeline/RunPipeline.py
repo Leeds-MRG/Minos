@@ -22,6 +22,8 @@ from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
+from minos.modules.net_income import lmmYJNetIncome
+
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
@@ -75,6 +77,7 @@ components_map = {
     "geeYJIncome()": geeYJIncome(),
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
+    "lmmYJNetIncome()": lmmYJNetIncome(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
     "Loneliness()": Loneliness(),

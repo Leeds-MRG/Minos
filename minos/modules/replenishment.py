@@ -103,6 +103,9 @@ class Replenishment(Base):
                         'job_hours_diff',
                         'hourly_wage_diff',
                         'child_ages',
+                        'net_hh_income',
+                        'net_hh_income_diff',
+                        'council_tax', 'oecd_equiv', 'outgoings', 'hh_mortgage', 'hh_rent'
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.

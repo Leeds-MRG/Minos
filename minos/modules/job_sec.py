@@ -90,7 +90,7 @@ class JobSec(Base):
 
         job_sec_prob_df["job_sec"] = self.random.choice(job_sec_prob_df.index,
                                                                 list(job_sec_prob_df.columns),
-                                                                job_sec_prob_df) + 1
+                                                                job_sec_prob_df)
 
         job_sec_prob_df.index = pop.index
 

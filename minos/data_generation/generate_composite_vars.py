@@ -204,16 +204,19 @@ def generate_hh_income(data):
 
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
+    data['net_hh_income'] = data['hh_netinc']
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
 
     # now drop the intermediates
-    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    data.drop(labels=['hh_netinc'],
               axis=1,
               inplace=True)
-
+    #data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    #          axis=1,
+    #          inplace=True)
     return data
 
 
@@ -960,17 +963,6 @@ def calculate_children(data,
               inplace=True)
     return data
 
-
-def generate_difference_variables(data):
-    # creating difference in hh income for lmm difference models.
-    data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
-    diff_column_names = [item + "_diff" for item in diff_columns]
-    data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
-    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
-    return data
-
-
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -995,7 +987,6 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
-    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

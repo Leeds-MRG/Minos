@@ -67,6 +67,15 @@ def reweight_stock(data, projections):
 
     return reweighted_data
 
+def generate_difference_variables(data):
+    # creating difference in hh income for lmm difference models.
+    data = data.sort_values(by=['time'])
+    diff_columns = ["hh_income", "net_hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
+    diff_column_names = [item + "_diff" for item in diff_columns]
+    data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
+    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
+    return data
+
 
 def wave_data_copy(data, var, copy_year, paste_year, var_type):
     """
@@ -185,6 +194,9 @@ def generate_stock(projections, cross_validation):
                           copy_year=2014,
                           paste_year=2015,
                           var_type='ordinal')
+
+    # difference variables for longitudinal/difference models. do this as late as possible.
+    data = generate_difference_variables(data)
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
