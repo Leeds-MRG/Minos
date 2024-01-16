@@ -10,6 +10,7 @@ from minos.data_generation import generate_composite_vars as gcv
 from minos.data_generation import US_utils
 
 
+''' All metrics related to child poverty '''
 class ChildPovertyMetrics(Base):
     @property
     def name(self):
