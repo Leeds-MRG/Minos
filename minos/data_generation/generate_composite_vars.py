@@ -1051,7 +1051,8 @@ def update_material_deprivation_vars(data,
     hidp_sub['matdep_child'] = (hidp_sub['matdep_child_score'] > matdep_threshold).astype(int)
 
     # Use dict of matdep values as map to create new Boolean columns
-    matdep_vars = ['matdep_child_score', 'matdep_child']
+    # matdep_vars = ['matdep_child_score', 'matdep_child']
+    matdep_vars = ['matdep_child']
     for var in matdep_vars:
         matdep_dict = hidp_sub[var].to_dict()
         data[var] = data['hidp'].map(matdep_dict)
@@ -1142,11 +1143,11 @@ def update_poverty_vars_hh(data,
     print("Annual: {}".format(median_inflated*12))
 
     ''' 2. RELATIVE POVERTY '''
-    hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)
+    # hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)
     hidp_sub['relative_poverty'] = (hidp_sub[income_yearly] < relative_poverty_threshold * median_yearly).astype(int)
 
     ''' 3. ABSOLUTE POVERTY '''
-    hidp_sub['absolute_poverty_percentile'] = hidp_sub[income_inflated].rank(pct=True)
+    # hidp_sub['absolute_poverty_percentile'] = hidp_sub[income_inflated].rank(pct=True)
     hidp_sub['absolute_poverty'] = (hidp_sub[income_inflated] < absolute_poverty_threshold * median_inflated).astype(
         int)
 
@@ -1156,11 +1157,11 @@ def update_poverty_vars_hh(data,
                 (hidp_sub['low_income'] == 1) & (hidp_sub['matdep_child'] == 1)).astype(int)
 
     # Chuck all hidp-based variables into the original df via a map
-    vars_to_map_by_hidp = ['relative_poverty_percentile',
-                           'relative_poverty',
-                           'absolute_poverty_percentile',
+    vars_to_map_by_hidp = ['relative_poverty',
+                           # 'relative_poverty_percentile',
                            'absolute_poverty',
-                           'low_income',
+                           # 'absolute_poverty_percentile',
+                           # 'low_income',
                            'low_income_matdep_child',
                            ]
 
@@ -1174,6 +1175,12 @@ def update_poverty_vars_hh(data,
             data[var] = data['hidp'].map(var_dict).fillna(data[var])
         except:
             data[var] = data['hidp'].map(var_dict)
+
+    ''' HR 17/01/24 Workaround to reduce number of variables present in population, see issue #366
+        This var is unusual as it's carried over from another method as it's required here,
+        but doesn't need to be retained, as it's recalculated every year '''
+    vars = ['matdep_child']
+    data.drop(labels=vars, axis=1, inplace=True)
 
     return data
 
@@ -1301,7 +1308,7 @@ def get_poverty_metrics(pop,
 
         poverty_vars = ['relative_poverty',
                         'absolute_poverty',
-                        'low_income',
+                        # 'low_income',
                         'matdep_child',
                         'low_income_matdep_child',
                         'persistent_poverty',

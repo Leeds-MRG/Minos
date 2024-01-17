@@ -298,7 +298,7 @@ def type_check(data):
     # All child poverty metrics
     data['relative_poverty'] = data['relative_poverty'].astype(int)
     data['absolute_poverty'] = data['absolute_poverty'].astype(int)
-    data['low_income'] = data['low_income'].astype(int)
+    # data['low_income'] = data['low_income'].astype(int)
     data['low_income_matdep_child'] = data['low_income_matdep_child'].astype(int)
     data['relative_poverty_history'] = data['relative_poverty_history'].astype(int)
     data['persistent_poverty'] = data['persistent_poverty'].astype(int)
