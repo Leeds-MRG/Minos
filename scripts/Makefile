@@ -178,10 +178,10 @@ intervention_EBSS: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'EBSS'
 	
 intervention_childPovertyReduction: setup
-	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
+	#$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
-	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/child_poverty_reduction_vis.Rmd')"
-	firefox file://$(OUTCOMES)/child_poverty_reduction_vis.html
+	#$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/child_poverty_reduction_vis.Rmd')"
+	#firefox file://$(OUTCOMES)/child_poverty_reduction_vis.html
 
 # ---
 # HR 20/11/23 Some testing for new all-purpose child poverty intervention
@@ -396,7 +396,6 @@ arc4_intervention_energyDownLiftNoSupport:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 arc4_intervention_childPovertyReduction: setup
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
 
 arc4_glasgow_baseline: setup
