@@ -167,6 +167,14 @@ aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:
 	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
 
+
+outcomes_all_child_uplifts: MODE="default_config"
+outcomes_all_child_uplifts:
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "50_all"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "75_all"
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "100_all"
+
 ##########################################
 # Custom subset for social science paper #
 ##########################################
