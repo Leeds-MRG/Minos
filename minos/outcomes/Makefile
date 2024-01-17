@@ -169,10 +169,15 @@ aggregate_25_all_children:
 
 
 outcomes_all_child_uplifts: MODE="default_config"
-outcomes_all_child_uplifts:
+outcomes_all_child_uplifts: outcomes_all_child_25 outcomes_all_child_50 outcomes_all_child_75 outcomes_all_child_100
+
+outcomes_all_child_25:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_all"
+outcomes_all_child_50:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_all"
+outcomes_all_child_75:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_all"
+outcomes_all_child_100:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_all"
 
 ##########################################
