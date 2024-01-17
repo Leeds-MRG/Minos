@@ -22,4 +22,4 @@
 ## Tell computer this is an array job with tasks from 1 to N
 #$ -t 1-1
 
-Rscript -e "require(rmarkdown); render('$(OUTCOMES)/SCP_vis.Rmd')"
+Rscript -e "require(rmarkdown); render('minos/outcomes/SCP_vis.Rmd')"
