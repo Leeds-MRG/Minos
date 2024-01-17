@@ -42,7 +42,7 @@ source(here::here('minos', 'utils_datain.R'))
 
 
 ```{r}
-out.path <- here::here('output', 'default_config_batch')
+out.path <- here::here('output', 'default_config')
 
 # define subset of variables to reduce size of batch output
 var.list <- c('pidp', 'hidp', 'time', 'weight', 
