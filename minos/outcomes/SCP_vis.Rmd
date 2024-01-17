@@ -425,7 +425,6 @@ if (batch) {
 
 ```{r}
 if (batch) {
-  print('batch')
   SF12.change.treated.batch(base, int25All, int50All, int75All, int100All)
 } else {
   SF12.change.treated.single(base, int25All, int50All, int75All, int100All)
