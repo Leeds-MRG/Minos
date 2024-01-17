@@ -170,10 +170,10 @@ aggregate_25_all_children:
 
 outcomes_all_child_uplifts: MODE="default_config"
 outcomes_all_child_uplifts:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "50_all"
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "75_all"
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "100_all"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_all"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_all"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_all"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_all"
 
 ##########################################
 # Custom subset for social science paper #
