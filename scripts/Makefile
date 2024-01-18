@@ -243,6 +243,33 @@ intervention_energyDownLiftNoSupport_glasgow: setup_glasgow_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'energyDownliftNoSupport'
 
 ############################################
+## Glasgow 25-50 universal credit uplifts
+############################################
+
+intervention_25UniversalCredit_glasgow:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
+
+intervention_30UniversalCredit_glasgow:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
+
+intervention_35UniversalCredit_glasgow:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '35UniversalCredit'
+
+intervention_40UniversalCredit_glasgow:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '40UniversalCredit'
+
+intervention_45UniversalCredit_glasgow:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
+
+intervention_50UniversalCredit_glasgow:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
+
+glasgow_universal_credit_child_uplifts: setup_glasgow_scaled
+glasgow_universal_credit_child_uplifts: MODE=glasgow_scaled
+glasgow_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+glasgow_universal_credit_child_uplifts: baseline_glasgow intervention_25UniversalCredit_glasgow intervention_30UniversalCredit_glasgow intervention_35UniversalCredit_glasgow intervention_40UniversalCredit_glasgow intervention_45UniversalCredit_glasgow intervention_50UniversalCredit_glasgow
+
+############################################
 ## Local single runs of MINOS SF12 experiments using the scotland synthetic population.
 ############################################
 
@@ -362,7 +389,6 @@ arc4_intervention_45UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
 arc4_intervention_50UniversalCredit:
-arc4_intervention_50UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
 
 arc4_intervention_75UniversalCredit: setup
@@ -424,9 +450,9 @@ arc4_poverty_line_child_uplifts: MODE=default_config
 arc4_poverty_line_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_50RelativePoverty arc4_intervention_75RelativePoverty arc4_intervention_100RelativePoverty
 
-arc4_universal_credit_child_uplifts: setup
-arc4_universal_credit_child_uplifts: MODE=default_config #MODE=scaled_scotland
-arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml #/scotland_scaled.yaml
+arc4_universal_credit_child_uplifts: setup_glasgow_scaled
+arc4_universal_credit_child_uplifts: MODE=glasgow_scaled #MODE=default_config #MODE=scaled_scotland
+arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml #/default.yaml #/scotland_scaled.yaml
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
 
 
