@@ -133,7 +133,6 @@ int50 <- read_output(out.path,
 
 #int.list <- c(int25, int30, int35, int40, int45, int50)
 int.list <- list(base, int25, int30, int35, int40, int45, int50)
-# 
 scen.list <- c('base', 'int25', 'int30', 'int35', 'int40', 'int45', 'int50')
 
 # set up a boolean tag for batch or not
@@ -156,40 +155,7 @@ plot.height <- 5
 # FUNCTIONS
 
 ```{r}
-# single.mean <- function(data, scen) {
-#   newvar.name <- paste0(scen, '.SF12')
-#   print(newvar.name)
-#   data <- data %>%
-#     select(time, weight, SF_12) %>%
-#     group_by(time) %>%
-#     summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
-#   return(data)
-# }
-# 
-# int.list <- list(base, int25, int30)
-# 
-# scen.list <- c('base', 'int25', 'int30')
-# 
-# #mod.list <- lapply(int.list, single.mean, scen.list)
-# #mod.list <- mapply(single.mean, int.list, scen.list)
-# 
-# mod.list <- mapply(single.mean, int.list, scen.list, SIMPLIFY = FALSE)
-# 
-# combined <- mod.list %>%
-#   reduce(full_join, by='time')
-# 
-# # List of intervention columns
-# int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
-# 
-# # # Create the new dataframe with differences
-# # combined_diff <- combined %>%
-# #   mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}"))
-# 
-# # Create the new dataframe with differences
-# combined_diff <- combined %>%
-#   mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
-#   select(time, starts_with("diff")) %>%
-#   rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
+
 
 ```
 
@@ -493,6 +459,131 @@ SF12.change.treated.batch <- function(df.list, scen.list) {
 }
 ```
 
+```{r SF12_deciles, echo=FALSE}
+SF12.by.simd.deciles <- function(df.list, scen.list, start.year = 2020, batch=FALSE) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, simd_decile) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, run_id, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile'))
+  }
+  
+  combined$simd_decile <- as.factor(combined$simd_decile)
+  
+  int.labels <- scen.list[-1]
+  
+  for (int in int.labels) {
+    int.name <- paste0(int, '.SF12')
+    if (batch) {
+      p1 <- ggplot(combined, aes(x = time, group = simd_decile, colour = simd_decile)) +
+        geom_smooth(aes(y = base.SF12)) +
+        geom_smooth(aes(y = .data[[int.name]]), linetype='dashed') +
+        labs(title = 'SF12 MCS Deciles', subtitle = paste0('Baseline vs ', int)) +
+        xlab('Year') +
+        ylab('Difference')
+    } else {
+      p1 <- ggplot(combined, aes(x = time, group = simd_decile, colour = simd_decile)) +
+        geom_line(aes(y = base.SF12)) +
+        geom_line(aes(y = .data[[int.name]]), linetype='dashed') +
+        labs(title = 'SF12 MCS Deciles', subtitle = int) +
+        xlab('Year') +
+        ylab('Difference')
+    }
+    print(p1)
+  }
+}
+```
+
+```{r SF_change_deciles, echo=FALSE}
+SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch = FALSE) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, simd_decile) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, run_id, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile'))
+  }
+  
+  combined$simd_decile <- as.factor(combined$simd_decile)
+  
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, simd_decile, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
+  
+  combined <- combined %>%
+    pivot_longer(cols = starts_with('diff'),
+                 names_to = 'scen',
+                 values_to = 'diff')
+  
+  options(repr.plot.width =9, repr.plot.height =20) 
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    facet_wrap(. ~ scen, ncol=1) +
+    labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  ggsave(filename = 'test_plot.png',
+         plot = p1,
+         path = here::here('plots', 'SCOTGOVWORK'),
+         width = 9,
+         height = 20)
+  
+  print(p1)
+}
+```
+
+
 # PLOTS
 
 ## MCS - Whole Population
@@ -528,9 +619,26 @@ if (batch) {
 
 
 
+## MCS - DECILES
+
+```{r}
+SF12.by.simd.deciles(int.list, scen.list)
+```
+
+```{r}
+SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = FALSE)
+```
+
+
+## MCS - CHANGE BY DECILES
+
+```{r}
+SF12.change.by.deciles(int.list, scen.list)
+```
+
+## TESTING
 
 
 ```{r}
-
 ```
 
