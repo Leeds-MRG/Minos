@@ -42,7 +42,58 @@ source(here::here('minos', 'utils_datain.R'))
 
 
 ```{r}
-out.path <- here::here('output', 'default_config')
+# out.path <- here::here('output', 'default_config')
+# 
+# # define subset of variables to reduce size of batch output
+# var.list <- c('pidp', 'hidp', 'time', 'weight', 
+#               'age', 'ethnicity', 'education_state', 'region', 'nkids',
+#               'hh_income',
+#               'housing_quality', 'neighbourhood_safety', 'loneliness', 'ncigs', 'nutrition_quality', 'financial_situation', 'urban', 'housing_tenure',
+#               'SF_12', 'matdep_child')
+# 
+# base <- read_output(out.path, 
+#                     scenario = 'baseline', 
+#                     var.list = var.list,
+#                     verbose = TRUE)
+# int25All <- read_output(out.path, 
+#                         scenario = '25All', 
+#                         var.list = var.list,
+#                         verbose = TRUE)
+# int50All <- read_output(out.path, 
+#                         scenario = '50All', 
+#                         var.list = var.list,
+#                         verbose = TRUE)
+# int75All <- read_output(out.path, 
+#                         scenario = '75All', 
+#                         var.list = var.list,
+#                         verbose = TRUE)
+# int100All <- read_output(out.path, 
+#                         scenario = '100All', 
+#                         var.list = var.list,
+#                         verbose = TRUE)
+# 
+# int.list <- c(int25All, int50All, int75All, int100All)
+# 
+# # set up a boolean tag for batch or not
+# # this is necessary because batch runs need slightly different processing before visualisation
+# if ('run_id' %in% names(base)) {
+#   batch <- TRUE
+# } else {
+#   batch <- FALSE
+# }
+# 
+# # Save path and save flag
+# save.path <- here::here('plots', 'SCOTGOV', 'CPR')
+# create.if.not.exists(save.path)
+# shall.we.save <- FALSE
+# plot.width <- 10
+# plot.height <- 5
+```
+
+```{r}
+#out.path <- here::here('output', 'default_config')
+out.path <- here::here('output', 'glasgow_scaled')
+
 
 # define subset of variables to reduce size of batch output
 var.list <- c('pidp', 'hidp', 'time', 'weight', 
@@ -55,24 +106,35 @@ base <- read_output(out.path,
                     scenario = 'baseline', 
                     var.list = var.list,
                     verbose = TRUE)
-int25All <- read_output(out.path, 
-                        scenario = '25All', 
-                        var.list = var.list,
-                        verbose = TRUE)
-int50All <- read_output(out.path, 
-                        scenario = '50All', 
-                        var.list = var.list,
-                        verbose = TRUE)
-int75All <- read_output(out.path, 
-                        scenario = '75All', 
-                        var.list = var.list,
-                        verbose = TRUE)
-int100All <- read_output(out.path, 
-                        scenario = '100All', 
-                        var.list = var.list,
-                        verbose = TRUE)
+int25 <- read_output(out.path, 
+                      scenario = '25UniversalCredit', 
+                      var.list = var.list,
+                      verbose = TRUE)
+int30 <- read_output(out.path,
+                      scenario = '30UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int35 <- read_output(out.path,
+                      scenario = '35UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int40 <- read_output(out.path,
+                      scenario = '40UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int45 <- read_output(out.path,
+                      scenario = '45UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int50 <- read_output(out.path,
+                      scenario = '50UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
 
-int.list <- c(int25All, int50All, int75All, int100All)
+#int.list <- c(int25, int30, int35, int40, int45, int50)
+int.list <- list(base, int25, int30, int35, int40, int45, int50)
+# 
+scen.list <- c('base', 'int25', 'int30', 'int35', 'int40', 'int45', 'int50')
 
 # set up a boolean tag for batch or not
 # this is necessary because batch runs need slightly different processing before visualisation
@@ -93,8 +155,47 @@ plot.height <- 5
 
 # FUNCTIONS
 
+```{r}
+# single.mean <- function(data, scen) {
+#   newvar.name <- paste0(scen, '.SF12')
+#   print(newvar.name)
+#   data <- data %>%
+#     select(time, weight, SF_12) %>%
+#     group_by(time) %>%
+#     summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+#   return(data)
+# }
+# 
+# int.list <- list(base, int25, int30)
+# 
+# scen.list <- c('base', 'int25', 'int30')
+# 
+# #mod.list <- lapply(int.list, single.mean, scen.list)
+# #mod.list <- mapply(single.mean, int.list, scen.list)
+# 
+# mod.list <- mapply(single.mean, int.list, scen.list, SIMPLIFY = FALSE)
+# 
+# combined <- mod.list %>%
+#   reduce(full_join, by='time')
+# 
+# # List of intervention columns
+# int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+# 
+# # # Create the new dataframe with differences
+# # combined_diff <- combined %>%
+# #   mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}"))
+# 
+# # Create the new dataframe with differences
+# combined_diff <- combined %>%
+#   mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+#   select(time, starts_with("diff")) %>%
+#   rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
+
+```
+
+
 ```{r SF12_whole_pop, echo=FALSE}
-SF12.change.full.sample.single <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+SF12.change.full.sample.single <- function(df.list, scen.list) {
   single.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
@@ -104,31 +205,35 @@ SF12.change.full.sample.single <- function(base.dat, int.dat1, int.dat2, int.dat
     return(data)
   }
   
-  base <- single.mean(base.dat, scen = 'base')
-  int1 <- single.mean(int.dat1, scen = 'int25')
-  int2 <- single.mean(int.dat2, scen = 'int50')
-  int3 <- single.mean(int.dat3, scen = 'int75')
-  int4 <- single.mean(int.dat4, scen = 'int100')
+  df.list <- mapply(single.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
-  df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
     reduce(full_join, by='time')
 
-  combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
 
   combined <- combined %>%
-    select(time, contains('diff')) %>%
-    pivot_longer(cols = diff25:diff100,
+    pivot_longer(cols = starts_with('diff'),
                  names_to = 'scen',
                  values_to = 'diff')
   
-  # TODO: Rename factor levels
-  # correct factor levels for plot
-  combined$scen <- factor(combined$scen,
-                          levels = c('diff100', 'diff75', 'diff50', 'diff25'))
+  #return(combined)
+  
+  scen.list <- scen.list[-1]
+  
+  #TODO: Rename factor levels
+  #correct factor levels for plot
+  # combined$scen <- factor(combined$scen,
+  #                         levels = scen.list)
+  
+  #return(combined)
   
   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
     geom_line() +
@@ -140,41 +245,57 @@ SF12.change.full.sample.single <- function(base.dat, int.dat1, int.dat2, int.dat
   print(p1)
 }
 
-SF12.change.full.sample.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+SF12.change.full.sample.batch <- function(df.list, scen.list) {
   batch.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
       select(time, weight, run_id, SF_12) %>%
       group_by(time, run_id) %>%
-      summarise(!!newvar.name := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
     return(data)
   }
   
-  base <- batch.mean(base.dat, scen = 'base')
-  int1 <- batch.mean(int.dat1, scen = 'int25')
-  int2 <- batch.mean(int.dat2, scen = 'int50')
-  int3 <- batch.mean(int.dat3, scen = 'int75')
-  int4 <- batch.mean(int.dat4, scen = 'int100')
+  # base <- batch.mean(base.dat, scen = 'base')
+  # int1 <- batch.mean(int.dat1, scen = 'int25')
+  # int2 <- batch.mean(int.dat2, scen = 'int50')
+  # int3 <- batch.mean(int.dat3, scen = 'int75')
+  # int4 <- batch.mean(int.dat4, scen = 'int100')
   
-  df.list <- list(base, int1, int2, int3, int4)
+  df.list <- mapply(single.mean, df.list, scen.list, SIMPLIFY = FALSE)
+  
+  #df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
     reduce(full_join, by=c('time', 'run_id'))
 
-  combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  # combined$diff25 <- combined$int25.SF12 - combined$base.SF12
+  # combined$diff50 <- combined$int50.SF12 - combined$base.SF12
+  # combined$diff75 <- combined$int75.SF12 - combined$base.SF12
+  # combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
 
   combined <- combined %>%
-    select(time, run_id, contains('diff')) %>%
-    pivot_longer(cols = diff25:diff100,
+    pivot_longer(cols = starts_with('diff'),
                  names_to = 'scen',
                  values_to = 'diff')
+
+  # combined <- combined %>%
+  #   select(time, run_id, contains('diff')) %>%
+  #   pivot_longer(cols = diff25:diff100,
+  #                names_to = 'scen',
+  #                values_to = 'diff')
   
   # TODO: Rename factor levels
   # correct factor levels for plot
-  combined$scen <- factor(combined$scen,
-                          levels = c('diff100', 'diff75', 'diff50', 'diff25'))
+  # combined$scen <- factor(combined$scen,
+  #                         levels = c('diff100', 'diff75', 'diff50', 'diff25'))
   
   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
     geom_smooth() +
@@ -188,7 +309,7 @@ SF12.change.full.sample.batch <- function(base.dat, int.dat1, int.dat2, int.dat3
 ```
 
 ```{r SF12_families, echo=FALSE}
-SF12.change.families.single <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+SF12.change.families.single <- function(df.list, scen.list) {
   single.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
@@ -199,31 +320,24 @@ SF12.change.families.single <- function(base.dat, int.dat1, int.dat2, int.dat3, 
     return(data)
   }
   
-  base <- single.mean(base.dat, scen = 'base')
-  int1 <- single.mean(int.dat1, scen = 'int25')
-  int2 <- single.mean(int.dat2, scen = 'int50')
-  int3 <- single.mean(int.dat3, scen = 'int75')
-  int4 <- single.mean(int.dat4, scen = 'int100')
+  df.list <- mapply(single.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
-  df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
     reduce(full_join, by='time')
 
-  combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
 
   combined <- combined %>%
-    select(time, contains('diff')) %>%
-    pivot_longer(cols = diff25:diff100,
+    pivot_longer(cols = starts_with('diff'),
                  names_to = 'scen',
                  values_to = 'diff')
-  
-  # TODO: Rename factor levels
-  # correct factor levels for plot
-  combined$scen <- factor(combined$scen,
-                          levels = c('diff100', 'diff75', 'diff50', 'diff25'))
   
   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
     geom_line() +
@@ -235,7 +349,7 @@ SF12.change.families.single <- function(base.dat, int.dat1, int.dat2, int.dat3, 
   print(p1)
 }
 
-SF12.change.families.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+SF12.change.families.batch <- function(df.list, scen.list) {
   batch.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
@@ -246,31 +360,24 @@ SF12.change.families.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, i
     return(data)
   }
   
-  base <- batch.mean(base.dat, scen = 'base')
-  int1 <- batch.mean(int.dat1, scen = 'int25')
-  int2 <- batch.mean(int.dat2, scen = 'int50')
-  int3 <- batch.mean(int.dat3, scen = 'int75')
-  int4 <- batch.mean(int.dat4, scen = 'int100')
+  df.list <- mapply(batch.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
-  df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
     reduce(full_join, by=c('time', 'run_id'))
 
-  combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
 
   combined <- combined %>%
-    select(time, run_id, contains('diff')) %>%
-    pivot_longer(cols = diff25:diff100,
+    pivot_longer(cols = starts_with('diff'),
                  names_to = 'scen',
                  values_to = 'diff')
-  
-  # TODO: Rename factor levels
-  # correct factor levels for plot
-  combined$scen <- factor(combined$scen,
-                          levels = c('diff100', 'diff75', 'diff50', 'diff25'))
   
   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
     geom_smooth() +
@@ -284,7 +391,7 @@ SF12.change.families.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, i
 ```
 
 ```{r SF12_treated, echo=FALSE}
-SF12.change.treated.single <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+SF12.change.treated.single <- function(df.list, scen.list) {
   single.mean <- function(data, scen, boosted) {
     # define varname
     newvar.name <- paste0(scen, '.SF12')
@@ -301,35 +408,29 @@ SF12.change.treated.single <- function(base.dat, int.dat1, int.dat2, int.dat3, i
   # NEED A FUNCTION TO DO THE DIFF CALCULATION AND ANOTHER TO RUN IT THROUGH
   # EACH DF
   # get boosted pidps
-  boosted <- int.dat1 %>%
+  boosted <- df.list[[2]] %>%
     select(pidp, income_boosted) %>%
     filter(income_boosted == 'True')
+  rm(tmp)
   
-  base <- single.mean(base.dat, scen = 'base', boosted$pidp)
-  int1 <- single.mean(int.dat1, scen = 'int25', boosted$pidp)
-  int2 <- single.mean(int.dat2, scen = 'int50', boosted$pidp)
-  int3 <- single.mean(int.dat3, scen = 'int75', boosted$pidp)
-  int4 <- single.mean(int.dat4, scen = 'int100', boosted$pidp)
-  
-  df.list <- list(base, int1, int2, int3, int4)
+  df.list <- mapply(single.mean, df.list, scen.list, boosted, SIMPLIFY = FALSE)
+
   combined <- df.list %>%
     reduce(full_join, by='time')
 
-  combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
 
   combined <- combined %>%
-    select(time, contains('diff')) %>%
-    pivot_longer(cols = diff25:diff100,
+    pivot_longer(cols = starts_with('diff'),
                  names_to = 'scen',
                  values_to = 'diff')
-  
-  # TODO: Rename factor levels
-  # correct factor levels for plot
-  combined$scen <- factor(combined$scen,
-                          levels = c('diff100', 'diff75', 'diff50', 'diff25'))
   
   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
     geom_line() +
@@ -341,7 +442,7 @@ SF12.change.treated.single <- function(base.dat, int.dat1, int.dat2, int.dat3, i
   print(p1)
 }
 
-SF12.change.treated.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, int.dat4) {
+SF12.change.treated.batch <- function(df.list, scen.list) {
   batch.mean <- function(data, scen, boosted) {
     # define varname
     newvar.name <- paste0(scen, '.SF12')
@@ -358,35 +459,28 @@ SF12.change.treated.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, in
   # NEED A FUNCTION TO DO THE DIFF CALCULATION AND ANOTHER TO RUN IT THROUGH
   # EACH DF
   # get boosted pidps
-  boosted <- int.dat1 %>%
+  boosted <- df.list[[2]] %>%
     select(pidp, income_boosted) %>%
     filter(income_boosted == 'True')
   
-  base <- batch.mean(base.dat, scen = 'base', boosted$pidp)
-  int1 <- batch.mean(int.dat1, scen = 'int25', boosted$pidp)
-  int2 <- batch.mean(int.dat2, scen = 'int50', boosted$pidp)
-  int3 <- batch.mean(int.dat3, scen = 'int75', boosted$pidp)
-  int4 <- batch.mean(int.dat4, scen = 'int100', boosted$pidp)
+  df.list <- mapply(single.mean, df.list, scen.list, boosted, SIMPLIFY = FALSE)
   
-  df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
     reduce(full_join, by=c('time', 'run_id'))
 
-  combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  combined$diff100 <- combined$int100.SF12 - combined$base.SF12
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
 
   combined <- combined %>%
-    select(time, run_id, contains('diff')) %>%
-    pivot_longer(cols = diff25:diff100,
+    pivot_longer(cols = starts_with('diff'),
                  names_to = 'scen',
                  values_to = 'diff')
-  
-  # TODO: Rename factor levels
-  # correct factor levels for plot
-  combined$scen <- factor(combined$scen,
-                          levels = c('diff100', 'diff75', 'diff50', 'diff25'))
   
   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
     geom_smooth() +
@@ -405,9 +499,9 @@ SF12.change.treated.batch <- function(base.dat, int.dat1, int.dat2, int.dat3, in
 
 ```{r}
 if (batch) {
-  SF12.change.full.sample.batch(base, int25All, int50All, int75All, int100All)
+  SF12.change.full.sample.batch(int.list, scen.list)
 } else {
-  SF12.change.full.sample.single(base, int25All, int50All, int75All, int100All)
+  SF12.change.full.sample.single(int.list, scen.list)
 }
 ```
 
@@ -415,9 +509,9 @@ if (batch) {
 
 ```{r}
 if (batch) {
-  SF12.change.families.batch(base, int25All, int50All, int75All, int100All)
+  SF12.change.families.batch(int.list, scen.list)
 } else {
-  SF12.change.families.single(base, int25All, int50All, int75All, int100All)
+  SF12.change.families.single(int.list, scen.list)
 }
 ```
 
@@ -425,9 +519,18 @@ if (batch) {
 
 ```{r}
 if (batch) {
-  SF12.change.treated.batch(base, int25All, int50All, int75All, int100All)
+  SF12.change.treated.batch(int.list, scen.list)
 } else {
-  SF12.change.treated.single(base, int25All, int50All, int75All, int100All)
+  SF12.change.treated.single(int.list, scen.list)
 }
+```
+
+
+
+
+
+
+```{r}
+
 ```
 
