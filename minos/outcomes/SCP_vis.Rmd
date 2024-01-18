@@ -636,6 +636,140 @@ SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = FALSE)
 SF12.change.by.deciles(int.list, scen.list)
 ```
 
+# DIAGNOSTICS
+
+```{r}
+sample_information_single <- function(int.dat, int.name, target.year) {
+  hh_boosted <- int.dat %>%
+    select(hidp, time, income_boosted, boost_amount, nkids) %>%
+    filter(income_boosted == 'True') %>%
+    group_by(time) %>%
+    summarise(n_boosted = length(unique(hidp)),
+              total_boost = sum(boost_amount),
+              kids_boosted = sum(nkids))
+  
+  p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of households receiving intervention', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Number Boosted')
+  
+  p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of children in households receiving intervention', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Number Children')
+  
+  p3 <- ggplot(hh_boosted, aes(x = time, y = total_boost)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Total boost amount', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  mean.boost <- int.dat %>%
+    select(time, income_boosted, boost_amount) %>%
+    group_by(time, income_boosted) %>%
+    summarise(mean_boost = mean(boost_amount)) %>%
+    filter(income_boosted == 'True')
+  
+  p4 <- ggplot(mean.boost, aes(x = time, y = mean_boost)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Mean boost amount', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  print(p1)
+  print(p2)
+  print(p3)
+  print(p4)
+}
+
+sample_information_batch <- function(int.dat, int.name, target.year) {
+  hh_boosted <- int.dat %>%
+    select(hidp, time, run_id, income_boosted, boost_amount, nkids) %>%
+    filter(income_boosted == 'True') %>%
+    group_by(time, run_id) %>%
+    summarise(n_boosted = length(unique(hidp)),
+              total_boost = sum(boost_amount),
+              kids_boosted = sum(nkids))
+  
+  p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
+    geom_smooth() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of households receiving intervention', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Number Boosted')
+  
+  p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
+    geom_smooth() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of children in households receiving intervention', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Number Children')
+  
+  p3 <- ggplot(hh_boosted, aes(x = time, y = total_boost)) +
+    geom_smooth() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Total boost amount', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  mean.boost <- int.dat %>%
+    select(time, income_boosted, boost_amount) %>%
+    group_by(time, run_id, income_boosted) %>%
+    summarise(mean_boost = mean(boost_amount)) %>%
+    filter(income_boosted == 'True')
+  
+  p4 <- ggplot(mean.boost, aes(x = time, y = mean_boost)) +
+    geom_smooth() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Mean boost amount', subtitle = int.name) +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  print(p1)
+  print(p2)
+  print(p3)
+  print(p4)
+}
+```
+
+## 25
+
+```{r}
+if (batch) {
+  sample_information_batch(int25, int.name = 'int25', target.year = 2030)
+} else {
+  sample_information_single(int25, int.name = 'int25', target.year = 2030)
+}
+```
+
+
+## 35
+
+```{r}
+if (batch) {
+  sample_information_batch(int35, int.name = 'int35', target.year = 2030)
+} else {
+  sample_information_single(int35, int.name = 'int35', target.year = 2030)
+}
+```
+
+## 45
+
+```{r}
+if (batch) {
+  sample_information_batch(int45, int.name = 'int45', target.year = 2030)
+} else {
+  sample_information_single(int45, int.name = 'int45', target.year = 2030)
+}
+```
+
+
 ## TESTING
 
 
