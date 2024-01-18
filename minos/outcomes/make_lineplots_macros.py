@@ -392,7 +392,7 @@ string_to_lineplot_function = {
     "75_all": relative_poverty,
     "100_all": relative_poverty,
 
-    "25_relative_poverty_": [25],
+    "25_relative_poverty": [25],
     "50_relative_poverty": [50],
     "75_relative_poverty": [75],
     "100_relative_poverty": [100],

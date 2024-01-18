@@ -161,11 +161,11 @@ aggregate_25_universal_credit:
 
 aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
-	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
+	python3 minos/outcomes/make_lineplots_macros.py "25_relative_poverty"
 
 aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_all"
 
 ##########################################
 # Custom subset for social science paper #
@@ -383,9 +383,9 @@ aggregate_minos_output_child_poverty_reductionRANDOM:
 	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_RANDOM_who_pov_kids"
 
 aggregate_minos_output_child_poverty_reductionSUSTAIN:
-	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_alive,who_boosted "child_poverty_reduction_SUSTAIN_who_alive"
-	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_kids"
-	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_pov_kids"
+	python3 minos/outcomes/make_lineplots.py default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_alive,who_boosted "child_poverty_reduction_SUSTAIN_who_alive"
+	python3 minos/outcomes/make_lineplots.py default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_kids"
+	python3 minos/outcomes/make_lineplots.py default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_pov_kids"
 
 #aggregate_minos_output_all_child_uplift:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift"
