@@ -12,7 +12,6 @@ from seaborn import histplot
 import numpy as np
 import logging
 
-
 class lmmYJNetIncome(Base):
 
     # Special methods used by vivarium.
@@ -85,7 +84,9 @@ class lmmYJNetIncome(Base):
                         "hh_mortgage",
                         "council_tax",
                         'net_hh_income_diff',
-                        "yearly_energy"
+                        "yearly_energy",
+                        'hh_int_m',
+                        'time'
                         ]
 
         columns_created = ["FP10"]
@@ -149,22 +150,36 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['net_hh_income'] = self.calculate_net_income(pop)
         newWavenetIncome.index = pop.index
 
-        newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
-        income_mean = np.mean(newWavenetIncome["net_hh_income"])
+        income_mean = np.median(newWavenetIncome["net_hh_income"])
         std_ratio = (np.std(pop['net_hh_income']) / np.std(newWavenetIncome["net_hh_income"]))
         newWavenetIncome["net_hh_income"] *= std_ratio
         newWavenetIncome["net_hh_income"] -= ((std_ratio - 1) * income_mean)
+        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 8000)
+        newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
+
         # newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         # print(std_ratio)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         # print("income", np.mean(newWaveIncome['hh_income']))
-        newWavenetIncome[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy"]] = pop[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy"]]
+        #newWavenetIncome[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy", "outgoings"]] = pop[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy", "outgoings"]]
+        newWavenetIncome['yearly_energy'] = pop['yearly_energy']
+        newWavenetIncome['oecd_equiv'] = pop['oecd_equiv']
+        #newWavenetIncome['outgoings'] = pop['outgoings']
+        newWavenetIncome['hh_rent'] = pop['hh_rent']
+        newWavenetIncome['hh_mortgage'] = pop['hh_mortgage']
+        newWavenetIncome['council_tax'] = pop['council_tax']
+
+        # calculate disposable income from net income as per composite variable formula.
         newWavenetIncome['hh_income'] = self.subtract_outgoings(newWavenetIncome)
+
+        #newWavenetIncome['hh_int_m'] = pop['hh_int_m']
+        #newWavenetIncome['hh_income'] = self.inflation_adjustment(newWavenetIncome, self.year, "hh_income")['hh_income']
+
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
         newWavenetIncome['FP10'] = (newWavenetIncome['yearly_energy'] / newWavenetIncome['hh_income'] > 0.1)
-
+        print(np.mean(newWavenetIncome['hh_income']))
         self.population_view.update(
             newWavenetIncome[['net_hh_income', 'hh_income', 'hh_income_diff', 'net_hh_income_diff', "FP10"]])
 
@@ -187,7 +202,7 @@ class lmmYJNetIncome(Base):
                                                                           dependent='net_hh_income_new',
                                                                           yeo_johnson=True,
                                                                           reflect=False,
-                                                                          noise_std=0.175)  # 0.45 for yj. 100? for non yj.
+                                                                          noise_std=1.5)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -209,9 +224,79 @@ class lmmYJNetIncome(Base):
         """
         # Note ALL THESE OUTGOINGS VALUES ARE TRANSITIONED IN AN ADDITIONAL OUTGOINGS MODULE.
         # When the outgoings model is included these are dynamic. Otherwise, static prices.
-        pop["outgoings"] = pop["hh_rent"] + pop["hh_mortgage"] + pop["council_tax"] + pop['yearly_energy']
+        pop["outgoings"] = pop["hh_rent"] + pop["hh_mortgage"] + pop["council_tax"] #+ pop['yearly_energy']
         disposable_income = (pop["net_hh_income"] - pop["outgoings"]) / pop["oecd_equiv"]
         return disposable_income
+
+
+    def generate_interview_date_var(self, data, year):
+        """ Generate an interview date variable in the form YYYYMM
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            The `data` containing interview year and month (hh_int_y, hh_int_m)
+        Returns
+        -------
+        data : pandas.DataFrame
+            Dataframe with interview date variable added
+        """
+        # Replace na with 0 (na is technically a float so messes up when converting to int) and convert to int then string
+        # Format date to 2 sigfigs so we keep the form '08' instead of just '8'
+        if year > 2023:
+            if year >= 2028:
+                data["Date"] = "2028Q1"
+            else:
+                data["hh_int_y"] = str(year)
+                data["hh_int_m"] = (data["hh_int_m"] % 4) + 1
+                data["Date"] = data["hh_int_y"] + "Q" + data["hh_int_m"]
+
+        else:
+            data["hh_int_y"] = str(year)
+            data["hh_int_m"] = data["hh_int_m"].fillna(0).astype(int).astype(str).str.zfill(2)
+            data["Date"] = data["hh_int_y"] + data["hh_int_m"]
+            # now concatenate the date strings and handle cases of missings (-9, -8). Also replace 0 with -9
+            data["Date"] = data["Date"].apply(lambda x: min(x, "202309")) # don't have data for end of the year yet..
+
+        return data
+
+
+    def inflation_adjustment(self, data, year, var):
+        """ Adjust financial values for inflation using the Consumer Price Index (CPI)
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            The `data` containing financial variable(s) to be adjusted.
+        var : str
+            Name of a financial variable to be adjusted.
+        Returns
+        -------
+        data : pandas.DataFrame
+            Dataframe with adjusted financial values.
+        """
+        # need interview date for adjustment
+        data = self.generate_interview_date_var(data, year)
+        # Inflation adjustment using CPI
+        # read in CPI dataset
+        if year < 2023:
+            # if before present date use real inflation data.
+            cpi = pd.read_csv('persistent_data/CPI_202309.csv')
+        else:
+            # else use OBR cpi forecasts. https://obr.uk/forecasts-in-depth/the-economy-forecast/inflation/#CPI
+            cpi = pd.read_csv("persistent_data/CPI_quarterly_forecasts.csv")
+            cpi = cpi.loc[cpi['Inflation'] == "CPI forecast index", ]
+            cpi["Date"] = cpi["Quarter"]
+            cpi["CPI"] = cpi["Value"]
+            cpi["Value"] /= cpi.loc[4, "Value"] * 100 # scale to september 2023 as with the other index.
+
+        # merge cpi onto data and do adjustment, then delete cpi column (keep date)
+        data = pd.merge(data, cpi, on='Date', how='left')
+        data[var] = (data[var] / data['CPI']) * 100
+        data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
+
+        return data
+
     def plot(self, pop, config):
         file_name = config.output_plots_dir + f"income_hist_{self.year}.pdf"
         f = plt.figure()

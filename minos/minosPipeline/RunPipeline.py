@@ -23,6 +23,7 @@ from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkids
 from minos.modules.housing import Housing
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
 from minos.modules.net_income import lmmYJNetIncome
+from minos.modules.outgoings import lmmYJOutgoings
 
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
@@ -78,6 +79,7 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "lmmYJNetIncome()": lmmYJNetIncome(),
+    "lmmYJOutgoings()": lmmYJOutgoings(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
     "Loneliness()": Loneliness(),
@@ -134,7 +136,7 @@ def get_priorities():
     component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
+    component_priorities.update({el:3 for el in ["lmmYJOutgoings", 'Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome', 'lmmYJNetIncome']}) # New income-based components to be added here
     component_priorities.update({el:4 for el in intervention_components_map})
     everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
     component_priorities.update({el:5 for el in everything_else})

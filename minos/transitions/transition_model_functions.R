@@ -230,6 +230,8 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
     hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
   }
   
+  browser()
+  
   if(include_weights) {
     model <- glmer(formula,  
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..

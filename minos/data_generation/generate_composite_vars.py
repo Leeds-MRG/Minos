@@ -205,10 +205,14 @@ def generate_hh_income(data):
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
     data['net_hh_income'] = data['hh_netinc']
-    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
     # Adjust hh income for inflation
-    data = US_utils.inflation_adjustment(data, "hh_income")
+    #data = US_utils.inflation_adjustment(data, "hh_income")
+    data = US_utils.inflation_adjustment(data, "net_hh_income")
+    data = US_utils.inflation_adjustment(data, "outgoings")
+
+    data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
+
 
     # now drop the intermediates
     data.drop(labels=['hh_netinc'],
