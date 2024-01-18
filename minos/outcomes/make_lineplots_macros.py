@@ -392,10 +392,10 @@ string_to_lineplot_function = {
     "75_all": relative_poverty,
     "100_all": relative_poverty,
 
-    "25_relative_poverty": [25],
-    "50_relative_poverty": [50],
-    "75_relative_poverty": [75],
-    "100_relative_poverty": [100],
+    "25_relative_poverty": relative_poverty,
+    "50_relative_poverty": relative_poverty,
+    "75_relative_poverty": relative_poverty,
+    "100_relative_poverty": relative_poverty,
 
     "25_universal_credit": universal_credit,
     "30_universal_credit": universal_credit,
@@ -518,7 +518,7 @@ string_to_lineplot_function_args = {
     "75_universal_credit_multiple_priority_subgroups": [75],
     "100_universal_credit_multiple_priority_subgroups": [100],
 
-    "25_relative_poverty_": [25],
+    "25_relative_poverty": [25],
     "50_relative_poverty": [50],
     "75_relative_poverty": [75],
     "100_relative_poverty": [100],

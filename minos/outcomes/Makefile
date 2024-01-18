@@ -161,7 +161,7 @@ aggregate_25_universal_credit:
 
 aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
-	python3 minos/outcomes/make_lineplots_macros.py "25_relative_poverty"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_relative_poverty"
 
 aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:

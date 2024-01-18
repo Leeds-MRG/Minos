@@ -19,6 +19,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_universal_credit_and_kids": [who_alive, who_kids, who_universal_credit],
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
+                     "who_relative_poverty_and_kids": [who_alive, who_relative_poverty, who_kids],
 
                      # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
@@ -270,6 +271,18 @@ def who_below_poverty_line(df):
     "who below poverty line?. Defined as 60% of national median hh income."
     return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
     #return df.loc[df['hh_income'] <= 1300.0,]
+
+
+def who_relative_poverty(df):
+    # # Get all individuals in households below relative poverty threshold
+    # # Method 1, using relative_poverty variable directly
+    # sub = df.loc[df['relative_poverty'].astype(int) == 1]
+    # Method 2, explicit calculation if relative_poverty variable is not present;
+    # must calculate by hh, NOT by individual
+    hidp_sub = df.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    median_yearly = hidp_sub['hh_income'].median()
+    sub = df.loc[df['hh_income'] < 0.6*median_yearly]
+    return sub
 
 
 def who_boosted(df):
