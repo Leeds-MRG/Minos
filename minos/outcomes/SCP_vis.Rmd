@@ -36,59 +36,8 @@ Source utils for some functions.
 
 ```{r}
 source(here::here('minos', 'utils_datain.R'))
-#source(here::here('minos', 'utils_validation_vis.R'))
-#source(here::here('minos', 'validation', 'utils.r'))
 ```
 
-
-```{r}
-# out.path <- here::here('output', 'default_config')
-# 
-# # define subset of variables to reduce size of batch output
-# var.list <- c('pidp', 'hidp', 'time', 'weight', 
-#               'age', 'ethnicity', 'education_state', 'region', 'nkids',
-#               'hh_income',
-#               'housing_quality', 'neighbourhood_safety', 'loneliness', 'ncigs', 'nutrition_quality', 'financial_situation', 'urban', 'housing_tenure',
-#               'SF_12', 'matdep_child')
-# 
-# base <- read_output(out.path, 
-#                     scenario = 'baseline', 
-#                     var.list = var.list,
-#                     verbose = TRUE)
-# int25All <- read_output(out.path, 
-#                         scenario = '25All', 
-#                         var.list = var.list,
-#                         verbose = TRUE)
-# int50All <- read_output(out.path, 
-#                         scenario = '50All', 
-#                         var.list = var.list,
-#                         verbose = TRUE)
-# int75All <- read_output(out.path, 
-#                         scenario = '75All', 
-#                         var.list = var.list,
-#                         verbose = TRUE)
-# int100All <- read_output(out.path, 
-#                         scenario = '100All', 
-#                         var.list = var.list,
-#                         verbose = TRUE)
-# 
-# int.list <- c(int25All, int50All, int75All, int100All)
-# 
-# # set up a boolean tag for batch or not
-# # this is necessary because batch runs need slightly different processing before visualisation
-# if ('run_id' %in% names(base)) {
-#   batch <- TRUE
-# } else {
-#   batch <- FALSE
-# }
-# 
-# # Save path and save flag
-# save.path <- here::here('plots', 'SCOTGOV', 'CPR')
-# create.if.not.exists(save.path)
-# shall.we.save <- FALSE
-# plot.width <- 10
-# plot.height <- 5
-```
 
 ```{r}
 #out.path <- here::here('output', 'default_config')
@@ -636,10 +585,62 @@ SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = FALSE)
 SF12.change.by.deciles(int.list, scen.list)
 ```
 
+
+# Poverty Statistics
+
+See how interventions affect child poverty.
+
+## Relative Poverty
+
+```{r}
+# First need the relative poverty thresholds from baseline
+threshold <- base %>%
+  select(time, weight, hh_income) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6))
+
+ggplot(data = threshold, aes(x = time, y = poverty_threshold)) +
+  geom_col() +
+  labs(title = 'Relative poverty threshold over time') +
+  xlab('Year') +
+  ylab('Threshold')
+```
+
+```{r}
+int25.test <- merge(int25, threshold, by = 'time')
+# Now calculate number of households and number of children below threshold
+hh_boosted <- int25.test %>%
+  select(hidp, time, hh_income, income_boosted, boost_amount, nkids, poverty_threshold) %>%
+  filter(income_boosted == 'True') %>%
+  filter(hh_income < poverty_threshold) %>%
+  group_by(time) %>%
+  summarise(n = n(),
+            n_boosted = length(unique(hidp)),
+            total_boost = sum(boost_amount),
+            kids_boosted = sum(nkids)) %>%
+  mutate(prop_boosted = n_boosted / n,
+         prop_kids_boosted)
+
+p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
+  geom_line() +
+  labs(title = 'Number of households receiving intervention', subtitle = int.name) +
+  xlab('Year') +
+  ylab('Number Boosted')
+print(p1)
+
+p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
+  geom_line() +
+  labs(title = 'Number of children in households receiving intervention', subtitle = int.name) +
+  xlab('Year') +
+  ylab('Number Children')
+print(p2)
+```
+
+
 # DIAGNOSTICS
 
 ```{r}
-sample_information_single <- function(int.dat, int.name, target.year) {
+intervention_information_single <- function(int.dat, int.name, target.year) {
   hh_boosted <- int.dat %>%
     select(hidp, time, income_boosted, boost_amount, nkids) %>%
     filter(income_boosted == 'True') %>%
@@ -688,7 +689,7 @@ sample_information_single <- function(int.dat, int.name, target.year) {
   print(p4)
 }
 
-sample_information_batch <- function(int.dat, int.name, target.year) {
+intervention_information_batch <- function(int.dat, int.name, target.year) {
   hh_boosted <- int.dat %>%
     select(hidp, time, run_id, income_boosted, boost_amount, nkids) %>%
     filter(income_boosted == 'True') %>%
@@ -742,20 +743,39 @@ sample_information_batch <- function(int.dat, int.name, target.year) {
 
 ```{r}
 if (batch) {
-  sample_information_batch(int25, int.name = 'int25', target.year = 2030)
+  intervention_information_batch(int25, int.name = 'int25', target.year = 2030)
 } else {
-  sample_information_single(int25, int.name = 'int25', target.year = 2030)
+  intervention_information_single(int25, int.name = 'int25', target.year = 2030)
 }
 ```
 
+## 30
+
+```{r}
+if (batch) {
+  intervention_information_batch(int30, int.name = 'int30', target.year = 2030)
+} else {
+  intervention_information_single(int30, int.name = 'int30', target.year = 2030)
+}
+```
 
 ## 35
 
 ```{r}
 if (batch) {
-  sample_information_batch(int35, int.name = 'int35', target.year = 2030)
+  intervention_information_batch(int35, int.name = 'int35', target.year = 2030)
 } else {
-  sample_information_single(int35, int.name = 'int35', target.year = 2030)
+  intervention_information_single(int35, int.name = 'int35', target.year = 2030)
+}
+```
+
+## 40
+
+```{r}
+if (batch) {
+  intervention_information_batch(int40, int.name = 'int40', target.year = 2030)
+} else {
+  intervention_information_single(int40, int.name = 'int40', target.year = 2030)
 }
 ```
 
@@ -763,14 +783,24 @@ if (batch) {
 
 ```{r}
 if (batch) {
-  sample_information_batch(int45, int.name = 'int45', target.year = 2030)
+  intervention_information_batch(int45, int.name = 'int45', target.year = 2030)
 } else {
-  sample_information_single(int45, int.name = 'int45', target.year = 2030)
+  intervention_information_single(int45, int.name = 'int45', target.year = 2030)
+}
+```
+
+## 50
+
+```{r}
+if (batch) {
+  intervention_information_batch(int50, int.name = 'int50', target.year = 2030)
+} else {
+  intervention_information_single(int50, int.name = 'int50', target.year = 2030)
 }
 ```
 
 
-## TESTING
+# TESTING
 
 
 ```{r}
