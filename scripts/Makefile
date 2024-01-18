@@ -421,8 +421,8 @@ arc4_intervention_energyDownLift:
 arc4_intervention_energyDownLiftNoSupport:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
-arc4_intervention_childPovertyReduction: setup
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
+arc4_intervention_childPovertyReduction: setup_glasgow_scaled
+	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled -i 'ChildPovertyReductionSUSTAIN'
 
 arc4_glasgow_baseline: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
