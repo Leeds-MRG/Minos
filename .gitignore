@@ -104,3 +104,11 @@ plots/*
 # HR 21/12/22 Windows utils stuff to ignore
 minos/windowsutils/output/
 minos/windowsutils/output/*
+
+# LA 19/1/24 - Not tracking some testing scripts, turn off if causes problems
+minos/testing/*.Rmd
+minos/testing/*.html
+minos/testing/*/
+minos/testing/*.txt
+
+notebooks/*
