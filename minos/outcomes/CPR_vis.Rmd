@@ -34,21 +34,21 @@ rm(workingDir)
 
 Source utils for some functions.
 
-```{r}
+```{r source_functions}
 source(here::here('minos', 'utils_datain.R'))
 #source(here::here('minos', 'utils_validation_vis.R'))
 #source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 
-```{r}
+```{r read_data}
 #out.path <- here::here('output', 'default_config')
 #out.path <- here::here('output', 'glasgow_scaled')
 out.path <- here::here('output', 'scaled_scotland')
 
 # define subset of variables to reduce size of batch output
 var.list <- c('pidp', 'hidp', 'time', 'weight', 
-              'age', 'ethnicity', 'education_state', 'region', 'nkids',
+              'age', 'ethnicity', 'education_state', 'region', 'nkids', 'nkids_ind', 'S7_labour_state',
               'hh_income',
               'housing_quality', 'neighbourhood_safety', 'loneliness', 'ncigs', 'nutrition_quality', 'financial_situation', 'urban', 'housing_tenure',
               'SF_12', 'matdep_child')
