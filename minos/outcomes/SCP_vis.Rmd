@@ -41,8 +41,8 @@ source(here::here('minos', 'utils_datain.R'))
 
 ```{r}
 #out.path <- here::here('output', 'default_config')
-#out.path <- here::here('output', 'glasgow_scaled')
-out.path <- here::here('output', 'scaled_scotland')
+out.path <- here::here('output', 'glasgow_scaled')
+#out.path <- here::here('output', 'scaled_scotland')
 
 
 # define subset of variables to reduce size of batch output
@@ -821,7 +821,7 @@ SF12.change.priority.group(int.list, scen.list, priority.group = 'minority_ethni
 SF12.change.priority.group(int.list, scen.list, priority.group = 'child_under_one')
 SF12.change.priority.group(int.list, scen.list, priority.group = 'three_plus_children')
 SF12.change.priority.group(int.list, scen.list, priority.group = 'mother_under_25')
-SF12.change.priority.group(int.list, scen.list, priority.group = 'disabled')
+#SF12.change.priority.group(int.list, scen.list, priority.group = 'disabled')
 
 
 ```
