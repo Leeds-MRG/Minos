@@ -24,7 +24,7 @@ TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
 OUTCOMES = $(CURDIR)/minos/outcomes
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
-GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
+SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
 
 # These paths point to the Python/R site-packages directory in the conda environment
