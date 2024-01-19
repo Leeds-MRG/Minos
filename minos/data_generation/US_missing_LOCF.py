@@ -68,6 +68,26 @@ def fbfill_groupby(pid_groupby):
     """
     return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
 
+def mffill_groupby(pid_groupby):
+    """
+    Forward fill the maximum observation in groupby object. The filled variable would only be able to increase over
+    time.
+    Originally used for education_state, as we have the weird problem that some individuals seem to
+    bounce between defined education states and lower levels (often 0).
+    Subsequently also found to be an issue for number of children ever had by women (US: lnprnt, Minos: nkids_ind_raw);
+    v. small number decrease over time
+
+    Parameters
+    ----------
+    pid_groupby : pandas.groupby
+        Pandas groupby object with data sorted by some set of variables. pidp and interview year (time) usually.
+    Returns
+    -------
+    pid_groupby : Object with maximum observation forward filled objects
+    """
+    return pid_groupby.apply(
+        lambda x: pd.DataFrame.cummax(x))
+
 def interpolate(data, interpolate_columns, type='linear'):
     """ Interpolate column based on year time index.
 
@@ -155,7 +175,7 @@ def locf_sort(data, sort_vars, group_vars):
     pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
     return pid_groupby
 
-def locf(data, f_columns = None, b_columns = None, fb_columns = None):
+def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns=None):
     """ Last observation carrying for correcting missing data.
 
     Data is often only recorded when someone either enters the study for
@@ -170,8 +190,8 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None):
     data : pd.DataFrame
         The main `data` frame for US to fix leading entries for. This frame must have pidp, time, and the desired list
         of columns.
-    f_columns, b_columns, fb_columns : list
-        Lists of columns to forward, back, foward and back LOCF interpolate respectivelty.
+    f_columns, b_columns, fb_columns, mf_columns : list
+        Lists of columns to forward, back, forward-and-back and forward-monotonic LOCF interpolate respectivelty.
     li_columns: list
         List of columns to linearly interpolate e.g. age
 
@@ -206,6 +226,10 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None):
         # forwards and backwards fill. again immutables only.
         fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
         data[fb_columns] = fill[fb_columns]
+    if mf_columns:
+        # Forward fill monotonic
+        fill = applyParallelLOCF(pid_groupby[mf_columns], mffill_groupby)
+        data[mf_columns] = fill[mf_columns]
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data
 
@@ -218,11 +242,13 @@ def main(data, save=False):
     #             "job_industry", "job_sec", "heating"]  # add more variables here.
     # define columns to be forward filled, back filled, and linearly interpolated.
     # note columns can be forward and back filled for immutables like ethnicity.
-    f_columns = ['education_state', 'labour_state', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
-                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker'] # 'ncigs', 'ndrinks']
+    f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
+                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
+                 'nkids_ind_raw'] # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
+    mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]
-    data = locf(data, f_columns=f_columns, fb_columns=fb_columns)
+    data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
     US_missing_description.missingness_table(data)
     data = interpolate(data, li_columns)
@@ -235,9 +261,10 @@ def main(data, save=False):
 
 if __name__ == "__main__":
     # Load in data.
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(2009, maxyr)
     # Process data by year and pidp.
     # perform LOCF using lambda forward fill functions.
-    years = np.arange(2009, 2020)
     file_names = [f"data/deterministic_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-    data =  main(data)
+    data = main(data)

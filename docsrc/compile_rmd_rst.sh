@@ -15,7 +15,9 @@ knitted_md=${1%.Rmd}.md # swap Rmd extension for md extension on input notebook.
 #echo "${2}"
 #echo "${knitted_md}"
 
-Rscript -e "knitr::knit('${1}', output='${knitted_md}', quiet=TRUE)" # knit notebook in R.
+echo $PWD
+
+Rscript -e "knitr::knit('${1}', output='${knitted_md}', quiet=FALSE)" # knit notebook in R.
 pandoc --citeproc --extract-media=. -s ${knitted_md} -o $2 # convert knitted md to rst.
 echo "Knitted ${1} to markdown file ${knitted_md} and converted to rst ${2}."
-rm ${knitted_md} # cleanup intermediate markdown.
+rm ${knitted_md} # cleanup intermediate markdown. Prevents warnings later from sphinx..

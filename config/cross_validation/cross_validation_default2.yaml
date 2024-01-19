@@ -1,0 +1,37 @@
+randomness:
+    key_columns: ['entrance_time', 'age']
+time:
+    start: {year: 2015, month: 10, day: 15}
+    end:   {year: 2021, month: 10, day: 15}
+    step_size: 365.25  # Days
+    num_years: 6
+population:
+    age_start: 0
+    age_end: 100
+
+## NOTE: If you modify this file, you MUST modify the remaining cross_validation_default.yaml files within the
+# config/cross_validation directory.
+
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+input_data_dir: "data/final_US/cross_validation/batch2"
+persistent_data_dir: "persistent_data"
+output_data_dir: "output"
+
+transition_dir: 'data/transitions/cross_validation/version2'
+replenishing_dir: 'data/replenishing/cross_validation'
+
+cross_validation: TRUE
+synthetic: FALSE
+scotland: FALSE
+
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here
+components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), HourlyWage(), JobSec(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+
+scale_rates:
+    method: "constant"
+    constant:
+        education: 1
+        mortality: 1
+        fertility: 1
+

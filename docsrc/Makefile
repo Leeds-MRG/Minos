@@ -8,19 +8,10 @@ SPHINXBUILD   ?= sphinx-build
 SPHINXAPIBUILD   ?= sphinx-apidoc
 SOURCEDIR     = .
 BUILDDIR      = ../docs
+NOTEBOOKDIR = docsrc/documentation/notebooks/
+NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/
 
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-.PHONY: help Makefile
-
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-	
+# Render all Rmd, md, and rst files into rst files that sphinx can read.
 render_rmd:
 	# convert markdowns to rst.
 	pandoc --citeproc -s "documentation/notebooks/education.md" -o "documentation/modules/education.rst"
@@ -31,18 +22,36 @@ render_rmd:
 	pandoc --citeproc -s "documentation/notebooks/interventions.md" -o "documentation/modules/interventions.rst"
 
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
-	bash compile_rmd_rst.sh "documentation/notebooks/tobacco.Rmd" "documentation/modules/tobacco.rst"
-	bash compile_rmd_rst.sh "documentation/notebooks/household_income.Rmd" "documentation/modules/household_income.rst"
-	bash compile_rmd_rst.sh "documentation/notebooks/housing.Rmd" "documentation/modules/housing.rst"
-	bash compile_rmd_rst.sh "documentation/notebooks/mental_well_being.Rmd" "documentation/modules/mental_well_being.rst"
-	bash compile_rmd_rst.sh "documentation/notebooks/labour.Rmd" "documentation/modules/labour.rst"
-	bash compile_rmd_rst.sh "documentation/notebooks/loneliness.Rmd" "documentation/modules/loneliness.rst"
-	bash compile_rmd_rst.sh "documentation/notebooks/neighbourhood.Rmd" "documentation/modules/neighbourhood.rst"
-	rm -rf documentation/modules/figure # check new plot directory is empty. delete if not empty.
-	mv -f figure documentation/modules/figure # stupid trick to move generated rst figures from source directory docsrc/ to their position specified in rst filepaths of docsrc/documentation/modules/
-	# probably a better way to do this without force replacing with pandoc --extract-media..
+	# (cd ..; ) makes a new shell that runs at the top level of the repo.
+	# Keeps paths in notebooks tidy and at the top level as well.
+	# Looks a bit awkward but allows for running notebooks in RStudio at the same top level (I.E. the Rstudio .RProj working directory)
+	# Can run notebooks here and in Rstudio without changing any paths.
+	# Probably a cleaner way to do this..
 
-github: render_rmd
+	(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst")
+	(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(NOTEBOOKOUTPUTDIR)housing.rst")
+	(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)household_income.Rmd" "$(NOTEBOOKOUTPUTDIR)household_income.rst")
+	#(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)labour.Rmd" "$(NOTEBOOKOUTPUTDIR)labour.rst")
+	(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)loneliness.Rmd" "$(NOTEBOOKOUTPUTDIR)loneliness.rst")
+	(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)neighbourhood.Rmd" "$(NOTEBOOKOUTPUTDIR)neighbourhood.rst")
+	(cd ..; bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(NOTEBOOKOUTPUTDIR)tobacco.rst")
+
+	# Knitr outputs figures for the documentation in a folder /figure at the top repo level.
+	# I couldn't figure out how change where to output them so manually move them instead..
+	# Check if a figures folder already exists for the Rmd notebooks.
+	# If it does exist remove it and replace it with the new set of figures in the top level folder.
+	(cd ..; rm -rf $(NOTEBOOKOUTPUTDIR)figure)
+	(cd ..; mv -f figure $(NOTEBOOKOUTPUTDIR)figure)
+	# probably a better way to do this in the compile_rmd_rst.sh replacing with pandoc --extract-media..
+
+sphinx_github: render_rmd
 	@$(SPHINXBUILD) -b html $(SOURCEDIR) $(BUILDDIR) # build and write to /docs output directory or it defaults to /html.
 	@$(SPHINXAPIBUILD) -f -o $(SOURCEDIR) $(BUILDDIR) # likewise
 	#@cp -af _build/html/. "$(BUILDIR)"
+
+clean_docs:
+	# Remove any knitted notebooks leftovers.
+	rm "$(NOTEBOOKDIR)*.pdf"
+	rm "$(NOTEBOOKDIR)*.html"
+	rm "$(NOTEBOOKDIR)*.md"
+	rm -rf ../docs/* !(.nojekyll) # should remove everything in docs but nojekyll.

@@ -1,18 +1,21 @@
 ---
 title: "Tobacco"
-output: html_document
-bibliography: 
-  - "refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
-  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+output:
+  pdf_document: default
+  html_document: default
+bibliography: docsrc/refs.bib
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir= "../minos")
+```
 ## Tobacco
 
 
 Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
 
-```{r setup, include=FALSE}
-source('sphinx_notebook_utils.R')
+```{r load_data, include=FALSE}
+source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
 ```
 
 
@@ -21,7 +24,7 @@ source('sphinx_notebook_utils.R')
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
 ```{r tobacco_data}
-counts_density('ncigs')
+counts_density("data/transitions/ncigs/zip/ncigs_2018_2019.rds", "y")
 ```
 
 ### Methods
@@ -58,8 +61,8 @@ Almost all coefficients significant. Particularly prevous consumption of cigaret
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-zip_output("../../../data/transitions/test/tobacco_zip_2018_2019.rds")
-zip_density("../../../data/transitions/test/tobacco_zip_2018_2019.rds", 'ncigs_next')
+zip_output("data/transitions/ncigs/zip/ncigs_2018_2019.rds")
+zip_density("data/transitions/ncigs/zip/ncigs_2018_2019.rds", 'y')
 ```
 
 

@@ -6,6 +6,9 @@ easier to build.
 """
 
 from datetime import datetime as dt
+from scipy.special import ndtri  # very fast standard normal sampler.
+from minos.data_generation.US_utils import load_multiple_data
+import pandas as pd
 
 class Base():
 
@@ -28,7 +31,17 @@ class Base():
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
+        # Use transition directory specified in config file
+        self.transition_dir = config.transition_dir
+        # Use data directory from config file
+        self.input_data_dir = config.input_data_dir
+        # replenishing directory
+        self.replenishing_dir = config.replenishing_dir
+        # mode
+        self.cross_validation = config.cross_validation
+
         return simulation
+
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added. By default adds no columns.
@@ -77,3 +90,75 @@ class Base():
         -------
         None
         """
+        pass
+
+    def generate_gaussian_noise(self, index, mu=0, sigma=1):
+        """ Generate Gaussian noise for continuous variables in MINOS
+        Parameters
+        ----------
+        index: pandas.Index
+            How many observations to generate. should match number of rows from minos dataframe
+        mu, sigma: float
+            Mean and standard deviation of desired Gaussian data. Defaults to 0 and 1 (I.E. the standard Normal distribution).
+        Returns
+        -------
+        data: np.array
+            1xn vector of n samples from the Gaussian distribution N(mu, sigma^2).
+        """
+
+        u = self.random.get_draw(index)
+        return (sigma*ndtri(u)) + mu
+
+
+    def generate_history_dataframe(self, source, years, variables):
+        file_names = [f"data/{source}/{year}_US_cohort.csv" for year in years]
+        if file_names:
+            data = load_multiple_data(file_names)
+            data = data[variables]
+            data = data.sort_values(by=["pidp", "time"])
+        else:
+            data = pd.DataFrame()
+        return data
+
+    def update_history_dataframe(self, new_data, year, lag=5):
+        self.history_data = pd.concat([self.history_data, new_data])
+        self.history_data = self.history_data.loc[self.history_data["time"] > year-lag]
+        self.history_data = self.history_data.sort_values(by=['pidp', 'time'])
+        self.history_data.reset_index(inplace=True, drop=True)
+
+
+class Intervention:
+
+    # Generic intervention class to reduce boilerplate.
+
+    #presetup
+    #setup
+    #ontimestep
+    #plot
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+
+    def plot(self, pop_data, config):
+        """ Default plot method for modules. Does nothing.
+
+        Modules can specify another plot object that saves distributions of state.
+
+        Parameters
+        ----------
+        pop_data: population data from vivarium. Whatever columns needs plotting.
+
+        config: vivarium.configTree
+
+            Config yaml for any needed plot parameters.
+
+        Returns
+        -------
+        None
+        """
+        pass
+

@@ -4,6 +4,10 @@ Upgrade of household appliances
 Possible future work for moving households and changing household composition (e.g. marrying/births)
 """
 
+#############################################################################################
+# DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT
+#############################################################################################
+
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
@@ -11,6 +15,7 @@ import random
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import catplot
+import logging
 
 class Labour(Base):
     # Special methods used by vivarium.
@@ -40,7 +45,7 @@ class Labour(Base):
         """
 
         # Load in any inputs from pre-setup.
-        # Nothing here yet..
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -74,7 +79,7 @@ class Labour(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -84,6 +89,9 @@ class Labour(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+
+        logging.info("LABOUR STATE")
+
         # Construct transition probability distributions.
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
@@ -98,7 +106,7 @@ class Labour(Base):
         labour_prob_df = self.calculate_labour(pop)
 
         labour_prob_df["labour_state"] = self.random.choice(labour_prob_df.index, list(labour_prob_df.columns), labour_prob_df)
-        labour_prob_df.index = labour_prob_df.index.astype(int)
+        labour_prob_df.index = pop.index
 
         self.population_view.update(labour_prob_df["labour_state"])
 
@@ -119,9 +127,9 @@ class Labour(Base):
 
         # load transition model based on year.
         year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
-        transition_model = r_utils.load_transitions(f"data/transitions/labour/nnet/labour_nnet_{year}_{year+1}", "")
+        transition_model = r_utils.load_transitions(f"labour/nnet/labour_nnet_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(transition_model, pop, cols)
+        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):

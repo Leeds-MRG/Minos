@@ -1,0 +1,251 @@
+---
+title: "Investigating Interventions"
+output:
+  html_document:
+    df_print: paged
+---
+# Setup
+```{r "setup", include=FALSE}
+require(tidyverse)
+require(ggplot2)
+require(purrr)
+require(here)
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+Source utils for some functions.
+
+```{r}
+#source('Minos/minos/validation/utils.r')
+source(here::here('minos', 'validation', 'utils.r'))
+#source('/Users/robertclay/minos/minos/utils_datain.R')
+source(here::here('minos', 'utils_datain.r'))
+
+```
+
+## Data
+
+```{r}
+#out.path <- 'Minos/output/default_config/'
+#out.path <- 'Minos/output/scotland_mode/'
+out.path <- here::here('output', 'default_config/')
+base <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+allchild <- read_singular_local_out(out.path, 'hhIncomeChildUplift', drop.dead = TRUE)
+poverty <- read_singular_local_out(out.path, 'hhIncomePovertyLineChildUplift', drop.dead = TRUE)
+wage <- read_singular_local_out(out.path, 'livingWageIntervention', drop.dead = TRUE)
+energy <- read_singular_local_out(out.path, 'energyDownlift', drop.dead = TRUE)
+```
+
+# Energy Downlift
+
+```{r}
+income.base <- base %>% 
+  select(pidp, time, hh_income)
+income.energy <- energy %>% 
+  select(pidp, time, hh_income, income_boosted)
+# first rename and cbind
+income.b <- rename(income.base, base = hh_income)
+income.e <- rename(income.energy, energy = hh_income)
+income.merged <- merge(income.b, income.e, by=c('pidp', 'time'))
+income.merged <- pivot_longer(data = income.merged,
+                              cols = base:energy,
+                              names_to = 'scenario',
+                              values_to = 'hh_income')
+income.merged.byyr <- income.merged %>%
+  group_by(time, scenario) %>%
+  summarise(hh_income = mean(hh_income))
+ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
+  geom_line()
+```
+## SF_12
+```{r}
+sf12.base <- base %>% 
+  select(pidp, time, SF_12)
+sf12.energy <- energy %>% 
+  select(pidp, time, SF_12, income_boosted)
+# first rename and cbind
+sf12.b <- rename(sf12.base, base = SF_12)
+sf12.e <- rename(sf12.energy, energy = SF_12)
+sf12.merged <- merge(sf12.b, sf12.e, by=c('pidp', 'time'))
+sf12.merged <- pivot_longer(data = sf12.merged,
+                              cols = base:energy,
+                              names_to = 'scenario',
+                              values_to = 'SF_12')
+sf12.merged.byyr <- sf12.merged %>%
+  group_by(time, scenario) %>%
+  summarise(SF_12 = mean(SF_12))
+ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenario)) +
+  geom_line()
+```
+
+## Boost Amount
+```{r}
+income.energy <- energy %>% 
+  select(pidp, time, hh_income, income_boosted, boost_amount)
+income.energy.byyr <- income.energy %>%
+  group_by(time) %>%
+  summarise(boost_amount = mean(boost_amount))
+ggplot(data = income.energy.byyr, mapping = aes(x = time, y = boost_amount)) +
+  geom_line()
+```
+## Who Boosted?
+
+```{r}
+boosted.byyr <- income.energy %>% 
+  group_by(time) %>%
+  count(income_boosted)
+ggplot(data = filter(boosted.byyr, income_boosted == 'True'), mapping = aes(x = time, y = n)) +
+  geom_line()
+```
+
+# Living Wage
+
+```{r}
+income.base <- base %>% 
+  select(pidp, time, hh_income)
+income.wage <- wage %>% 
+  select(pidp, time, hh_income, income_boosted)
+# first rename and cbind
+income.b <- rename(income.base, base = hh_income)
+income.w <- rename(income.wage, wage = hh_income)
+income.merged <- merge(income.b, income.w, by=c('pidp', 'time'))
+income.merged <- pivot_longer(data = income.merged,
+                              cols = base:wage,
+                              names_to = 'scenario',
+                              values_to = 'hh_income')
+income.merged.byyr <- income.merged %>%
+  group_by(time, scenario) %>%
+  summarise(hh_income = mean(hh_income))
+ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
+  geom_line()
+```
+```{r}
+income.wage <- wage %>% 
+  select(pidp, time, hh_income, income_boosted, boost_amount)
+income.wage.byyr <- income.wage %>%
+  group_by(time) %>%
+  summarise(boost_amount = mean(boost_amount))
+ggplot(data = income.wage.byyr, mapping = aes(x = time, y = boost_amount)) +
+  geom_line()
+```
+
+## Who Boosted?
+
+```{r}
+boosted.byyr <- income.wage %>% 
+  group_by(time) %>%
+  count(income_boosted)
+ggplot(data = filter(boosted.byyr, income_boosted == 'True'), mapping = aes(x = time, y = n)) +
+  geom_line()
+ggplot(data = boosted.byyr, mapping = aes(x = time, y = n, color = income_boosted)) +
+  geom_line()
+```
+
+# All Child Uplift
+
+```{r}
+income.base <- base %>% 
+  select(pidp, time, hh_income)
+income.child <- allchild %>% 
+  select(pidp, time, hh_income, income_boosted)
+# first rename and cbind
+income.base <- rename(income.base, base = hh_income)
+income.child <- rename(income.child, allchild = hh_income)
+income.merged <- merge(income.base, income.child, by=c('pidp', 'time'))
+income.merged <- pivot_longer(data = income.merged,
+                              cols = base:allchild,
+                              names_to = 'scenario',
+                              values_to = 'hh_income')
+income.merged.byyr <- income.merged %>%
+  group_by(time, scenario) %>%
+  summarise(hh_income = mean(hh_income))
+ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
+  geom_line()
+```
+```{r}
+income.child <- allchild %>% 
+  select(pidp, time, hh_income, income_boosted, boost_amount)
+income.child.byyr <- income.child %>%
+  group_by(time) %>%
+  summarise(boost_amount = mean(boost_amount))
+ggplot(data = income.child.byyr, mapping = aes(x = time, y = boost_amount)) +
+  geom_line()
+```
+## Who Boosted?
+```{r}
+boosted.byyr <- income.child %>% 
+  group_by(time) %>%
+  count(income_boosted)
+ggplot(data = filter(boosted.byyr, income_boosted == 'True'), mapping = aes(x = time, y = n)) +
+  geom_line()
+ggplot(data = boosted.byyr, mapping = aes(x = time, y = n, color = income_boosted)) +
+  geom_line()
+```
+
+
+## Poverty Line Child Uplift
+
+
+
+```{r}
+income.base <- base %>% 
+  select(pidp, time, hh_income)
+income.poverty <- poverty %>% 
+  select(pidp, time, hh_income, income_boosted)
+# first rename and cbind
+income.b <- rename(income.base, base = hh_income)
+income.e <- rename(income.poverty, poverty = hh_income)
+income.merged <- merge(income.b, income.e, by=c('pidp', 'time'))
+income.merged <- pivot_longer(data = income.merged,
+                              cols = base:poverty,
+                              names_to = 'scenario',
+                              values_to = 'hh_income')
+income.merged.byyr <- income.merged %>%
+  group_by(time, scenario) %>%
+  summarise(hh_income = mean(hh_income))
+ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
+  geom_line()
+```
+## SF_12
+```{r}
+sf12.base <- base %>% 
+  select(pidp, time, SF_12)
+sf12.poverty <- poverty %>% 
+  select(pidp, time, SF_12, income_boosted)
+# first rename and cbind
+sf12.b <- rename(sf12.base, base = SF_12)
+sf12.e <- rename(sf12.poverty, poverty = SF_12)
+sf12.merged <- merge(sf12.b, sf12.e, by=c('pidp', 'time'))
+sf12.merged <- pivot_longer(data = sf12.merged,
+                              cols = base:poverty,
+                              names_to = 'scenario',
+                              values_to = 'SF_12')
+sf12.merged.byyr <- sf12.merged %>%
+  group_by(time, scenario) %>%
+  summarise(SF_12 = mean(SF_12))
+ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenario)) +
+  geom_line()
+```
+
+## Boost Amount
+```{r}
+income.poverty <- poverty %>% 
+  select(pidp, time, hh_income, income_boosted, boost_amount)
+income.poverty.byyr <- income.poverty %>%
+  group_by(time) %>%
+  summarise(boost_amount = mean(boost_amount))
+ggplot(data = income.poverty.byyr, mapping = aes(x = time, y = boost_amount)) +
+  geom_line()
+```
+## Who Boosted?
+
+```{r}
+boosted.byyr <- income.poverty %>% 
+  group_by(time) %>%
+  count(income_boosted)
+ggplot(data = filter(boosted.byyr, income_boosted == 'True'), mapping = aes(x = time, y = n)) +
+  geom_line()
+```
+

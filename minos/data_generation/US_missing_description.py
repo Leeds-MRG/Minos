@@ -229,14 +229,15 @@ def longitudinal_hist(data):
 
 def main():
     # Load in data.
-    wave_years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+    wave_years  = np.arange(2009, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in wave_years]
     full_US_data = US_utils.load_multiple_data(file_names)
     # Summary table of missing values by variable.
     missingness_table(full_US_data)
     # Missingness graphs.
     missingness_hist(full_US_data, "education_state", "age")
-    missingness_bars(full_US_data, "labour_state", "sex")
+    missingness_bars(full_US_data, "labour_state_raw", "sex")
     missingness_bars(full_US_data, "education_state", "ethnicity")
     full_US_data["depression"] = full_US_data["depression"].astype(str)
     #longitudinal_hist(full_US_data)

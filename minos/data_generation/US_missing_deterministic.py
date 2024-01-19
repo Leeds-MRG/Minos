@@ -6,6 +6,7 @@ import numpy as np
 import US_utils
 import US_missing_description
 
+
 def det_missing(data, columns, conditioner, replacer):
     """Correct data that is deterministically missing.
     Requires a data frame, a column to correct, a condition function for correction,
@@ -57,7 +58,7 @@ def is_unemployed(data):
     # Some students can be employed and be missing only one of SIC/SOC codes. These values are truly missing.
     # These people ARE employed and this current condition incorrectly replaces their job with nothing..
 
-    who = data["labour_state"].isin(["Unemployed", "Family Care", "Student", "Sick/Disabled", "Retired"])
+    who = data["labour_state_raw"].isin(["Unemployed", "Family Care", "Student", "Sick/Disabled", "Retired", 'Short-term Working'])
     return who
 
 
@@ -74,6 +75,7 @@ def force_zero(data, index, column):
     data.loc[index, column] = 0
     return data
 
+
 def force_nine(data, index, column):
     """
     Parameters
@@ -86,6 +88,7 @@ def force_nine(data, index, column):
     """
     data.loc[index, column] = "-9.0"
     return data
+
 
 def force_minus_ten(data, index, column):
     """
@@ -100,8 +103,22 @@ def force_minus_ten(data, index, column):
     data.loc[index, column] = "-10.0"
     return data
 
+
 def doesnt_smoke(data):
     return data['smoker'] == 2
+
+
+def inapplicable_job_sector(data):
+    return data['job_sector'] == -8
+
+def inapplicable_job_hours(data):
+    return data['job_hours'] == -8
+
+def inapplicable_number_of_children(data):
+    return data['nkids_ind_raw'] == -8
+    # return data['nkids_ind_raw'] < 0
+    # return data['nkids_ind_raw'].isin([-1, -2, -7, -8, -9])
+
 
 def main(data):
     print("Before removing deterministically missing values.")
@@ -114,17 +131,24 @@ def main(data):
                            "job_sec",
                            "job_occupation"]
     # force unemployed people to have value 0 in unemployed_columns.
-    data = det_missing(data, unemployed_columns, is_unemployed, force_minus_ten)
+    data = det_missing(data, unemployed_columns, is_unemployed, force_zero)
     # Anyone who doesn't smoke force ncigs to 0.
     data = det_missing(data, ['ncigs'], doesnt_smoke, force_zero)
+    # anyone who has job_sector == -8 (inapplicable) should be forced to 0
+    data = det_missing(data, ['job_sector'], inapplicable_job_sector, force_zero)
+    data = det_missing(data, ['nkids_ind_raw'], inapplicable_number_of_children, force_zero)
+    data = det_missing(data, ['job_hours'], inapplicable_job_hours, force_zero)
+
     # table of missing values by row/column after correction.
     print("After removing deterministically missing values.")
     US_missing_description.missingness_table(data)
     return data
 
+
 if __name__ == "__main__":
     # Load in data.
-    years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(2009, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data, before, after = main()

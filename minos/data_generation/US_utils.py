@@ -5,12 +5,14 @@ import os
 import pandas as pd
 import numpy as np
 import json
+import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
-
+import pickle
 
 ########################
 # Single wave functions.
 ########################
+
 
 def check_output_dir(output):
     """Check an output data directory exists and create it if it does not.
@@ -24,7 +26,7 @@ def check_output_dir(output):
     None
     """
     if not os.path.isdir(output):
-        os.mkdir(output)
+        os.makedirs(output)
         print(f"Output directory not found. Creating directory to save data at {output}")
 
 
@@ -63,6 +65,7 @@ def load_file(file_name):
     data = pd.read_stata(file_name, convert_categoricals=False)
     return data
 
+
 def save_json(data, destination):
     """Save python dictionaries to JSON.
 
@@ -78,6 +81,7 @@ def save_json(data, destination):
     """
     with open(destination, 'w') as fp:
         json.dump(data, fp)
+
 
 def load_json(file_source, file_name):
     """ Load a JSON data dictionary.
@@ -124,6 +128,7 @@ def get_wave_letter(year):
         wave_number = year - 2009
     wave_letter = alphabet[wave_number]
     return wave_letter
+
 
 def US_file_name(year, source, section):
     """ Get file name for given year of US data.
@@ -187,7 +192,7 @@ def wave_prefix(columns, year):
     return columns
 
 
-def subset_data(data, required_columns, column_names, substitute = True):
+def subset_data(data, required_columns, column_names, verbose, substitute = True):
     """ Take desired columns from US data and rename them.
 
     Parameters
@@ -216,8 +221,9 @@ def subset_data(data, required_columns, column_names, substitute = True):
         for item in required_columns:
             if item not in data.columns:
                 data[item] = -9
-                print(f"Warning! {item} not found in current wave. Substituting a dummy column. "
-                      + "Set substitute = False in the subset_data function to suppress this behaviour.")
+                if verbose:
+                    print(f"Warning! {item} not found in current wave. Substituting a dummy column. "
+                          + "Set substitute = False in the subset_data function to suppress this behaviour.")
     # Take subset of data for required columns and rename them.
     data = data[required_columns]
     data.columns = column_names
@@ -369,13 +375,56 @@ def inflation_adjustment(data, var):
     data = generate_interview_date_var(data)
     # Inflation adjustment using CPI
     # read in CPI dataset
-    cpi = pd.read_csv('persistent_data/CPI_201807.csv')
+    cpi = pd.read_csv('persistent_data/CPI_202309.csv')
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
     data = pd.merge(data, cpi, on='Date', how='left')
     data[var] = (data[var] / data['CPI']) * 100
-    data.drop(labels=['CPI'], axis=1, inplace=True)
+    data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
 
     return data
+
+
+def get_data_maxyr():
+    """
+    This function will calculate the final year of raw Understanding Society input data so we don't have to update
+    the value in every script every time we try to pull the newest wave of US.
+
+    Parameters
+    ----------
+    raw_US_dir : str
+        Path to raw Understanding Society directory (UKDA-6614-stata)
+
+    Returns
+    -------
+    maxyr : int
+        The final year of US data in the input data directory.
+    """
+    print('Calculating max year of data...')
+
+    # hardcoding this because its simpler than passing it as command line arg to each datagen script
+    # TODO: find a way to run this func once in US_format_raw.py and save somewhere for easy access
+    #   Maybe a Makefile arg would make more sense?
+    raw_US_dir = '../UKDA-6614-stata/stata/stata13_se/ukhls/'
+
+    # Get a list of the filenames in the raw US directory
+    #   drop the _indresp.dta suffix
+    #   convert the characters into numbers
+    #   calculate max year from max number
+
+    indresp_filelist = [os.path.basename(x) for x in glob.glob(raw_US_dir + '*_indresp.dta')]
+    wave_list = []
+    for string in indresp_filelist:
+        wave_list.append(string.replace("_indresp.dta", ""))
+    wave_list = sorted(wave_list)
+
+    # if letters == number from a=1 b=2 c=3 etc. then get number from wave letter
+    wave_numlist = [ord(char) - 96 for char in wave_list]
+
+    # now calculate max year
+    # first year of ukhls data is 2009
+    maxyr = 2009 + max(wave_numlist)
+
+    return maxyr
 
 
 def replace_missing_with_na(data, column_list):
@@ -385,8 +434,8 @@ def replace_missing_with_na(data, column_list):
     return data
 
 
-missing_types = ['-1', '-2', '-7', '-8', '-9', '-10',
-                 -1., -2., -7., -8., -9., -10.,
-                 -1, -2, -7, -8, -9, -10,
-                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0', '-10.0',
+missing_types = ['-1', '-2', '-7', '-8', '-9',
+                 -1., -2., -7., -8., -9.,
+                 -1, -2, -7, -8, -9,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
                  "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
