@@ -450,9 +450,9 @@ arc4_poverty_line_child_uplifts: MODE=default_config
 arc4_poverty_line_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_50RelativePoverty arc4_intervention_75RelativePoverty arc4_intervention_100RelativePoverty
 
-arc4_universal_credit_child_uplifts: setup_glasgow_scaled
-arc4_universal_credit_child_uplifts: MODE=glasgow_scaled #MODE=default_config #MODE=scaled_scotland
-arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml #/default.yaml #/scotland_scaled.yaml
+arc4_universal_credit_child_uplifts: setup_scotland_scaled
+arc4_universal_credit_child_uplifts: MODE=scaled_scotland #MODE=glasgow_scaled #MODE=default_config #
+arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/scotland_scaled.yaml #/glasgow_scaled.yaml #/default.yaml #
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
 
 
