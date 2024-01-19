@@ -41,7 +41,8 @@ source(here::here('minos', 'utils_datain.R'))
 
 ```{r}
 #out.path <- here::here('output', 'default_config')
-out.path <- here::here('output', 'glasgow_scaled')
+#out.path <- here::here('output', 'glasgow_scaled')
+out.path <- here::here('output', 'scaled_scotland')
 
 
 # define subset of variables to reduce size of batch output
@@ -424,7 +425,7 @@ SF12.by.simd.deciles <- function(df.list, scen.list, start.year = 2020, batch=FA
     data <- data %>%
       select(time, weight, simd_decile, run_id, SF_12) %>%
       filter(time >= start.year) %>%
-      group_by(time, run_id) %>%
+      group_by(time, simd_decile, run_id) %>%
       summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
     return(data)
   }
@@ -481,7 +482,7 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
     data <- data %>%
       select(time, weight, simd_decile, run_id, SF_12) %>%
       filter(time >= start.year) %>%
-      group_by(time, run_id) %>%
+      group_by(time, simd_decile, run_id) %>%
       summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
     return(data)
   }
@@ -512,15 +513,23 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
                  names_to = 'scen',
                  values_to = 'diff')
   
-  options(repr.plot.width =9, repr.plot.height =20) 
-  
-  p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
-    geom_line() +
-    geom_hline(yintercept = 0, linetype='dashed') +
-    facet_wrap(. ~ scen, ncol=1) +
-    labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
-    xlab('Year') +
-    ylab('Difference')
+  if (batch) {
+    p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
+      geom_smooth() +
+      geom_hline(yintercept = 0, linetype='dashed') +
+      facet_wrap(. ~ scen, ncol=1) +
+      labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
+      xlab('Year') +
+      ylab('Difference')
+  } else {
+    p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
+      geom_line() +
+      geom_hline(yintercept = 0, linetype='dashed') +
+      facet_wrap(. ~ scen, ncol=1) +
+      labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
+      xlab('Year') +
+      ylab('Difference')
+  }
   
   ggsave(filename = 'test_plot.png',
          plot = p1,
@@ -583,6 +592,238 @@ SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = FALSE)
 
 ```{r}
 SF12.change.by.deciles(int.list, scen.list)
+```
+
+
+## MCS - PRIORITY GROUPS
+
+### All Priority Subgroups
+
+```{r}
+
+```
+
+### Minority Ethnic Groups
+
+```{r}
+priority_filter_ethnicity <- function(df.list, scen.list, start.year) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, ethnicity, SF_12) %>%
+      filter(ethnicity != 'WBI') %>%
+      group_by(time) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, ethnicity, run_id, SF_12) %>%
+      filter(ethnicity != 'WBI') %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time'))
+  }
+  return(combined)
+}
+
+priority_filter_child_under_one <- function(df.list, scen.list, start.year) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, child_ages, SF_12) %>%
+      filter(substr(child_ages, 1, 1) == 0) %>%
+      group_by(time) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, child_ages, run_id, SF_12) %>%
+      filter(substr(child_ages, 1, 1) == 0) %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time'))
+  }
+  return(combined)
+}
+
+priority_filter_three_plus_children <- function(df.list, scen.list, start.year) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, nkids, SF_12) %>%
+      filter(nkids >= 3) %>%
+      group_by(time) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, nkids, run_id, SF_12) %>%
+      filter(nkids >= 3) %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time'))
+  }
+  return(combined)
+}
+
+priority_filter_mother_under_25 <- function(df.list, scen.list, start.year) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, age, nkids_ind, SF_12) %>%
+      filter(nkids_ind > 0 & age < 25) %>%
+      group_by(time) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, age, nkids_ind, run_id, SF_12) %>%
+      filter((nkids_ind > 0) && (age < 25)) %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time'))
+  }
+  return(combined)
+}
+
+priority_filter_disabled <- function(df.list, scen.list, start.year) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, hidp, weight, S7_labour_state, SF_12) %>%
+      group_by(hidp) %>%
+      mutate(disabled_flag = ifelse(any(S7_labour_state) == 'disabled')) %>%
+      filter(disabled_flag == TRUE) %>%
+      group_by(time) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, hidp, weight, S7_labour_state, run_id, SF_12) %>%
+      group_by(hidp) %>%
+      mutate(disabled_flag = ifelse(any(S7_labour_state) == 'disabled')) %>%
+      filter(disabled_flag == TRUE) %>%
+      group_by(time, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time'))
+  }
+  return(combined)
+}
+
+SF12.change.priority.group <- function(df.list, scen.list, priority.group, start.year = 2020, batch=FALSE) {
+  
+  # Filter data for priority groups
+  if (priority.group == 'minority_ethnic') { combined <- priority_filter_ethnicity(df.list, scen.list, start.year) }
+  if (priority.group == 'child_under_one') { combined <- priority_filter_child_under_one(df.list, scen.list, start.year) }
+  if (priority.group == 'three_plus_children') { combined <- priority_filter_three_plus_children(df.list, scen.list, start.year) }
+  if (priority.group == 'mother_under_25') { combined <- priority_filter_mother_under_25(df.list, scen.list, start.year) }
+  if (priority.group == 'disabled') { combined <- priority_filter_disabled(df.list, scen.list, start.year) }
+  
+  # List of intervention columns
+  int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
+
+  combined <- combined %>%
+    pivot_longer(cols = starts_with('diff'),
+                 names_to = 'scen',
+                 values_to = 'diff')
+  
+  if (batch) {
+    p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
+      geom_smooth() +
+      geom_hline(yintercept = 0, linetype='dashed') +
+      labs(title = paste0('SF12 MCS Change - ', priority.group)) +
+      xlab('Year') +
+      ylab('Difference')
+  } else {
+    p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
+      geom_line() +
+      geom_hline(yintercept = 0, linetype='dashed') +
+      labs(title = paste0('SF12 MCS Change - ', priority.group)) +
+      xlab('Year') +
+      ylab('Difference')
+  }
+  
+  print(p1)
+}
+
+
+batch <- FALSE
+start.year <- 2020
+
+
+SF12.change.priority.group(int.list, scen.list, priority.group = 'minority_ethnic')
+SF12.change.priority.group(int.list, scen.list, priority.group = 'child_under_one')
+SF12.change.priority.group(int.list, scen.list, priority.group = 'three_plus_children')
+SF12.change.priority.group(int.list, scen.list, priority.group = 'mother_under_25')
+SF12.change.priority.group(int.list, scen.list, priority.group = 'disabled')
+
+
 ```
 
 
