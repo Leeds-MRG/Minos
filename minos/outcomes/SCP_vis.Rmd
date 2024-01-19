@@ -34,15 +34,15 @@ rm(workingDir)
 
 Source utils for some functions.
 
-```{r}
+```{r source_functions, include=FALSE}
 source(here::here('minos', 'utils_datain.R'))
 ```
 
 
-```{r}
+```{r read_data}
 #out.path <- here::here('output', 'default_config')
-out.path <- here::here('output', 'glasgow_scaled')
-#out.path <- here::here('output', 'scaled_scotland')
+#out.path <- here::here('output', 'glasgow_scaled')
+out.path <- here::here('output', 'scaled_scotland')
 
 
 # define subset of variables to reduce size of batch output
@@ -103,12 +103,6 @@ plot.height <- 5
 
 
 # FUNCTIONS
-
-```{r}
-
-
-```
-
 
 ```{r SF12_whole_pop, echo=FALSE}
 SF12.change.full.sample.single <- function(df.list, scen.list) {
