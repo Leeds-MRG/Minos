@@ -217,6 +217,26 @@ def relative_poverty(config_mode, boost_amount):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
+
+''' HR 20/01/24 Outline of poverty metrics method; not working but retaining for the future '''
+# def poverty_metrics(config_mode, boost_amount, source=None):
+#     # All admin
+#     directories = f"baseline,{boost_amount}RelativePoverty"
+#     subset_function_strings = "who_kids,who_boosted"
+#     ref = "Baseline"
+#     method = 'nanmean'
+#
+#     # All variable-related stuff
+#     vars = ['relative_poverty', 'absolute_poverty', 'low_income_matdep_child', 'persistent_poverty']
+#     var_text = ['Relative poverty', 'Absolute poverty', 'Low income/mat. dep.', 'Persistent poverty']
+#     tags = ["Baseline, £{} {}".format(boost_amount, v.lower()) for v in var_text]
+#     prefixes = [el + '_' for el in var_text]
+#
+#     for i, v in enumerate(vars):
+#         print("Tag (legend entry): {}, prefix (file name): {}, variable: {}".format(tags[i], prefixes[i], v))
+#         lineplot_main(directories, tags[i], subset_function_strings, prefixes[i], mode=config_mode, ref=ref, v=v, method=method)
+
+
 def universal_credit(config_mode, boost_amount, region=None):
     "nationwide policy"
     directories = f"baseline,{boost_amount}UniversalCredit"

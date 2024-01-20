@@ -1302,7 +1302,8 @@ def calculate_poverty_composites_ind(data,
 def get_poverty_metrics(pop,
                         poverty_vars=None,
                         who='children',  # Can be children, everyone, or households
-                        _print=True):
+                        _print=True,
+                        condense=False):
 
     if poverty_vars is None:
 
@@ -1332,8 +1333,6 @@ def get_poverty_metrics(pop,
     elif who == 'households':
         sub = pop.drop_duplicates(subset=['hidp'], keep='first')
 
-    print('\n## POVERTY STATS ##')
-
     poverty_metrics = {}
     for var in poverty_vars:
 
@@ -1356,6 +1355,14 @@ def get_poverty_metrics(pop,
                                                                               100*in_poverty_proportion,
                                                                               in_poverty,
                                                                               n_total))
+
+    ''' HR 20/01/24 Grab first line of df and append poverty variables
+        This is bodge to get aggregation plots out, pending integration with Rob's existing aggregations '''
+    if condense:
+        condensed = pop.iloc[0]
+        for var in poverty_vars:
+            condensed[var+'_prop'] = poverty_metrics[var]
+        return condensed
 
     return poverty_metrics
 

@@ -181,7 +181,8 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
 
 def get_required_intervention_variables(subset_function_string):
     # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
-    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "nkids", "loneliness"]
+    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "nkids", "loneliness",
+                         'relative_poverty', 'absolute_poverty', 'low_income_matdep_child', 'persistent_poverty']
 
     if "boosted" in subset_function_string:
         default_variables += ["income_boosted", "boost_amount"]
@@ -274,14 +275,15 @@ def who_below_poverty_line(df):
 
 
 def who_relative_poverty(df):
-    # # Get all individuals in households below relative poverty threshold
-    # # Method 1, using relative_poverty variable directly
-    # sub = df.loc[df['relative_poverty'].astype(int) == 1]
-    # Method 2, explicit calculation if relative_poverty variable is not present;
-    # must calculate by hh, NOT by individual
-    hidp_sub = df.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
-    median_yearly = hidp_sub['hh_income'].median()
-    sub = df.loc[df['hh_income'] < 0.6*median_yearly]
+    # Get all individuals in households below relative poverty threshold
+    # Method 1, using relative_poverty variable directly
+    # print(df.columns)
+    sub = df.loc[df['relative_poverty'].astype(int) == 1]
+    # # Method 2, explicit calculation if relative_poverty variable is not present;
+    # # must calculate by hh, NOT by individual
+    # hidp_sub = df.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    # median_yearly = hidp_sub['hh_income'].median()
+    # sub = df.loc[df['hh_income'] < 0.6*median_yearly]
     return sub
 
 
