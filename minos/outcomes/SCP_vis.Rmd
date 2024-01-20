@@ -573,18 +573,18 @@ if (batch) {
 ## MCS - DECILES
 
 ```{r}
-SF12.by.simd.deciles(int.list, scen.list)
+SF12.by.simd.deciles(int.list, scen.list, batch = batch)
 ```
 
 ```{r}
-SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = FALSE)
+SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = batch)
 ```
 
 
 ## MCS - CHANGE BY DECILES
 
 ```{r}
-SF12.change.by.deciles(int.list, scen.list)
+SF12.change.by.deciles(int.list, scen.list, batch = batch)
 ```
 
 
@@ -810,11 +810,11 @@ batch <- FALSE
 start.year <- 2020
 
 
-SF12.change.priority.group(int.list, scen.list, priority.group = 'minority_ethnic')
-SF12.change.priority.group(int.list, scen.list, priority.group = 'child_under_one')
-SF12.change.priority.group(int.list, scen.list, priority.group = 'three_plus_children')
-SF12.change.priority.group(int.list, scen.list, priority.group = 'mother_under_25')
-#SF12.change.priority.group(int.list, scen.list, priority.group = 'disabled')
+SF12.change.priority.group(int.list, scen.list, priority.group = 'minority_ethnic', batch = batch)
+SF12.change.priority.group(int.list, scen.list, priority.group = 'child_under_one', batch = batch)
+SF12.change.priority.group(int.list, scen.list, priority.group = 'three_plus_children', batch = batch)
+SF12.change.priority.group(int.list, scen.list, priority.group = 'mother_under_25', batch = batch)
+#SF12.change.priority.group(int.list, scen.list, priority.group = 'disabled', batch = batch)
 
 
 ```
