@@ -156,4 +156,3 @@ if __name__ == "__main__":
     # agg_lineplot(intervention_mode='25RelativePoverty')
     agg_lineplot(intervention_mode='ChildPovertyReductionSUSTAIN')
     # agg_lineplot(intervention_mode='ChildPovertyIntervention', config='child_poverty_config')
-    
