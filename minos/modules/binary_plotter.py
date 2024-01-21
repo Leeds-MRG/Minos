@@ -3,6 +3,8 @@
 # whereas SF-12 plotted via make target and shown as % change relative to baseline,
 # here just want absolute trend over time, with error bars (actually 95% CI by default via Seaborn) inter-run (N=100)
 
+""" RUNS FOR BOTH LOCAL (I.E. SINGLE-RUN) AND ARC OUTPUT, ALTHOUGH WITHOUT CONFIDENCE INTERVALS FOR THE FORMER """
+
 import os
 from os.path import dirname as up
 import pandas as pd
@@ -23,7 +25,9 @@ VARS_DEFAULT = ['relative_poverty', 'absolute_poverty', 'low_income_matdep_child
 
 TAG_DICT = {'baseline': 'Baseline',
             '25RelativePoverty': '£25 Relative Poverty',
-            'ChildPovertyReductionSUSTAIN': 'Target-2030 intervention'}
+            'ChildPovertyReductionSUSTAIN': 'Target-2030 intervention',
+            'ChildPovertyIntervention': 'Child Poverty Intervention (new)',
+            }
 
 ''' For reference, although redundant as using get_latest '''
 # baseline_latest_dir = '2024_01_17_11_58_39'
@@ -31,8 +35,8 @@ TAG_DICT = {'baseline': 'Baseline',
 # intervention_latest_dir = '2024_01_17_12_56_58'  # ChildPovertyReductionSUSTAIN
 
 
-def get_intervention_dir(intervention_mode):
-    intervention_dir = os.path.join(up(up(CURR_DIR)), 'output', CONFIG_DEFAULT, intervention_mode)
+def get_intervention_dir(intervention_mode, config):
+    intervention_dir = os.path.join(up(up(CURR_DIR)), 'output', config, intervention_mode)
     return intervention_dir
 
 
@@ -48,12 +52,13 @@ def get_var_output_names(_vars):
 
 
 def agg_lineplot(intervention_mode,  # Name of intervention type; any from TAG_DICT
-             baseline_dir=BASELINE_DIR,
-             nmax=NMAX_DEFAULT,
-             _vars=VARS_DEFAULT):
+                 config=CONFIG_DEFAULT,
+                 baseline_dir=BASELINE_DIR,
+                 nmax=NMAX_DEFAULT,
+                 _vars=VARS_DEFAULT):
 
     baseline_latest_dir = get_latest(baseline_dir)
-    intervention_dir = get_intervention_dir(intervention_mode)
+    intervention_dir = get_intervention_dir(intervention_mode, config)
     intervention_latest_dir = get_latest(intervention_dir)
 
     baseline_path = os.path.join(baseline_dir, baseline_latest_dir)
@@ -150,3 +155,5 @@ def agg_lineplot(intervention_mode,  # Name of intervention type; any from TAG_D
 if __name__ == "__main__":
     # agg_lineplot(intervention_mode='25RelativePoverty')
     agg_lineplot(intervention_mode='ChildPovertyReductionSUSTAIN')
+    # agg_lineplot(intervention_mode='ChildPovertyIntervention', config='child_poverty_config')
+    

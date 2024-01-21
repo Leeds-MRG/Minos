@@ -399,6 +399,9 @@ arc4_intervention_childPovertyReduction: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRANDOM'
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
 
+arc4_intervention_cp_default: setup
+	bash scripts/arc_submit.py -c $(CONFIG)/default_child_poverty.yaml -o child_poverty_config -i 'ChildPovertyIntervention'
+
 arc4_glasgow_baseline: setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/glasgow_scaled.yaml -o "glasgow_scaled" -i 'baseline'
 
