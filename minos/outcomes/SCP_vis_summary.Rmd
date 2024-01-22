@@ -46,22 +46,22 @@ source(here::here('minos', 'utils_datain.R'))
 #out.path <- here::here('output', 'scaled_scotland')
 #out.path <- here::here('output', 'default_config_batch')
 out.path <- here::here('output', 'scaled_scotland_batch')
-#out.path <- here::here('output', 'scaled_scotland_small')
 
 
 # define subset of variables to reduce size of batch output
-var.list <- c('age', 'ethnicity', 'region', 'nkids', 'nkids_ind', 'S7_labour_state',
-              'hh_income', 'child_ages', 'simd_decile',
+var.list <- c('pidp', 'hidp', 'time', 'weight', 
+              'age', 'ethnicity', 'region', 'nkids', 'nkids_ind', 'S7_labour_state',
+              'hh_income', 'child_ages', #'simd_decile',
               'SF_12', 'matdep_child')
 
-base <- read_output(out.path, 
-                    scenario = 'baseline', 
-                    var.list = var.list,
-                    verbose = TRUE)
-int25 <- read_output(out.path, 
-                      scenario = '25UniversalCredit', 
-                      var.list = var.list,
-                      verbose = TRUE)
+# base <- read_output(out.path, 
+#                     scenario = 'baseline', 
+#                     var.list = var.list,
+#                     verbose = TRUE)
+# int25 <- read_output(out.path, 
+#                       scenario = '25UniversalCredit', 
+#                       var.list = var.list,
+#                       verbose = TRUE)
 # int30 <- read_output(out.path,
 #                       scenario = '30UniversalCredit',
 #                       var.list = var.list,
@@ -78,9 +78,31 @@ int25 <- read_output(out.path,
 #                       scenario = '45UniversalCredit',
 #                       var.list = var.list,
 #                       verbose = TRUE)
-int50 <- read_output(out.path,
+# int50 <- read_output(out.path,
+#                       scenario = '50UniversalCredit',
+#                       var.list = var.list,
+#                       verbose = TRUE)
+
+base <- read_batch_out_all_years_summarise(out.path, 
+                                            scenario = 'baseline',
+                                            verbose = TRUE)
+int25 <- read_batch_out_all_years_summarise(out.path, 
+                      scenario = '25UniversalCredit',
+                      verbose = TRUE)
+# int30 <- read_batch_out_all_years_summarise(out.path,
+#                       scenario = '30UniversalCredit',
+#                       verbose = TRUE)
+# int35 <- read_batch_out_all_years_summarise(out.path,
+#                       scenario = '35UniversalCredit',
+#                       verbose = TRUE)
+# int40 <- read_batch_out_all_years_summarise(out.path,
+#                       scenario = '40UniversalCredit',
+#                       verbose = TRUE)
+# int45 <- read_batch_out_all_years_summarise(out.path,
+#                       scenario = '45UniversalCredit',
+#                       verbose = TRUE)
+int50 <- read_batch_out_all_years_summarise(out.path,
                       scenario = '50UniversalCredit',
-                      var.list = var.list,
                       verbose = TRUE)
 
 #int.list <- c(int25, int30, int35, int40, int45, int50)
@@ -89,6 +111,9 @@ int50 <- read_output(out.path,
 
 int.list <- list(base, int25, int50)
 scen.list <- c('base', 'int25', 'int50')
+
+# make sure all data are in dataframes
+int.list <- lapply(int.list, as.data.frame)
 
 # set up a boolean tag for batch or not
 # this is necessary because batch runs need slightly different processing before visualisation
@@ -99,7 +124,7 @@ if ('run_id' %in% names(base)) {
 }
 
 # Save path and save flag
-save.path <- here::here('plots', 'SCOTGOVWORK', 'CPR')
+save.path <- here::here('plots', 'SCOTGOV', 'SPC')
 create.if.not.exists(save.path)
 shall.we.save <- FALSE
 plot.width <- 10
@@ -114,9 +139,10 @@ SF12.change.full.sample.single <- function(df.list, scen.list) {
   single.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, SF_12) %>%
+      select(time, SF_12) %>%
+      filter(SF_12 != -8) %>%
       group_by(time) %>%
-      summarise(!!newvar.name := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
   
@@ -164,28 +190,18 @@ SF12.change.full.sample.batch <- function(df.list, scen.list) {
   batch.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, run_id, SF_12) %>%
+      select(time, run_id, SF_12) %>%
+      filter(SF_12 != -8) %>%
       group_by(time, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
-  
-  # base <- batch.mean(base.dat, scen = 'base')
-  # int1 <- batch.mean(int.dat1, scen = 'int25')
-  # int2 <- batch.mean(int.dat2, scen = 'int50')
-  # int3 <- batch.mean(int.dat3, scen = 'int75')
-  # int4 <- batch.mean(int.dat4, scen = 'int100')
   
   df.list <- mapply(batch.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
   #df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
     reduce(full_join, by=c('time', 'run_id'))
-
-  # combined$diff25 <- combined$int25.SF12 - combined$base.SF12
-  # combined$diff50 <- combined$int50.SF12 - combined$base.SF12
-  # combined$diff75 <- combined$int75.SF12 - combined$base.SF12
-  # combined$diff100 <- combined$int100.SF12 - combined$base.SF12
   
   # List of intervention columns
   int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
@@ -228,12 +244,14 @@ SF12.change.families.single <- function(df.list, scen.list) {
   single.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, SF_12, nkids) %>%
+      select(time, SF_12, nkids) %>%
       filter(nkids > 0) %>%
+      filter(SF_12 != -8) %>%
       group_by(time) %>%
-      summarise(!!newvar.name := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
+  ########################################### CHANGE EVERYTHING FROM WEIGHTED MEAN TO MEAN ###########################################
   
   df.list <- mapply(single.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
@@ -268,10 +286,11 @@ SF12.change.families.batch <- function(df.list, scen.list) {
   batch.mean <- function(data, scen) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, run_id, SF_12, nkids) %>%
+      select(time, run_id, SF_12, nkids) %>%
       filter(nkids > 0) %>%
+      filter(SF_12 != -8) %>%
       group_by(time, run_id) %>%
-      summarise(!!newvar.name := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
   
@@ -307,15 +326,15 @@ SF12.change.families.batch <- function(df.list, scen.list) {
 
 ```{r SF12_treated, echo=FALSE}
 SF12.change.treated.single <- function(df.list, scen.list) {
-  single.mean <- function(data, scen, boosted) {
+  single.mean <- function(data, scen) {
     # define varname
     newvar.name <- paste0(scen, '.SF12')
     # prepare data
     data <- data %>%
-      select(pidp, time, weight, SF_12) %>%
-      filter(pidp %in% boosted) %>%
+      select(time, boosted, SF_12) %>%
+      filter(boosted == TRUE) %>%
       group_by(time) %>%
-      summarise(!!newvar.name := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
   
@@ -323,12 +342,12 @@ SF12.change.treated.single <- function(df.list, scen.list) {
   # NEED A FUNCTION TO DO THE DIFF CALCULATION AND ANOTHER TO RUN IT THROUGH
   # EACH DF
   # get boosted pidps
-  boosted <- df.list[[2]] %>%
-    select(pidp, income_boosted) %>%
-    filter(income_boosted == 'True')
-  rm(tmp)
+  # boosted <- df.list[[2]] %>%
+  #   select(pidp, income_boosted) %>%
+  #   filter(income_boosted == 'True')
+  # rm(tmp)
   
-  df.list <- mapply(single.mean, df.list, scen.list, boosted, SIMPLIFY = FALSE)
+  df.list <- mapply(single.mean, df.list, scen.list, SIMPLIFY = FALSE)
 
   combined <- df.list %>%
     reduce(full_join, by='time')
@@ -358,15 +377,15 @@ SF12.change.treated.single <- function(df.list, scen.list) {
 }
 
 SF12.change.treated.batch <- function(df.list, scen.list) {
-  batch.mean <- function(data, scen, boosted) {
+  batch.mean <- function(data, scen) {
     # define varname
     newvar.name <- paste0(scen, '.SF12')
     # prepare data
     data <- data %>%
-      select(pidp, time, weight, run_id, SF_12) %>%
-      filter(pidp %in% boosted) %>%
+      select(time, boosted, run_id, SF_12) %>%
+      filter(boosted == TRUE) %>%
       group_by(time, run_id) %>%
-      summarise(!!newvar.name := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
   
@@ -374,14 +393,16 @@ SF12.change.treated.batch <- function(df.list, scen.list) {
   # NEED A FUNCTION TO DO THE DIFF CALCULATION AND ANOTHER TO RUN IT THROUGH
   # EACH DF
   # get boosted pidps
-  boosted <- df.list[[2]] %>%
-    select(pidp, income_boosted) %>%
-    filter(income_boosted == 'True')
+  # boosted <- df.list[[2]] %>%
+  #   select(pidp, income_boosted) %>%
+  #   filter(income_boosted == 'True')
   
-  df.list <- mapply(batch.mean, df.list, scen.list, boosted, SIMPLIFY = FALSE)
+  df.list <- mapply(batch.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
   combined <- df.list %>%
     reduce(full_join, by=c('time', 'run_id'))
+  
+  return(combined)
 
   # List of intervention columns
   int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
@@ -406,6 +427,8 @@ SF12.change.treated.batch <- function(df.list, scen.list) {
   
   print(p1)
 }
+
+test <- SF12.change.treated.batch(int.list, scen.list)
 ```
 
 ```{r SF12_deciles, echo=FALSE}
@@ -413,19 +436,19 @@ SF12.by.simd.deciles <- function(df.list, scen.list, start.year = 2020, batch=FA
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, simd_decile, SF_12) %>%
+      select(time, simd_decile, SF_12) %>%
       filter(time >= start.year) %>%
       group_by(time, simd_decile) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, simd_decile, run_id, SF_12) %>%
+      select(time, simd_decile, run_id, SF_12) %>%
       filter(time >= start.year) %>%
       group_by(time, simd_decile, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12))
     return(data)
   }
   
@@ -470,19 +493,19 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, simd_decile, SF_12) %>%
+      select(time, simd_decile, SF_12) %>%
       filter(time >= start.year) %>%
       group_by(time, simd_decile) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm =TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, simd_decile, run_id, SF_12) %>%
+      select(time, simd_decile, run_id, SF_12) %>%
       filter(time >= start.year) %>%
       group_by(time, simd_decile, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12))
     return(data)
   }
   
@@ -530,28 +553,114 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
       ylab('Difference')
   }
   
-  #ggsave(filename = 'test_plot.png',
-  #       plot = p1,
-  #       path = here::here('plots', 'SCOTGOVWORK'),
-  #       width = 9,
-  #       height = 20)
+  ggsave(filename = 'test_plot.png',
+         plot = p1,
+         path = here::here('plots', 'SCOTGOVWORK'),
+         width = 9,
+         height = 20)
   
   print(p1)
 }
 ```
 
 
+```{r}
+# SF12.change.full.sample.batch <- function(df.list, scen.list) {
+#   batch.mean <- function(data, scen) {
+#     newvar.name <- paste0(scen, '.SF12')
+#     data <- data %>%
+#       select(time, run_id, SF_12) %>%
+#       group_by(time, run_id) %>%
+#       summarise(!!sym(newvar.name) := mean(SF_12))
+#     return(data)
+#   }
+#   
+#   df.list <- mapply(batch.mean, df.list, scen.list, SIMPLIFY = FALSE)
+#   
+#   #df.list <- list(base, int1, int2, int3, int4)
+#   combined <- df.list %>%
+#     reduce(full_join, by=c('time', 'run_id'))
+#   
+#   return(combined)
+#   
+#   # List of intervention columns
+#   int_cols <- grep("int\\d+.SF12", names(combined), value = TRUE)
+#   
+#   # Create the new dataframe with differences
+#   combined <- combined %>%
+#     mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+#     select(time, starts_with("diff")) %>%
+#     rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
+# 
+#   combined <- combined %>%
+#     pivot_longer(cols = starts_with('diff'),
+#                  names_to = 'scen',
+#                  values_to = 'diff')
+#   
+#   return(combined)
+# 
+#   # combined <- combined %>%
+#   #   select(time, run_id, contains('diff')) %>%
+#   #   pivot_longer(cols = diff25:diff100,
+#   #                names_to = 'scen',
+#   #                values_to = 'diff')
+#   
+#   # TODO: Rename factor levels
+#   # correct factor levels for plot
+#   # combined$scen <- factor(combined$scen,
+#   #                         levels = c('diff100', 'diff75', 'diff50', 'diff25'))
+#   
+#   p1 <- ggplot(combined, aes(x = time, y = diff, group = scen, colour = scen)) +
+#     geom_smooth() +
+#     geom_hline(yintercept = 0, linetype='dashed') +
+#     labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
+#     xlab('Year') +
+#     ylab('Difference')
+#   
+#   print(p1)
+# }
+# 
+# batch.mean <- function(data, scen) {
+#   newvar.name <- paste0(scen, '.SF12')
+#   data <- data %>%
+#     select(time, run_id, SF_12) %>%
+#     group_by(time, run_id) %>%
+#     summarise(!!sym(newvar.name) := mean(SF_12))
+#   return(data)
+# }
+# 
+# # base <- as.data.frame(base)
+# # 
+# # test2 <- batch.mean(base, 'base')
+# 
+# 
+# test3 <- base %>%
+#   select(time, run_id, SF_12) %>%
+#   group_by(time, run_id) %>%
+#   summarise(base.SF12= mean(SF_12, na.rm =TRUE))
+```
+
+```{r}
+# test4 <- as.data.frame(int25) %>%
+#   dplyr::select(time, run_id, SF_12)
+```
+
 # PLOTS
 
 ## MCS - Whole Population
 
 ```{r}
+
 if (batch) {
   SF12.change.full.sample.batch(int.list, scen.list)
 } else {
   SF12.change.full.sample.single(int.list, scen.list)
 }
+
 ```
+
+
+
 
 ## MCS - Households with Children
 
@@ -609,19 +718,21 @@ priority_filter_ethnicity <- function(df.list, scen.list, start.year) {
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, ethnicity, SF_12) %>%
+      select(time, ethnicity, SF_12) %>%
       filter(ethnicity != 'WBI') %>%
+      filter(SF_12 >= 0) %>%
       group_by(time) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, ethnicity, run_id, SF_12) %>%
+      select(time, ethnicity, run_id, SF_12) %>%
       filter(ethnicity != 'WBI') %>%
+      filter(SF_12 >= 0) %>%
       group_by(time, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   
@@ -641,19 +752,21 @@ priority_filter_child_under_one <- function(df.list, scen.list, start.year) {
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, child_ages, SF_12) %>%
-      filter(substr(child_ages, 1, 1) == 0) %>%
+      select(time, child_under_one, SF_12) %>%
+      filter(child_under_one == TRUE) %>%
+      filter(SF_12 >= 0) %>%
       group_by(time) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, child_ages, run_id, SF_12) %>%
-      filter(substr(child_ages, 1, 1) == 0) %>%
+      select(time, child_under_one, run_id, SF_12) %>%
+      filter(child_under_one == TRUE) %>%
+      filter(SF_12 >= 0) %>%
       group_by(time, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   
@@ -673,19 +786,21 @@ priority_filter_three_plus_children <- function(df.list, scen.list, start.year) 
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, nkids, SF_12) %>%
-      filter(nkids >= 3) %>%
+      select(time, three_plus_child, SF_12) %>%
+      filter(three_plus_child == TRUE) %>%
+      filter(SF_12 >= 0) %>%
       group_by(time) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, nkids, run_id, SF_12) %>%
-      filter(nkids >= 3) %>%
+      select(time, three_plus_child, run_id, SF_12) %>%
+      filter(three_plus_child) %>%
+      filter(SF_12 >= 0) %>%
       group_by(time, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   
@@ -705,19 +820,21 @@ priority_filter_mother_under_25 <- function(df.list, scen.list, start.year) {
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, age, nkids_ind, SF_12) %>%
-      filter(nkids_ind > 0 & age < 25) %>%
+      select(time, mother_under_25, SF_12) %>%
+      filter(mother_under_25 == TRUE) %>%
+      filter(SF_12 >= 0) %>%
       group_by(time) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, weight, age, nkids_ind, run_id, SF_12) %>%
-      filter((nkids_ind > 0) && (age < 25)) %>%
+      select(time, mother_under_25, run_id, SF_12) %>%
+      filter(mother_under_25 == TRUE) %>%
+      filter(SF_12 >= 0) %>%
       group_by(time, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   
@@ -737,23 +854,23 @@ priority_filter_disabled <- function(df.list, scen.list, start.year) {
   single.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, hidp, weight, S7_labour_state, SF_12) %>%
+      select(time, hidp, S7_labour_state, SF_12) %>%
       group_by(hidp) %>%
       mutate(disabled_flag = ifelse(any(S7_labour_state) == 'disabled')) %>%
       filter(disabled_flag == TRUE) %>%
       group_by(time) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   batch.mean <- function(data, scen, start.year) {
     newvar.name <- paste0(scen, '.SF12')
     data <- data %>%
-      select(time, hidp, weight, S7_labour_state, run_id, SF_12) %>%
+      select(time, hidp, S7_labour_state, run_id, SF_12) %>%
       group_by(hidp) %>%
       mutate(disabled_flag = ifelse(any(S7_labour_state) == 'disabled')) %>%
       filter(disabled_flag == TRUE) %>%
       group_by(time, run_id) %>%
-      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+      summarise(!!sym(newvar.name) := mean(SF_12, na.rm = TRUE))
     return(data)
   }
   
@@ -811,6 +928,11 @@ SF12.change.priority.group <- function(df.list, scen.list, priority.group, start
   print(p1)
 }
 
+
+batch <- FALSE
+start.year <- 2020
+
+
 SF12.change.priority.group(int.list, scen.list, priority.group = 'minority_ethnic', batch = batch)
 SF12.change.priority.group(int.list, scen.list, priority.group = 'child_under_one', batch = batch)
 SF12.change.priority.group(int.list, scen.list, priority.group = 'three_plus_children', batch = batch)
@@ -830,9 +952,9 @@ See how interventions affect child poverty.
 ```{r}
 # First need the relative poverty thresholds from baseline
 threshold <- base %>%
-  select(time, weight, hh_income) %>%
+  select(time, hh_income) %>%
   group_by(time) %>%
-  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6))
+  summarise(poverty_threshold = (mean(hh_income, na.rm = TRUE) * 0.6))
 
 ggplot(data = threshold, aes(x = time, y = poverty_threshold)) +
   geom_col() +
@@ -854,18 +976,17 @@ hh_boosted <- int25.test %>%
             total_boost = sum(boost_amount),
             kids_boosted = sum(nkids)) %>%
   mutate(prop_boosted = n_boosted / n)
-	#prop_kids_boosted = # MORE HERE
 
 p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
   geom_line() +
-  labs(title = 'Number of households receiving intervention', subtitle = 'int25') +
+  labs(title = 'Number of households receiving intervention') +
   xlab('Year') +
   ylab('Number Boosted')
 print(p1)
 
 p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
   geom_line() +
-  labs(title = 'Number of children in households receiving intervention', subtitle = 'int25') +
+  labs(title = 'Number of children in households receiving intervention') +
   xlab('Year') +
   ylab('Number Children')
 print(p2)
@@ -926,7 +1047,7 @@ intervention_information_single <- function(int.dat, int.name, target.year) {
 
 intervention_information_batch <- function(int.dat, int.name, target.year) {
   hh_boosted <- int.dat %>%
-    select(hidp, time, run_id, income_boosted, boost_amount, nkids) %>%
+    select(time, run_id, boosted, boost_amount, nkids) %>%
     filter(income_boosted == 'True') %>%
     group_by(time, run_id) %>%
     summarise(n_boosted = length(unique(hidp)),
@@ -977,61 +1098,61 @@ intervention_information_batch <- function(int.dat, int.name, target.year) {
 ## 25
 
 ```{r}
-if (batch) {
-  intervention_information_batch(int25, int.name = 'int25', target.year = 2030)
-} else {
-  intervention_information_single(int25, int.name = 'int25', target.year = 2030)
-}
+# if (batch) {
+#   intervention_information_batch(int25, int.name = 'int25', target.year = 2030)
+# } else {
+#   intervention_information_single(int25, int.name = 'int25', target.year = 2030)
+# }
 ```
 
 ## 30
 
 ```{r}
-if (batch) {
-  intervention_information_batch(int30, int.name = 'int30', target.year = 2030)
-} else {
-  intervention_information_single(int30, int.name = 'int30', target.year = 2030)
-}
+# if (batch) {
+#   intervention_information_batch(int30, int.name = 'int30', target.year = 2030)
+# } else {
+#   intervention_information_single(int30, int.name = 'int30', target.year = 2030)
+# }
 ```
 
 ## 35
 
 ```{r}
-if (batch) {
-  intervention_information_batch(int35, int.name = 'int35', target.year = 2030)
-} else {
-  intervention_information_single(int35, int.name = 'int35', target.year = 2030)
-}
+# if (batch) {
+#   intervention_information_batch(int35, int.name = 'int35', target.year = 2030)
+# } else {
+#   intervention_information_single(int35, int.name = 'int35', target.year = 2030)
+# }
 ```
 
 ## 40
 
 ```{r}
-if (batch) {
-  intervention_information_batch(int40, int.name = 'int40', target.year = 2030)
-} else {
-  intervention_information_single(int40, int.name = 'int40', target.year = 2030)
-}
+# if (batch) {
+#   intervention_information_batch(int40, int.name = 'int40', target.year = 2030)
+# } else {
+#   intervention_information_single(int40, int.name = 'int40', target.year = 2030)
+# }
 ```
 
 ## 45
 
 ```{r}
-if (batch) {
-  intervention_information_batch(int45, int.name = 'int45', target.year = 2030)
-} else {
-  intervention_information_single(int45, int.name = 'int45', target.year = 2030)
-}
+# if (batch) {
+#   intervention_information_batch(int45, int.name = 'int45', target.year = 2030)
+# } else {
+#   intervention_information_single(int45, int.name = 'int45', target.year = 2030)
+# }
 ```
 
 ## 50
 
 ```{r}
-if (batch) {
-  intervention_information_batch(int50, int.name = 'int50', target.year = 2030)
-} else {
-  intervention_information_single(int50, int.name = 'int50', target.year = 2030)
-}
+# if (batch) {
+#   intervention_information_batch(int50, int.name = 'int50', target.year = 2030)
+# } else {
+#   intervention_information_single(int50, int.name = 'int50', target.year = 2030)
+# }
 ```
 
 

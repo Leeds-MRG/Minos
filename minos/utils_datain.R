@@ -51,7 +51,7 @@ extract_run_id <- function(filepath) {
 }
 
 
-process_files_in_batches <- function(batch, year, scenario, drop.dead) {
+process_files_in_batches_summarise <- function(batch, year, scenario, drop.dead) {
   # Your existing file reading and processing logic here
   # Use 'read_files_in_parallel' for reading files in the batch
   loaded.file.list <- read_files_in_parallel(batch)
@@ -142,7 +142,7 @@ read_and_summarise_batch_out_1year <- function(out.path, scenario, year, drop.de
   batches <- split(filepath.list, ceiling(seq_along(filepath.list)/batch.size))
   
   # Process each batch
-  processed_batches <- lapply(batches, process_files_in_batches, year, scenario, drop.dead)
+  processed_batches <- lapply(batches, process_files_in_batches_summarise, year, scenario, drop.dead)
   
   # Combine processed batches
   final <- do.call(rbind, processed_batches)
@@ -183,7 +183,56 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, start.year=20
 #       scenario - string scenario name of which output files to read
 #       year - single year of batch output to aggregate
 #       var.list - list of variables to keep in the returned dataframe
-read_batch_out_1year <- function(out.path, scenario, year, var.list, drop.dead = TRUE) {
+
+read_files_in_parallel <- function(file_paths) {
+  no_cores <- detectCores() - 1  # Reserve one core for the system
+  cl <- makeCluster(no_cores)
+  on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+  
+  # Use parLapply directly with the file_paths
+  loaded.file.list <- parLapply(cl, file_paths, read.csv)
+  return(loaded.file.list)
+}
+
+
+extract_run_id <- function(filepath) {
+  # Extracts the run_id using a regular expression
+  run_id <- gsub(".*/(\\d+)_run_id_\\d+\\.csv$", "\\1", filepath)
+  return(run_id)
+}
+
+process_files_in_batches <- function(batch, year, scenario, var.list, drop.dead) {
+  # Your existing file reading and processing logic here
+  # Use 'read_files_in_parallel' for reading files in the batch
+  loaded.file.list <- read_files_in_parallel(batch)
+  
+  # subset with vars from var.list
+  loaded.file.list <- lapply(loaded.file.list, function(x) select(x, all_of(var.list)))
+  
+  # Add run_id to each dataframe
+  for (i in seq_along(loaded.file.list)) {
+    run_id <- extract_run_id(batch[i])
+    loaded.file.list[[i]]$run_id <- run_id
+  }
+  
+  
+  # remove any dead people from each run
+  drop_dead <- function(data) {
+    data <- data %>%
+      filter(alive != 'dead') %>%
+      select(-alive)
+    return(data)
+  }
+  if (drop.dead) {
+    loaded.file.list <- lapply(loaded.file.list, drop_dead)
+  }
+  
+  # Combine and return the processed batch
+  loaded.file.list <- do.call(rbind, loaded.file.list)
+  return(loaded.file.list)
+}
+
+read_batch_out_1year <- function(out.path, scenario, year, var.list, drop.dead = TRUE, batch.size = 10) {
   scen.path <- scen.path <- here::here(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
   
@@ -194,30 +243,36 @@ read_batch_out_1year <- function(out.path, scenario, year, var.list, drop.dead =
                               full.names = TRUE)
   
   # generate sequence of run IDs from length of the filepath.list
-  num.run.ids <- length(filepath.list)
-  run.id.vector <- 1:num.run.ids
+  # num.run.ids <- length(filepath.list)
+  # run.id.vector <- 1:num.run.ids
   
-  # read each file in the list and store in a different list
-  loaded.file.list <- lapply(filepath.list, read.csv)
-  rm(filepath.list, num.run.ids)
+  # Split filepath.list into batches
+  batches <- split(filepath.list, ceiling(seq_along(filepath.list)/batch.size))
+  
+  # Process each batch
+  processed_batches <- lapply(batches, process_files_in_batches, year, scenario, var.list, drop.dead)
+  
+  # # read each file in the list and store in a different list
+  # loaded.file.list <- lapply(filepath.list, read.csv)
+  # rm(filepath.list, num.run.ids)
   
   # subset with vars from var.list
-  subsetted.file.list <- lapply(loaded.file.list, function(x) select(x, all_of(var.list)))
-  rm(loaded.file.list)
+  # subsetted.file.list <- lapply(loaded.file.list, function(x) select(x, all_of(var.list)))
+  # rm(loaded.file.list)
   
   # add a run_id variable to each df in the list
-  augmented.list <- Map(cbind, subsetted.file.list, run_id = run.id.vector)
-  rm(subsetted.file.list, run.id.vector)
+  # augmented.list <- Map(cbind, subsetted.file.list, run_id = run.id.vector)
+  # rm(subsetted.file.list, run.id.vector)
   
   # finally coalesce into a single df
-  final <- do.call(rbind, augmented.list)
-  rm(augmented.list)
+  final <- do.call(rbind, processed_batches)
+  rm(processed_batches)
   
-  # remove dead people
-  if(drop.dead) {
-    final <- final %>%
-      filter(alive != 'dead')
-  }
+  # # remove dead people
+  # if(drop.dead) {
+  #   final <- final %>%
+  #     filter(alive != 'dead')
+  # }
   
   return(final)
 }
@@ -236,9 +291,6 @@ read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.ye
   for (i in start.year:end.year) {
     if (verbose) { print(paste0("Aggregating files for year ", i)) }
     new.df <- read_batch_out_1year(out.path, scenario, year=i, var.list, drop.dead)
-    new.df <- new.df %>%
-      filter(alive != 'dead') %>%
-      select(-alive)
     large.df <- rbind(large.df, new.df)
   }
   

@@ -43,8 +43,9 @@ source(here::here('minos', 'utils_datain.R'))
 
 ```{r read_data}
 #out.path <- here::here('output', 'default_config')
-out.path <- here::here('output', 'glasgow_scaled')
+#out.path <- here::here('output', 'glasgow_scaled')
 #out.path <- here::here('output', 'scaled_scotland')
+out.path <- here::here('output', 'default_config_batch')
 
 # define subset of variables to reduce size of batch output
 var.list <- c('pidp', 'hidp', 'time', 'weight', 
@@ -109,14 +110,14 @@ SF12.change.full.sample.single <- function(base.dat, int.dat) {
   
   print(p1)
   
-  if (shall.we.save) {
-    filename <- paste0(save.path, 'SF12_whole_pop_single.png')
-
-    ggsave(filename = filename,
-           plot = p1,
-           width = plot.width,
-           height = plot.height)
-  }
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_whole_pop_single.png')
+  # 
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
 }
 
 SF12.change.full.sample.batch <- function(base.dat, int.dat, batch) {
@@ -142,13 +143,13 @@ SF12.change.full.sample.batch <- function(base.dat, int.dat, batch) {
   
   print(p1)
   
-  if (shall.we.save) {
-    filename <- paste0(save.path, 'SF12_whole_pop_batch.png')
-    ggsave(filename = filename,
-           plot = p1,
-           width = plot.width,
-           height = plot.height)
-  }
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_whole_pop_batch.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
 }
 ```
 
@@ -178,14 +179,14 @@ SF12.change.families.single <- function(base.dat, int.dat) {
   
   print(p1)
   
-  if (shall.we.save) {
-    filename <- paste0(save.path, 'SF12_families_single.png')
-
-    ggsave(filename = filename,
-           plot = p1,
-           width = plot.width,
-           height = plot.height)
-  }
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_families_single.png')
+  # 
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
 }
 
 SF12.change.families.batch <- function(base.dat, int.dat) {
@@ -213,13 +214,13 @@ SF12.change.families.batch <- function(base.dat, int.dat) {
   
   print(p1)
   
-  if (shall.we.save) {
-    filename <- paste0(save.path, 'SF12_families_batch.png')
-    ggsave(filename = filename,
-           plot = p1,
-           width = plot.width,
-           height = plot.height)
-  }
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_families_batch.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
 }
 ```
 
@@ -252,13 +253,13 @@ SF12.change.treated.single <- function(base.dat, int.dat) {
   
   print(p1)
   
-  if (shall.we.save) {
-    filename <- paste0(save.path, 'SF12_treated_single.png')
-    ggsave(filename = filename,
-           plot = p1,
-           width = plot.width,
-           height = plot.height)
-  }
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_treated_single.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
 }
 
 SF12.change.treated.batch <- function(base.dat, int.dat) {
@@ -291,13 +292,13 @@ SF12.change.treated.batch <- function(base.dat, int.dat) {
   
   print(p1)
   
-  if (shall.we.save) {
-    filename <- paste0(save.path, 'SF12_treated_single.png')
-    ggsave(filename = filename,
-           plot = p1,
-           width = plot.width,
-           height = plot.height)
-  }
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_treated_single.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
 }
 ```
 
@@ -409,7 +410,6 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
     p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
       geom_smooth() +
       geom_hline(yintercept = 0, linetype='dashed') +
-      facet_wrap(. ~ scen, ncol=1) +
       labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
       xlab('Year') +
       ylab('Difference')
@@ -417,17 +417,16 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
     p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
       geom_line() +
       geom_hline(yintercept = 0, linetype='dashed') +
-      facet_wrap(. ~ scen, ncol=1) +
       labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
       xlab('Year') +
       ylab('Difference')
   }
   
-  ggsave(filename = 'test_plot.png',
-         plot = p1,
-         path = here::here('plots', 'SCOTGOVWORK'),
-         width = 9,
-         height = 20)
+  # ggsave(filename = 'test_plot.png',
+  #        plot = p1,
+  #        path = here::here('plots', 'SCOTGOVWORK'),
+  #        width = 9,
+  #        height = 20)
   
   print(p1)
 }
