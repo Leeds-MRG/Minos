@@ -476,7 +476,7 @@ def get_data_maxyr():
 
     # now calculate max year
     # first year of ukhls data is 2009
-    maxyr = 2009 + max(wave_numlist) - 1  # Bodge for Wave 13 US
+    maxyr = 2009 + max(wave_numlist)  # Bodge for Wave 13 US
 
     return maxyr
 

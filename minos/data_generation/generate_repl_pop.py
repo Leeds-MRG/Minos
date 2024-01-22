@@ -172,7 +172,7 @@ def predict_education(repl, transition_dir):
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
                     }
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2020_2021", rpy2_modules, path=transition_dir)
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2019_2020", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan
@@ -211,7 +211,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/uk_scaled'
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2021_US_cohort.csv"
+    file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population

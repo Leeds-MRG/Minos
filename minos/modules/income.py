@@ -612,7 +612,8 @@ class lmmYJIncome(Base):
                         'pidp',
                         'hh_income',
                         'hh_income_diff',
-                        'S7_labour_state'
+                        'S7_labour_state',
+                        'hidp'
                         ]
         config = builder.configuration
         if config.synthetic:

@@ -375,8 +375,9 @@ def find_MINOS_years_range(file_path):
 def weighted_nanmean(df, v, weights = "weight", scale=1):
     #df = df.loc[df['weight'] > 0]
     #df.loc[df.index, weights] = 1/df[weights]
-    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+    #return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
     #return np.nansum(df[v])
+    return np.nanmean(df[v])
 
 def child_uplift_cost_sum(df, v, weights='weight'):
     # get unique households
@@ -552,6 +553,17 @@ if __name__ == '__main__':
     ref = "Baseline"
     v = "SF_12"
     method = 'SF12_AUC'
+
+
+    directories = "baseline,25UniversalCredit"
+    tags = "Baseline,£25 Universal Credit"
+    subset_function_strings = "who_universal_credit_and_kids,who_boosted"
+    prefix = "baseline_25UC"
+    mode = 'scaled_scotland'
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"
     # subset_function_strings = "who_boosted,who_boosted"
