@@ -10,6 +10,12 @@ import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 import pickle
 
+missing_types = ['-1', '-2', '-7', '-8', '-9',
+                 -1., -2., -7., -8., -9.,
+                 -1, -2, -7, -8, -9,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
+                 "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
+
 PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
 
 # CPI/inflation reference
@@ -369,74 +375,6 @@ def generate_interview_date_var(data):
     return data
 
 
-''' HR 30/11/23 Get CPI inflation reference data '''
-def get_cpi_ref():
-    # cpi = pd.read_csv(os.path.join(PERSISTENT_DIR + 'CPI_202010.csv')).set_index('Date')
-    cpi = pd.read_csv(os.path.join(PERSISTENT_DIR, CPI_REF_DEFAULT))
-    cpi.drop(labels=cpi.columns[0], axis=1, inplace=True)
-    return cpi
-
-
-''' HR 15/12/23 Get median equivalised disposable household income, historical UK, 1977-2020 '''
-def get_equivalised_income_ref():
-    file_fullpath = os.path.join(PERSISTENT_DIR, EQUIVALISED_INCOME_REF)
-    inc = pd.read_excel(file_fullpath,
-                        sheet_name='Table 1',
-                        header=9-1,
-                        usecols=['Year', 'Median'],
-                        skipfooter=5,
-                        )
-    inc = inc.dropna()
-    inc['Year'] = [int(str(el).split('/')[0]) for el in inc['Year']]  # Year format changes halfway from Y to Y/Y+1
-
-    inc_dict = dict(zip(inc['Year'], inc['Median']))
-    return inc, inc_dict
-
-
-def get_reference_year_equivalised_income(income_dict=None,
-                                          ref_year=INCOME_REFERENCE_YEAR,
-                                          monthly=True):
-    if income_dict is None:
-        _, income_dict = get_equivalised_income_ref()
-
-    value = income_dict[ref_year]
-    if monthly:
-        value = value/12
-
-    # print("Reference year income: {}".format(value))
-    return value
-
-
-def inflation_adjustment(data, var):
-    """ Adjust financial values for inflation using the Consumer Price Index (CPI)
-
-    Parameters
-    ----------
-    data : pandas.DataFrame
-        The `data` containing financial variable(s) to be adjusted.
-    var : str
-        Name of a financial variable to be adjusted.
-    Returns
-    -------
-    data : pandas.DataFrame
-        Dataframe with adjusted financial values.
-    """
-    # need interview date for adjustment
-    data = generate_interview_date_var(data)
-    # Inflation adjustment using CPI
-    # read in CPI dataset
-    # cpi = pd.read_csv('persistent_data/CPI_202010.csv')
-    # cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv'))  # Workaround during child poverty testing; also fine at runtime
-    cpi = get_cpi_ref()
-    # merge cpi onto data and do adjustment, then delete cpi column (keep date)
-    data = pd.merge(data, cpi, on='Date', how='left')
-    data[var] = (data[var] / data['CPI']) * 100
-    # data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
-    data.drop(labels=['CPI'], axis=1, inplace=True)
-
-    return data
-
-
 def get_data_maxyr():
     """
     This function will calculate the final year of raw Understanding Society input data so we don't have to update
@@ -487,8 +425,80 @@ def replace_missing_with_na(data, column_list):
     return data
 
 
-missing_types = ['-1', '-2', '-7', '-8', '-9',
-                 -1., -2., -7., -8., -9.,
-                 -1, -2, -7, -8, -9,
-                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
-                 "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
+######################################
+## ALL REFERENCE INCOME STUFF BELOW ##
+######################################
+
+
+''' HR 30/11/23 Get CPI inflation reference data '''
+def get_cpi_ref():
+    # cpi = pd.read_csv(os.path.join(PERSISTENT_DIR + 'CPI_202010.csv')).set_index('Date')
+    cpi = pd.read_csv(os.path.join(PERSISTENT_DIR, CPI_REF_DEFAULT))
+    cpi.drop(labels=cpi.columns[0], axis=1, inplace=True)
+    return cpi
+
+
+def inflation_adjustment(data, var):
+    """ Adjust financial values for inflation using the Consumer Price Index (CPI)
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        The `data` containing financial variable(s) to be adjusted.
+    var : str
+        Name of a financial variable to be adjusted.
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with adjusted financial values.
+    """
+    # need interview date for adjustment
+    data = generate_interview_date_var(data)
+    # Inflation adjustment using CPI
+    # read in CPI dataset
+    # cpi = pd.read_csv('persistent_data/CPI_202010.csv')
+    # cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv'))  # Workaround during child poverty testing; also fine at runtime
+    cpi = get_cpi_ref()
+    # merge cpi onto data and do adjustment, then delete cpi column (keep date)
+    data = pd.merge(data, cpi, on='Date', how='left')
+    data[var] = (data[var] / data['CPI']) * 100
+    # data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
+    data.drop(labels=['CPI'], axis=1, inplace=True)
+
+    return data
+
+
+''' HR 15/12/23 Get median equivalised disposable household income, historical UK, 1977-2020 '''
+def get_equivalised_income_ref():
+    file_fullpath = os.path.join(PERSISTENT_DIR, EQUIVALISED_INCOME_REF)
+    inc = pd.read_excel(file_fullpath,
+                        sheet_name='Table 1',
+                        header=9-1,
+                        usecols=['Year', 'Median'],
+                        skipfooter=5,
+                        )
+    inc = inc.dropna()
+    inc['Year'] = [int(str(el).split('/')[0]) for el in inc['Year']]  # Year format changes halfway from Y to Y/Y+1
+
+    inc_dict = dict(zip(inc['Year'], inc['Median']))
+    return inc, inc_dict
+
+
+def get_reference_year_equivalised_income(income_dict=None,
+                                          ref_year=INCOME_REFERENCE_YEAR,
+                                          monthly=True):
+    if income_dict is None:
+        _, income_dict = get_equivalised_income_ref()
+
+    value = income_dict[ref_year]
+    if monthly:
+        value = value/12
+
+    # print("Reference year income: {}".format(value))
+    return value
+
+
+if __name__ == "__main__":
+    cpi_ref = get_cpi_ref()
+    inc, inc_dict = get_equivalised_income_ref()
+    inc_ref = get_reference_year_equivalised_income()
