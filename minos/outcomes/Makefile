@@ -148,6 +148,11 @@ aggregate_minos_output_uneducated_child_uplift:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift" $(AGG_VAR) $(REGION)
 
 
+aggregate_25_UC_MICE: MODE="scaled_scotland"
+aggregate_25_UC_MICE:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,25UniversalCredit "Baseline,£25 Universal Credit" who_universal_credit_and_kids,who_boosted "25UC" "SF_12" "scotland"
+
+
 aggregate_minos_output_scottish: MODE=default_config
 aggregate_minos_output_scottish: DIRECTORIES=baseline,hhIncomeChildUplift,livingWageIntervention,energyDownlift
 aggregate_minos_output_scottish: DIRECTORY_TAGS="Baseline,£25 All Child Uplift,Living Wage,Energy Downlift"
