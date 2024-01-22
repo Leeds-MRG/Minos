@@ -1,5 +1,7 @@
 ### This utilities file deals only with reading in and formatting input and output data files
 
+require(parallel)
+require(data.table)
 
 create.if.not.exists <- function(path) {
   if(!file.exists(path)) {
@@ -33,13 +35,27 @@ read_output <- function(out.path, scenario, start.year=2020, end.year=2035, var.
 
 ############################## BATCH READ AND SUMMARISE ##############################
 
+# read_files_in_parallel <- function(file_paths) {
+#   no_cores <- detectCores() - 1  # Reserve one core for the system
+#   cl <- makeCluster(no_cores)
+#   on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+#   
+#   # Use parLapply directly with the file_paths
+#   loaded.file.list <- parLapply(cl, file_paths, read.csv)
+#   return(loaded.file.list)
+# }
+
 read_files_in_parallel <- function(file_paths) {
   no_cores <- detectCores() - 1  # Reserve one core for the system
   cl <- makeCluster(no_cores)
   on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
   
-  # Use parLapply directly with the file_paths
-  loaded.file.list <- parLapply(cl, file_paths, read.csv)
+  # Use parLapply directly with file_paths and fread
+  loaded.file.list <- parLapply(cl, file_paths, fread, stringsAsFactors=TRUE)
+  
+  # Optionally convert data.tables to data.frames
+  loaded.file.list <- lapply(loaded.file.list, as.data.frame)
+  
   return(loaded.file.list)
 }
 
@@ -184,16 +200,30 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, start.year=20
 #       year - single year of batch output to aggregate
 #       var.list - list of variables to keep in the returned dataframe
 
-read_files_in_parallel <- function(file_paths) {
-  no_cores <- detectCores() - 1  # Reserve one core for the system
-  cl <- makeCluster(no_cores)
-  on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
-  
-  # Use parLapply directly with the file_paths
-  loaded.file.list <- parLapply(cl, file_paths, read.csv)
-  return(loaded.file.list)
-}
+# read_files_in_parallel <- function(file_paths) {
+#   no_cores <- detectCores() - 1  # Reserve one core for the system
+#   cl <- makeCluster(no_cores)
+#   on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+#   
+#   # Use parLapply directly with the file_paths
+#   loaded.file.list <- parLapply(cl, file_paths, read.csv)
+#   return(loaded.file.list)
+# }
 
+
+# read_files_in_parallel <- function(file_paths) {
+#   no_cores <- detectCores() - 1  # Reserve one core for the system
+#   cl <- makeCluster(no_cores)
+#   on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+#   
+#   # Use parLapply directly with file_paths and fread
+#   loaded.file.list <- parLapply(cl, file_paths, fread, stringsAsFactors=TRUE)
+#   
+#   # Optionally convert data.tables to data.frames
+#   loaded.file.list <- lapply(loaded.file.list, as.data.frame)
+#   
+#   return(loaded.file.list)
+# }
 
 extract_run_id <- function(filepath) {
   # Extracts the run_id using a regular expression
@@ -233,7 +263,7 @@ process_files_in_batches <- function(batch, year, scenario, var.list, drop.dead)
 }
 
 read_batch_out_1year <- function(out.path, scenario, year, var.list, drop.dead = TRUE, batch.size = 10) {
-  scen.path <- scen.path <- here::here(out.path, scenario)
+  scen.path <- here::here(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
   
   # Create file strings using year from args
@@ -293,6 +323,7 @@ read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.ye
     new.df <- read_batch_out_1year(out.path, scenario, year=i, var.list, drop.dead)
     large.df <- rbind(large.df, new.df)
   }
+  return(large.df)
   
   # Add boost vars to baseline (no boost but need the columns)
   if (scenario == 'baseline') {

@@ -8,6 +8,8 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
+editor_options: 
+  chunk_output_type: console #inline
 ---
 
 # SETUP
@@ -22,6 +24,7 @@ require(dplyr)
 require(tidyr)
 require(purrr)
 require(parallel)
+require(data.table)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -43,10 +46,11 @@ source(here::here('minos', 'utils_datain.R'))
 ```{r read_data}
 #out.path <- here::here('output', 'default_config')
 #out.path <- here::here('output', 'glasgow_scaled')
-#out.path <- here::here('output', 'scaled_scotland')
+out.path <- here::here('output', 'scaled_scotland')
 #out.path <- here::here('output', 'default_config_batch')
-out.path <- here::here('output', 'scaled_scotland_batch')
+#out.path <- here::here('output', 'scaled_scotland_batch')
 #out.path <- here::here('output', 'scaled_scotland_small')
+#out.path <- here::here('output', 'tmp_default_baseline')
 
 
 # define subset of variables to reduce size of batch output
@@ -58,37 +62,37 @@ base <- read_output(out.path,
                     scenario = 'baseline', 
                     var.list = var.list,
                     verbose = TRUE)
-int25 <- read_output(out.path, 
-                      scenario = '25UniversalCredit', 
+int25 <- read_output(out.path,
+                      scenario = '25UniversalCredit',
                       var.list = var.list,
                       verbose = TRUE)
-# int30 <- read_output(out.path,
-#                       scenario = '30UniversalCredit',
-#                       var.list = var.list,
-#                       verbose = TRUE)
-# int35 <- read_output(out.path,
-#                       scenario = '35UniversalCredit',
-#                       var.list = var.list,
-#                       verbose = TRUE)
-# int40 <- read_output(out.path,
-#                       scenario = '40UniversalCredit',
-#                       var.list = var.list,
-#                       verbose = TRUE)
-# int45 <- read_output(out.path,
-#                       scenario = '45UniversalCredit',
-#                       var.list = var.list,
-#                       verbose = TRUE)
+int30 <- read_output(out.path,
+                      scenario = '30UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int35 <- read_output(out.path,
+                      scenario = '35UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int40 <- read_output(out.path,
+                      scenario = '40UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
+int45 <- read_output(out.path,
+                      scenario = '45UniversalCredit',
+                      var.list = var.list,
+                      verbose = TRUE)
 int50 <- read_output(out.path,
                       scenario = '50UniversalCredit',
                       var.list = var.list,
                       verbose = TRUE)
 
 #int.list <- c(int25, int30, int35, int40, int45, int50)
-# int.list <- list(base, int25, int30, int35, int40, int45, int50)
-# scen.list <- c('base', 'int25', 'int30', 'int35', 'int40', 'int45', 'int50')
+int.list <- list(base, int25, int30, int35, int40, int45, int50)
+scen.list <- c('base', 'int25', 'int30', 'int35', 'int40', 'int45', 'int50')
 
-int.list <- list(base, int25, int50)
-scen.list <- c('base', 'int25', 'int50')
+# int.list <- list(base, int25, int50)
+# scen.list <- c('base', 'int25', 'int50')
 
 # set up a boolean tag for batch or not
 # this is necessary because batch runs need slightly different processing before visualisation

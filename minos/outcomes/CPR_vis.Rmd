@@ -8,6 +8,8 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
+editor_options: 
+  chunk_output_type: console #inline
 ---
 
 # SETUP
@@ -21,6 +23,7 @@ require(here)
 require(dplyr)
 require(tidyr)
 require(purrr)
+require(parallel)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -44,22 +47,20 @@ source(here::here('minos', 'utils_datain.R'))
 ```{r read_data}
 #out.path <- here::here('output', 'default_config')
 #out.path <- here::here('output', 'glasgow_scaled')
-#out.path <- here::here('output', 'scaled_scotland')
-out.path <- here::here('output', 'default_config_batch')
+out.path <- here::here('output', 'scaled_scotland')
+#out.path <- here::here('output', 'default_config_batch')
+out.path <- here::here('output', 'default_config_batch2')
 
 # define subset of variables to reduce size of batch output
 var.list <- c('pidp', 'hidp', 'time', 'weight', 
               'age', 'ethnicity', 'region', 'nkids', 'nkids_ind', 'S7_labour_state',
-              'hh_income', 'child_ages', 'simd_decile',
+              'hh_income', 'child_ages', #'simd_decile',
               'SF_12', 'matdep_child')
 
 base <- read_output(out.path, 
                         scenario = 'baseline', 
                         var.list = var.list,
                         verbose = TRUE)
-
-### NOTE: READING INTERVENTION OUTPUTS IS CURRENTLY BROKEN FOR BATCH RUNS
-#         THIS IS BECAUSE WE ARE NO LONGER USING BOOST_AMOUNT
 
 int <- read_output(out.path, 
                             scenario = 'ChildPovertyReductionSUSTAIN', 
