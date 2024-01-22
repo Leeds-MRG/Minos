@@ -21,6 +21,7 @@ require(here)
 require(dplyr)
 require(tidyr)
 require(purrr)
+require(parallel)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -42,7 +43,10 @@ source(here::here('minos', 'utils_datain.R'))
 ```{r read_data}
 #out.path <- here::here('output', 'default_config')
 #out.path <- here::here('output', 'glasgow_scaled')
-out.path <- here::here('output', 'scaled_scotland')
+#out.path <- here::here('output', 'scaled_scotland')
+#out.path <- here::here('output', 'default_config_batch')
+out.path <- here::here('output', 'scaled_scotland_batch')
+#out.path <- here::here('output', 'scaled_scotland_small')
 
 
 # define subset of variables to reduce size of batch output
@@ -59,22 +63,22 @@ int25 <- read_output(out.path,
                       scenario = '25UniversalCredit', 
                       var.list = var.list,
                       verbose = TRUE)
-int30 <- read_output(out.path,
-                      scenario = '30UniversalCredit',
-                      var.list = var.list,
-                      verbose = TRUE)
-int35 <- read_output(out.path,
-                      scenario = '35UniversalCredit',
-                      var.list = var.list,
-                      verbose = TRUE)
-int40 <- read_output(out.path,
-                      scenario = '40UniversalCredit',
-                      var.list = var.list,
-                      verbose = TRUE)
-int45 <- read_output(out.path,
-                      scenario = '45UniversalCredit',
-                      var.list = var.list,
-                      verbose = TRUE)
+# int30 <- read_output(out.path,
+#                       scenario = '30UniversalCredit',
+#                       var.list = var.list,
+#                       verbose = TRUE)
+# int35 <- read_output(out.path,
+#                       scenario = '35UniversalCredit',
+#                       var.list = var.list,
+#                       verbose = TRUE)
+# int40 <- read_output(out.path,
+#                       scenario = '40UniversalCredit',
+#                       var.list = var.list,
+#                       verbose = TRUE)
+# int45 <- read_output(out.path,
+#                       scenario = '45UniversalCredit',
+#                       var.list = var.list,
+#                       verbose = TRUE)
 int50 <- read_output(out.path,
                       scenario = '50UniversalCredit',
                       var.list = var.list,
@@ -170,7 +174,7 @@ SF12.change.full.sample.batch <- function(df.list, scen.list) {
   # int3 <- batch.mean(int.dat3, scen = 'int75')
   # int4 <- batch.mean(int.dat4, scen = 'int100')
   
-  df.list <- mapply(single.mean, df.list, scen.list, SIMPLIFY = FALSE)
+  df.list <- mapply(batch.mean, df.list, scen.list, SIMPLIFY = FALSE)
   
   #df.list <- list(base, int1, int2, int3, int4)
   combined <- df.list %>%
@@ -372,7 +376,7 @@ SF12.change.treated.batch <- function(df.list, scen.list) {
     select(pidp, income_boosted) %>%
     filter(income_boosted == 'True')
   
-  df.list <- mapply(single.mean, df.list, scen.list, boosted, SIMPLIFY = FALSE)
+  df.list <- mapply(batch.mean, df.list, scen.list, boosted, SIMPLIFY = FALSE)
   
   combined <- df.list %>%
     reduce(full_join, by=c('time', 'run_id'))
@@ -524,11 +528,11 @@ SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch 
       ylab('Difference')
   }
   
-  ggsave(filename = 'test_plot.png',
-         plot = p1,
-         path = here::here('plots', 'SCOTGOVWORK'),
-         width = 9,
-         height = 20)
+  #ggsave(filename = 'test_plot.png',
+  #       plot = p1,
+  #       path = here::here('plots', 'SCOTGOVWORK'),
+  #       width = 9,
+  #       height = 20)
   
   print(p1)
 }
@@ -805,11 +809,6 @@ SF12.change.priority.group <- function(df.list, scen.list, priority.group, start
   print(p1)
 }
 
-
-batch <- FALSE
-start.year <- 2020
-
-
 SF12.change.priority.group(int.list, scen.list, priority.group = 'minority_ethnic', batch = batch)
 SF12.change.priority.group(int.list, scen.list, priority.group = 'child_under_one', batch = batch)
 SF12.change.priority.group(int.list, scen.list, priority.group = 'three_plus_children', batch = batch)
@@ -852,19 +851,19 @@ hh_boosted <- int25.test %>%
             n_boosted = length(unique(hidp)),
             total_boost = sum(boost_amount),
             kids_boosted = sum(nkids)) %>%
-  mutate(prop_boosted = n_boosted / n,
-         prop_kids_boosted)
+  mutate(prop_boosted = n_boosted / n)
+	#prop_kids_boosted = # MORE HERE
 
 p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
   geom_line() +
-  labs(title = 'Number of households receiving intervention', subtitle = int.name) +
+  labs(title = 'Number of households receiving intervention', subtitle = 'int25') +
   xlab('Year') +
   ylab('Number Boosted')
 print(p1)
 
 p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
   geom_line() +
-  labs(title = 'Number of children in households receiving intervention', subtitle = int.name) +
+  labs(title = 'Number of children in households receiving intervention', subtitle = 'int25') +
   xlab('Year') +
   ylab('Number Children')
 print(p2)
