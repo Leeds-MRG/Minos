@@ -1,0 +1,599 @@
+---
+title: "Child Poverty Reduction Interventions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r source_functions}
+source(here::here('minos', 'utils_datain.R'))
+#source(here::here('minos', 'utils_validation_vis.R'))
+#source(here::here('minos', 'validation', 'utils.r'))
+```
+
+
+```{r read_data}
+#out.path <- here::here('output', 'default_config')
+#out.path <- here::here('output', 'glasgow_scaled')
+#out.path <- here::here('output', 'scaled_scotland')
+out.path <- here::here('output', 'default_config_batch')
+
+# define subset of variables to reduce size of batch output
+var.list <- c('pidp', 'hidp', 'time', 'weight', 
+              'age', 'ethnicity', 'region', 'nkids', 'nkids_ind', 'S7_labour_state',
+              'hh_income', 'child_ages', 'simd_decile',
+              'SF_12', 'matdep_child')
+
+base <- read_output(out.path, 
+                        scenario = 'baseline', 
+                        var.list = var.list,
+                        verbose = TRUE)
+
+### NOTE: READING INTERVENTION OUTPUTS IS CURRENTLY BROKEN FOR BATCH RUNS
+#         THIS IS BECAUSE WE ARE NO LONGER USING BOOST_AMOUNT
+
+int <- read_output(out.path, 
+                            scenario = 'ChildPovertyReductionSUSTAIN', 
+                            var.list = var.list,
+                            verbose = TRUE)
+
+int.list <- list(base, int)
+scen.list <- c('base', 'ChildPovReduction')
+
+# set up a boolean tag for batch or not
+# this is necessary because batch runs need slightly different processing before visualisation
+if ('run_id' %in% names(base)) {
+  batch <- TRUE
+} else {
+  batch <- FALSE
+}
+
+# Save path and save flag
+save.path <- here::here('plots', 'SCOTGOV', 'CPR')
+shall.we.save <- FALSE
+plot.width <- 10
+plot.height <- 5
+```
+
+# FUNCTIONS
+
+```{r SF12_full_sample, echo=FALSE}
+SF12.change.full.sample.single <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Whole population') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_whole_pop_single.png')
+  # 
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
+}
+
+SF12.change.full.sample.batch <- function(base.dat, int.dat, batch) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, run_id, SF_12) %>%
+    group_by(time, run_id) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, run_id, SF_12) %>%
+    group_by(time, run_id) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = c('time', 'run_id'))
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Whole population') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_whole_pop_batch.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
+}
+```
+
+```{r SF12_subpop, echo=FALSE}
+SF12.change.families.single <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Families with children') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_families_single.png')
+  # 
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
+}
+
+SF12.change.families.batch <- function(base.dat, int.dat) {
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, run_id, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time, run_id) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, run_id, SF_12, nkids) %>%
+    filter(nkids > 0) %>%
+    group_by(time, run_id) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Households with children') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_families_batch.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
+}
+```
+
+```{r SF12_treated, echo=FALSE}
+SF12.change.treated.single <- function(base.dat, int.dat) {
+  boosted.byyear <- int.dat %>%
+    filter(income_boosted == 'True')
+  
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = 'time')
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_line() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Treatment on the treated') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_treated_single.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
+}
+
+SF12.change.treated.batch <- function(base.dat, int.dat) {
+  
+  #TODO: Filter pidps by run_id by year instead of taking all pidps across runs
+  boosted.byyear <- int.dat %>%
+    filter(income_boosted == 'True')
+  
+  base.all.SF12 <- base.dat %>%
+    select(time, weight, run_id, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time, run_id) %>%
+    summarise(base.SF12 = weighted.mean(SF_12, w = weight))
+  
+  int.all.SF12 <- int.dat %>%
+    select(time, weight, run_id, SF_12, nkids, pidp) %>%
+    filter(pidp %in% boosted.byyear$pidp) %>%
+    group_by(time, run_id) %>%
+    summarise(int.SF12 = weighted.mean(SF_12, w = weight))
+  
+  combined <- merge(x = base.all.SF12, y = int.all.SF12, by = c('time', 'run_id'))
+  combined$diff <- combined$int.SF12 - combined$base.SF12
+  
+  p1 <- ggplot(combined, aes(x = time, y = diff)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype='dashed') +
+    labs(title = 'Relative change in SF12', subtitle = 'Treatment on the treated') +
+    xlab('Year') +
+    ylab('Difference')
+  
+  print(p1)
+  
+  # if (shall.we.save) {
+  #   filename <- paste0(save.path, 'SF12_treated_single.png')
+  #   ggsave(filename = filename,
+  #          plot = p1,
+  #          width = plot.width,
+  #          height = plot.height)
+  # }
+}
+```
+
+```{r SF12_deciles}
+SF12.by.simd.deciles <- function(df.list, scen.list, start.year = 2020, batch=FALSE) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, simd_decile) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, run_id, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, simd_decile, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile'))
+  }
+  
+  combined$simd_decile <- as.factor(combined$simd_decile)
+  
+  int.labels <- scen.list[-1]
+  
+  for (int in int.labels) {
+    int.name <- paste0(int, '.SF12')
+    if (batch) {
+      p1 <- ggplot(combined, aes(x = time, group = simd_decile, colour = simd_decile)) +
+        geom_smooth(aes(y = base.SF12)) +
+        geom_smooth(aes(y = .data[[int.name]]), linetype='dashed') +
+        labs(title = 'SF12 MCS Deciles', subtitle = paste0('Baseline vs ', int)) +
+        xlab('Year') +
+        ylab('Difference')
+    } else {
+      p1 <- ggplot(combined, aes(x = time, group = simd_decile, colour = simd_decile)) +
+        geom_line(aes(y = base.SF12)) +
+        geom_line(aes(y = .data[[int.name]]), linetype='dashed') +
+        labs(title = 'SF12 MCS Deciles', subtitle = int) +
+        xlab('Year') +
+        ylab('Difference')
+    }
+    print(p1)
+  }
+}
+```
+
+```{r SF_change_deciles, echo=FALSE}
+SF12.change.by.deciles <- function(df.list, scen.list, start.year = 2020, batch = FALSE) {
+  single.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, simd_decile) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  batch.mean <- function(data, scen, start.year) {
+    newvar.name <- paste0(scen, '.SF12')
+    data <- data %>%
+      select(time, weight, simd_decile, run_id, SF_12) %>%
+      filter(time >= start.year) %>%
+      group_by(time, simd_decile, run_id) %>%
+      summarise(!!sym(newvar.name) := weighted.mean(SF_12, w = weight))
+    return(data)
+  }
+  
+  if (batch) {
+    mod.list <- mapply(batch.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile', 'run_id'))
+  } else {
+    mod.list <- mapply(single.mean, int.list, scen.list, start.year, SIMPLIFY = FALSE)
+    combined <- mod.list %>%
+      reduce(full_join, by=c('time', 'simd_decile'))
+  }
+  
+  combined$simd_decile <- as.factor(combined$simd_decile)
+  
+  # List of intervention columns
+  int_cols <- grep("ChildPovReduction.SF12", names(combined), value = TRUE)
+  
+  # Create the new dataframe with differences
+  combined <- combined %>%
+    mutate(across(all_of(int_cols), ~ . - base.SF12, .names = "diff{col}")) %>%
+    select(time, simd_decile, starts_with("diff")) %>%
+    rename_with(~ str_replace_all(., "diffint(\\d+).SF12", "diff\\1"))
+  
+  combined <- combined %>%
+    pivot_longer(cols = starts_with('diff'),
+                 names_to = 'scen',
+                 values_to = 'diff')
+  
+  if (batch) {
+    p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
+      geom_smooth() +
+      geom_hline(yintercept = 0, linetype='dashed') +
+      labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
+      xlab('Year') +
+      ylab('Difference')
+  } else {
+    p1 <- ggplot(combined, aes(x = time, y = diff, group = simd_decile, colour = simd_decile)) +
+      geom_line() +
+      geom_hline(yintercept = 0, linetype='dashed') +
+      labs(title = 'Relative change in SF12 MCS', subtitle = 'Whole population') +
+      xlab('Year') +
+      ylab('Difference')
+  }
+  
+  # ggsave(filename = 'test_plot.png',
+  #        plot = p1,
+  #        path = here::here('plots', 'SCOTGOVWORK'),
+  #        width = 9,
+  #        height = 20)
+  
+  print(p1)
+}
+```
+
+# PLOTS
+
+## Relative Poverty
+
+### Threshold
+
+Relative poverty is defined as the proportion of children living in households with income below 60% of the population median *in a given year*.
+
+For our starting year of 2020:
+
+```{r, echo=FALSE}
+base.2020 <- base %>%
+  filter(time == 2020)
+
+mean.hh_income <- weighted.mean(base.2020$hh_income, w = base.2020$weight)
+rel.pov.threshold <- mean.hh_income * 0.6
+
+print(paste0("Relative poverty threshold in 2020: ", rel.pov.threshold))
+rm(base.2020, mean.hh_income)
+```
+
+Then looking at how this threshold changes over the length of our simulation:
+
+```{r, echo=FALSE}
+if (batch) {
+  threshold <- base %>%
+  select(time, weight, run_id, hh_income) %>%
+  group_by(time, run_id) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6)) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold_mean = mean(poverty_threshold),
+            lower = min(poverty_threshold),
+            upper = max(poverty_threshold))
+
+ggplot(data = threshold, aes(x = time, y = poverty_threshold_mean)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), position = 'dodge') +
+  geom_hline(yintercept = rel.pov.threshold, linetype='dashed') +
+  labs(title = 'Relative poverty threshold over time') +
+  xlab('Year') +
+  ylab('Threshold')
+} else {
+  threshold <- base %>%
+  select(time, weight, hh_income) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6))
+
+ggplot(data = threshold, aes(x = time, y = poverty_threshold)) +
+  geom_col() +
+  geom_hline(yintercept = rel.pov.threshold, linetype='dashed') +
+  labs(title = 'Relative poverty threshold over time') +
+  xlab('Year') +
+  ylab('Threshold')
+}
+```
+
+### MCS - Whole Pop
+
+```{r}
+if (batch) {
+  SF12.change.full.sample.batch(base, int)
+} else {
+  SF12.change.full.sample.single(base, int)
+}
+```
+
+### MCS - Families with children
+
+Now focused only on families with children.
+ 
+```{r}
+if (batch) {
+  SF12.change.families.batch(base, int)
+} else {
+  SF12.change.families.single(base, int)
+}
+```
+
+### MCS - Treatment on the Treated
+
+```{r}
+if (batch) {
+  SF12.change.treated.batch(base, int)
+} else {
+  SF12.change.treated.single(base, int)
+}
+```
+
+## DECILES
+
+```{r}
+SF12.by.simd.deciles(int.list, scen.list, start.year = 2020, batch = batch)
+```
+
+```{r}
+SF12.by.simd.deciles(int.list, scen.list, start.year = 2024, batch = batch)
+```
+
+
+```{r}
+SF12.change.by.deciles(int.list, scen.list, start.year = 2020, batch = batch)
+```
+
+
+## DIAGNOSTICS
+
+```{r}
+sample_information <- function(int.dat, target.year) {
+  hh_boosted <- int.dat %>%
+    select(hidp, time, income_boosted, boost_amount, nkids) %>%
+    filter(income_boosted == 'True') %>%
+    group_by(time) %>%
+    summarise(n_boosted = length(unique(hidp)),
+              total_boost = sum(boost_amount),
+              kids_boosted = sum(nkids))
+  
+  p1 <- ggplot(hh_boosted, aes(x = time, y = n_boosted)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of households receiving intervention') +
+    xlab('Year') +
+    ylab('Number Boosted')
+  
+  p2 <- ggplot(hh_boosted, aes(x = time, y = kids_boosted)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Number of children in households receiving intervention') +
+    xlab('Year') +
+    ylab('Number Children')
+  
+  p3 <- ggplot(hh_boosted, aes(x = time, y = total_boost)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Total boost amount') +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  mean.boost <- int.dat %>%
+    select(time, income_boosted, boost_amount) %>%
+    group_by(time, income_boosted) %>%
+    summarise(mean_boost = mean(boost_amount)) %>%
+    filter(income_boosted == 'True')
+  
+  p4 <- ggplot(mean.boost, aes(x = time, y = mean_boost)) +
+    geom_line() +
+    geom_vline(xintercept = target.year, linetype = 'dashed') +
+    labs(title = 'Mean boost amount') +
+    xlab('Year') +
+    ylab('Boost Amount')
+  
+  print(p1)
+  print(p2)
+  print(p3)
+  print(p4)
+}
+
+sample_information(int, target.year = 2030)
+```
+
+
+
+```{r, echo=FALSE}
+
+```
+

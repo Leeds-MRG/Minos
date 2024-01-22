@@ -41,13 +41,16 @@ from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
+from minos.modules.material_deprivation import MaterialDeprivationChild
+from minos.modules.poverty_metrics import ChildPovertyMetrics
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention
+from minos.modules.intervention import hhIncomeIntervention, childUplift
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
+from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme, energyDownliftNoSupport
+from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN, ChildPovertyIntervention
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -70,6 +73,8 @@ components_map = {
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
     "Heating()": Heating(),
+    'ChildPovertyMetrics()': ChildPovertyMetrics(),
+    "MaterialDeprivationChild()": MaterialDeprivationChild(),
     "Housing()": Housing(),
     "geeIncome()": geeIncome(),
     "geeYJIncome()": geeYJIncome(),
@@ -85,9 +90,7 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
-    "JobHours()": JobHours(),
-    "JobSec()": JobSec(),
-    "HourlyWage()": HourlyWage(),
+    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -99,15 +102,74 @@ SIPHER7_components_map = {  # SIPHER7 stuff
     "S7EquivalentIncome()": S7EquivalentIncome()
 }
 
-intervention_components_map = {  # Interventions
+
+intervention_components_map = {        #Interventions
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
-    "Ageing()": Ageing(),
+
+    "EPCG": energyPriceCapGuarantee(),
+    "EBSS": energyBillSupportScheme(),
+
+    "25All": childUplift(),
+    "50All": childUplift(),
+    "75All": childUplift(),
+    "100All": childUplift(),
+
+    "25RelativePoverty": childUplift(),
+    "50RelativePoverty": childUplift(),
+    "75RelativePoverty": childUplift(),
+    "100RelativePoverty": childUplift(),
+
+    "25UniversalCredit": childUplift(),
+    "30UniversalCredit": childUplift(),
+    "35UniversalCredit": childUplift(),
+    "40UniversalCredit": childUplift(),
+    "45UniversalCredit": childUplift(),
+    "50UniversalCredit": childUplift(),
+    "75UniversalCredit": childUplift(),
+    "100UniversalCredit": childUplift(),
+
+    "25Priority": childUplift(),
+    "50Priority": childUplift(),
+    "75Priority": childUplift(),
+    "100Priority": childUplift(),
+
+    "ChildPovertyReductionRANDOM": ChildPovertyReductionRANDOM(),
+    "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
+    "ChildPovertyIntervention": ChildPovertyIntervention(),
 }
+
+
+intervention_kwargs_dict = {
+    "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
+    "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+
+    "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
+
+    "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+    "30UniversalCredit": {"uplift_amount": 30, "uplift_condition": "who_universal_credit_and_kids"},
+    "35UniversalCredit": {"uplift_amount": 35, "uplift_condition": "who_universal_credit_and_kids"},
+    "40UniversalCredit": {"uplift_amount": 40, "uplift_condition": "who_universal_credit_and_kids"},
+    "45UniversalCredit": {"uplift_amount": 45, "uplift_condition": "who_universal_credit_and_kids"},
+    "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+    "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+    "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
+
+    "25Priority": {"uplift_amount": 25, "uplift_condition": "who_vulnerable_subgroups"},
+    "50Priority": {"uplift_amount": 50, "uplift_condition": "who_vulnerable_subgroups"},
+    "75Priority": {"uplift_amount": 75, "uplift_condition": "who_vulnerable_subgroups"},
+    "100Priority": {"uplift_amount": 100, "uplift_condition": "who_vulnerable_subgroups"},
+}
+
 
 replenishment_components_map = {
     "Replenishment()": Replenishment(),
@@ -115,7 +177,6 @@ replenishment_components_map = {
     "ReplenishmentNowcast()": ReplenishmentNowcast(),
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
-
 
 # HR 31/07/23 Updated priorities based on recent development
 # Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
@@ -128,10 +189,10 @@ def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
     component_priorities.update({el:0 for el in replenishment_components_map})
-    component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
+    component_priorities.update({el:1 for el in ["Ageing()", "FertilityAgeSpecificRates()",
                                                  "nkidsFertilityAgeSpecificRates()"]})
     component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
+    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']})  # New income-based components to be added here
     component_priorities.update({el:4 for el in intervention_components_map})
     everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
     component_priorities.update({el:5 for el in everything_else})
@@ -182,6 +243,7 @@ def validate_components(config_components, intervention):
         component_list: list
             List of component module classes.
     """
+
     component_list = []
     replenishment_component = []
     print("Initial components list:", config_components)
@@ -205,8 +267,11 @@ def validate_components(config_components, intervention):
         component_list.append(intervention_components_map[intervention])
 
     component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
-    print("Final components list:", component_list)
-    return component_list
+    
+    intervention_kwargs = {}  # default to em
+    if intervention in intervention_kwargs_dict.keys():
+        intervention_kwargs = intervention_kwargs_dict[intervention]
+    return component_list, intervention_kwargs
 
 
 def type_check(data):
@@ -232,6 +297,17 @@ def type_check(data):
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
+    # data['chron_disease'] = data['chron_disease'].astype(int)
+    # data['matdep'] = data['matdep'].astype(int)
+    data['heating'] = data['heating'].astype(int)
+
+    # All child poverty metrics
+    data['relative_poverty'] = data['relative_poverty'].astype(int)
+    data['absolute_poverty'] = data['absolute_poverty'].astype(int)
+    data['low_income'] = data['low_income'].astype(int)
+    data['low_income_matdep_child'] = data['low_income_matdep_child'].astype(int)
+    data['relative_poverty_history'] = data['relative_poverty_history'].astype(int)
+    data['persistent_poverty'] = data['persistent_poverty'].astype(int)
 
     return data
 
@@ -252,8 +328,8 @@ def RunPipeline(config, intervention=None):
     # Check each of the modules is present.
 
     # Replenishment always go last. (first in sim)
-    # components = validate_components(config['components'], intervention)
-    components = validate_and_sort_components(config['components'], intervention)
+    components, intervention_kwargs = validate_components(config['components'], intervention)
+    config.update({'intervention_parameters': intervention_kwargs}) #add dict of intervention kwargs to config.
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -337,6 +413,9 @@ def RunPipeline(config, intervention=None):
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
 
+        # Force type casting for certain problem variables
+        pop = type_check(pop)
+
         # File name and save
         output_data_filename = get_output_data_filename(config, year)
 
@@ -371,10 +450,10 @@ def get_output_data_filename(config, year=0):
     # Add experiment parameters to output file name if present
     if 'run_ID' in config.keys():
         print(config.run_ID)
-        output_data_filename += str(config.run_ID).zfill(4) + '_' # pad with zeros so files are saved in correct order.
+        output_data_filename += str(config.run_ID).zfill(4) + '_'  # pad with zeros so files are saved in correct order.
         output_data_filename += str(config.run_ID_names) + '_'
 
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"
 
-    return(output_data_filename)
+    return output_data_filename

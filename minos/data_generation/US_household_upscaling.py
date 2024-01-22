@@ -58,14 +58,14 @@ def get_data_zones(region):
     """
 
     if region == "glasgow":# get glasgow data zones, get Understanding Society data.
-        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"]  # glasgow data zone IDs.
+        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["LSOA11CD"]  # glasgow data zone IDs.
     elif region == "scotland":
-        data_zones = pd.read_csv("persistent_data/spatial_data/scotland_data_zones.csv")["DZ2011_Code"]
+        data_zones = pd.read_csv("persistent_data/spatial_data/scotland_data_zones.csv")["LSOA11CD"]
         data_zones.columns = ['lsoa11cd'] # standardise column name for zone codes.
     elif region == "manchester":
-        data_zones = pd.read_csv("persistent_data/spatial_data/manchester_lsoas.csv")["lsoa11cd"]
+        data_zones = pd.read_csv("persistent_data/spatial_data/manchester_lsoas.csv")["LSOA11CD"]
     elif region == "sheffield":
-        data_zones = pd.read_csv("persistent_data/spatial_data/sheffield_lsoas.csv")["lsoa11cd"]
+        data_zones = pd.read_csv("persistent_data/spatial_data/sheffield_lsoas.csv")["LSOA11CD"]
     elif region == "uk":
         data_zones = None
     else:
@@ -132,7 +132,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
-    print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
+    print(f"Taking {percentage}% of sample with {merged_data.shape[0]} giving {sampled_data.shape[0]} rows.")
 
     # merge with spatial_attributes
     # get simd_deciles

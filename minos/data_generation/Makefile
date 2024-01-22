@@ -2,6 +2,9 @@
 ### Data Generation
 #####################################
 
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+MICEDATA = $(DATADIR)/mice_US
+
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
 data: raw_data adj_raw_data corrected_data composite_data mice_data complete_data final_data
@@ -43,16 +46,14 @@ replenishing_data: ### Produce the replenishing population (MORE NEEDED HERE).
 replenishing_data:  $(DATADIR)/replenishing/replenishing_pop_2015-2070.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds
 
 # scotland only population by subsetting US data
-scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2015-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds
 
-spatial_data: ### Attach Chris' spatially disaggregated dataset and extract all records for Sheffield, to generate a
-### version of the final data to be used in spatial analyses (of Sheffield only)
-spatial_data: $(SPATIALDATA)/2021_US_cohort.csv
+scot_replenishing: $(DATADIR)/replenishing/scotland/replenishing_pop_2019-2070.csv $(SCOTDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds
 
-scot_data: $(SCOTDATA)/2021_US_cohort.csv
+scot_data: $(SCOTDATA)/2020_US_cohort.csv
 
-# cross validation
-cv_data: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv
+# cross validation 
+
+cv_data: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv
 
 cv_replenishing: $(DATADIR)/replenishing/cross_validation/replenishing_pop_2015-2070.csv
 
@@ -82,25 +83,22 @@ $(RAWDATA)/2021_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.p
 $(ADJRAWDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/fake_council_tax.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/fake_council_tax.py
 
-$(CORRECTDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_missing_deterministic.py $(DATAGEN)/US_missing_LOCF.py $(DATAGEN)/US_missing_description.py $(DATAGEN)/US_missing_data_correction.py $(PERSISTJSON)/*.json
+$(CORRECTDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(ADJRAWDATA)/2020_US_cohort.csv $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_missing_deterministic.py $(DATAGEN)/US_missing_LOCF.py $(DATAGEN)/US_missing_description.py $(DATAGEN)/US_missing_data_correction.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_missing_main.py
 
 $(COMPOSITEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_composite_vars.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
-$(MICEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
-	Rscript $(DATAGEN)/US_MICE_imputation.R -n 1 -i 10
+#$(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
+#	$(RSCRIPT) $(DATAGEN)/MICE_imputation.R
 
-$(COMPLETEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(MICEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json
+$(COMPLETEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json #$(MICEDATA)/2020_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
 
-$(FINALDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(MICEDATA)/2021_US_cohort.csv $(COMPLETEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
+$(FINALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json #(MICEDATA)/2020_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/generate_stock_pop.py
 
-$(INFLATEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/weight_inflate_pop.py $(PERSISTJSON)/*.json
-	$(PYTHON) $(DATAGEN)/weight_inflate_pop.py
-
-$(DATADIR)/replenishing/replenishing_pop_2015-2070.csv: $(FINALDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/replenishing_pop_2019-2070.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
 $(DATADIR)/replenishing/inflated/replenishing_pop_2015-2070.csv: $(INFLATEDDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
@@ -130,9 +128,9 @@ $(GLASGOWSCALEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAG
 $(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_2015-2070.csv: $(GLASGOWSCALEDDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'glasgow'
 
-# synthetic input for glasgow with spatial component.
-$(SCOTLANDSCALEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
-	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'scotland' -p 1
+# synthetic input for scotland with spatial component.
+$(SCOTLANDSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
+	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'scotland' -p 3
 
 $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2015-2070.csv: $(SCOTLANDSCALEDDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'scotland'

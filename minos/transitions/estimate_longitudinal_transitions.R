@@ -239,10 +239,10 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                      depend = dependent)
     }
     
-    write_coefs <- F
+    write_coefs <- T
     if (write_coefs)
     {
-      texreg_file <- paste0(out.path2, "coefficients", dependent, '_', mod.type, '.rds')
+      texreg_file <- paste0(out.path2, "coefficients", dependent, '_', mod.type, '.txt')
       texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
     }
     saveRDS(model, file=paste0(out.path2, dependent, "_", mod.type, '.rds')) # shorter file name with no years..

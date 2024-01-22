@@ -2,12 +2,25 @@
 
 """
 import os
+from os.path import dirname as up
 import pandas as pd
 import numpy as np
 import json
 import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 import pickle
+
+PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
+
+# CPI/inflation reference
+CPI_REF_DEFAULT = 'CPI_202010.csv'  # Relative to 2020/2021
+
+# Equivalised disposable income reference files
+# From here: https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/bulletins/householddisposableincomeandinequality
+# EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"  # Adjusted to 2021/22 prices
+EQUIVALISED_INCOME_REF = 'hdiireferencetables202021.xlsx'  # # Adjusted to 2020/2021 prices
+INCOME_REFERENCE_YEAR = 2010
+
 
 ########################
 # Single wave functions.
@@ -357,6 +370,44 @@ def generate_interview_date_var(data):
     return data
 
 
+''' HR 30/11/23 Get CPI inflation reference data '''
+def get_cpi_ref():
+    # cpi = pd.read_csv(os.path.join(PERSISTENT_DIR + 'CPI_202010.csv')).set_index('Date')
+    cpi = pd.read_csv(os.path.join(PERSISTENT_DIR, CPI_REF_DEFAULT))
+    cpi.drop(labels=cpi.columns[0], axis=1, inplace=True)
+    return cpi
+
+
+''' HR 15/12/23 Get median equivalised disposable household income, historical UK, 1977-2020 '''
+def get_equivalised_income_ref():
+    file_fullpath = os.path.join(PERSISTENT_DIR, EQUIVALISED_INCOME_REF)
+    inc = pd.read_excel(file_fullpath,
+                        sheet_name='Table 1',
+                        header=9-1,
+                        usecols=['Year', 'Median'],
+                        skipfooter=5,
+                        )
+    inc = inc.dropna()
+    inc['Year'] = [int(str(el).split('/')[0]) for el in inc['Year']]  # Year format changes halfway from Y to Y/Y+1
+
+    inc_dict = dict(zip(inc['Year'], inc['Median']))
+    return inc, inc_dict
+
+
+def get_reference_year_equivalised_income(income_dict=None,
+                                          ref_year=INCOME_REFERENCE_YEAR,
+                                          monthly=True):
+    if income_dict is None:
+        _, income_dict = get_equivalised_income_ref()
+
+    value = income_dict[ref_year]
+    if monthly:
+        value = value/12
+
+    # print("Reference year income: {}".format(value))
+    return value
+
+
 def inflation_adjustment(data, var):
     """ Adjust financial values for inflation using the Consumer Price Index (CPI)
 
@@ -375,11 +426,14 @@ def inflation_adjustment(data, var):
     data = generate_interview_date_var(data)
     # Inflation adjustment using CPI
     # read in CPI dataset
-    cpi = pd.read_csv('persistent_data/CPI_202309.csv')
+    # cpi = pd.read_csv('persistent_data/CPI_202010.csv')
+    # cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv'))  # Workaround during child poverty testing; also fine at runtime
+    cpi = get_cpi_ref()
     # merge cpi onto data and do adjustment, then delete cpi column (keep date)
     data = pd.merge(data, cpi, on='Date', how='left')
     data[var] = (data[var] / data['CPI']) * 100
-    data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
+    # data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
+    data.drop(labels=['CPI'], axis=1, inplace=True)
 
     return data
 
@@ -422,7 +476,7 @@ def get_data_maxyr():
 
     # now calculate max year
     # first year of ukhls data is 2009
-    maxyr = 2009 + max(wave_numlist)
+    maxyr = 2009 + max(wave_numlist) - 1  # Bodge for Wave 13 US
 
     return maxyr
 

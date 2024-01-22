@@ -153,38 +153,20 @@ def generate_transition_stock(projections, cross_validation):
     data = wave_data_copy(data,
                           var='loneliness',
                           copy_year=2017,
-                          paste_year=2015,
+                          paste_year=2014,
                           var_type='ordinal')
-    # # copy wave 11 nutrition_quality onto wave 12
-    # data = wave_data_copy(data,
-    #                       var='nutrition_quality',
-    #                       copy_year=2019,
-    #                       paste_year=2020)
-    # # copy wave 7 nutrition_quality onto wave 6
-    # data = wave_data_copy(data,
-    #                       var='nutrition_quality',
-    #                       copy_year=2015,
-    #                       paste_year=2014)
+    # copy wave 11 nutrition_quality onto wave 12
     data = wave_data_copy(data,
-                          var='neighbourhood_safety',
-                          copy_year=2020,
-                          paste_year=2021,
-                          var_type='ordinal')
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020,
+                          var_type='continuous')
+    # copy wave 7 nutrition_quality onto wave 6
     data = wave_data_copy(data,
-                          var='neighbourhood_safety',
-                          copy_year=2014,
-                          paste_year=2015,
-                          var_type='ordinal')
-    data = wave_data_copy(data,
-                          var='S7_neighbourhood_safety',
-                          copy_year=2020,
-                          paste_year=2021,
-                          var_type='ordinal')
-    data = wave_data_copy(data,
-                          var='S7_neighbourhood_safety',
-                          copy_year=2014,
-                          paste_year=2015,
-                          var_type='ordinal')
+                          var='nutrition_quality',
+                          copy_year=2015,
+                          paste_year=2014,
+                          var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
