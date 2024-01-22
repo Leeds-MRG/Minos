@@ -31,6 +31,145 @@ read_output <- function(out.path, scenario, start.year=2020, end.year=2035, var.
 }
 
 
+############################## BATCH READ AND SUMMARISE ##############################
+
+read_files_in_parallel <- function(file_paths) {
+  no_cores <- detectCores() - 1  # Reserve one core for the system
+  cl <- makeCluster(no_cores)
+  on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+  
+  # Use parLapply directly with the file_paths
+  loaded.file.list <- parLapply(cl, file_paths, read.csv)
+  return(loaded.file.list)
+}
+
+
+extract_run_id <- function(filepath) {
+  # Extracts the run_id using a regular expression
+  run_id <- gsub(".*/(\\d+)_run_id_\\d+\\.csv$", "\\1", filepath)
+  return(run_id)
+}
+
+
+process_files_in_batches <- function(batch, year, scenario, drop.dead) {
+  # Your existing file reading and processing logic here
+  # Use 'read_files_in_parallel' for reading files in the batch
+  loaded.file.list <- read_files_in_parallel(batch)
+  
+  # Rest of your processing logic
+  # Return the processed batch
+  
+  ############################# FIND RUN ID FROM STRING AND ASSIGN TO EACH DATAFRAME
+  ############### MAYBE BEST TO DO THIS AT END
+  
+  # Add run_id to each dataframe
+  for (i in seq_along(loaded.file.list)) {
+    run_id <- extract_run_id(batch[i])
+    loaded.file.list[[i]]$run_id <- run_id
+  }
+  
+  
+  # remove any dead people from each run
+  drop_dead <- function(data) {
+    data <- data %>%
+      filter(alive != 'dead') %>%
+      select(-alive)
+    return(data)
+  }
+  if (drop.dead) {
+    loaded.file.list <- lapply(loaded.file.list, drop_dead)
+  }
+  
+  # summarise data
+  sum_df_int <- function(df, year) {
+    df <- df %>%
+      mutate(child_under_one = (substr(child_ages, 1, 1) == 0),
+             three_plus_child = (nkids >= 3),
+             mother_under_25 = ((nkids_ind > 0) & (age < 25)),
+             boosted = (income_boosted == TRUE)) %>%
+      group_by(run_id, age, sex, ethnicity, education_state, time, region, nkids, 
+               nkids_ind, S7_labour_state, matdep_child, simd_decile, child_under_one,
+               three_plus_child, mother_under_25, boosted) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight),
+                SF_12 = weighted.mean(SF_12, w=weight),
+                boost_amount = weighted.mean(boost_amount, w=weight)) %>%
+      mutate(time = year)
+  }
+  
+  sum_df_base <- function(df, year) {
+    df <- df %>%
+      mutate(child_under_one = (substr(child_ages, 1, 1) == 0),
+             three_plus_child = (nkids >= 3),
+             mother_under_25 = ((nkids_ind > 0) & (age < 25)),
+             boosted = ((universal_credit == 1) & (nkids > 0))) %>%
+      group_by(run_id, age, sex, ethnicity, education_state, time, region, nkids, 
+               nkids_ind, S7_labour_state, matdep_child, child_under_one,
+               three_plus_child, mother_under_25, simd_decile, boosted) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight),
+                SF_12 = weighted.mean(SF_12, w=weight)) %>%
+      mutate(time = year)
+  }
+  
+  if (scenario == 'baseline' | year == 2020) {
+    loaded.file.list <- lapply(loaded.file.list, sum_df_base, year)
+  } else {
+    loaded.file.list <- lapply(loaded.file.list, sum_df_int, year)
+  }
+  
+  
+  # Combine and return the processed batch
+  combined_batch <- do.call(rbind, loaded.file.list)
+  return(combined_batch)
+}
+
+read_and_summarise_batch_out_1year <- function(out.path, scenario, year, drop.dead = TRUE, batch.size = 10) {
+  scen.path <- scen.path <- here::here(out.path, scenario)
+  scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  # Create file strings using year from args
+  target.pattern <- paste0('[0-9]*_run_id_', year, '.csv')
+  filepath.list <- list.files(path = scen.path,
+                              pattern = target.pattern,
+                              full.names = TRUE)
+  
+  # generate sequence of run IDs from length of the filepath.list
+  num.run.ids <- length(filepath.list)
+  run.id.vector <- 1:num.run.ids
+  
+  # Split filepath.list into batches
+  batches <- split(filepath.list, ceiling(seq_along(filepath.list)/batch.size))
+  
+  # Process each batch
+  processed_batches <- lapply(batches, process_files_in_batches, year, scenario, drop.dead)
+  
+  # Combine processed batches
+  final <- do.call(rbind, processed_batches)
+  
+  return(final)
+}
+
+read_batch_out_all_years_summarise <- function(out.path, scenario, start.year=2020, end.year=2035, verbose=FALSE, drop.dead = TRUE) {
+  print(paste0("Starting aggregation of output files for ", scenario, '...'))
+  
+  large.df = data.frame()
+  for (i in start.year:end.year) {
+    if (verbose) { print(paste0("Aggregating files for year ", i)) }
+    new.df <- read_and_summarise_batch_out_1year(out.path, scenario, year=i, drop.dead)
+    large.df <- rbind(large.df, new.df)
+  }
+  
+  # Add boost vars to baseline (no boost but need the columns)
+  if (scenario == 'baseline') {
+    large.df$income_boosted <- FALSE
+    large.df$boost_amount <- 0
+  }
+  
+  print("All output files successfully aggregated.")
+  return(large.df)
+}
+
 ############################## BATCH OUTPUT ############################## 
 
 # This function will read all files from a batch run of MINOS for a specific 
