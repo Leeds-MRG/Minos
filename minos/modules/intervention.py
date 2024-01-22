@@ -935,7 +935,9 @@ class ChildPovertyReductionSUSTAIN(Base):
         # full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
         self.population_view.update(full_pop[['boost_amount']])
-        median_income = full_pop['hh_income'].median()
+        # LA 22/1/24 median income now calculated by household instead of individual
+        median_income = full_pop.groupby('hidp').first()['hh_income'].median()
+        # median_income = full_pop['hh_income'].median()
         # 2. Total number of kids
         nkids_total = full_pop['nkids'].sum()
 
