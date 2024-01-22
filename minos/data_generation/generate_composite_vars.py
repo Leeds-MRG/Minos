@@ -172,6 +172,22 @@ def calculate_hourly_wage(data):
                                                        "Maternity Leave",
                                                        "Family Care",
                                                        "Other"])] = 0
+
+    # handle minimum wage values
+    # all values from here: https://www.gov.uk/national-minimum-wage-rates
+    # less than 18
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 5.28) & (data['age'] < 18)] = 5.28
+    # 18 - 20
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 7.49) & (data['age'] >= 18) & (data['age'] <= 20)] = 7.49
+    # 21 - 22
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 21) & (data['age'] <= 22)] = 10.18
+    # 23 & over
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 23)] = 10.42
+
     # now replace all still nan with -9
     data["hourly_wage"].fillna(-9, inplace=True)
 

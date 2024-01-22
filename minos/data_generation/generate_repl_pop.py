@@ -230,6 +230,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
+    final_repl['nkids'] = final_repl['nkids'].astype(float)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)

@@ -57,6 +57,8 @@ class Ageing(Base):
         # update children age chains.
         population = self.update_child_ages(population)
 
+        population['nkids'] = population['nkids'].astype(float)
+
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
         self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])

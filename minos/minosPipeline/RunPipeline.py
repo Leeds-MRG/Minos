@@ -231,6 +231,7 @@ def type_check(data):
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
+    data['nkids'] = data['nkids'].astype(float)
 
     return data
 
@@ -275,7 +276,8 @@ def RunPipeline(config, intervention=None):
                     "zeroinfl": importr("pscl"),
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
-                    "lme4": importr("lme4")
+                    "lme4": importr("lme4"),
+                    "randomForest": importr("randomForest")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
