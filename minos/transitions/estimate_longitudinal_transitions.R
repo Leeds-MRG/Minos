@@ -156,7 +156,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # For SF12 predicting current state given changes in all other information and previous SF12 value. 
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
     # We have SF_12_last in the model formula for 2019 SF12. 
-    if (dependent %in% c("nutrition_quality", "hh_income", "net_hh_income") ) {
+    if (dependent %in% c("nutrition_quality", "hh_income", "net_hh_income", "hh_rent", "hh_mortgage", "council_tax") ) {
       # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%
@@ -167,7 +167,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string) 
        }
-    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage', "hh_rent", "hh_mortgage"))  {
+    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage'))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -191,10 +191,10 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
       #
-      if (dependent %in% c("hh_rent", "hh_mortgage")) {
-        sorted_df <- sorted_df[which(sorted_df[, c(dependent)]>0), ]  
+      if (dependent %in% c("hh_rent_new", "hh_mortgage_new", "council_tax_new")) {
+        sorted_df <- sorted_df[which(sorted_df[, c(dependent)]>1), ]  
         do.reflect <- F
-        do.yeo_johnson <- F
+        do.yeo_johnson <- T
       }
       
       model <- estimate_longitudinal_glmm(data = sorted_df,

@@ -169,7 +169,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
-  #browser()
+  browser()
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
@@ -230,7 +230,6 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
     hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
   }
   
-  browser()
   
   if(include_weights) {
     model <- glmer(formula,  
@@ -245,6 +244,8 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    data = data)
   }
   attr(model,"min_value") <- min_value
+  
+  browser()
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.

@@ -86,7 +86,8 @@ class lmmYJNetIncome(Base):
                         'net_hh_income_diff',
                         "yearly_energy",
                         'hh_int_m',
-                        'time'
+                        'time',
+                        'hidp'
                         ]
 
         columns_created = ["FP10"]
@@ -149,20 +150,17 @@ class lmmYJNetIncome(Base):
         newWavenetIncome = pd.DataFrame(columns=['net_hh_income'])
         newWavenetIncome['net_hh_income'] = self.calculate_net_income(pop)
         newWavenetIncome.index = pop.index
+        newWavenetIncome['hidp'] = pop['hidp']
+        newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform(np.median)
+        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 12000)
 
         income_mean = np.median(newWavenetIncome["net_hh_income"])
         std_ratio = (np.std(pop['net_hh_income']) / np.std(newWavenetIncome["net_hh_income"]))
         newWavenetIncome["net_hh_income"] *= std_ratio
         newWavenetIncome["net_hh_income"] -= ((std_ratio - 1) * income_mean)
-        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 8000)
+
         newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
 
-        # newWaveIncome["hh_income"] -= 75
-        # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
-        # print(std_ratio)
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-        # print("income", np.mean(newWaveIncome['hh_income']))
         #newWavenetIncome[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy", "outgoings"]] = pop[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy", "outgoings"]]
         newWavenetIncome['yearly_energy'] = pop['yearly_energy']
         newWavenetIncome['oecd_equiv'] = pop['oecd_equiv']
@@ -171,11 +169,20 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['hh_mortgage'] = pop['hh_mortgage']
         newWavenetIncome['council_tax'] = pop['council_tax']
 
+
         # calculate disposable income from net income as per composite variable formula.
         newWavenetIncome['hh_income'] = self.subtract_outgoings(newWavenetIncome)
+        # newWaveIncome["hh_income"] -= 75
+        # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
+        # print(std_ratio)
+        # Draw individuals next states randomly from this distribution.
+        # Update population with new income
+        # print("income", np.mean(newWaveIncome['hh_income']))
 
-        #newWavenetIncome['hh_int_m'] = pop['hh_int_m']
-        #newWavenetIncome['hh_income'] = self.inflation_adjustment(newWavenetIncome, self.year, "hh_income")['hh_income']
+        income_mean = np.median(newWavenetIncome["hh_income"])
+        std_ratio = (np.std(pop['hh_income']) / np.std(newWavenetIncome["hh_income"]))
+        newWavenetIncome["hh_income"] *= std_ratio
+        newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
 
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
         newWavenetIncome['FP10'] = (newWavenetIncome['yearly_energy'] / newWavenetIncome['hh_income'] > 0.1)

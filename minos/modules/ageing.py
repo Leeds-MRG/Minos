@@ -94,7 +94,7 @@ class Ageing(Base):
             age_chain = value.split("_")
             # increment each item by one
             # remove item if item is over 16.
-            age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
+            age_chain = [str(int(item) + 1) for item in age_chain if int(item) <= 15]
             #age_chain = np.sort(age_chain, ascending=True)
             # return child ages chain and length of list.
             if age_chain:

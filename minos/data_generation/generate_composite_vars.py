@@ -13,6 +13,7 @@ import sys
 
 from minos.data_generation import US_utils
 # import US_missing_description as USmd
+import minos.data_generation.fake_council_tax as fake_council_tax
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -198,24 +199,29 @@ def generate_hh_income(data):
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+    data = fake_council_tax.main(data)
+    data['council_tax'] = data.groupby(['hidp'])['council_tax'].transform('max')
     data["council_tax"][data["council_tax"] < 0] = 0
-    data["outgoings"] = -9
-    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
     # Now calculate hh income before adjusting for inflation
     data["hh_income"] = -9
     data['net_hh_income'] = data['hh_netinc']
-
     # Adjust hh income for inflation
     #data = US_utils.inflation_adjustment(data, "hh_income")
     data = US_utils.inflation_adjustment(data, "net_hh_income")
-    data = US_utils.inflation_adjustment(data, "outgoings")
+    #data = US_utils.inflation_adjustment(data, "outgoings")
+    data = US_utils.inflation_adjustment(data, "hh_rent")
+    data = US_utils.inflation_adjustment(data, "hh_mortgage")
+    data = US_utils.inflation_adjustment(data, "council_tax")
+
+    data["outgoings"] = -9
+    data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
 
     # now drop the intermediates
-    data.drop(labels=['hh_netinc'],
+    data.drop(labels=['hh_netinc', 'council_tax_lower', 'council_tax_upper', 'council_tax_draw'],
               axis=1,
               inplace=True)
     #data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],

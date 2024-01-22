@@ -4,7 +4,7 @@
 import pandas as pd
 import numpy as np
 
-import US_utils
+from minos.data_generation import US_utils
 from string import ascii_uppercase as alphabet
 
 
@@ -65,13 +65,7 @@ def random_draw(x):
         # TODO can use pretty much any distribution you want here so long as it draws between these bounds.
     return np.random.uniform(lb, ub)
 
-
-if __name__ == '__main__':
-    maxyr = US_utils.get_data_maxyr()
-    years = np.arange(1991, maxyr)
-    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
-    data = US_utils.load_multiple_data(file_names)
-
+def main(data):
     # data for conversions between LADs to region and council tax band (A, B,...) to numeric boundaries (£1200-£1400)
     lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
     lad_to_region = US_utils.load_json("persistent_data/JSON/", "LAD_to_region_name.json")
@@ -98,9 +92,18 @@ if __name__ == '__main__':
     data["council_tax_lower"] = data.apply(lambda x: lower_bound(x, ct_bands), axis=1)  # establish individual lower and upper bounds.
     data["council_tax_upper"] = data.apply(lambda x: upper_bound(x, ct_bands), axis=1)
     data["council_tax_draw"] = data.apply(random_draw, axis=1)  # draw randomly between these bounds.
+    data['council_tax_draw'] = data['council_tax_draw']/12 # convert to monthly bill.
 
     # Handle single case where someone in London gave has wrong council tax band (Band I which only exists in Wales)
     data['council_tax_draw'][data['council_tax_draw'].isna()] = -9
+    data['council_tax'] = data['council_tax_draw']
+    return data
 
-    print('Finished composite generation. Saving data...')
+if __name__ == '__main__':
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(1991, maxyr)
+    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    data = US_utils.load_multiple_data(file_names)
+    main(data)
+    print('Finished generating council_tax_data. Saving data...')
     US_utils.save_multiple_files(data, years, "data/adj_raw_US/", "")

@@ -1,6 +1,10 @@
 ---
-title: "MINOS Handover Plots"
+params:
+    file_path: '' # default arguments. specify others in command line.
+    intervention: ''
+title: "Handovers"
 output:
+  #output_file: "`r paste('minos/validation/', params$file_path, '_', params$intervention, '_handovers.html') `"
   html_document:
     toc: true
     toc_float: true
@@ -8,6 +12,7 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
+
 ---
 
 This notebook shows the handover plots for all pathways in the MINOS microsimulation model.
@@ -49,20 +54,29 @@ source(here::here('minos', 'validation', 'utils.r'))
 ## Data
 
 ```{r}
+
 # Read raw datafiles in
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+
+#out.path <- here::here('output', 'default_config/')
+#base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+
+out.path <- here::here("output", "default_config")
+base.dat <- read_singular_local_out(out.path, "/baseline", drop.dead = TRUE)
 ```
 
 ## Constants
 
 ```{r}
-start.year <- 2021
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
+start.year <- 2021
+# make sure we only overlap on one year for now or else tomfoolery happens. (the plots look bad).
+# we may want this overlap in the future? probably not.
+raw.dat <- raw.dat[which(raw.dat$time <= start.year), ]
+base.dat <- base.dat[which(base.dat$time>=start.year), ]
 
 shall.we.save <- FALSE
 ```
@@ -105,6 +119,56 @@ spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
 rm(raw.inc, base.inc, income.spag)
 ```
 
+
+
+## Net Income & Rent & Mortgage
+
+```{r net_income}
+# get required variables. 
+raw.inc <- raw.dat %>%
+  select(pidp, age, time, net_hh_income, hh_rent, hh_mortgage, council_tax, oecd_equiv)
+base.inc <- base.dat %>%
+  select(pidp, age, time, net_hh_income, hh_rent, hh_mortgage, council_tax, oecd_equiv)
+
+# net household income. 
+handover_boxplots(raw.inc, base.inc, 'net_hh_income')
+handover_lineplots(raw.inc, base.inc, "net_hh_income")
+inc.spag<-rbind(raw.inc, base.inc)
+density_ridges(inc.spag, 'net_hh_income',
+               save=TRUE, 
+               save.path=save.path)
+
+# rent
+handover_boxplots(raw.inc[which(raw.inc$hh_rent>1), ], base.inc[which(base.inc$hh_rent>1), ], 'hh_rent')
+handover_lineplots(raw.inc[which(raw.inc$hh_rent>1), ], base.inc[which(base.inc$hh_rent>1), ], "hh_rent")
+density_ridges(inc.spag[which(inc.spag$hh_rent>1), ], 'hh_rent',
+               save=TRUE, 
+               save.path=save.path)
+
+# mortgage
+handover_boxplots(raw.inc[which(raw.inc$hh_mortgage>1), ], base.inc[which(base.inc$hh_mortgage>1), ], 'hh_mortgage')
+handover_lineplots(raw.inc[which(raw.inc$hh_mortgage>1), ], base.inc[which(base.inc$hh_mortgage>1), ], "hh_mortgage")
+density_ridges(inc.spag[which(inc.spag$hh_mortgage>1), ], 'hh_mortgage',
+               save=TRUE, 
+               save.path=save.path)
+
+#council tax
+handover_boxplots(raw.inc[which(raw.inc$council_tax>1), ], base.inc[which(base.inc$council_tax>1), ], 'council_tax')
+handover_lineplots(raw.inc[which(raw.inc$council_tax>1), ], base.inc[which(base.inc$council_tax>1), ], "council_tax")
+density_ridges(inc.spag[which(inc.spag$council_tax>1), ], 'council_tax',
+               save=TRUE, 
+               save.path=save.path)
+
+# oecd equivalence scale. (NOT TRANSITIONED YET. REQUIRES LEAVING THE NEST MODULE.. )
+handover_boxplots(raw.inc, base.inc, 'oecd_equiv')
+handover_lineplots(raw.inc, base.inc, 'oecd_equiv')
+density_ridges(inc.spag, 'oecd_equiv',
+               save=TRUE, 
+               save.path=save.path)
+
+# tidy up.
+rm(raw.inc, base.inc, inc.spag)
+```
 
 ## SF12
 
@@ -313,6 +377,56 @@ rm(raw.housing, base.housing, housing, housing.norm)
 #                save.path = save.path)
 # 
 # rm(raw.s, base.s, spag)
+```
+
+
+
+## Housing Tenure
+
+```{r}
+raw.tenure <- raw.dat %>%
+  dplyr::select(pidp, time, housing_tenure) %>%
+  group_by(time, housing_tenure) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.tenure <- base.dat %>%
+  dplyr::select(pidp, time, housing_tenure) %>%
+  group_by(time, housing_tenure) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+tenure <- rbind(raw.tenure, base.tenure)
+tenure$housing_tenure <- as.factor(tenure$housing_tenure)
+
+# Now plot
+ggplot(data = tenure, mapping = aes(x = time, y = n, group = housing_tenure, colour = housing_tenure)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Tenure', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+tenure.norm <- tenure %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = tenure.norm, mapping = aes(x = time, y = prct, fill=housing_tenure)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Tenure') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'housing_tenure.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.tenure, base.tenure, tenure, tenure.norm)
 ```
 
 ## Neighbourhood Safety
@@ -753,190 +867,6 @@ spaghetti_plot(spag, 'nkids_ind',
                save.path = save.path)
 
 rm(raw.s, base.s, spag)
-```
-
-## Hourly Wage
-
-```{r}
-handover_boxplots(raw.dat, base.dat, 'hourly_wage')
-handover_lineplots(raw.dat, base.dat, 'hourly_wage')
-```
-
-```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, hourly_wage)
-base.s <- base.dat %>%
-  select(pidp, age, time, hourly_wage)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-# now a version limited to 0-100
-spag <- spag %>%
-  filter(hourly_wage <= 300)
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
-```
-
-```{r}
-# some basic statistics about hourly_wage variable
-print("Some basic statistics on hourly_wage. These are all for 2020.")
-raw.2020 <- raw.dat %>% filter(time == 2020)
-print('All living people in 2020')
-print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
-# number individuals with an hourly_wage > 0
-print('People not in work')
-print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
-
-# Number in work
-print('People in work')
-print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
-
-# Extreme hourly_wage values
-print('Extreme hourly wage values: HIGH')
-print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
-print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
-print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
-print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
-print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
-print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
-
-raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
-print('Extreme hourly wage values: LOW (non-zero)')
-print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
-print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
-print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
-print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
-```
-
-## S7 Labour State
-
-```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
-
-lab.state <- prepped.list$var
-lab.state.norm <- prepped.list$norm
-
-# Now plot
-ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'S7_labour_state.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, lab.state, lab.state.norm)
-```
-
-
-
-```{r}
-pivoted <- combine_and_pivot_long(df1 = base.dat, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw.dat, 
-                                       df2.name = 'raw', 
-                                       var = 'S7_labour_state')
-
-cv_ordinal_plots(pivoted.df = pivoted, 
-                 var = 'S7_labour_state',
-                 save = shall.we.save,
-                 save.path = save.path)
-```
-
-## Child Ages
-
-```{r}
-raw.child.ages <- raw.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2013) %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-r.s<- strsplit(raw.child.ages$child_ages, "_")
-
-raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
-raw.child.ages.expanded <- raw.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'final_US') %>%
-  filter(expanded_child_ages <= 16)
-
-base.child.ages <- base.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2009) %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-b.s<- strsplit(base.child.ages$child_ages, "_")
-
-base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
-base.child.ages.expanded <- base.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'baseline')
-
-combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
-  
-ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
-  geom_line() +
-  geom_vline(xintercept = start.year) +
-  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
-  scale_colour_viridis_d() +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = combined, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
-  geom_line() +
-  geom_vline(xintercept = start.year) +
-  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
-  scale_colour_viridis_d() +
-  xlab('Year') +
-  ylab('Count')
-
-base.child.ages.nkids <- base.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'baseline')
-
-raw.child.ages.nkids <- raw.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'final_US')
-
-combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
-
-ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
-  geom_line() +
-  labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
 ```
 
 ```{r}
