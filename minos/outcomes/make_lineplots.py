@@ -91,7 +91,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
             #print(get_region_lsoas(region).columns)
             region_lsoas = get_region_lsoas(region)["lsoa11cd"]
         elif region == "scotland":
-            region_lsoas = get_region_lsoas(region)["DZ2011_Code"]
+            region_lsoas = get_region_lsoas(region)["LSOA11CD"]
         else:
             region_lsoas = get_region_lsoas(region)["lsoa11cd"]
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
@@ -100,6 +100,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
         agg_value["population_size"] = population_size + np.sum(data.groupby("hidp")['nkids'].max())
     return agg_value
+
+
 def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", ref="Baseline", method=np.nanmean,
                                 mode="default_config", region=None):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
@@ -268,6 +270,8 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     if method == weighted_nanmean:
         df[v] -= 1  # set centre at 0.
+    if method == decile_weighted_nanmean:
+        df[v] -= 100
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
     # now rename some vars for plot labelling and formatting
@@ -419,8 +423,6 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         #baseline_cumulative_values = baseline_cumulative_values.values.reshape(-1,15)[:,1:].flatten() # remove every 15th entry that isnt needed.
         #aggregate_long_stack[f'{v}_ICER'] = (aggregate_long_stack[f'{v}_AUC']-baseline_cumulative_values)/aggregate_long_stack['intervention_cost_cumulative']
         #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_ICER", method)
-    elif v == "SF_12" and method == decile_weighted_nanmean:
-        print(aggregate_long_stack.shape)
     elif method == decile_weighted_nanmean:
         # do relative scaling for ten populations.
         aggregate_long_stack.reset_index(inplace=True, drop=True)
@@ -436,6 +438,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
         plot_stack = plot_stack.loc[plot_stack['tag'] != ref, ]
         plot_stack = pd.concat([plot_stack, start_year])
+        plot_stack[v] *= 100
         plot_stack['tag'] = plot_stack['simd_decile']
         print(plot_stack.shape)
 

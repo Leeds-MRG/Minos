@@ -344,6 +344,8 @@ living_wage_all_quintiles:
 # All Scotland 25 UC Quintiles
 ##########################################
 
+scotland_25_UC_deciles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_deciles"
 
 baseline_scotland_quintiles:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_baseline_quintiles"
@@ -440,26 +442,6 @@ aggregate_minos_output_all_child_uplift:
 
 #aggregate_minos_output_all_child_uplift:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift "Baseline,All Children Uplift,Poverty Line Child Uplift" who_kids,who_boosted,who_boosted "all_vs_poverty_child_uplift" $(AGG_VAR)
-
-aggregate_minos_output_disabled_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_minority_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_three_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift" $(AGG_VAR) $(REGION)
-
-# omitted due to lack of sample size
-aggregate_minos_output_young_mother_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_young_adult_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_uneducated_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift" $(AGG_VAR) $(REGION)
-
 
 aggregate_25_UC_MICE: MODE="scaled_scotland"
 aggregate_25_UC_MICE:
