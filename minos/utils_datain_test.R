@@ -188,7 +188,8 @@ group_summarise <- function(data, group.var) {
 # }
 
 parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
-  no_cores <- detectCores() - 1  # Reserve one core for the system
+  #no_cores <- detectCores() - 1  # Reserve one core for the system
+  no_cores <- availableCores(omit=1)
   plan(multisession, workers = no_cores)  # Set up parallel plan
   
   # Use future_lapply with file_paths and fread
@@ -334,7 +335,7 @@ get_latest_runtime_subdirectory <- function(path) {
 
 ################################# RUNNING SCRIPT #################################
 
-out.path <- here::here('output', 'scaled_scotland_batch')
+out.path <- here::here('output', 'scaled_scotland')
 save.path <- here::here(out.path, 'summary_files')
 
 create.if.not.exists <- function(path) {
