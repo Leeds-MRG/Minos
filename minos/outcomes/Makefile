@@ -229,19 +229,19 @@ aggregate_25_UC_scotland:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
 
 aggregate_30_UC_scotland: MODE="scaled_scotland"
-aggregate_30_universal_credit:
+aggregate_30_UC_scotland:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "30_universal_credit"
 
 aggregate_35_UC_scotland: MODE="scaled_scotland"
-aggregate_35_universal_credit:
+aggregate_35_UC_scotland:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "35_universal_credit"
 
 aggregate_40_UC_scotland: MODE="scaled_scotland"
-aggregate_40_universal_credit:
+aggregate_40_UC_scotland:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "40_universal_credit"
 
 aggregate_45_UC_scotland: MODE="scaled_scotland"
-aggregate_45_universal_credit:
+aggregate_45_UC_scotland:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "45_universal_credit"
 
 aggregate_50_UC_scotland: MODE="scaled_scotland"

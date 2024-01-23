@@ -37,7 +37,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      # "who_no_public_funds_recourse": None,
                     "who_lone_parent_families": [who_alive, who_single, who_kids],
 
-                    'who_priority_subgroups': [who_alive, who_kids, who_priority_subgroups],
+                    #'who_priority_subgroups': [who_alive, who_priority_subgroups],
                     'who_priority_subgroups_and_kids': [who_alive, who_kids, who_priority_subgroups],
                     'who_multiple_priority_subgroups': [who_alive, who_kids, who_multiple_priority_subgroups],
                     'who_multiple_priority_subgroups_and_kids': [who_alive, who_kids, who_multiple_priority_subgroups],
@@ -353,10 +353,11 @@ def who_priority_subgroups(df):
     # Tackling child poverty delivery plan 2022-2026 - annex 2: child poverty evaluation strategy
     # - updated - gov.scot (www.gov.scot)
     subset_functions = [who_single, who_three_kids, who_young_adults, who_ethnic_minority, who_disabled, who_has_newborn]
-    df['who_boosted'] = False
+    df['who_boosted'] = False # start with all false. if any of the following subgroups are satisfied who_boosted will
+    # be set to true. 
     for subset_function in subset_functions:
         search_index = subset_function(df).index
-        df.loc[search_index,"who_boosted"] *= True
+        df.loc[search_index,"who_boosted"] += True
     who_subsetted = np.unique(df.query('who_boosted == True')['hidp'])
     df.loc[df['hidp'].isin(who_subsetted) ,'who_boosted'] = True # set everyone who satisfies uplift condition to true.
     return df.loc[df['who_boosted'], ]
