@@ -76,6 +76,11 @@ start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
+# make sure we only overlap on one year for now or else tomfoolery happens (the plots look bad).
+# we may want this overlap in the future? probably not.
+raw.dat <- raw.dat[which(raw.dat$time <= start.year), ]
+base.dat <- bas.dat[which(base.dat$time>start.year), ]
+
 shall.we.save <- FALSE
 ```
 

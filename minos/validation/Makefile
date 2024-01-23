@@ -29,8 +29,15 @@ handovers_inflated:
 	firefox file://$(VALIDATION)/handovers_inflated.html
 
 handovers_scotland_scaled:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_baseline_handovers.html', param=list(file_path='scotland_scaled',intervention='baseline'))"
-	# open html file in firefox
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_baseline_handovers.html', param=list(file_path='scaled_scotland/',intervention='baseline'))"	# open html file in firefox
+	firefox file://$(VALIDATION)/handovers.html
+
+handovers_scotland_scaled_living_wage:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_living_wage_handovers.html', param=list(file_path='scaled_scotland/',intervention='livingWageIntervention'))"
+	firefox file://$(VALIDATION)/handovers.html
+
+handovers_scotland_scaled_25up:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_25up_handovers.html', param=list(file_path='scaled_scotland/',intervention='25UniversalCredit'))"
 	firefox file://$(VALIDATION)/handovers.html
 
 debug_replenishing:

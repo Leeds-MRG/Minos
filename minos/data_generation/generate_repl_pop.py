@@ -205,7 +205,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/glasgow_scaled'
     elif region == 'scotland':
         data_source = 'scaled_scotland_US'
-        output_dir = 'data/replenishing/scotland_scaled'
+        output_dir = 'data/replenishing/scaled_scotland'
     elif region == 'uk':
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'

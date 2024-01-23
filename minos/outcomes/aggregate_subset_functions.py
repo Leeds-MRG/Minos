@@ -354,7 +354,7 @@ def who_priority_subgroups(df):
     # - updated - gov.scot (www.gov.scot)
     subset_functions = [who_single, who_three_kids, who_young_adults, who_ethnic_minority, who_disabled, who_has_newborn]
     df['who_boosted'] = False # start with all false. if any of the following subgroups are satisfied who_boosted will
-    # be set to true. 
+    # be set to true.
     for subset_function in subset_functions:
         search_index = subset_function(df).index
         df.loc[search_index,"who_boosted"] += True

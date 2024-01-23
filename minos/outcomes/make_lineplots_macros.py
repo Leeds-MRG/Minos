@@ -93,6 +93,18 @@ def social_science_all_plots(config_mode):
 # glasgow spatial population lineplots #
 ########################################
 
+def deciles_lineplot(config_mode, source, tag, subset_function, region=None):
+    # directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
+    directories = f"baseline,{source}"  # repeat 11 times and cut off last comma.
+    tags = f"Baseline,{tag}"
+    subset_function_strings = f"who_alive,who_alive"
+    prefix = f"{source}_simd_deciles"
+    ref = "Baseline"
+    v = "SF_12"
+    method = "deciles_separate_baselines"
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
 def glasgow_deciles_lineplot(config_mode, source, subset_function):
     # directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
     directories = f"{source}," + (f"{source}," * 10)[:-1]  # repeat 11 times and cut off last comma.
@@ -229,12 +241,16 @@ def universal_credit(config_mode, boost_amount, region=None):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
-def universal_credit_priority_young_mothers(config_mode, boost_amount, region=None):
+def universal_credit_single_priority_group(config_mode, source, tag, subset, region=None):
     "just the single mothers"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_young_mothers,who_young_mothers"
     prefix = f"{boost_amount}_single_mothers_universal_credit"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
+    subset_function_strings = f"{subset},{subset}"
+    prefix = f"{source}_{subset}_priority_"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
@@ -252,6 +268,7 @@ def universal_credit_priority_subgroups(config_mode, boost_amount, region):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method, region=region)
+
 
 def universal_credit_multiple_priority_subgroups(config_mode, boost_amount, region):
     "2+ subgroups"
@@ -406,6 +423,16 @@ string_to_lineplot_function = {
     "75_universal_credit": universal_credit,
     "100_universal_credit": universal_credit,
 
+    # priority subgroups
+    "scotland_25_universal_credit_single_mothers": ["25UniversalCredit", "£25 UC Young Mothers", "who_young_mothers", "scotland"],
+    "scotland_25_universal_credit_disabled": ["25UniversalCredit", "£25 UC Disabled Household Member", "who_disabled", "scotland"],
+    "scotland_25_universal_credit_ethnic_minority": ["25UniversalCredit", "£25 UC Ethnic Minorities", "who_ethnic_minority", "scotland"],
+    "scotland_25_universal_credit_three_children": ["25UniversalCredit", "£25 UC Three+ Children", "who_three_children", "scotland"],
+    "scotland_25_universal_credit_young_adult": ["25UniversalCredit", "£25 UC Young Adult", "who_young_adults", "scotland"],
+    "scotland_25_universal_credit_uneducated": ["25UniversalCredit", "£25 UC Uneducated", "who_no_formal_education", "scotland"],
+    "scotland_25_universal_credit_newborn": ["25UniversalCredit", "£25 UC Has Newborn", "who_newborn", "scotland"],
+
+    # in any priority subgroup
     "25_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
     "30_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
     "35_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
@@ -415,6 +442,7 @@ string_to_lineplot_function = {
     "75_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
     "100_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
 
+    # in more than one subgroup.
     "25_universal_credit_multiple_priority_subgroups": universal_credit_multiple_priority_subgroups,
     "30_universal_credit_multiple_priority_subgroups": universal_credit_multiple_priority_subgroups,
     "35_universal_credit_multiple_priority_subgroups": universal_credit_multiple_priority_subgroups,
@@ -440,10 +468,15 @@ string_to_lineplot_function = {
     "glasgow_epcg_quintile": quintiles_lineplot,
     "glasgow_living_wage_quintile": quintiles_lineplot,
 
-    "scotland_25_universal_credit_young_mothers": universal_credit_priority_young_mothers,
+    "scotland_25_universal_credit_young_mothers": universal_credit_single_priority_group,
     "scotland_25_universal_any_priority_subgroup": universal_credit_priority_subgroups,
     "scotland_25_universal_many_priority_subgroups": universal_credit_multiple_priority_subgroups,
 
+    # deciles
+    "scotland_25_universal_credit_deciles": deciles_lineplot,
+    "scotland_50_universal_credit_deciles": deciles_lineplot,
+
+    # quintiles
     "scotland_baseline_quintiles": quintiles_lineplot,
     "scotland_25_universal_credit_quintiles": quintiles_lineplot,
     "scotland_30_universal_credit_quintiles": quintiles_lineplot,
@@ -537,6 +570,17 @@ string_to_lineplot_function_args = {
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
     "glasgow_epcg_quintile": ['EPCG'],
     "glasgow_living_wage_quintile": ['livingWageIntervention'],
+
+
+    # deciles
+    "scotland_25_universal_credit_deciles": ["25UniversalCredit",
+                                             "£25 Universal Credit",
+                                             "who_universal_credit_and_kids",
+                                             "scotland"],
+    "scotland_50_universal_credit_deciles": ["50UniversalCredit",
+                                             "£50 Universal Credit",
+                                             "who_universal_credit_and_kids",
+                                             "scotland"],
 
     "scotland_baseline_quintiles": ['baseline', "scotland"],
     "scotland_25_universal_credit_quintiles": ['25UniversalCredit', "scotland"],
