@@ -1,7 +1,11 @@
 ########### TESTING NEW DATA IN SUMMARISE FUNCTIONS ######################
 
 
-
+require(tidyverse)
+require(data.table)
+require(parallelly)
+require(future)
+require(future.apply)
 
 
 
@@ -112,16 +116,83 @@ group_summarise <- function(data, group.var) {
   return(data)
 }
 
+# parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
+#   no_cores <- detectCores() - 1  # Reserve one core for the system
+#   #print("Number available cores:")
+#   #print(no_cores)
+#   cl <- makeCluster(no_cores)
+#   on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+#   
+#   # Use parLapply directly with file_paths and fread
+#   #print('Reading files...')
+#   loaded.file.list <- parLapply(cl, file_paths, fread, stringsAsFactors=TRUE)
+#   
+#   # Optionally convert data.tables to data.frames
+#   loaded.file.list <- lapply(loaded.file.list, as.data.frame)
+#   
+#   if (drop.dead) {
+#     loaded.file.list <- lapply(loaded.file.list, drop_dead)
+#   }
+#   
+#   #print('Adding run_id column...')
+#   # Add run_id to each dataframe
+#   for (i in seq_along(loaded.file.list)) {
+#     run_id <- extract_run_id(file_paths[i])
+#     loaded.file.list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
+#   }
+#   
+#   
+#   # create list for summarised outputs
+#   summary.out.list <- list()
+#   
+#   # Whole pop SF12 summary stats
+#   #print('Generating whole pop summary...')
+#   whole.pop.summary <- lapply(loaded.file.list, whole_pop_summarise)
+#   #whole.pop.summary <- do.call(rbind, do.call(rbind, whole.pop.summary))
+#   whole.pop.summary <- do.call(rbind, whole.pop.summary)
+#   #return(whole.pop.summary)
+#   #summary.out.list <- list(summary.out.list, whole.pop.summary)
+#   summary.out.list[['whole_pop']] <- whole.pop.summary
+#   
+#   #return(whole.pop.summary)
+#   
+#   #print('Households with children...')
+#   families.summary <- lapply(loaded.file.list, families_summarise)
+#   #summary.out.list <- list(summary.out.list, families.summary)
+#   families.summary <- do.call(rbind, families.summary)
+#   summary.out.list[['families']] <- families.summary
+#   
+#   #return(families.summary)
+#   
+#   #print('Treatement on Treated...')
+#   treated.summary <- lapply(loaded.file.list, treated_summarise)
+#   #summary.out.list <- list(summary.out.list, treated.summary)
+#   treated.summary <- do.call(rbind, treated.summary)
+#   summary.out.list[['treated']] <- treated.summary
+#   
+#   #return(treated.summary)
+#   
+#   #print('SIMD Deciles')
+#   SIMD.summary <- lapply(loaded.file.list, group_summarise, 'simd_decile')
+#   # summary.out.list <- list(summary.out.list, SIMD.summary)
+#   SIMD.summary <- do.call(rbind, SIMD.summary)
+#   summary.out.list[['simd_decile']] <- SIMD.summary
+#   
+#   #return(SIMD.summary)
+#   rm(loaded.file.list)
+#   
+#   #print('Finished creating summary outputs')
+#   return(summary.out.list)
+#   
+#   #return(loaded.file.list)
+# }
+
 parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   no_cores <- detectCores() - 1  # Reserve one core for the system
-  #print("Number available cores:")
-  #print(no_cores)
-  cl <- makeCluster(no_cores)
-  on.exit(stopCluster(cl))  # Ensure the cluster is stopped when the function exits
+  plan(multisession, workers = no_cores)  # Set up parallel plan
   
-  # Use parLapply directly with file_paths and fread
-  #print('Reading files...')
-  loaded.file.list <- parLapply(cl, file_paths, fread, stringsAsFactors=TRUE)
+  # Use future_lapply with file_paths and fread
+  loaded.file.list <- future_lapply(file_paths, fread, stringsAsFactors = TRUE)
   
   # Optionally convert data.tables to data.frames
   loaded.file.list <- lapply(loaded.file.list, as.data.frame)
@@ -130,57 +201,21 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     loaded.file.list <- lapply(loaded.file.list, drop_dead)
   }
   
-  #print('Adding run_id column...')
   # Add run_id to each dataframe
   for (i in seq_along(loaded.file.list)) {
     run_id <- extract_run_id(file_paths[i])
     loaded.file.list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
   }
   
+  # Create list for summarised outputs and process each type of summary
+  summary.out.list <- list(
+    whole_pop = do.call(rbind, lapply(loaded.file.list, whole_pop_summarise)),
+    families = do.call(rbind, lapply(loaded.file.list, families_summarise)),
+    treated = do.call(rbind, lapply(loaded.file.list, treated_summarise)),
+    simd_decile = do.call(rbind, lapply(loaded.file.list, group_summarise, 'simd_decile'))
+  )
   
-  # create list for summarised outputs
-  summary.out.list <- list()
-  
-  # Whole pop SF12 summary stats
-  #print('Generating whole pop summary...')
-  whole.pop.summary <- lapply(loaded.file.list, whole_pop_summarise)
-  #whole.pop.summary <- do.call(rbind, do.call(rbind, whole.pop.summary))
-  whole.pop.summary <- do.call(rbind, whole.pop.summary)
-  #return(whole.pop.summary)
-  #summary.out.list <- list(summary.out.list, whole.pop.summary)
-  summary.out.list[['whole_pop']] <- whole.pop.summary
-  
-  #return(whole.pop.summary)
-  
-  #print('Households with children...')
-  families.summary <- lapply(loaded.file.list, families_summarise)
-  #summary.out.list <- list(summary.out.list, families.summary)
-  families.summary <- do.call(rbind, families.summary)
-  summary.out.list[['families']] <- families.summary
-  
-  #return(families.summary)
-  
-  #print('Treatement on Treated...')
-  treated.summary <- lapply(loaded.file.list, treated_summarise)
-  #summary.out.list <- list(summary.out.list, treated.summary)
-  treated.summary <- do.call(rbind, treated.summary)
-  summary.out.list[['treated']] <- treated.summary
-  
-  #return(treated.summary)
-  
-  #print('SIMD Deciles')
-  SIMD.summary <- lapply(loaded.file.list, group_summarise, 'simd_decile')
-  # summary.out.list <- list(summary.out.list, SIMD.summary)
-  SIMD.summary <- do.call(rbind, SIMD.summary)
-  summary.out.list[['simd_decile']] <- SIMD.summary
-  
-  #return(SIMD.summary)
-  rm(loaded.file.list)
-  
-  #print('Finished creating summary outputs')
   return(summary.out.list)
-  
-  #return(loaded.file.list)
 }
 
 read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = TRUE, batch.size = 10) {
@@ -236,19 +271,23 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, start.year=20
   # Then write to file
   # Extract and bind 'whole_pop' tibbles
   whole_pop_combined <- bind_rows(lapply(all.years.list, `[[`, "whole_pop"))
+  whole_pop_combined$scenario <- scenario
   write.csv(x = whole_pop_combined,
             file = here::here(out.path, 'summary_files', paste0(scenario, '_whole_pop_summary.csv')))
   # Extract and bind 'families' tibbles
   families_combined <- bind_rows(lapply(all.years.list, `[[`, "families"))
+  families_combined$scenario <- scenario
   write.csv(x = families_combined,
             file = here::here(out.path, 'summary_files', paste0(scenario, '_families_summary.csv')))
   # Extract and bind 'treated' tibbles
   treated_combined <- bind_rows(lapply(all.years.list, `[[`, "treated"))
+  treated_combined$scenario <- scenario
   write.csv(x = treated_combined,
             file = here::here(out.path, 'summary_files', paste0(scenario, '_treated_summary.csv')))
   # Extract and bind 'SIMD_deciles' tibbles
-  treated_simd_decile <- bind_rows(lapply(all.years.list, `[[`, "simd_decile"))
-  write.csv(x = treated_simd_decile,
+  simd_decile <- bind_rows(lapply(all.years.list, `[[`, "simd_decile"))
+  simd_decile$scenario <- scenario
+  write.csv(x = simd_decile,
             file = here::here(out.path, 'summary_files', paste0(scenario, '_simd_decile_summary.csv')))
   
   print("All output files successfully aggregated and summarised.")
@@ -295,7 +334,7 @@ get_latest_runtime_subdirectory <- function(path) {
 
 ################################# RUNNING SCRIPT #################################
 
-out.path <- here::here('output', 'scaled_scotland')
+out.path <- here::here('output', 'scaled_scotland_batch')
 save.path <- here::here(out.path, 'summary_files')
 
 create.if.not.exists <- function(path) {
