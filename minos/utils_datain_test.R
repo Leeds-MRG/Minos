@@ -215,6 +215,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     treated = do.call(rbind, lapply(loaded.file.list, treated_summarise)),
     simd_decile = do.call(rbind, lapply(loaded.file.list, group_summarise, 'simd_decile'))
   )
+  rm(loaded.file.list)
   
   return(summary.out.list)
 }

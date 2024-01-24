@@ -4,7 +4,7 @@
 #TODO add bash script with 4 interventions (no poverty line).
 
 ##############################################################
-# SCP & PCR Visualisation Notebooks #
+# SCP & CPR Visualisation Notebooks #
 ##############################################################
 
 scp_summary_vis:

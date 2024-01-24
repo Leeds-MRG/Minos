@@ -47,7 +47,7 @@ source(here::here('minos', 'utils_datain.R'))
 #out.path <- here::here('output', 'glasgow_scaled')
 #out.path <- here::here('output', 'scaled_scotland')
 #out.path <- here::here('output', 'default_config_batch')
-out.path <- here::here('output', 'scaled_scotland_batch', 'summary_files')
+out.path <- here::here('output', 'scaled_scotland_10', 'summary_files')
 
 
 # Whole population summaries
