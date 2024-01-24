@@ -1060,57 +1060,20 @@ def update_material_deprivation_vars(data,
     return data
 
 
-''' HR 20/12/23 Copied from branch #283 for now; delete/refactor after merging '''
-def weighted_nanmean(df, v, weights = "weight", scale=1):
-    #df = df.loc[df['weight'] > 0]
-
-    #df.loc[df.index, weights] = 1/df[weights]
-    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
-    #return np.nanmean()
-
-
-''' HR 20/12/23 Weighted median, ignoring NaN values
-    Copies format of weighted_nanmean
-    Adapted from here: https://stackoverflow.com/questions/20601872/numpy-or-scipy-to-calculate-weighted-median '''
-def weighted_nanquantile(df, v, weights='weight', scale=1, quantile=0.5, interpolate=True):
-
-    vl = df[v].values
-    wl = df[weights].values
-    indices_sorted = np.argsort(wl)
-
-    v_sorted = vl[indices_sorted]
-    w_sorted = wl[indices_sorted]
-    Sn = w_sorted.cumsum()
-
-    if interpolate:
-        Pn = (Sn - w_sorted/2) / Sn[-1]
-        value = np.interp(quantile, Pn, v_sorted)
-    else:
-        value = v_sorted[np.searchsorted(Sn, quantile * Sn[-1])]
-
-    return value
-
-
 ''' HR 10/01/24 Moving to method to test options and allow easy changes elsewhere
     Added options for applying weights (experimental but dumping here so all in one place) '''
 def get_median(data,
                exclude_negative_values=True,
                income_var='hh_income',
-               weight_var='weight',
-               apply_weights=(False, False)):  # Whether to apply weights and which method
+               ):
 
     if exclude_negative_values:
         sub = data.loc[data[income_var] > 0.0]
     else:
         sub = data
 
-    if not apply_weights[0]:
-        median = sub[income_var].median()
-    else:
-        if apply_weights[1]:
-            median = (sub[income_var] * sub[weight_var]).median()
-        else:
-            median = weighted_nanquantile(sub, income_var, quantile=0.5)
+    median = sub[income_var].median()
+
     return median
 
 
@@ -1394,10 +1357,10 @@ def main():
 
     # --
     # All child poverty variables generated below
-    data = calculate_children(data)  # total number of biological children
+    data = calculate_children(data)  # Total number of biological children per person
     data = generate_child_material_deprivation(data)  # Get score and Boolean based on UK/Scottish gov definition
-    data = calculate_poverty_composites_hh(data)
-    data = calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
+    data = calculate_poverty_composites_hh(data)  # Do hh-level poverty variables
+    data = calculate_poverty_composites_ind(data)  # Do individual-level poverty variables
     # --
 
     data['old_pidp'] = data['pidp']
