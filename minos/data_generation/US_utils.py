@@ -17,10 +17,6 @@ missing_types = ['-1', '-2', '-7', '-8', '-9',
                  '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
                  "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
 
-# Reference year to be used for comparison of CPI-adjusted equivalised hh income,
-# as specified in UK/Scot. Gov. definitions of absolute poverty
-HH_INCOME_REFERENCE_YEAR = 2010
-
 # Some folder paths for ease later
 COMPOSITE_VARS_DIR = os.path.join(up(up(up(__file__))), 'data', 'composite_US')
 PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
@@ -33,6 +29,7 @@ CPI_REF_DEFAULT = 'CPI_202010.csv'  # Relative to 2020/2021
 # EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"  # Adjusted to 2021/22 prices
 EQUIVALISED_INCOME_REF = 'hdiireferencetables202021.xlsx'  # # Adjusted to 2020/2021 prices
 INCOME_REFERENCE_YEAR = 2010
+EXCLUDE_NEGATIVE_VALUES_DEFAULT = True
 PROJECTION_RANGE_DEFAULT = 25
 
 
@@ -540,9 +537,10 @@ def get_equivalised_income_uk(ref_year=INCOME_REFERENCE_YEAR,
 ''' HR 29/11/23 To get hh income data for 2010/11 tax year, as absolute poverty is calculated based on that reference year
     Grabs value from all-years data during GCV, else (i.e. at sim runtime) grabs from US composite data for 2010
     Awkward but necessary if we use US data to calculate the inflated median, rather than all-UK median wages '''
-def get_equivalised_income_internal(data=None,
-                                    ref_year=HH_INCOME_REFERENCE_YEAR,
-                                    income_var='hh_income'):
+def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
+                                    data=None,
+                                    income_var='hh_income',
+                                    exclude_negative_values=EXCLUDE_NEGATIVE_VALUES_DEFAULT):
 
     # Grab reference year data
     if data is not None:
@@ -555,7 +553,10 @@ def get_equivalised_income_internal(data=None,
         data = pd.read_csv(file_fullpath)
 
     # Get subframe of unique household IDs
-    sub = data.loc[data[income_var] > 0.0].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+
+    if exclude_negative_values:
+        sub = sub.loc[sub[income_var] < 0.0]
 
     result = sub[income_var].median()  # Filter out any invalid or zero values
 

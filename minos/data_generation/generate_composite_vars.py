@@ -1086,7 +1086,8 @@ def update_poverty_vars_hh(data,
 
     # Generate adjusted UK-wide median (for absolute poverty)
     if median_reference is None:
-        median_reference = US_utils.get_equivalised_income_uk()
+        # median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
+        median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
     median_inflated = median_reference
 
     # Get subframe of unique hidp values and calculate median (for relative poverty)
@@ -1159,7 +1160,8 @@ def calculate_poverty_composites_hh(data,
 
     # Generate from US composite stage if not passed
     if median_reference is None:
-        median_reference = US_utils.get_equivalised_income_uk()
+        # median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
+        median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
 
     ''' Must loop over all years, bearing in mind:
         (a) median incomes are year-specific,

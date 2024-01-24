@@ -64,7 +64,8 @@ class ChildPovertyMetrics(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
         # Grab reference year hh income for absolute poverty calculations; saved recalculating at each timestep
-        self.median_reference = US_utils.get_equivalised_income_uk()
+        # self.median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
+        self.median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
 
     def on_time_step(self, event):
         """Produces poverty variables on time steps.
