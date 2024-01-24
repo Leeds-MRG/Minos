@@ -9,6 +9,7 @@ import json
 import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 import pickle
+from sklearn.linear_model import LinearRegression as linreg
 
 missing_types = ['-1', '-2', '-7', '-8', '-9',
                  -1., -2., -7., -8., -9.,
@@ -26,6 +27,7 @@ CPI_REF_DEFAULT = 'CPI_202010.csv'  # Relative to 2020/2021
 # EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"  # Adjusted to 2021/22 prices
 EQUIVALISED_INCOME_REF = 'hdiireferencetables202021.xlsx'  # # Adjusted to 2020/2021 prices
 INCOME_REFERENCE_YEAR = 2010
+PROJECTION_RANGE_DEFAULT = 25
 
 
 ########################
@@ -484,21 +486,43 @@ def get_equivalised_income_ref():
     return inc, inc_dict
 
 
-def get_reference_year_equivalised_income(income_dict=None,
-                                          ref_year=INCOME_REFERENCE_YEAR,
-                                          monthly=True):
+''' HR 23/01/24 Get hh income projection from UK data via linear regression to last N years of real data '''
+def income_projection(ref_year,
+                      income_dict=None,
+                      projection_range=PROJECTION_RANGE_DEFAULT):
+
     if income_dict is None:
         _, income_dict = get_equivalised_income_ref()
 
-    value = income_dict[ref_year]
+    if projection_range > len(income_dict):
+        projection_range = len(income_dict)
+
+    x = np.array([list(income_dict.keys())[-projection_range:]]).T
+    y = np.array([list(income_dict.values())[-projection_range:]]).T
+
+    model = linreg()
+    model.fit(x, y)
+    value = model.predict([[ref_year]])[0][0]
+
+    return value
+
+
+def get_equivalised_income_uk(ref_year=INCOME_REFERENCE_YEAR,
+                              income_dict=None,
+                              projection_range=PROJECTION_RANGE_DEFAULT,
+                              monthly=True):
+
+    if income_dict is None:
+        _, income_dict = get_equivalised_income_ref()
+
+    # HR 22/01/24 Adding functionality for arbitrary year, using project from most recent years
+    if ref_year in income_dict:
+        value = income_dict[ref_year]
+    else:
+        value = income_projection(ref_year, income_dict, projection_range)
+
     if monthly:
         value = value/12
 
     # print("Reference year income: {}".format(value))
     return value
-
-
-if __name__ == "__main__":
-    cpi_ref = get_cpi_ref()
-    inc, inc_dict = get_equivalised_income_ref()
-    inc_ref = get_reference_year_equivalised_income()
