@@ -47,10 +47,6 @@ MATDEP_DICT = {'matdep1': {'score': 5.56, 'valids': [1, 2], 'no': [2]},
                'matdep21': {'score': 5.59, 'valids': [1, 2, 3, 4], 'no': [2]},
                }
 
-# Some folder paths for ease later
-COMPOSITE_VARS_DIR = os.path.join(up(up(up(__file__))), 'data', 'composite_US')
-PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
-
 
 def generate_composite_housing_quality(data):
     """

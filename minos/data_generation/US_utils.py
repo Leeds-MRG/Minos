@@ -17,6 +17,12 @@ missing_types = ['-1', '-2', '-7', '-8', '-9',
                  '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
                  "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
 
+# Reference year to be used for comparison of CPI-adjusted equivalised hh income,
+# as specified in UK/Scot. Gov. definitions of absolute poverty
+HH_INCOME_REFERENCE_YEAR = 2010
+
+# Some folder paths for ease later
+COMPOSITE_VARS_DIR = os.path.join(up(up(up(__file__))), 'data', 'composite_US')
 PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
 
 # CPI/inflation reference
@@ -524,5 +530,34 @@ def get_equivalised_income_uk(ref_year=INCOME_REFERENCE_YEAR,
     if monthly:
         value = value/12
 
-    # print("Reference year income: {}".format(value))
+    print("Median hh income for year {} (external data): {}".format(ref_year, value))
     return value
+
+
+''' HR 24/01/24 Must re-integrate calculation of internal median hh income (i.e. from US data)
+    as previously coded but then removed to use external (i.e. ONS) data instead;
+    however, this means relative and absolute poverty are not calculated using same data sources '''
+''' HR 29/11/23 To get hh income data for 2010/11 tax year, as absolute poverty is calculated based on that reference year
+    Grabs value from all-years data during GCV, else (i.e. at sim runtime) grabs from US composite data for 2010
+    Awkward but necessary if we use US data to calculate the inflated median, rather than all-UK median wages '''
+def get_equivalised_income_internal(data=None,
+                                    ref_year=HH_INCOME_REFERENCE_YEAR,
+                                    income_var='hh_income'):
+
+    # Grab reference year data
+    if data is not None:
+        # Option: Get 2010 data during GCV (during composite variable calculations)
+        data = data.loc[data['time'] == ref_year]
+    else:
+        # Option 2: Get 2010 data from cached US composite data (for microsim runtime)
+        filename = str(ref_year) + "_US_cohort.csv"
+        file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
+        data = pd.read_csv(file_fullpath)
+
+    # Get subframe of unique household IDs
+    sub = data.loc[data[income_var] > 0.0].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+
+    result = sub[income_var].median()  # Filter out any invalid or zero values
+
+    print("Median hh income for year {} (internal data): {}".format(ref_year, result))
+    return result
