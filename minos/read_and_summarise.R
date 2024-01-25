@@ -310,7 +310,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     priority_ethnicity = do.call(rbind, lapply(loaded.file.list, priority_summarise_ethnicity)),
     priority_child_under_one = do.call(rbind, lapply(loaded.file.list, priority_summarise_child_under_one)),
     priority_three_plus_children = do.call(rbind, lapply(loaded.file.list, priority_summarise_three_plus_children)),
-    priority_mother_under_25 = do.call(rbind, lapply(loaded.file.list, priority_summarise_mother_under_25)),
+    priority_mother_under_25 = do.call(rbind, lapply(loaded.file.list, priority_summarise_mother_under_25))
     #priority_disabled = do.call(rbind, lapply(loaded.file.list, priority_summarise_disabled))
   )
   rm(loaded.file.list)
@@ -448,7 +448,6 @@ args <- commandArgs(trailingOnly=TRUE)
 
 out.path <- here::here('output', args[1])
 save.path <- here::here(out.path, args[2])
-
 scen <- args[3]
 
 create.if.not.exists <- function(path) {
@@ -465,23 +464,5 @@ read_batch_out_all_years_summarise(out.path,
                                    scenario = scen,
                                    save.path = save.path,
                                    verbose = TRUE)
-# read_batch_out_all_years_summarise(out.path,
-#                                    scenario = '25UniversalCredit',
-#                                    verbose = TRUE)
-# read_batch_out_all_years_summarise(out.path,
-#                       scenario = '30UniversalCredit',
-#                       verbose = TRUE)
-# read_batch_out_all_years_summarise(out.path,
-#                       scenario = '35UniversalCredit',
-#                       verbose = TRUE)
-# read_batch_out_all_years_summarise(out.path,
-#                       scenario = '40UniversalCredit',
-#                       verbose = TRUE)
-# read_batch_out_all_years_summarise(out.path,
-#                       scenario = '45UniversalCredit',
-#                       verbose = TRUE)
-# read_batch_out_all_years_summarise(out.path,
-#                                    scenario = '50UniversalCredit',
-#                                    verbose = TRUE)
 
-print('All complete!')
+print(paste0('Output files for ', scen, ' successfully summarised.'))
