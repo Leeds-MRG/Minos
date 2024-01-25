@@ -53,10 +53,14 @@ main <- function(n_imputations, iterations_per_imputation){
                     "nkids_ind",
                     "housing_tenure",
                     "job_sector",
-                    "marital_status"
+                    "marital_status",
+                    'hourly_wage'
                     #"hh_comp", 
-                    #"marital_status"
   )
+
+  start.data$clinical_depression <- as.factor(start.data$clinical_depression)  
+  start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)  
+  start.data$marital_status <- as.factor(start.data$marital_status)  
   
   other.data <- start.data[, !names(start.data) %in% mice_columns]
   mice.data <- start.data[, c(mice_columns)]

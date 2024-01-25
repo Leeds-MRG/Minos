@@ -216,8 +216,10 @@ def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.n
     minos_data = pd.read_csv(minos_file, low_memory=False)
 
     if region:
-        if region == "edinburgh" or region == "scotland":
+        if region == "edinburgh":
             region_lsoas = get_region_lsoas(region)["DZ2011_Code"]
+        elif region == "scotland" or region == "glasgow":
+            region_lsoas = get_region_lsoas(region)["LSOA11CD"]
         else:
             region_lsoas = get_region_lsoas(region)["lsoa11cd"]
         minos_data = subset_lsoas_by_region(minos_data, region_lsoas)

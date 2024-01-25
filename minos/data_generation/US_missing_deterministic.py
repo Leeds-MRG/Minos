@@ -111,13 +111,33 @@ def doesnt_smoke(data):
 def inapplicable_job_sector(data):
     return data['job_sector'] == -8
 
+
 def inapplicable_job_hours(data):
     return data['job_hours'] == -8
+
+
+def inapplicable_selfemp_job_hours(data):
+    return data['job_hours_se'] == -8
+
+
+def inapplicable_gross_paypm(data):
+    return data['gross_paypm'] == -8
+
+
+def inapplicable_selfemp_gross_pay(data):
+    return data['gross_pay_se'] == -8
+
+
+def inapplicable_hourly_rate(data):
+    return data['hourly_rate'] == -8
 
 def inapplicable_number_of_children(data):
     return data['nkids_ind_raw'] == -8
     # return data['nkids_ind_raw'] < 0
     # return data['nkids_ind_raw'].isin([-1, -2, -7, -8, -9])
+
+def inapplicable_income_per_week(data):
+    return data['jb_inc_per'] == -8
 
 
 def main(data):
@@ -138,6 +158,12 @@ def main(data):
     data = det_missing(data, ['job_sector'], inapplicable_job_sector, force_zero)
     data = det_missing(data, ['nkids_ind_raw'], inapplicable_number_of_children, force_zero)
     data = det_missing(data, ['job_hours'], inapplicable_job_hours, force_zero)
+    data = det_missing(data, ['gross_paypm'], inapplicable_gross_paypm, force_zero)
+    data = det_missing(data, ['hourly_rate'], inapplicable_hourly_rate, force_zero)
+    data = det_missing(data, ['gross_pay_se'], inapplicable_selfemp_gross_pay, force_zero)
+    data = det_missing(data, ['job_hours_se'], inapplicable_selfemp_job_hours, force_zero)
+    data = det_missing(data, ['jb_inc_per'], inapplicable_income_per_week, force_zero)
+
 
     # table of missing values by row/column after correction.
     print("After removing deterministically missing values.")

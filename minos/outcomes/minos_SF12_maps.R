@@ -79,7 +79,12 @@ calculate_diff <-function(data1, data2, v){
 calculate_relative_diff <-function(data1, data2, v){
   # for two data frames with some shared column v.
   # add data2$v - data1$v to data1 as diff.
-  data1$diff <- ((data2[[v]] - data1[[v]]) / data1[[v]])
+  
+  # merge accounts for synth pops that dont have every data zone in them so have nrow mismatch. 
+  data1 <- merge(data1, data2, by="ZoneID")
+  data1$diff <- ((data1[[paste0(v, ".y")]] - data1[[paste0(v, ".x")]]) / data1[[paste0(v, ".x")]])
+  #data1$diff <- ((data2[[v]] - data1[[v]]) / data1[[v]])
+  data1$geometry <- data1$geometry.x
   return(data1)
 }
 
@@ -222,7 +227,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
 
-
+  browser()
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)
   minos_diff_map(data1, destination_file_name, v)

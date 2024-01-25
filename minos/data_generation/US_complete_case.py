@@ -71,6 +71,21 @@ def input_main():
     file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
+    drop_mice_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
+        'ghq_depression',
+        'scsf1',
+        'clinical_depression',
+        'ghq_happiness',
+        'likely_move',
+        'newest_education_state',
+        'health_limits_social',
+        'future_financial_situation',
+        'behind_on_bills',
+        'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
+    # featured in the final model.
+    # remove them here or as late as needed.
+    data = data.drop(labels=drop_mice_columns, axis=1)
+
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
                           "housing_tenure",
@@ -106,21 +121,7 @@ def input_main():
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2022, 1)))
 
 
-    drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
-                    'ghq_depression',
-                    'scsf1',
-                    'clinical_depression',
-                    'ghq_happiness',
-                    'likely_move',
-                    'newest_education_state',
-                    'health_limits_social',
-                    'future_financial_situation',
-                    'behind_on_bills',
-                    'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
-                                        # featured in the final model.
-                                        # remove them here or as late as needed.
-                                        
-    data = data.drop(labels=drop_columns, axis=1)
+
     data = cut_outliers(data, 0.1, 99.9, "hh_income")
     US_utils.save_multiple_files(data, years, "data/imputed_complete_US/", "")
 

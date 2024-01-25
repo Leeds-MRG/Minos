@@ -646,6 +646,7 @@ priority_baseline_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "edinburgh"  -v "SF_12"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_scotland" -b "baseline" -i "25UniversalCredit" -r "edinburgh" -y 2025 -v "SF_12" -s true
 
+
 all_25_UC_scotland_maps: 25_UC_2025_glasgow_map 25_UC_2025_edinburgh_map
 
 # experimental bash scripts.

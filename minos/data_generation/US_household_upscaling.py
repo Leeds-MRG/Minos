@@ -37,7 +37,7 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """
     synthpop[f"new_{merge_column}"] = np.arange(synthpop.shape[0])
     synthpop[merge_column] = synthpop[merge_column].astype(int)
-    merged_data = synthpop.merge(msim_data, how='outer', on=merge_column)
+    merged_data = synthpop.merge(msim_data, how='left', on=merge_column)
     print(f"After merge there are {merged_data.shape[0]} rows.")
     merged_data = merged_data.dropna(axis=0, subset=["ZoneID"])
     print(f"After removing data with invalid hidps not in the synthpop there are {merged_data.shape[0]} rows.")

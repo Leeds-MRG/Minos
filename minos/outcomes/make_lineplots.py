@@ -337,7 +337,7 @@ def decile_weighted_nanmean(df, v, weights = "weight", scale=1):
     #df = df.loc[df['weight'] > 0]
     #df.loc[df.index, weights] = 1/df[weights]
     #return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
-    return df.groupby(["simd_decile"], as_index=False).agg({"SF_12": np.nanmean})
+    #return df.groupby(["simd_decile"], as_index=False).agg({"SF_12": np.nanmean})
     return df.groupby(["simd_decile"], as_index=False).agg({v: np.nanmean})
     #return np.nansum(df[v])
 
@@ -429,7 +429,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         plot_stack = pd.DataFrame()
         for i in range(1, 11):
             decile_subset = aggregate_long_stack.loc[aggregate_long_stack['simd_decile'] == i, ]
-            decile_subset = relative_scaling(decile_subset, v, ref)
+            #decile_subset = relative_scaling(decile_subset, v, ref)
             #aggregate_long_stack.loc[aggregate_long_stack['simd_decile'] == i, ] = decile_subset
             plot_stack = pd.concat([plot_stack, decile_subset])
 
@@ -492,14 +492,14 @@ if __name__ == '__main__':
 
     directories = "baseline,25UniversalCredit"
     tags = "Baseline,£25 Universal Credit"
-    subset_function_strings = "who_universal_credit_and_kids,who_boosted"
+    subset_function_strings = "who_kids,who_kids"
     prefix = "baseline_25_UC_deciles"
     subset_function_strings = "who_alive,who_alive"
-    prefix = "baseline_25_UC_deciles_income"
+    prefix = "baseline_25_UC_deciles_uc"
     mode = 'scaled_scotland'
     ref = "Baseline"
     v = "SF_12"
-    v = "hh_income"
+    v = "universal_credit"
     method = "deciles_separate_baselines"
     region = "scotland"
     # directories = "25RelativePoverty,25UniversalCredit"
