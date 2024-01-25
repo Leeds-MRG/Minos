@@ -1,6 +1,6 @@
 ########### TESTING NEW DATA IN SUMMARISE FUNCTIONS ######################
 
-
+require(here)
 require(tidyverse)
 require(data.table)
 require(parallelly)
@@ -311,7 +311,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     priority_child_under_one = do.call(rbind, lapply(loaded.file.list, priority_summarise_child_under_one)),
     priority_three_plus_children = do.call(rbind, lapply(loaded.file.list, priority_summarise_three_plus_children)),
     priority_mother_under_25 = do.call(rbind, lapply(loaded.file.list, priority_summarise_mother_under_25)),
-    priority_disabled = do.call(rbind, lapply(loaded.file.list, priority_summarise_disabled))
+    #priority_disabled = do.call(rbind, lapply(loaded.file.list, priority_summarise_disabled))
   )
   rm(loaded.file.list)
 
@@ -347,11 +347,31 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   # Extract and bind 'SIMD_decile' tibbles
   treated_simd_decile <- bind_rows(lapply(output, `[[`, "simd_decile"))
   treated_simd_decile$time <- year
+  # Extract and bind 'SIMD_quintile' tibbles
+  treated_simd_quintile <- bind_rows(lapply(output, `[[`, "simd_quintile"))
+  treated_simd_quintile$time <- year
+  # Extract and bind 'priority_ethnicity' tibbles
+  treated_priority_ethnicity <- bind_rows(lapply(output, `[[`, "priority_ethnicity"))
+  treated_priority_ethnicity$time <- year
+  # Extract and bind 'priority_child_under_one' tibbles
+  treated_priority_child_under_one <- bind_rows(lapply(output, `[[`, "priority_child_under_one"))
+  treated_priority_child_under_one$time <- year
+  # Extract and bind 'priority_three_plus_children' tibbles
+  treated_priority_three_plus_children <- bind_rows(lapply(output, `[[`, "priority_three_plus_children"))
+  treated_priority_three_plus_children$time <- year
+  # Extract and bind 'priority_mother_under_25' tibbles
+  treated_mother_under_25 <- bind_rows(lapply(output, `[[`, "priority_mother_under_25"))
+  treated_mother_under_25$time <- year
 
   combined_output <- list(whole_pop = whole_pop_combined,
                           families = families_combined,
                           treated = treated_combined,
-                          simd_decile = treated_simd_decile)
+                          simd_decile = treated_simd_decile,
+                          simd_quintile = treated_simd_quintile,
+                          priority_ethnicity = treated_priority_ethnicity,
+                          priority_child_under_one = treated_priority_child_under_one,
+                          priority_three_plus_children = treated_priority_three_plus_children,
+                          priority_mother_under_25 = treated_mother_under_25)
 
   return(combined_output)
 }
@@ -384,19 +404,40 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, st
   treated_combined$scenario <- scenario
   write.csv(x = treated_combined,
             file = here::here(save.path, paste0(scenario, '_treated_summary.csv')))
-  # Extract and bind 'SIMD_deciles' tibbles
+  # Extract and bind 'SIMD_decile' tibbles
   simd_decile <- bind_rows(lapply(all.years.list, `[[`, "simd_decile"))
   simd_decile$scenario <- scenario
   write.csv(x = simd_decile,
             file = here::here(save.path, paste0(scenario, '_simd_decile_summary.csv')))
+  # Extract and bind 'SIMD_quintile' tibbles
+  simd_quintile <- bind_rows(lapply(all.years.list, `[[`, "simd_quintile"))
+  simd_quintile$scenario <- scenario
+  write.csv(x = simd_quintile,
+            file = here::here(save.path, paste0(scenario, '_simd_quintile_summary.csv')))
+  # Extract and bind 'priority_ethnicity' tibbles
+  priority_ethnicity <- bind_rows(lapply(all.years.list, `[[`, "priority_ethnicity"))
+  priority_ethnicity$scenario <- scenario
+  write.csv(x = priority_ethnicity,
+            file = here::here(save.path, paste0(scenario, '_priority_ethnicity_summary.csv')))
+  # Extract and bind 'priority_child_under_one' tibbles
+  priority_child_under_one <- bind_rows(lapply(all.years.list, `[[`, "priority_child_under_one"))
+  priority_child_under_one$scenario <- scenario
+  write.csv(x = priority_child_under_one,
+            file = here::here(save.path, paste0(scenario, '_priority_child_under_one_summary.csv')))
+  # Extract and bind 'priority_three_plus_children' tibbles
+  priority_three_plus_children <- bind_rows(lapply(all.years.list, `[[`, "priority_three_plus_children"))
+  priority_three_plus_children$scenario <- scenario
+  write.csv(x = priority_three_plus_children,
+            file = here::here(save.path, paste0(scenario, '_priority_three_plus_children_summary.csv')))
+  # Extract and bind 'priority_mother_under_25' tibbles
+  priority_mother_under_25 <- bind_rows(lapply(all.years.list, `[[`, "priority_mother_under_25"))
+  priority_mother_under_25$scenario <- scenario
+  write.csv(x = priority_mother_under_25,
+            file = here::here(save.path, paste0(scenario, '_priority_mother_under_25_summary.csv')))
 
   print("All output files successfully aggregated and summarised.")
   print("Output csv files saved to: ")
 }
-
-
-
-
 
 
 

@@ -5,7 +5,7 @@ mkdir -p logs/sum/log
 mkdir -p logs/sum/errors
 
 
-
+mkdir -p "$1/$2"
 
 echo "Generating summary outputs for $3 in $1"
 echo "Files will be saved in $2"
