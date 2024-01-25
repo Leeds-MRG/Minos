@@ -85,16 +85,15 @@ def agg_lineplot(intervention_mode,  # Name of intervention type; any from TAG_D
         yr_dict_base[yr] = [os.path.join(baseline_path, file) for file in baseline_files if file.rstrip('.csv').split('_')[-1] == yr]
         yr_dict_int[yr] = [os.path.join(intervention_path, file) for file in intervention_files if file.rstrip('.csv').split('_')[-1] == yr]
 
-    vars_to_retain = ['hidp', 'hh_income', 'time', 'nkids']  # Everything needed for metric calcs and plotting
+    vars_to_retain = ['hidp', 'hh_income', 'time', 'nkids', 'alive']  # Everything needed for metric calcs and plotting
     var_types = ['int', 'float', 'str']  # To avoid annoying Pandas "inconsistent column type" warnings
     var_type_map = dict(zip(vars_to_retain, var_types))
-    print(var_type_map)
+    # print(var_type_map)
     vars_to_retain.extend(_vars)
 
     base = {}
     int_ = {}
     for yr in yrs:
-        print(yr)
 
         base[yr] = [pd.read_csv(file,
                                 usecols=vars_to_retain,
@@ -109,14 +108,14 @@ def agg_lineplot(intervention_mode,  # Name of intervention type; any from TAG_D
 
     for i, yr in enumerate(yrs):
 
-        base_metrics[yr] = pd.concat([gcv.get_poverty_metrics(el,
+        base_metrics[yr] = pd.concat([gcv.get_poverty_metrics(el.loc[el['alive'] == 'alive'],
                                                               poverty_vars=_vars,
                                                               _print=False,
                                                               condense=True) for el in base[yr]],
                                      axis=1).T
         base_metrics[yr]['tag'] = TAG_DICT['baseline']
 
-        int_metrics[yr] = pd.concat([gcv.get_poverty_metrics(el,
+        int_metrics[yr] = pd.concat([gcv.get_poverty_metrics(el.loc[el['alive'] == 'alive'],
                                                              poverty_vars=_vars,
                                                              _print=False,
                                                              condense=True) for el in int_[yr]],
@@ -149,10 +148,10 @@ def agg_lineplot(intervention_mode,  # Name of intervention type; any from TAG_D
         plt.savefig(file_name)
         print("Lineplot for {} saved to {}".format(v, file_name))
 
-    return
+    return base_metrics, int_metrics
 
 
 if __name__ == "__main__":
-    # agg_lineplot(intervention_mode='25RelativePoverty')
-    agg_lineplot(intervention_mode='ChildPovertyReductionSUSTAIN')
-    # agg_lineplot(intervention_mode='ChildPovertyIntervention', config='child_poverty_config')
+    # base_metrics, int_metrics = agg_lineplot(intervention_mode='25RelativePoverty')
+    base_metrics, int_metrics = agg_lineplot(intervention_mode='ChildPovertyReductionSUSTAIN')
+    # base_metrics, int_metrics = agg_lineplot(intervention_mode='ChildPovertyIntervention', config='child_poverty_config')

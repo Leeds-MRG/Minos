@@ -1149,6 +1149,7 @@ class ChildPovertyIntervention(Base):
 
         # # For testing/output
         # median_yearly = hidp_sub.loc[hidp_sub['hh_income'] > 0.0]['hh_income'].median()
+        # median_yearly = hidp_sub['hh_income'].median()
         # print("Median income for year {}: {}".format(year, median_yearly))
 
         # Update population with boosted income and associated variables
@@ -1195,74 +1196,6 @@ def apply_target_payment(data,
                          ):
 
     return data
-
-
-# if __name__ == "__main__":
-#
-#     ''' HR 20/11/23 For child poverty testing '''
-#     year_range = [2011, 2021]
-#     files = [str(year) + '_US_cohort.csv' for year in range(*year_range)]
-#
-#     ''' 1. Testing for composite generation '''
-#     # Get five years data to check persistent poverty sequence logic
-#     # Copied some from US_utils.load_multiple_data
-#
-#     data = pd.concat([pd.read_csv(os.path.join(up(up(up(__file__))), 'data', 'corrected_US', el)) for el in files])
-#     data = data.reset_index(drop=True)
-#
-#     data = gcv.generate_hh_income(data)
-#     data = gcv.generate_child_material_deprivation(data)
-#     data = gcv.calculate_poverty_composites_hh(data)
-#     data = gcv.calculate_poverty_composites_ind(data)  # Do all persistent poverty calculations
-#
-#     import minos
-#     median_reference = minos.data_generation.US_utils.get_reference_year_equivalised_income()
-#
-#     years = sorted(data['time'].unique())
-#     ysub = {}
-#     hsub = {}
-#     for year in years:
-#         ysub[year] = data.loc[data['time'] == year]
-#         print('\n YEAR: {}'.format(year))
-#
-#         hsub[year] = ysub[year].drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
-#         factor = ysub[year]['weight'].sum() / hsub[year]['weight'].sum()
-#
-#         m1 = gcv.get_median(hsub[year], exclude_negative_values=False)
-#         m2 = gcv.get_median(hsub[year])
-#
-#         ''' Option 1: Try weighted nanmedian '''
-#         # m3 = gcv.get_median(hsub[year], exclude_negative_values=False, apply_weights=(True, True))
-#         # m4 = gcv.get_median(hsub[year], apply_weights=(True, True))
-#         ''' Option 2: Simple median of weighted incomes '''
-#         m3 = gcv.get_median(hsub[year], exclude_negative_values=False, apply_weights=(True, True))
-#         m4 = gcv.get_median(hsub[year], apply_weights=(True, True))
-#
-#         print("Median, reference/inflated: {}".format(median_reference))
-#
-#         print("Median, all earnings, unweighted: {}".format(m1))
-#         print("Median, earnings > 0, unweighted: {}".format(m2))
-#         print("Median, all earnings, weighted: {}".format(m3))
-#         print("Median, earnings > 0, weighted: {}".format(m4))
-
-
-
-#     data['times_boosted'] = 0
-#     data['total_boost_amount'] = 0.0
-#     data = apply_child_payment(data)
-#
-
-#     ''' 2. Testing for individual year, i.e. runtime update '''
-#     # data = pd.read_csv(os.path.join(up(up(up(__file__))), 'data', 'corrected_US', files[0]))
-#     # data = gcv.generate_hh_income(data)
-#     # data = gcv.generate_child_material_deprivation(data)
-#     # data = gcv.update_poverty_vars_hh(data)
-#     #
-#     # # Add poverty history column of random so poverty method doesn't break
-#     # history = np.random.randint(2, size=(len(data), 4)).tolist()
-#     # data['relative_poverty_history'] = [''.join(str(em) for em in el) for el in history]
-#     # data = gcv.update_poverty_vars_ind(data)
-
 
 
 ### some test on time steps for variious scotland interventions

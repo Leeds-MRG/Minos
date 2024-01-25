@@ -1056,10 +1056,11 @@ def update_material_deprivation_vars(data,
     return data
 
 
+
 ''' HR 10/01/24 Moving to method to test options and allow easy changes elsewhere
     Added options for applying weights (experimental but dumping here so all in one place) '''
 def get_median(data,
-               exclude_negative_values=True,
+               exclude_negative_values=False,
                income_var='hh_income',
                ):
 
@@ -1087,8 +1088,7 @@ def update_poverty_vars_hh(data,
     # Generate adjusted UK-wide median (for absolute poverty)
     if median_reference is None:
         # median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
-        median_reference = US_utils.get_equivalised_income_internal(data=data)  # 2. Using US/internal data
-    median_inflated = median_reference
+        median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
 
     # Get subframe of unique hidp values and calculate median (for relative poverty)
     hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
@@ -1099,8 +1099,8 @@ def update_poverty_vars_hh(data,
 
     print("Median income (yearly), {}: {}".format(year, median_yearly))
     print("Annual: {}".format(median_yearly*12))
-    print("Median income (inflated), {}: {}".format(year, median_inflated))
-    print("Annual: {}".format(median_inflated*12))
+    print("Median income (inflated), {}: {}".format(year, median_reference))
+    print("Annual: {}".format(median_reference*12))
 
     ''' 2. RELATIVE POVERTY '''
     # hidp_sub['relative_poverty_percentile'] = hidp_sub[income_yearly].rank(pct=True)
@@ -1108,8 +1108,7 @@ def update_poverty_vars_hh(data,
 
     ''' 3. ABSOLUTE POVERTY '''
     # hidp_sub['absolute_poverty_percentile'] = hidp_sub[income_inflated].rank(pct=True)
-    hidp_sub['absolute_poverty'] = (hidp_sub[income_inflated] < absolute_poverty_threshold * median_inflated).astype(
-        int)
+    hidp_sub['absolute_poverty'] = (hidp_sub[income_inflated] < absolute_poverty_threshold * median_reference).astype(int)
 
     ''' 4. LOW INCOME AND MATERIAL DEPRIVATION '''
     hidp_sub['low_income'] = (hidp_sub[income_yearly] < low_income_threshold * median_yearly).astype(int)
@@ -1161,7 +1160,7 @@ def calculate_poverty_composites_hh(data,
     # Generate from US composite stage if not passed
     if median_reference is None:
         # median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
-        median_reference = US_utils.get_equivalised_income_internal(data=data)  # 2. Using US/internal data
+        median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
 
     ''' Must loop over all years, bearing in mind:
         (a) median incomes are year-specific,

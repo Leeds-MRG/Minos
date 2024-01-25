@@ -29,7 +29,7 @@ CPI_REF_DEFAULT = 'CPI_202010.csv'  # Relative to 2020/2021
 # EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"  # Adjusted to 2021/22 prices
 EQUIVALISED_INCOME_REF = 'hdiireferencetables202021.xlsx'  # # Adjusted to 2020/2021 prices
 INCOME_REFERENCE_YEAR = 2010
-EXCLUDE_NEGATIVE_VALUES_DEFAULT = True
+EXCLUDE_NEGATIVE_VALUES_DEFAULT = False
 PROJECTION_RANGE_DEFAULT = 25
 
 
@@ -544,7 +544,7 @@ def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
 
     # Grab reference year data
     if data is not None:
-        # Option: Get 2010 data during GCV (during composite variable calculations)
+        # Option: Get 2010 data during GCV (i.e. composite variable calculations)
         data = data.loc[data['time'] == ref_year]
     else:
         # Option 2: Get 2010 data from cached US composite data (for microsim runtime)
@@ -552,7 +552,8 @@ def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
         file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
         data = pd.read_csv(file_fullpath)
 
-    # Get subframe of unique household IDs
+    # Get subframe of unique household IDs and filter for living people
+    data = data.loc[data['alive'] == 'alive']
     sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
 
     if exclude_negative_values:
