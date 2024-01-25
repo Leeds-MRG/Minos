@@ -394,6 +394,27 @@ all_25_UC_quintiles: baseline_scotland_quintiles baseline_glasgow_quintiles base
 # WARNING: this will take 2+ hours on scotland scaled data.
 make every_single_scotland_plot: all_25_50_by_5_UC_scotland_uplifts all_priority_subgroup_lineplots all_25_UC_quintiles all_25_UC_scotland_maps
 
+######################################
+# 10% Sustain Intervention Plots #####
+######################################
+
+sustain_single_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_single_mothers_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_any_priority_group_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_multiple_priority_group_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_quintiles_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+all_sustain_lineplots: sustain_single_lineplot sustain_single_mothers_lineplot sustain_any_priority_group_lineplot sustain_multiple_priority_group_lineplot sustain_quintiles_lineplot
+
 ###############################
 # energy crisis lineplots #####
 ###############################

@@ -104,6 +104,18 @@ def deciles_lineplot(config_mode, source, tag, subset_function, region=None):
     method = "deciles_separate_baselines"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+def deciles_lineplot(config_mode, source, tag, subset_function, region=None):
+    # directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
+    directories = f"baseline,{source}"  # repeat 11 times and cut off last comma.
+    tags = f"Baseline,{tag}"
+    subset_function_strings = f"who_kids,who_kids"
+    prefix = f"{source}_simd_deciles"
+    ref = "Baseline"
+    v = "SF_12"
+    method = "deciles_separate_baselines"
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
 
 def glasgow_deciles_lineplot(config_mode, source, subset_function):
     # directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
@@ -383,9 +395,60 @@ def incremental_25_50(config_mode, source, tag, subset_function, region):
     prefix = f"25_50_{source}_{region}_uplift"
     ref = "Baseline"
     v = "SF_12"
-    method = 'nanmean'
+    method = 'weighted_nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix,
                   mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
+
+def single_treatment_on_treated(config_mode, source, tag, subset, region=None):
+    "just the single mothers"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
+    subset_function_strings = f"{subset},who_boosted"
+    prefix = f"{source}_treated_{subset}_SF_12_aggs_by_year"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
+def single_priority_group(config_mode, source, tag, subset, region=None):
+    "just the single mothers"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
+    subset_function_strings = f"{subset},{subset}"
+    prefix = f"{source}_priority_{subset}_SF_12_aggs_by_year"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+def any_priority_subgroups(config_mode, source, tag, region):
+    "any subgroup at all"
+    "just the single mothers"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
+    subset_function_strings = "who_priority_subgroups_and_kids,who_priority_subgroups_and_kids"
+    prefix = f"{source}_any_subgroup_"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region)
+
+def multiple_priority_subgroups(config_mode, source, tag, region):
+    "2+ subgroups"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
+    subset_function_strings = "who_multiple_priority_subgroups_and_kids,who_multiple_priority_subgroups_and_kids"
+    prefix = f"{source}_many_subgroups_universal_credit_"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region)
+
 
 #################
 # main function #
@@ -512,6 +575,13 @@ string_to_lineplot_function = {
     "edinburgh_40_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_45_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
+
+    # scripts for sustain intervention.
+    "sustain_sf12": single_treatment_on_treated,
+    "sustain_single_mothers_sf12": single_priority_group,
+    "sustain_any_priority_group_sf12": any_priority_subgroups,
+    "sustain_multiple_priority_group_sf12": multiple_priority_subgroups,
+    "sustain_quintiles_lineplot": quintiles_lineplot,
 }
 
 string_to_lineplot_function_args = {
@@ -617,7 +687,14 @@ string_to_lineplot_function_args = {
     "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit', "edinburgh"],
     "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit', "edinburgh"],
     "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit', "edinburgh"],
-    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"]
+    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
+
+    # scripts for sustain intervention.
+    "sustain_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "who_relative_poverty_and_kids", "scotland"],
+    "sustain_single_mothers_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
+    "sustain_any_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
+    "sustain_multiple_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
+    "sustain_quintiles": ["ChildPovertyReductionSUSTAIN", "scotland"], #TODO use better version of plot for quintiles instead of deciles.
 }
 
 if __name__ == '__main__':
