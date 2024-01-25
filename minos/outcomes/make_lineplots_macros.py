@@ -245,7 +245,7 @@ def universal_credit_single_priority_group(config_mode, source, tag, subset, reg
     "just the single mothers"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
-    subset_function_strings = "who_young_mothers,who_young_mothers"
+    subset_function_strings = f"{subset},{subset}"
     prefix = f"{boost_amount}_single_mothers_universal_credit"
     directories = f"baseline,{source}"
     tags = f"Baseline,{tag}"
@@ -375,6 +375,18 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+def incremental_25_50(config_mode, source, tag, subset_function, region):
+    "The same intervention in increments from £25 to £50"
+    directories = f"baseline,25{source},50{source}"
+    tags = f"Baseline,£25 {tag},£50 {tag}"
+    subset_function_strings = f"{subset_function},who_boosted,who_boosted"
+    prefix = f"25_50_{source}_{region}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix,
+                  mode=config_mode, ref=ref, v=v, method=method, region=region)
+
 #################
 # main function #
 #################
@@ -456,7 +468,7 @@ string_to_lineplot_function = {
     "incremental_priority_groups": incremental_25_to_100,
     "incremental_25_50_relative_poverty": incremental_25_to_50,
 
-
+    "25_50_by_5": incremental_25_50,
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
 
@@ -563,6 +575,7 @@ string_to_lineplot_function_args = {
 
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 
+    "25_50_by_5": ["UniversalCredit", " Universal Credit", "who_universal_credit_and_kids", "scotland"],
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
     "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", "scotland"],
 
