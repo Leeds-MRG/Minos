@@ -556,7 +556,7 @@ def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
     sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
 
     if exclude_negative_values:
-        sub = sub.loc[sub[income_var] < 0.0]
+        sub = sub.loc[sub[income_var] > 0.0]
 
     result = sub[income_var].median()  # Filter out any invalid or zero values
 
