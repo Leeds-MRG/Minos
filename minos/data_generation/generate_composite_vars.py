@@ -1281,7 +1281,7 @@ def get_poverty_metrics(pop,
 
     # Filter for dead people
     try:
-        pop = pop.loc['alive' == 'alive'].copy()
+        pop = pop.loc[pop['alive'] == 'alive'].copy()
     except:
         pop = pop.copy()
 
