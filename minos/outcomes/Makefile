@@ -4,6 +4,19 @@
 #TODO add bash script with 4 interventions (no poverty line).
 
 ##############################################################
+# SCP & CPR output summary generation #
+##############################################################
+
+scp_summary_out:
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out baseline
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out 25UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out 30UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out 35UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out 40UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out 45UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh scaled_scotland_10 scp_summary_out 50UniversalCredit
+
+##############################################################
 # SCP & CPR Visualisation Notebooks #
 ##############################################################
 
