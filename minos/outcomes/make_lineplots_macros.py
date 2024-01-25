@@ -468,7 +468,7 @@ string_to_lineplot_function = {
     "incremental_priority_groups": incremental_25_to_100,
     "incremental_25_50_relative_poverty": incremental_25_to_50,
 
-    "25_50_by_5": incremental_25_50,
+    "25_50_universal_credit": incremental_25_50,
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
 
@@ -575,7 +575,7 @@ string_to_lineplot_function_args = {
 
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 
-    "25_50_by_5": ["UniversalCredit", " Universal Credit", "who_universal_credit_and_kids", "scotland"],
+    "25_50_universal_credit": ["UniversalCredit", " Universal Credit", "who_universal_credit_and_kids", "scotland"],
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
     "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", "scotland"],
 
