@@ -99,7 +99,7 @@ intervention_100RelativePoverty: setup
 ##########################################################################
 
 intervention_25UniversalCredit_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c config/scotland_scaled.yaml -o scotland_scaled -i '25UniversalCredit'
+	$(PYTHON) scripts/run.py -c config/scaled_scotland.yaml -o scaled_scotland -i '25UniversalCredit'
 
 
 intervention_25UniversalCredit: setup
@@ -276,25 +276,25 @@ glasgow_universal_credit_child_uplifts: baseline_glasgow intervention_25Universa
 
 baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 baseline_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland
 
 intervention_hhIncome_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'hhIncomeIntervention'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland -i 'hhIncomeIntervention'
 
 intervention_hhIncomeChildUplift_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'hhIncomeChildUplift'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland -i 'hhIncomeChildUplift'
 
 intervention_PovertyLineChildUplift_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'hhIncomePovertyLineChildUplift'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland -i 'hhIncomePovertyLineChildUplift'
 
 intervention_livingWage_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'livingWageIntervention'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland -i 'livingWageIntervention'
 
 intervention_energyDownLift_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'energyDownlift'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland -i 'energyDownlift'
 
 intervention_energyDownLiftNoSupport_scotland: setup_scotland_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'energyDownliftNoSupport'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scaled_scotland.yaml -o scaled_scotland -i 'energyDownliftNoSupport'
 
 
 ############################################
@@ -453,7 +453,7 @@ arc4_poverty_line_child_uplifts: arc4_baseline arc4_intervention_25RelativePover
 
 arc4_universal_credit_child_uplifts: setup_scotland_scaled
 arc4_universal_credit_child_uplifts: MODE=scaled_scotland #MODE=glasgow_scaled #MODE=default_config #
-arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/scotland_scaled.yaml #/glasgow_scaled.yaml #/default.yaml #
+arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/scaled_scotland.yaml #/glasgow_scaled.yaml #/default.yaml #
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
 
 
