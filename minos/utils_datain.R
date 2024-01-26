@@ -400,7 +400,7 @@ read_batch_out_summarise <- function(out.path, scenario, start.year=2021, end.ye
 # Args: 
 #       out.path - path to top level output directory
 #       scenario - string scenario name of which output files to read
-read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
+read_singular_local_out <- function(out.path, scenario, drop.dead = TRUE, drop.zero.weight = TRUE) {
   ## Start with scenario name
   # attach full output path
   # get runtime directory
@@ -419,6 +419,10 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   if(drop.dead) {
     dat <- dat %>%
       filter(alive != 'dead')
+  }
+  if(drop.zero.weight) {
+    dat <- dat %>%
+      filter(weight != 0)
   }
   
   return(dat)
