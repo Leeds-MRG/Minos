@@ -552,8 +552,12 @@ def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
         file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
         data = pd.read_csv(file_fullpath)
 
-    # Get subframe of unique household IDs and filter for living people
-    data = data.loc[data['alive'] == 'alive']
+    # Get subframe of unique household IDs and filter for living people;
+    # will raise exception during data generation as 'alive' not present
+    try:
+        data = data.loc[data['alive'] == 'alive']
+    except:
+        pass
     sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
 
     if exclude_negative_values:
