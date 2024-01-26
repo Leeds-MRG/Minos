@@ -30,9 +30,9 @@ pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWith
 
 
 def expand_repl(US_2018, region):
-    """ 
+    """
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
-    
+
     Parameters
     ----------
     US_2018 : pandas.DataFrame
@@ -46,17 +46,30 @@ def expand_repl(US_2018, region):
         Expanded dataset (copy of original 16-year-olds for each year from 2018 to 2070) reweighted by sex
     """
 
-    # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
-    repl_2018 = US_2018[(US_2018['age'].isin([16, 17]))]
-    repl_2018['age'] = 16
+    # get max hidp value so we can add new households with unique hidp
+    max_hidp = US_2018['hidp'].max()
+
+    # Find households with a 16 or 17 year old to add as replenishing
+    repl_2018_hidps = US_2018[(US_2018['age'].isin([16, 17]))]['hidp']
+    repl_hhs = US_2018[US_2018['hidp'].isin(repl_2018_hidps)]
+    # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
+    repl_hhs['age'][repl_hhs['age'] == 17] = 16
     # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
-    repl_2018['education_state'][repl_2018['education_state'] > 2] = 2
+    repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
+
+    # Final step now we are adding complete households. We need to give the non 16 year olds a flag that distinguishes
+    # them from other simulants. We will do this by setting the weight of these individuals to 0.
+    # This means these individuals will transition throughout the model as normal, but be ignored in the outputs as
+    # we almost exclusively use weighed statistics. One possible solution to non-weighted sums in outputs is to remove
+    # all 0 weight individuals at the same time as removing living people
+    #repl_hhs['alive'][repl_hhs['age'] != 16] = 'ghost'
+    repl_hhs['weight'][repl_hhs['age'] != 16] = 0
 
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
     for year in range(2018, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
-        new_repl = repl_2018.copy()
+        new_repl = repl_hhs.copy()
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
@@ -98,20 +111,32 @@ def expand_repl(US_2018, region):
     # reset index for the predict_education step
     expanded_repl.reset_index(drop=True, inplace=True)
 
+    # Final step is to assign new unique hidps to the replenishing populations
+    #expanded_repl['hidp'] = expanded_repl['hidp'] + max_hidp + expanded_repl['time']
+    # Iterate over each year
+    for year in expanded_repl['time'].unique():
+        # Filter the dataframe for the current year
+        df_year = expanded_repl[expanded_repl['time'] == year]
+
+        # Group by original 'hidp' and assign new 'hidp' values
+        for _, group in df_year.groupby('hidp'):
+            max_hidp += 1  # Increment the max_hidp for a new unique hidp
+            expanded_repl.loc[group.index, 'hidp'] = max_hidp  # Assign new hidp
+
     return expanded_repl
 
 
 def reweight_repl(expanded_repl, projections):
     """
-    
+
     Parameters
     ----------
     expanded_repl
     projections
-    
+
     Returns
     -------
-    
+
     """
     ## Now reweight by sex and year
     print('Reweighting by sex, ethnic group, and year...')
