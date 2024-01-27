@@ -267,7 +267,7 @@ all_25_50_by_5_together_UC_scotland_uplifts:
 
 aggregate_25_UC_single_mothers: MODE="scaled_scotland"
 aggregate_25_UC_single_mothers:
-	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_credit_young_mothers"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_credit_single_mothers"
 
 aggregate_minos_output_disabled_child_uplift: MODE="scaled_scotland"
 aggregate_minos_output_disabled_child_uplift:
@@ -399,7 +399,9 @@ make every_single_scotland_plot: all_25_50_by_5_UC_scotland_uplifts all_priority
 ######################################
 
 sustain_single_lineplot:
-	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "sustain_sf12_all"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "sustain_sf12_kids"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "sustain_sf12_rp_kids"
 
 sustain_single_mothers_lineplot:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"

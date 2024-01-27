@@ -184,6 +184,14 @@ def get_required_intervention_variables(subset_function_string):
                          "housing_quality", "hh_income", "neighbourhood_safety", "nkids", "loneliness",
                          "universal_credit"]
 
+    if 'kids' in subset_function_string:
+        default_variables += ['relative_poverty',
+                              'absolute_poverty',
+                              'low_income',
+                              'matdep_child',
+                              'low_income_matdep_child',
+                              'persistent_poverty',
+                              ]
     if "boosted" in subset_function_string:
         default_variables += ["income_boosted", "boost_amount"]
 

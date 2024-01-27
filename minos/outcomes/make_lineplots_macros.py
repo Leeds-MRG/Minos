@@ -498,14 +498,6 @@ string_to_lineplot_function = {
     "75_universal_credit": universal_credit,
     "100_universal_credit": universal_credit,
 
-    # priority subgroups
-    "scotland_25_universal_credit_single_mothers": ["25UniversalCredit", "£25 UC Young Mothers", "who_young_mothers", "scotland"],
-    "scotland_25_universal_credit_disabled": ["25UniversalCredit", "£25 UC Disabled Household Member", "who_disabled", "scotland"],
-    "scotland_25_universal_credit_ethnic_minority": ["25UniversalCredit", "£25 UC Ethnic Minorities", "who_ethnic_minority", "scotland"],
-    "scotland_25_universal_credit_three_children": ["25UniversalCredit", "£25 UC Three+ Children", "who_three_children", "scotland"],
-    "scotland_25_universal_credit_young_adult": ["25UniversalCredit", "£25 UC Young Adult", "who_young_adults", "scotland"],
-    "scotland_25_universal_credit_uneducated": ["25UniversalCredit", "£25 UC Uneducated", "who_no_formal_education", "scotland"],
-    "scotland_25_universal_credit_newborn": ["25UniversalCredit", "£25 UC Has Newborn", "who_newborn", "scotland"],
 
     # in any priority subgroup
     "25_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
@@ -543,7 +535,15 @@ string_to_lineplot_function = {
     "glasgow_epcg_quintile": quintiles_lineplot,
     "glasgow_living_wage_quintile": quintiles_lineplot,
 
-    "scotland_25_universal_credit_young_mothers": universal_credit_single_priority_group,
+
+    # priority subgroups
+    "scotland_25_universal_credit_single_mothers": single_priority_group,
+    "scotland_25_universal_credit_disabled": single_priority_group,
+    "scotland_25_universal_credit_ethnic_minority": single_priority_group,
+    "scotland_25_universal_credit_three_children": single_priority_group,
+    "scotland_25_universal_credit_young_adult": single_priority_group,
+    "scotland_25_universal_credit_uneducated": single_priority_group,
+    "scotland_25_universal_credit_newborn": single_priority_group,
     "scotland_25_universal_any_priority_subgroup": universal_credit_priority_subgroups,
     "scotland_25_universal_many_priority_subgroups": universal_credit_multiple_priority_subgroups,
 
@@ -577,7 +577,9 @@ string_to_lineplot_function = {
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
 
     # scripts for sustain intervention.
-    "sustain_sf12": single_treatment_on_treated,
+    "sustain_sf12_all": single_treatment_on_treated,
+    "sustain_sf12_kids": single_treatment_on_treated,
+    "sustain_sf12_rp_kids": single_treatment_on_treated,
     "sustain_single_mothers_sf12": single_priority_group,
     "sustain_any_priority_group_sf12": any_priority_subgroups,
     "sustain_multiple_priority_group_sf12": multiple_priority_subgroups,
@@ -611,9 +613,23 @@ string_to_lineplot_function_args = {
     "75_universal_credit": [75],
     "100_universal_credit": [100],
 
-    "scotland_25_universal_credit_young_mothers": [25, "scotland"],
+    # priority subgroups
+    "scotland_25_universal_credit_single_mothers": ["25UniversalCredit", "£25 UC Young Mothers", "who_young_mothers", "scotland"],
+    "scotland_25_universal_credit_disabled": ["25UniversalCredit", "£25 UC Disabled Household Member", "who_disabled", "scotland"],
+    "scotland_25_universal_credit_ethnic_minority": ["25UniversalCredit", "£25 UC Ethnic Minorities", "who_ethnic_minority", "scotland"],
+    "scotland_25_universal_credit_three_children": ["25UniversalCredit", "£25 UC Three+ Children", "who_three_children", "scotland"],
+    "scotland_25_universal_credit_young_adult": ["25UniversalCredit", "£25 UC Young Adult", "who_young_adults", "scotland"],
+    "scotland_25_universal_credit_uneducated": ["25UniversalCredit", "£25 UC Uneducated", "who_no_formal_education", "scotland"],
+    "scotland_25_universal_credit_newborn": ["25UniversalCredit", "£25 UC Has Newborn", "who_newborn", "scotland"],
+
     "scotland_25_universal_any_priority_subgroup": [25, "scotland"],
     "scotland_25_universal_many_priority_subgroups": [25, "scotland"],
+
+    # priority groups for £25 to £50 Increments Together.
+    "scotland_50_universal_any_priority_subgroup": [25, "scotland"],
+    "scotland_25_50_universal_any_priority_subgroup": [25, "scotland"],
+    "scotland_25_50_by_5_universal_any_priority_subgroup": [25, "scotland"],
+
 
     "25_universal_credit_priority_subgroups": [25, "scotland"],
     "30_universal_credit_priority_subgroups": [30],
@@ -690,7 +706,11 @@ string_to_lineplot_function_args = {
     "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
 
     # scripts for sustain intervention.
-    "sustain_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "who_relative_poverty_and_kids", "scotland"],
+    "sustain_sf12_all": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target All Households", "who_alive", "scotland"],
+    "sustain_sf12_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households With Children", "who_kids", "scotland"],
+    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households Below the Relative Poverty Line With Children", "who_relative_poverty_and_kids", "scotland"],
+
+    "sustain_sf12_below_poverty_line_kids": single_treatment_on_treated,
     "sustain_single_mothers_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
     "sustain_any_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
     "sustain_multiple_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],

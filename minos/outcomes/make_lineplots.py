@@ -17,6 +17,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_required_intervention_variables, get_region_lsoas
 pd.options.mode.chained_assignment = None  # default='warn'
+from minos.data_generation.generate_composite_vars import get_poverty_metrics
+
+
 def subset_minos_data(data, subset_func_string, mode):
     """ Take treated subset of MINOS output. E.g. only take individuals with children if assessing child benefit policy.
     Parameters
@@ -96,7 +99,11 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
             region_lsoas = get_region_lsoas(region)["lsoa11cd"]
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
-    agg_value = aggregate_method(data, outcome_variable)
+    if aggregate_method == get_poverty_metrics:
+        agg_value = get_poverty_metrics(data, do_print=False)
+        agg_value = list(agg_value.values())
+    else:
+        agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
         agg_value["population_size"] = population_size + np.sum(data.groupby("hidp")['nkids'].max())
     return agg_value
@@ -179,6 +186,25 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         single_year_aggregate['tag'] = tag
                         single_year_aggregate['id'] = i
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+                elif method == get_poverty_metrics:
+                    for i, single_year_aggregate in enumerate(aggregated_means):
+                        # if no data available create a dummy frame to preserve data frame structure.
+                        single_year_aggregate = pd.DataFrame(single_year_aggregate).T
+                        single_year_aggregate.columns = ['relative_poverty',
+                                                         'absolute_poverty',
+                                                         'low_income',
+                                                         'matdep_child',
+                                                         'low_income_matdep_child',
+                                                         'persistent_poverty']
+                        single_year_aggregate["number_boosted"] = np.nan
+                        single_year_aggregate[f"summed_{v}"] = np.nan
+                        single_year_aggregate["intervention_cost"] = np.nan
+                        if source == ref:
+                            single_year_aggregate['intervention_cost'] = np.nan
+                        single_year_aggregate['year'] = year
+                        single_year_aggregate['tag'] = tag
+                        single_year_aggregate['id'] = i
+                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
     aggregated_data.reset_index(drop=True, inplace=True)
     return aggregated_data
 def relative_scaling(df, v, ref):
@@ -220,6 +246,8 @@ def relative_scaling(df, v, ref):
             df.loc[df['year'] == year, v] = year_df[v]
     else:
         print("No reference ref defined. No relative scaling used. May make hard to read plots..")
+    df[v] *= 100 # convert to percentages
+    df[v] -= 100
     return df
 def find_latest_source_file_path(file_path):
     """ A file path can have multiple runs of data that are sorted by time Y_m_d_H_M_S. Find the lastest one.
@@ -271,8 +299,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     if method == weighted_nanmean:
         df[v] -= 1  # set centre at 0.
         df[v] *= 100
-    if method == decile_weighted_nanmean:
-        df[v] -= 100
+
     # set year to int for formatting purposes
     df['year'] = pd.to_datetime(df['year'], format='%Y')
     # now rename some vars for plot labelling and formatting
@@ -339,6 +366,7 @@ def decile_weighted_nanmean(df, v, weights = "weight", scale=1):
     #df.loc[df.index, weights] = 1/df[weights]
     #return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
     #return df.groupby(["simd_decile"], as_index=False).agg({"SF_12": np.nanmean})
+    #df = df.loc[df['universal_credit']>=0, ]
     return df.groupby(["simd_decile"], as_index=False).agg({v: np.nanmean})
     #return np.nansum(df[v])
 
@@ -375,6 +403,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         method = aggregate_boosted_counts_and_cumulative_score
     elif method == "deciles_separate_baselines":
         method = decile_weighted_nanmean
+    elif method == "get_poverty_metrics":
+        method = get_poverty_metrics
     else:
         raise ValueError(
             "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
@@ -431,6 +461,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         for i in range(1, 11):
             decile_subset = aggregate_long_stack.loc[aggregate_long_stack['simd_decile'] == i, ]
             #decile_subset = relative_scaling(decile_subset, v, ref)
+            #if method == decile_weighted_nanmean and v=="SF_12":
+            #
             #aggregate_long_stack.loc[aggregate_long_stack['simd_decile'] == i, ] = decile_subset
             plot_stack = pd.concat([plot_stack, decile_subset])
 
@@ -439,7 +471,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
         plot_stack = plot_stack.loc[plot_stack['tag'] != ref, ]
         plot_stack = pd.concat([plot_stack, start_year])
-        plot_stack[v] *= 100
+        #plot_stack[v] *= 100
         plot_stack['tag'] = plot_stack['simd_decile']
         print(plot_stack.shape)
 
@@ -452,6 +484,20 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
         aggregate_long_stack.to_csv(file_path)
         print(f"Saved to {file_path}.")
+    elif method == get_poverty_metrics:
+
+        scaled_data = aggregate_long_stack
+        scaled_data = relative_scaling(scaled_data, 'relative_poverty', ref)
+        scaled_data = relative_scaling(scaled_data, 'absolute_poverty', ref)
+        scaled_data = relative_scaling(scaled_data, 'matdep_child', ref)
+        scaled_data = relative_scaling(scaled_data, 'persistent_poverty', ref)
+
+        aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_relative_poverty_", "relative_poverty", method)
+        aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_absolute_poverty_", 'absolute_poverty', method)
+        aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_matdep_child_", "matdep_child", method)
+        aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_persistent_poverty_", "persistent_poverty", method)
+
+
 if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
     #define test parameters and run.
@@ -477,6 +523,7 @@ if __name__ == '__main__':
     directories = "baseline,25RelativePoverty"
     tags = "Baseline,£25 Relative Poverty"
     subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
+    subset_function_strings = "who_alive,who_alive"
     prefix = "baseline_25RP"
     mode = 'default_config'
     ref = "Baseline"
@@ -493,15 +540,17 @@ if __name__ == '__main__':
 
     directories = "baseline,25UniversalCredit"
     tags = "Baseline,£25 Universal Credit"
-    subset_function_strings = "who_kids,who_kids"
+    subset_function_strings = "who_universal_credit_and_kids,who_universal_credit_and_kids"
     prefix = "baseline_25_UC_deciles"
-    subset_function_strings = "who_alive,who_alive"
+    #subset_function_strings = "who_alive,who_alive"
     prefix = "baseline_25_UC_deciles_uc"
     mode = 'scaled_scotland'
     ref = "Baseline"
     v = "SF_12"
     v = "universal_credit"
+    #v = "hh_income"
     method = "deciles_separate_baselines"
+    method = "get_poverty_metrics"
     region = "scotland"
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"

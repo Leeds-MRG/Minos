@@ -1327,7 +1327,7 @@ def calculate_poverty_composites_ind(data,
 def get_poverty_metrics(pop,
                         poverty_vars=None,
                         who='children',  # Can be children, everyone, or households
-                        _print=True):
+                        do_print=True):
 
     if poverty_vars is None:
 
@@ -1357,7 +1357,8 @@ def get_poverty_metrics(pop,
     elif who == 'households':
         sub = pop.drop_duplicates(subset=['hidp'], keep='first')
 
-    print('\n## POVERTY STATS ##')
+    if do_print:
+        print('\n## POVERTY STATS ##')
 
     poverty_metrics = {}
     for var in poverty_vars:
@@ -1375,7 +1376,7 @@ def get_poverty_metrics(pop,
         in_poverty_proportion = in_poverty / n_total
         poverty_metrics[var] = in_poverty_proportion
 
-        if _print:
+        if do_print:
             print("Proportion of {} in category '{}': {:.3f}% ({}/{})".format(who,
                                                                               var,
                                                                               100*in_poverty_proportion,
