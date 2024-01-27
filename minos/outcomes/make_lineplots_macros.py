@@ -255,10 +255,10 @@ def universal_credit(config_mode, boost_amount, region=None):
 
 def universal_credit_single_priority_group(config_mode, source, tag, subset, region=None):
     "just the single mothers"
-    directories = f"baseline,{boost_amount}UniversalCredit"
-    tags = f"Baseline,£{boost_amount} Universal Credit"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
     subset_function_strings = f"{subset},{subset}"
-    prefix = f"{boost_amount}_single_mothers_universal_credit"
+    prefix = f"{source}_{subset}_single_mothers_universal_credit"
     directories = f"baseline,{source}"
     tags = f"Baseline,{tag}"
     subset_function_strings = f"{subset},{subset}"
@@ -424,6 +424,18 @@ def single_priority_group(config_mode, source, tag, subset, region=None):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+def single_priority_groups_together(config_mode, source, region=None):
+    "just the single mothers"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,Ethnic Minority Subgroup,Young Parents Subgroup,Single Mothers Subgroup,Low Education Subgroup,Young Parents Subgroup"
+    subset_function_strings = f"who_kids,who_ethnic_minority"
+    prefix = f"{source}_priority_groups_together_SF_12_aggs_by_year"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'split_priority_groups_weighted_nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
 def any_priority_subgroups(config_mode, source, tag, region):
     "any subgroup at all"
     "just the single mothers"
@@ -526,6 +538,14 @@ string_to_lineplot_function = {
     "25_50_universal_credit": incremental_25_50,
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
+    "scotland_25_UC_priority_subgroups_together": single_priority_groups_together,
+    "scotland_50_UC_priority_subgroups_together": single_priority_groups_together,
+
+    # sustain intervention 25-50 increments
+    "25_50_sustain": incremental_25_50,
+    "incremental_25_50_by_5_sustain": incremental_25_to_50_by_5,
+    "incremental_25_50_by_5_together_sustain": incremental_25_to_50_by_5_together,
+
 
     "social_science_all_plots": social_science_all_plots,
 
@@ -630,7 +650,6 @@ string_to_lineplot_function_args = {
     "scotland_25_50_universal_any_priority_subgroup": [25, "scotland"],
     "scotland_25_50_by_5_universal_any_priority_subgroup": [25, "scotland"],
 
-
     "25_universal_credit_priority_subgroups": [25, "scotland"],
     "30_universal_credit_priority_subgroups": [30],
     "35_universal_credit_priority_subgroups": [35],
@@ -664,7 +683,16 @@ string_to_lineplot_function_args = {
     "25_50_universal_credit": ["UniversalCredit", " Universal Credit", "who_universal_credit_and_kids", "scotland"],
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
     "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", "scotland"],
+    "scotland_25_UC_priority_subgroups_together": ["25UniversalCredit", "scotland"],
+    "scotland_50_UC_priority_subgroups_together": ["50UniversalCredit", "scotland"],
 
+    # sustain intervention 25-50 increments
+    "25_50_sustain": ["ChildPovertyReductionSUSTAIN", " Sustain Intervention", "who_universal_credit_and_kids", "scotland"],
+    "incremental_25_50_by_5_sustain": ["ChildPovertyReductionSUSTAIN", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
+    "incremental_25_50_by_5_together_sustain": ["ChildPovertyReductionSUSTAIN", "Universal Credit", "who_universal_credit_and_kids", "scotland"],
+
+
+    # glasgow quintiles.
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
     "glasgow_epcg_quintile": ['EPCG'],
@@ -708,12 +736,13 @@ string_to_lineplot_function_args = {
     # scripts for sustain intervention.
     "sustain_sf12_all": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target All Households", "who_alive", "scotland"],
     "sustain_sf12_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households With Children", "who_kids", "scotland"],
-    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households Below the Relative Poverty Line With Children", "who_relative_poverty_and_kids", "scotland"],
+    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households Below the Relative Poverty Line With Children", "who_below_poverty_line_and_kids", "scotland"],
 
     "sustain_sf12_below_poverty_line_kids": single_treatment_on_treated,
     "sustain_single_mothers_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
     "sustain_any_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
     "sustain_multiple_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
+
     "sustain_quintiles": ["ChildPovertyReductionSUSTAIN", "scotland"], #TODO use better version of plot for quintiles instead of deciles.
 }
 

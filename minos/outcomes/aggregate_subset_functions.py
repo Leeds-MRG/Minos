@@ -24,7 +24,9 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_disabled": [who_alive, who_kids, who_disabled],
                      "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],
                      "who_three_kids": [who_alive, who_three_kids],
-                     "who_young_mothers": [who_alive, who_young_adults, who_female, who_kids],
+                     "who_young_adults": [who_alive, who_young_adults, who_kids],
+                     "who_single_mothers": [who_alive, who_single, who_female, who_kids],
+                     "who_young_single_mothers": [who_alive, who_young_adults, who_single, who_female, who_kids],
                      "who_young_adults": [who_alive, who_kids, who_young_adults],
                      "who_unemployed_adults": [who_alive, who_adult, who_kids, who_unemployed],
                      "who_no_formal_education": [who_alive, who_kids, who_no_formal_education],
@@ -191,6 +193,12 @@ def get_required_intervention_variables(subset_function_string):
                               'matdep_child',
                               'low_income_matdep_child',
                               'persistent_poverty',
+                              "ethnicity",
+                              "marital_status",
+                              "age",
+                              "sex",
+                              "education_state",
+                              "has_newborn"
                               ]
     if "boosted" in subset_function_string:
         default_variables += ["income_boosted", "boost_amount"]
@@ -303,7 +311,7 @@ def who_ethnic_minority(df):
 
 
 def who_female(df):
-    return df.query("sex == 'female'")
+    return df.query("sex == 'Female'")
 
 
 def who_kids(df):

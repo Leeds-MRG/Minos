@@ -102,6 +102,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     if aggregate_method == get_poverty_metrics:
         agg_value = get_poverty_metrics(data, do_print=False)
         agg_value = list(agg_value.values())
+    elif aggregate_method == split_priority_group_weighted_nanmean:
+        agg_value = aggregate_method(data, outcome_variable, mode)
     else:
         agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
@@ -205,8 +207,20 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         single_year_aggregate['tag'] = tag
                         single_year_aggregate['id'] = i
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+                elif method == split_priority_group_weighted_nanmean:
+                    for i, single_year_aggregate in enumerate(aggregated_means):
+                        single_year_aggregate["number_boosted"] = np.nan
+                        single_year_aggregate[f"summed_{v}"] = np.nan
+                        single_year_aggregate["intervention_cost"] = np.nan
+                        single_year_aggregate['year'] = year
+                        #single_year_aggregate['tag'] = tag
+                        single_year_aggregate['id'] = i
+                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+
     aggregated_data.reset_index(drop=True, inplace=True)
     return aggregated_data
+
+
 def relative_scaling(df, v, ref):
     """ Scale aggregate data based on some reference source.
     For each year
@@ -377,6 +391,27 @@ def child_uplift_cost_sum(df, v, weights='weight'):
     group = df.groupby(['hidp'])
     weights = 1/group[weights].sum()
     return np.nansum(weights * group[v].min())/np.nansum(weights)
+
+priority_subgroups = ["who_ethnic_minority",
+                      "who_young_adults",
+                      "who_single_mothers",
+                      "who_no_formal_education",
+                      "who_newborn"]
+priority_subgroups_tags = ["Ethnic Minority Subgroup",
+                           "Young Parents Subgroup",
+                           "Single Mothers Subgroup",
+                           "Low Education Subgroup",
+                           "Has Newborn Subgroup"]
+
+def split_priority_group_weighted_nanmean(df, v, mode):
+    subgroup_means = []
+    for subgroup in priority_subgroups:
+        subgroup_means.append(np.nanmean(subset_minos_data(df, subgroup, mode)[v]))
+
+    output = pd.DataFrame(subgroup_means, columns = [v])
+    output['tag'] = priority_subgroups_tags
+    return output
+
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
          method='nanmean', region=None):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
@@ -405,6 +440,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         method = decile_weighted_nanmean
     elif method == "get_poverty_metrics":
         method = get_poverty_metrics
+    elif method == 'split_priority_groups_weighted_nanmean':
+        method = split_priority_group_weighted_nanmean
     else:
         raise ValueError(
             "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
@@ -496,7 +533,23 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_absolute_poverty_", 'absolute_poverty', method)
         aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_matdep_child_", "matdep_child", method)
         aggregate_lineplot(scaled_data, "plots", "".join(directories) + "_persistent_poverty_", "persistent_poverty", method)
+    elif method == split_priority_group_weighted_nanmean:
+        plot_stack = pd.DataFrame()
+        for i in priority_subgroups_tags:
+            priority_group_subset = aggregate_long_stack.loc[aggregate_long_stack['tag'] == i, ]
+            priority_group_subset = relative_scaling(priority_group_subset, v, ref)
+            #if method == decile_weighted_nanmean and v=="SF_12":
+            #
+            #aggregate_long_stack.loc[aggregate_long_stack['simd_decile'] == i, ] = decile_subset
+            plot_stack = pd.concat([plot_stack, priority_group_subset])
+        start_year = plot_stack.loc[plot_stack['tag'] == ref, ]
+        start_year = start_year.loc[start_year['year']==2020, ]
 
+        plot_stack = plot_stack.loc[plot_stack['tag'] != ref, ]
+        plot_stack = pd.concat([plot_stack, start_year])
+        print(plot_stack.shape)
+
+        aggregate_lineplot(plot_stack, "plots", prefix, v, method)
 
 if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
@@ -543,14 +596,16 @@ if __name__ == '__main__':
     subset_function_strings = "who_universal_credit_and_kids,who_universal_credit_and_kids"
     prefix = "baseline_25_UC_deciles"
     #subset_function_strings = "who_alive,who_alive"
-    prefix = "baseline_25_UC_deciles_uc"
+    prefix = "baseline_25_UC_split_priority_groups_uc"
     mode = 'scaled_scotland'
     ref = "Baseline"
     v = "SF_12"
-    v = "universal_credit"
+    #v = "universal_credit"
     #v = "hh_income"
     method = "deciles_separate_baselines"
     method = "get_poverty_metrics"
+    method = 'split_priority_groups_weighted_nanmean'
+    subset_function_strings = "who_kids,who_kids"
     region = "scotland"
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"
