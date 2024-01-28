@@ -303,7 +303,7 @@ aggregate_25_UC_many_priority_groups:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_many_priority_subgroups"
 
 aggregate_minos_output_priority_subgroups_together:
-	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_pr_alliority_subgroups_together"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_priority_subgroups_together"
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_UC_priority_subgroups_together"
 
 all_priority_subgroup_lineplots: aggregate_25_UC_single_mothers, aggregate_25_UC_any_priority_subgroup aggregate_25_UC_many_priority_groups
