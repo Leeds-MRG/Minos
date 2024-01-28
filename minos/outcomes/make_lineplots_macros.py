@@ -428,7 +428,7 @@ def single_priority_groups_together(config_mode, source, region=None):
     "just the single mothers"
     directories = f"baseline,{source}"
     tags = f"Baseline,Ethnic Minority Subgroup,Young Parents Subgroup,Single Mothers Subgroup,Low Education Subgroup,Young Parents Subgroup"
-    subset_function_strings = f"who_kids,who_ethnic_minority"
+    subset_function_strings = f"who_kids,who_kids"
     prefix = f"{source}_priority_groups_together_SF_12_aggs_by_year"
     ref = "Baseline"
     v = "SF_12"

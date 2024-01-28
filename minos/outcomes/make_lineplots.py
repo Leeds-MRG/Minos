@@ -213,7 +213,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         single_year_aggregate[f"summed_{v}"] = np.nan
                         single_year_aggregate["intervention_cost"] = np.nan
                         single_year_aggregate['year'] = year
-                        #single_year_aggregate['tag'] = tag
+                        single_year_aggregate['tag'] = tag
                         single_year_aggregate['id'] = i
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
 
@@ -409,7 +409,7 @@ def split_priority_group_weighted_nanmean(df, v, mode):
         subgroup_means.append(np.nanmean(subset_minos_data(df, subgroup, mode)[v]))
 
     output = pd.DataFrame(subgroup_means, columns = [v])
-    output['tag'] = priority_subgroups_tags
+    output['label'] = priority_subgroups_tags
     return output
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
@@ -536,7 +536,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     elif method == split_priority_group_weighted_nanmean:
         plot_stack = pd.DataFrame()
         for i in priority_subgroups_tags:
-            priority_group_subset = aggregate_long_stack.loc[aggregate_long_stack['tag'] == i, ]
+            priority_group_subset = aggregate_long_stack.loc[aggregate_long_stack['label'] == i, ]
             priority_group_subset = relative_scaling(priority_group_subset, v, ref)
             #if method == decile_weighted_nanmean and v=="SF_12":
             #
@@ -547,6 +547,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
         plot_stack = plot_stack.loc[plot_stack['tag'] != ref, ]
         plot_stack = pd.concat([plot_stack, start_year])
+        plot_stack['tag'] = plot_stack['label']
+        plot_stack.reset_index(inplace=True, drop=True)
         print(plot_stack.shape)
 
         aggregate_lineplot(plot_stack, "plots", prefix, v, method)
