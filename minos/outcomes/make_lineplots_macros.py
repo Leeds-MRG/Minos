@@ -673,7 +673,7 @@ string_to_lineplot_function_args = {
 
 
     # priority groups for £25 to £50 Increments Together.
-    "scotland_50_universal_any_priority_subgroup": [25, "scotland"],
+    "scotland_50_universal_any_priority_subgroup": [50, "scotland"],
     "scotland_25_50_universal_any_priority_subgroup": [25, "scotland"],
     "scotland_25_50_by_5_universal_any_priority_subgroup": [25, "scotland"],
 
