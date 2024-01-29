@@ -776,7 +776,7 @@ string_to_lineplot_function_args = {
     # boost amount graphs
     "scotland_25_UC_boost_amount": ["25UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
     "scotland_50_UC_boost_amount":  ["50UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
-    "scotland_25_UC_any_priority_group_boost_amount":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups", "scotland"],
+    "scotland_25_UC_any_priority_group_boost_amount":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups_and_kids", "scotland"],
     "scotland_sustain_boost_amount":  ["ChildPovertyReductionSUSTAIN", "£25 Universal Credit", "who_boosted", "scotland"],
 }
 
