@@ -793,15 +793,15 @@ string_to_lineplot_function_args = {
 
     # boost amount graphs
     "scotland_25_UC_boost_amount": ["25UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
-    "scotland_50_UC_boost_amount":  ["50UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
-    "scotland_25_UC_any_priority_group_boost_amount":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups_and_kids", "scotland"],
-    "scotland_sustain_boost_amount":  ["ChildPovertyReductionSUSTAIN", "£25 Universal Credit", "who_boosted", "scotland"],
+    "scotland_50_UC_boost_amount":  ["50UniversalCredit", "£50 Universal Credit", "who_boosted", "scotland"],
+    "scotland_25_UC_any_priority_group_boost_amount":  ["25UniversalCredit", "£25 UC Priority Groups", "who_priority_subgroups_and_kids", "scotland"],
+    "scotland_sustain_boost_amount":  ["ChildPovertyReductionSUSTAIN", "10% Sustain Intervention", "who_boosted", "scotland"],
 
     # number households boosted graphs
-    "scotland_25_UC_percentage_boosted": ["25UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
-    "scotland_50_UC_percentage_boosted":  ["50UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
-    "scotland_25_UC_any_priority_group_percentage_boosted":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups_and_kids", "scotland"],
-    "scotland_sustain_percentage_boosted":  ["ChildPovertyReductionSUSTAIN", "£25 Universal Credit", "who_boosted", "scotland"],
+    "scotland_25_UC_percentage_boosted": ["25UniversalCredit", "£25 Universal Credit", "who_kids", "scotland"],
+    "scotland_50_UC_percentage_boosted":  ["50UniversalCredit", "£50 Universal Credit", "who_kids", "scotland"],
+    "scotland_25_UC_any_priority_group_percentage_boosted":  ["25UniversalCredit", "£25 UC Priority Groups", "who_kids", "scotland"],
+    "scotland_sustain_percentage_boosted":  ["ChildPovertyReductionSUSTAIN", "10% Sustain Intervention", "who_kids", "scotland"],
 }
 
 if __name__ == '__main__':

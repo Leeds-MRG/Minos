@@ -359,7 +359,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     y_label = v
     if v == 'SF_12':
         y_label = 'SF12 MCS'
-    if method == weighted_nanmean:
+    if method == weighted_nanmean and v == "SF_12":
         y_label += " Percentage Change"
     elif v == "SF_12_AUC":
         y_label += " AUC"
