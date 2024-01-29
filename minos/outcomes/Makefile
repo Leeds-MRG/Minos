@@ -298,6 +298,10 @@ aggregate_25_UC_any_priority_subgroup: MODE="scaled_scotland"
 aggregate_25_UC_any_priority_subgroup:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_any_priority_subgroup"
 
+aggregate_50_UC_any_priority_subgroup: MODE="scaled_scotland"
+aggregate_50_UC_any_priority_subgroup:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_50_universal_any_priority_subgroup"
+
 aggregate_25_UC_many_priority_groups: MODE="scaled_scotland"
 aggregate_25_UC_many_priority_groups:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_many_priority_subgroups"

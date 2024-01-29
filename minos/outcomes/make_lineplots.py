@@ -37,13 +37,18 @@ def subset_minos_data(data, subset_func_string, mode):
     """
     subsetted_data = dynamic_subset_function(data, subset_func_string, mode)
     return subsetted_data
+
+
 def aggregate_percentage_counts(df, v):
     # for some ordinal variable return a groupby providing the percetage of the population in each variable.
-    new_df = pd.DataFrame(df[v].value_counts(normalize=True))
-    new_df['prct'] = new_df[new_df.columns[0]]
+    new_df = pd.DataFrame(df.groupby(['hidp'])[v].agg("max"), columns= [v])
+    new_df = pd.DataFrame(new_df[v].value_counts(normalize=True))
+    new_df['prct'] = new_df[v] #* 100
     new_df[v] = new_df.index
     new_df.reset_index(inplace=True, drop=True)
     return new_df
+
+
 def aggregate_boosted_counts(df, v):
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(df[v])
@@ -51,9 +56,13 @@ def aggregate_boosted_counts(df, v):
     new_df[v] = new_df.index
     new_df.reset_index(inplace=True, drop=True)
     return sum(df['income_boosted']), new_df.shape[1]
+
+
 def aggregate_cumulative_score(df, v):
     # count the overall sum of a quantity. e.g. sf-12 mcs absolute score.
     return sum(df[v])
+
+
 def aggregate_boosted_counts_and_cumulative_score(df, v):
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
@@ -62,6 +71,8 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
     if "boost_amount" in df.columns:
         new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
+
+
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
                   mode="default_config", region=None):
     """
@@ -86,6 +97,9 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         required_columns += ["ZoneID", "simd_decile"]
     if outcome_variable == "boost_amount":
         required_columns += ["boost_amount"]
+    if outcome_variable == "income_boosted":
+        required_columns += ["income_boosted"]
+
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
     population_size = data.shape[0]
@@ -210,6 +224,15 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                         single_year_aggregate['id'] = i
                         aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
                 elif method == split_priority_group_weighted_nanmean:
+                    for i, single_year_aggregate in enumerate(aggregated_means):
+                        single_year_aggregate["number_boosted"] = np.nan
+                        single_year_aggregate[f"summed_{v}"] = np.nan
+                        single_year_aggregate["intervention_cost"] = np.nan
+                        single_year_aggregate['year'] = year
+                        single_year_aggregate['tag'] = tag
+                        single_year_aggregate['id'] = i
+                        aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+                elif method == aggregate_percentage_counts:
                     for i, single_year_aggregate in enumerate(aggregated_means):
                         single_year_aggregate["number_boosted"] = np.nan
                         single_year_aggregate[f"summed_{v}"] = np.nan
@@ -377,6 +400,8 @@ def weighted_nanmean(df, v, weights = "weight", scale=1):
     #return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
     return np.nanmean(df[v])
     #return np.nansum(df[v])
+
+
 def decile_weighted_nanmean(df, v, weights = "weight", scale=1):
     #df = df.loc[df['weight'] > 0]
     #df.loc[df.index, weights] = 1/df[weights]
@@ -523,6 +548,11 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
         aggregate_long_stack.to_csv(file_path)
         print(f"Saved to {file_path}.")
+        aggregate_long_stack['tag'] = aggregate_long_stack[v]
+        aggregate_long_stack[v] = aggregate_long_stack['prct']
+        aggregate_long_stack = aggregate_long_stack.loc[aggregate_long_stack['tag']==True, ]
+        aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
+
     elif method == get_poverty_metrics:
 
         scaled_data = aggregate_long_stack
@@ -604,6 +634,7 @@ if __name__ == '__main__':
     mode = 'scaled_scotland'
     ref = "Baseline"
     v = "boost_amount"
+    v = "income_boosted"
     #v = "universal_credit"
     #v = "hh_income"
     #method = "deciles_separate_baselines"
@@ -612,6 +643,8 @@ if __name__ == '__main__':
     directories = "25UniversalCredit"
     tags = "£25 Universal Credit"
     method="weighted_nanmean"
+    subset_function_strings = "who_alive"
+    method="percentages"
     #subset_function_strings = "who_kids,who_kids"
     region = "scotland"
     # directories = "25RelativePoverty,25UniversalCredit"

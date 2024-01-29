@@ -467,7 +467,7 @@ def income_boost_mean(config_mode, source, tag, subset, region):
     directories = source
     tags = tag
     subset_function_strings = subset
-    prefix = f"{source}_{subgroup}_mean_household_income_boost_"
+    prefix = f"{source}_{subset}_mean_household_income_boost_"
     ref = "Baseline"
     v = "boost_amount"
     method = 'nanmean'
@@ -581,6 +581,10 @@ string_to_lineplot_function = {
     "scotland_25_universal_any_priority_subgroup": universal_credit_priority_subgroups,
     "scotland_25_universal_many_priority_subgroups": universal_credit_multiple_priority_subgroups,
 
+
+    "scotland_50_universal_any_priority_subgroup": universal_credit_priority_subgroups,
+
+
     # deciles
     "scotland_25_universal_credit_deciles": deciles_lineplot,
     "scotland_50_universal_credit_deciles": deciles_lineplot,
@@ -664,6 +668,9 @@ string_to_lineplot_function_args = {
 
     "scotland_25_universal_any_priority_subgroup": [25, "scotland"],
     "scotland_25_universal_many_priority_subgroups": [25, "scotland"],
+
+    "scotland_50_universal_any_priority_subgroup": [50, "scotland"],
+
 
     # priority groups for £25 to £50 Increments Together.
     "scotland_50_universal_any_priority_subgroup": [25, "scotland"],
