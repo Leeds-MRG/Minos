@@ -462,6 +462,20 @@ def multiple_priority_subgroups(config_mode, source, tag, region):
                   method=method, region=region)
 
 
+def income_boost_mean(config_mode, source, tag, subset, region):
+    "get mean income boost amount over time for some subet of the population"
+    directories = source
+    tags = tag
+    subset_function_strings = subset
+    prefix = f"{source}_{subgroup}_mean_household_income_boost_"
+    ref = "Baseline"
+    v = "boost_amount"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region)
+
+
+
 #################
 # main function #
 #################
@@ -604,6 +618,12 @@ string_to_lineplot_function = {
     "sustain_any_priority_group_sf12": any_priority_subgroups,
     "sustain_multiple_priority_group_sf12": multiple_priority_subgroups,
     "sustain_quintiles_lineplot": quintiles_lineplot,
+
+    # boost amount graphs
+    "scotland_25_UC_boost_amount": income_boost_mean,
+    "scotland_50_UC_boost_amount": income_boost_mean,
+    "scotland_25_UC_any_priority_group_boost_amount": income_boost_mean,
+    "scotland_sustain_boost_amount": income_boost_mean,
 }
 
 string_to_lineplot_function_args = {
@@ -736,7 +756,7 @@ string_to_lineplot_function_args = {
     # scripts for sustain intervention.
     "sustain_sf12_all": ["ChildPovertyReductionSUSTAIN", "All Households", "who_alive", "scotland"],
     "sustain_sf12_kids": ["ChildPovertyReductionSUSTAIN", "Households With Children", "who_kids", "scotland"],
-    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "Households Below the Relative Poverty Line With Children", "who_below_poverty_line_and_kids", "scotland"],
+    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "Households In Relative Poverty With Children", "who_below_poverty_line_and_kids", "scotland"],
 
     "sustain_sf12_below_poverty_line_kids": single_treatment_on_treated,
     "sustain_single_mothers_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
@@ -744,6 +764,13 @@ string_to_lineplot_function_args = {
     "sustain_multiple_priority_group_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
 
     "sustain_quintiles": ["ChildPovertyReductionSUSTAIN", "scotland"], #TODO use better version of plot for quintiles instead of deciles.
+
+
+    # boost amount graphs
+    "scotland_25_UC_boost_amount": ["25UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
+    "scotland_50_UC_boost_amount":  ["50UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
+    "scotland_25_UC_any_priority_group_boost_amount":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups", "scotland"],
+    "scotland_sustain_boost_amount":  ["ChildPovertyReductionSUSTAIN", "£25 Universal Credit", "who_boosted", "scotland"],
 }
 
 if __name__ == '__main__':

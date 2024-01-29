@@ -84,6 +84,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     required_columns = get_required_intervention_variables(subset_function_string)
     if region:
         required_columns += ["ZoneID", "simd_decile"]
+    if v == "boost_amount":
+        required_columns += ["boost_amount"]
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
     population_size = data.shape[0]
@@ -593,21 +595,24 @@ if __name__ == '__main__':
     v = "SF_12"
     method = 'SF12_AUC'
 
-    directories = "baseline,25UniversalCredit"
-    tags = "Baseline,£25 Universal Credit"
+    #directories = "baseline,25UniversalCredit"
+    #tags = "Baseline,£25 Universal Credit"
     subset_function_strings = "who_universal_credit_and_kids,who_universal_credit_and_kids"
     prefix = "baseline_25_UC_deciles"
     #subset_function_strings = "who_alive,who_alive"
     prefix = "baseline_25_UC_split_priority_groups_uc"
     mode = 'scaled_scotland'
     ref = "Baseline"
-    v = "SF_12"
+    v = "boost_amount"
     #v = "universal_credit"
     #v = "hh_income"
-    method = "deciles_separate_baselines"
-    method = "get_poverty_metrics"
-    method = 'split_priority_groups_weighted_nanmean'
-    subset_function_strings = "who_kids,who_kids"
+    #method = "deciles_separate_baselines"
+    #method = "get_poverty_metrics"
+    #method = 'split_priority_groups_weighted_nanmean'
+    directories = "25UniversalCredit"
+    tags = "£25 Universal Credit"
+    method="weighted_nanmean"
+    #subset_function_strings = "who_kids,who_kids"
     region = "scotland"
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"

@@ -207,10 +207,10 @@ def get_required_intervention_variables(subset_function_string):
         default_variables += ["ZoneID", "simd_decile"]
 
     if "kids" in subset_function_string:
-        default_variables += ["nkids"]
+        default_variables += ["nkids", "boost_amount"]
 
     if "universal_credit" in subset_function_string:
-        default_variables += ['universal_credit']
+        default_variables += ['universal_credit', 'boost_amount']
 
     if "below_poverty_line" in subset_function_string:
         default_variables += []
