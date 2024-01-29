@@ -84,7 +84,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     required_columns = get_required_intervention_variables(subset_function_string)
     if region:
         required_columns += ["ZoneID", "simd_decile"]
-    if v == "boost_amount":
+    if outcome_variable == "boost_amount":
         required_columns += ["boost_amount"]
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
