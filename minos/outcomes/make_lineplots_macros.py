@@ -734,9 +734,9 @@ string_to_lineplot_function_args = {
     "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
 
     # scripts for sustain intervention.
-    "sustain_sf12_all": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target All Households", "who_alive", "scotland"],
-    "sustain_sf12_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households With Children", "who_kids", "scotland"],
-    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target Households Below the Relative Poverty Line With Children", "who_below_poverty_line_and_kids", "scotland"],
+    "sustain_sf12_all": ["ChildPovertyReductionSUSTAIN", "All Households", "who_alive", "scotland"],
+    "sustain_sf12_kids": ["ChildPovertyReductionSUSTAIN", "Households With Children", "who_kids", "scotland"],
+    "sustain_sf12_rp_kids": ["ChildPovertyReductionSUSTAIN", "Households Below the Relative Poverty Line With Children", "who_below_poverty_line_and_kids", "scotland"],
 
     "sustain_sf12_below_poverty_line_kids": single_treatment_on_treated,
     "sustain_single_mothers_sf12": ["ChildPovertyReductionSUSTAIN", "10% Relative Poverty Target", "scotland"],
