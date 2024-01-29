@@ -441,7 +441,7 @@ scotland_intervention_percentage_boosted:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_any_priority_group_percentage_boosted"
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_sustain_percentage_boosted"
 
-both_costs_sets: scotland_intervention_costs, scotland_intervention_percentage_boosted
+both_costs_sets: scotland_intervention_costs scotland_intervention_percentage_boosted
 
 ###############################
 # energy crisis lineplots #####
