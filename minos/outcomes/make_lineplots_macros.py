@@ -474,6 +474,18 @@ def income_boost_mean(config_mode, source, tag, subset, region):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method, region=region)
 
+def percentage_households_boosted(config_mode, source, tag, subset, region):
+    "get mean income boost amount over time for some subet of the population"
+    directories = source
+    tags = tag
+    subset_function_strings = subset
+    prefix = f"{source}_{subset}_percentage_households_boosted_"
+    ref = "Baseline"
+    v = "income_boosted"
+    method = 'percentages'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region)
+
 
 
 #################
@@ -628,6 +640,12 @@ string_to_lineplot_function = {
     "scotland_50_UC_boost_amount": income_boost_mean,
     "scotland_25_UC_any_priority_group_boost_amount": income_boost_mean,
     "scotland_sustain_boost_amount": income_boost_mean,
+
+    # number households boosted graphs
+    "scotland_25_UC_percentage_boosted": percentage_households_boosted,
+    "scotland_50_UC_percentage_boosted": percentage_households_boosted,
+    "scotland_25_UC_any_priority_group_percentage_boosted": percentage_households_boosted,
+    "scotland_sustain_percentage_boosted": percentage_households_boosted,
 }
 
 string_to_lineplot_function_args = {
@@ -778,6 +796,12 @@ string_to_lineplot_function_args = {
     "scotland_50_UC_boost_amount":  ["50UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
     "scotland_25_UC_any_priority_group_boost_amount":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups_and_kids", "scotland"],
     "scotland_sustain_boost_amount":  ["ChildPovertyReductionSUSTAIN", "£25 Universal Credit", "who_boosted", "scotland"],
+
+    # number households boosted graphs
+    "scotland_25_UC_percentage_boosted": ["25UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
+    "scotland_50_UC_percentage_boosted":  ["50UniversalCredit", "£25 Universal Credit", "who_boosted", "scotland"],
+    "scotland_25_UC_any_priority_group_percentage_boosted":  ["25UniversalCredit", "£25 Universal Credit", "who_priority_subgroups_and_kids", "scotland"],
+    "scotland_sustain_percentage_boosted":  ["ChildPovertyReductionSUSTAIN", "£25 Universal Credit", "who_boosted", "scotland"],
 }
 
 if __name__ == '__main__':

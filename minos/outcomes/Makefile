@@ -435,6 +435,13 @@ scotland_intervention_costs:
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_any_priority_group_boost_amount"
 	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_sustain_boost_amount"
 
+scotland_intervention_percentage_boosted:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_percentage_boosted"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_UC_percentage_boosted"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_any_priority_group_percentage_boosted"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_sustain_percentage_boosted"
+
+
 ###############################
 # energy crisis lineplots #####
 ###############################
