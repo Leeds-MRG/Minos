@@ -15,7 +15,7 @@ debug: handovers debug_replenishing debug_mwb_pathways debug_interventions debug
 # Unfortunately cant do dependencies properly as the runtime sub-directory changes too often. Possibly could use the
 # output/baseline directory as a target? Need to look into that. Won't matter much for now as these scripts run fast
 handovers:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='default_baseline_handovers.html', param=list(file_path='default_config/',intervention='baseline'))"
 	# open html file in firefox
 	firefox file://$(VALIDATION)/handovers.html
 
@@ -27,6 +27,18 @@ handovers_S7:
 handovers_inflated:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers_inflated.Rmd')"
 	firefox file://$(VALIDATION)/handovers_inflated.html
+
+handovers_scotland_scaled:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_baseline_handovers.html', param=list(file_path='scaled_scotland/',intervention='baseline'))"	# open html file in firefox
+	firefox file://$(VALIDATION)/handovers.html
+
+handovers_scotland_scaled_living_wage:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_living_wage_handovers.html', param=list(file_path='scaled_scotland/',intervention='livingWageIntervention'))"
+	firefox file://$(VALIDATION)/handovers.html
+
+handovers_scotland_scaled_25up:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_25up_handovers.html', param=list(file_path='scaled_scotland/',intervention='25UniversalCredit'))"
+	firefox file://$(VALIDATION)/handovers.html
 
 debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"

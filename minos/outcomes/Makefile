@@ -1,11 +1,11 @@
-
-
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
+#TODO: make bash functions for vulnerable subgroups in aggregated_lineplots.sh
+#TODO make bash script for maps.
+#TODO add bash script with 4 interventions (no poverty line).
 
-test_plot: MODE=default_config
-test_plot: ALIVE=who_alive
-test_plot: BOOSTED=who_boosted
-test_plot: aggregate_minos_output_energy
+##############################################################
+# Post-hoc aggregation of multiple MINOS runs into lineplots #
+##############################################################
 
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
@@ -30,6 +30,7 @@ default_all_lineplots: all_lineplots
 all_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
 
+all_initial_lineplots: all_child_lineplot poverty_line_lineplot living_wage_lineplot ebss_lineplot all_five_lineplot
 
 ###################### COMBINED PLOTTING FUNCTIONS ######################
 # The following section contains targets for plotting all scenarios     #
@@ -116,11 +117,379 @@ aggregate_minos_output_treated:	TREATED_DIRECTORY_SUBSETS = $(ALIVE),$(BOOSTED),
 aggregate_minos_output_treated:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "treated" $(AGG_VAR) $(REGION)
 
+
+###########################
+# Living Wage Lineplots ###
+###########################
+
+# Living Wage Intervention
+living_wage_lineplot: MODE="default_config"
+living_wage_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "living_wage"
+
+##########################################
+# Child Income Intervention Lineplots #
+#######################################
+
+# old interventions that are fixed £25 increase.
+# All Children Uplift
+all_child_lineplot: MODE="default_config"
+all_child_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "all_child"
+
+# Poverty Line Child Uplift
+poverty_line_lineplot: MODE="default_config"
+poverty_line_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py  $(MODE) "poverty_line_child"
+
+
+# individual lineplots for new child interventions in increments up to £100
+
+BOOSTED="who_boosted"
+aggregate_all_child_uplifts: MODE="default_config"
+aggregate_all_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_all_child"
+
+aggregate_poverty_line_child_uplifts: MODE="default_config"
+aggregate_poverty_line_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_relative_poverty"
+
+aggregate_universal_credit_child_uplifts: MODE="glasgow_scaled"
+aggregate_universal_credit_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
+
+aggregate_priority_groups_child_uplifts: MODE= "glasgow_scaled"
+aggregate_priority_groups_child_uplifts:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
+
+aggregate_25_universal_credit: MODE="default_config"
+aggregate_25_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_25_relative_poverty: MODE="default_config"
+aggregate_25_relative_poverty:
+	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
+
+aggregate_25_all_children: MODE="default_config"
+aggregate_25_all_children:
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+
+
+outcomes_all_child_uplifts: MODE="default_config"
+outcomes_all_child_uplifts: outcomes_all_child_25 outcomes_all_child_50 outcomes_all_child_75 outcomes_all_child_100
+
+outcomes_all_child_25:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_all"
+outcomes_all_child_50:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_all"
+outcomes_all_child_75:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_all"
+outcomes_all_child_100:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_all"
+
+##########################################
+# Custom subset for social science paper #
+##########################################
+
+social_science_lineplots:
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "social_science_all_plots"
+
+#################################
+# Custom subset for scotgov piece
+#################################
+
+####################################
+# Initial work for 25 UC and 25 Priority subgroups.
+#####################################
+
+aggregate_25_UC_vulnerable: MODE="glasgow_scaled"
+aggregate_25_UC_vulnerable:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_UC_priority"
+
+aggregate_50_UC_vulnerable: MODE="glasgow_scaled"
+aggregate_50_UC_vulnerable:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_UC_priority"
+
+aggregate_75_UC_vulnerable: MODE="glasgow_scaled"
+aggregate_75_UC_vulnerable:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_UC_priority"
+
+aggregate_100_UC_vulnerable: MODE="glasgow_scaled"
+aggregate_100_UC_vulnerable:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_UC_priority"
+
+all_uc_vuln: aggregate_25_UC_vulnerable aggregate_50_UC_vulnerable aggregate_75_UC_vulnerable aggregate_100_UC_vulnerable aggregate_universal_credit_child_uplifts aggregate_priority_groups_child_uplifts
+
+#############################################################
+# £25 TO £25 BY £5 increments treatment on treated lineplots.
+##############################################################
+
+aggregate_25_UC_scotland: MODE="scaled_scotland"
+aggregate_25_UC_scotland:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_30_UC_scotland: MODE="scaled_scotland"
+aggregate_30_UC_scotland:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "30_universal_credit"
+
+aggregate_35_UC_scotland: MODE="scaled_scotland"
+aggregate_35_UC_scotland:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "35_universal_credit"
+
+aggregate_40_UC_scotland: MODE="scaled_scotland"
+aggregate_40_UC_scotland:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "40_universal_credit"
+
+aggregate_45_UC_scotland: MODE="scaled_scotland"
+aggregate_45_UC_scotland:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "45_universal_credit"
+
+aggregate_50_UC_scotland: MODE="scaled_scotland"
+aggregate_50_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_universal_credit"
+
+all_25_50_by_5_UC_scotland_uplifts: MODE="scaled_scotland"
+all_25_50_by_5_UC_scotland_uplifts:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_universal_credit"
+
+all_25_50_by_5_together_UC_scotland_uplifts: MODE="scaled_scotland"
+all_25_50_by_5_together_UC_scotland_uplifts:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_universal_credit"
+
+25_50_UC_scotland_uplifts: MODE="scaled_scotland"
+25_50_UC_scotland_uplifts:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_50_universal_credit"
+
+
+################################
+# priority subgroups
+################################
+
+aggregate_25_UC_single_mothers: MODE="scaled_scotland"
+aggregate_25_UC_single_mothers:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_credit_single_mothers"
+
+aggregate_minos_output_disabled_child_uplift: MODE="scaled_scotland"
+aggregate_minos_output_disabled_child_uplift:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_disabled"
+
+aggregate_minos_output_minority_child_uplift: MODE="scaled_scotland"
+aggregate_minos_output_minority_child_uplift:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_ethnic_minority"
+
+aggregate_minos_output_three_child_uplift: MODE="scaled_scotland"
+aggregate_minos_output_three_child_uplift:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_three_children"
+
+# omitted due to lack of sample size
+#aggregate_minos_output_young_mother_child_uplift: MODE="scaled_scotland"
+#aggregate_minos_output_young_mother_child_uplift:
+#	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift" $(AGG_VAR) $(REGION)
+
+aggregate_minos_output_young_adult_child_uplift: MODE="scaled_scotland"
+aggregate_minos_output_young_adult_child_uplift:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_young_adult"
+
+aggregate_minos_output_uneducated_child_uplift: MODE="scaled_scotland"
+aggregate_minos_output_uneducated_child_uplift:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_uneducated"
+
+aggregate_25_UC_any_priority_subgroup: MODE="scaled_scotland"
+aggregate_25_UC_any_priority_subgroup:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_any_priority_subgroup"
+
+aggregate_50_UC_any_priority_subgroup: MODE="scaled_scotland"
+aggregate_50_UC_any_priority_subgroup:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_50_universal_any_priority_subgroup"
+
+aggregate_25_UC_many_priority_groups: MODE="scaled_scotland"
+aggregate_25_UC_many_priority_groups:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py $(MODE) "scotland_25_universal_many_priority_subgroups"
+
+aggregate_minos_output_priority_subgroups_together:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_priority_subgroups_together"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_UC_priority_subgroups_together"
+
+all_priority_subgroup_lineplots: aggregate_25_UC_single_mothers, aggregate_25_UC_any_priority_subgroup aggregate_25_UC_many_priority_groups
+
+########################################################
+# SIMD decile lineplots for glasgow using spatial data #
+########################################################
+
+baseline_all_deciles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_all_deciles"
+
+poverty_all_deciles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_all_deciles"
+
+universal_credit_all_deciles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_all_deciles"
+
+priority_group_all_deciles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_priority_groups_all_deciles"
+
+poverty_first_decile_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_first"
+
+poverty_fifth_decile_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_fifth"
+
+poverty_tenth_decile_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_poverty_tenth"
+
+baseline_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_baseline_quintile"
+
+25RelativePoverty_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_relative_poverty_quintile"
+
+25UniversalCredit_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_universal_credit_quintile"
+
+epcg_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_epcg_quintile"
+
+living_wage_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "glasgow_living_wage_quintile"
+
+
+##########################################
+# All Scotland 25 UC Quintiles
+##########################################
+
+scotland_25_UC_deciles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_deciles"
+
+baseline_scotland_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_baseline_quintiles"
+
+baseline_glasgow_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "glasgow_baseline_quintiles"
+
+baseline_edinburgh_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "edinburgh_baseline_quintiles"
+
+25UniversalCredit_scotland_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_universal_credit_quintiles"
+
+25UniversalCredit_glasgow_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "glasgow_25_universal_credit_quintiles"
+
+25UniversalCredit_edinburgh_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "edinburgh_25_universal_credit_quintiles"
+
+# increasing increments dont have the full suite of vis yet.
+# maybe a better way of encoding the increasing number of combinations with lists?
+30UniversalCredit_scotland_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_30_universal_credit_quintiles"
+
+35UniversalCredit_scotland_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_35_universal_credit_quintiles"
+
+40UniversalCredit_scotland_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_40_universal_credit_quintiles"
+
+45UniversalCredit_scotland_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_45_universal_credit_quintiles"
+
+50UniversalCredit_scotland_all_quintiles:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+all_25_UC_quintiles: baseline_scotland_quintiles baseline_glasgow_quintiles baseline_edinburgh_quintiles 25UniversalCredit_scotland_all_quintiles 25UniversalCredit_glasgow_all_quintiles 25UniversalCredit_edinburgh_all_quintiles
+
+
+# grand daddy makefile for every scotland plot for £25 universal credit
+# WARNING: this will take 2+ hours on scotland scaled data.
+make every_single_scotland_plot: all_25_50_by_5_UC_scotland_uplifts all_priority_subgroup_lineplots all_25_UC_quintiles all_25_UC_scotland_maps
+
+######################################
+# 10% Sustain Intervention Plots #####
+######################################
+
+sustain_single_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "sustain_sf12_rp_kids"
+	#$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "sustain_sf12_all"
+	#$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "sustain_sf12_kids"
+
+sustain_single_mothers_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_any_priority_group_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_multiple_priority_group_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+sustain_quintiles_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_universal_credit_quintiles"
+
+all_sustain_lineplots: sustain_single_lineplot sustain_single_mothers_lineplot sustain_any_priority_group_lineplot sustain_multiple_priority_group_lineplot sustain_quintiles_lineplot
+
+#####################################
+# Income Boost Amount Graphs ########
+#####################################
+
+scotland_intervention_costs:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_boost_amount"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_UC_boost_amount"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_any_priority_group_boost_amount"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_sustain_boost_amount"
+
+scotland_intervention_percentage_boosted:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_percentage_boosted"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_50_UC_percentage_boosted"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_25_UC_any_priority_group_percentage_boosted"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "scaled_scotland" "scotland_sustain_percentage_boosted"
+
+both_costs_sets: scotland_intervention_costs scotland_intervention_percentage_boosted
+
+###############################
+# energy crisis lineplots #####
+###############################
+
+# EBSS energy downlift.
+ebss_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "ebss"
+
+# do all the above together
+all_five_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "all_five"
+
+epcg_simd_lineplot:
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
+
+
+########################################################################
+# need to add macros for these in make_lineplot_macros.sh. do later..  #
+########################################################################
+
+aggregate_combined_25_child_uplifts: MODE=default_config
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORIES = baseline,25UniversalCredit,25RelativePoverty,25All
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORY_TAGS="Baseline,£25 Universal Credit,£25 Relative Poverty,£25 All"
+aggregate_combined_25_child_uplifts: TREATED_DIRECTORY_SUBSETS = "who_kids",$(BOOSTED),$(BOOSTED),$(BOOSTED)
+aggregate_combined_25_child_uplifts:
+	bash minos/outcomes/make_lineplot.sh $(MODE) $(TREATED_DIRECTORIES) $(TREATED_DIRECTORY_TAGS) $(TREATED_DIRECTORY_SUBSETS) "combined_25_child_uplifts"
+
+aggregate_all_25_child_uplifts: aggregate_25_all_children aggregate_25_relative_poverty aggregate_25_universal_credit aggregate_combined_25_child_uplifts
+
 aggregate_minos_output_living_wage:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,livingWageIntervention "Baseline,Living Wage Intervention" who_below_living_wage,who_boosted "living_wage" $(AGG_VAR) $(REGION)
 
 aggregate_minos_output_poverty_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift" $(AGG_VAR) $(REGION)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomePovertyLineChildUplift "Baseline,Poverty Line Uplift" who_below_poverty_line_and_kids,who_boosted "poverty_line_child_uplift"
+
+aggregate_minos_output_child_poverty_reductionRANDOM:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_alive,who_boosted "child_poverty_reduction_RANDOM_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_kids,who_boosted "child_poverty_reduction_RANDOM_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRANDOM "Baseline,Child Poverty Reduction RANDOM" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_RANDOM_who_pov_kids"
+
+aggregate_minos_output_child_poverty_reductionSUSTAIN:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_alive,who_boosted "child_poverty_reduction_SUSTAIN_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionSUSTAIN "Baseline,Child Poverty Reduction SUSTAIN" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_SUSTAIN_who_pov_kids"
+
+#aggregate_minos_output_all_child_uplift:
+#	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift"
 
 aggregate_minos_output_all_child_uplift:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,All Children Uplift" who_kids,who_boosted "all_child_uplift" $(AGG_VAR) $(REGION)
@@ -128,24 +497,9 @@ aggregate_minos_output_all_child_uplift:
 #aggregate_minos_output_all_child_uplift:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift,hhIncomePovertyLineChildUplift "Baseline,All Children Uplift,Poverty Line Child Uplift" who_kids,who_boosted,who_boosted "all_vs_poverty_child_uplift" $(AGG_VAR)
 
-aggregate_minos_output_disabled_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Disabled Children Uplift" who_disabled,who_disabled "disabled_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_minority_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Minority Children Uplift" who_ethnic_minority,who_ethnic_minority "minority_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_three_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Three Children Uplift" who_three_kids,who_three_kids "three_child_uplift" $(AGG_VAR) $(REGION)
-
-# omitted due to lack of sample size
-aggregate_minos_output_young_mother_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Mother Children Uplift" who_young_mother,who_young_mother "young_mother_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_young_adult_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Young Single Parent Children Uplift" who_young_adults,who_young_adults "young_adult_child_uplift" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_uneducated_child_uplift:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,hhIncomeChildUplift "Baseline,Low Education Children Uplift" who_no_formal_education,who_no_formal_education "low_education_child_uplift" $(AGG_VAR) $(REGION)
+aggregate_25_UC_MICE: MODE="scaled_scotland"
+aggregate_25_UC_MICE:
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,25UniversalCredit "Baseline,£25 Universal Credit" who_universal_credit_and_kids,who_boosted "25UC" "SF_12" "scotland"
 
 
 aggregate_minos_output_scottish: MODE=default_config
@@ -178,9 +532,6 @@ aggregate_combined_vulnerable:
 
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
-
-aggregate_minos_output_energy_old: # old command not using intervention with no support as well
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy Downlift" who_uses_energy,who_boosted "energy_downlift" $(AGG_VAR) $(REGION)
 
 ####################################################################################################################################################
 # Mapping multiple MINOS outputs into super outputs (LSOA/data zones) over Glasgow, Sheffield, Manchester, and Scotland regions.
@@ -250,13 +601,8 @@ aggregate_baseline_poverty_uplift_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i hhIncomePovertyLineChildUplift -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m $(OUTPUT_SUBDIR) -b baseline -i hhIncomePovertyLineChildUplift -r $(REGION) -y $(AGG_YEAR) -s $(SYNTH) -v $(AGG_VAR)
 
-epcg_ebss_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -b "EPCG" -i "EBSS" -r "glasgow" -y $(AGG_YEAR) -y 2025 -s $(SYNTH) -v $(AGG_VAR)
-
 aggregate_all_energy_interventions:
-	python3 minos/outcomes/make_lineplots_macros.py "all_energy_lineplots"
+	$(PYTHON) minos/outcomes/make_lineplots_macros.py "all_energy_lineplots"
 
 # Combined target for running all interventions at once
 all_intervention_maps: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
@@ -329,3 +675,38 @@ map_all_EI_synthetic: REGION=glasgow
 map_all_EI_synthetic: SYNTH=true
 map_all_EI_synthetic: all_intervention_maps
 
+epcg_ebss_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EBSS" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "EPCG" -i "EBSS" -r "glasgow" -d "plots/epcg_ebss_diff_map.pdf" -y 2025
+
+uc_baseline_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25UniversalCredit" -r "glasgow" -d "plots/universal_credit_baseline_diff_map.pdf" -y 2025
+
+priority_baseline_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "glasgow_scaled" -s who_universal_credit_and_kids -p true -r "glasgow"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25Priority" -y 2025 -m "glasgow_scaled" -s who_boosted -p true -r "glasgow"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "glasgow_scaled" -j "baseline" -i "25Priority" -r "glasgow" -d "plots/priority_baseline_diff_map.pdf" -y 2025
+
+25_UC_2025_glasgow_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow" -v "SF_12"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "glasgow" -v "SF_12"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_scotland" -b "baseline" -i "25UniversalCredit" -r "glasgow" -y 2025 -v "SF_12" -s true
+
+25_UC_2025_edinburgh_map:
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "edinburgh" -v "SF_12"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "25UniversalCredit" -y 2025 -m "scaled_scotland" -s who_universal_credit_and_kids -p true -r "edinburgh"  -v "SF_12"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "scaled_scotland" -b "baseline" -i "25UniversalCredit" -r "edinburgh" -y 2025 -v "SF_12" -s true
+
+
+all_25_UC_scotland_maps: 25_UC_2025_glasgow_map 25_UC_2025_edinburgh_map
+
+# experimental bash scripts.
+main_maps:
+	bash minos/outcomes/aggregated_maps.sh
+
+
+map_all: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map aggregate_baseline_poverty_uplift_map
+map_concept_note: aggregate_baseline_map aggregate_baseline_energy_map aggregate_baseline_living_wage_map aggregate_baseline_all_uplift_map

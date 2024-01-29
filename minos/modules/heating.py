@@ -61,7 +61,8 @@ class Heating(Base):
                         'hh_income',
                         'urban',
                         'housing_tenure',
-                        'financial_situation'
+                        'financial_situation',
+                        'heating',
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 

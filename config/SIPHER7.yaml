@@ -14,7 +14,7 @@ population:
 mortality_file: 'regional_mortality_2011_2061.csv'
 fertility_file: 'regional_fertility_2011_2061.csv'
 
-input_data_dir: "data/final_US"
+input_data_dir: "data/imputed_final_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 

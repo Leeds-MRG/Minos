@@ -22,11 +22,13 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
+OUTCOMES = $(CURDIR)/minos/outcomes
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 TESTING = $(SOURCEDIR)/testing
-GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
-TESTING = $(SOURCEDIR)/testing
+MICEDATA = $(DATADIR)/mice_US
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
@@ -117,9 +119,9 @@ setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthet
 
 setup_glasgow_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_glasgow_repl
 
-setup_scotland_scaled: install synthetic_glasgow_data transitions_default synthetic_scotland_repl
+setup_scotland_scaled: install synthetic_scotland_data transitions_default synthetic_scotland_repl
 
-setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_scotland_repl
+setup_scotland_scaled_S7: install synthetic_scotland_data transitions_SIPHER7 synthetic_scotland_repl
 
 setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
 

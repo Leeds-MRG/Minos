@@ -1,6 +1,10 @@
 ---
-title: "MINOS Handover Plots"
+params:
+    file_path: '' # default arguments. specify others in command line.
+    intervention: ''
+title: "`r paste(params$file_path, ' ', params$intervention, ' Handover Plots')`"
 output:
+  #output_file: "`r paste('minos/validation/', params$file_path, '_', params$intervention, '_handovers.html') `"
   html_document:
     toc: true
     toc_float: true
@@ -8,6 +12,7 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
+
 ---
 
 This notebook shows the handover plots for all pathways in the MINOS microsimulation model.
@@ -49,23 +54,36 @@ source(here::here('minos', 'validation', 'utils.r'))
 ## Data
 
 ```{r}
+
+file_path <- params$file_path
+intervention <- params$intervention
+
 # Read raw datafiles in
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+#out.path <- here::here('output', 'default_config/')
+#base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+
+out.path <- here::here('output', file_path)
+base.dat <- read_singular_local_out(out.path, intervention, drop.dead = TRUE)
 ```
 
 ## Constants
 
 ```{r}
-start.year <- 2021
+start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
+# make sure we only overlap on one year for now or else tomfoolery happens (the plots look bad).
+# we may want this overlap in the future? probably not.
+raw.dat <- raw.dat[which(raw.dat$time <= start.year), ]
+base.dat <- bas.dat[which(base.dat$time>start.year), ]
+
 shall.we.save <- FALSE
 ```
+
 
 # PATHWAYS
 
@@ -250,6 +268,7 @@ if (shall.we.save) {
 rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
+
 ## Housing Quality
 
 ```{r}
@@ -314,6 +333,7 @@ rm(raw.housing, base.housing, housing, housing.norm)
 # 
 # rm(raw.s, base.s, spag)
 ```
+
 
 ## Neighbourhood Safety
 
@@ -381,6 +401,7 @@ if (shall.we.save) {
 # rm(raw.s, base.s, spag)
 ```
 
+
 ## Loneliness
 
 ```{r}
@@ -446,6 +467,7 @@ rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 # 
 # rm(raw.s, base.s, spag)
 ```
+
 
 ## Nutrition Quality
 
@@ -517,6 +539,7 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 # 
 # rm(raw.nut, base.nut, nut.spag)
 ```
+
 
 ## Physical Health
 
@@ -617,6 +640,7 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 # rm(raw.s, base.s, spag)
 ```
 
+
 ## Education
 
 ```{r}
@@ -652,8 +676,6 @@ if (shall.we.save) {
 rm(prepped.list, var, norm, tit)
 ```
 
-
-
 ```{r}
 pivoted <- combine_and_pivot_long(df1 = base.dat,
                                        df1.name = 'simulated',
@@ -683,6 +705,59 @@ cv_ordinal_plots(pivoted.df = pivoted,
 # 
 # rm(raw.s, base.s, spag)
 ```
+
+
+## nkids Household
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'nkids')
+handover_lineplots(raw.dat, base.dat, 'nkids')
+```
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, nkids)
+base.s <- base.dat %>%
+  select(pidp, age, time, nkids)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'nkids',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+## nkids Max
+
+```{r}
+# first figure out how to plot final_US
+# start with hh_income
+raw.nkids_max <- raw.dat %>%
+  dplyr::select(pidp, time, nkids) %>%
+  group_by(time) %>%
+  summarise(max_nkids = max(nkids)) %>%
+  mutate(source = 'final_US')
+
+base.nkids_max <- base.dat %>%
+  dplyr::select(pidp, time, nkids) %>%
+  group_by(time) %>%
+  summarise(max_nkids = max(nkids)) %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+max_nkids <- rbind(raw.nkids_max, base.nkids_max)
+
+# Now plot
+ggplot(data = max_nkids, mapping = aes(x = time, y = max_nkids, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Max nkids', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Average')
+```
+
 
 ## Parity
 
@@ -737,7 +812,6 @@ cv_ordinal_plots(pivoted.df = pivoted,
                  save.path = save.path)
 ```
 
-
 ### Spaghetti
 
 ```{r}
@@ -755,161 +829,29 @@ spaghetti_plot(spag, 'nkids_ind',
 rm(raw.s, base.s, spag)
 ```
 
-## Hourly Wage
-
 ```{r}
-handover_boxplots(raw.dat, base.dat, 'hourly_wage')
-handover_lineplots(raw.dat, base.dat, 'hourly_wage')
-```
-
-```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, hourly_wage)
-base.s <- base.dat %>%
-  select(pidp, age, time, hourly_wage)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-# now a version limited to 0-100
-spag <- spag %>%
-  filter(hourly_wage <= 300)
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
-```
-
-```{r}
-# some basic statistics about hourly_wage variable
-print("Some basic statistics on hourly_wage. These are all for 2020.")
-raw.2020 <- raw.dat %>% filter(time == 2020)
-print('All living people in 2020')
-print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
-# number individuals with an hourly_wage > 0
-print('People not in work')
-print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
-
-# Number in work
-print('People in work')
-print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
-
-# Extreme hourly_wage values
-print('Extreme hourly wage values: HIGH')
-print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
-print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
-print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
-print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
-print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
-print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
-
-raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
-print('Extreme hourly wage values: LOW (non-zero)')
-print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
-print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
-print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
-print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
-```
-
-## S7 Labour State
-
-```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
-
-lab.state <- prepped.list$var
-lab.state.norm <- prepped.list$norm
-
-# Now plot
-ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'S7_labour_state.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, lab.state, lab.state.norm)
-```
-
-
-
-```{r}
-pivoted <- combine_and_pivot_long(df1 = base.dat, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw.dat, 
-                                       df2.name = 'raw', 
-                                       var = 'S7_labour_state')
-
-cv_ordinal_plots(pivoted.df = pivoted, 
-                 var = 'S7_labour_state',
-                 save = shall.we.save,
-                 save.path = save.path)
-```
-
-## Child Ages
-
-```{r}
-raw.child.ages <- raw.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2013) %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-r.s<- strsplit(raw.child.ages$child_ages, "_")
-
-raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
-raw.child.ages.expanded <- raw.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'final_US') %>%
-  filter(expanded_child_ages <= 16)
-
 base.child.ages <- base.dat %>%
   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
   filter(time > 2009) %>%
   group_by(time, hidp) %>%
   summarise(child_ages = find_mode(child_ages))
 
-b.s<- strsplit(base.child.ages$child_ages, "_")
+s<- strsplit(base.child.ages$child_ages, "_")
 
-base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
+base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(s, length)), expanded_child_ages = unlist(s))
 base.child.ages.expanded <- base.child.ages.expanded %>%
   group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'baseline')
+  summarise(age_counts = n())
 
-combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
-  
-ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
+ggplot(data = base.child.ages.expanded, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
   geom_line() +
-  geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
   scale_colour_viridis_d() +
   xlab('Year') +
   ylab('Count')
 
-ggplot(data = combined, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
+ggplot(data = base.child.ages.expanded, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
   geom_line() +
-  geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
   scale_colour_viridis_d() +
   xlab('Year') +
@@ -919,19 +861,9 @@ base.child.ages.nkids <- base.dat %>%
   group_by(time, hidp) %>%
   summarise(nkids_counts = mean(nkids)) %>%
   group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'baseline')
+  summarise(nkids_by_year = sum(nkids_counts))
 
-raw.child.ages.nkids <- raw.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'final_US')
-
-combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
-
-ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
+ggplot(data = base.child.ages.nkids, mapping = aes(x = time, y = nkids_by_year)) +
   geom_line() +
   labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
   xlab('Year') +
@@ -939,7 +871,150 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
 
 ```
 
+
+## CHILD POVERTY VARS
+
+### Relative poverty
+
 ```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'relative_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Relative Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = relative_poverty, colour = relative_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=relative_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'relative_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+### Absolute Poverty
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'absolute_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Absolute Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = absolute_poverty, colour = absolute_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=absolute_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'absolute_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+
+### Persistent Poverty
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'persistent_poverty')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Persistent Poverty'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = persistent_poverty, colour = persistent_poverty)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=persistent_poverty)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'persistent_poverty.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
 
 ```
 
+
+### Low Income and Material Deprivation
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'low_income_matdep_child')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Material Deprivation Child'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = low_income_matdep_child, colour = low_income_matdep_child)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=low_income_matdep_child)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'low_income_matdep_child.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+
+```

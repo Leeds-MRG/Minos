@@ -132,7 +132,7 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     return data_merged
 
 
-def generate_stock(projections, cross_validation):
+def generate_transition_stock(projections, cross_validation):
     maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
@@ -153,38 +153,20 @@ def generate_stock(projections, cross_validation):
     data = wave_data_copy(data,
                           var='loneliness',
                           copy_year=2017,
-                          paste_year=2015,
+                          paste_year=2014,
                           var_type='ordinal')
-    # # copy wave 11 nutrition_quality onto wave 12
-    # data = wave_data_copy(data,
-    #                       var='nutrition_quality',
-    #                       copy_year=2019,
-    #                       paste_year=2020)
-    # # copy wave 7 nutrition_quality onto wave 6
-    # data = wave_data_copy(data,
-    #                       var='nutrition_quality',
-    #                       copy_year=2015,
-    #                       paste_year=2014)
+    # copy wave 11 nutrition_quality onto wave 12
     data = wave_data_copy(data,
-                          var='neighbourhood_safety',
-                          copy_year=2020,
-                          paste_year=2021,
-                          var_type='ordinal')
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020,
+                          var_type='continuous')
+    # copy wave 7 nutrition_quality onto wave 6
     data = wave_data_copy(data,
-                          var='neighbourhood_safety',
-                          copy_year=2014,
-                          paste_year=2015,
-                          var_type='ordinal')
-    data = wave_data_copy(data,
-                          var='S7_neighbourhood_safety',
-                          copy_year=2020,
-                          paste_year=2021,
-                          var_type='ordinal')
-    data = wave_data_copy(data,
-                          var='S7_neighbourhood_safety',
-                          copy_year=2014,
-                          paste_year=2015,
-                          var_type='ordinal')
+                          var='nutrition_quality',
+                          copy_year=2015,
+                          paste_year=2014,
+                          var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
@@ -222,6 +204,79 @@ def generate_stock(projections, cross_validation):
         US_utils.save_multiple_files(bat5, years, "data/final_US/cross_validation/batch5/", "")
 
 
+def generate_input_stock(projections, cross_validation):
+    maxyr = US_utils.get_data_maxyr()
+
+    print('Generating stock population...')
+    years = np.arange(2009, maxyr)
+    file_names = [f"data/imputed_complete_US/{item}_US_cohort.csv" for item in years]
+    data = US_utils.load_multiple_data(file_names)
+
+    # TODO: We reweight the stock population only because reweighting the repl generates very different values to those
+    #   we started with (started with mean ~1, ended with mean in the thousands). We could however trust the analysis
+    #   weight from the survey and just transform the replenishing population weights to bring the mean back to ~1.
+    data = reweight_stock(data, projections)
+
+    # Needs a max_educ column despite it not being important for the majority of people
+    # Will be used in the future for the 16-25 year olds at the beginning of the simulation
+    data['max_educ'] = data['education_state']
+
+    # copy 2017 loneliness data onto 2014 for cross-validation runs
+    data = wave_data_copy(data,
+                          var='loneliness',
+                          copy_year=2017,
+                          paste_year=2014,
+                          var_type='ordinal')
+    # copy wave 11 nutrition_quality onto wave 12
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020,
+                          var_type='continuous')
+    # copy wave 7 nutrition_quality onto wave
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2015,
+                          paste_year=2014,
+                          var_type='continuous')
+
+    # Set loneliness and ncigs as int
+    data['loneliness'] = data['loneliness'].astype('int64')
+    data['ncigs'] = data['ncigs'].astype('int64')
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
+    data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
+    #data['housing_quality'] = data['housing_quality'].astype('int64')
+
+    US_utils.save_multiple_files(data, years, "data/imputed_final_US/", "")
+
+    # Cross Validation stuff
+    # Split pop in half with rng - half to transitions to fit models, half to simulate
+    if cross_validation:
+        # grab all unique pidps and take half at random
+        # TODO: the sample() function can take weights to return equally weighted samples. Problem being that we use
+        #   yearly sample weights. Need to either get longitudinal weights or take average of yearly. Or something else.
+        all_pidp = pd.Series(data['pidp'].unique())
+        #trans_samp = all_pidp.sample(frac=0.5, random_state=1)  # random_state is for seeding and reproducibility
+
+        # Shuffle the pidps randomly and split into 5 chunks
+        shuffled = all_pidp.sample(frac=1, random_state=1)
+        split = np.array_split(shuffled, 5)
+
+        # Now create separate transition and simulation datasets and save them in subfolders of final_US
+        bat1 = data[data['pidp'].isin(split[0])]
+        bat2 = data[data['pidp'].isin(split[1])]
+        bat3 = data[data['pidp'].isin(split[2])]
+        bat4 = data[data['pidp'].isin(split[3])]
+        bat5 = data[data['pidp'].isin(split[4])]
+
+        US_utils.save_multiple_files(bat1, years, "data/imputed_final_US/cross_validation/batch1/", "")
+        US_utils.save_multiple_files(bat2, years, "data/imputed_final_US/cross_validation/batch2/", "")
+        US_utils.save_multiple_files(bat3, years, "data/imputed_final_US/cross_validation/batch3/", "")
+        US_utils.save_multiple_files(bat4, years, "data/imputed_final_US/cross_validation/batch4/", "")
+        US_utils.save_multiple_files(bat5, years, "data/imputed_final_US/cross_validation/batch5/", "")
+
+
+
 def main():
     # Use argparse to select between normal and cross-validation
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
@@ -240,7 +295,8 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_stock(projections, cross_validation)
+    generate_transition_stock(projections, cross_validation)
+    generate_input_stock(projections, cross_validation)
 
 
 if __name__ == "__main__":

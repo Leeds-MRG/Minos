@@ -9,10 +9,12 @@ import argparse
 import glob
 import os
 from datetime import datetime
-from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function, get_region_lsoas
 from multiprocessing import Pool
 from itertools import repeat
 import sys
+
+pd.options.mode.chained_assignment = None  # default='warn'
 
 """
 Get spatial data.
@@ -78,14 +80,6 @@ def get_spatial_data():
     return spatial_data
 
 
-def get_region_lsoas(region):
-    region_file_name_dict = {"manchester": "manchester_lsoas.csv",
-                             "scotland": "scotland_data_zones.csv",
-                             "sheffield": "sheffield_lsoas.csv",
-                             "glasgow": "glasgow_data_zones.csv"}
-    lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
-    return pd.read_csv(lsoas_file_path)
-
 
 def group_by_and_aggregate(data, group_column, v, method):
     """ Aggregate values by
@@ -124,7 +118,7 @@ def subset_lsoas_by_region(spatial_data, region_data):
     spatial_data : pd.DataFrame
         spatial_data only with LSOAs from specified region data.
     """
-    return spatial_data[spatial_data['ZoneID'].isin(region_data["lsoa11cd"])]
+    return spatial_data[spatial_data['ZoneID'].isin(region_data)]
 
 
 def edit_geojson(geojson_data, new_variable_dict, v):
@@ -218,8 +212,17 @@ def attach_spatial_component(minos_data, spatial_data, v, method=np.nanmean):
     return minos_data
 
 
-def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file)
+def load_synthetic_data(minos_file, subset_function, v, region=None, method=np.nanmean):
+    minos_data = pd.read_csv(minos_file, low_memory=False)
+
+    if region:
+        if region == "edinburgh":
+            region_lsoas = get_region_lsoas(region)["DZ2011_Code"]
+        elif region == "scotland" or region == "glasgow":
+            region_lsoas = get_region_lsoas(region)["LSOA11CD"]
+        else:
+            region_lsoas = get_region_lsoas(region)["lsoa11cd"]
+        minos_data = subset_lsoas_by_region(minos_data, region_lsoas)
 
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
@@ -229,7 +232,7 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
 
 
 def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_function, v, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file)
+    minos_data = pd.read_csv(minos_file, low_memory=False)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', v]]
@@ -238,18 +241,22 @@ def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_func
     return minos_data
 
 
-def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='glasgow'):
+def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region=None):
     # Get spatial data and subset LSOAs for desired region.
     # Pooled as there can be hundreds of datasets here and it gets silly.
 
     with Pool() as pool:
         if is_synthetic_pop:
             aggregated_spatial_data = pool.starmap(load_synthetic_data,
-                                                   zip(minos_files, repeat(subset_function), repeat(v)))
+                                                   zip(minos_files, repeat(subset_function), repeat(v), repeat(region)))
         else:
             spatial_data = get_spatial_data()
-            region_lsoas = get_region_lsoas(region)
-            spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
+            if region:
+                if region == "edinburgh" or region == "scotland":
+                    region_lsoas = get_region_lsoas(region)["DZ2011_Code"]
+                else:
+                    region_lsoas = get_region_lsoas(region)["lsoa11cd"]
+                spatial_data = subset_lsoas_by_region(spatial_data, region_lsoas)
             # is this the best way to do this? Dont want to load in spatial data 1000 times.
             # Are these hard copies or just refs?
             aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,

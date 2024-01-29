@@ -14,7 +14,7 @@ population:
 
 mortality_file: 'regional_mortality_2011_2061.csv'
 fertility_file: 'regional_fertility_2011_2061.csv'
-input_data_dir: "data/final_US/cross_validation/batch2"
+input_data_dir: "data/imputed_final_US/cross_validation/batch2"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
@@ -26,7 +26,13 @@ synthetic: FALSE
 scotland: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), HourlyWage(), JobSec(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+#components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
+#              nkidsFertilityAgeSpecificRates(), Mortality(),
+#              Replenishment()]
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
+              Heating(), financialSituation(), MaterialDeprivationChild(), ChildPovertyMetrics(),
+              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
+              Replenishment()]
 
 scale_rates:
     method: "constant"

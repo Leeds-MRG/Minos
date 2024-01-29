@@ -405,7 +405,8 @@ multi_year_boxplots <- function(raw, cv, var) {
   
   ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
     geom_boxplot(notch=TRUE) +
-    labs(title = paste0(var, ': Yearly box plots'))
+    labs(title = paste0(var, ': Yearly box plots')) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 }
 
 q_q_comparison <- function(raw, cv, var) {

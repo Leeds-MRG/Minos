@@ -38,6 +38,9 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     synthpop[f"new_{merge_column}"] = np.arange(synthpop.shape[0])
     synthpop[merge_column] = synthpop[merge_column].astype(int)
     merged_data = synthpop.merge(msim_data, how='left', on=merge_column)
+    print(f"After merge there are {merged_data.shape[0]} rows.")
+    merged_data = merged_data.dropna(axis=0, subset=["ZoneID"])
+    print(f"After removing data with invalid hidps not in the synthpop there are {merged_data.shape[0]} rows.")
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
 
@@ -55,14 +58,14 @@ def get_data_zones(region):
     """
 
     if region == "glasgow":# get glasgow data zones, get Understanding Society data.
-        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"]  # glasgow data zone IDs.
+        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["LSOA11CD"]  # glasgow data zone IDs.
     elif region == "scotland":
-        data_zones = pd.read_csv("persistent_data/spatial_data/scotland_data_zones.csv")["DZ2011_Code"]
+        data_zones = pd.read_csv("persistent_data/spatial_data/scotland_data_zones.csv")["LSOA11CD"]
         data_zones.columns = ['lsoa11cd'] # standardise column name for zone codes.
     elif region == "manchester":
-        data_zones = pd.read_csv("persistent_data/spatial_data/manchester_lsoas.csv")["lsoa11cd"]
+        data_zones = pd.read_csv("persistent_data/spatial_data/manchester_lsoas.csv")["LSOA11CD"]
     elif region == "sheffield":
-        data_zones = pd.read_csv("persistent_data/spatial_data/sheffield_lsoas.csv")["lsoa11cd"]
+        data_zones = pd.read_csv("persistent_data/spatial_data/sheffield_lsoas.csv")["LSOA11CD"]
     elif region == "uk":
         data_zones = None
     else:
@@ -98,7 +101,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
 
     data_zones = get_data_zones(region)
-    US_data = pd.read_csv("data/final_US/2021_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2020.
+    
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
@@ -115,13 +119,20 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
     # scramble new hidp and pidp.
-    merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
+    merged_data['old_hidp'] = merged_data['hidp']  # replace old hidp.
+    merged_data['hidp'] = merged_data['new_hidp']
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
+
+    merged_data['old_pidp'] = merged_data["pidp"]
     merged_data['pidp'] = merged_data.index  # creating new pidps.
+
+    n_children = np.nansum(merged_data.groupby(['hidp'])['nkids'].max())
+    print(f"""There are {n_children} children under 15 recorded in the dataset 
+        giving {merged_data.shape[0]+n_children} total observations.""")
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
-    print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
+    print(f"Taking {percentage}% of sample with {merged_data.shape[0]} giving {sampled_data.shape[0]} rows.")
 
     # merge with spatial_attributes
     # get simd_deciles
@@ -131,7 +142,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # but still updating weights helps with weighted aggregates later.
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2021)
+    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
 
 
 if __name__ == '__main__':

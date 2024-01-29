@@ -66,6 +66,9 @@ class Income(Base):
                         'education_state',
                         'SF_12',
                         'housing_quality',
+                        'job_sector',
+                        'hh_income_diff',
+                        'universal_credit',
                         'job_sector']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -235,7 +238,7 @@ class geeIncome(Base):
                         'region',
                         'hh_income',
                         'job_sec',
-                        'labour_state',
+                        'S7_labour_state',
                         'education_state',
                         'SF_12',
                         'housing_quality',
@@ -593,7 +596,7 @@ class lmmYJIncome(Base):
         #                'region',
         #                'hh_income',
         #                'job_sec',
-        #                #'labour_state',
+        #                'S7_labour_state',
         #                'education_state',
         #                'SF_12',
         #                'weight',
@@ -609,9 +612,12 @@ class lmmYJIncome(Base):
                         'pidp',
                         'hh_income',
                         'hh_income_diff',
-                        'S7_labour_state'
+                        'S7_labour_state',
+                        'hidp'
                         ]
-
+        config = builder.configuration
+        if config.synthetic:
+            view_columns += ["old_pidp"]
 
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
@@ -666,23 +672,36 @@ class lmmYJIncome(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
-        pop['hh_income_new'] = pop['hh_income']
+        pop['hh_income_current'] = pop['hh_income']
         ## Predict next income value
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
-
-        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
-        income_mean = np.mean(newWaveIncome["hh_income"])
-        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
-        newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+        #income_mean = np.nanmedian(newWaveIncome["hh_income"])
+        #std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        #newWaveIncome["hh_income"] *= std_ratio
+        #newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         #print(std_ratio)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print("income", np.mean(newWaveIncome['hh_income']))
+        # Household income is a household level measure, despite this we predict it for each individual
+        # because of this, we need to ensure that all members of a household have the same value after prediction.
+        # To this end, I'm going to take one random member of each household and fix everybody else in the house to
+        # this value
+        newWaveIncome['hidp'] = pop['hidp']
+        #random_income_within_household = newWaveIncome.groupby('hidp').apply(
+        #    lambda x: x.sample(1)).reset_index(drop=True)  # take sample of 1 within each hidp
+        #newWaveIncome['hh_income'] = newWaveIncome['hidp'].map(
+        #    random_income_within_household.set_index('hidp')['hh_income'])  # map hh_income to each member of house
+        #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
+        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
+
+        print(np.median(newWaveIncome['hh_income']))
+        # Finally calculate diff
+        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
@@ -704,7 +723,7 @@ class lmmYJIncome(Base):
                                                                        dependent='hh_income_new',
                                                                        yeo_johnson=True,
                                                                        reflect=False,
-                                                                       noise_std=0.175)  #0.45 for yj. 100? for non yj.
+                                                                       noise_std= 0.25)#0.175)#0.175 for yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

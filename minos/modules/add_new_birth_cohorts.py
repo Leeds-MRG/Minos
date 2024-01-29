@@ -328,6 +328,10 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_households, 'has_newborn'] = True
         population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
 
+        population['has_newborn'] = False
+        population.loc[who_had_children_households, 'has_newborn'] = True
+        self.population_view.update(population[['has_newborn']])
+
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
         #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index

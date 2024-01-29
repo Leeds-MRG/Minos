@@ -23,7 +23,7 @@ from rpy2.robjects.packages import importr
 
 import US_utils
 from minos.modules import r_utils
-
+from uuid import uuid4
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -66,13 +66,14 @@ def expand_repl(US_wave, region):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 - new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)  # Another older method
 
         # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
         # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
         # bit shifting makes number that only relies on clock to improve uniqueness but less random.
-        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e12)
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e24)
         # [(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
 
         # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
@@ -171,7 +172,7 @@ def predict_education(repl, transition_dir):
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
                     }
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2020_2021", rpy2_modules, path=transition_dir)
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan
@@ -184,7 +185,7 @@ def predict_education(repl, transition_dir):
 def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
 
     output_dir = 'data/replenishing'
-    data_source = 'final_US'
+    data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
 
     if scotland_mode:
@@ -192,7 +193,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/batch1'
+        data_source = 'imputed_final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
     if inflated:
@@ -204,13 +205,13 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/glasgow_scaled'
     elif region == 'scotland':
         data_source = 'scaled_scotland_US'
-        output_dir = 'data/replenishing/scotland_scaled'
+        output_dir = 'data/replenishing/scaled_scotland'
     elif region == 'uk':
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2021_US_cohort.csv"
+    file_name = f"data/{data_source}/2020_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
@@ -231,6 +232,17 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)
+    # final_repl['chron_disease'] = final_repl['chron_disease'].astype(int)
+    # final_repl['matdep'] = final_repl['matdep'].astype(int)
+    final_repl['heating'] = final_repl['heating'].astype(int)
+
+    # All child poverty metrics
+    final_repl['relative_poverty'] = final_repl['relative_poverty'].astype(int)
+    final_repl['absolute_poverty'] = final_repl['absolute_poverty'].astype(int)
+    final_repl['low_income'] = final_repl['low_income'].astype(int)
+    final_repl['low_income_matdep_child'] = final_repl['low_income_matdep_child'].astype(int)
+    final_repl['relative_poverty_history'] = final_repl['relative_poverty_history'].astype(int)
+    final_repl['persistent_poverty'] = final_repl['persistent_poverty'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)

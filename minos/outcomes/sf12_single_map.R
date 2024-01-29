@@ -40,7 +40,7 @@ main <- function(){
   else if(length(out.files) > 1) {
     out.files.date <- as.POSIXlt(out.files, format='%Y_%m_%d_%H_%M_%S')
     max.date <- max(out.files.date)
-
+    
     # Collecting these objects here as they have to be formatted
     yr <- max.date$year + 1900 # year is years since 1900
     month <- formatC(max.date$mon + 1, width=2, flag='0') # months are zero indexed (WHY??)
@@ -74,5 +74,35 @@ main <- function(){
   main.single(geojson_file_name, plot_destination, v)
 }
 
+
+main <- function(){
+  
+  parser <- ArgumentParser(description="Plot a map of some MINOS geojson.")
+  parser$add_argument("-m", "--mode", dest='mode', help="What source to use. e.g. defualt_config")
+  parser$add_argument("-i", "--intervention", dest='intervention', help="What inteverntion to map. e.g. livingWageIntervention")
+  parser$add_argument("-r", "--region", dest='region', help="What spatial region to use. sheffield, manchester, scotland(not yet)")
+  parser$add_argument("-y", "--year", dest='yearr', help="What year of MINOS data to map.")
+  parser$add_argument("-d", "--destination", dest='destination', help="Where to save to.")
+  
+  args <- parser$parse_args()
+  
+  mode <- args$mode
+  intervention <- args$intervention
+  region <- args$region
+  year <- args$year 
+  destination_file_name <- args$destination
+
+  #mode <- "default_config"
+  #intervention <- "baseline"
+  #region <- "manchester"
+  #year <- 2025
+  #v <- "SF_12"
+  
+  ## handle runtime subdirectory
+  # first select only the path (not filename)
+  geojson_file_name <- get_geojson_file_name(mode, intervention, region, year)
+  print(geojson_file_name)
+  main.single(geojson_file_name, destination_file_name)
+}
+
 main()
-#main.single("output/baseline/2016.geojson", "output/baseline/scotland_sf12_map.pdf", "scotland", "SF_12")
