@@ -43,7 +43,7 @@ def aggregate_percentage_counts(df, v):
     # for some ordinal variable return a groupby providing the percetage of the population in each variable.
     new_df = pd.DataFrame(df.groupby(['hidp'])[v].agg("max"), columns= [v])
     new_df = pd.DataFrame(new_df[v].value_counts(normalize=False))
-    #new_df['prct'] = new_df[v] #* 100
+    new_df['prct'] = new_df[v] #* 100
     new_df[v] = new_df.index
     new_df.reset_index(inplace=True, drop=True)
     return new_df
