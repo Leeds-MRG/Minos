@@ -4,6 +4,7 @@ USSOURCEDIR = $(CURDIR)/../UKDA-6614-stata/stata/stata13_se/
 SPATIALSOURCEDIR = $(CURDIR)/../US_spatial_lookup/
 DATADIR = $(CURDIR)/data
 RAWDATA = $(DATADIR)/raw_US
+ADJRAWDATA = $(DATADIR)/adj_raw_US
 CORRECTDATA = $(DATADIR)/corrected_US
 COMPOSITEDATA = $(DATADIR)/composite_US
 COMPLETEDATA = $(DATADIR)/complete_US
@@ -21,6 +22,11 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
+TESTING = $(SOURCEDIR)/testing
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
+UKSCALEDDATA = $(DATADIR)/scaled_uk_US
+TESTING = $(SOURCEDIR)/testing
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
@@ -107,6 +113,18 @@ cv_setup: install cv_data cv_transitions cv_replenishing
 
 cv_S7_setup: install data cv_S7_transitions cv_replenishing
 
+setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthetic_glasgow_repl
+
+setup_glasgow_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_glasgow_repl
+
+setup_scotland_scaled: install synthetic_glasgow_data transitions_default synthetic_scotland_repl
+
+setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_scotland_repl
+
+setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
+
+setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
+
 #####################################
 ### ADDITIONAL MAKEFILES
 #####################################
@@ -148,6 +166,10 @@ clean_transitions:
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.txt
+	rm -rf data/transitions/*/*/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*/*.txt
 	rm -rf data/transitions/scotland/*/*.rds
 
 clean_scotland: ### Clean all files related to Scotland mode

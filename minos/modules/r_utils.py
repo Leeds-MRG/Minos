@@ -341,6 +341,9 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         #yj = model.rx2('transform') # use yj from fitted model for latest year.
         currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
 
+    # explicitly convert to matrix to overcome error in predict_merMod below
+    #currentRDF_matrix = matrix.as_matrix(currentRDF)
+
     ols_data = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)  # estimate next income using OLS.
 
     # if dependent == "SF_12":
@@ -428,7 +431,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent == "hh_income_new") and noise_std:
+    elif (dependent in ["hh_income_new", 'hourly_wage']) and noise_std:
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
@@ -451,3 +454,28 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
         prediction_output = ro.conversion.rpy2py(prediction)
 
     return pd.DataFrame(prediction_output, columns=[dependent])
+
+
+def predict_next_rf(model, rpy2_modules, current, dependent):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    rf = rpy2_modules['randomForest']
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    prediction = stats.predict(model, newdata=currentRDF)
+    newRPopDF = base.cbind(currentRDF, predicted=prediction)
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+
+    # Now rename the predicted var (have to drop original column first)
+    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    return newPandasPopDF[[dependent]]

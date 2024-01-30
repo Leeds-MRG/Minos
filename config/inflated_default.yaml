@@ -1,8 +1,8 @@
 randomness:
     key_columns: ['entrance_time', 'age']
 time:
-    start: {year: 2020, month: 10, day: 15}
-    end:   {year: 2035, month: 10, day: 15}
+    start: {year: 2021, month: 10, day: 15}
+    end:   {year: 2036, month: 10, day: 15}
     step_size: 365.25  # Days
     num_years: 15
 population:
@@ -19,6 +19,8 @@ transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing/inflated'
 cross_validation: FALSE
 
+synthetic: FALSE
+
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.
 # All other components need the replenishment module which loads in real cohort data.
@@ -28,8 +30,9 @@ cross_validation: FALSE
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-
+components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
+              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
+              Replenishment()]
 scale_rates:
     method: "constant"
     constant:

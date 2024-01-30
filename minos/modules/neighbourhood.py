@@ -44,18 +44,19 @@ class Neighbourhood(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ['pidp',
-                        'age',
-                        'sex',
-                        'ethnicity',
-                        'region',
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
                         'hh_income',
-                        'neighbourhood_safety',
-                        'SF_12',
-                        'S7_labour_state',
-                        'education_state',
-                        'housing_quality',
-                        'job_sec']
+                        'job_sec'
+                        ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -132,7 +133,6 @@ class Neighbourhood(Base):
     @property
     def name(self):
         return 'neighbourhood'
-
 
     def __repr__(self):
         return "Neighbourhood()"

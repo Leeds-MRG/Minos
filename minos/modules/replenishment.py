@@ -29,6 +29,7 @@ class Replenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
+        config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -75,7 +76,6 @@ class Replenishment(Base):
                         'gross_pay_se',
                         'nutrition_quality',
                         'job_hours_se',
-                        'hourly_rate',
                         'job_hours',
                         'job_inc',
                         'jb_inc_per',
@@ -99,7 +99,18 @@ class Replenishment(Base):
                         'SF_12_diff',
                         'hh_income_diff',
                         'nutrition_quality_diff',
+                        'job_hours_diff',
+                        'hourly_wage_diff',
+                        'child_ages',
                         ]
+
+        if config.synthetic:  # only have spatial column and new pidp for synthpop.
+            view_columns += ["ZoneID",
+                             # "new_pidp",
+                             'local_simd_deciles',
+                             'simd_decile',
+                             # 'cluster'
+                             ]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -110,8 +121,6 @@ class Replenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.age_simulants)
-        #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
     def on_initialize_simulants(self, pop_data):
@@ -137,11 +146,14 @@ class Replenishment(Base):
             new_population = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            logging.info(f"Starting cohort loaded for {self.current_year}.")
+
         elif pop_data.user_data["cohort_type"] == "replenishment":
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            logging.info(f"Replenishing cohort added for {self.current_year}.")
 
         elif pop_data.user_data["cohort_type"] == "births":
             # If we're adding new births need to generate all US data columns from scratch (yay).
@@ -150,6 +162,7 @@ class Replenishment(Base):
             new_population = pd.DataFrame(index=pop_data.index)
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = 0.
+            logging.info(f"Births cohort added for {self.current_year}.")
 
         # Force index of new cohort to align with index of total population data frame
         # otherwise this will overwrite some sims.
@@ -179,10 +192,10 @@ class Replenishment(Base):
         pop = self.population_view.get(event.index, query='pidp > 0')
         if event.time.month == 10 and event.time.year == self.current_year + 1:
             self.current_year += 1
-            pop['time'] += 1
+            #pop['time'] += 1
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
-            new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2019-2070.csv")
+            new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
             # Now select the population for the current year
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds
@@ -224,30 +237,6 @@ class Replenishment(Base):
             # logging
             logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
 
-    def age_simulants(self, event):
-        """ Age everyone by the length of the simulation time step in days
-        Parameters
-        ----------
-        event : builder.event
-            some time point at which to run the method.
-        """
-        # get alive people and add time in years to their age.
-        population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['age'] += event.step_size / pd.Timedelta(days=365.25)
-        self.population_view.update(population)
-
-    def update_time(self, event):
-        """ Update time variable by the length of the simulation time step in days
-        Parameters
-        ----------
-        event : builder.event
-            some time point at which to run the method.
-        """
-        # get alive people and add time in years to their age.
-        population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['time'] += event.step_size / pd.Timedelta(days=365.25)
-        self.population_view.update(population)
-
 
 class NoReplenishment(Base):
 
@@ -260,6 +249,7 @@ class NoReplenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
+        config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -305,7 +295,6 @@ class NoReplenishment(Base):
                         'gross_pay_se',
                         'nutrition_quality',
                         'job_hours_se',
-                        'hourly_rate',
                         'job_hours',
                         'job_inc',
                         'jb_inc_per',
@@ -318,7 +307,17 @@ class NoReplenishment(Base):
                         'S7_housing_quality',
                         'S7_neighbourhood_safety',
                         'S7_physical_health',
-                        'S7_mental_health',]
+                        'S7_mental_health',
+                        'job_hours_diff',
+                        ]
+
+        if config.synthetic:  # only have spatial column and new pidp for synthpop.
+            view_columns += ["ZoneID",
+                             # "new_pidp",
+                             'local_simd_deciles',
+                             'simd_decile',
+                             # 'cluster'
+                             ]
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -337,8 +336,8 @@ class NoReplenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.age_simulants)
-        builder.event.register_listener('time_step', self.update_time)
+        #builder.event.register_listener('time_step', self.age_simulants)
+        #builder.event.register_listener('time_step', self.update_time)
         builder.event.register_listener('time_step', self.on_time_step, priority=0)
 
     def on_initialize_simulants(self, pop_data):
@@ -377,7 +376,8 @@ class NoReplenishment(Base):
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
-
+            new_population['child_ages'] = ""
+            new_population['nkids'] = 0
 
         # Force index of new cohort to align with index of total population data frame
         # otherwise this will overwrite some sims.

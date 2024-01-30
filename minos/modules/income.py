@@ -599,21 +599,20 @@ class lmmYJIncome(Base):
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
-        view_columns = [
-            'hh_income',
-            'age',
-            'sex',
-            'ethnicity',
-            'region',
-            'education_state',
-            'job_sec',
-            #'job_sector',
-            'time',
-            'pidp',
-            #'weight',
-            'SF_12',
-            'hh_income_diff',
-        ]
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        'job_sec',
+                        'SF_12',
+                        'pidp',
+                        'hh_income',
+                        'hh_income_diff',
+                        'S7_labour_state'
+                        ]
+
+
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)# + columns_created)
@@ -703,9 +702,9 @@ class lmmYJIncome(Base):
                                                                        self.rpy2Modules,
                                                                        pop,
                                                                        dependent='hh_income_new',
-                                                                       yeo_johnson = True,
+                                                                       yeo_johnson=True,
                                                                        reflect=False,
-                                                                       noise_std= 0.175)#0.45 for yj. 100? for non yj.
+                                                                       noise_std=0.175)  #0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

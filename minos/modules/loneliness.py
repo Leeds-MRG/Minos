@@ -48,19 +48,22 @@ class Loneliness(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["sex",
-                        "S7_labour_state",
-                        "SF_12",
-                        "job_sec",
+        view_columns = ["age",
+                        "sex",
                         "ethnicity",
+                        "region",
                         "education_state",
-                        "age",
                         "housing_quality",
-                        "hh_income",
+                        "neighbourhood_safety",
                         "loneliness",
-                        "hh_comp",
-                        "marital_status",
-                        "ncigs"]
+                        "nutrition_quality",
+                        "ncigs",
+                        'job_sec',
+                        'hh_income',
+                        'marital_status',
+                        "SF_12",
+                        'hh_comp'
+                        ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -117,9 +120,9 @@ class Loneliness(Base):
 
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2019
+            year = 2020
         else:
-            year = min(year, 2019)
+            year = min(year, 2020)
 
         transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
