@@ -350,6 +350,32 @@ cv_ordinal_plots(pivoted.df = ethnic.piv.nowhite,
 rm(ethnic.pivoted, ethnic.piv.nowhite)
 ```
 
+## nkids Household
+
+```{r}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'nkids')
+multi_year_boxplots(raw, cv, 'nkids')
+q_q_comparison(raw, cv, 'nkids')
+```
+
+## nkids Max
+
+```{r}
+raw.nkids_max <- raw %>%
+  dplyr::select(pidp, time, nkids) %>%
+  group_by(time) %>%
+  summarise(max_nkids = max(nkids)) %>%
+  mutate(source = 'final_US')
+
+cv.nkids_max <- cv %>%
+  dplyr::select(pidp, time, nkids) %>%
+  group_by(time) %>%
+  summarise(max_nkids = max(nkids)) %>%
+  mutate(source = 'baseline_output')
+
+multi_year_boxplots(raw.nkids_max, cv.nkids_max, 'max_nkids')
+```
+
 ## Parity
 
 ```{r}
