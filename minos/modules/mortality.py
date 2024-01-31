@@ -96,7 +96,7 @@ class Mortality(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
         # Add an event every simulation time_step increment to see if anyone dies.
-        # Priority 0/10 so simulants make this transition first.
+        # Priority 1/10 so simulants make this transition first.
         # No point becoming depressed if you're dead.
         builder.event.register_listener('time_step', self.on_time_step, priority=1)
 

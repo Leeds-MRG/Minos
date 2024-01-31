@@ -25,6 +25,7 @@ require(pscl)
 require(bestNormalize)
 require(lme4)
 require(randomForest)
+require(tidyr)
 
 ###################################
 # Main loop for longitudinal models 
