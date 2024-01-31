@@ -49,6 +49,8 @@ from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
 
+# from minos.modules.metrics import ChildPovertyMetrics
+
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
 
@@ -116,34 +118,58 @@ replenishment_components_map = {
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
 
+# metrics_map = {
+#     "ChildPovertyMetrics()": ChildPovertyMetrics()
+# }
 
+
+# HR 31/01/24 Updated again
 # HR 03/08/23 Updated component priorities
 # Order should be (see https://github.com/Leeds-MRG/Minos/issues/291):
 # 0. Replenishment
 # 1. Mortality
-# 2. Fertility
-# 3. Education
+# 2. Fertility and ageing
+# 3. Income
 # 4. Intervention
-# 5. Income
+# 5. Education
 # 6. Everything else except mental wellbeing
 # 7. Mental wellbeing, equivalent income (SIPHER7 only)
+# 8. Metrics (to be added later)
 def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
-    component_priorities.update({el:0 for el in replenishment_components_map})
-    component_priorities.update({el:1 for el in ["Mortality()"]})
-    component_priorities.update({el:2 for el in ["FertilityAgeSpecificRates()",
-                                                 "nkidsFertilityAgeSpecificRates()"]})
-    component_priorities.update({el:3 for el in ["Education()"]})
-    component_priorities.update({el:4 for el in intervention_components_map})
-    component_priorities.update({el:5 for el in ['Income()', 'geeIncome()', 'geeYJIncome()', 'lmmDiffIncome()', 'lmmYJIncome()']}) # New income-based components to be added here
+    component_priorities.update({el: 0 for el in replenishment_components_map})
+    component_priorities.update({el: 1 for el in ["Mortality()"]})
+    component_priorities.update({el: 2 for el in ["FertilityAgeSpecificRates()",
+                                                  "nkidsFertilityAgeSpecificRates()",
+                                                  "Ageing"]})
+    component_priorities.update({el: 3 for el in ['Income()',
+                                                  'geeIncome()',
+                                                  'geeYJIncome()',
+                                                  'lmmDiffIncome()',
+                                                  'lmmYJIncome()',
+                                                  'JobSec()',
+                                                  'JobHours()',
+                                                  'HourlyWage()']})  # Any new income-based components to be added here
+    component_priorities.update({el: 4 for el in intervention_components_map})
+    component_priorities.update({el: 5 for el in ["Education()"]})
 
-    and_finally = ['MWB', 'geeMWB()', "geeYJMWB()", "lmmYJMWB()", "lmmDiffMWB()", 'S7EquivalentIncome()']
-    everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)+and_finally]
-    component_priorities.update({el:6 for el in everything_else})
-    component_priorities.update({el:7 for el in and_finally})
+    and_finally = ['MWB()',
+                   'geeMWB()',
+                   "geeYJMWB()",
+                   "lmmYJMWB()",
+                   "lmmDiffMWB()",
+                   'S7EquivalentIncome()']
 
-    [print(str(el)) for el in component_priorities.items()]
+    everything_else = [el for el in list(components_map)
+                       + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]
+
+    # print("Everything else:\n", everything_else)
+
+    component_priorities.update({el: 6 for el in everything_else})
+    component_priorities.update({el: 7 for el in and_finally})
+    # component_priorities.update({el: 8 for el in metrics_map})
+
     return component_priorities, all_components_map
 
 
@@ -153,7 +179,7 @@ def validate_and_sort_components(config_components, intervention):
     all_components = config_components
     if intervention:
         all_components += intervention
-    print(all_components)
+    # print("All components:\n", all_components)
     comps_unknown = [c for c in all_components if c not in all_map]
 
     # Remove unknown components and print warnings
@@ -167,14 +193,20 @@ def validate_and_sort_components(config_components, intervention):
         print("\n")
 
     # Get components in correct order for passing to Vivarium
-    comp_dict = {comp:priorities[comp] for comp in all_components}
+    comp_dict = {comp: priorities[comp] for comp in all_components}
     # print("Components (unordered):\n", comp_dict)
-    comp_out = [all_map[k] for k,v in sorted(comp_dict.items(), key=lambda item: item[1])]
-    # print("Components (ordered forwards):\n", comp_out)
-    comp_out = list(reversed(comp_out))
-    # print("Components (ordered backwards):\n", comp_out)
+    comp_list = [k for k, v in sorted(comp_dict.items(), key=lambda item: item[1])]
+    # print("Components (ordered forwards):\n", comp_list)
 
-    return comp_out
+    print("Components and priorities (before backward ordering):")
+    for c in comp_list:
+        print(c, priorities[c])
+
+    comp_list = list(reversed(comp_list))
+    # print("Components (ordered backwards):\n", comp_list)
+
+    comp_final = [all_map[c] for c in comp_list]
+    return comp_final
 
 
 def validate_components(config_components, intervention):
@@ -214,7 +246,7 @@ def validate_components(config_components, intervention):
         # add intervention components.
         component_list.append(intervention_components_map[intervention])
 
-    component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
+    component_list += replenishment_component  # make sure replenishment component goes LAST. intervention goes second to last.
     print("Final components list:", component_list)
     return component_list
 

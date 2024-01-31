@@ -345,7 +345,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   data <- replace.missing(data)
   data <- drop_na(data)
-  model <- randomForest(formula, data = data, ntree = 100)
+  model <- randomForest(formula, data = data, ntree = 10)
   
   return(model)
 }
