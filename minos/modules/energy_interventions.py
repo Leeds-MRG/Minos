@@ -271,3 +271,170 @@ class energyBillSupportScheme(Base):
         # TODO add in reduction due to energy crisis that varies by year.
 
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+
+class goodHousingDummy(Base):
+
+    @property
+    def name(self):
+        return "good_housing_dummy"
+
+    def __repr__(self):
+        return "goodHousingDummy()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ['alive',
+                        'hheat']
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step)
+
+    def on_time_step(self, event):
+        pass
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop['hheat'] = 1
+        self.population_view.update(pop)
+    # set it to 1.
+        # thats it
+
+class GBIS(Base):
+
+    @property
+    def name(self):
+        return "great_british_insulation_scheme"
+
+    def __repr__(self):
+        return "GBIS()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ['yearly_energy',
+                        "region",
+                        "hidp",
+                        "S7_labour_state",
+                        'hh_income',
+                        "universal_income",
+                        "council_tax"]
+        columns_created = ["income_boosted", 'boost_amount']
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step)
+
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
+                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+        pass
+        # get some households below the poverty line.
+        # replace their heating to 1.
+        # reduce their energy bills by £3XX per year (plus some heterogeneity?).
+
+class fossilFuelReplacementScheme(Base):
+
+    @property
+    def name(self):
+        return "fossil_fuel_replacement_scheme"
+
+    def __repr__(self):
+        return "fossilFuelReplacementScheme()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ['yearly_energy',
+                        "region",
+                        "hidp",
+                        "S7_labour_state",
+                        'hh_income',
+                        "universal_income",
+                        "council_tax"]
+        columns_created = ["income_boosted", 'boost_amount']
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step)
+
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
+                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+        pass
+
+        # get households on gas expenditure.
+        # replace with similar electrical hour percentage.
+        # standing charges issues?
