@@ -7,6 +7,95 @@ import logging
 from minos.modules.base_module import Base
 
 
+
+
+class energyBaseline(Base):
+
+    # actual high energy prices. with EPCG and EBSS serve as the ongoing 'baseline'?
+    
+    @property
+    def name(self):
+        return "energy_downlift"
+
+    def __repr__(self):
+        return "energyDownlift()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income", 'yearly_energy']
+        columns_created = ["income_boosted", 'boost_amount']
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
+                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the energy downlift intervention in year {event.time.year}...")
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        # TODO probably a faster way to do this than resetting the whole column.
+        #pop['hh_income'] -= pop['boost_amount']
+        # reset boost amount to 0 before calculating next uplift
+        pop['boost_amount'] = 0
+        # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
+        # About £800 as of 2020 + adjustment for inflation.
+        # Subset everyone who is under poverty line.
+        # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
+        # TODO is an 80% increase correct? More dynamic assumption needed?
+        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
+
+        pop['income_boosted'] = pop['boost_amount'] != 0
+        pop['hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
+        # TODO assumes constant fuel expenditure beyond negative hh income. need some kind of energy module to adjust behaviour..
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people downlifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
+
+
+
 class energyDownlift(Base):
     @property
     def name(self):
@@ -351,7 +440,7 @@ class GBIS(Base):
                         'hh_income',
                         "universal_income",
                         "council_tax"]
-        columns_created = ["income_boosted", 'boost_amount']
+        columns_created = ["income_boosted", 'boost_cost', 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -366,9 +455,12 @@ class GBIS(Base):
 
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
+                                   'boost_cost' 0.,
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
+
+
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
@@ -376,6 +468,17 @@ class GBIS(Base):
         # get some households below the poverty line.
         # replace their heating to 1.
         # reduce their energy bills by £3XX per year (plus some heterogeneity?).
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        # TODO get some fraction of households rather than absolutely everyone.
+        pop['income_boosted'] = pop['hh_income'<0.6*np.median(pop['hh_income'])]
+        # TODO heterogeneity/validation in the boost amount.
+        pop['boost_amount'] = pop['income_boosted'] * 350
+        # TODO check households on housing quality as well.
+        pop.loc["boosted", "hh_heat"] = 1
+        self.population_view.update(pop)
+
 
 class fossilFuelReplacementScheme(Base):
 
@@ -426,6 +529,7 @@ class fossilFuelReplacementScheme(Base):
         builder.event.register_listener("time_step", self.on_time_step)
 
 
+
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
@@ -433,8 +537,19 @@ class fossilFuelReplacementScheme(Base):
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
-        pass
-
         # get households on gas expenditure.
         # replace with similar electrical hour percentage.
         # standing charges issues?
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        # TODO get some fraction of households rather than absolutely everyone.
+        pop['income_boosted'] = pop['hh_income'<0.6*np.median(pop['hh_income'])]
+        # TODO heterogeneity in conversion costs. particularly RE: current contracts and standing charges.
+        electric_to_gas_cost_ratio = 0.5
+        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio
+        # TODO any influence on housing quality? yearly energy should feed into housing_quality as a variable or percentage net income expenditure.
+        pop['yearly_gas'] = 0.
+        pop['yearly_electric'] += pop['yearly_gas_to_electric']
+        self.population_view.update(pop['yearly_electric', 'yearly_gas'])
+
