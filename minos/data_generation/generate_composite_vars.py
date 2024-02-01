@@ -987,6 +987,27 @@ def generate_difference_variables(data):
     return data
 
 
+def generate_education_variables(data):
+    # Creating dummy vars for start and stop education
+    data = data.sort_values(by=['pidp', 'time'])
+
+    # First Starting Education
+    # Find instances where current wave == FT Education, but previous wave does not
+    # convert to int at the end
+    data['start_educ'] = data.groupby('pidp')['S7_labour_state'].shift(1) != 'FT Education'
+    data['start_educ'] = data['start_educ'] & (data['S7_labour_state'] == 'FT Education')
+    data['start_educ'] = data['start_educ'].astype(int)
+
+    # Next Finishing Education
+    # Opposite to before
+    # convert to int at the end
+    data['finish_educ'] = data.groupby('pidp')['S7_labour_state'].shift(1) == 'FT Education'
+    data['finish_educ'] = data['finish_educ'] & (data['S7_labour_state'] != 'FT Education')
+    data['finish_educ'] = data['finish_educ'].astype(int)
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1011,7 +1032,8 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
-    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
+    data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
+    data = generate_education_variables(data)  # Start and stop educ variables
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
