@@ -14,17 +14,17 @@
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
-require(argparse)
-require(tidyverse)
-require(stringr)
-require(texreg)
-require(dplyr)
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
-require(randomForest)
+library(argparse)
+library(tidyverse)
+library(stringr)
+library(texreg)
+library(dplyr)
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
+library(randomForest)
 
 ###################################
 # Main loop for longitudinal models 
@@ -38,7 +38,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "GLMMTMB")
   
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
@@ -143,14 +143,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     if (tolower(mod.type) == "lmm_diff")  {
       data <- data %>%
         group_by(pidp) %>%
-        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
         # update model formula with _diff variable. 
         dependent <-  paste0(dependent, "_diff")
         formula.string <- paste0(dependent, " ~ ", independents)
         form <- as.formula(formula.string) 
-        }
+    }
 
     # if using glmms need to be careful which time the outcome variable is from.
     # for nutrition quality and SF12 using previous wave information to predict next 
@@ -163,28 +162,22 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%
-         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
          mutate(new = lead(.data[[dependent]], order_by = time)) %>%
          rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
          dependent <-  paste0(dependent, "_new")
-         formula.string <- paste0(dependent, " ~ ", independents)
-         form <- as.formula(formula.string) 
-       }
-    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage'))  {
+    }
+    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage', 'education_state'))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
-        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(last = lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
-      # data <- data %>%
-      #   group_by(pidp) %>%
-      #   mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-      #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)
-      # 
-      formula.string <- paste0(dependent, " ~ ", independents)
-      form <- as.formula(formula.string)
-      }
+    }
+    
+    # Create formula object
+    formula.string <- paste0(dependent, " ~ ", independents)
+    form <- as.formula(formula.string)
+    
     # get only required variables and sort by pidp/time. 
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
@@ -237,6 +230,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,
                                      depend = dependent)
+      
+    } else if (tolower(mod.type) == "glmmtmb") {
+      
+      model <- estimate_longitudinal_glmm_tmb(data = sorted_df,
+                                              formula = form,
+                                              depend = dependent)
     }
     
     write_coefs <- F

@@ -1,10 +1,11 @@
 source("minos/transitions/utils.R")
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
-require(randomForest)
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
+library(randomForest)
+library(glmmTMB)
 
 ################ Model Specific Functions ################
 
@@ -347,5 +348,16 @@ estimate_RandomForest <- function(data, formula, depend) {
   data <- drop_na(data)
   model <- randomForest(formula, data = data, ntree = 100)
   
+  return(model)
+}
+
+estimate_longitudinal_glmm_tmb <- function(data, formula, depend) {
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  data[, c(depend)] <- factor(data[, c(depend)])
+  
+  model <- glmmTMB(formula,
+                   data = data,
+                   family = multinomial(link = 'logit'))
   return(model)
 }
