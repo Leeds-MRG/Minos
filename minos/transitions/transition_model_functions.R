@@ -1,11 +1,16 @@
 source("minos/transitions/utils.R")
+
 library(ordinal)
 library(nnet)
 library(pscl)
 library(bestNormalize)
 library(lme4)
 library(randomForest)
-library(glmmTMB)
+library(caret)
+library(doParallel)
+library(parallelly)
+library(VGAM)
+
 
 ################ Model Specific Functions ################
 
@@ -344,20 +349,59 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
   
+  numCores <- availableCores() / 2
+  
+  registerDoParallel(cores = numCores)
+  
   data <- replace.missing(data)
   data <- drop_na(data)
-  model <- randomForest(formula, data = data, ntree = 100)
+
+  print("Training RandomForest with parallel processing...")
+  # Train RandomForest with parallel processing
+  fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
   
-  return(model)
+  set.seed(123)
+  rfModel <- train(formula, data = data, 
+                   method = "rf",
+                   trControl = fitControl,
+                   tuneGrid = expand.grid(mtry = 3), 
+                   ntree = 100)  # RF Parameters
+  
+  return(rfModel)
 }
 
-estimate_longitudinal_glmm_tmb <- function(data, formula, depend) {
+estimate_longitudinal_vglm <- function(data, formula, depend) {
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
   
-  model <- glmmTMB(formula,
-                   data = data,
-                   family = multinomial(link = 'logit'))
-  return(model)
+  sample.pidps <- sample(unique(data$pidp), length(unique(data$pidp)) / 10)
+  sample.data <- data %>% filter(pidp %in% sample.pidps)
+  
+  print(paste0("Length of data: ", nrow(data)))
+  print(paste0("Length of sample data: ", nrow(sample.data)))
+  
+  # Define the multi-nomial model
+  # Note: Adjust "fixed" and "random" according to your specific predictors and random effects structure
+  # mm <- mixed_model(fixed = formula, 
+  #                   random = ~ 1 | pidp, 
+  #                   data = data, 
+  #                   family = "multinomial")
+  
+  # # Fit a GAMM with a multinomial distribution
+  # gam_model <- bam(formula,
+  #                  data = data,
+  #                  family = multinomial())
+  
+  print("About to fit the VGLM model...")
+  
+  vglm_model <- vglm(formula,
+                     family = multinomial(),
+                     data = sample.data,
+                     control = vglm.control(maxit = 1, trace = TRUE))
+  
+  print(summary(vglm_model))
+  
+  return(vglm_model)
 }
+

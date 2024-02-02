@@ -14,17 +14,20 @@
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
+
 library(argparse)
 library(tidyverse)
 library(stringr)
 library(texreg)
 library(dplyr)
+library(tidyr)
 library(ordinal)
 library(nnet)
 library(pscl)
 library(bestNormalize)
 library(lme4)
 library(randomForest)
+
 
 ###################################
 # Main loop for longitudinal models 
@@ -38,7 +41,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "GLMMTMB")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "VGLM")
   
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
@@ -231,9 +234,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                      formula = form,
                                      depend = dependent)
       
-    } else if (tolower(mod.type) == "glmmtmb") {
+    } else if (tolower(mod.type) == "vglm") {
       
-      model <- estimate_longitudinal_glmm_tmb(data = sorted_df,
+      model <- estimate_longitudinal_vglm(data = sorted_df,
                                               formula = form,
                                               depend = dependent)
     }
