@@ -9,7 +9,13 @@ library(randomForest)
 library(caret)
 library(doParallel)
 library(parallelly)
-library(VGAM)
+#library(VGAM)
+library(Matrix)
+library(MCMCglmm)
+
+library(conflicted)
+conflicts_prefer(dplyr::lag)
+conflicts_prefer(dplyr::filter)
 
 ################ Model Specific Functions ################
 
@@ -404,4 +410,40 @@ estimate_longitudinal_vglm <- function(data, formula, depend) {
   print(summary(vglm_model))
   
   return(vglm_model)
+}
+
+estimate_longitudinal_mcmc_glmm <- function(data, formula, depend) {
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  data[, c(depend)] <- factor(data[, c(depend)])
+  
+  sample.pidps <- sample(unique(data$pidp), length(unique(data$pidp)) / 10)
+  sample.data <- data %>% filter(pidp %in% sample.pidps)
+  
+  # print(paste0("Length of data: ", nrow(data)))
+  # print(paste0("Length of sample data: ", nrow(sample.data)))
+  # 
+  # print("Checking NA values...")
+  # na_count <- sapply(data, function(y) sum(length(which(is.na(y)))))
+  # na_count <- data.frame(na_count)
+  # 
+  # print(na_count)
+  
+  print("About to fit the MCMCglmm model...")
+  
+  data <- as.data.frame(data)
+  
+  write.csv(data,
+            file = here::here('testing_mcmc_glmm.csv'))
+  
+  model <- MCMCglmm(formula,
+                    random = ~ pidp,
+                    family = "ordinal",
+                    data = sample.data)
+  
+  print("Finished fitting the MCMCglmm model.")
+  
+  print(summary(model))
+  
+  return(model)
 }

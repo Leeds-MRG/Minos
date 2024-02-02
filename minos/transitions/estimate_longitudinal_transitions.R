@@ -20,12 +20,6 @@ library(stringr)
 library(texreg)
 library(dplyr)
 library(tidyr)
-library(ordinal)
-library(nnet)
-library(pscl)
-library(bestNormalize)
-library(lme4)
-library(randomForest)
 
 ###################################
 # Main loop for longitudinal models 
@@ -39,7 +33,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "VGLM")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "VGLM", "MCMCGLMM")
   
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
@@ -49,7 +43,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     data <- orig_data
     
     def = readLines(modDefs, n = 1) # Read one line from the connection.
-    if(identical(def, character(0))){break} # If the line is empty, exit.
+    if(identical(def, character(0))) { break } # If the line is empty, exit.
+    if(startsWith(def, '#')) { next }  # Lines starting with # are comments and can be ignored
     
     # Get model type
     split1 <- str_split(def, pattern = " : ")[[1]]
@@ -171,7 +166,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
-        mutate(last = lag(.data[[dependent]], order_by = time)) %>%
+        mutate(last = dplyr::lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
     }
     
@@ -237,6 +232,11 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_longitudinal_vglm(data = sorted_df,
                                               formula = form,
                                               depend = dependent)
+    } else if (tolower(mod.type) == 'mcmcglmm') {
+      
+      model <- estimate_longitudinal_mcmc_glmm(data = sorted_df,
+                                               formula = form,
+                                               depend = dependent)
     }
     
     write_coefs <- F
