@@ -12,7 +12,7 @@ from minos.modules.base_module import Base
 class energyBaseline(Base):
 
     # actual high energy prices. with EPCG and EBSS serve as the ongoing 'baseline'?
-    
+
     @property
     def name(self):
         return "energy_downlift"
