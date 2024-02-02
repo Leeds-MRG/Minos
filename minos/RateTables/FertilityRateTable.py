@@ -327,7 +327,7 @@ class FertilityRateTable(BaseHandler):
             self.parity_max = self.configuration["parity_max"]
         else:
             self.parity_max = PARITY_MAX_DEFAULT
-        print("Max. parity:", self.parity_max)
+        # print("Max. parity:", self.parity_max)
         self._parity_added = False
 
     def _build(self):
