@@ -37,6 +37,9 @@ class Mortality(Base):
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
+        # Must call parent method as overridden here; ensures priority set correctly
+        super().pre_setup(config, simulation)
+
         # Define path to mortality rate data.
         config.update({
             'path_to_mortality_file': f"{config.persistent_data_dir}/{config.mortality_file}"
@@ -98,7 +101,8 @@ class Mortality(Base):
         # Add an event every simulation time_step increment to see if anyone dies.
         # Priority 1/10 so simulants make this transition first.
         # No point becoming depressed if you're dead.
-        builder.event.register_listener('time_step', self.on_time_step, priority=1)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added.

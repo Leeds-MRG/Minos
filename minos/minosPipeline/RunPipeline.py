@@ -173,84 +173,6 @@ def get_priorities():
     return component_priorities, all_components_map
 
 
-def validate_and_sort_components(config_components, intervention):
-    # Separate any unknown components
-    priorities, all_map = get_priorities()
-    all_components = config_components
-    if intervention:
-        all_components += intervention
-    # print("All components:\n", all_components)
-    comps_unknown = [c for c in all_components if c not in all_map]
-
-    # Remove unknown components and print warnings
-    if comps_unknown:
-        for c in comps_unknown:
-            all_components.remove(c)
-        print("\nWarning! The components below were not recognised when running the Minos pipeline and have been removed")
-        print("Check they're present in minos/minosPipeline/RunPipeline.py and rerun")
-        for c in comps_unknown:
-            print(str(c))
-        print("\n")
-
-    # Get components in correct order for passing to Vivarium
-    comp_dict = {comp: priorities[comp] for comp in all_components}
-    # print("Components (unordered):\n", comp_dict)
-    comp_list = [k for k, v in sorted(comp_dict.items(), key=lambda item: item[1])]
-    # print("Components (ordered forwards):\n", comp_list)
-
-    print("Components and priorities (before backward ordering):")
-    for c in comp_list:
-        print(c, priorities[c])
-
-    comp_list = list(reversed(comp_list))
-    # print("Components (ordered backwards):\n", comp_list)
-
-    comp_final = [all_map[c] for c in comp_list]
-    return comp_final
-
-
-def validate_components(config_components, intervention):
-    """
-
-    Parameters
-    ----------
-    config_components: list
-        List of reprs from vivarium modules
-    intervention: bool
-        Is an intervention included in the modules list?
-
-    Returns
-    -------
-        component_list: list
-            List of component module classes.
-    """
-    component_list = []
-    replenishment_component = []
-    print("Initial components list:", config_components)
-    for component in config_components:
-        if component in components_map.keys():
-            # add non intervention components
-            component_list.append(components_map[component])
-        elif component in SIPHER7_components_map.keys():
-            component_list.append(SIPHER7_components_map[component])
-        elif component in replenishment_components_map.keys():
-            replenishment_component.append(replenishment_components_map[component])
-        else:
-            print("Warning! Component", component, "in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
-
-    # TODO: include some error handling for choosing interventions
-    # Can do this using assertions
-    # i.e. try { AssertThat(intervention is in list(<int1>, <int2>) ...
-    # or even cleverer if we can get the repr()'s from the intervention classes to automate this step
-    if intervention in intervention_components_map.keys():
-        # add intervention components.
-        component_list.append(intervention_components_map[intervention])
-
-    component_list += replenishment_component  # make sure replenishment component goes LAST. intervention goes second to last.
-    print("Final components list:", component_list)
-    return component_list
-
-
 def type_check(data):
     """
     We have an unfortunate problem with some variables where the type changes when being read in by Vivarium, which the
@@ -291,11 +213,20 @@ def RunPipeline(config, intervention=None):
     --------
      A dataframe with the resulting simulation
     """
-    # Check each of the modules is present.
+    # Check modules are valid and convert to modules
+    components_raw = config['components']
+    if intervention is not None:
+        components_raw += intervention
 
-    # Replenishment always go last. (first in sim)
-    # components = validate_components(config['components'], intervention)
-    components = validate_and_sort_components(config['components'], intervention)
+    component_priority_map, component_name_map = get_priorities()
+    components = [component_name_map[c] for c in components_raw if c in component_name_map]
+    components_invalid = [component_name_map[c] for c in components_raw if c not in component_name_map]
+
+    print("Components below were not recognised and were removed from simulation:\n", components_invalid)
+    print("Priorities for components are below; change in components map if incorrect:")
+    map_rev = {v: k for k, v in component_name_map.items()}
+    for c in components:
+        print(c, component_priority_map[map_rev[c]])
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -310,6 +241,10 @@ def RunPipeline(config, intervention=None):
     # Even then these classes could be appended with pre_setup functions.
     # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
+
+    # Attach module priorities to simulation for retrieval later by each module
+    # simulation.component_priority_map = component_priority_map
+    simulation._data.write("component_priority_map", component_priority_map)
 
     rpy2_modules = {"base": importr('base'),
                     "stats": importr('stats'),
@@ -328,7 +263,7 @@ def RunPipeline(config, intervention=None):
     # Run pre-setup method for each module.
     for component in components:
         simulation = component.pre_setup(config, simulation)
-        print(f"Presetup done for: {component}")
+        # print(f"Presetup done for: {component}")
         logging.info(f"\t{component}")
 
     # Print start time for entire simulation.
