@@ -62,7 +62,8 @@ class nCars(Base):
                         'job_sec',
                         'hh_income',
                         'SF_12',
-                        "ncars"
+                        "ncars",
+                        "S7_labour_state"
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)

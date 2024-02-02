@@ -115,6 +115,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
+  data <- replace.missing(data)
   
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -130,7 +131,9 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
     model[[depend]] <- data[[depend]]
     model$class_preds <- predict(model)
   }
-  
+
+  #test <- runif(n=length(predict(model, type='zero'))) > predict(model, type='zero')
+  #test <- round(test*(predict(model, type='count')))
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)

@@ -990,6 +990,56 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
 
 ```
 
+
+## Number of cars
+
+```{r}
+raw.ncars <- raw.dat %>%
+  dplyr::select(pidp, time, ncars) %>%
+  group_by(time, ncars) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.housing <- base.dat %>%
+  dplyr::select(pidp, time, ncars) %>%
+  group_by(time, ncars) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+ncars <- rbind(raw.ncars, base.ncars)
+ncars$ncars <- as.factor(ncars$ncars)
+
+# Now plot
+ggplot(data = ncars, mapping = aes(x = time, y = n, group = ncars, colour = ncars)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Number of Cars', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ncars.norm <- ncars %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = ncars.norm, mapping = aes(x = time, y = prct, fill=ncars)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Number of Cars') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'ncars.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.ncars, base.ncars, ncars, ncars.norm)
+```
+
+
 ```{r}
 
 ```
