@@ -11,7 +11,6 @@ library(doParallel)
 library(parallelly)
 library(VGAM)
 
-
 ################ Model Specific Functions ################
 
 # We can keep these really simple, all they need to do is run the model so
@@ -359,8 +358,10 @@ estimate_RandomForest <- function(data, formula, depend) {
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
-  
+
   set.seed(123)
+  
+  # Adjusting the model parameters to use fewer trees and limit depth
   rfModel <- train(formula, data = data, 
                    method = "rf",
                    trControl = fitControl,
@@ -404,4 +405,3 @@ estimate_longitudinal_vglm <- function(data, formula, depend) {
   
   return(vglm_model)
 }
-

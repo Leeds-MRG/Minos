@@ -14,7 +14,6 @@
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
-
 library(argparse)
 library(tidyverse)
 library(stringr)
@@ -27,7 +26,6 @@ library(pscl)
 library(bestNormalize)
 library(lme4)
 library(randomForest)
-
 
 ###################################
 # Main loop for longitudinal models 
