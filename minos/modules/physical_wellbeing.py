@@ -190,8 +190,6 @@ class lmmYJPCS(Base):
                         'financial_situation',
                         'active',
                         'auditc',
-                        'chron_disease',
-                        'matdep',
                         'region',
                         'education_state']
 
