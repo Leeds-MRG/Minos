@@ -112,9 +112,9 @@ if __name__ == "__main__":
 
     # PCS Vars
     # AUDITC (alcohol) - present in 2015, 2017, 2019, 2020
-    data = complete_case_custom_years(data, 'auditc', years=[2015, 2017, 2019, 2020])
+    data = complete_case_custom_years(data, 'auditc', years=[2015, 2017, 2019, 2020, 2021])
     # active (physical activity) - present in 2015, 2017, 2019, 2020
-    data = complete_case_custom_years(data, 'active', years=[2015, 2017, 2019, 2020])
+    data = complete_case_custom_years(data, 'active', years=[2015, 2017, 2019, 2020, 2021])
     # chronic disease in the all years function
 
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
