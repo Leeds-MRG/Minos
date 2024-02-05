@@ -58,19 +58,6 @@ run_yearly_models <- function(transitionDir_path,
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
 
   ## Set some factor levels because R defaults to using alphabetical ordering
-<<<<<<< HEAD
-  data$housing_quality <- factor(data$housing_quality,
-                                 levels = c('Low',
-                                            'Medium',
-                                            'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality,
-                                 levels = c('No to all',
-                                            'Yes to some',
-                                            'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                    levels = c('Often',
-                                               'Some of the time',
-=======
   orig_data$housing_quality <- factor(orig_data$housing_quality, 
                                  levels = c('Low',
                                             'Medium',
@@ -81,8 +68,7 @@ run_yearly_models <- function(transitionDir_path,
                                             'Yes to all'))
   orig_data$S7_neighbourhood_safety <- factor(orig_data$S7_neighbourhood_safety,
                                     levels = c('Often', 
-                                               'Some of the time', 
->>>>>>> development
+                                               'Some of the time',
                                                'Hardly ever'))
   orig_data$S7_labour_state <- factor(orig_data$S7_labour_state,
                                  levels = c('FT Employed',
@@ -91,7 +77,7 @@ run_yearly_models <- function(transitionDir_path,
                                             'FT Education',
                                             'Family Care',
                                             'Not Working'))
-  data$auditc <- factor(data$auditc,
+  orig_data$auditc <- factor(orig_data$auditc,
                         levels = c('Non-drinker',
                                    'Low Risk',
                                    'Increased Risk',
@@ -156,13 +142,8 @@ run_yearly_models <- function(transitionDir_path,
         {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-<<<<<<< HEAD
-        }# skip this iteration if model not in valid types.
-
-=======
       }# skip this iteration if model not in valid types. 
-      
->>>>>>> development
+
       # reset the formula string for each year
       formula.string <- formula.string.orig
 
@@ -187,7 +168,6 @@ run_yearly_models <- function(transitionDir_path,
       if(grepl('neighbourhood_safety', dependent)){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
-<<<<<<< HEAD
       # alcohol model (auditc) only in specific years
       if(dependent == 'auditc' & !year %in% c(2014, 2016, 2018, 2019)) { next }
       # active only in specific years
@@ -195,10 +175,6 @@ run_yearly_models <- function(transitionDir_path,
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
       if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
-=======
-      # Can't fit a time lagged model to SF12 in first wave
-      if(dependent == 'SF_12' & year == 2009) { next }
->>>>>>> development
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
       if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) { next }
@@ -243,12 +219,7 @@ run_yearly_models <- function(transitionDir_path,
       if(!year > 2016) {
         formula.string <- str_remove_all(formula.string, " \\+ factor\\(loneliness\\)")
       }
-<<<<<<< HEAD
-      if(!year %in% c(2015, 2017, 2019)) {
-        formula.string <- str_remove_all(formula.string, " \\+ nutrition_quality")
-=======
       if(!year %in% c(2015, 2017, 2019, 2021)) {
->>>>>>> development
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(nutrition_quality\\)")
       }
       if(year < 2013) {
@@ -413,12 +384,6 @@ mode <- 'default'
 
 create.if.not.exists(transitionDir)
 
-<<<<<<< HEAD
-#default <- T
-
-
-=======
->>>>>>> development
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {
   print('Estimating transition models in Scotland mode')
