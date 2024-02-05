@@ -6,7 +6,7 @@ import logging
 from datetime import datetime as dt
 
 
-class financialSituation(Base):
+class FinancialSituation(Base):
 
 
     # Special methods used by vivarium.

@@ -32,7 +32,7 @@ from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
 from minos.modules.heating import Heating
-from minos.modules.financial_situation import financialSituation
+from minos.modules.financial_situation import FinancialSituation
 from minos.modules.housing_tenure import HousingTenure
 from minos.modules.physical_activity import PhysicalActivity
 from minos.modules.material_deprivation import MaterialDeprivation
@@ -73,6 +73,7 @@ components_map = {
     "lmmYJPCS()": lmmYJPCS(),
     "MWB()": MWB(),
     # Intermediary modules
+    "Ageing()": Ageing(),
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
@@ -84,7 +85,7 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
-    "financialSituation()": financialSituation(),
+    "FinancialSituation()": FinancialSituation(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -117,8 +118,7 @@ intervention_components_map = {  # Interventions
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
-    "energyDownliftNoSupport": energyDownliftNoSupport(),
-    "Ageing()": Ageing(),
+    "energyDownliftNoSupport": energyDownliftNoSupport()
 }
 
 replenishment_components_map = {
@@ -150,26 +150,24 @@ def get_priorities():
     component_priorities = {}
     component_priorities.update({el: 0 for el in replenishment_components_map})
     component_priorities.update({el: 1 for el in ["Mortality()"]})
-    component_priorities.update({el: 2 for el in ["FertilityAgeSpecificRates()",
-                                                  "nkidsFertilityAgeSpecificRates()",
-                                                  "Ageing"]})
-    component_priorities.update({el: 3 for el in ['Income()',
+    component_priorities.update({el: 2 for el in ["Ageing()"]})
+    component_priorities.update({el: 3 for el in ["FertilityAgeSpecificRates()",
+                                                  "nkidsFertilityAgeSpecificRates()"]})
+    component_priorities.update({el: 4 for el in ["Education()"]})
+    component_priorities.update({el: 5 for el in ['Income()',
                                                   'geeIncome()',
                                                   'geeYJIncome()',
                                                   'lmmDiffIncome()',
-                                                  'lmmYJIncome()',
-                                                  'JobSec()',
-                                                  'JobHours()',
-                                                  'HourlyWage()']})  # Any new income-based components to be added here
-    component_priorities.update({el: 4 for el in intervention_components_map})
-    component_priorities.update({el: 5 for el in ["Education()"]})
+                                                  'lmmYJIncome()']})  # Any new income-based components to be added here
+    component_priorities.update({el: 6 for el in intervention_components_map})
 
     and_finally = ['MWB()',
                    'geeMWB()',
                    "geeYJMWB()",
                    "lmmYJMWB()",
                    "lmmDiffMWB()",
-                   'S7EquivalentIncome()']
+                   'S7EquivalentIncome()',
+                   "lmmYJPCS()"]
 
     everything_else = [el for el in list(components_map)
                        + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]
@@ -177,7 +175,7 @@ def get_priorities():
     # print("Everything else:\n", everything_else)
 
     component_priorities.update({el: 6 for el in everything_else})
-    component_priorities.update({el: 7 for el in and_finally})
+    component_priorities.update({el: 9 for el in and_finally})
     # component_priorities.update({el: 8 for el in metrics_map})
 
     return component_priorities, all_components_map
@@ -226,7 +224,13 @@ def RunPipeline(config, intervention=None):
      A dataframe with the resulting simulation
     """
     # Check modules are valid and convert to modules
-    components_raw = config['components']
+    #components_raw = config['components']
+    # read in the components from the correct text file
+    components_raw = []
+    with open(config['component_file']) as comp_file:
+        for line in comp_file:
+            components_raw.append(line.rstrip())
+
     if intervention is not None:
         components_raw += intervention
 
