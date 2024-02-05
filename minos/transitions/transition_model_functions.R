@@ -12,6 +12,7 @@ library(parallelly)
 #library(VGAM)
 library(Matrix)
 library(MCMCglmm)
+library(glmnet)
 
 library(conflicted)
 conflicts_prefer(dplyr::lag)
@@ -433,8 +434,8 @@ estimate_longitudinal_mcmc_glmm <- function(data, formula, depend) {
   
   data <- as.data.frame(data)
   
-  write.csv(data,
-            file = here::here('testing_mcmc_glmm.csv'))
+  # write.csv(data,
+  #           file = here::here('testing_mcmc_glmm.csv'))
   
   model <- MCMCglmm(formula,
                     random = ~ pidp,
@@ -442,6 +443,30 @@ estimate_longitudinal_mcmc_glmm <- function(data, formula, depend) {
                     data = sample.data)
   
   print("Finished fitting the MCMCglmm model.")
+  
+  print(summary(model))
+  
+  return(model)
+}
+
+estimate_longitudinal_glmnet <- function(data, formula, depend) {
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  data[, c(depend)] <- factor(data[, c(depend)])
+  
+  # Prepare matrix of predictors and vector of response
+  x <- model.matrix(~ . -1, data = data[, !(names(data) %in% depend)])
+  y <- data[, depend]
+  
+  print("About to fit the glmnet model...")
+  
+  model <- glmnet(x = data,
+                  y = depend,
+                  family = 'multinomial',
+                  trace.it = 1)
+  
+  print("Finished fitting the glmnet model.")
   
   print(summary(model))
   

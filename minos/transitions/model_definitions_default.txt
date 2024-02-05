@@ -1,4 +1,5 @@
 MCMCGLMM : education_state ~ sex + ethnicity + region + time
+#GLMNET : education_state ~ sex + ethnicity + region + time
 RF : hourly_wage ~ time + sex + age + I(age**2) + ethnicity + region + education_state + urban + job_sec
 CLM : housing_quality ~ scale(age) + I(scale(age)**2) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + scale(hh_income) + I(scale(hh_income)**2) + scale(hh_income_diff) + factor(housing_tenure)
 CLM : loneliness ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + relevel(factor(job_sec), ref = '3') + scale(hh_income) + relevel(factor(marital_status), ref = 'Partnered')
@@ -16,10 +17,3 @@ GLMM : hh_income ~ scale(hh_income) + scale(hh_income_diff) + scale(age) + I(sca
 LMM : nutrition_quality ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + scale(hh_income) + (1|pidp) + (1|hidp) + time
 GLMM : SF_12 ~ scale(SF_12_last) + I(scale(SF_12_last)**2) + scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + scale(hh_income) + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + I(factor(ncigs>0)) + (1|pidp)
 ZIP : ncigs ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + scale(hh_income) + scale(SF_12) | I(factor(ncigs>0)) + relevel(factor(ethnicity), ref = 'WBI') + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + relevel(factor(job_sec), ref = '3') + scale(hh_income) + scale(SF_12)
-
-
-
-
-
-
-# MCMCGLMM : education_state ~ factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + factor(time)

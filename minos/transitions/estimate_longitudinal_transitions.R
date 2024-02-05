@@ -33,7 +33,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "VGLM", "MCMCGLMM")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "VGLM", "MCMCGLMM", "GLMNET")
   
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
@@ -235,6 +235,11 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     } else if (tolower(mod.type) == 'mcmcglmm') {
       
       model <- estimate_longitudinal_mcmc_glmm(data = sorted_df,
+                                               formula = form,
+                                               depend = dependent)
+    } else if (tolower(mod.type) == 'glmnet') {
+      
+      model <- estimate_longitudinal_glmnet(data = sorted_df,
                                                formula = form,
                                                depend = dependent)
     }
