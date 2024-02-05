@@ -74,7 +74,8 @@ class Loneliness(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -121,9 +122,9 @@ class Loneliness(Base):
 
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2019
+            year = 2020
         else:
-            year = min(year, 2019)
+            year = min(year, 2020)
 
         transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.

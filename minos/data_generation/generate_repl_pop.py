@@ -29,7 +29,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_2018, region):
+def expand_repl(US_wave, region):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -46,17 +46,36 @@ def expand_repl(US_2018, region):
         Expanded dataset (copy of original 16-year-olds for each year from 2018 to 2070) reweighted by sex
     """
 
-    # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
-    repl_2018 = US_2018[(US_2018['age'].isin([16, 17]))]
-    repl_2018['age'] = 16
+    # # just select the 16 and 17-year-olds in 2018 to be copied and reweighted (replace age as 16)
+    # repl_wave = US_wave[(US_wave['age'].isin([16, 17]))]
+    # repl_wave['age'] = 16
+    # # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
+    # repl_wave['education_state'][repl_wave['education_state'] > 2] = 2
+
+    # get max hidp value so we can add new households with unique hidp
+    max_hidp = US_wave['hidp'].max()
+
+    # Find households with a 16 or 17 year old to add as replenishing
+    repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
+    repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
+    # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
+    repl_hhs['age'][repl_hhs['age'] == 17] = 16
     # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
-    repl_2018['education_state'][repl_2018['education_state'] > 2] = 2
+    repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
+
+    # Final step now we are adding complete households. We need to give the non 16 year olds a flag that distinguishes
+    # them from other simulants. We will do this by setting the weight of these individuals to 0.
+    # This means these individuals will transition throughout the model as normal, but be ignored in the outputs as
+    # we almost exclusively use weighed statistics. One possible solution to non-weighted sums in outputs is to remove
+    # all 0 weight individuals at the same time as removing living people
+    # repl_hhs['alive'][repl_hhs['age'] != 16] = 'ghost'
+    repl_hhs['weight'][repl_hhs['age'] != 16] = 0
 
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
-    for year in range(2018, 2071, 1):
+    for year in range(2014, 2071, 1):
         # first get copy of 2018 16 (and 17) -year-olds
-        new_repl = repl_2018.copy()
+        new_repl = repl_hhs.copy()
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
@@ -96,6 +115,18 @@ def expand_repl(US_2018, region):
 
     # reset index for the predict_education step
     expanded_repl.reset_index(drop=True, inplace=True)
+
+    # Final step is to assign new unique hidps to the replenishing populations
+    # expanded_repl['hidp'] = expanded_repl['hidp'] + max_hidp + expanded_repl['time']
+    # Iterate over each year
+    for year in expanded_repl['time'].unique():
+        # Filter the dataframe for the current year
+        df_year = expanded_repl[expanded_repl['time'] == year]
+
+        # Group by original 'hidp' and assign new 'hidp' values
+        for _, group in df_year.groupby('hidp'):
+            max_hidp += 1  # Increment the max_hidp for a new unique hidp
+            expanded_repl.loc[group.index, 'hidp'] = max_hidp  # Assign new hidp
 
     return expanded_repl
 
@@ -171,7 +202,7 @@ def predict_education(repl, transition_dir):
                     "ordinal": importr('ordinal'),
                     "zeroinfl": importr("pscl"),
                     }
-    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
+    transition_model = r_utils.load_transitions("education_state/nnet/education_state_2020_2021", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
 
     repl['max_educ'] = np.nan
@@ -210,7 +241,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/uk_scaled/ind'
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2020_US_cohort.csv"
+    file_name = f"data/{data_source}/2021_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
@@ -231,10 +262,12 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['chron_disease'] = final_repl['chron_disease'].astype(int)
     final_repl['matdep'] = final_repl['matdep'].astype(int)
+    final_repl['job_sec'] = final_repl['job_sec'].astype(int)
+    final_repl['nkids'] = final_repl['nkids'].astype(float)
 
     US_utils.check_output_dir(output_dir)
-    final_repl.to_csv(f'{output_dir}/replenishing_pop_2019-2070.csv', index=False)
-    print('Replenishing population generated for 2019 - 2070')
+    final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
+    print('Replenishing population generated for 2015 - 2070')
 
 
 def main():

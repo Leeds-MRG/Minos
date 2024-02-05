@@ -82,8 +82,8 @@ class MWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=6)
-
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for SF_12 when new simulants are added.
@@ -248,7 +248,8 @@ class geeMWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=9)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         self.max_sf12 = None
         #only need to load this once for now.
@@ -377,7 +378,8 @@ class geeYJMWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=9)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         #only need to load this once for now.
         self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/gee_yj/SF_12_MCS_GEE_YJ", self.rpy2_modules, path=self.transition_dir)
@@ -494,7 +496,8 @@ class lmmYJMWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=9)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
@@ -619,7 +622,8 @@ class lmmDiffMWB(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=9)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2_modules, path=self.transition_dir)

@@ -8,6 +8,8 @@ import argparse
 
 import US_utils
 
+import US_format_raw_children_data
+
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
@@ -572,7 +574,7 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     return combined
 
 
-def format_data(year, data):
+def format_data(year, data, verbose):
     """ Main function for formatting US data. Loads formats and saves each wave sequentially.
 
     Parameters
@@ -588,7 +590,7 @@ def format_data(year, data):
     """
     # Load file and take desired subset of columns.
     attribute_columns, column_names = format_ukhls_columns(year)
-    data = US_utils.subset_data(data, attribute_columns, column_names)
+    data = US_utils.subset_data(data, attribute_columns, column_names, verbose)
 
     # Format columns by categories.
     # Categories that are formatted the same regardless of wave.
@@ -604,12 +606,15 @@ def format_data(year, data):
     data = format_ukhls_heating(data)
     data = format_housing_tenure(data)
 
+    #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
+    if year >= 2014:
+        data = US_format_raw_children_data.main(data, year)
     data = format_analysis_weight(data, year)
 
     return data
 
 
-def main(wave_years: list, file_source: str, file_output: str) -> None:
+def main(wave_years: list, file_source: str, verbose: bool, file_output: str) -> None:
     """ Main file for processing raw US data.
 
     Parameters
@@ -632,7 +637,7 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
         hhresp_name = US_utils.US_file_name(year, file_source, "hhresp")
         indresp_hhresp = combine_indresp_hhresp(year, indresp_name, hhresp_name)
 
-        data = format_data(year, indresp_hhresp)
+        data = format_data(year, indresp_hhresp, verbose)
 
         # check for and remove any null rows (1 created in bhps due to merge)
         data = data.loc[~data["pidp"].isnull()]
@@ -644,19 +649,20 @@ def main(wave_years: list, file_source: str, file_output: str) -> None:
 if __name__ == "__main__":
 
     maxyr = US_utils.get_data_maxyr()
-
     years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
-    #years = np.arange(2009, 2020)
 
     # Take source from command line args (or most likely from Makefile variable)
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
     parser.add_argument("-s", "--source_dir", required=True, type=str,
                         help="The source directory for Understanding Society data.")
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help="Enable verbose output.")
     args = parser.parse_args()
 
     # Get source from args
     source = args.source_dir
+    verbose = args.verbose
     # source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
     output = "data/raw_US/"
 
-    main(years, source, output)
+    main(years, source, verbose, output)

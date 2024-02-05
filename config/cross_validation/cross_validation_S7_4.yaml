@@ -1,8 +1,8 @@
 randomness:
     key_columns: ['entrance_time', 'age']
 time:
-    start: {year: 2014, month: 10, day: 15}
-    end:   {year: 2020, month: 10, day: 15}
+    start: {year: 2015, month: 10, day: 15}
+    end:   {year: 2021, month: 10, day: 15}
     step_size: 365.25  # Days
     num_years: 6
 population:
@@ -26,6 +26,8 @@ synthetic: FALSE
 scotland: FALSE
 
 component_file: 'config/SIPHER7_components.txt'
+
+synthetic: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 components : [S7EquivalentIncome(), Loneliness(), S7Neighbourhood(), S7Housing(), S7PhysicalHealth(), S7MentalHealth(), S7Labour(), lmmYJIncome(), Education(),

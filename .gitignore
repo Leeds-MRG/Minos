@@ -63,7 +63,6 @@ tests/data/*
 .Rproj.user
 Minos.Rproj
 .RData
-.Rhistory
 
 # Knitted R notebook files
 minos/validation/*.html
@@ -100,3 +99,15 @@ plots/*
 # HR 21/12/22 Windows utils stuff to ignore
 minos/windowsutils/output/
 minos/windowsutils/output/*
+
+# LA 30/1/24
+# spatial data files
+persistent_data/spatial_data/*
+# testing notebooks
+minos/testing/*.Rmd
+# image files creates by RNotebooks (we can use the html file generated instead of the individual files)
+minos/validation/*_files/
+minos/testing/*_files/
+# python notebooks for testing
+notebooks/equivalent_income_test.ipynb
+notebooks/testing_scottish_sample.ipynb

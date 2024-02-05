@@ -94,7 +94,8 @@ class FertilityAgeSpecificRates(Base):
                                                  creates_columns=['last_birth_time', 'parent_id'],
                                                  requires_columns=['sex'])
         # Add listener event to check who has given birth on each time step using the on_time_step function below.
-        builder.event.register_listener('time_step', self.on_time_step, priority=1)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ Adds the required columns for the module to run to the population data frame.
@@ -203,8 +204,8 @@ class nkidsFertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
     """
-    @staticmethod
-    def pre_setup(config, simulation):
+    # @staticmethod
+    def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run.
 
         Parameters
@@ -264,15 +265,19 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp']
-        # Add new columns to population required for module using build in sim creator.
-        self.population_view = builder.population.get_view(view_columns)
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
+
+        columns_created = ['has_newborn']
 
         builder.population.initializes_simulants(self.on_initialize_simulants,
-                                                 requires_columns=['sex'])
-        # Add listener event to check who has given birth on each time step using the on_time_step function below.
-        builder.event.register_listener('time_step', self.on_time_step, priority=1)
+                                                 creates_columns=columns_created)
 
+        # Add new columns to population required for module using build in sim creator.
+        self.population_view = builder.population.get_view(view_columns + columns_created)
+
+        # Add listener event to check who has given birth on each time step using the on_time_step function below.
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ Adds the required columns for the module to run to the population data frame.
@@ -284,8 +289,11 @@ class nkidsFertilityAgeSpecificRates(Base):
             It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
             creation_window, and current simulation state (setup/running/etc.).
         """
-        # doesn't create anything. just incrementing nkids in time step which already exists.
-        pass
+        # One new column for whether a household has any newborn children.
+        pop_update = pd.DataFrame({'has_newborn': False},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
 
 
     def on_time_step(self, event):
@@ -298,6 +306,10 @@ class nkidsFertilityAgeSpecificRates(Base):
         """
         # Get a view on all living people.
         population = self.population_view.get(event.index, query='alive == "alive"')
+        population['has_newborn'] = False
+        # resetting nkids in repl populations.
+        population['nkids'] = population.groupby('hidp')['nkids'].transform("max")
+
         # not needed due to yearly increments.
         #nine_months_ago = pd.Timestamp(event.time - PREGNANCY_DURATION)
         #can_have_children = population.last_birth_time < nine_months_ago
@@ -314,13 +326,22 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children_hidps = population.loc[had_children, 'hidp'] # Get all HIDPs of people who've had children
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
-        self.population_view.update(population[['nkids']])
+        population.loc[who_had_children_households, 'has_newborn'] = True
+        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
+        #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
-        self.population_view.update(population[['nkids_ind']])
+        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'has_newborn']])
 
+    def add_new_child_to_chain(self, age_chain):
+
+        value = age_chain#.values[0]
+        if type(value) == float or value is None:
+            return "0"
+        else:
+            return "0_" + age_chain
 
     @staticmethod
     def load_age_specific_fertility_rate_data(builder):

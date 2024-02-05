@@ -1,14 +1,12 @@
 ## Validation plotting functions for MINOS
+
 require(ggplot2)
 require(ggridges)
 require(viridis)
-
-require(ggplot2)
 require(ggExtra)
 require(here)
 require(scales)
 require(gghighlight)
-require(viridis)
 
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
@@ -191,7 +189,7 @@ spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     filter(!.data[[v]] %in% miss.values)
 
   # get range of years to figure out if this is handover or not
-  if (min(data_plot$time) < 2020) {
+  if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }
 
@@ -240,7 +238,7 @@ spaghetti_highlight_max_plot <- function(data, v, save=FALSE, save.path=NULL, fi
     filter(!.data[[v]] %in% miss.values)
 
   # get range of years to figure out if this is handover or not
-  if (min(data_plot$time) < 2020) {
+  if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }
 
@@ -299,7 +297,7 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
   # Remove missing values
   data_plot <- data_plot %>%
     filter(!data_plot[[v]] %in% miss.values)
-  if (min(data_plot$time) < 2020) {
+  if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }
 
@@ -336,7 +334,7 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
 marg_dist_densigram_plot_oneyear <- function(observed,
                                              predicted,
                                              var,
-                                             target.year = 2020,
+                                             target.year = 2021,
                                              save = FALSE,
                                              save.path = here::here('plots')) {
   # get just one year
@@ -585,11 +583,10 @@ handover_boxplots <- function(raw, baseline, var) {
   combined <- rbind(raw.var, baseline.var)
   combined$time <- as.factor(combined$time)
   combined <- drop_na(combined)
-  #combined <- filter(combined, .data[[var]] != -9)
-
+  
   if (var %in% c('hh_income', 'equivalent_income')) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
-  } else if (var == 'ncigs') {
+  } else if (var %in% c('ncigs', 'hourly_wage')) {
     #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }

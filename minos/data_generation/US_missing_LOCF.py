@@ -267,9 +267,10 @@ def main(data, save=False):
 
 if __name__ == "__main__":
     # Load in data.
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(2009, maxyr)
     # Process data by year and pidp.
     # perform LOCF using lambda forward fill functions.
-    years = np.arange(2009, 2020)
     file_names = [f"data/deterministic_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = main(data)

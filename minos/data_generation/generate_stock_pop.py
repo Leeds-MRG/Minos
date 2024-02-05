@@ -100,8 +100,8 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     # change time to 2018 for tmp
     tmp['time'] = paste_year
 
-    # replace -9 values in 2020 with Nonetype
-    data['nutrition_quality'][data['time'] == paste_year] = None
+    # replace -9 values in paste_year with Nonetype
+    data[var][data['time'] == paste_year] = None
 
     # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
     data_merged = data.merge(right=tmp,
@@ -129,7 +129,6 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
         data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
             data_merged[var][data_merged['time'] == paste_year].value_counts().index[0]
 
-
     return data_merged
 
 
@@ -150,30 +149,42 @@ def generate_stock(projections, cross_validation):
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
 
-    # copy 2015 alcohol data onto 2014 for cross-validation runs
-    data = wave_data_copy(data,
-                          var='auditc',
-                          copy_year=2015,
-                          paste_year=2014,
-                          var_type='ordinal')
-    # copy 2017 loneliness data onto 2014 for cross-validation runs
+    # # copy 2017 loneliness data onto 2014 for cross-validation runs
     data = wave_data_copy(data,
                           var='loneliness',
                           copy_year=2017,
-                          paste_year=2014,
+                          paste_year=2015,
                           var_type='ordinal')
-    # copy wave 11 nutrition_quality onto wave 12
+    # # copy wave 11 nutrition_quality onto wave 12
+    # data = wave_data_copy(data,
+    #                       var='nutrition_quality',
+    #                       copy_year=2019,
+    #                       paste_year=2020)
+    # # copy wave 7 nutrition_quality onto wave 6
+    # data = wave_data_copy(data,
+    #                       var='nutrition_quality',
+    #                       copy_year=2015,
+    #                       paste_year=2014)
     data = wave_data_copy(data,
-                          var='nutrition_quality',
-                          copy_year=2019,
-                          paste_year=2020,
-                          var_type='continuous')
-    # copy wave 7 nutrition_quality onto wave 6
+                          var='neighbourhood_safety',
+                          copy_year=2020,
+                          paste_year=2021,
+                          var_type='ordinal')
     data = wave_data_copy(data,
-                          var='nutrition_quality',
-                          copy_year=2015,
-                          paste_year=2014,
-                          var_type='continuous')
+                          var='neighbourhood_safety',
+                          copy_year=2014,
+                          paste_year=2015,
+                          var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='S7_neighbourhood_safety',
+                          copy_year=2020,
+                          paste_year=2021,
+                          var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='S7_neighbourhood_safety',
+                          copy_year=2014,
+                          paste_year=2015,
+                          var_type='ordinal')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')

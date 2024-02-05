@@ -37,6 +37,30 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   return(dat)
 }
 
+read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
+  # Same as the above function but finds the first minos run of potentially many in a batch run.
+  ## Start with scenario name
+  # attach full output path
+  # get runtime directory
+  # list files
+  # return do.call(...)
+  
+  scen.path <- paste0(out.path, scenario)
+  scen.path <- get_latest_runtime_subdirectory(scen.path)
+  
+  files <- list.files(scen.path,
+                      pattern = '0001_run_id_[0-9]{4}.csv',
+                      full.names = TRUE)
+  dat <- do.call(rbind, lapply(files, read.csv))
+  
+  # remove dead people
+  if(drop.dead) {
+    dat <- dat %>%
+      filter(alive != 'dead')
+  }
+  
+  return(dat)
+}
 
 # Function to find the latest runtime subdirectory (most recent)
 # Reads all directories in a given path and returns the most recent subdir
@@ -168,4 +192,9 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
               nutrition_quality = mean(nutrition_quality))
   
   return(grouped)
+}
+
+
+extract_child_ages <- function(child_ages_string){
+  return (as.numeric(unlist(strsplit(child_ages_string, "_"))))
 }

@@ -4,6 +4,10 @@ Upgrade of household appliances
 Possible future work for moving households and changing household composition (e.g. marrying/births)
 """
 
+#############################################################################################
+# DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT DEFUNKT
+#############################################################################################
+
 import pandas as pd
 from pathlib import Path
 from minos.modules import r_utils
@@ -75,7 +79,8 @@ class Labour(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=5)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.

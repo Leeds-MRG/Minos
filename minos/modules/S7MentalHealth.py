@@ -73,7 +73,8 @@ class S7MentalHealth(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -115,9 +116,9 @@ class S7MentalHealth(Base):
         # year
         if self.cross_validation:
             # if cross-val, fix year to final year model
-            year = 2019
+            year = 2020
         else:
-            year = min(self.year, 2019)
+            year = min(self.year, 2020)
         
         transition_model = r_utils.load_transitions(f"S7_mental_health/clm/S7_mental_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         return r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'S7_mental_health')

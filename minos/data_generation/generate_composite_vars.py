@@ -163,14 +163,31 @@ def calculate_hourly_wage(data):
     # data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
 
     # add in missing codes for known missings
-    data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = -1
-    data["hourly_wage"][data["labour_state_raw"] == "Retired"] = -2
-    data["hourly_wage"][data["labour_state_raw"] == "Sick/Disabled"] = -3
-    data["hourly_wage"][data["labour_state_raw"] == "Student"] = -4
+    # CHANGE 03/10/23 - replacing all these with 0 instead of missing codes
+    data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = 0
+    data["hourly_wage"][data["labour_state_raw"] == "Retired"] = 0
+    data["hourly_wage"][data["labour_state_raw"] == "Sick/Disabled"] = 0
+    data["hourly_wage"][data["labour_state_raw"] == "Student"] = 0
     data["hourly_wage"][data["labour_state_raw"].isin(["Government Training",
                                                        "Maternity Leave",
                                                        "Family Care",
-                                                       "Other"])] = -5
+                                                       "Other"])] = 0
+
+    # handle minimum wage values
+    # all values from here: https://www.gov.uk/national-minimum-wage-rates
+    # less than 18
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 5.28) & (data['age'] < 18)] = 5.28
+    # 18 - 20
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 7.49) & (data['age'] >= 18) & (data['age'] <= 20)] = 7.49
+    # 21 - 22
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 21) & (data['age'] <= 22)] = 10.18
+    # 23 & over
+    data['hourly_wage'][
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 23)] = 10.42
+
     # now replace all still nan with -9
     data["hourly_wage"].fillna(-9, inplace=True)
 
@@ -449,6 +466,12 @@ def generate_SIPHER_7_employment(data):
     data.drop(labels=['labour_state_raw', 'emp_type'],
               axis=1,
               inplace=True)
+
+    ############################################################
+    # THIS IS BAD BUT NECESSARY, REPLACE WHEN POSSIBLE!!!!!!
+    # Need to copy the wave 12 PT employment information as we are missing this info in wave 13
+    PT_pidps_2020 = data['pidp'][(data['time'] == 2020) & (data['S7_labour_state'] == 'PT Employed')]
+    data['S7_labour_state'][(data['pidp'].isin(PT_pidps_2020)) & (data['time'] == 2021)] = 'PT Employed'
 
     return data
 
@@ -1291,7 +1314,7 @@ def calculate_children(data,
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "SF_12_MCS", "SF_12_PCS", "nutrition_quality", 'matdep']
+    diff_columns = ["hh_income", "SF_12_MCS", "SF_12_PCS", "nutrition_quality", 'matdep', "job_hours", 'hourly_wage']
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)

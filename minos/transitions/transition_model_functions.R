@@ -1,12 +1,16 @@
 source("minos/transitions/utils.R")
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
-require(glmmTMB)
-require(msm)
-require(survival)
+
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
+library(glmmTMB)
+library(msm)
+library(randomForest)
+library(caret)
+library(doParallel)
+library(parallelly)
 
 ################ Model Specific Functions ################
 
@@ -227,7 +231,7 @@ estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, 
 
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
-
+  
   if(include_weights) {
     model <- glmer(formula,
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
@@ -251,7 +255,53 @@ estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, 
   return(model)
 }
 
-estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend)
+estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
+  
+  # Sort out dependent type (factor)
+  data <- replace.missing(data)
+  #data <- drop_na(data)
+  if (reflect) {
+    max_value <- nanmax(data[[depend]])
+    data[, c(depend)] <- max_value - data[, c(depend)] 
+  }
+  if (yeo_johnson)
+  {
+    yj <- yeojohnson(data[,c(depend)])
+    data[, c(depend)] <- predict(yj)
+  }
+  
+  min_value <- nanmin(data[[depend]])
+  data[[depend]] <- data[[depend]] - min_value + 0.001
+  
+  if (depend == 'hourly_wage') {
+    # Histogram of hourly_wage_diff
+    hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
+  }
+  
+  if(include_weights) {
+    model <- lmer(formula,  
+                   nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
+                   family=gaussian(link='identity'), # Gaussian family with identity link
+                   weights=weight, 
+                   data = data)
+  } else {
+    model <- lmer(formula, 
+                   nAGQ=0, 
+                   family=gaussian(link='identity'),
+                   data = data)
+  }
+  attr(model,"min_value") <- min_value
+  
+  if (yeo_johnson){
+    attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
+  }
+  if (reflect) {
+    attr(model,"max_value") <- max_value # Works though.
+  }
+  return(model)
+}
+
+estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend) 
 {
   #data[[depend]] <- as.factor(data[[depend]])
   data <- replace.missing(data)
@@ -398,4 +448,36 @@ estimate_survival <- function(data, formula, depend) {
   model <- survreg(formula, data = data, dist = 'extreme')
   
   return(model)
+}
+
+estimate_RandomForest <- function(data, formula, depend) {
+  
+  print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
+  
+  numCores <- availableCores() / 2
+  
+  registerDoParallel(cores = numCores)
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+
+  print("Training RandomForest with parallel processing...")
+  # Train RandomForest with parallel processing
+  fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
+  set.seed(123)
+  
+  # Adjusting the model parameters to use fewer trees and limit depth
+  rfModel <- train(formula, data = data, 
+                   method = "rf",
+                   trControl = fitControl,
+                   tuneGrid = expand.grid(mtry = 3), 
+                   ntree = 100)  # RF Parameters
+  
+  # expand.grid(mtry = ncol(data) / 3)
+  
+  
+  
+  #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
+  
+  return(rfModel)
 }

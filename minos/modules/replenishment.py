@@ -63,6 +63,7 @@ class Replenishment(Base):
                         'yearly_energy',
                         'job_sector',
                         'nutrition_quality',
+                        'job_hours_se',
                         'job_hours',
                         'hourly_wage',
                         'phealth',
@@ -91,6 +92,9 @@ class Replenishment(Base):
                         'matdep',
                         'matdep_diff',
                         'chron_disease',
+                        'job_hours_diff',
+                        'hourly_wage_diff',
+                        'child_ages',
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
@@ -109,9 +113,8 @@ class Replenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        #builder.event.register_listener('time_step', self.age_simulants)
-        #builder.event.register_listener('time_step', self.update_time)
-        builder.event.register_listener('time_step', self.on_time_step, priority=0)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
@@ -182,10 +185,10 @@ class Replenishment(Base):
         pop = self.population_view.get(event.index, query='pidp > 0')
         if event.time.month == 10 and event.time.year == self.current_year + 1:
             self.current_year += 1
-            pop['time'] += 1
+            #pop['time'] += 1
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
-            new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2019-2070.csv")
+            new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
             # Now select the population for the current year
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds
@@ -226,18 +229,6 @@ class Replenishment(Base):
             self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
             # logging
             logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
-
-    def update_time(self, event):
-        """ Update time variable by the length of the simulation time step in days
-        Parameters
-        ----------
-        event : builder.event
-            some time point at which to run the method.
-        """
-        # get alive people and add time in years to their age.
-        population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['time'] += event.step_size / pd.Timedelta(days=365.25)
-        self.population_view.update(population)
 
 
 class NoReplenishment(Base):
@@ -285,6 +276,7 @@ class NoReplenishment(Base):
                         'yearly_energy',
                         'job_sector',
                         'nutrition_quality',
+                        'job_hours_se',
                         'job_hours',
                         'hourly_wage',
                         'phealth',
@@ -313,6 +305,7 @@ class NoReplenishment(Base):
                         'matdep',
                         'matdep_diff',
                         'chron_disease',
+                        'job_hours_diff',
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
@@ -342,7 +335,8 @@ class NoReplenishment(Base):
         # Register ageing, updating time and replenishment events on time_step.
         #builder.event.register_listener('time_step', self.age_simulants)
         #builder.event.register_listener('time_step', self.update_time)
-        builder.event.register_listener('time_step', self.on_time_step, priority=0)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
@@ -380,7 +374,8 @@ class NoReplenishment(Base):
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
-
+            new_population['child_ages'] = ""
+            new_population['nkids'] = 0
 
         # Force index of new cohort to align with index of total population data frame
         # otherwise this will overwrite some sims.

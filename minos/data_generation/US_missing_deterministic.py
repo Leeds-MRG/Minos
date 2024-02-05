@@ -111,6 +111,8 @@ def doesnt_smoke(data):
 def inapplicable_job_sector(data):
     return data['job_sector'] == -8
 
+def inapplicable_job_hours(data):
+    return data['job_hours'] == -8
 
 def inapplicable_number_of_children(data):
     return data['nkids_ind_raw'] == -8
@@ -135,6 +137,7 @@ def main(data):
     # anyone who has job_sector == -8 (inapplicable) should be forced to 0
     data = det_missing(data, ['job_sector'], inapplicable_job_sector, force_zero)
     data = det_missing(data, ['nkids_ind_raw'], inapplicable_number_of_children, force_zero)
+    data = det_missing(data, ['job_hours'], inapplicable_job_hours, force_zero)
 
     # table of missing values by row/column after correction.
     print("After removing deterministically missing values.")
@@ -144,7 +147,8 @@ def main(data):
 
 if __name__ == "__main__":
     # Load in data.
-    years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(2009, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data, before, after = main()
