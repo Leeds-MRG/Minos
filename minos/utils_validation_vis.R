@@ -487,3 +487,45 @@ handover_lineplots <- function(raw, base, var) {
     xlab('Year') +
     ylab(var)
 }
+
+
+zip_density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
+{
+  data_plot <- data[, c("time", v)]
+  # Remove missing values
+  data_plot <- data_plot %>%
+    filter(!data_plot[[v]] %in% miss.values)
+  if (min(data_plot$time) < 2020) {
+    handover <- TRUE
+  }
+  
+  data_plot$time <- factor(data_plot$time)
+  data_plot <- data_plot[order(data_plot$time),]
+  output_plot <- ggplot(data_plot, aes(x=!!sym(v), y=time)) +
+    geom_density_ridges(aes(y=time, color=time, linetype=time), alpha=0.6) +
+    #scale_color_viridis_d() +
+    scale_color_cyclical(values=c("#F8766D", "#00BA38","#619CFF")) +
+    scale_linetype_cyclical(values=c(1, 2, 3)) +
+    scale_x_continuous(limits=c(0,80))
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    # add handover to filename if handover
+    if (handover) {
+      save.filename <- paste0('density_ridges_handover_', v, '.png')
+    } else {
+      save.filename <- paste0('density_ridges_output_', v, '.png')
+    }
+    # add tag to filename if provided
+    if (!is.null(filename.tag)) {
+      save.filename <- paste0(filename.tag, '_', save.filename)
+    }
+    
+    ggsave(filename = save.filename,
+           plot = output_plot,
+           path = save.path)
+  }
+  return(output_plot)
+}

@@ -1011,9 +1011,9 @@ spaghetti_highlight_max_plot(ncigs.spag.sample, 'ncigs',
                save = shall.we.save,
                save.path = save.path)
   
-#zip_density_ridges(ncigs.spag, "ncigs", 
-#               save = shall.we.save, 
-#               save.path = save.path)
+zip_density_ridges(ncigs.spag, "ncigs", 
+               save = shall.we.save, 
+               save.path = save.path)
 rm(raw.ncigs, base.ncigs, ncigs.spag)
 ```
 
@@ -1038,9 +1038,9 @@ spaghetti_highlight_max_plot(ncigs.spag.sample, 'ncigs',
                save = shall.we.save,
                save.path = save.path)
   
-#zip_density_ridges(ncigs.spag, "ncigs", 
-#               save = shall.we.save, 
-#               save.path = save.path)
+zip_density_ridges(ncigs.spag, "ncigs", 
+               save = shall.we.save, 
+               save.path = save.path)
 rm(raw.ncigs, base.ncigs, ncigs.spag)
 ```
 
