@@ -1,0 +1,2 @@
+# HR 02/02/24 For matching Scottish data zones (DZs) to wards
+# Downloaded from: https://statistics.gov.scot/data/data-zone-lookup
