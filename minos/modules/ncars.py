@@ -90,15 +90,19 @@ class nCars(Base):
 
         # Get living people to update their tobacco
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop['ncars'] = pop['ncars'].clip(0, 10)
+        pop['ncars_next'] = pop['ncars'] #dummy column
         self.year = event.time.year
 
         # Predict next tobacco value
         newWaveNCars = pd.DataFrame(self.calculate_n_cars(pop))
         newWaveNCars.columns = ['ncars']
         newWaveNCars.index = pop.index
-        newWaveNCars["ncars"] = newWaveNCars["ncars"].astype(int)
+        newWaveNCars['ncars'] = newWaveNCars['ncars'].clip(0, 10)
+        #newWaveNCars["ncars"] = newWaveNCars["ncars"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
+        print(f"ncars: {np.mean(newWaveNCars['ncars'])}")
         self.population_view.update(newWaveNCars["ncars"])
 
     def calculate_n_cars(self, pop):
@@ -124,7 +128,7 @@ class nCars(Base):
         nextWaveNCars = r_utils.predict_next_timestep_zip(model=transition_model,
                                                             rpy2Modules= self.rpy2Modules,
                                                             current=pop,
-                                                            dependent='ncars')
+                                                            dependent='ncars_next')
         return nextWaveNCars
 
     def plot(self, pop, config):

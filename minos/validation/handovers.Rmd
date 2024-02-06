@@ -996,12 +996,14 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
 ```{r}
 raw.ncars <- raw.dat %>%
   dplyr::select(pidp, time, ncars) %>%
+  select(ncars >= 0) %>%
   group_by(time, ncars) %>%
   count() %>%
   mutate(source = 'final_US')
 
-base.housing <- base.dat %>%
+base.ncars <- base.dat %>%
   dplyr::select(pidp, time, ncars) %>%
+  select(ncars >= 0) %>%
   group_by(time, ncars) %>%
   count() %>%
   mutate(source = 'baseline_output')
