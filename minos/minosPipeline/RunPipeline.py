@@ -345,10 +345,10 @@ def RunPipeline(config, intervention=None):
 
         # Print metrics for desired module.
         # TODO: this can be extended towards a generalised metrics method for each module.
-        if 'Mortality()' in config.components:
+        if 'Mortality()' in components:
             print('dead', len(pop[pop['alive'] == 'dead']))
             logging.info(f"Total dead: {len(pop[pop['alive'] == 'dead'])}")
-        if 'FertilityAgeSpecificRates()' in config.components:
+        if 'FertilityAgeSpecificRates()' in components:
             print('New children', len(pop[pop['parent_id'] != -1]))
             logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
 
