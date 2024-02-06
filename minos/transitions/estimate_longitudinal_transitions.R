@@ -50,6 +50,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
+    if(startsWith(def, '#')){next}  # If line starts with '#', line is comment and should be ignored
 
     # Get model type
     split1 <- str_split(def, pattern = " : ")[[1]]
@@ -98,7 +99,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.reflect=FALSE
     }
 
-    if (dependent %in% c("SF_12_MCS", 'SF_12_PCS', 'hh_income')) {
+    if (dependent %in% c("SF_12_MCS", 'hh_income')) {  # 'SF_12_PCS'
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
