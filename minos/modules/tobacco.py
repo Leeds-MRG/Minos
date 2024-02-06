@@ -53,7 +53,8 @@ class Tobacco(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
+        view_columns = ["pidp",
+                        "age",
                         "sex",
                         "ethnicity",
                         "region",
@@ -100,10 +101,21 @@ class Tobacco(Base):
         newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop))
         newWaveTobacco.columns = ['ncigs']
         newWaveTobacco.index = pop.index
-        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
+
+        # clip values to a reasonable range to nullify extreme projections
+        # hopefully this step will be nullified when we move to a longitudinal zip model
         newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
+        # Also seem to have another unfortunate problem that only happens in 2030 (maybe after also but fails in 2030)
+        # Some NA values are included in ncigs prediction, which fails the type casting below. For a quick fix which
+        # will also hopefully be nullified with the new transition model, we can just force these to 300
+        # THIS IS ASSUMING THESE ARE PREDICTED AN INFINITE VALUE THAT IS RECORDED AS NA
+        newWaveTobacco['ncigs'][newWaveTobacco['ncigs'].isna()] = 0
+
+        # final step cast to int to maintain data types in population_view
+        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+
         self.population_view.update(newWaveTobacco["ncigs"])
 
     def calculate_tobacco(self, pop):
@@ -127,7 +139,7 @@ class Tobacco(Base):
         transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
-                                                            rpy2Modules= self.rpy2Modules,
+                                                            rpy2Modules=self.rpy2Modules,
                                                             current=pop,
                                                             dependent='ncigs')
         return nextWaveTobacco

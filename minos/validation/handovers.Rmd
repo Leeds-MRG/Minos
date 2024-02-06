@@ -285,6 +285,8 @@ handover_lineplots(raw.dat, test.base, 'nutrition_quality')
 
 ## Tobacco
 
+### ncigs mean
+
 TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 
 ```{r}
@@ -323,6 +325,33 @@ density_ridges(nut.spag, "ncigs",
 
 rm(raw.nut, base.nut, nut.spag)
 ```
+
+### ncigs Max
+
+```{r}
+raw.ncigs_max <- raw.dat %>%
+  select(pidp, time, ncigs) %>%
+  group_by(time) %>%
+  summarise(max_ncigs = max(ncigs)) %>%
+  mutate(source = 'final_US')
+
+base.ncigs_max <- base.dat %>%
+  dplyr::select(pidp, time, ncigs) %>%
+  group_by(time) %>%
+  summarise(max_ncigs = max(ncigs)) %>%
+  mutate(source = 'baseline_output')
+
+max_ncigs <- rbind(raw.ncigs_max, base.ncigs_max)
+
+# Now plot
+ggplot(data = max_ncigs, mapping = aes(x = time, y = max_ncigs, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Max ncigs', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Average')
+```
+
 
 ## Physical Health
 
