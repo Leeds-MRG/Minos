@@ -99,7 +99,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.reflect=FALSE
     }
 
-    if (dependent %in% c("SF_12_MCS", 'hh_income')) {  # 'SF_12_PCS'
+    if (dependent %in% c("SF_12_MCS", 'SF_12_PCS', 'hh_income')) {
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
@@ -334,7 +334,7 @@ sipher7 <- args$SIPHER7
 
 ###################################################################
 # DELETE ME
-#default <- TRUE
+default <- TRUE
 #cross_validation <- TRUE
 # DELETE ME
 ###################################################################
