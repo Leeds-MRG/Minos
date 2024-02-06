@@ -230,6 +230,12 @@ aggregate_baseline_map:
 	# Map data now aggregated.
 	$(RSCRIPT) minos/outcomes/sf12_single_map.R -m $(OUTPUT_SUBDIR) -b baseline -r $(REGION) -y $(AGG_YEAR) -s $(SYNTH) -v $(AGG_VAR)
 
+baseline_map_test: AGG_VAR=SF_12
+baseline_map_test: OUTPUT_SUBDIR=default_config
+baseline_map_test: REGION=glasgow
+baseline_map_test: SYNTH=false
+baseline_map_test: aggregate_baseline_map
+
 aggregate_baseline_energy_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i baseline -y $(AGG_YEAR) -r $(REGION) -s who_uses_energy -p $(SYNTH) -v $(AGG_VAR)
 	$(PYTHON) minos/outcomes/format_spatial_output.py -m $(OUTPUT_SUBDIR) -i energyDownlift -y $(AGG_YEAR) -r $(REGION) -s who_boosted -p $(SYNTH) -v $(AGG_VAR)
