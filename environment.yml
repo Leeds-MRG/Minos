@@ -27,6 +27,10 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-ggextra
   - r-ggridges
   - r-gghighlight
+  - r-randomForest
+  - r-parellelly
+  - r-doParallel
+  - r-caret
   - pandoc
   - sphinx
   - myst-parser

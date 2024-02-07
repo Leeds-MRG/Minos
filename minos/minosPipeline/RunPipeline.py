@@ -47,12 +47,12 @@ from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention
-from minos.modules.intervention import hhIncomeChildUplift
-from minos.modules.intervention import hhIncomePovertyLineChildUplift
-from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
-
+from minos.modules.child_poverty_interventions import hhIncomeIntervention
+from minos.modules.child_poverty_interventions import hhIncomeChildUplift
+from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUplift
+from minos.modules.living_wage_interventions import livingWageIntervention
+from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
+from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
 
@@ -107,6 +107,7 @@ SIPHER7_components_map = {  # SIPHER7 stuff
 }
 
 intervention_components_map = {  # Interventions
+
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
@@ -114,6 +115,9 @@ intervention_components_map = {  # Interventions
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
     "Ageing()": Ageing(),
+    "GBIS": GBIS(),
+    "goodHeatingDummy": goodHeatingDummy(),
+    "fossilFuelReplacementScheme": fossilFuelReplacementScheme()
 }
 
 replenishment_components_map = {
@@ -238,6 +242,7 @@ def type_check(data):
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
+    data['nkids'] = data['nkids'].astype(float)
 
     return data
 
@@ -282,7 +287,8 @@ def RunPipeline(config, intervention=None):
                     "zeroinfl": importr("pscl"),
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
-                    "lme4": importr("lme4")
+                    "lme4": importr("lme4"),
+                    "randomForest": importr("randomForest")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

@@ -3,9 +3,9 @@ title: "Energy Price Forecasting."
 output: 'html_document'
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
 ```{r}
 # package preamble.
@@ -20,25 +20,25 @@ source("minos/transitions/utils.R")
 
 ```{r}
 process_input_data <- function(dataset, data.column, new.name){
-
+  
   subvector <- dataset[, c(data.column)]
   subvector <- drop_na(subvector)
   colnames(subvector) <- c(new.name)
   return(subvector)
 }
 #energy_data <- readxl::read_xlsx("../data/energy_prices_simpler.xlsx")
-## primary energy material sources. fuel and motor oil omitted due to no UKHLS data.
+## primary energy material sources. fuel and motor oil omitted due to no UKHLS data. 
 #electricity_vector <- process_input_data(energy_data, "Real terms price indices: Electricity [Note 3]", 'electricity')
 #gas_vector <- process_input_data(energy_data, "Real terms price indices: Gas [Note 3]", "gas")
 #solid_fuel_vector <- process_input_data(energy_data, "Real terms price indices: Solid fuels [Note 3]", "solid_fuel")
 #liquid_fuel_vector <- process_input_data(energy_data, "Real terms price indices: Liquid fuels [Note 3]", "liquid_fuel")
 energy_data <- readxl::read_xlsx("../data/energy_prices_simpler_yearly.xlsx")
-# primary energy material sources. fuel and motor oil omitted due to no UKHLS data.
+# primary energy material sources. fuel and motor oil omitted due to no UKHLS data. 
 electricity_vector <- process_input_data(energy_data, "Real price indices: Electricity [Note 3]", 'electricity')
 gas_vector <- process_input_data(energy_data, "Real price indices: Gas [Note 3]", "gas")
 solid_fuel_vector <- process_input_data(energy_data, "Real price indices: Solid fuels [Note 3]", "solid_fuel")
 liquid_fuel_vector <- process_input_data(energy_data, "Real price indices: Liquid fuels [Note 3]", "liquid_fuel")
-# aggregate of the above 4.
+# aggregate of the above 4. 
 #domestic_fuel_vector <- process_input_data(energy_data, "Real terms price indices: Domestic fuels\r\n[Note 1, 3]", "domestic_fuel")
 plot(electricity_vector$electricity, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Electricity Price indices"), main="Electricity")
 plot(gas_vector$gas, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Gas Price indices"), main="Gas")
@@ -53,7 +53,7 @@ electric.series <- electricity_vector$electricity #+ rnorm(length(electric.serie
 acf(electric.series)
 acf(diff(electric.series))
 pacf(electric.series)
-#arima.electric
+#arima.electric 
 #m1 <- auto.arima(electric.series)
 m1 <- arima(electric.series, order=c(5, 0, 1))
 print(m1)
@@ -62,7 +62,7 @@ plot(residuals(m1))
 autoplot(forecast(m1, 40))
 checkresiduals(m1)
 print(m1$aic)
-# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals.
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
 
@@ -72,14 +72,14 @@ gas.series <- gas_vector$gas
 acf(gas.series)
 acf(diff(gas.series))
 pacf(gas.series)
-#arima.electric
+#arima.electric 
 m2 <- arima(gas.series, order=c(4, 0 ,1))
 #Box.test(residuals(m1), type="Ljung-Box")
 plot(residuals(m2))
 autoplot(forecast(m2, 15))
 checkresiduals(m2)
 print(m2$aic)
-# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals.
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
 ```{r}
@@ -88,14 +88,14 @@ solid.series <- solid_fuel_vector$solid_fuel
 acf(solid.series)
 acf(diff(solid.series))
 pacf(solid.series)
-#arima.electric
+#arima.electric 
 m3 <- arima(solid.series, order=c(5, 0 ,1))
 #Box.test(residuals(m1), type="Ljung-Box")
 plot(residuals(m3))
 autoplot(forecast(m3, 15))
 checkresiduals(m3)
 print(m3$aic)
-# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals.
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
 
@@ -106,14 +106,14 @@ liquid.series <- liquid_fuel_vector$liquid_fuel
 acf(liquid.series)
 acf(diff(liquid.series))
 pacf(liquid.series)
-#arima.electric
+#arima.electric 
 m4 <- arima(gas.series, order=c(5, 0 ,1))
 #Box.test(residuals(m1), type="Ljung-Box")
 plot(residuals(m4))
 autoplot(forecast(m4,15))
 checkresiduals(m4)
 print(m4$aic)
-# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals.
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
 
