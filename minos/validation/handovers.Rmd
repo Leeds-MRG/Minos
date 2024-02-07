@@ -167,6 +167,49 @@ density_ridges(sf12.p.spag, "SF_12_PCS",
 rm(raw.sf12.p, base.sf12.p, sf12.p.spag)
 ```
 
+### Histograms
+
+I have a hypothesis that the longer we run through simulation, the more simulants are predicted a negative PCS value which is then clipped to a 0. Histograms over a few snapshots of time should show if this is happening.
+
+```{r}
+pcs.2021 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2021)
+
+# pcs.2022 <- base.dat %>%
+#   select(pidp, time, SF_12_PCS) %>%
+#   filter(time == 2022)
+
+pcs.2025 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2025)
+
+pcs.2030 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2030)
+
+pcs.2036 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2036)
+
+
+merged <- rbind(pcs.2021, pcs.2025, pcs.2030, pcs.2036)
+merged$time <- as.factor(merged$time)
+
+ggplot(merged, aes(x = SF_12_PCS, group = time, colour = time, fill = time)) +
+  geom_histogram() +
+  labs(title = 'Distribution of SF_12_PCS')
+
+ggplot(merged, aes(x = SF_12_PCS, group = time, colour = time, fill = time)) +
+  geom_freqpoly() +
+  labs(title = 'Distribution of SF_12_PCS', subtitle = 'Count')
+
+ggplot(merged, aes(x = SF_12_PCS, y = after_stat(density), group = time, colour = time, fill = time)) +
+  geom_freqpoly() +
+  labs(title = 'Distribution of SF_12_PCS', subtitle = 'Density')
+```
+
+
 ## Financial Situation
 
 ```{r}

@@ -5,8 +5,8 @@ library(nnet)
 library(pscl)
 library(bestNormalize)
 library(lme4)
-library(glmmTMB)
-library(msm)
+#library(glmmTMB)
+#library(msm)
 library(randomForest)
 library(caret)
 library(doParallel)
@@ -231,7 +231,7 @@ estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, 
 
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
-  
+
   if(include_weights) {
     model <- glmer(formula,
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
@@ -256,42 +256,42 @@ estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, 
 }
 
 estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
-  
+
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
   if (reflect) {
     max_value <- nanmax(data[[depend]])
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson)
   {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-  
+
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
-  
+
   if (depend == 'hourly_wage') {
     # Histogram of hourly_wage_diff
     hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
   }
-  
+
   if(include_weights) {
-    model <- lmer(formula,  
+    model <- lmer(formula,
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
                    family=gaussian(link='identity'), # Gaussian family with identity link
-                   weights=weight, 
+                   weights=weight,
                    data = data)
   } else {
-    model <- lmer(formula, 
-                   nAGQ=0, 
+    model <- lmer(formula,
+                   nAGQ=0,
                    family=gaussian(link='identity'),
                    data = data)
   }
   attr(model,"min_value") <- min_value
-  
+
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
   }
@@ -301,7 +301,7 @@ estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FA
   return(model)
 }
 
-estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend) 
+estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend)
 {
   #data[[depend]] <- as.factor(data[[depend]])
   data <- replace.missing(data)
@@ -328,17 +328,17 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
 
 estimate_longitudinal_clmm <- function(data, formula, depend)
 {
-  
+
   print('In the function call')
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
-  
+
   print('Before fitting the model')
-  
+
   print(formula)
-  
+
   model <- clmm2(formula,
                   random=factor(pidp),
                   link='probit', # logistic link function (can use probit or cloglog as well.)
@@ -388,20 +388,20 @@ estimate_beta_glmm <- function(data, formula, depend, reflect, yeo_johnson) {
 }
 
 estimate_longitudinal_msm <- function(data, formula, depend, start.year) {
-  
+
   data <- replace.missing(data)
-  
+
   # Now set up the variable specific information the model needs such as subject, allowed transition matrix etc.
-  # Also needs some data wrangling to ensure that subjects have multiple waves of information, and that there 
+  # Also needs some data wrangling to ensure that subjects have multiple waves of information, and that there
   # are no intermittent missing waves as the msm function cannot handle this
   # TODO: Impute missing intermittent waves??
   if (depend == 'chron_disease') {
     print('Defining allowed transition matrix. Only unidirection transitions allowed.')
     allowed.trans.matrix <- rbind( c( 1, 1, 1 ), c( 0, 1, 1 ), c( 0, 0, 1 ) )
-    
+
     print('Preparing data for MSM model estimation...')
     # sort dataframe by pidp and time so observations within subjects are consecutive in the data
-    data <- data %>% 
+    data <- data %>%
       select(pidp, time, everything()) %>% # put pidp and time at the front of the df
       group_by(pidp) %>%
       filter(n() > 1) %>%  # filter individuals with only 1 observation in data
@@ -412,16 +412,16 @@ estimate_longitudinal_msm <- function(data, formula, depend, start.year) {
       mutate(contains.na = if_any(everything(), is.na)) %>%  # test for any intermittent missing (i.e. if respondent misses a wave - msm model cannot handle this)
       filter(!any(contains.na == TRUE)) %>%
       select(pidp, time, -contains.na, everything())
-    
+
     data <- data[order(data$pidp, data$time), ] # order everything by pidp and time so individuals time points are in consecutive order (msm needs this)
     rownames(data) <- NULL
-    
+
     subj <- data$pidp
   }
-  
+
   print('This is the formula:')
   print(formula)
-  
+
   print('Fitting the MSM model...')
   # ms_object <- msm(formula = formula,
   #                 subject = subj,
@@ -430,34 +430,34 @@ estimate_longitudinal_msm <- function(data, formula, depend, start.year) {
   #                 gen.inits = TRUE,
   #                 obstype = 1,
   #                 na.action = na.omit)
-  
+
   ms_object <- msm(formula = formula,
                    subject = subj,
                    data = data)
-  
+
   ms_model <- msm1(ms_object)
-  
+
   return(model)
 }
 
 estimate_survival <- function(data, formula, depend) {
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   model <- survreg(formula, data = data, dist = 'extreme')
-  
+
   return(model)
 }
 
 estimate_RandomForest <- function(data, formula, depend) {
-  
+
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
-  
-  numCores <- availableCores() / 2
-  
+
+  numCores <- availableCores() - 1
+
   registerDoParallel(cores = numCores)
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
 
@@ -465,19 +465,19 @@ estimate_RandomForest <- function(data, formula, depend) {
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
   set.seed(123)
-  
+
   # Adjusting the model parameters to use fewer trees and limit depth
-  rfModel <- train(formula, data = data, 
+  rfModel <- train(formula, data = data,
                    method = "rf",
                    trControl = fitControl,
-                   tuneGrid = expand.grid(mtry = 3), 
+                   tuneGrid = expand.grid(mtry = 3),
                    ntree = 100)  # RF Parameters
-  
+
   # expand.grid(mtry = ncol(data) / 3)
-  
-  
-  
+
+
+
   #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
-  
+
   return(rfModel)
 }
