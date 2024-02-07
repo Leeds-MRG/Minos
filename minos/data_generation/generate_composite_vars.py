@@ -502,7 +502,7 @@ def generate_energy_composite(data):
     # need to calculate expenditure on 4 types of fuel. (electric, gas, oil, other.)
 
     # start composite 'yearly_energy' variable.
-    data['yearly_energy'] = -8
+    data['yearly_energy'] = -9.
 
     # has_X variables are binary indicators for if a person pays for an energy source. electric/gas/oil/other/none
     # yearly_X bills are expenditure on a given fuel source.
@@ -563,12 +563,40 @@ def generate_energy_composite(data):
     # print(sum(data['yearly_energy'] == -8))
     # print(sum(data['yearly_energy'].isin(US_utils.missing_types)), data.shape)
 
+    house_time_groupby = data.groupby(["hidp", "time"])
+    # force everyone to maximum household value energy consumption to remove some missing values.
+    data['yearly_electric'] = house_time_groupby['yearly_electric'].transform(max)
+    data['yearly_gas'] = house_time_groupby['yearly_gas'].transform(max)
+    data['yearly_oil'] = house_time_groupby['yearly_oil'].transform(max)
+    data['yearly_other_fuel'] = house_time_groupby['yearly_other_fuel'].transform(max)
+    data['yearly_gas_electric'] = house_time_groupby['yearly_gas_electric'].transform(max)
+
+    data['has_electric'] = house_time_groupby['has_electric'].transform(max)
+    data['has_gas'] = house_time_groupby['has_gas'].transform(max)
+    data['has_oil'] = house_time_groupby['has_oil'].transform(max)
+    data['has_other'] = house_time_groupby['has_other'].transform(max)
+    data['gas_electric_combined'] = house_time_groupby['gas_electric_combined'].transform(max)
+    data['has_none'] = house_time_groupby['has_none'].transform(max)
+    data['energy_in_rent'] = house_time_groupby['energy_in_rent'].transform(max)
+
+    data['electric_payment'] = house_time_groupby['electric_payment'].transform(max)
+    data['gas_payment'] = house_time_groupby['gas_payment'].transform(max)
+    data['duel_payment'] = house_time_groupby['duel_payment'].transform(max)
+
+
+
     # remove all but yearly_energy variable left.
-    data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
-                      'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none',
+    data.drop(labels=['has_electric',
+                      'has_gas', 'has_oil', 'has_other', 'has_none',
                       'energy_in_rent'],
               axis=1,
               inplace=True)
+    # data.drop(labels=['yearly_gas', 'yearly_electric', 'yearly_oil', 'yearly_other_fuel', 'gas_electric_combined',
+    #                   'yearly_gas_electric', 'has_electric', 'has_gas', 'has_oil', 'has_other', 'has_none',
+    #                   'energy_in_rent'],
+    #           axis=1,
+    #           inplace=True)
+
     # everyone else in this composite doesn't know or refuses to answer so are omitted.
     return data
 

@@ -105,7 +105,20 @@ class Replenishment(Base):
                         'child_ages',
                         'net_hh_income',
                         'net_hh_income_diff',
-                        'council_tax', 'oecd_equiv', 'outgoings', 'hh_mortgage', 'hh_rent'
+                        'council_tax',
+                        'oecd_equiv',
+                        'outgoings',
+                        'hh_mortgage',
+                        'hh_rent',
+                        'gas_electric_combined',
+                        'electric_payment',
+                        'duel_payment',
+                        'gas_payment',
+                        'yearly_oil',
+                        'yearly_gas_electric',
+                        'yearly_gas',
+                        'yearly_electric',
+                        'yearly_other_fuel',
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
