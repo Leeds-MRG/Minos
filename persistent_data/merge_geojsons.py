@@ -1,70 +1,173 @@
-"""File for mergeing Scotland and England/Wales """
-import geojson
+"""File for merging Scotland and England/Wales """
+# HR 02/02/24 This now grabs LSOAs/DZs from single source and maps LA names and codes onto it
+# Default resolution of boundary geometry in final json (EWS_JSON) is 50m (see MAP_SCALE parameter)
+# To generate the json at a different scale, delete EWS_JSON and change MAP_SCALE, then rerun
+# File size is ~100 MB at 25m scale, ~65MB at 50m and ~40MB at 100m
+# Once the final json has been generated at whatever scale is required, the shapefile (EWS_SHAPEFILE) can be deleted
+
+# Geopandas update imminent, see issue #1387 here: https://github.com/geopandas/geopandas/issues/1387
+# via Shapely PR #1969 here: https://github.com/shapely/shapely/pull/1969
+# which would mean Topojson might not be required
+
+# N.b. quite a lot of faffing with column names here, which is to preserve the pre-322 headers in the final json
+
 import pandas as pd
+import os
+import sys
+from os.path import dirname as up
+import geopandas as gpd
+import topojson as tp
+
+# EWS LSOA/DZ 2011 shapefile, downloaded 02/02/24 from UKDS here:
+# https://statistics.ukdataservice.ac.uk/dataset/2011-census-geography-boundaries-lower-layer-super-output-areas-and-data-zones
+EWS_SHAPEFILE = os.path.join(up(__file__), 'spatial_data', 'infuse_lsoa_lyr_2011_clipped', 'infuse_lsoa_lyr_2011_clipped.shp')
+EWS_JSON = os.path.join(up(__file__), 'spatial_data', 'UK_super_outputs.geojson')
+MAP_SCALE = 50  # Unit in shapefile/geojson, appears to be metres
+
+# LSOA/DZ to LA lookups, EW + S
+EW_LOOKUP = os.path.join(up(__file__), "LSOA_(2011)_to_LSOA_(2021)_to_Local_Authority_District_(2022)_Lookup_for_England_and_Wales_(Version_2).csv")
+S_LOOKUP = os.path.join(up(__file__), "DataZone2011lookup_2022-05-31.csv")
+EWS_LOOKUP = os.path.join(up(__file__), "EWS_LSOA_2011_LA_2022.csv")
 
 
-def format_scotland_geojson(scot_file):
-    """Format scotland geojson so it can be merged with the england and wales one.
+def get_lsoa_la_map(ew_file=EW_LOOKUP,
+                    s_file=S_LOOKUP,
+                    ews_file=EWS_LOOKUP):
 
-    data from https://spatialdata.gov.scot/geonetwork/srv/api/records/7d3e8709-98fa-4d71-867c-d5c8293823f2.
-    converted to geojson using mapshaper.org.
-    polygons simplified using 3% visvalingam weighted area algorithm. Lower resolution and file size.
-    - convert Name property to name
-    - convert DataZone to LSOA11Cd
-    - remove every other property.
-    - keep the geometry.
+    # Look for cached EWS lookup file; create and dump if not found
+    try:
+        print("Trying to load cached EWS LSOA-to-LA lookup file...")
+        lookup_final = pd.read_csv(ews_file)
+        print("Done")
 
-    """
-    with open(scot_file) as f:
-        scot_geojson = geojson.load(f)
+    except:
+        print("LSOA-to-LA lookup file not found; creating and caching...")
 
-    for i, item in enumerate(scot_geojson["features"]):
-        # rename name and data zone code properties.
-        # discard everything else.
-        item['properties'] = {"name": item['properties']['Name'],
-                              "ZoneID": item['properties']['DataZone']}
-    return scot_geojson
+        # Get EW lookup
+        ew_raw = pd.read_csv(ew_file)
+        ew_final = ew_raw[['LSOA11CD', 'LAD22CD', 'LAD22NM']]
 
-def format_england_geojson(eng_file):
-    """Format england geojson so it can be merged with the england and wales one.
+        # Get Scotland lookup
+        s_raw = pd.read_csv(s_file,
+                            encoding="ISO-8859-1")
+        column_map = {'DZ2011_Code': 'LSOA11CD', 'LA_Code': 'LAD22CD', 'LA_Name': 'LAD22NM'}
+        s_final = s_raw.rename(columns=column_map)[column_map.values()]
 
-    - convert Name property to name
+        # Standardise headers and merge
+        lookup_final = pd.concat([ew_final, s_final])
+        lookup_final.to_csv(ews_file, index=False)
+        print("Done; cached EWS lookup file to:\n{}".format(ews_file))
 
-    """
-    with open(eng_file) as f:
-        eng_geojson = geojson.load(f)
+    return lookup_final
 
-    for i, item in enumerate(eng_geojson["features"]):
-        # rename name and lsoa code properties.
-        # discard everything else.
-        item['properties'] = {"name": item['properties']['LSOA11NM'],
-                              "ZoneID": item['properties']['LSOA11CD']}
-    return eng_geojson
 
-def merge_jsons(d1, d2):
-    merged_json = [d1['features'] + d2['features']][0] # seems stupid but can't find a better way to merge feature collections.
-    merged_json = geojson.FeatureCollection(merged_json)
-    return merged_json
+def add_local_authorities(df):
 
-def add_lad_codes_and_names(merged_json):
+    df_out = df.copy()
+    column_map = {'geo_code': 'LSOA11CD'}
+    df_out.rename(columns=column_map, inplace=True)  # Standardise column headers for merge
 
-    LAD_attributes = pd.read_csv("persistent_data/lsoa_to_LA_2022.csv")
-    for i, item in enumerate(merged_json["features"]):
-        slice = LAD_attributes.loc[LAD_attributes["lsoa11cd"] == item["properties"]["ZoneID"], ]
-        LACode, LAName =  slice[['ladcd', 'ladnm']].values[0]
-        item["properties"]["LA_Code"], item["properties"]["LAName"] = LACode, LAName
-    return merged_json
+    ews_map = get_lsoa_la_map()  # Get LSOA/DZ to LA lookup
+    df_out = df_out.merge(ews_map, on='LSOA11CD')  # Map LA codes and names as new columns
 
-def save_json(merged_json, f_name):
-    print(f"Saving to {f_name}.")
-    with open(f_name, 'w') as outfile:
-        geojson.dump(merged_json, outfile)
+    column_map = {'LSOA11CD': 'geo_code'}
+    df_out.rename(columns=column_map, inplace=True)  # Reset original column headers
+
+    return df_out
+
+
+''' HR 05/02/24 Retaining this just in case gpd.simplify functionality is useful in future
+    It does not snap adjacent boundaries to each other, so results in empty slivers between areas '''
+# def create_simplified_json(ews_json_in,
+#                            ews_json_simplified,
+#                            scale=MAP_SCALE):
+#
+#     ews_json = ews_json_in.copy()
+#     # Rescale to reduce file size; n.b. setting simplify.preserve_topology to True does NOT fill gaps between areas
+#     ews_json['geometry'] = ews_json['geometry'].simplify(tolerance=scale)
+#
+#     # ews_out = ews_json.to_crs(epsg=4326)  # Convert to correct format
+#     ews_out.to_file(ews_json_simplified, driver="GeoJSON")  # Cache rescaled json
+#
+#     return ews_out
+
+
+def cache_ews_json(ews_json=EWS_JSON,
+                   ews_shapefile=EWS_SHAPEFILE,
+                   scale=MAP_SCALE):
+
+    # 1. First try to get cached, oven-ready version of EWS geojson...
+    try:
+        print("Trying to load cached EWS json file with LA definitions...")
+        ews_final = gpd.read_file(ews_json)
+        print("Done")
+        return ews_final
+    except:
+        print("Cached EWS json file with LA definitions not found; trying to create from shapefile...")
+
+    # 2. ...if no json found, try to load master shapefile and create/cache json
+    try:
+        ews_raw = gpd.read_file(ews_shapefile)
+        ews_raw.drop(labels=['geo_labelw'], axis=1, inplace=True)  # No need for Welsh names
+    except:
+        # 4. If no shapefile found, stop and direct user to where data can be downloaded
+        print("Shapefile not found; download from here and move to the persistent_data/spatial_data folder...")
+        print("...then rerun this script")
+        return None
+
+    print("Loaded shapefile; adding local authority names and codes...")
+    ews_las = add_local_authorities(ews_raw)
+    print("Done")
+
+    print("Simplifying geometry to resolution of {}m...".format(scale))
+    print("This will take several minutes, depending on the spatial resolution")
+    la_col = 'LAD22NM'
+    las = ews_las[la_col].unique()
+    ews_split = {la: ews_las.loc[ews_las[la_col] == la] for la in las}
+
+    ews_tp = {}
+    l = len(ews_split)
+    for i, (la, df_la) in enumerate(ews_split.items()):
+        sys.stdout.write("\rProcessing LA {} of {}: ({})".format(i+1, l, la))
+        topo = tp.Topology(df_la, prequantize=False)
+        ews_tp[la] = topo.toposimplify(epsilon=scale).to_gdf()
+    print("")
+
+    # Concat all LAs into single df and convert to EPSG:4326, aka WGS:84
+    ews_final = pd.concat(ews_tp.values())
+    print("Converting to EPSG:4326/WGS:84")
+    ews_final = ews_final.to_crs(epsg=4326)
+
+    # Correct headers to match pre-322 version and cache
+    column_map = {'geo_code': 'ZoneID',
+                  'geo_label': 'name',
+                  'LAD22CD': 'LA_Code',
+                  'LAD22NM': 'LAName'}
+    ews_final.rename(columns=column_map, inplace=True)
+    print("Caching to {}...".format(ews_json))
+    ews_final.to_file(ews_json)
+    print("Done")
+
+    return ews_final
+
 
 if __name__ == '__main__':
 
-    scot_json = format_scotland_geojson("persistent_data/SG_DataZone_Bdry_2011.json")
-    eng_json = format_england_geojson("persistent_data/Lower_Layer_Super_Output_Areas_(December_2011)_Boundaries_Super_Generalised_Clipped_(BSC)_EW_V3.geojson")
+    ''' Just run this line to generate cached json of LSOAs/DZs '''
+    ews = cache_ews_json()
 
-    merged_json = merge_jsons(eng_json, scot_json)
-    merged_json = add_lad_codes_and_names(merged_json)
-    save_json(merged_json, "persistent_data/UK_super_outputs.geojson")
+    # ''' Testing 1: Just Glasgow, comparing with pre-322 version '''
+    # glasgow = os.path.join(up(__file__), 'spatial_data', 'glasgow_data_zones.csv')
+    # g = pd.read_csv(glasgow)['lsoa11cd']
+    #
+    # js = os.path.join(up(__file__), 'spatial_data', 'UK_super_outputs_pre322.geojson')  # Pre-322
+    # # js = os.path.join(up(__file__), 'spatial_data', 'UK_super_outputs.geojson')  # New version
+    # df_uk = gpd.read_file(js)
+    # df_glas = df_uk.loc[df_uk['ZoneID'].isin(g)]
+    # df_glas.plot()
+    #
+    # ''' Testing 2: Look at Manchester and Salford overlaps/gaps '''
+    # la_name = 'LAName'
+    # df_manc = ews.loc[ews[la_name].isin(['Manchester', 'Salford'])].copy()
+    # df_manc['color'] = df_manc[la_name].map({'Manchester': 'r', 'Salford': 'b'})
+    # df_manc.plot(color=df_manc['color'])
