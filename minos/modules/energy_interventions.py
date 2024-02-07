@@ -362,14 +362,14 @@ class energyBillSupportScheme(Base):
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
 
-class goodHousingDummy(Base):
+class goodHeatingDummy(Base):
 
     @property
     def name(self):
-        return "good_housing_dummy"
+        return "good_heating_dummy"
 
     def __repr__(self):
-        return "goodHousingDummy()"
+        return "goodHeatingDummy()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -391,8 +391,10 @@ class goodHousingDummy(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ['alive',
-                        'hheat']
-
+                        'heating',
+                        'housing_quality']
+        columns_created = []
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
@@ -400,10 +402,16 @@ class goodHousingDummy(Base):
     def on_time_step(self, event):
         pass
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        pop['hheat'] = 1
+        # buff housing pop as required.
+        unheated_pop = pop.loc[pop['heating'] == 0, ]
+        unheated_pop.loc[unheated_pop['housing_quality'] == "Medium", 'housing_quality'] = "High"
+        unheated_pop.loc[unheated_pop['housing_quality'] == "Low", 'housing_quality'] = "Medium"
+        pop.loc[pop['heating'] == 0, 'housing_quality'] = unheated_pop['housing_quality']
+
+        # set heating cost to one.
+        #pop['housing_quality'] = pop['housing_quality'].clip(0, 6)
+        pop['heating'] = 1
         self.population_view.update(pop)
-    # set it to 1.
-        # thats it
 
 class GBIS(Base):
 
@@ -438,8 +446,9 @@ class GBIS(Base):
                         "hidp",
                         "S7_labour_state",
                         'hh_income',
-                        "universal_income",
-                        "council_tax"]
+                        #"universal_income",
+                        #"council_tax",
+                        'heating']
         columns_created = ["income_boosted", 'boost_cost', 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -456,7 +465,7 @@ class GBIS(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
-                                   'boost_cost' 0.,
+                                   'boost_cost': 0.,
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
 
@@ -472,11 +481,11 @@ class GBIS(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
         # TODO get some fraction of households rather than absolutely everyone.
-        pop['income_boosted'] = pop['hh_income'<0.6*np.median(pop['hh_income'])]
+        pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
         # TODO heterogeneity/validation in the boost amount.
         pop['boost_amount'] = pop['income_boosted'] * 350
         # TODO check households on housing quality as well.
-        pop.loc["boosted", "hh_heat"] = 1
+        pop.loc[pop["income_boosted"]==True, "heating"] = 1
         self.population_view.update(pop)
 
 
@@ -508,13 +517,14 @@ class fossilFuelReplacementScheme(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ['yearly_energy',
-                        "region",
+        view_columns = ["region",
                         "hidp",
                         "S7_labour_state",
                         'hh_income',
                         "universal_income",
-                        "council_tax"]
+                        'heating',
+                        'yearly_electric',
+                        'yearly_gas']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 

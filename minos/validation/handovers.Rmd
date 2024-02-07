@@ -54,7 +54,7 @@ raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_coh
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
 out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
 ```
 
 ## Constants
