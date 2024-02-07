@@ -190,15 +190,25 @@ def generate_stock(projections, cross_validation):
                           copy_year=2020,
                           paste_year=2021,
                           var_type='ordinal')
+    # data = wave_data_copy(data,
+    #                       var='matdep',
+    #                       copy_year=2020,
+    #                       paste_year=2021,
+    #                       var_type='ordinal')
+    # data = wave_data_copy(data,
+    #                       var='matdep',
+    #                       copy_year=2014,
+    #                       paste_year=2015,
+    #                       var_type='ordinal')
+    # data = wave_data_copy(data,
+    #                       var='matdep',
+    #                       copy_year=2016,
+    #                       paste_year=2017,
+    #                       var_type='ordinal')
     data = wave_data_copy(data,
-                          var='matdep',
-                          copy_year=2020,
-                          paste_year=2021,
-                          var_type='ordinal')
-    data = wave_data_copy(data,
-                          var='matdep',
-                          copy_year=2014,
-                          paste_year=2015,
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020,
                           var_type='ordinal')
 
     # Set loneliness and ncigs as int

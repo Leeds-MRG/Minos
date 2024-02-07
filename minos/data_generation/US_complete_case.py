@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     # PCS complete case vars
     data['chron_disease'] = data['chron_disease'].astype(int)
-    data = complete_case_custom_years(data, 'chron_disease', years=list(range(2011, 2022, 1)))
+    # data = complete_case_custom_years(data, 'chron_disease', years=list(range(2011, 2022, 1)))
 
     # PCS Vars
     # AUDITC (alcohol) - present in 2015, 2017, 2019, 2020
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'active', years=[2015, 2017, 2019, 2020, 2021])
     # chronic disease in the all years function
     # matdep (Material Deprivation) - present in 2009, 2010, 2012, 2014, 2016, 2018, 2020
-    data = complete_case_custom_years(data, 'matdep', years=[2009, 2010, 2012, 2014, 2016, 2018, 2020])
+    # data = complete_case_custom_years(data, 'matdep', years=[2009, 2010, 2012, 2014, 2016, 2018, 2020])
 
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',
