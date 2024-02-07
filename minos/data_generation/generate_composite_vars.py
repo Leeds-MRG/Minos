@@ -1261,7 +1261,7 @@ def calculate_poverty_composites_ind(data,
     For use during intervention and in post-processing '''
 def get_poverty_metrics(pop,
                         poverty_vars=None,
-                        who='children',  # Can be children, everyone, or households
+                        who='children',
                         _print=True,
                         condense=False):
 
@@ -1275,7 +1275,7 @@ def get_poverty_metrics(pop,
                         'persistent_poverty',
                         ]
 
-    if who not in ['children', 'everyone', 'households']:
+    if who not in ['children', 'adults', 'everyone', 'households']:
         print("Group for poverty stats not found, defaulting to children...")
         who = 'children'
 
@@ -1283,11 +1283,13 @@ def get_poverty_metrics(pop,
     try:
         pop = pop.loc[pop['alive'] == 'alive'].copy()
     except:
-        pop = pop.copy()
+        pop = pop.copy()  # Will cause an exception with input data as "alive" created later in pipeline
 
     if who == 'children':
         sub = pop.drop_duplicates(subset=['hidp'], keep='first')
-        sub = sub.loc[sub['nkids'] > 0]
+        # sub = sub.loc[sub['nkids'] > 0]
+    elif who == 'adults':
+        sub = pop
     elif who == 'everyone':
         sub = pop
     elif who == 'households':
@@ -1299,9 +1301,16 @@ def get_poverty_metrics(pop,
         if who == 'children':
             n_total = sub.loc[sub[var].astype(int).isin([0, 1]), 'nkids'].sum()
             in_poverty = sub.loc[sub[var].astype(int) == 1, 'nkids'].sum()
-        elif who == 'everyone':
+        elif who == 'adults':
             n_total = len(sub.loc[sub[var].astype(int).isin([0, 1])])
             in_poverty = len(sub.loc[sub[var].astype(int) == 1])
+        elif who == 'everyone':
+            n_total_adults = len(sub.loc[sub[var].astype(int).isin([0, 1])])
+            n_total_children = sub.drop_duplicates(subset=['hidp'], keep='first').loc[sub[var].astype(int).isin([0, 1]), 'nkids'].sum()
+            n_total = n_total_adults + n_total_children
+            in_poverty_adults = len(sub.loc[sub[var].astype(int) == 1])
+            in_poverty_children = sub.drop_duplicates(subset=['hidp'], keep='first').loc[sub[var].astype(int) == 1, 'nkids'].sum()
+            in_poverty = in_poverty_children + in_poverty_adults
         elif who == 'households':
             n_total = len(sub.loc[sub[var].astype(int).isin([0, 1])])
             in_poverty = len(sub.loc[sub[var].astype(int) == 1])
@@ -1369,3 +1378,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    # ''' HR 07/02/24 Testing of extra subsets, re. #374 '''
+    # data_path = os.path.join(up(up(up(__file__))), "output/default_config/ChildPovertyReductionSUSTAIN/2024_01_26_09_44_27/")
+    # file = "2021.csv"
+    # df = pd.read_csv(os.path.join(data_path, file))
+    #
+    # m1 = get_poverty_metrics(df, who='children')
+    # m2 = get_poverty_metrics(df, who='adults')
+    # m3 = get_poverty_metrics(df, who='everyone')
+    # m4 = get_poverty_metrics(df, who='households')
