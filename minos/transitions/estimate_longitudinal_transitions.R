@@ -159,7 +159,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # For SF12 predicting current state given changes in all other information and previous SF12 value. 
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
     # We have SF_12_last in the model formula for 2019 SF12. 
-    if (dependent %in% c("nutrition_quality", "hh_income", "net_hh_income", "hh_rent", "hh_mortgage", "council_tax") ) {
+    if (dependent %in% c("nutrition_quality", "hh_income", "net_hh_income", "hh_rent", "hh_mortgage", "council_tax", 'yearly_energy') ) {
       # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%

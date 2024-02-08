@@ -118,6 +118,7 @@ class Replenishment(Base):
                         'yearly_gas',
                         'yearly_electric',
                         'yearly_other_fuel',
+                        'hourly_rate',
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.

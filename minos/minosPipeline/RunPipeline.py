@@ -24,6 +24,7 @@ from minos.modules.housing import Housing
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
 from minos.modules.net_income import lmmYJNetIncome
 from minos.modules.outgoings import lmmYJOutgoings
+from minos.modules.behind_on_bills import behindOnBills
 
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
@@ -83,6 +84,7 @@ components_map = {
     "lmmYJOutgoings()": lmmYJOutgoings(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
+    "behindOnBills()": behindOnBills(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),

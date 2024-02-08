@@ -483,7 +483,7 @@ class GBIS(Base):
         # TODO get some fraction of households rather than absolutely everyone.
         pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
         # TODO heterogeneity/validation in the boost amount.
-        pop['boost_amount'] = pop['income_boosted'] * 350
+        pop['boost_amount'] = pop['income_boosted'] * 350.
         # TODO check households on housing quality as well.
         pop.loc[pop["income_boosted"]==True, "heating"] = 1
         self.population_view.update(pop)
@@ -521,7 +521,7 @@ class fossilFuelReplacementScheme(Base):
                         "hidp",
                         "S7_labour_state",
                         'hh_income',
-                        "universal_income",
+                        #"universal_credit",
                         'heating',
                         'yearly_electric',
                         'yearly_gas']
@@ -554,12 +554,12 @@ class fossilFuelReplacementScheme(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
         # TODO get some fraction of households rather than absolutely everyone.
-        pop['income_boosted'] = pop['hh_income'<0.6*np.median(pop['hh_income'])]
+        pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
         # TODO heterogeneity in conversion costs. particularly RE: current contracts and standing charges.
         electric_to_gas_cost_ratio = 0.5
         pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio
         # TODO any influence on housing quality? yearly energy should feed into housing_quality as a variable or percentage net income expenditure.
         pop['yearly_gas'] = 0.
         pop['yearly_electric'] += pop['yearly_gas_to_electric']
-        self.population_view.update(pop['yearly_electric', 'yearly_gas'])
+        self.population_view.update(pop[['yearly_electric', 'yearly_gas']])
 

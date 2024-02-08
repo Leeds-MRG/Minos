@@ -249,7 +249,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   }
   attr(model,"min_value") <- min_value
   
-  browser()
+  #browser()
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.

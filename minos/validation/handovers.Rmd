@@ -123,7 +123,7 @@ rm(raw.inc, base.inc, income.spag)
 
 ## Net Income & Rent & Mortgage
 
-```{r net_income}
+```{r yearly_energy}
 # get required variables. 
 raw.inc <- raw.dat %>%
   select(pidp, age, time, net_hh_income, hh_rent, hh_mortgage, council_tax, oecd_equiv)
@@ -168,6 +168,44 @@ density_ridges(inc.spag, 'oecd_equiv',
 
 # tidy up.
 rm(raw.inc, base.inc, inc.spag)
+```
+
+
+
+## Yearly energy
+
+```{r net_income}
+# get required variables. 
+raw.energy <- raw.dat %>%
+  select(pidp, age, time, yearly_energy, yearly_gas, yearly_electric)
+base.energy <- base.dat %>%
+  select(pidp, age, time, yearly_energy, yearly_gas, yearly_electric)
+
+# gas expenditure
+handover_boxplots(raw.energy, base.energy, 'yearly_gas')
+handover_lineplots(raw.energy, base.energy, "yearly_gas")
+#inc.spag<-rbind(raw.inc, base.inc)
+#density_ridges(inc.spag, 'yearly_gas',
+#               save=TRUE, 
+#               save.path=save.path)
+
+# yearly electric
+handover_boxplots(raw.energy, base.energy, 'yearly_electric')
+handover_lineplots(raw.energy, base.energy, "yearly_electric")
+#density_ridges(inc.spag[which(inc.spag$hh_rent>1), ], 'hh_rent',
+#               save=TRUE, 
+#               save.path=save.path)
+
+# yearly energy
+handover_boxplots(raw.energy, base.energy, 'yearly_energy')
+handover_lineplots(raw.energy, base.energy, "yearly_energy")
+#density_ridges(inc.spag[which(inc.spag$hh_mortgage>1), ], 'hh_mortgage',
+#               save=TRUE, 
+#               save.path=save.path)
+
+
+# tidy up.
+rm(raw.energy, base.energy)#, inc.spag)
 ```
 
 ## SF12

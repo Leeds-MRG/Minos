@@ -473,7 +473,7 @@ handover_lineplots <- function(raw, base, var) {
   base.means <- base %>%
     dplyr::select(pidp, time, var) %>%
     group_by(time) %>%
-    summarise(summary_var = mean(!!sym(var))) %>%
+    summarise(summary_var = mean(!!sym(var), na.rm = TRUE)) %>%
     mutate(source = 'baseline_output')
   
   # merge before plot

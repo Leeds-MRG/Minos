@@ -361,7 +361,11 @@ class energyBills(Base):
                         'yearly_gas',
                         'yearly_electric',
                         'yearly_other_fuel',
-                        'yearly_energy'
+                        'yearly_energy',
+                        'housing_tenure',
+                        'heating',
+                        "housing_quality",
+                        'hidp'
                         ]
 
         # columns_created = ['hh_income_diff']
@@ -392,6 +396,9 @@ class energyBills(Base):
         self.gas_reference = self.historic_yearly_gas.iloc[30]['x']
         self.solid_reference = self.historic_yearly_solid.iloc[30]['x']
         self.liquid_reference = self.historic_yearly_liquid.iloc[30]['x']
+
+        self.transition_model = r_utils.load_transitions(f"yearly_energy/glmm/yearly_energy_new_GLMM", self.rpy2Modules,
+                                                             path=self.transition_dir)
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -427,6 +434,23 @@ class energyBills(Base):
         # fixed tariffs according to gaspay variables. These prices don't change with market forces.
         fixed_tariffs = [1, 5, 8]
 
+
+        # adjust gas pricing if not on a fixed tariff.
+        split_energy_bills_pop.loc[
+            ~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs), "yearly_gas"] *= gas_price_ratio
+        # adjust electric pricing if not on a fixed tariff.
+        split_energy_bills_pop.loc[
+            ~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs), "yearly_electric"] *= electric_price_ratio
+
+        # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
+        split_energy_bills_pop["yearly_oil"] *= liquid_price_ratio
+        split_energy_bills_pop['yearly_other_fuel'] *= solid_price_ratio
+
+        split_energy_bills_pop['yearly_energy'] = (split_energy_bills_pop['yearly_electric'] +
+                                                   split_energy_bills_pop['yearly_gas'] +
+                                                   split_energy_bills_pop['yearly_oil'] +
+                                                   split_energy_bills_pop['yearly_other_fuel'])
+
         # adjust gas pricing if not on a fixed tariff.
         split_energy_bills_pop.loc[
             ~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs), "yearly_gas"] *= gas_price_ratio
@@ -459,16 +483,38 @@ class energyBills(Base):
                                       ((11500*gas_price_ratio*electric_gas_current_spend)/(2700+11500)))
         joint_energy_bills_pop.loc[~joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs), 'yearly_gas_electric'] = electric_gas_current_spend
 
-        joint_energy_bills_pop['yearly_energy'] = (split_energy_bills_pop['yearly_gas_electric'] +
-                                                   split_energy_bills_pop['yearly_oil'] +
-                                                   split_energy_bills_pop['yearly_other_fuel'])
+        joint_energy_bills_pop['yearly_energy'] = (joint_energy_bills_pop['yearly_gas_electric'] +
+                                                   joint_energy_bills_pop['yearly_oil'] +
+                                                   joint_energy_bills_pop['yearly_other_fuel'])
 
         pop.loc[pop['gas_electric_combined'] == 2, 'yearly_energy'] = joint_energy_bills_pop['yearly_energy']
 
 
+        pop['next_yearly_energy'] = pop['yearly_energy']
+        newWaveYearlyEnergy = pd.DataFrame(self.calculate_yearly_energy(pop))
+        newWaveYearlyEnergy.columns = ['yearly_energy']
+        newWaveYearlyEnergy.index = pop.index
+        pop['yearly_energy'] = newWaveYearlyEnergy['yearly_energy']
+        pop['yearly_energy'] = pop['yearly_energy'].clip(-1000, 25000)
+        pop['yearly_energy'] = pop.groupby(by=['hidp'])['yearly_energy'].transform("mean")
         # update yearly energy bill for application in gross hh income. literally just sum the gas, electic, duel and other together.
-        self.population_view.update( pop['yearly_energy'])
+        self.population_view.update(pop['yearly_energy'])
+        print(f"Yearly energy: {np.mean(pop['yearly_energy'])}")
 
+    def calculate_yearly_energy(self, pop):
+        # load transition model based on year.
+        nextWaveYearlyEnergy = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+                                                                        self.rpy2Modules,
+                                                                        pop,
+                                                                        dependent='yearly_energy_new',
+                                                                        yeo_johnson=False,
+                                                                        reflect=False,
+                                                                        noise_std=1.5)  # 0.45 for yj. 100? for non yj.
+        # get new hh income diffs and update them into history_data.
+        # self.update_history_dataframe(pop, self.year-1)
+        # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
+        # next_diffs = nextWaveIncome.iloc[new_history_data]
+        return nextWaveYearlyEnergy
 
     def energy_pricing_forecasts(self, year):
         # if year greater than current time need to use forecasted wholesale price.
