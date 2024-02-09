@@ -940,20 +940,10 @@ class ChildPovertyReductionSUSTAIN(Base):
         # full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
         self.population_view.update(full_pop[['boost_amount']])
-        # median_income = full_pop['hh_income'].median()
         median_income = US_utils.get_median(full_pop)
 
         # 2. Total number of kids
         nkids_total = full_pop['nkids'].sum()
-
-        # # HR 07/11/23 Correcting method of calculating total number of kids in full pop
-        # Select first instance of each hidp to avoid duplicating nkids
-        # nkids_total = full_pop.drop_duplicates(subset=['hidp'], keep='first')['nkids'].sum()
-        # full_pop_nodupes = full_pop.drop_duplicates(subset=['hidp'], keep='first')
-        # nkids_pop = full_pop_nodupes['nkids'].sum()
-        # print('## TOTAL KIDS ## ')
-        # print('Method 1 (simple sum): {}'.format(nkids_total))
-        # print('Method 2 (unique HHs): {}'.format(nkids_pop))
 
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
