@@ -115,7 +115,6 @@ if __name__ == "__main__":
                     'newest_education_state',
                     'health_limits_social',
                     'future_financial_situation',
-                    'behind_on_bills',
                     'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.
                                         # remove them here or as late as needed.

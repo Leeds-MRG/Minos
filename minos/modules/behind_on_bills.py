@@ -86,7 +86,7 @@ class behindOnBills(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
-        nextWaveBills = self.behind_on_bills(pop)
+        nextWaveBills = self.calculate_behind_on_bills(pop)
         nextWaveBills["financial_situation"] = self.random.choice(nextWaveBills.index,
                                                                   list(nextWaveBills.columns+1),
                                                                   nextWaveBills).astype(float)
