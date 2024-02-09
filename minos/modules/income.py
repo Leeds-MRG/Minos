@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from seaborn import histplot
 import numpy as np
 import logging
+from minos.data_generation import US_utils
 
 
 class Income(Base):
@@ -701,7 +702,9 @@ class lmmYJIncome(Base):
         #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
         newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
 
-        print(np.median(newWaveIncome['hh_income']))
+        # print(np.median(newWaveIncome['hh_income']))
+        nw_median = US_utils.get_median(newWaveIncome)
+        print(nw_median)
         # Finally calculate diff
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])

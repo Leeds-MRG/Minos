@@ -14,6 +14,7 @@ import os
 from os.path import dirname as up
 
 from minos.data_generation import US_utils
+
 # import US_missing_description as USmd
 
 # suppressing a warning that isn't a problem
@@ -1040,6 +1041,7 @@ def update_material_deprivation_vars(data,
     # Get subframe of unique hidp values and calculate matdep scores from any valid values
     # Only need to do one pass (i.e. not year by year) as hidps are NOT persistent
     hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+
     # Get all valid material deprivation variables present and scale by sum -> "adjustor"
     hidp_sub['adjustor'] = [sum([MATDEP_DICT[var]['score'] for var in matdep_vars if hidp_sub.loc[hidp, var] in MATDEP_DICT[var]['valids']]) for hidp in hidp_sub.index]
     hidp_sub['score'] = [sum([MATDEP_DICT[var]['score'] for var in matdep_vars if hidp_sub.loc[hidp, var] in MATDEP_DICT[var]['no']]) for hidp in hidp_sub.index]
@@ -1054,24 +1056,6 @@ def update_material_deprivation_vars(data,
         data[var] = data['hidp'].map(matdep_dict)
 
     return data
-
-
-
-''' HR 10/01/24 Moving to method to test options and allow easy changes elsewhere
-    Added options for applying weights (experimental but dumping here so all in one place) '''
-def get_median(data,
-               exclude_negative_values=False,
-               income_var='hh_income',
-               ):
-
-    if exclude_negative_values:
-        sub = data.loc[data[income_var] > 0.0]
-    else:
-        sub = data
-
-    median = sub[income_var].median()
-
-    return median
 
 
 ''' HR 27/11/23 All-purpose method for hh poverty variable calculation'''
@@ -1090,9 +1074,11 @@ def update_poverty_vars_hh(data,
         # median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
         median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
 
-    # Get subframe of unique hidp values and calculate median (for relative poverty)
+    # Get yearly median hh income
+    median_yearly = US_utils.get_median(data)
+
+    # Get subframe of unique hidp values, as used in calculations of rel. and abs. poverty
     hidp_sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
-    median_yearly = get_median(hidp_sub, income_var=income_yearly)
 
     if year is None:
         year = hidp_sub['time'].unique()[0]  # Just grab first value, as should always be single value in data passed
@@ -1160,7 +1146,7 @@ def calculate_poverty_composites_hh(data,
     # Generate from US composite stage if not passed
     if median_reference is None:
         # median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
-        median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
+        median_reference = US_utils.get_equivalised_income_internal(data=data)  # 2. Using US/internal data
 
     ''' Must loop over all years, bearing in mind:
         (a) median incomes are year-specific,

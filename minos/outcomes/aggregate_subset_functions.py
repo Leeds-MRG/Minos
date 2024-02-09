@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from minos.data_generation.US_utils import get_median
 
 
 def dynamic_subset_function(data, subset_chain_string=None, mode='default_config', drop_dead=True):
@@ -270,7 +271,10 @@ def who_bottom_income_quintile(df, k=1):
 
 def who_below_poverty_line(df):
     "who below poverty line?. Defined as 60% of national median hh income."
-    return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
+    median_yearly = get_median(df)
+    sub = df.loc[df['hh_income'] < 0.6*median_yearly]
+    return sub
+    # return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
     #return df.loc[df['hh_income'] <= 1300.0,]
 
 
@@ -280,9 +284,8 @@ def who_relative_poverty(df):
     # print(df.columns)
     sub = df.loc[df['relative_poverty'].astype(int) == 1]
     # # Method 2, explicit calculation if relative_poverty variable is not present;
-    # # must calculate by hh, NOT by individual
-    # hidp_sub = df.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
-    # median_yearly = hidp_sub['hh_income'].median()
+    # # must calculate by individual, NOT by hh
+    # median_yearly = get_median(df)
     # sub = df.loc[df['hh_income'] < 0.6*median_yearly]
     return sub
 

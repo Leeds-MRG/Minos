@@ -8,7 +8,6 @@ import numpy as np
 import json
 import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
-import pickle
 from sklearn.linear_model import LinearRegression as linreg
 
 missing_types = ['-1', '-2', '-7', '-8', '-9',
@@ -29,7 +28,6 @@ CPI_REF_DEFAULT = 'CPI_202010.csv'  # Relative to 2020/2021
 # EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"  # Adjusted to 2021/22 prices
 EQUIVALISED_INCOME_REF = 'hdiireferencetables202021.xlsx'  # # Adjusted to 2020/2021 prices
 INCOME_REFERENCE_YEAR = 2010
-EXCLUDE_NEGATIVE_VALUES_DEFAULT = False
 PROJECTION_RANGE_DEFAULT = 25
 
 
@@ -539,8 +537,7 @@ def get_equivalised_income_uk(ref_year=INCOME_REFERENCE_YEAR,
     Awkward but necessary if we use US data to calculate the inflated median, rather than all-UK median wages '''
 def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
                                     data=None,
-                                    income_var='hh_income',
-                                    exclude_negative_values=EXCLUDE_NEGATIVE_VALUES_DEFAULT):
+                                    income_var='hh_income'):
 
     # Grab reference year data
     if data is not None:
@@ -552,18 +549,43 @@ def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
         file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
         data = pd.read_csv(file_fullpath)
 
-    # Get subframe of unique household IDs and filter for living people;
-    # will raise exception during data generation as 'alive' not present
-    try:
-        data = data.loc[data['alive'] == 'alive']
-    except:
-        pass
-    sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    # # Get subframe of unique household IDs and filter for living people;
+    # # will raise exception during data generation as 'alive' not present
+    # try:
+    #     data = data.loc[data['alive'] == 'alive']
+    # except:
+    #     pass
+    # sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    #
+    # result = sub[income_var].median()  # Filter out any invalid or zero values
 
-    if exclude_negative_values:
-        sub = sub.loc[sub[income_var] > 0.0]
-
-    result = sub[income_var].median()  # Filter out any invalid or zero values
+    # Use Minos-wise method for median hh income
+    result = get_median(data)
 
     print("Median hh income for year {} (internal data): {}".format(ref_year, result))
     return result
+
+
+''' HR 08/02/24 Moving from GCV and updating with filter for "alive" individuals, re. issue #374 '''
+''' HR 10/01/24 Moving to method to test options and allow easy changes elsewhere
+    Added options for applying weights (experimental but dumping here so all in one place) '''
+def get_median(data,
+               alive_only=True,
+               exclude_negative_values=False,
+               income_var='hh_income',
+               ):
+
+    if exclude_negative_values:
+        sub = data.loc[data[income_var] > 0.0]
+    else:
+        sub = data
+
+    if alive_only:
+        try:
+            sub = sub.loc[sub['alive'] == 'alive']
+        except:  # Will fail for input data before "alive" column has been created
+            pass
+
+    median = sub[income_var].median()
+
+    return median

@@ -10,8 +10,7 @@ from pathlib import Path
 import logging
 from minos.modules.base_module import Base
 from minos.data_generation import generate_composite_vars as gcv
-import os
-from os.path import dirname as up
+from minos.data_generation import US_utils
 
 POVERTY_INTERVENTION_DICT = {1: "Child payment",
                              2: "Direct income supplementation",
@@ -377,7 +376,9 @@ class hhIncomePovertyLineChildUplift(Base):
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
-        who_uplifted = (pop['hh_income'] <= np.nanmedian(pop['hh_income']) * 0.6)  #
+        # who_uplifted = (pop['hh_income'] <= np.nanmedian(pop['hh_income']) * 0.6)  #
+        pop_median = US_utils.get_median(pop)
+        who_uplifted = (pop['hh_income'] <= pop_median * 0.6)
         pop['boost_amount'] = (
                     who_uplifted * 25 * 30.436875 / 7)  # £20 per child per week uplift for everyone under poverty line.
 
@@ -760,7 +761,7 @@ class ChildPovertyReductionRANDOM(Base):
         # relative poverty by 2030
 
         # STEPS;
-        # 1. Calculate median hh_income over all households
+        # 1. Calculate median hh_income over all individuals
         # 2. Calculate total kids in sample
         # 3. Find all households in relative poverty
         # 4. Calculate the proportion of children in relative poverty (hh_income < 60% of median hh_income in that year)
@@ -778,16 +779,20 @@ class ChildPovertyReductionRANDOM(Base):
         full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
         self.population_view.update(full_pop[['income_boosted', 'boost_amount']])
-        median_income = full_pop['hh_income'].median()
+        # median_income = full_pop['hh_income'].median()
+        median_income = US_utils.get_median(full_pop)
+
         # 2. Total number of kids
         nkids_total = full_pop['nkids'].sum()
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
+
         # 3. Find all households in relative poverty
         relative_poverty_threshold = median_income * 0.6
         target_pop = self.population_view.get(event.index,
                                               query=f"alive == 'alive' & nkids > 0 & hh_income < "
                                                     f"{relative_poverty_threshold}")
+
         # 4. Calculate the proportion of children in relative poverty
         target_pop_nkids = target_pop['nkids'].sum()
         prop_in_poverty = target_pop_nkids / nkids_total
@@ -935,7 +940,9 @@ class ChildPovertyReductionSUSTAIN(Base):
         # full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
         self.population_view.update(full_pop[['boost_amount']])
-        median_income = full_pop['hh_income'].median()
+        # median_income = full_pop['hh_income'].median()
+        median_income = US_utils.get_median(full_pop)
+
         # 2. Total number of kids
         nkids_total = full_pop['nkids'].sum()
 
@@ -950,11 +957,13 @@ class ChildPovertyReductionSUSTAIN(Base):
 
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
+
         # 3. Find all households in relative poverty
         relative_poverty_threshold = median_income * 0.6
         target_pop = self.population_view.get(event.index,
                                               query=f"alive == 'alive' & nkids > 0 & hh_income < "
                                                     f"{relative_poverty_threshold}")
+
         # 3a. This is the SUSTAIN intervention, so we want to find the households that have previously received the
         # intervention (if any) and uplift them again. This is to simulate ongoing support for a set of families
         target_pop['boost_amount'][(target_pop['income_boosted'] == True) &  # previously uplifted
@@ -964,6 +973,7 @@ class ChildPovertyReductionSUSTAIN(Base):
         target_pop = self.population_view.get(event.index,
                                               query=f"alive == 'alive' & nkids > 0 & hh_income < "
                                                     f"{relative_poverty_threshold}")
+
         # 4. Calculate the proportion of children in relative poverty
         target_pop_nkids = target_pop['nkids'].sum()
         prop_in_poverty = target_pop_nkids / nkids_total
@@ -1146,11 +1156,6 @@ class ChildPovertyIntervention(Base):
                                        poverty_state=POVERTY_STATE_MAP[cpt],
                                        target_year=target_year,
                                        target_proportion=target_proportion)
-
-        # # For testing/output
-        # median_yearly = hidp_sub.loc[hidp_sub['hh_income'] > 0.0]['hh_income'].median()
-        # median_yearly = hidp_sub['hh_income'].median()
-        # print("Median income for year {}: {}".format(year, median_yearly))
 
         # Update population with boosted income and associated variables
         self.population_view.update(pop[['hh_income',
