@@ -11,17 +11,18 @@ import logging
 from minos.modules.base_module import Base
 from minos.data_generation import generate_composite_vars as gcv
 from minos.data_generation import US_utils
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 
 POVERTY_INTERVENTION_DICT = {1: "Child payment",
                              2: "Direct income supplementation",
                              }
 
-from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 
 def get_monthly_boost_amount(data, boost_amount):
     """Calculate monthly uplift for eligible households. number of children * 30.436875/7 weeks * boost amount
     """
     return boost_amount * 30.436875 * data['nkids'] / 7
+
 
 class childUplift():
 
@@ -113,7 +114,6 @@ class childUplift():
         logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
         logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
-
 
 
 class hhIncomeIntervention():
@@ -520,7 +520,6 @@ class livingWageIntervention(Base):
         # print(np.mean(pop['hh_income'])) # for debugging.
 
 
-
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of household composition.
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
 
@@ -540,6 +539,7 @@ class livingWageIntervention(Base):
         if who_uplifted_London.sum() > 0:
             logging.info(f"\t\tLondon: {pop[who_uplifted_London]['boost_amount'].mean()}")
         logging.info(f"\t\tNot London: {pop[who_uplifted_notLondon]['boost_amount'].mean()}")
+
 
 class energyDownlift(Base):
     @property
@@ -783,7 +783,9 @@ class ChildPovertyReductionRANDOM(Base):
         median_income = US_utils.get_median(full_pop)
 
         # 2. Total number of kids
-        nkids_total = full_pop['nkids'].sum()
+        nkids_total = US_utils.get_hh_sum(full_pop)
+        # nkids_total = full_pop['nkids'].sum()
+
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
 
@@ -794,7 +796,8 @@ class ChildPovertyReductionRANDOM(Base):
                                                     f"{relative_poverty_threshold}")
 
         # 4. Calculate the proportion of children in relative poverty
-        target_pop_nkids = target_pop['nkids'].sum()
+        target_pop_nkids = US_utils.get_hh_sum(target_pop)
+        # target_pop_nkids = target_pop['nkids'].sum()
         prop_in_poverty = target_pop_nkids / nkids_total
         print(f"Percentage of children in poverty: {prop_in_poverty * 100}")
 
@@ -831,7 +834,8 @@ class ChildPovertyReductionRANDOM(Base):
                 break
 
         print(f"Number of households to uplift: {len(target_hidps)}")
-        print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
+        # print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
+        print(f"Number of children to uplift: {US_utils.get_hh_sum(target_pop[target_pop['hidp'].isin(target_hidps)])}")
 
         # 8. Calculate boost amount for each household and apply
         uplift_pop = self.population_view.get(event.index,
@@ -847,7 +851,8 @@ class ChildPovertyReductionRANDOM(Base):
                                                query=f"alive == 'alive' & nkids > 0 & hh_income < "
                                                      f"{relative_poverty_threshold}")
 
-        print(f"Proportion of children in poverty AFTER intervention: {target_pop2['nkids'].sum() / nkids_total}")
+        # print(f"Proportion of children in poverty AFTER intervention: {target_pop2['nkids'].sum() / nkids_total}")
+        print(f"Proportion of children in poverty AFTER intervention: {US_utils.get_hh_sum(target_pop2) / nkids_total}")
 
         # 10. Logging
         logging.info(f"\tNumber of people uplifted: {sum(uplift_pop['income_boosted'])}")
@@ -943,7 +948,8 @@ class ChildPovertyReductionSUSTAIN(Base):
         median_income = US_utils.get_median(full_pop)
 
         # 2. Total number of kids
-        nkids_total = full_pop['nkids'].sum()
+        nkids_total = US_utils.get_hh_sum(full_pop)
+        # nkids_total = full_pop['nkids'].sum()
 
         # TODO probably a faster way to do this than resetting the whole column.
         # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
@@ -965,7 +971,9 @@ class ChildPovertyReductionSUSTAIN(Base):
                                                     f"{relative_poverty_threshold}")
 
         # 4. Calculate the proportion of children in relative poverty
-        target_pop_nkids = target_pop['nkids'].sum()
+        target_pop_nkids = US_utils.get_hh_sum(target_pop)
+        # target_pop_nkids = target_pop['nkids'].sum()
+
         prop_in_poverty = target_pop_nkids / nkids_total
         print(f"Percentage of children in poverty: {prop_in_poverty * 100}")
 
@@ -1002,7 +1010,8 @@ class ChildPovertyReductionSUSTAIN(Base):
                 break
 
         print(f"Number of households to uplift: {len(target_hidps)}")
-        print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
+        # print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
+        print(f"Number of children to uplift: {US_utils.get_hh_sum(target_pop[target_pop['hidp'].isin(target_hidps)])}")
 
         # 8. Calculate boost amount for each household and apply
         uplift_pop = self.population_view.get(event.index,
@@ -1018,7 +1027,8 @@ class ChildPovertyReductionSUSTAIN(Base):
                                                query=f"alive == 'alive' & nkids > 0 & hh_income < "
                                                      f"{relative_poverty_threshold}")
 
-        print(f"Proportion of children in poverty AFTER intervention: {target_pop2['nkids'].sum() / nkids_total}")
+        # print(f"Proportion of children in poverty AFTER intervention: {target_pop2['nkids'].sum() / nkids_total}")
+        print(f"Proportion of children in poverty AFTER intervention: {US_utils.get_hh_sum(target_pop2) / nkids_total}")
 
         # 10. Logging
         logging.info(f"\tNumber of people uplifted: {sum(uplift_pop['income_boosted'])}")
@@ -1057,8 +1067,7 @@ class ChildPovertyIntervention(Base):
     def __repr__(self):
         return "ChildPovertyIntervention()"
 
-    @staticmethod
-    def pre_setup(config, simulation):
+    def pre_setup(self, config, simulation):
 
         # Grab all intervention parameters; anything in config overrides defaults
         intervention_parameters = {**CONFIG_DEFAULT, **config}

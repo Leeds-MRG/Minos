@@ -589,3 +589,15 @@ def get_median(data,
     median = sub[income_var].median()
 
     return median
+
+
+''' HR 09/02/24 Get sum over households, not individuals
+    Motivated by overcounting if we use pop['nkids'].sum() '''
+def get_hh_sum(data,
+               var='nkids'):
+
+    # Get subframe of first instance of each household (hidp); can also use groupby but this works
+    hh_sub = data.drop_duplicates(subset=['hidp'], keep='first')
+    nkids_pop = hh_sub[var].sum()
+
+    return nkids_pop
