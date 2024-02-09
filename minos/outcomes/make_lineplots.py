@@ -73,9 +73,12 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
         #df = df.loc[df['weight']>0, ]
         #df['weight'] = 1/df['weight']
         #new_df[f"prct_below_45.6"] = sum(df['weight']*(df['SF_12'] < 45.6))/sum(df['weight'])
-        new_df[f"prct_below_45.6"] = sum(df['SF_12'] < 45.6)/df.shape[0]
-    if "boost_amount" in df.columns:
-        new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
+        if df.shape[0] != 0:
+            new_df[f"prct_below_45.6"] = sum(df['SF_12'] < 45.6)/df.shape[0]
+        else:
+            new_df[f"prct_below_45.6"] = np.nan
+        if "boost_amount" in df.columns:
+            new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
 
 def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
@@ -103,11 +106,10 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     required_columns = get_required_intervention_variables(subset_function_string)
     if region is not None:
         required_columns.append("ZoneID")
-    data = pd.read_csv(file, usecols=required_columns, low_memory=True,
-                       engine='c')  # low_memory could be buggy but is faster.
+    data = pd.read_csv(file, usecols=required_columns, low_memory=True, engine='c')  # low_memory could be buggy but is faster.
 
     population_size = data.shape[0]
-    print(data.shape)
+    #print(data.shape)
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
     if region:
@@ -119,7 +121,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
 
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
 
-    print(data.shape)
+    #print(data.shape)
     agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
         agg_value["population_size"] = population_size + np.sum(data.groupby("hidp")['nkids'].max())
@@ -556,6 +558,12 @@ if __name__ == '__main__':
     ref = "Baseline"
     v = "SF_12"
     method = 'SF12_AUC'
+
+
+    directories = "baseline,25UniversalCredit"
+    tags = "Baseline,£25 Universal Credit"
+    subset_function_strings = "who_universal_credit_and_kids,who_boosted"
+    prefix = "25_UC"
     # directories = "25RelativePoverty,25UniversalCredit"
     # tags = "£25 Relative Poverty,£25 Universal Credit"
     # subset_function_strings = "who_boosted,who_boosted"

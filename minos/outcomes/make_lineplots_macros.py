@@ -315,7 +315,7 @@ def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subs
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subset_function):
+def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subset_function, region=None):
     "The same intervention in increments from £25 to £50"
     directories = f"baseline,25{intervention_name},50{intervention_name}"
     tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag}"
@@ -324,9 +324,9 @@ def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subse
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
     method = 'SF12_AUC'
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
 def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, subset_function, increment, region):
