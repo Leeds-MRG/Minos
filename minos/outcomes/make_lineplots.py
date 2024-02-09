@@ -64,7 +64,6 @@ def aggregate_cumulative_score(df, v):
     return sum(df[v])
 
 def aggregate_boosted_counts_and_cumulative_score(df, v):
-    print(df.shape)
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
     new_df["number_boosted"] = [df.shape[0]] + np.sum(df.groupby("hidp")['nkids'].max())
@@ -107,9 +106,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
 
-    print(data.shape)
-
     population_size = data.shape[0]
+    print(data.shape)
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
     if region:
@@ -120,7 +118,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
             region_lsoas = get_region_lsoas(region)["lsoa11cd"]
 
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
-        #print(data.shape)
+
+    print(data.shape)
     agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
         agg_value["population_size"] = population_size + np.sum(data.groupby("hidp")['nkids'].max())
