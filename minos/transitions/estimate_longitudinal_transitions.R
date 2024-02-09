@@ -92,17 +92,23 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       use.weights <- TRUE
     }
 
-    if (dependent %in% c("SF_12_MCS", 'SF_12_PCS')) {
+    if (dependent %in% c("SF_12_MCS")) {  # 'SF_12_PCS'
       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
     }
     else {
       do.reflect=FALSE
     }
 
-    if (dependent %in% c("SF_12_MCS", 'SF_12_PCS', 'hh_income')) {
+    if (dependent %in% c("SF_12_MCS", 'hh_income')) {  # 'SF_12_PCS'
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
+    }
+    
+    if (dependent %in% c("SF_12_PCS")) {
+      do.log.transform <- T
+    } else {
+      do.log.transform <- F
     }
 
     # experimental ordinal long models. ignore.
@@ -201,6 +207,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                         include_weights = use.weights,
                                         reflect = do.reflect,
                                         yeo_johnson = F,
+                                        log_transform = do.log.transform,
                                         depend = dependent)
 
     } else if(tolower(mod.type) == 'lmm_diff') {
@@ -231,8 +238,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_beta_glmm(data = sorted_df,
                                   formula = form,
                                   depend = dependent,
-                                  reflect = do.reflect,
-                                  yeo_johnson = do.yeo.johnson)
+                                  reflect = TRUE)
 
     } else if (tolower(mod.type) == 'msm') {
       

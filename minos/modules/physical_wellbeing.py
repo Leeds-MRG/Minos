@@ -178,6 +178,7 @@ class lmmYJPCS(Base):
                         'ethnicity',
                         'age',
                         'time',
+                        'weight',
                         'hh_income',
                         'SF_12_MCS',
                         'SF_12_MCS_diff',
@@ -213,8 +214,12 @@ class lmmYJPCS(Base):
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12_PCS/glmm/SF_12_PCS_GLMM", self.rpy2_modules, path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12_PCS/lmm/SF_12_PCS_LMM", self.rpy2_modules,
         #                                                     path=self.transition_dir)
-        self.rf_transition_model = r_utils.load_transitions(f"SF_12_PCS/rf/SF_12_PCS_RF", self.rpy2_modules,
-                                                             path=self.transition_dir)
+        #self.rf_transition_model = r_utils.load_transitions(f"SF_12_PCS/rf/SF_12_PCS_RF", self.rpy2_modules,
+        #                                                     path=self.transition_dir)
+        #self.glmmb_transition_model = r_utils.load_transitions(f"SF_12_PCS/glmmb/SF_12_PCS_GLMMB", self.rpy2_modules,
+        #                                                    path=self.transition_dir)
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12_PCS/lmm/SF_12_PCS_LMM", self.rpy2_modules,
+                                                            path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -227,22 +232,30 @@ class lmmYJPCS(Base):
         self.year = event.time.year
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
+        pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
         pop["SF_12_PCS_last"] = pop["SF_12_PCS"]
+        # Calculate min and max values for clipping later
+        min_PCS = min(pop['SF_12_PCS'])
+        max_PCS = max(pop['SF_12_PCS'])
 
         # Predict next mwb value
         newWavePWB = pd.DataFrame(columns=['SF_12_PCS'])
-        newWavePWB['SF_12_PCS'] = self.calculate_pwb(pop)
+        newWavePWB['SF_12_PCS'] = self.calculate_pwb(pop.copy())
         newWavePWB.index = pop.index
         #newWavePWB["SF_12_PCS"] -= 1
 
+        ### This chunk is to increase variance
         sf12_mean = np.mean(newWavePWB["SF_12_PCS"])
-        std_ratio = (11/np.std(newWavePWB["SF_12_PCS"]))
-        newWavePWB["SF_12_PCS"] *= (11/np.std(newWavePWB["SF_12_PCS"]))
+        std_ratio = (9.8/np.std(newWavePWB["SF_12_PCS"]))
+        newWavePWB["SF_12_PCS"] *= (9.8/np.std(newWavePWB["SF_12_PCS"]))
         newWavePWB["SF_12_PCS"] -= ((std_ratio-1)*sf12_mean)
         newWavePWB["SF_12_PCS"] -= 1.5
-        #newWavePWB["SF_12_PCS"] += (50 - np.mean(newWavePWB["SF_12_PCS"]))
-        newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+        newWavePWB["SF_12_PCS"] += (49.3 - np.mean(newWavePWB["SF_12_PCS"]))
+        #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+
+        # Clip to minimum and maximum values seen in current wave
+        #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], min_PCS, max_PCS)
+
         newWavePWB["SF_12_PCS_diff"] = newWavePWB["SF_12_PCS"] - pop["SF_12_PCS"]
         # Update population with new SF_12_PCS
         #print(np.mean(newWavePWB["SF_12_PCS"]))
@@ -259,19 +272,25 @@ class lmmYJPCS(Base):
         -------
         """
 
-        nextWavePWB = r_utils.predict_next_rf(self.rf_transition_model,
-                                              self.rpy2_modules,
-                                              pop,
-                                              dependent='SF_12_PCS',
-                                              noise_std=1)
+        # nextWavePWB = r_utils.predict_next_timestep_beta_glmm(self.glmmb_transition_model,
+        #                                                       self.rpy2_modules,
+        #                                                       pop,
+        #                                                       dependent='SF_12_PCS',
+        #                                                       reflect=True,
+        #                                                       noise_std=0.03)
 
-        # nextWavePWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-        #                                                                   self.rpy2_modules,
-        #                                                                   pop,
-        #                                                                   dependent='SF_12_PCS',
-        #                                                                   reflect=True,
-        #                                                                   yeo_johnson=False,
-        #                                                                   noise_std=1)  #
+        # nextWavePWB = r_utils.predict_next_rf(self.rf_transition_model,
+        #                                       self.rpy2_modules,
+        #                                       pop,
+        #                                       dependent='SF_12_PCS',
+        #                                       noise_std=1)
+
+        nextWavePWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
+                                                                    self.rpy2_modules,
+                                                                    pop,
+                                                                    dependent='SF_12_PCS',
+                                                                    log_transform=True,
+                                                                    noise_std=0.03)  #
 
         # nextWavePWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
         #                                                        self.rpy2_modules,

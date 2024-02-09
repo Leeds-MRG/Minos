@@ -5,7 +5,7 @@ library(nnet)
 library(pscl)
 library(bestNormalize)
 library(lme4)
-#library(glmmTMB)
+library(glmmTMB)
 #library(msm)
 library(randomForest)
 library(caret)
@@ -149,17 +149,25 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
 nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 
-estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
+estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, log_transform, reflect) {
 
   data <- replace.missing(data)
   #data <- drop_na(data)
   max_value <- nanmax(data[[depend]])
+  min_value <- nanmin(data[[depend]])
+  
   if (reflect) {
     data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson) {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
+  }
+  
+  # LA 8/2/24
+  ## Log Normal Transformation for PCS
+  if (log_transform) {
+    data[[depend]] <- log(data[[depend]])
   }
 
   if(include_weights) {
@@ -176,6 +184,14 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
+  
+  ## LA 9/2/24 
+  # Saving min and max value from input data for clipping in r_utils function
+  if (depend == 'SF_12_PCS') {
+    attr(model,"min_value") <- min_value
+    attr(model,"max_value") <- max_value
+  }
+  
   #browser()
   #model@transform <- yj
   #model@min_value <- min_value
@@ -348,25 +364,22 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   return (model)
 }
 
-estimate_beta_glmm <- function(data, formula, depend, reflect, yeo_johnson) {
+estimate_beta_glmm <- function(data, formula, depend, reflect) {
+  # Beta family for GLMM is for data in interval 0-1 only. It can model 
+  # fractional data 
 
   data <- replace.missing(data)
-  data <- drop_na(data)
-
+  #data <- drop_na(data)
+  
   if (reflect) {
-    max_value <- nanmax(data[[depend]])
+    max_value <- nanmax(data[[depend]]) - 0.01
     data[, c(depend)] <- max_value - data[, c(depend)]
   }
-  if (yeo_johnson)
-  {
-    yj <- yeojohnson(data[,c(depend)])
-    data[, c(depend)] <- predict(yj)
+  
+  # Convert data to range 0-1
+  if (depend %in% c('SF_12_MCS', 'SF_12_PCS')) {
+    data[[depend]] = data[[depend]] / 100
   }
-
-  min_value <- nanmin(data[[depend]])
-  #data[[depend]] <- data[[depend]] - min_value + 0.001
-  #data[[depend]][data[[depend]] == 1] = 0.999
-  #data[[depend]][data[[depend]] == 0] = 0.001
 
   model <- glmmTMB(formula,
                    data = data,
@@ -374,12 +387,7 @@ estimate_beta_glmm <- function(data, formula, depend, reflect, yeo_johnson) {
                    weights = weight,
                    na.action = na.omit,
                    verbose = TRUE)
-
-  attr(model,"min_value") <- min_value
-
-  if (yeo_johnson){
-    attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
-  }
+  
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
