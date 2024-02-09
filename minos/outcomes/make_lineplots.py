@@ -64,6 +64,7 @@ def aggregate_cumulative_score(df, v):
     return sum(df[v])
 
 def aggregate_boosted_counts_and_cumulative_score(df, v):
+    print(df.shape)
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
     new_df["number_boosted"] = [df.shape[0]] + np.sum(df.groupby("hidp")['nkids'].max())
