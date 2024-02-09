@@ -71,13 +71,10 @@ if __name__ == "__main__":
     file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    # HR 283-285 check this var list and next block are okay
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', # 'SF_12',
                           "housing_tenure", 'hh_income', "nkids_ind", "job_hours",
                           'heating']
-
-    # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)  # remove any household with dodgy age chains.
     data['heating'] = data['heating'].astype(int)
