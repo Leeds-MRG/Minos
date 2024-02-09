@@ -357,6 +357,9 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         v = "SF_12"
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+        method = "SF12_AUC"
+        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
 
 #################
 # main function #
