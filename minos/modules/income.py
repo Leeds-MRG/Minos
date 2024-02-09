@@ -710,7 +710,6 @@ class lmmYJIncome(Base):
                                                                        dependent='hh_income_new',
                                                                        yeo_johnson=True,
                                                                        reflect=False,
-                                                                       mod_type='gamma',
                                                                        noise_std= 0.175)#0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)

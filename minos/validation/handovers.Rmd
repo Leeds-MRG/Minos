@@ -82,27 +82,27 @@ handover_lineplots(raw.dat, base.dat, "hh_income")
 ### Spaghetti
 
 ```{r}
-raw.inc <- raw.dat %>%
-  select(pidp, age, time, hh_income)
-base.inc <- base.dat %>%
-  select(pidp, age, time, hh_income)
-
-income.spag <- rbind(raw.inc, base.inc)
-
-density_ridges(income.spag, 'hh_income',
-               save=shall.we.save, 
-               save.path=save.path)
-
-pidp_sample <- sample(unique(income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
-income.spag.sample <- income.spag[which(income.spag$pidp %in% pidp_sample), ]
-spaghetti_plot(income.spag.sample, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
-spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.inc, base.inc, income.spag)
+# raw.inc <- raw.dat %>%
+#   select(pidp, age, time, hh_income)
+# base.inc <- base.dat %>%
+#   select(pidp, age, time, hh_income)
+# 
+# income.spag <- rbind(raw.inc, base.inc)
+# 
+# density_ridges(income.spag, 'hh_income',
+#                save=shall.we.save, 
+#                save.path=save.path)
+# 
+# pidp_sample <- sample(unique(income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
+# income.spag.sample <- income.spag[which(income.spag$pidp %in% pidp_sample), ]
+# spaghetti_plot(income.spag.sample, 'hh_income',
+#                save = shall.we.save,
+#                save.path = save.path)
+# spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.inc, base.inc, income.spag)
 ```
 
 
@@ -350,23 +350,23 @@ handover_lineplots(raw.dat, test.base, 'ncigs')
 ### Spaghetti
 
 ```{r}
-raw.nut <- raw.dat %>%
-  select(pidp, age, time, ncigs)
-base.nut <- base.dat %>%
-  select(pidp, age, time, ncigs)
-
-nut.spag <- rbind(raw.nut, base.nut)
-
-spaghetti_plot(nut.spag, 'ncigs',
-               save = shall.we.save,
-               save.path = save.path)
-
-
-density_ridges(nut.spag, "ncigs",
-               save = FALSE,
-               save.path = save.path)
-
-rm(raw.nut, base.nut, nut.spag)
+# raw.nut <- raw.dat %>%
+#   select(pidp, age, time, ncigs)
+# base.nut <- base.dat %>%
+#   select(pidp, age, time, ncigs)
+# 
+# nut.spag <- rbind(raw.nut, base.nut)
+# 
+# spaghetti_plot(nut.spag, 'ncigs',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# 
+# density_ridges(nut.spag, "ncigs",
+#                save = FALSE,
+#                save.path = save.path)
+# 
+# rm(raw.nut, base.nut, nut.spag)
 ```
 
 ### ncigs Max
@@ -641,20 +641,20 @@ ggplot(raw.2020.cd, aes(x = age_group, y = perc, group = chron_disease, colour =
 ```
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, matdep) %>%
-  filter(!matdep %in% miss.values)
-base.s <- base.dat %>%
-  select(pidp, age, time, matdep) %>%
-  filter(!matdep %in% miss.values)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'matdep',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, matdep) %>%
+#   filter(!matdep %in% miss.values)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, matdep) %>%
+#   filter(!matdep %in% miss.values)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'matdep',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Chronic Disease
@@ -665,35 +665,35 @@ handover_ordinal(raw.dat, base.dat, var = 'chron_disease', save = shall.we.save)
 
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, chron_disease) %>%
-  filter(!chron_disease %in% miss.values)
-base.s <- base.dat %>%
-  select(pidp, age, time, chron_disease) %>%
-  filter(!chron_disease %in% miss.values)
-
-spag <- rbind(raw.s, base.s)
-
-spag$chron_disease <- as.numeric(spag$chron_disease)
-
-spaghetti_plot(spag, 'chron_disease',
-               save = shall.we.save,
-               save.path = save.path)
-
-density_ridges(spag, 'chron_disease',
-               save=shall.we.save, 
-               save.path=save.path)
-
-pidp_sample <- sample(unique(spag$pidp), size=nrow(raw.s)/10, replace=FALSE)
-spag.sample <- spag[which(spag$pidp %in% pidp_sample), ]
-spaghetti_plot(spag.sample, 'chron_disease',
-               save = shall.we.save,
-               save.path = save.path)
-spaghetti_highlight_max_plot(spag.sample, 'chron_disease',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, chron_disease) %>%
+#   filter(!chron_disease %in% miss.values)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, chron_disease) %>%
+#   filter(!chron_disease %in% miss.values)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spag$chron_disease <- as.numeric(spag$chron_disease)
+# 
+# spaghetti_plot(spag, 'chron_disease',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# density_ridges(spag, 'chron_disease',
+#                save=shall.we.save, 
+#                save.path=save.path)
+# 
+# pidp_sample <- sample(unique(spag$pidp), size=nrow(raw.s)/10, replace=FALSE)
+# spag.sample <- spag[which(spag$pidp %in% pidp_sample), ]
+# spaghetti_plot(spag.sample, 'chron_disease',
+#                save = shall.we.save,
+#                save.path = save.path)
+# spaghetti_highlight_max_plot(spag.sample, 'chron_disease',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Hourly Wage
@@ -704,58 +704,58 @@ handover_lineplots(raw.dat, base.dat, 'hourly_wage')
 ```
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, hourly_wage)
-base.s <- base.dat %>%
-  select(pidp, age, time, hourly_wage)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-# now a version limited to 0-100
-spag <- spag %>%
-  filter(hourly_wage <= 300)
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, hourly_wage)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, hourly_wage)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'hourly_wage',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# # now a version limited to 0-100
+# spag <- spag %>%
+#   filter(hourly_wage <= 300)
+# spaghetti_plot(spag, 'hourly_wage',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ```{r}
-# some basic statistics about hourly_wage variable
-print("Some basic statistics on hourly_wage. These are all for 2020.")
-raw.2020 <- raw.dat %>% filter(time == 2020)
-print('All living people in 2020')
-print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
-# number individuals with an hourly_wage > 0
-print('People not in work')
-print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
-
-# Number in work
-print('People in work')
-print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
-
-# Extreme hourly_wage values
-print('Extreme hourly wage values: HIGH')
-print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
-print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
-print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
-print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
-print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
-print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
-
-raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
-print('Extreme hourly wage values: LOW (non-zero)')
-print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
-print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
-print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
-print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
+# # some basic statistics about hourly_wage variable
+# print("Some basic statistics on hourly_wage. These are all for 2020.")
+# raw.2020 <- raw.dat %>% filter(time == 2020)
+# print('All living people in 2020')
+# print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
+# # number individuals with an hourly_wage > 0
+# print('People not in work')
+# print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+# print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
+# 
+# # Number in work
+# print('People in work')
+# print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+# print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
+# 
+# # Extreme hourly_wage values
+# print('Extreme hourly wage values: HIGH')
+# print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
+# print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
+# print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
+# print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
+# print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
+# print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
+# 
+# raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
+# print('Extreme hourly wage values: LOW (non-zero)')
+# print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
+# print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
+# print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
+# print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
 ```
 
 ## S7 Labour State

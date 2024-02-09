@@ -552,7 +552,6 @@ class lmmYJMWB(Base):
                                                                dependent='SF_12_MCS',
                                                                reflect=True,
                                                                yeo_johnson= True,
-                                                               mod_type='gamma',
                                                                noise_std= 0.1)  # 5 for non yj, 0.35 for yj
         return out_data
 
