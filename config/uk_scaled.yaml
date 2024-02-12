@@ -11,12 +11,12 @@ population:
 
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/scaled_uk_US/ind"
+input_data_dir: "data/scaled_uk_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
 transition_dir: 'data/transitions'
-replenishing_dir: 'data/replenishing/uk_scaled/ind'
+replenishing_dir: 'data/replenishing/uk_scaled'
 
 cross_validation: FALSE
 synthetic: TRUE
@@ -33,7 +33,8 @@ component_file: 'config/SF12_components.txt'
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), MaterialDeprivation(), ChronicDisease(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+#components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), MaterialDeprivation(), ChronicDisease(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+
 scale_rates:
     method: "constant"
     constant:

@@ -10,9 +10,11 @@ synthetic_glasgow_data: data glasgow_scaled_data
 
 synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 
-synthetic_uk_hh_data: data uk_hh_scaled_data synthetic_uk_hh_repl
+synthetic_uk_data: data uk_scaled_data
 
-synthetic_uk_ind_data: data uk_ind_scaled_data synthetic_uk_ind_repl
+synthetic_uk_hh_data: data uk_hh_scaled_data
+
+synthetic_uk_ind_data: data uk_ind_scaled_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2021_US_cohort.csv
@@ -63,15 +65,17 @@ scotland_scaled_data : $(SCOTLANDSCALEDDATA)/2021_US_cohort.csv
 
 synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2019-2070.csv
 
-uk_hh_scaled_data: $(UKSCALEDDATA)/hh/2020_US_cohort.csv
+#uk_hh_scaled_data: $(UKSCALEDDATA)/hh/2020_US_cohort.csv
 
 uk_scaled_data: $(UKSCALEDDATA)/2021_US_cohort.csv
 
-synthetic_uk_hh_repl: $(DATADIR)/replenishing/uk_scaled/hh/replenishing_pop_2019-2070.csv
+synthetic_uk_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv
 
-uk_ind_scaled_data: $(UKSCALEDDATA)/ind/2020_US_cohort.csv
-
-synthetic_uk_ind_repl: $(DATADIR)/replenishing/uk_scaled/ind/replenishing_pop_2019-2070.csv
+#synthetic_uk_hh_repl: $(DATADIR)/replenishing/uk_scaled/hh/replenishing_pop_2019-2070.csv
+#
+#uk_ind_scaled_data: $(UKSCALEDDATA)/ind/2020_US_cohort.csv
+#
+#synthetic_uk_ind_repl: $(DATADIR)/replenishing/uk_scaled/ind/replenishing_pop_2019-2070.csv
 
 #sheffield_scaled_data goes here.
 
@@ -137,19 +141,19 @@ $(SCOTLANDSCALEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATA
 $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2015-2070.csv: $(SCOTLANDSCALEDDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'scotland'
 
-# synthetic input for UK with spatial component - HOUSEHOLDS
-$(UKSCALEDDATA)/hh/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py $(PERSISTDATA)/spatial_data/HH2011PopEst2020UK_population.csv
-	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'uk' -p 1
-
-$(DATADIR)/replenishing/uk_scaled/hh/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/hh/2020_US_cohort.csv transitions_default $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
-	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
-
-# synthetic input for UK with spatial component - INDIVIDUALS
-$(UKSCALEDDATA)/ind/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_upscaling_test.py $(PERSISTDATA)/spatial_data/IndSPUKL_population.csv
-	$(PYTHON) $(DATAGEN)/US_upscaling_test.py -r 'uk' -p 1
-
-$(DATADIR)/replenishing/uk_scaled/ind/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/ind/2020_US_cohort.csv transitions_default $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
-	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
+## synthetic input for UK with spatial component - HOUSEHOLDS
+#$(UKSCALEDDATA)/hh/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py $(PERSISTDATA)/spatial_data/HH2011PopEst2020UK_population.csv
+#	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'uk' -p 1
+#
+#$(DATADIR)/replenishing/uk_scaled/hh/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/hh/2020_US_cohort.csv transitions_default $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+#	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
+#
+## synthetic input for UK with spatial component - INDIVIDUALS
+#$(UKSCALEDDATA)/ind/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_upscaling_test.py $(PERSISTDATA)/spatial_data/IndSPUKL_population.csv
+#	$(PYTHON) $(DATAGEN)/US_upscaling_test.py -r 'uk' -p 1
+#
+#$(DATADIR)/replenishing/uk_scaled/ind/replenishing_pop_2019-2070.csv: $(UKSCALEDDATA)/ind/2020_US_cohort.csv transitions_default $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+#	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
 
 # synthetic input for UK with spatial component.
 $(UKSCALEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
