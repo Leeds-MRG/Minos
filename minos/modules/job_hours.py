@@ -92,7 +92,7 @@ class JobHours(Base):
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "glmm")
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.

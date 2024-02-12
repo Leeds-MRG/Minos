@@ -131,7 +131,7 @@ class S7Neighbourhood(Base):
         if not self.transition_model or year <= 2017:
             self.transition_model = r_utils.load_transitions(f"S7_neighbourhood_safety/clm/S7_neighbourhood_safety_{year}_{year + 3}",
                                                              self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop,

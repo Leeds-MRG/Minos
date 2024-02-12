@@ -124,7 +124,7 @@ class S7PhysicalHealth(Base):
         # if simulation goes beyond real data in 2020 dont load the transition model again.
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"S7_physical_health/clm/S7_physical_health_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
         return r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'S7_physical_health')
 

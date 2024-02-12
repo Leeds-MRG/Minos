@@ -128,7 +128,7 @@ class S7Housing(Base):
 
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"S7_housing_quality/clm/S7_housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'S7_housing_quality')

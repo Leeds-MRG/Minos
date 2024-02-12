@@ -318,7 +318,7 @@ class lmmDiffNutrition(Base):
         # just load this once.
         self.transition_model = r_utils.load_transitions(f"nutrition_quality/lmm_diff/nutrition_quality_LMM_DIFF", self.rpy2Modules,
                                                              path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "glmm")
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
 
 #self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
 

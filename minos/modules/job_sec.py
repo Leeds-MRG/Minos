@@ -122,7 +122,7 @@ class JobSec(Base):
         # if simulation goes beyond real data in 2020 dont load the transition model again.
         if not self.transition_model or year <= 2019:
             self.transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
         #transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.

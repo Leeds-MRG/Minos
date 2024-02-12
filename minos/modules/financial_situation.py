@@ -36,7 +36,7 @@ class financialSituation(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -105,9 +105,9 @@ class financialSituation(Base):
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
                                                              self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
-        #transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2_modules, pop,
+        #transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2Modules)
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop,
                                                                         dependent='financial_situation')
         return nextWaveFinancialPerception

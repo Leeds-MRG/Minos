@@ -141,7 +141,7 @@ class HousingTenure(Base):
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"housing_tenure/nnet/housing_tenure_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
             # TODO not implemented for nnet.
-            #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "nnet")
+            #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "nnet")
 
 
         #transition_model = r_utils.load_transitions(f"housing_tenure/nnet/housing_tenure_{year}_{year+1}",
