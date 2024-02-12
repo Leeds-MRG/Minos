@@ -134,9 +134,14 @@ class Housing(Base):
         else:
             year = min(self.year, 2019)
 
-        transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        # if simulation goes beyond real data in 2020 dont load the transition model again.
+        if not self.transition_model or year <= 2019:
+            self.transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "clm")
+
+        #transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'housing_quality')
+        prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'housing_quality')
         return prob_df
 
     def plot(self, pop, config):

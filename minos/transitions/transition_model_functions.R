@@ -67,6 +67,7 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   model[[depend]] <- data[[depend]]
   data[[depend]] <- NULL
   model$class_preds <- predict(model, newdata = data, type='class')
+  model$cov_matrix <- vcov(model)[-(1:2), -(1:2)]
   return(model)
 }
 
@@ -87,6 +88,7 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
   # This is mildly stupid.. 
   model[[depend]] <- data[[depend]]
   model$class_preds <- predict(model)
+  model$cov_matrix <- vcov(model)
   return(model)
 }
 
@@ -129,6 +131,10 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
                       link='logit')
     model[[depend]] <- data[[depend]]
     model$class_preds <- predict(model)
+    model$cov_matrix <- vcov(model)
+    number_count_terms <- length(model$coefficients$count)
+    model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
+    model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
   }
   
   #print(summary(model))
@@ -177,6 +183,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
+  attr(model, "cov_matrix") <- vcov(model)
   return(model)
 }
 
@@ -254,6 +261,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
+  attr(model, "cov_matrix") <- vcov(model)
   return(model)
 }
 

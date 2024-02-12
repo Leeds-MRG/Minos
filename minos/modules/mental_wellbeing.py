@@ -499,7 +499,8 @@ class lmmYJMWB(Base):
 
         #only need to load this once for now.
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
+        self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2_modules, "glmm")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -544,7 +545,7 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
+        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
                                                                self.rpy2_modules,
                                                                current= pop,
                                                                dependent='SF_12',
