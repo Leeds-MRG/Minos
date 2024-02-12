@@ -41,7 +41,7 @@ class S7EquivalentIncome(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2Modulesdules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
