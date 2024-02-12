@@ -65,9 +65,13 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
                  Hess=T)
   }
   model[[depend]] <- data[[depend]]
+  n_classes = length(unique(data[[depend]]))
   data[[depend]] <- NULL
+  #browser()
   model$class_preds <- predict(model, newdata = data, type='class')
-  model$cov_matrix <- vcov(model)[-(1:2), -(1:2)]
+  # cutting off the vcov for the threshold variables (thetas) and keeping only for betas.
+  # maybe should randomise both.
+  model$cov_matrix <- vcov(model)[-(1:n_classes-1), -(1:n_classes-1)]
   return(model)
 }
 
@@ -129,14 +133,13 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
                       data = data,
                       dist = 'pois', 
                       link='logit')
-    model[[depend]] <- data[[depend]]
-    model$class_preds <- predict(model)
-    model$cov_matrix <- vcov(model)
-    number_count_terms <- length(model$coefficients$count)
-    model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
-    model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
   }
-  
+  model[[depend]] <- data[[depend]]
+  model$class_preds <- predict(model)
+  model$cov_matrix <- vcov(model)
+  number_count_terms <- length(model$coefficients$count)
+  model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
+  model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
