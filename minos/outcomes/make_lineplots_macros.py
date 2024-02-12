@@ -359,6 +359,17 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+def child_payment_25_50_only(config_mode, source, tag, subset_function, region):
+    "The same intervention in increments from £25 to £50"
+    directories = f"baseline,25{source},50{source}"
+    tags = f"Baseline,£25 {tag},£50 {tag}"
+    subset_function_strings = f"{subset_function},who_boosted,who_boosted"
+    prefix = f"25_50_only_{source}_"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
 #################
 # main function #
 #################
@@ -432,6 +443,9 @@ string_to_lineplot_function = {
 
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
+
+    "incremental_25_50_together_universal_credit_default": child_payment_25_50_only,
+
 
     "social_science_all_plots": social_science_all_plots,
 
@@ -534,6 +548,9 @@ string_to_lineplot_function_args = {
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5],
     "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", None],
 
+    "incremental_25_50_together_universal_credit_default": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", None],
+
+
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
     "glasgow_epcg_quintile": ['EPCG'],
@@ -573,4 +590,5 @@ if __name__ == '__main__':
         plot_function_args = string_to_lineplot_function_args[plot_choice]
     else:
         plot_function_args = []
+
     plot_function(config_mode, *plot_function_args)
