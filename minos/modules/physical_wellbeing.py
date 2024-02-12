@@ -246,8 +246,8 @@ class lmmYJPCS(Base):
 
         ### This chunk is to increase variance
         sf12_mean = np.mean(newWavePWB["SF_12_PCS"])
-        std_ratio = (9.8/np.std(newWavePWB["SF_12_PCS"]))
-        newWavePWB["SF_12_PCS"] *= (9.8/np.std(newWavePWB["SF_12_PCS"]))
+        std_ratio = (10.6/np.std(newWavePWB["SF_12_PCS"]))
+        newWavePWB["SF_12_PCS"] *= std_ratio
         newWavePWB["SF_12_PCS"] -= ((std_ratio-1)*sf12_mean)
         newWavePWB["SF_12_PCS"] -= 1.5
         newWavePWB["SF_12_PCS"] += (49.3 - np.mean(newWavePWB["SF_12_PCS"]))
@@ -290,7 +290,7 @@ class lmmYJPCS(Base):
                                                                     pop,
                                                                     dependent='SF_12_PCS',
                                                                     log_transform=True,
-                                                                    noise_std=0.03)  #
+                                                                    noise_std=0.025)  #
 
         # nextWavePWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
         #                                                        self.rpy2_modules,

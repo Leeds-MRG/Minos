@@ -42,7 +42,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
   valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "SURV", 'GLMMB', 'MSM')
 
-  data[which(data$ncigs==-8), 'ncigs'] <- 0
+  orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
 
   repeat{
     # first thing, take copy of the orig_data to ensure we get the same starting point each time
@@ -340,7 +340,7 @@ sipher7 <- args$SIPHER7
 
 ###################################################################
 # DELETE ME
-default <- TRUE
+#default <- TRUE
 #cross_validation <- TRUE
 # DELETE ME
 ###################################################################
@@ -355,6 +355,7 @@ mode <- 'default'
 ################################################################################
 # REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
 #default <- T
+# cross_validation <- T
 # REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
 ################################################################################
 
