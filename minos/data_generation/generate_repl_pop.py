@@ -217,6 +217,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     output_dir = 'data/replenishing'
     data_source = 'final_US'
     transition_dir = 'data/transitions'
+    source_year = 2021  # the year from which we draw our 16 year old cohort
 
     if scotland_mode:
         data_source = 'scotland_US'
@@ -226,6 +227,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
+        source_year = 2015
     if inflated:
         data_source = 'inflated_US'
         output_dir = 'data/replenishing/inflated'
@@ -233,15 +235,18 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     if region == 'glasgow':
         data_source = 'scaled_glasgow_US'
         output_dir = 'data/replenishing/glasgow_scaled'
+        source_year = 2020
     elif region == 'scotland':
         data_source = 'scaled_scotland_US'
         output_dir = 'data/replenishing/scotland_scaled'
+        source_year = 2020
     elif region == 'uk':
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
+        source_year = 2020
 
     # first collect and load the datafile for 2018
-    file_name = f"data/{data_source}/2021_US_cohort.csv"
+    file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
@@ -277,7 +282,8 @@ def main():
                                      usage='use "%(prog)s --help" for more information')
 
     parser.add_argument("-r", "--region", default="",
-                        help="Generate replenishing population for specified synthetic scaled data. glasgow or scotland for now.")
+                        help="Generate replenishing population for specified synthetic scaled data. glasgow or "
+                             "scotland for now.")
     parser.add_argument("-s", "--scotland", action='store_true', default=False,
                         help="Select Scotland mode to only produce replenishing using scottish sample.")
     parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,
