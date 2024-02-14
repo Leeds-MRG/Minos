@@ -153,6 +153,20 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
 
   data <- replace.missing(data)
   #data <- drop_na(data)
+  
+  # If min == 0, then add small amount before log_transform
+  # if (min(data[[depend]] == 0) && (log_transform)) {
+  #   print("Adding small value for log_transform")
+  #   data[[depend]] <- data[[depend]] + 0.001
+  # }
+  
+  if ((depend == 'SF_12_MCS') & log_transform) {
+    data[[depend]] <- data[[depend]] + 0.001
+  }
+  
+  # remove rows with null weight values
+  #data <- data[!is.na(data$weight), ]
+  
   max_value <- nanmax(data[[depend]])
   min_value <- nanmin(data[[depend]])
   
@@ -187,7 +201,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   
   ## LA 9/2/24 
   # Saving min and max value from input data for clipping in r_utils function
-  if (depend == 'SF_12_PCS') {
+  if (depend %in% c('SF_12_PCS', 'SF_12_MCS')) {
     attr(model,"min_value") <- min_value
     attr(model,"max_value") <- max_value
   }

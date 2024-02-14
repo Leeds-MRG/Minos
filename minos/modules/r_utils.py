@@ -11,7 +11,7 @@ from rpy2.robjects.vectors import FactorVector, FloatVector
 from rpy2.robjects import numpy2ri
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as pl
+#import matplotlib.pyplot as pl
 
 
 def load_transitions(component, rpy2_modules, path='data/transitions/'):
@@ -363,16 +363,21 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     #current = current.drop([dependent, 'time'], axis=1)
     #current["pidp"] = -current["pidp"]
 
+    # need to add tiny value to the 0 MCS values as this causes problems in log transform
+    if dependent == "SF_12_MCS":
+        current.loc[current[dependent] == 0.0, dependent] = current.loc[current[dependent] == 0.0, dependent] + 0.01
+
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
-    if dependent == "SF_12_PCS":
+    if dependent in ["SF_12_PCS", "SF_12_MCS"]:
         max_value = model.do_slot("max_value")
         min_value = model.do_slot("min_value")
 
     if log_transform:
-        # log transformation currently only for PCS
+        # log transformation currently only for PCS (also testing MCS)
         currentRDF[currentRDF.names.index(dependent)] = base.log(currentRDF.rx2(dependent))
 
     # explicitly convert to matrix to overcome error in predict_merMod below
@@ -401,7 +406,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
 
     valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality',
-                        'nutrition_quality_diff', 'SF_12_PCS']
+                        'nutrition_quality_diff', 'SF_12_PCS', 'SF_12_MCS']
     if dependent == "SF_12" and noise_std:
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
     elif (dependent in valid_dependents) and noise_std:
@@ -416,7 +421,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         #ols_data = ro.conversion.rpy2py(ols_data)
         prediction = ro.conversion.rpy2py(prediction)
 
-    if dependent == "SF_12_PCS":
+    if dependent in ["SF_12_PCS", "SF_12_MCS"]:
         # Final step is to clip the values to min and max seen in input data
         prediction = np.clip(prediction, min_value, max_value)
 

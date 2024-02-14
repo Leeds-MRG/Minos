@@ -92,20 +92,21 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       use.weights <- TRUE
     }
 
-    if (dependent %in% c("SF_12_MCS")) {  # 'SF_12_PCS'
-      do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
-    }
-    else {
-      do.reflect=FALSE
-    }
+    # if (dependent %in% c()) {  # 'SF_12_PCS', "SF_12_MCS"
+    #   do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
+    # }
+    # else {
+    #   do.reflect=FALSE
+    # }
+    do.reflect=FALSE
 
-    if (dependent %in% c("SF_12_MCS", 'hh_income')) {  # 'SF_12_PCS'
+    if (dependent %in% c('hh_income')) {  # 'SF_12_PCS', "SF_12_MCS"
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
     }
     
-    if (dependent %in% c("SF_12_PCS")) {
+    if (dependent %in% c('SF_12_PCS', 'SF_12_MCS')) {
       do.log.transform <- T
     } else {
       do.log.transform <- F
@@ -195,7 +196,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       #
       model <- estimate_gamma_glmm(data = sorted_df,
                                           formula = form,
-                                          include_weights = use.weights,
+                                          include_weights = F,
                                           depend = dependent,
                                           reflect=do.reflect,
                                           yeo_johnson = do.yeo.johnson)
@@ -354,7 +355,7 @@ mode <- 'default'
 
 ################################################################################
 # REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
-#default <- T
+default <- T
 # cross_validation <- T
 # REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE REMOVE
 ################################################################################
