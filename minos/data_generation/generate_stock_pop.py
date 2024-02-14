@@ -167,6 +167,12 @@ def generate_transition_stock(projections, cross_validation):
                           copy_year=2015,
                           paste_year=2014,
                           var_type='continuous')
+    # copy wave 7 nutrition_quality onto wave 6
+    data = wave_data_copy(data,
+                          var='neighbourhood_safety',
+                          copy_year=2019,
+                          paste_year=2020,
+                          var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
@@ -208,7 +214,7 @@ def generate_input_stock(projections, cross_validation):
     maxyr = US_utils.get_data_maxyr()
 
     print('Generating stock population...')
-    years = np.arange(2009, maxyr)
+    years = np.arange(2018, maxyr)
     file_names = [f"data/imputed_complete_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
@@ -221,31 +227,31 @@ def generate_input_stock(projections, cross_validation):
     # Will be used in the future for the 16-25 year olds at the beginning of the simulation
     data['max_educ'] = data['education_state']
 
-    # copy 2017 loneliness data onto 2014 for cross-validation runs
-    data = wave_data_copy(data,
-                          var='loneliness',
-                          copy_year=2017,
-                          paste_year=2014,
-                          var_type='ordinal')
-    # copy wave 11 nutrition_quality onto wave 12
-    data = wave_data_copy(data,
-                          var='nutrition_quality',
-                          copy_year=2019,
-                          paste_year=2020,
-                          var_type='continuous')
-    # copy wave 7 nutrition_quality onto wave
-    data = wave_data_copy(data,
-                          var='nutrition_quality',
-                          copy_year=2015,
-                          paste_year=2014,
-                          var_type='continuous')
+    # # copy 2017 loneliness data onto 2014 for cross-validation runs
+    # data = wave_data_copy(data,
+    #                       var='loneliness',
+    #                       copy_year=2017,
+    #                       paste_year=2014,
+    #                       var_type='ordinal')
+    # # copy wave 11 nutrition_quality onto wave 12
+    # data = wave_data_copy(data,
+    #                       var='nutrition_quality',
+    #                       copy_year=2019,
+    #                       paste_year=2020,
+    #                       var_type='continuous')
+    # # copy wave 7 nutrition_quality onto wave
+    # data = wave_data_copy(data,
+    #                       var='nutrition_quality',
+    #                       copy_year=2015,
+    #                       paste_year=2014,
+    #                       var_type='continuous')
 
     # Set loneliness and ncigs as int
-    data['loneliness'] = data['loneliness'].astype('int64')
+    data['loneliness'] = data['loneliness'].astype(int)
     data['ncigs'] = data['ncigs'].astype('int64')
-    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
-    data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
-    #data['housing_quality'] = data['housing_quality'].astype('int64')
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+    data['nutrition_quality'] = data['nutrition_quality'].astype(int)
+    #data['housing_quality'] = data['housing_quality'].astype(int)
 
     US_utils.save_multiple_files(data, years, "data/imputed_final_US/", "")
 

@@ -35,6 +35,8 @@ SIPHER7_base: setup_S7
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
 
+baseline_mice: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default_MICE.yaml -o default_config
 
 ###################
 ## Experiment Runs

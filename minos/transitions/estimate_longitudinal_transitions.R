@@ -191,6 +191,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
     
+    # Write coefficients out to file?
+    write_coefs <- T
+    
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
       #
@@ -237,9 +240,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,
                                      depend = dependent)
+      
+      # Can't access coefficients for RandomForest model in this way
+      write_coefs <- F
     }
     
-    write_coefs <- T
+    
     if (write_coefs)
     {
       texreg_file <- paste0(out.path2, "coefficients", dependent, '_', mod.type, '.txt')

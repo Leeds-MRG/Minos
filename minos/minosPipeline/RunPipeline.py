@@ -91,6 +91,8 @@ components_map = {
     "Mortality()": Mortality(),
     "Education()": Education(),
     "Ageing()": Ageing(),
+    "HourlyWage()": HourlyWage(),
+    "JobSec()": JobSec(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
