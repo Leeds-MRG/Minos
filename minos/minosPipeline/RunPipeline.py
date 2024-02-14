@@ -232,7 +232,8 @@ def RunPipeline(config, intervention=None):
             components_raw.append(line.rstrip())
 
     if intervention is not None:
-        components_raw += intervention
+        #components_raw += intervention
+        components_raw.append(intervention)
 
     component_priority_map, component_name_map = get_priorities()
     components = [component_name_map[c] for c in components_raw if c in component_name_map]
