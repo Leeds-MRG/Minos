@@ -141,26 +141,25 @@ intervention_energyDownLiftNoSupport_scotland: setup_scotland_scaled
 ## Local single runs of MINOS SF12 experiments using the UK (GB) synthetic population.
 ############################################
 
-baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
-baseline_uk: setup_uk_ind_scaled
+baseline_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled
 
-intervention_hhIncome_uk: setup_uk_ind_scaled
+intervention_hhIncome_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomeIntervention'
 
-intervention_hhIncomeChildUplift_uk: setup_uk_ind_scaled
+intervention_hhIncomeChildUplift_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomeChildUplift'
 
-intervention_PovertyLineChildUplift_uk: setup_uk_ind_scaled
+intervention_PovertyLineChildUplift_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomePovertyLineChildUplift'
 
-intervention_livingWage_uk: setup_uk_ind_scaled
+intervention_livingWage_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'livingWageIntervention'
 
-intervention_energyDownLift_uk: setup_uk_ind_scaled
+intervention_energyDownLift_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'energyDownlift'
 
-intervention_energyDownLiftNoSupport_uk: setup_uk_ind_scaled
+intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'energyDownliftNoSupport'
 
 

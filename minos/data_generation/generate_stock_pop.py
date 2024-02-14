@@ -190,6 +190,11 @@ def generate_stock(projections, cross_validation):
                           copy_year=2020,
                           paste_year=2021,
                           var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='heating',
+                          copy_year=2014,
+                          paste_year=2015,
+                          var_type='ordinal')
     # data = wave_data_copy(data,
     #                       var='matdep',
     #                       copy_year=2020,
