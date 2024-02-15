@@ -394,7 +394,7 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
     data$ncigs_new <-  ceiling(data$ncigs_new/5)
   }
   
-  browser()
+  #browser()
   model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
     fixed = as.formula(counts_formula),
     random = ~ 1 | pidp,
@@ -414,7 +414,7 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #  family = zi.poisson(), 
   #  zi_fixed = ~ scale(age) + scale(SF_12))
   
-  #browser()
+  # browser()
   #test.data <- drop_na(data)
   #test.zeros <- predict(model, newdata = drop_na(data), type='zero')
   #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
