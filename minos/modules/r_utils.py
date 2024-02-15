@@ -510,8 +510,10 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
     # grab count and zero prediction types
     # count determines values if they actually drink
     # zero determine probability of them not drinking
+
     counts = stats.predict(model, currentRDF, type="subject_specific")
-    zeros = stats.predict(model, currentRDF, type="zero_part")
+    zeros = counts.do_slot("zi_probs")
+    #zeros = stats.predict(model, currentRDF, type="zero_part")
 
     if noise_std:
         counts = counts.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
@@ -525,4 +527,5 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
     preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
-    return np.ceil(preds)
+    #return np.ceil(preds)
+    return preds

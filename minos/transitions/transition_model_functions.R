@@ -385,7 +385,12 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   counts_formula <- paste0(as.character(fixed_formula[2]), as.character(fixed_formula[1]), string_formulae[[1]][1])
   zero_formula <- paste0("~ ", string_formulae[[1]][2])
   
-  #browser()
+  if (depend == "ncigs_new") {
+    #data$ncigs <- ceiling(data$ncigs/5)
+    data$ncigs_new <-  ceiling(data$ncigs_new/5)
+  }
+  
+  browser()
   model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
     fixed = as.formula(counts_formula),
     random = ~ 1 | pidp,
@@ -394,7 +399,8 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
     #weights=weight,
     data = data,
     family = zi.poisson())
-  
+    #family = zi.negative.binomial())
+
   # test model with hard coded formulae.
   #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
   #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12),
@@ -410,6 +416,12 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
   #test.counts2 <- predict(model, newdata = drop_na(data), type='subject_specific')
   #test.counts <- predict(model, newdata = drop_na(data), type='mean_subject')
-  #test.final <- round(test.nonzero * test.counts)
+  
+  #test.zeros <- attr(test.counts2, "zi_probs")
+  #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
+  
+  #test.final <- test.nonzero * test.counts2 * 5
+  #hist(test.data$ncigs_new*5, xlim=c(0, 30), freq=F, breaks=100)
+  #lines(density(test.final),col='red')
   return(model)
 }

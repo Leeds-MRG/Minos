@@ -99,6 +99,7 @@ class Tobacco(Base):
         newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop))
         newWaveTobacco.columns = ['ncigs']
         newWaveTobacco.index = pop.index
+
         newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
@@ -189,7 +190,13 @@ class lmmTobacco(Base):
                         'S7_labour_state',
                         'job_sec',
                         'ncigs',
-                        'nutrition_quality',]
+                        'nutrition_quality',
+                        "time",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "hh_income",
+                        "SF_12"]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -220,15 +227,24 @@ class lmmTobacco(Base):
         self.year = event.time.year
 
         pop['ncigs_new'] = pop['ncigs']
+        #round up to nearerst number of 5s cigarettes. e.g. 1 cigarettes rounds up to 5.
+        # note the units here is in 5s. a value of 1 indicates 5 cigarettes. this is undone later.
+        #pop['ncigs'] = np.ceil(pop['ncigs']/5)
+        print(f"before ncigs: {np.mean(pop['ncigs'])}")
+
         # Predict next tobacco value
         newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop))
         newWaveTobacco.columns = ['ncigs']
         newWaveTobacco.index = pop.index
-        newWaveTobacco['ncigs'] *= 1.05
-        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+        #newWaveTobacco['ncigs'] *= 1.05
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
         newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
+        #newWaveTobacco['ncigs'] *= 5
+        newWaveTobacco['ncigs'] *= 2.45
+        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+        print(f"ncigs: {np.mean(newWaveTobacco['ncigs'])}")
+        print(f"non-zero ncigs: {np.median(newWaveTobacco.loc[newWaveTobacco['ncigs']>0,])}")
         self.population_view.update(newWaveTobacco["ncigs"])
 
     def calculate_tobacco(self, pop):
@@ -253,7 +269,7 @@ class lmmTobacco(Base):
                                                                   rpy2Modules= self.rpy2Modules,
                                                                   current=pop,
                                                                   dependent='ncigs_new',
-                                                                  noise_std = 1)
+                                                                  noise_std=0)
         return nextWaveTobacco
 
     def plot(self, pop, config):
