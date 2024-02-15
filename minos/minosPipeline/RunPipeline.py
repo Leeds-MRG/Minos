@@ -174,7 +174,7 @@ def get_priorities():
 
     # print("Everything else:\n", everything_else)
 
-    component_priorities.update({el: 6 for el in everything_else})
+    component_priorities.update({el: 7 for el in everything_else})
     component_priorities.update({el: 9 for el in and_finally})
     # component_priorities.update({el: 8 for el in metrics_map})
 

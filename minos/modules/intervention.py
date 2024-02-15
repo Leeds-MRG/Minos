@@ -7,14 +7,14 @@ from pathlib import Path
 import logging
 from minos.modules.base_module import Base
 
-class hhIncomeIntervention():
+class hhIncomeIntervention(Base):
 
     @property
     def name(self):
         return "hh_income_intervention"
 
     def __repr__(self):
-        return "hhIncomeIntervention()"
+        return "hhIncomeIntervention"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -135,7 +135,7 @@ class hhIncomeChildUplift(Base):
         return "hh_income_20_uplift"
 
     def __repr__(self):
-        return "hhIncomeChildUplift()"
+        return "hhIncomeChildUplift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -213,7 +213,7 @@ class hhIncomePovertyLineChildUplift(Base):
         return "hh_income_poverty_live_20_uplift"
 
     def __repr__(self):
-        return "hhIncomePovertyLineChildUplift()"
+        return "hhIncomePovertyLineChildUplift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -296,7 +296,7 @@ class livingWageIntervention(Base):
         return "living_wage_intervention"
 
     def __repr__(self):
-        return "livingWageIntervention()"
+        return "livingWageIntervention"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -412,7 +412,7 @@ class energyDownlift(Base):
         return "energy_downlift"
 
     def __repr__(self):
-        return "energyDownlift()"
+        return "energyDownlift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -496,7 +496,7 @@ class energyDownliftNoSupport(Base):
         return "energy_downlift_no_support"
 
     def __repr__(self):
-        return "energyDownliftNoSupport()"
+        return "energyDownliftNoSupport"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

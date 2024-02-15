@@ -13,7 +13,7 @@ import pandas as pd
 PRIORITY_DEFAULT = 10
 
 
-class Base():
+class Base:
 
     @property
     def name(self):
