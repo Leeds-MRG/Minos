@@ -1,10 +1,14 @@
 source("minos/transitions/utils.R")
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
-require(randomForest)
+
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
+library(randomForest)
+library(parallelly)
+library(doParallel)
+library(caret)
 
 ################ Model Specific Functions ################
 
@@ -343,9 +347,24 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
   
+  numCores <- availableCores() / 2
+  
+  registerDoParallel(cores = numCores)
+  
   data <- replace.missing(data)
   data <- drop_na(data)
-  model <- randomForest(formula, data = data, ntree = 100)
   
-  return(model)
+  print("Training RandomForest with parallel processing...")
+  # Train RandomForest with parallel processing
+  fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
+  set.seed(123)
+  
+  # Adjusting the model parameters to use fewer trees and limit depth
+  rfModel <- train(formula, data = data, 
+                   method = "rf",
+                   trControl = fitControl,
+                   tuneGrid = expand.grid(mtry = 3), 
+                   ntree = 100)  # RF Parameters
+  
+  return(rfModel)
 }
