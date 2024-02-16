@@ -7,11 +7,14 @@ base_path="/home/luke/Documents/WORK/MINOS/Minos/output/"
 directories=("baseline" "energyDownlift" "energyDownliftNoSupport" "livingWageIntervention")
 
 # Step 1: Ask for user input
+read -p "Enter the name of the experiment subdirectory (i.e. default_config): " output_subdir
 read -p "Enter a unique descriptive suffix for the output filename: " suffix
 
-# Step 2: Create a directory
+# Step 2: Create a directory and append the output_subdir to base_path
 output_dir="QALY_analysis_$suffix"
 mkdir "$output_dir"
+
+base_path=${base_path}${output_subdir}
 
 # Step 3 & 4: Loop over directories and copy/ rename qalys.csv
 for dir in "${directories[@]}"; do
