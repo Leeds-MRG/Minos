@@ -1,8 +1,7 @@
 ---
 params:
     file_path: '' # default arguments. specify others in command line.
-    intervention: ''
-title: "`r paste(params$file_path, ' ', params$intervention, ' Handover Plots')`"
+title: "`r paste(params$file_path, ' Handover Plots')`"
 output:
   #output_file: "`r paste('minos/validation/', params$file_path, '_', params$intervention, '_handovers.html') `"
   html_document:
@@ -56,17 +55,23 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r}
 
 file_path <- params$file_path
-intervention <- params$intervention
+
+
+if (file_path == 'default_MICE/') {
+  raw.file_path <- 'imputed_final_US'
+} else {
+  raw.file_path <- 'final_US'
+}
 
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', raw.file_path), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
 #out.path <- here::here('output', 'default_config/')
 #base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 
 out.path <- here::here('output', file_path)
-base.dat <- read_singular_local_out(out.path, intervention, drop.dead = TRUE)
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
 ## Constants
@@ -78,8 +83,10 @@ create.if.not.exists(save.path)
 
 # make sure we only overlap on one year for now or else tomfoolery happens (the plots look bad).
 # we may want this overlap in the future? probably not.
+# LA 16/2/24 - We still want the actual handover point though so we need both data points in the start year
+# have changed to achieve this
 raw.dat <- raw.dat[which(raw.dat$time <= start.year), ]
-base.dat <- bas.dat[which(base.dat$time>start.year), ]
+base.dat <- base.dat[which(base.dat$time>=start.year), ]
 
 shall.we.save <- FALSE
 ```

@@ -15,9 +15,9 @@ debug: handovers debug_replenishing debug_mwb_pathways debug_interventions debug
 # Unfortunately cant do dependencies properly as the runtime sub-directory changes too often. Possibly could use the
 # output/baseline directory as a target? Need to look into that. Won't matter much for now as these scripts run fast
 handovers:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='default_baseline_handovers.html', param=list(file_path='default_config/',intervention='baseline'))"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='default_handovers.html', param=list(file_path='default_config/'))"
 	# open html file in firefox
-	firefox file://$(VALIDATION)/handovers.html
+	firefox file://$(VALIDATION)/default_handovers.html
 
 handovers_S7:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers_S7.Rmd')"
@@ -29,16 +29,13 @@ handovers_inflated:
 	firefox file://$(VALIDATION)/handovers_inflated.html
 
 handovers_scotland_scaled:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_baseline_handovers.html', param=list(file_path='scaled_scotland/',intervention='baseline'))"	# open html file in firefox
-	firefox file://$(VALIDATION)/handovers.html
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_handovers.html', param=list(file_path='scaled_scotland/'))"	# open html file in firefox
+	firefox file://$(VALIDATION)/scotland_scaled_handovers.html
 
-handovers_scotland_scaled_living_wage:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_living_wage_handovers.html', param=list(file_path='scaled_scotland/',intervention='livingWageIntervention'))"
-	firefox file://$(VALIDATION)/handovers.html
-
-handovers_scotland_scaled_25up:
-	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='scotland_scaled_25up_handovers.html', param=list(file_path='scaled_scotland/',intervention='25UniversalCredit'))"
-	firefox file://$(VALIDATION)/handovers.html
+handovers_mice:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers.Rmd', output_file='default_mice_handovers.html', param=list(file_path='default_MICE/'))"
+	# open html file in firefox
+	firefox file://$(VALIDATION)/default_mice_handovers.html
 
 debug_replenishing:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/replenishing.Rmd')"
