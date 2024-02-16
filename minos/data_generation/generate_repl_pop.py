@@ -231,7 +231,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
-    final_repl['nkids'] = final_repl['nkids'].astype(float)
+    final_repl['nkids'] = final_repl['nkids'].astype(int)
     # final_repl['chron_disease'] = final_repl['chron_disease'].astype(int)
     # final_repl['matdep'] = final_repl['matdep'].astype(int)
     final_repl['heating'] = final_repl['heating'].astype(int)

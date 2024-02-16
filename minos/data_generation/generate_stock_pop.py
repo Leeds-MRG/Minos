@@ -167,12 +167,6 @@ def generate_transition_stock(projections, cross_validation):
                           copy_year=2015,
                           paste_year=2014,
                           var_type='continuous')
-    # copy wave 7 nutrition_quality onto wave 6
-    data = wave_data_copy(data,
-                          var='neighbourhood_safety',
-                          copy_year=2019,
-                          paste_year=2020,
-                          var_type='continuous')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
@@ -280,7 +274,6 @@ def generate_input_stock(projections, cross_validation):
         US_utils.save_multiple_files(bat3, years, "data/imputed_final_US/cross_validation/batch3/", "")
         US_utils.save_multiple_files(bat4, years, "data/imputed_final_US/cross_validation/batch4/", "")
         US_utils.save_multiple_files(bat5, years, "data/imputed_final_US/cross_validation/batch5/", "")
-
 
 
 def main():
