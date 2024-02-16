@@ -677,10 +677,14 @@ class lmmYJIncome(Base):
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
-        #income_mean = np.nanmedian(newWaveIncome["hh_income"])
-        #std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
-        #newWaveIncome["hh_income"] *= std_ratio
-        #newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+
+        # Scaling to improve distribution of predicted outcomes
+        # income_mean = np.nanmedian(newWaveIncome["hh_income"])
+        # std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        # newWaveIncome["hh_income"] *= std_ratio
+        # newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+
+
         #newWaveIncome["hh_income"] -= 75
         # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         #print(std_ratio)
@@ -699,7 +703,7 @@ class lmmYJIncome(Base):
         #newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform('mean')
         newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform(np.mean)
 
-        print(np.median(newWaveIncome['hh_income']))
+        #print(np.median(newWaveIncome['hh_income']))
         # Finally calculate diff
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
