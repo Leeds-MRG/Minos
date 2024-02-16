@@ -29,7 +29,7 @@ for dir in "${directories[@]}"; do
 done
 
 # Step 7: Copy QALY_comparison_*.html files
-cp "${base_path}minos/testing/QALY_comparison_"*.html "$output_dir/"
+cp "minos/testing/QALY_comparison_"*.html "$output_dir/"
 
 # Step 8: Compress the directory
 tar -czvf "$output_dir.tar.gz" "$output_dir"
