@@ -25,7 +25,7 @@ done
 # Step 5 & 6: Loop over directories and copy/ rename run_1_minos.log
 for dir in "${directories[@]}"; do
     newest_dir=$(ls -t "${base_path}${dir}/" | head -n 1)
-    cp "${base_path}${dir}/${newest_dir}/run_1_minos.log" "$output_dir/${dir}_1.log"
+    cp "${base_path}${dir}/${newest_dir}/logs/run_1_minos.log" "$output_dir/${dir}_1.log"
 done
 
 # Step 7: Copy QALY_comparison_*.html files
