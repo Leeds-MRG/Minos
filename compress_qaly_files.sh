@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path variable
-base_path="/home/luke/Documents/WORK/MINOS/Minos/output/"
+base_path="output/"
 
 # List of directories
 directories=("baseline" "energyDownlift" "energyDownliftNoSupport" "livingWageIntervention")
