@@ -43,7 +43,7 @@ from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention
+from minos.modules.intervention import hhIncomeIntervention, childUplift
 from minos.modules.intervention import hhIncomeChildUplift
 from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
@@ -90,6 +90,7 @@ components_map = {
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
+    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -101,14 +102,66 @@ SIPHER7_components_map = {  # SIPHER7 stuff
     "S7EquivalentIncome()": S7EquivalentIncome()
 }
 
-intervention_components_map = {  # Interventions
+intervention_components_map = {        #Interventions
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
-    "Ageing()": Ageing(),
+
+    "childUplift()": childUplift(),
+
+    "25All": childUplift(),
+    "50All": childUplift(),
+    "75All": childUplift(),
+    "100All": childUplift(),
+
+    "25RelativePoverty": childUplift(),
+    "50RelativePoverty": childUplift(),
+    "75RelativePoverty": childUplift(),
+    "100RelativePoverty": childUplift(),
+
+    "25UniversalCredit": childUplift(),
+    "30UniversalCredit": childUplift(),
+    "35UniversalCredit": childUplift(),
+    "40UniversalCredit": childUplift(),
+    "45UniversalCredit": childUplift(),
+    "50UniversalCredit": childUplift(),
+    "75UniversalCredit": childUplift(),
+    "100UniversalCredit": childUplift(),
+
+    "25Priority": childUplift(),
+    "50Priority": childUplift(),
+    "75Priority": childUplift(),
+    "100Priority": childUplift(),
+}
+
+
+intervention_kwargs_dict = {
+    "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
+    "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+
+    "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
+
+    "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+    "30UniversalCredit": {"uplift_amount": 30, "uplift_condition": "who_universal_credit_and_kids"},
+    "35UniversalCredit": {"uplift_amount": 35, "uplift_condition": "who_universal_credit_and_kids"},
+    "40UniversalCredit": {"uplift_amount": 40, "uplift_condition": "who_universal_credit_and_kids"},
+    "45UniversalCredit": {"uplift_amount": 45, "uplift_condition": "who_universal_credit_and_kids"},
+    "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+    "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+    "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
+
+    "25Priority": {"uplift_amount": 25, "uplift_condition": "who_vulnerable_subgroups"},
+    "50Priority": {"uplift_amount": 50, "uplift_condition": "who_vulnerable_subgroups"},
+    "75Priority": {"uplift_amount": 75, "uplift_condition": "who_vulnerable_subgroups"},
+    "100Priority": {"uplift_amount": 100, "uplift_condition": "who_vulnerable_subgroups"},
 }
 
 replenishment_components_map = {
@@ -140,19 +193,16 @@ def get_priorities():
     component_priorities = {}
     component_priorities.update({el: 0 for el in replenishment_components_map})
     component_priorities.update({el: 1 for el in ["Mortality()"]})
-    component_priorities.update({el: 2 for el in ["FertilityAgeSpecificRates()",
-                                                  "nkidsFertilityAgeSpecificRates()",
-                                                  "Ageing"]})
-    component_priorities.update({el: 3 for el in ['Income()',
+    component_priorities.update({el: 2 for el in ["Ageing()"]})
+    component_priorities.update({el: 3 for el in ["FertilityAgeSpecificRates()",
+                                                  "nkidsFertilityAgeSpecificRates()"]})
+    component_priorities.update({el: 4 for el in ["Education()"]})
+    component_priorities.update({el: 5 for el in ['Income()',
                                                   'geeIncome()',
                                                   'geeYJIncome()',
                                                   'lmmDiffIncome()',
-                                                  'lmmYJIncome()',
-                                                  'JobSec()',
-                                                  'JobHours()',
-                                                  'HourlyWage()']})  # Any new income-based components to be added here
-    component_priorities.update({el: 4 for el in intervention_components_map})
-    component_priorities.update({el: 5 for el in ["Education()"]})
+                                                  'lmmYJIncome()']})  # Any new income-based components to be added here
+    component_priorities.update({el: 6 for el in intervention_components_map})
 
     and_finally = ['MWB()',
                    'geeMWB()',
@@ -166,11 +216,19 @@ def get_priorities():
 
     # print("Everything else:\n", everything_else)
 
-    component_priorities.update({el: 6 for el in everything_else})
-    component_priorities.update({el: 7 for el in and_finally})
+    component_priorities.update({el: 7 for el in everything_else})
+    component_priorities.update({el: 9 for el in and_finally})
     # component_priorities.update({el: 8 for el in metrics_map})
 
     return component_priorities, all_components_map
+
+
+def get_intervention_kwargs(intervention):
+
+    intervention_kwargs = {}  # default to em
+    if intervention in intervention_kwargs_dict.keys():
+        intervention_kwargs = intervention_kwargs_dict[intervention]
+    return intervention_kwargs
 
 
 def type_check(data):
@@ -216,7 +274,10 @@ def RunPipeline(config, intervention=None):
     # Check modules are valid and convert to modules
     components_raw = config['components']
     if intervention is not None:
-        components_raw += intervention
+        #components_raw += intervention
+        components_raw.append(intervention)
+        intervention_kwargs = get_intervention_kwargs(intervention)
+        config.update({'intervention_parameters': intervention_kwargs})  # add dict of intervention kwargs to config.
 
     component_priority_map, component_name_map = get_priorities()
     components = [component_name_map[c] for c in components_raw if c in component_name_map]
@@ -354,4 +415,4 @@ def get_output_data_filename(config, year=0):
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"
 
-    return(output_data_filename)
+    return output_data_filename
