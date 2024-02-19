@@ -319,7 +319,15 @@ def RunPipeline(config, intervention=None):
     --------
      A dataframe with the resulting simulation
     """
-    # Check each of the modules is present.
+    # Check modules are valid and convert to modules
+    components_raw = config['components']
+    if intervention is not None:
+        # components_raw += intervention
+        components_raw.append(intervention)
+
+    component_priority_map, component_name_map = get_priorities()
+    components = [component_name_map[c] for c in components_raw if c in component_name_map]
+    components_invalid = [component_name_map[c] for c in components_raw if c not in component_name_map]
 
     # Replenishment always go last. (first in sim)
     components, intervention_kwargs = validate_components(config['components'], intervention)
