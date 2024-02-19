@@ -125,8 +125,10 @@ class HousingTenure(Base):
         """
         # load transition model based on year.
         if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2020
+            # LA 19/2/24
+            # factor levels for housing_tenure change in 2019 onwards. Therfore cv has to use model before 2019 as
+            # input population is derived from 2015 (currently)
+            year = 2018
         else:
             year = min(self.year, 2020)
 

@@ -460,13 +460,13 @@ q_q_comparison(raw, cv, 'nkids')
 
 ```{r}
 raw.nkids_max <- raw %>%
-  dplyr::select(pidp, time, nkids) %>%
+  dplyr::select(time, nkids) %>%
   group_by(time) %>%
   summarise(max_nkids = max(nkids)) %>%
   mutate(source = 'final_US')
 
 cv.nkids_max <- cv %>%
-  dplyr::select(pidp, time, nkids) %>%
+  dplyr::select(time, nkids) %>%
   group_by(time) %>%
   summarise(max_nkids = max(nkids)) %>%
   mutate(source = 'baseline_output')

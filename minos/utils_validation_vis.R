@@ -515,12 +515,12 @@ snapshot_OP_plots <- function(raw, cv, var, target.years) {
 ## Yearly box plots for multiple years, compared between raw and cv runs
 multi_year_boxplots <- function(raw, cv, var) {
   raw.var <- raw %>%
-    dplyr::select(pidp, time, all_of(var)) %>%
+    dplyr::select(time, all_of(var)) %>%
     dplyr::filter(!.data[[var]] %in% miss.values)
   raw.var$source <- 'raw'
 
   cv.var <- cv %>%
-    dplyr::select(pidp, time, all_of(var)) %>%
+    dplyr::select(time, all_of(var)) %>%
     dplyr::filter(!.data[[var]] %in% miss.values)
   cv.var$source <- 'cross-validation'
 

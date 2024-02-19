@@ -102,7 +102,15 @@ class FinancialSituation(Base):
         self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
-        year = 2020
+
+        if self.cross_validation:
+            # LA 19/2/24
+            # factor levels for housing_tenure change in 2019 onwards. Therfore cv has to use model before 2019 if
+            # housing_tenure is included
+            year = 2018
+        else:
+            year = min(self.year, 2020)
+
         transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
                                                     self.rpy2_modules)
         nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model,
