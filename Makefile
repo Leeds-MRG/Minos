@@ -111,7 +111,7 @@ scot_setup: install scot_data scot_transitions scot_replenishing
 
 cv_setup: install cv_data cv_transitions cv_replenishing
 
-cv_S7_setup: install data cv_S7_transitions cv_replenishing
+cv_S7_setup: install cv_data cv_S7_transitions cv_replenishing
 
 setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthetic_glasgow_repl
 
