@@ -87,7 +87,7 @@ class behindOnBills(Base):
         self.year = event.time.year
 
         nextWaveBills = self.calculate_behind_on_bills(pop)
-        nextWaveBills["financial_situation"] = self.random.choice(nextWaveBills.index,
+        nextWaveBills["behind_on_bills"] = self.random.choice(nextWaveBills.index,
                                                                   list(nextWaveBills.columns+1),
                                                                   nextWaveBills).astype(float)
         nextWaveBills.index = pop.index

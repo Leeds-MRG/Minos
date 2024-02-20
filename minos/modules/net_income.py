@@ -151,13 +151,17 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['net_hh_income'] = self.calculate_net_income(pop)
         newWavenetIncome.index = pop.index
         newWavenetIncome['hidp'] = pop['hidp']
-        newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform(np.median)
-        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 12000)
 
         income_mean = np.median(newWavenetIncome["net_hh_income"])
         std_ratio = (np.std(pop['net_hh_income']) / np.std(newWavenetIncome["net_hh_income"]))
         newWavenetIncome["net_hh_income"] *= std_ratio
         newWavenetIncome["net_hh_income"] -= ((std_ratio - 1) * income_mean)
+
+        newWavenetIncome['net_hh_income'] += 500
+
+        newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform("mean")
+        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 12000)
+
 
         newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
 
