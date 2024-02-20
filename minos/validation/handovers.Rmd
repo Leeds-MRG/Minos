@@ -53,7 +53,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'default_config/')
+out.path <- here::here('output', 'energy_default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
@@ -990,7 +990,127 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
 
 ```
 
+
+## Number of cars
+
+```{r ncars}
+
+raw.ncars <- raw.dat
+base.ncars <- base.dat
+raw.ncars[raw.ncars$ncars>=10, 'ncars'] <- "More than 9."
+base.ncars[base.ncars$ncars>=10, 'ncars'] <- "More than 9."
+
+raw.ncars <- raw.ncars %>%
+  dplyr::select(pidp, time, ncars) %>%
+  filter(ncars >= 0) %>%
+  group_by(time, ncars) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.ncars <- base.ncars %>%
+  dplyr::select(pidp, time, ncars) %>%
+  filter(ncars >= 0) %>%
+  group_by(time, ncars) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+ncars <- rbind(raw.ncars, base.ncars)
+ncars$ncars <- as.factor(ncars$ncars)
+
+# Now plot
+ggplot(data = ncars, mapping = aes(x = time, y = n, group = ncars, colour = ncars)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Number of Cars', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ncars.norm <- ncars %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = ncars.norm, mapping = aes(x = time, y = prct, group = ncars, colour = ncars)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Number of Cars', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+
+ggplot(data = ncars.norm, mapping = aes(x = time, y = prct, fill=ncars)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Number of Cars') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'ncars.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.ncars, base.ncars, ncars, ncars.norm)
+```
+
+
+## ncigs
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'ncigs')
+handover_lineplots(raw.dat, base.dat, "ncigs")
+raw.ncigs <- raw.dat %>%
+  select(pidp, age, time, ncigs)
+base.ncigs <- base.dat %>%
+  select(pidp, age, time, ncigs)
+ncigs.spag <- rbind(raw.ncigs, base.ncigs)
+shall.we.save <- F
+pidp_sample <- sample(unique(ncigs.spag$pidp), size=nrow(raw.dat)/10, replace=FALSE)
+ncigs.spag.sample <- ncigs.spag[which(ncigs.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(ncigs.spag.sample, 'ncigs',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(ncigs.spag.sample, 'ncigs',
+               save = shall.we.save,
+               save.path = save.path)
+  
+zip_density_ridges(ncigs.spag, "ncigs", 
+               save = shall.we.save, 
+               save.path = save.path)
+rm(raw.ncigs, base.ncigs, ncigs.spag)
+```
+
+## ncigs non-zero
+
 ```{r}
 
+raw.ncigs <- raw.dat %>%
+  filter(ncigs>0) %>%
+  select(pidp, age, time, ncigs)
+base.ncigs <- base.dat %>%
+  filter(ncigs>0) %>%
+  select(pidp, age, time, ncigs)
+
+ncigs.spag <- rbind(raw.ncigs, base.ncigs) # get all smokers.
+shall.we.save <- F
+pidp_sample <- sample(unique(ncigs.spag$pidp), size=nrow(raw.dat)/100, replace=FALSE)
+ncigs.spag.sample <- ncigs.spag[which(ncigs.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(ncigs.spag.sample, 'ncigs',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(ncigs.spag.sample, 'ncigs',
+               save = shall.we.save,
+               save.path = save.path)
+  
+zip_density_ridges(ncigs.spag, "ncigs", 
+               save = shall.we.save, 
+               save.path = save.path)
+rm(raw.ncigs, base.ncigs, ncigs.spag)
 ```
+
+
 

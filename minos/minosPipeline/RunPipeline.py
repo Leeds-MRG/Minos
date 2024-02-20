@@ -26,13 +26,14 @@ from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lm
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
-from minos.modules.tobacco import Tobacco
+from minos.modules.tobacco import Tobacco, lmmTobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
 from minos.modules.job_hours import JobHours
 from minos.modules.job_sec import JobSec
 from minos.modules.hourly_wage import HourlyWage
+from minos.modules.ncars import nCars
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -68,6 +69,7 @@ components_map = {
     "MWB()": MWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
+    "lmmTobacco()": lmmTobacco(),
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
@@ -79,6 +81,7 @@ components_map = {
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
+    "nCars()": nCars(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -254,7 +257,8 @@ def RunPipeline(config, intervention=None):
                     "bestNormalize": importr("bestNormalize"),
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
-                    "randomForest": importr("randomForest")
+                    "randomForest": importr("randomForest"),
+                    "GLMMadaptive": importr("GLMMadaptive"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

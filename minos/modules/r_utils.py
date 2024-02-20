@@ -479,3 +479,53 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
     newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     return newPandasPopDF[[dependent]]
+
+
+
+def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, noise_std):
+    """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current: pd.DataFrame
+        current population dataframe.
+    dependent : str
+        The dependent variable we are trying to predict
+    rescale_factor : int
+        Value for rescaling the dependent variable
+    Returns
+    -------
+    """
+
+    base = rpy2Modules['base']
+    stats = rpy2Modules['stats']
+    GLMMAdaptive = rpy2Modules['GLMMadaptive']
+    n = current.shape[0]
+
+    # grab transition model
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # grab count and zero prediction types
+    # count determines values if they actually drink
+    # zero determine probability of them not drinking
+
+    counts = stats.predict(model, currentRDF, type="subject_specific")
+    zeros = counts.do_slot("zi_probs")
+    #zeros = stats.predict(model, currentRDF, type="zero_part")
+
+    if noise_std:
+        counts = counts.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        counts = ro.conversion.rpy2py(counts)
+        zeros = ro.conversion.rpy2py(zeros)
+
+
+    # draw randomly if a person drinks
+    # if they drink assign them their predicted value from count.
+    # otherwise assign 0 (no spending).
+    preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
+    #return np.ceil(preds)
+    return preds
