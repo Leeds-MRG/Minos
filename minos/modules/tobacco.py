@@ -241,8 +241,17 @@ class lmmTobacco(Base):
         # Update population with new tobacco
         newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
         #newWaveTobacco['ncigs'] *= 5
-        newWaveTobacco['ncigs'] *= 2.45
-        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+
+        non_zero_ncigs = newWaveTobacco.loc[newWaveTobacco['ncigs']>0, ]
+        tobacco_mean = np.mean(non_zero_ncigs["ncigs"])
+        std_ratio = (np.std(pop.loc[pop['ncigs']>0, 'ncigs'])/np.std(non_zero_ncigs['ncigs']))
+        non_zero_ncigs["ncigs"] *= std_ratio
+        non_zero_ncigs["ncigs"] -= ((std_ratio-1)*tobacco_mean)
+        non_zero_ncigs["ncigs"] += 4
+        newWaveTobacco.loc[newWaveTobacco['ncigs']>0, 'ncigs'] = non_zero_ncigs['ncigs']
+
+        #newWaveTobacco['ncigs'] *= 2.45
+        newWaveTobacco["ncigs"] = np.round(newWaveTobacco["ncigs"]).astype(int)
         print(f"ncigs: {np.mean(newWaveTobacco['ncigs'])}")
         print(f"non-zero ncigs: {np.median(newWaveTobacco.loc[newWaveTobacco['ncigs']>0,])}")
         self.population_view.update(newWaveTobacco["ncigs"])
@@ -269,7 +278,7 @@ class lmmTobacco(Base):
                                                                   rpy2Modules= self.rpy2Modules,
                                                                   current=pop,
                                                                   dependent='ncigs_new',
-                                                                  noise_std=0)
+                                                                  noise_std=1)
         return nextWaveTobacco
 
     def plot(self, pop, config):

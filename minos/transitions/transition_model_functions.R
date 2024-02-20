@@ -389,21 +389,22 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   counts_formula <- paste0(as.character(fixed_formula[2]), as.character(fixed_formula[1]), string_formulae[[1]][1])
   zero_formula <- paste0("~ ", string_formulae[[1]][2])
   
-  if (depend == "ncigs_new") {
-    #data$ncigs <- ceiling(data$ncigs/5)
-    data$ncigs_new <-  ceiling(data$ncigs_new/5)
-  }
+  #if (depend == "ncigs_new") {
+  #  #data$ncigs <- ceiling(data$ncigs/5)
+  #  data$ncigs_new <-  ceiling(data$ncigs_new/5)
+  #}
   
   #browser()
   model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
     fixed = as.formula(counts_formula),
     random = ~ 1 | pidp,
     zi_fixed = as.formula(zero_formula),
-    zi_random = ~ 1 | pidp,
+    #zi_random = ~ 1 | pidp,
     #weights=weight,
+    iter_EM=0,
     data = data,
-    family = zi.poisson())
-    #family = zi.negative.binomial())
+    family = zi.poisson(), max_coef_value=50)
+    #family = zi.negative.binomial(), max_phis_value=40000)
 
   # test model with hard coded formulae.
   #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
@@ -414,7 +415,7 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #  family = zi.poisson(), 
   #  zi_fixed = ~ scale(age) + scale(SF_12))
   
-  # browser()
+  #browser()
   #test.data <- drop_na(data)
   #test.zeros <- predict(model, newdata = drop_na(data), type='zero')
   #test.nonzero <- runif(n=nrow(test.data)) > test.zeros

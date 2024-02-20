@@ -15,8 +15,8 @@
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 16
 ## Set logs directories
-#$ -o ./logs/transitions
-#$ -e ./logs/transitions
+#$ -o ./logs/transitions/
+#$ -e ./logs/transitions/
 
 mkdir -p ./logs/transitions
 
