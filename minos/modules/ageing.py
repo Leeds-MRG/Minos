@@ -57,6 +57,11 @@ class Ageing(Base):
         # update children age chains.
         population = self.update_child_ages(population)
 
+        # When a child reaches 16 years old and is then removed from the child_ages and nkids columns, the
+        # child_ages column is filled with a nan value instead of 'None'
+        # Doing this cleanup here because this is causing a mixed type column (strings for age_chains and float for nan)
+        #population['child_ages'][population['child_ages'].isna()] = None
+
         population['nkids'] = population['nkids'].astype(float)
 
         # update new population.
@@ -76,6 +81,7 @@ class Ageing(Base):
         pop: pd.DataFrame
         """
         pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
+        print("Finished incrementing age chains.")
                                                     #pd.DataFrame(.to_list(), index=pop.index)
         pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
         pop['nkids'] = pop['nkids'].astype(float)
@@ -92,11 +98,20 @@ class Ageing(Base):
         # split age chain into list
         new_nkids = 0 #  default if no age chain found. assume no children.
         value = age_chain#.values[0]
-        if type(value) != float and value is not None:
+        if not isinstance(value, float) and value is not None:
+            print(age_chain)
             age_chain = value.split("_")
             # increment each item by one
             # remove item if item is over 16.
             age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
+
+            # If there are no more children, explicitly replace with None
+            # This is identified when age_chain == nan, and is therefore not a list
+            # if age_chain.isna():
+            #if not type(age_chain).isinstance(list):
+            if not isinstance(age_chain, list):
+                age_chain = None
+
             #age_chain = np.sort(age_chain, ascending=True)
             # return child ages chain and length of list.
             if age_chain:
