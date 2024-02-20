@@ -160,10 +160,6 @@ aggregate_priority_groups_child_uplifts: MODE= "glasgow_scaled"
 aggregate_priority_groups_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
 
-aggregate_25_universal_credit: MODE="default_config"
-aggregate_25_universal_credit:
-	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
-
 aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
 	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
@@ -171,6 +167,34 @@ aggregate_25_relative_poverty:
 aggregate_25_all_children: MODE="default_config"
 aggregate_25_all_children:
 	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+
+#############################################################
+# Default config visualisations of universal credit uplifts #
+#############################################################
+
+aggregate_25_universal_credit: MODE="default_config"
+aggregate_25_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "25_universal_credit"
+
+aggregate_30_universal_credit: MODE="default_config"
+aggregate_30_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "30_universal_credit"
+
+aggregate_35_universal_credit: MODE="default_config"
+aggregate_35_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "35_universal_credit"
+
+aggregate_40_universal_credit: MODE="default_config"
+aggregate_40_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "40_universal_credit"
+
+aggregate_45_universal_credit: MODE="default_config"
+aggregate_45_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "45_universal_credit"
+
+aggregate_50_universal_credit: MODE="default_config"
+aggregate_50_universal_credit:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_universal_credit"
 
 ##########################################
 # Custom subset for social science paper #

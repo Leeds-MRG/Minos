@@ -1,3 +1,10 @@
+
+# Default parameters
+MODE=default_config
+RUN_CONFIG=$(CONFIG)/default.yaml
+
+
+
 ###########################################
 # Child Uplifts Over Amount and Condition #
 ###########################################
