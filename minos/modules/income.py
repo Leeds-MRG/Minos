@@ -77,7 +77,8 @@ class Income(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -250,7 +251,8 @@ class geeIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=3)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         # just load this once.
         self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee/hh_income_GEE", self.rpy2Modules,
@@ -434,7 +436,8 @@ class geeYJIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
@@ -624,7 +627,8 @@ class lmmYJIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
@@ -799,7 +803,8 @@ class lmmDiffIncome(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=2)
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
         # just load this once.
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_yj/hh_income_GEE_YJ", self.rpy2Modules,
@@ -916,3 +921,175 @@ class lmmDiffIncome(Base):
         plt.close()
 
 
+# old net income test keeping in case I need any of it later.
+
+# # Annual average inflation based on CPI index.
+# # https://www.statista.com/statistics/270384/inflation-rate-in-the-united-kingdom/
+# annual_cpi_rates = {
+#     2017: 2.68,
+#     2018: 2.48,
+#     2019: 1.79,
+#     2020: 0.85,
+#     2021: 2.59,
+#     2022: 9.12,
+#     2023: 8.99,
+#     2024: 3.73,
+#     2025: 1.82,
+#     2026: 2.00,
+#     # Stabilises to 2% because they can't predict this far ahead.. All years beyond have this value.
+#     # This is a Bank of England target and is highly optimistic..
+# }
+
+#
+# class lmmYJNetIncome(Base):
+#
+#     # Special methods used by vivarium.
+#     @property
+#     def name(self):
+#         return 'net_income'
+#
+#     def __repr__(self):
+#         return "netIncome()"
+#
+#     def setup(self, builder):
+#         """ Initialise the module during simulation.setup().
+#         Notes
+#         -----
+#         - Load in data from pre_setup
+#         - Register any value producers/modifiers for income
+#         - Add required columns to population data frame
+#         - Update other required items such as randomness stream.
+#         Parameters
+#         ----------
+#         builder : vivarium.engine.Builder
+#             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+#         """
+#
+#         # Load in inputs from pre-setup.
+#         # self.transition_model = builder.data.load("income_transition")
+#         self.rpy2_modules = builder.data.load("rpy2_modules")
+#
+#         # Build vivarium objects for calculating transition probabilities.
+#         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+#         # self.transition_coefficients = builder.
+#
+#         # Assign randomness streams if necessary.
+#         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+#
+#         # Determine which subset of the main population is used in this module.
+#         # columns_created is the columns created by this module.
+#         # view_columns is the columns from the main population used in this module.
+#         # In this case, view_columns are taken straight from the transition model
+#         view_columns = ['pidp',
+#                         'age',
+#                         'sex',
+#                         'ethnicity',
+#                         'region',
+#                         'net_hh_income',
+#                         'job_sec',
+#                         'labour_state',
+#                         'education_state',
+#                         'SF_12',
+#                         'housing_quality',
+#                         'job_sector',
+#                         'hh_income',
+#                         'oecd_equiv',
+#                         'outgoings',
+#                         'tenure',
+#                         'yearly_energy',
+#                         #'financial_situation',
+#                         'marital_status',
+#                         'hhsize',
+#                         #'FP10',
+#                         #'boost_amount'
+#                         ]
+#         # view_columns += self.transition_model.rx2('model').names
+#         self.population_view = builder.population.get_view(columns=view_columns)
+#
+#         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+#         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+#         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+#         builder.population.initializes_simulants(self.on_initialize_simulants)
+#
+#         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+#         # individual graduate in an education module.
+#         builder.event.register_listener("time_step", self.on_time_step, priority=2)
+#
+#         self.income_transition_model =  r_utils.load_transitions(f"net_hh_income/lmm/net_hh_income_LMM", self.rpy2_modules)
+#
+#     def on_time_step(self, event):
+#         """ Predicts the hh_income for the next timestep.
+#         Parameters
+#         ----------
+#         event : vivarium.population.PopulationEvent
+#             The event time_step that called this function.
+#         """
+#         # Get living people to update their income
+#         pop = self.population_view.get(event.index, query="alive =='alive'")
+#         self.year = event.time.year
+#
+#         ## Predict next income value
+#         newWaveNetIncome = self.calculate_income(pop)
+#         newWaveNetIncome = pd.DataFrame(newWaveNetIncome, columns=["net_hh_income"]) # net hh income pre overheads/bills.
+#         # Set index type to int (instead of object as previous)
+#         newWaveNetIncome.index = pop.index
+#         # adjust for inflation
+#         newWaveNetIncome['net_hh_income'] = self.adjust_inflation(newWaveNetIncome['net_hh_income'], self.year)
+#         # calculate net (disposable) income based on overheads and house size.
+#         newWaveNetIncome['hh_income'] = self.transform_net_to_disposable_income(newWaveNetIncome['net_hh_income'],
+#                                                                                 pop['outgoings'],
+#                                                                                 pop['oecd_equiv'])
+#
+#         # nextWaveFinancialSituation = self.calculate_financial_situation(pop)
+#         # nextWaveFinancialSituation["financial_situation"] = self.random.choice(nextWaveFinancialSituation.index, list(nextWaveFinancialSituation.columns+1),
+#         #                                                                       nextWaveFinancialSituation).astype(float)
+#         # nextWaveFinancialSituation.index = pop.index
+#         # newWaveNetIncome['financial_situation'] = nextWaveFinancialSituation['financial_situation']
+#         # calculate FP10 based on energy usage and Net income
+#         # newWaveNetIncome['FP10'] = self.calculate_fp10(newWaveNetIncome['hh_income'], pop['yearly_energy'])
+#
+#         # Draw individuals next states randomly from this distribution.
+#         # Update population with new income.
+#         # self.population_view.update(newWaveNetIncome[['Net_hh_income', 'net_hh_income', 'FP10', 'financial_situation']])
+#         self.population_view.update(newWaveNetIncome[['hh_income', 'net_hh_income']])
+#
+#     def calculate_income(self, pop):
+#         """Calculate income transition distribution based on provided people/indices
+#         Parameters
+#         ----------
+#             pop: PopulationView
+#                 Population from MINOS to calculate next income for.
+#         Returns
+#         -------
+#         nextWaveIncome: pd.Series
+#             Vector of new household incomes from OLS prediction.
+#         """
+#         # load transition model based on year.
+#         year = min(self.year, 2018)
+#         # The calculation relies on the R predict method and the model that has already been specified
+#         nextWaveNetIncome = r_utils.predict_next_timestep_ols(self.income_transition_model, self.rpy2_modules, pop, dependent='Net_hh_income', transform = True)
+#         return nextWaveNetIncome
+#
+#     def calculate_financial_situation(self, pop):
+#         year = min(self.year, 2018)
+#         transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2_modules)
+#         return r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='financial_situation')
+#
+#
+#     def transform_net_to_disposable_income(self, net_income, outgoings, oecd_equiv):
+#         # convert net to disposable income
+#         return (net_income - outgoings) / oecd_equiv
+#
+#     def calculate_fp10(self, net_income, energy_use):
+#         # Is 10% of net/disposable income spent on fuel?
+#         return (10 * energy_use) >= net_income
+#
+#     def adjust_inflation(self, net_income, year):
+#         """ Adjust disposable income according to yearly inflation."""
+#         if year >= 2026:
+#             yearly_inf_rate = 1.02
+#         else:
+#             yearly_inf_rate = 1 + (annual_cpi_rates[year] / 100)  # Get forecasted inflation rate due to CPI.
+#
+#             # Widely assumed to be 2% after 2026 for UK.
+#         return net_income / yearly_inf_rate

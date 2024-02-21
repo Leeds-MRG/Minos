@@ -31,6 +31,8 @@ yourproject/
 
 4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
 
+   NOTE: GCC is now required to install rpy2, please ensure GCC is avaiable on your system, e.g. GCC can be installed to your conda base environment ```conda install -c conda-forge gcc```
+
 ```
 > conda env create -f environment.yml
 ```

@@ -84,7 +84,8 @@ if __name__ == '__main__':
     lad_to_band["region"] = lad_to_band["Area"].map(lad_to_region)
 
     # group bands by region.
-    ct_bands = lad_to_band.groupby(by="region").mean()
+    group_columns = ['Band A', 'Band B', 'Band C', 'Band D', 'Band E', 'Band F', 'Band G', 'Band H', 'Band I']
+    ct_bands = lad_to_band.groupby(by="region")[group_columns].mean()
 
     # convert tax bands to lower/upper numeric bounds.
     data["council_tax"] = data["council_tax"].replace([-1, -2, -7, -8, -9], np.nan)

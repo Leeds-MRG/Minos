@@ -5,10 +5,6 @@ import os
 from pathlib import Path
 from rpy2.robjects.packages import importr
 
-# Do this to suppress warnings from Vivariums code...
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
 from vivarium import InteractiveContext
 
 import minos.utils as utils
@@ -43,14 +39,22 @@ from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention
-from minos.modules.intervention import hhIncomeChildUplift
-from minos.modules.intervention import hhIncomePovertyLineChildUplift
-from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
+from minos.modules.child_poverty_interventions import hhIncomeIntervention
+from minos.modules.child_poverty_interventions import hhIncomeChildUplift
+from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUplift
+from minos.modules.living_wage_interventions import livingWageIntervention
+from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
+from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
+# from minos.modules.metrics import ChildPovertyMetrics
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
+
+
+
+# Do this to suppress warnings from Vivariums code...
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 # components = [eval(x) for x in config.components] # more adaptive way but security issues.
@@ -88,6 +92,7 @@ components_map = {
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
+    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -100,13 +105,16 @@ SIPHER7_components_map = {  # SIPHER7 stuff
 }
 
 intervention_components_map = {  # Interventions
+
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
-    "Ageing()": Ageing(),
+    "GBIS": GBIS(),
+    "goodHeatingDummy": goodHeatingDummy(),
+    "fossilFuelReplacementScheme": fossilFuelReplacementScheme()
 }
 
 replenishment_components_map = {
@@ -116,97 +124,57 @@ replenishment_components_map = {
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
 
+# metrics_map = {
+#     "ChildPovertyMetrics()": ChildPovertyMetrics()
+# }
 
-# HR 31/07/23 Updated priorities based on recent development
-# Order should be (see https://github.com/Leeds-MRG/Minos/pull/259):
-# 1. Replenishment
-# 2. Fertility/mortality
+
+# HR 31/01/24 Updated again
+# HR 03/08/23 Updated component priorities
+# Order should be (see https://github.com/Leeds-MRG/Minos/issues/291):
+# 0. Replenishment
+# 1. Mortality
+# 2. Fertility and ageing
 # 3. Income
 # 4. Intervention
-# 5. Everything else
+# 5. Education
+# 6. Everything else except mental wellbeing
+# 7. Mental wellbeing, equivalent income (SIPHER7 only)
+# 8. Metrics (to be added later)
 def get_priorities():
     all_components_map = components_map | SIPHER7_components_map | intervention_components_map | replenishment_components_map
     component_priorities = {}
-    component_priorities.update({el:0 for el in replenishment_components_map})
-    component_priorities.update({el:1 for el in ["FertilityAgeSpecificRates()",
-                                                 "nkidsFertilityAgeSpecificRates()"]})
-    component_priorities.update({el:2 for el in ["Mortality()"]})
-    component_priorities.update({el:3 for el in ['Income', 'geeIncome', 'geeYJIncome', 'lmmDiffIncome', 'lmmYJIncome']}) # New income-based components to be added here
-    component_priorities.update({el:4 for el in intervention_components_map})
-    everything_else = [el for el in list(components_map)+list(SIPHER7_components_map) if el not in list(component_priorities)]
-    component_priorities.update({el:5 for el in everything_else})
-    # [print(str(el)) for el in component_priorities.items()]
+    component_priorities.update({el: 0 for el in replenishment_components_map})
+    component_priorities.update({el: 1 for el in ["Mortality()"]})
+    component_priorities.update({el: 2 for el in ["Ageing()"]})
+    component_priorities.update({el: 3 for el in ["FertilityAgeSpecificRates()",
+                                                  "nkidsFertilityAgeSpecificRates()"]})
+    component_priorities.update({el: 4 for el in ["Education()"]})
+    component_priorities.update({el: 5 for el in ['Income()',
+                                                  'geeIncome()',
+                                                  'geeYJIncome()',
+                                                  'lmmDiffIncome()',
+                                                  'lmmYJIncome()']})  # Any new income-based components to be added here
+    component_priorities.update({el: 6 for el in intervention_components_map})
+
+    and_finally = ['MWB()',
+                   'geeMWB()',
+                   "geeYJMWB()",
+                   "lmmYJMWB()",
+                   "lmmDiffMWB()",
+                   'S7EquivalentIncome()',
+                   "lmmYJPCS()"]
+
+    everything_else = [el for el in list(components_map)
+                       + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]
+
+    # print("Everything else:\n", everything_else)
+
+    component_priorities.update({el: 7 for el in everything_else})
+    component_priorities.update({el: 9 for el in and_finally})
+    # component_priorities.update({el: 8 for el in metrics_map})
+
     return component_priorities, all_components_map
-
-
-def validate_and_sort_components(config_components, intervention):
-
-    # Separate any unknown components
-    priorities, all_map = get_priorities()
-    all_components = config_components+[intervention]
-    comps_unknown = [c for c in all_components if c not in all_map]
-
-    # Remove unknown components and print warnings
-    if comps_unknown:
-        for c in comps_unknown:
-            all_components.remove(c)
-        print("\nWarning! The components below were not recognised when running the Minos pipeline and have been removed")
-        print("Check they're present in minos/minosPipeline/RunPipeline.py and rerun")
-        for c in comps_unknown:
-            print(str(c))
-        print("\n")
-
-    # Get components in correct order for passing to Vivarium
-    comp_dict = {comp:priorities[comp] for comp in all_components}
-    # print("Components (unordered):\n", comp_dict)
-    comp_out = [all_map[k] for k,v in sorted(comp_dict.items(), key=lambda item: item[1])]
-    # print("Components (ordered forwards):\n", comp_out)
-    comp_out = list(reversed(comp_out))
-    # print("Components (ordered backwards):\n", comp_out)
-
-    return comp_out
-
-
-def validate_components(config_components, intervention):
-    """
-
-    Parameters
-    ----------
-    config_components: list
-        List of reprs from vivarium modules
-    intervention: bool
-        Is an intervention included in the modules list?
-
-    Returns
-    -------
-        component_list: list
-            List of component module classes.
-    """
-    component_list = []
-    replenishment_component = []
-    print("Initial components list:", config_components)
-    for component in config_components:
-        if component in components_map.keys():
-            # add non intervention components
-            component_list.append(components_map[component])
-        elif component in SIPHER7_components_map.keys():
-            component_list.append(SIPHER7_components_map[component])
-        elif component in replenishment_components_map.keys():
-            replenishment_component.append(replenishment_components_map[component])
-        else:
-            print("Warning! Component", component, "in config not found when running pipeline. Are you sure its in the minos/minosPipeline/RunPipeline.py script?")
-
-    # TODO: include some error handling for choosing interventions
-    # Can do this using assertions
-    # i.e. try { AssertThat(intervention is in list(<int1>, <int2>) ...
-    # or even cleverer if we can get the repr()'s from the intervention classes to automate this step
-    if intervention in intervention_components_map.keys():
-        # add intervention components.
-        component_list.append(intervention_components_map[intervention])
-
-    component_list += replenishment_component # make sure replenishment component goes LAST. intervention goes second to last.
-    print("Final components list:", component_list)
-    return component_list
 
 
 def type_check(data):
@@ -249,11 +217,21 @@ def RunPipeline(config, intervention=None):
     --------
      A dataframe with the resulting simulation
     """
-    # Check each of the modules is present.
+    # Check modules are valid and convert to modules
+    components_raw = config['components']
+    if intervention is not None:
+        #components_raw += intervention
+        components_raw.append(intervention)
 
-    # Replenishment always go last. (first in sim)
-    # components = validate_components(config['components'], intervention)
-    components = validate_and_sort_components(config['components'], intervention)
+    component_priority_map, component_name_map = get_priorities()
+    components = [component_name_map[c] for c in components_raw if c in component_name_map]
+    components_invalid = [component_name_map[c] for c in components_raw if c not in component_name_map]
+
+    print("Components below were not recognised and were removed from simulation:\n", components_invalid)
+    print("Priorities for components are below; change in components map if incorrect:")
+    map_rev = {v: k for k, v in component_name_map.items()}
+    for c in components:
+        print(c, component_priority_map[map_rev[c]])
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,
@@ -268,6 +246,10 @@ def RunPipeline(config, intervention=None):
     # Even then these classes could be appended with pre_setup functions.
     # This isn't the case with Minos as each module is bespoke and can be given a pre_setup method.
     # Basically, this is very pedantic but easier if a lot more preamble is needed later.
+
+    # Attach module priorities to simulation for retrieval later by each module
+    # simulation.component_priority_map = component_priority_map
+    simulation._data.write("component_priority_map", component_priority_map)
 
     rpy2_modules = {"base": importr('base'),
                     "stats": importr('stats'),
@@ -286,7 +268,7 @@ def RunPipeline(config, intervention=None):
     # Run pre-setup method for each module.
     for component in components:
         simulation = component.pre_setup(config, simulation)
-        print(f"Presetup done for: {component}")
+        # print(f"Presetup done for: {component}")
         logging.info(f"\t{component}")
 
     # Print start time for entire simulation.
