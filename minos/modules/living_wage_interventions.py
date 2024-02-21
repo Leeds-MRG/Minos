@@ -14,7 +14,7 @@ class livingWageIntervention(Base):
         return "living_wage_intervention"
 
     def __repr__(self):
-        return "livingWageIntervention()"
+        return "livingWageIntervention"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

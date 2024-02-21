@@ -18,7 +18,7 @@ class energyBaseline(Base):
         return "energy_downlift"
 
     def __repr__(self):
-        return "energyDownlift()"
+        return "energyDownlift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -102,7 +102,7 @@ class energyDownlift(Base):
         return "energy_downlift"
 
     def __repr__(self):
-        return "energyDownlift()"
+        return "energyDownlift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -186,7 +186,7 @@ class energyDownliftNoSupport(Base):
         return "energy_downlift_no_support"
 
     def __repr__(self):
-        return "energyDownliftNoSupport()"
+        return "energyDownliftNoSupport"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -260,7 +260,7 @@ class energyBillSupportScheme(Base):
         return "energyBillSupportScheme"
 
     def __repr__(self):
-        return "energyBillSupportScheme()"
+        return "energyBillSupportScheme"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -369,7 +369,7 @@ class goodHeatingDummy(Base):
         return "good_heating_dummy"
 
     def __repr__(self):
-        return "goodHeatingDummy()"
+        return "goodHeatingDummy"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -420,7 +420,7 @@ class GBIS(Base):
         return "great_british_insulation_scheme"
 
     def __repr__(self):
-        return "GBIS()"
+        return "GBIS"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -496,7 +496,7 @@ class fossilFuelReplacementScheme(Base):
         return "fossil_fuel_replacement_scheme"
 
     def __repr__(self):
-        return "fossilFuelReplacementScheme()"
+        return "fossilFuelReplacementScheme"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
