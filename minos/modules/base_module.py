@@ -10,7 +10,17 @@ from scipy.special import ndtri  # very fast standard normal sampler.
 from minos.data_generation.US_utils import load_multiple_data
 import pandas as pd
 
+PRIORITY_DEFAULT = 10
+
+
 class Base():
+
+    @property
+    def name(self):
+        return "base"
+
+    def __repr__(self):
+        return "Base()"
 
     def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run into the config and simulation object.
@@ -40,8 +50,20 @@ class Base():
         # mode
         self.cross_validation = config.cross_validation
 
+        # # Grab module priority
+        # self.priority = simulation.component_priority_map.get(self.__repr__(), PRIORITY_DEFAULT)
+        # print("Priority for {} set to {}".format(self.__repr__(), self.priority))
+
         return simulation
 
+    def setup(self, builder):
+        component_priority_map = builder.data.load("component_priority_map")
+        self.priority = component_priority_map.get(self.__repr__(), PRIORITY_DEFAULT)
+        # print("Priority for {} set to {}".format(self.__repr__(), self.priority))
+        builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+
+    def on_time_step(self, event):
+        pass
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added. By default adds no columns.

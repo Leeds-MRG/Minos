@@ -352,7 +352,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)

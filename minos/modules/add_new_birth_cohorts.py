@@ -94,7 +94,8 @@ class FertilityAgeSpecificRates(Base):
                                                  creates_columns=['last_birth_time', 'parent_id'],
                                                  requires_columns=['sex'])
         # Add listener event to check who has given birth on each time step using the on_time_step function below.
-        builder.event.register_listener('time_step', self.on_time_step, priority=1)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ Adds the required columns for the module to run to the population data frame.
@@ -203,8 +204,8 @@ class nkidsFertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
     """
-    @staticmethod
-    def pre_setup(config, simulation):
+    # @staticmethod
+    def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run.
 
         Parameters
@@ -275,8 +276,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         self.population_view = builder.population.get_view(view_columns + columns_created)
 
         # Add listener event to check who has given birth on each time step using the on_time_step function below.
-        builder.event.register_listener('time_step', self.on_time_step, priority=1)
-
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ Adds the required columns for the module to run to the population data frame.
