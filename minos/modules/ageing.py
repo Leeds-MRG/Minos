@@ -80,9 +80,12 @@ class Ageing(Base):
         -------
         pop: pd.DataFrame
         """
+        pop['child_ages'] = pop['child_ages'].astype(str)
         pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
-        print("Finished incrementing age chains.")
                                                     #pd.DataFrame(.to_list(), index=pop.index)
+
+
+
         pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
         pop['nkids'] = pop['nkids'].astype(float)
         return pop
@@ -96,11 +99,27 @@ class Ageing(Base):
             List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
         """
         # split age chain into list
-        new_nkids = 0 #  default if no age chain found. assume no children.
-        value = age_chain#.values[0]
-        if not isinstance(value, float) and value is not None:
-            print(age_chain)
+        new_nkids = 0  # default if no age chain found. assume no children.
+        value = age_chain  # .values[0]
+        if value != 'None' and value is not None:
+
+            assert value is not None, f"Value is None, this should not happen. value: {value}"
+            assert value != 'None', f"Value is 'None', this should not happen. value: {value}"
+            assert isinstance(value, str), f"Value is not str, this should not happen. value: {value}"
+
+            # Split delimited string to list of ages
             age_chain = value.split("_")
+            # # If only one child the above line doesn't do anything, so need to encapsulate those in a list
+            # if age_chain:
+
+            assert isinstance(age_chain, list), f"age_chain is not list when it should be. age_chain: {age_chain}, type: {type(age_chain)}"
+            assert age_chain != [], f"age_chain is an empty list when it should not be. age_chain: {age_chain}, type: {type(age_chain)}"
+
+            assert age_chain is not None, f"age_chain is None, this should not happen. age_chain: {age_chain}"
+            assert age_chain != 'None', f"age_chain is 'None', this should not happen. age_chain: {age_chain}"
+
+            assert not isinstance(age_chain, int), f"age_chain is int, this should not be. age_chain: {age_chain}, type: {type(age_chain)}"
+
             # increment each item by one
             # remove item if item is over 16.
             age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
