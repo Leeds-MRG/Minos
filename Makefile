@@ -24,7 +24,7 @@ TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 TESTING = $(SOURCEDIR)/testing
-GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
+SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
 TESTING = $(SOURCEDIR)/testing
 
