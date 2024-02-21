@@ -63,7 +63,7 @@ raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 #out.path <- here::here('output', 'default_config/')
 #base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 
-out.path <- here::here("output", "energy_default_config")
+out.path <- here::here("output", "default_config")
 base.dat <- read_singular_local_out(out.path, "/baseline", drop.dead = TRUE)
 ```
 
