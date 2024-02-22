@@ -69,6 +69,10 @@ intervention_energyDownLift: setup
 intervention_energyDownLiftNoSupport: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
+intervention_goodHeatingDummy: setup
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
+
+
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift intervention_energyDownLiftNoSupport
@@ -77,6 +81,8 @@ all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
+all_housing_scenarios: MODE=energy_default_config
+all_housing_scenarios: RUN_CONFIG=$(CONFIG)/energy_default.yaml
 
 ############################################
 ## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
