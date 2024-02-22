@@ -14,7 +14,7 @@ class hhIncomeIntervention():
         return "hh_income_intervention"
 
     def __repr__(self):
-        return "hhIncomeIntervention()"
+        return "hhIncomeIntervention"
 
     # In Daedalus pre_setup was done in the run_pipeline file. This way is tidier and more modular in my opinion.
     def pre_setup(self, config, simulation):
@@ -134,7 +134,7 @@ class hhIncomeChildUplift(Base):
         return "hh_income_20_uplift"
 
     def __repr__(self):
-        return "hhIncomeChildUplift()"
+        return "hhIncomeChildUplift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -211,7 +211,7 @@ class hhIncomePovertyLineChildUplift(Base):
         return "hh_income_poverty_live_20_uplift"
 
     def __repr__(self):
-        return "hhIncomePovertyLineChildUplift()"
+        return "hhIncomePovertyLineChildUplift"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().

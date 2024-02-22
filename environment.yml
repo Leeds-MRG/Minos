@@ -28,7 +28,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-ggridges
   - r-gghighlight
   - r-randomForest
-  - r-parellelly
+  - r-parallelly
   - r-doParallel
   - r-caret
   - r-GLMMadaptive
@@ -54,6 +54,8 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
       - sphinxcontrib-bibtex
       - nbsphinx
       - uuid
+      - geopandas
+      - topojson
       #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
 
 prefix:
