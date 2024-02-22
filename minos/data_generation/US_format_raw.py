@@ -310,6 +310,7 @@ def format_ukhls_columns(year):
                       'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban', # urban or rural household.
                       'xphsdba': "behind_on_bills", # are you up to date on all household bills? (1/2/3).
+                      "ncars": "ncars",
                       }
 
     # Some variables change names halfway through UKHLS.

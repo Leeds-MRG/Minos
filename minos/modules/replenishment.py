@@ -120,6 +120,7 @@ class Replenishment(Base):
                         'yearly_other_fuel',
                         #'hourly_rate',
                         "behind_on_bills",
+                        'ncars',
                         ]
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
@@ -139,7 +140,8 @@ class Replenishment(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=view_columns)
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.on_time_step, priority=0)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.
@@ -356,7 +358,8 @@ class NoReplenishment(Base):
         # Register ageing, updating time and replenishment events on time_step.
         #builder.event.register_listener('time_step', self.age_simulants)
         #builder.event.register_listener('time_step', self.update_time)
-        builder.event.register_listener('time_step', self.on_time_step, priority=0)
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.

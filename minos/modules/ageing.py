@@ -31,8 +31,8 @@ class Ageing(Base):
         self.population_view = builder.population.get_view(view_columns)  # view simulants
 
         # Register ageing, updating time and replenishment events on time_step.
-        builder.event.register_listener('time_step', self.on_time_step, priority=0)
-
+        # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
+        super().setup(builder)
 
     def on_time_step(self, event):
         """ Age everyone by the length of the simulation time step in days

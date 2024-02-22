@@ -1,4 +1,4 @@
-name: minos_conda
+name: minos_condagcc
 channels:
   - conda-forge
   - defaults
@@ -31,9 +31,11 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-parellelly
   - r-doParallel
   - r-caret
+  - r-GLMMadaptive
   - pandoc
   - sphinx
   - myst-parser
+  - gcc
   - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
       - rpy2
       - pyyaml>=5.4

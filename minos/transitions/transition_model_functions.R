@@ -8,6 +8,7 @@ require(randomForest)
 require(caret)
 require(doParallel)
 require(parallelly)
+require(GLMMadaptive)
 
 ################ Model Specific Functions ################
 
@@ -115,6 +116,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
+  data <- replace.missing(data)
   
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -131,6 +133,9 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
     model$class_preds <- predict(model)
   }
   
+  test <- runif(n=length(predict(model, type='zero'))) > predict(model, type='zero')
+  test <- round(test*(predict(model, type='count')))
+  browser()
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
@@ -355,7 +360,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
@@ -375,4 +380,56 @@ estimate_RandomForest <- function(data, formula, depend) {
   #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
   
   return(rfModel)
+}
+
+# longitudinal (mixed effects) ZIP model
+estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, depend) {
+  
+  data <- replace.missing(data)
+  #data <- drop_na(data)
+
+  string_formulae <- strsplit(as.character(fixed_formula[3]), split=' | ', fixed=T)
+  counts_formula <- paste0(as.character(fixed_formula[2]), as.character(fixed_formula[1]), string_formulae[[1]][1])
+  zero_formula <- paste0("~ ", string_formulae[[1]][2])
+  
+  #if (depend == "ncigs_new") {
+  #  #data$ncigs <- ceiling(data$ncigs/5)
+  #  data$ncigs_new <-  ceiling(data$ncigs_new/5)
+  #}
+  
+  #browser()
+  model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
+    fixed = as.formula(counts_formula),
+    random = ~ 1 | pidp,
+    zi_fixed = as.formula(zero_formula),
+    #zi_random = ~ 1 | pidp,
+    #weights=weight,
+    iter_EM=0,
+    data = data,
+    family = zi.poisson(), max_coef_value=50)
+    #family = zi.negative.binomial(), max_phis_value=40000)
+
+  # test model with hard coded formulae.
+  #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
+  #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12),
+  #  random = ~ 1|pidp,
+  #  #weights=weight,
+  #  data = data,
+  #  family = zi.poisson(), 
+  #  zi_fixed = ~ scale(age) + scale(SF_12))
+  
+  #browser()
+  #test.data <- drop_na(data)
+  #test.zeros <- predict(model, newdata = drop_na(data), type='zero')
+  #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
+  #test.counts2 <- predict(model, newdata = drop_na(data), type='subject_specific')
+  #test.counts <- predict(model, newdata = drop_na(data), type='mean_subject')
+  
+  #test.zeros <- attr(test.counts2, "zi_probs")
+  #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
+  
+  #test.final <- test.nonzero * test.counts2 * 5
+  #hist(test.data$ncigs_new*5, xlim=c(0, 30), freq=F, breaks=100)
+  #lines(density(test.final),col='red')
+  return(model)
 }
