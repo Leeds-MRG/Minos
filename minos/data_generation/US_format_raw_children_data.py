@@ -15,9 +15,9 @@ def main(input_raw_data, year):
     child_data = US_utils.load_file(child_name)
 
     # format child data.
-    attribute_columns = US_utils.wave_prefix(['hidp', 'age_dv', 'npns_dv', "pns1pid", "pns2pid"], year)
+    attribute_columns = US_utils.wave_prefix(['hidp', 'age_dv'], year)
     child_data = child_data[attribute_columns]
-    child_data.columns = ['hidp', 'age', 'n_parents', "parent_pidp", 'parent_pidp2']
+    child_data.columns = ['hidp', 'age', 'n_parents']
     child_data['is_child'] = True
     child_data['is_adult'] = False
     child_data['time'] = year
