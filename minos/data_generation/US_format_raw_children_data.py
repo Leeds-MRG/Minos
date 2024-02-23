@@ -18,7 +18,7 @@ def main(input_raw_data, year):
     # format child data.
     attribute_columns = US_utils.wave_prefix(['hidp', 'age_dv'], year)
     child_data = child_data[attribute_columns]
-    child_data.columns = ['hidp', 'age', 'n_parents']
+    child_data.columns = ['hidp', 'age']
     child_data['is_child'] = True
     child_data['is_adult'] = False
     child_data['time'] = year
