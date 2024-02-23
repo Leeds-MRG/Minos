@@ -82,33 +82,34 @@ class Ageing(Base):
         return pop
 
     def increment_age_chains(self, age_chain):
-        """
+        """ update the ages of children in the age chains
 
         Returns
         -------
         age_chain: string
             List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
         """
-        # split age chain into list
+
+        if age_chain is None:
+            age_chain = "childless"
         new_nkids = 0 #  default if no age chain found. assume no children.
-        value = age_chain#.values[0]
-        if type(value) != float and value is not None:
-            age_chain = value.split("_")
-            # increment each item by one
-            # remove item if item is over 16.
+
+        # if household has no children nothing to do.
+        if age_chain != "childless" and age_chain != "-9":
+            # split age chain into list of strings of ages ['1', '2', '15'] etc.
+            age_chain = age_chain.split("_")
+            # incerment all child ages by one year. remove them if they hit 16 years old.
             age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
-            #age_chain = np.sort(age_chain, ascending=True)
-            # return child ages chain and length of list.
-            if age_chain:
-                new_nkids = len(age_chain)
+
+            # get new nkids in household under 16.
+            new_nkids = len(age_chain)
+            # If household still has children update age_chain. Otherwise set age chain to childless (None) again.
+            if new_nkids > 0:
                 age_chain = "_".join(age_chain)
             else:
-                new_nkids = 0
-                age_chain = np.nan
-        else:
-            age_chain = value
-        return age_chain, new_nkids
+                age_chain = "childless"
 
+        return age_chain, new_nkids
 
     # Special methods for vivarium.
     @property
