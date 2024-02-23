@@ -42,9 +42,11 @@ from minos.modules.financial_situation import financialSituation
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
 from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUplift
+from minos.modules.child_poverty_intervention import childUplift
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
+
 # from minos.modules.metrics import ChildPovertyMetrics
 
 # for viz.
@@ -104,17 +106,70 @@ SIPHER7_components_map = {  # SIPHER7 stuff
     "S7EquivalentIncome()": S7EquivalentIncome()
 }
 
-intervention_components_map = {  # Interventions
-
+intervention_components_map = {        #Interventions
     "hhIncomeIntervention": hhIncomeIntervention(),
     "hhIncomeChildUplift": hhIncomeChildUplift(),
     "hhIncomePovertyLineChildUplift": hhIncomePovertyLineChildUplift(),
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+  
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
-    "fossilFuelReplacementScheme": fossilFuelReplacementScheme()
+    "fossilFuelReplacementScheme": fossilFuelReplacementScheme(),
+
+    "childUplift()": childUplift(),
+
+    "25All": childUplift(),
+    "50All": childUplift(),
+    "75All": childUplift(),
+    "100All": childUplift(),
+
+    "25RelativePoverty": childUplift(),
+    "50RelativePoverty": childUplift(),
+    "75RelativePoverty": childUplift(),
+    "100RelativePoverty": childUplift(),
+
+    "25UniversalCredit": childUplift(),
+    "30UniversalCredit": childUplift(),
+    "35UniversalCredit": childUplift(),
+    "40UniversalCredit": childUplift(),
+    "45UniversalCredit": childUplift(),
+    "50UniversalCredit": childUplift(),
+    "75UniversalCredit": childUplift(),
+    "100UniversalCredit": childUplift(),
+
+    "25Priority": childUplift(),
+    "50Priority": childUplift(),
+    "75Priority": childUplift(),
+    "100Priority": childUplift(),
+}
+
+
+intervention_kwargs_dict = {
+    "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
+    "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+
+    "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "75RelativePoverty": {"uplift_amount": 75, "uplift_condition": "who_below_poverty_line_and_kids"},
+    "100RelativePoverty": {"uplift_amount": 100, "uplift_condition": "who_below_poverty_line_and_kids"},
+
+    "25UniversalCredit": {"uplift_amount": 25, "uplift_condition": "who_universal_credit_and_kids"},
+    "30UniversalCredit": {"uplift_amount": 30, "uplift_condition": "who_universal_credit_and_kids"},
+    "35UniversalCredit": {"uplift_amount": 35, "uplift_condition": "who_universal_credit_and_kids"},
+    "40UniversalCredit": {"uplift_amount": 40, "uplift_condition": "who_universal_credit_and_kids"},
+    "45UniversalCredit": {"uplift_amount": 45, "uplift_condition": "who_universal_credit_and_kids"},
+    "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+    "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+    "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
+
+    "25Priority": {"uplift_amount": 25, "uplift_condition": "who_vulnerable_subgroups"},
+    "50Priority": {"uplift_amount": 50, "uplift_condition": "who_vulnerable_subgroups"},
+    "75Priority": {"uplift_amount": 75, "uplift_condition": "who_vulnerable_subgroups"},
+    "100Priority": {"uplift_amount": 100, "uplift_condition": "who_vulnerable_subgroups"},
 }
 
 replenishment_components_map = {
@@ -177,6 +232,14 @@ def get_priorities():
     return component_priorities, all_components_map
 
 
+def get_intervention_kwargs(intervention):
+
+    intervention_kwargs = {}  # default to em
+    if intervention in intervention_kwargs_dict.keys():
+        intervention_kwargs = intervention_kwargs_dict[intervention]
+    return intervention_kwargs
+
+
 def type_check(data):
     """
     We have an unfortunate problem with some variables where the type changes when being read in by Vivarium, which the
@@ -222,6 +285,8 @@ def RunPipeline(config, intervention=None):
     if intervention is not None:
         #components_raw += intervention
         components_raw.append(intervention)
+        intervention_kwargs = get_intervention_kwargs(intervention)
+        config.update({'intervention_parameters': intervention_kwargs})  # add dict of intervention kwargs to config.
 
     component_priority_map, component_name_map = get_priorities()
     components = [component_name_map[c] for c in components_raw if c in component_name_map]
@@ -359,4 +424,4 @@ def get_output_data_filename(config, year=0):
     # Now add year to output file name
     output_data_filename += f"{config.time.start.year + year}.csv"
 
-    return(output_data_filename)
+    return output_data_filename

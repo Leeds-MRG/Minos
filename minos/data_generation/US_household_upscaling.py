@@ -71,6 +71,7 @@ def get_data_zones(region):
 
     return data_zones
 
+
 def main(region, percentage = 100, bootstrapping=False, n=100_000):
     """
     1. Grab individual synthetic spatial population for UK.
