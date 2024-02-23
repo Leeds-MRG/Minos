@@ -57,6 +57,11 @@ class Ageing(Base):
         # update children age chains.
         population = self.update_child_ages(population)
 
+        # When a child reaches 16 years old and is then removed from the child_ages and nkids columns, the
+        # child_ages column is filled with a nan value instead of 'None'
+        # Doing this cleanup here because this is causing a mixed type column (strings for age_chains and float for nan)
+        #population['child_ages'][population['child_ages'].isna()] = None
+
         population['nkids'] = population['nkids'].astype(float)
 
         # update new population.
@@ -75,8 +80,12 @@ class Ageing(Base):
         -------
         pop: pd.DataFrame
         """
+        pop['child_ages'] = pop['child_ages'].astype(str)
         pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
                                                     #pd.DataFrame(.to_list(), index=pop.index)
+
+
+
         pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
         pop['nkids'] = pop['nkids'].astype(float)
         return pop
@@ -105,6 +114,7 @@ class Ageing(Base):
             new_nkids = len(age_chain)
             # If household still has children update age_chain. Otherwise set age chain to childless (None) again.
             if new_nkids > 0:
+
                 age_chain = "_".join(age_chain)
             else:
                 age_chain = "childless"
