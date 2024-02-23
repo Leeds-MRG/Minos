@@ -362,6 +362,26 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+
+##########################
+# Housing Interventions ##
+##########################
+
+
+def generic_single_lineplot(config_mode, source, tag, subset_function):
+    "The same intervention in increments from £25 to £100"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,£25 {tag}"
+    subset_function_strings = f"{subset_function},who_boosted"
+    prefix = f"25_100_incremental_{tag}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
+
+
 #################
 # main function #
 #################
@@ -472,6 +492,8 @@ string_to_lineplot_function = {
     "edinburgh_40_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_45_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
+
+    "good_heating_dummy": generic_single_lineplot,
 }
 
 string_to_lineplot_function_args = {
@@ -566,6 +588,8 @@ string_to_lineplot_function_args = {
     "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit', "edinburgh"],
     "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit', "edinburgh"],
     "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"]
+
+    "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"]
 }
 
 if __name__ == '__main__':
