@@ -5,10 +5,6 @@ import os
 from pathlib import Path
 from rpy2.robjects.packages import importr
 
-# Do this to suppress warnings from Vivariums code...
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
 from vivarium import InteractiveContext
 
 import minos.utils as utils
@@ -43,16 +39,24 @@ from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.financial_situation import financialSituation
 
-from minos.modules.intervention import hhIncomeIntervention, childUplift
-from minos.modules.intervention import hhIncomeChildUplift
-from minos.modules.intervention import hhIncomePovertyLineChildUplift
-from minos.modules.intervention import livingWageIntervention
-from minos.modules.intervention import energyDownlift, energyDownliftNoSupport
+from minos.modules.child_poverty_interventions import hhIncomeIntervention
+from minos.modules.child_poverty_interventions import hhIncomeChildUplift
+from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUplift
+from minos.modules.child_poverty_intervention import childUplift
+from minos.modules.living_wage_interventions import livingWageIntervention
+from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
+from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
 
 # from minos.modules.metrics import ChildPovertyMetrics
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
+
+
+
+# Do this to suppress warnings from Vivariums code...
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 # components = [eval(x) for x in config.components] # more adaptive way but security issues.
@@ -109,6 +113,10 @@ intervention_components_map = {        #Interventions
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+  
+    "GBIS": GBIS(),
+    "goodHeatingDummy": goodHeatingDummy(),
+    "fossilFuelReplacementScheme": fossilFuelReplacementScheme()
 
     "childUplift()": childUplift(),
 
@@ -209,7 +217,8 @@ def get_priorities():
                    "geeYJMWB()",
                    "lmmYJMWB()",
                    "lmmDiffMWB()",
-                   'S7EquivalentIncome()']
+                   'S7EquivalentIncome()',
+                   "lmmYJPCS()"]
 
     everything_else = [el for el in list(components_map)
                        + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]
