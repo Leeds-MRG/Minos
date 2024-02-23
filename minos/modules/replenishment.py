@@ -33,6 +33,7 @@ class Replenishment(Base):
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
+
         # view_columns = ['pidp',
         #                 'age',
         #                 'sex',
@@ -124,6 +125,7 @@ class Replenishment(Base):
         #                 ]
 
         view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
+
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",

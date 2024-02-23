@@ -311,6 +311,10 @@ def format_ukhls_columns(year):
                       'urban_dv': 'urban', # urban or rural household.
                       'xphsdba': "behind_on_bills", # are you up to date on all household bills? (1/2/3).
                       "ncars": "ncars",
+                      # There are dozens of benefits variables in US this seems like
+                      # the simplest and most complete for our purposes.
+                      'benbase4': 'universal_credit',
+                      # receives core benefits (I.E. universal credit/means tested benefits).
                       }
 
     # Some variables change names halfway through UKHLS.
