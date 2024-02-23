@@ -60,7 +60,7 @@ $(TRANSITION_DATA)/cross_validation/version5/SF_12_MCS/lmm/SF_12_MCS_LMM.rds: $(
 ############# SIPHER7 - Cross Validation #############
 
 cv_S7_transitions: | $(TRANSITION_DATA)
-cv_S7_transitions: $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health/clm/S7_mental_health_2019_2020.rds
+cv_S7_transitions: $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/cross_validation/version5/hh_income/glmm/hh_income_new_GLMM.rds
 
 $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health/clm/S7_mental_health_2019_2020.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --sipher7 --cross_validation

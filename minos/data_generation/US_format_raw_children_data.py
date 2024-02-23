@@ -7,7 +7,10 @@ import US_utils
 import pandas as pd
 import numpy as np
 
+
 def main(input_raw_data, year):
+
+    assert isinstance(year, int), f"year must be an integer, not {type(year)}"
 
     # download children datasets in one at a time
     child_name = US_utils.US_file_name(year, "../UKDA-6614-stata/stata/stata13_se/", "child")    # get hidp, pidp, and age.
@@ -57,9 +60,12 @@ def main(input_raw_data, year):
     #US_utils.save_file(collaped_children_US, "children_ages_US/", "", year)
     return collaped_children_US
 
+
 if __name__ == '__main__':
 
-    years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+
+    years = np.arange(2009, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     main(data, years)

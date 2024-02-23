@@ -31,6 +31,48 @@ OUTPATH_DEFAULT = up(up(up(__file__)))
 BIN_EDGES_DEFAULT = list(range(-1, 101))
 # BIN_LABELS_DEFAULT = [str(el) + "to" + str(BIN_EDGES_DEFAULT[i + 1]) for i, el in enumerate(BIN_EDGES_DEFAULT[0:-1])]
 
+# LSOA/DZ to LA lookups, EW + S
+PERSISTENT_DIR = os.path.join(up(up(__file__)), 'persistent_data')
+EW_LOOKUP = os.path.join(PERSISTENT_DIR, "LSOA_(2011)_to_LSOA_(2021)_to_Local_Authority_District_(2022)_Lookup_for_England_and_Wales_(Version_2).csv")
+S_LOOKUP = os.path.join(PERSISTENT_DIR, "DataZone2011lookup_2022-05-31.csv")
+EWS_LOOKUP = os.path.join(PERSISTENT_DIR, "EWS_LSOA_2011_LA_2022.csv")
+
+
+def get_lsoa_la_map(ew_file=EW_LOOKUP,
+                    s_file=S_LOOKUP,
+                    ews_file=EWS_LOOKUP):
+
+    # Look for cached EWS lookup file; create and dump if not found
+    try:
+        print("Trying to load cached EWS LSOA-to-LA lookup file...")
+        lookup_final = pd.read_csv(ews_file)
+        print("Done")
+
+    except:
+        print("LSOA-to-LA lookup file not found; creating and caching...")
+
+        # Get EW lookup
+        ew_raw = pd.read_csv(ew_file)
+        ew_final = ew_raw[['LSOA11CD', 'LAD22CD', 'LAD22NM']]
+        ew_final.loc[ew_final['LSOA11CD'].str.startswith('E'), 'CTRY11NM'] = 'England'
+        ew_final.loc[ew_final['LSOA11CD'].str.startswith('W'), 'CTRY11NM'] = 'Wales'
+
+        # Get Scotland lookup
+        s_raw = pd.read_csv(s_file,
+                            encoding="ISO-8859-1")
+        column_map = {'DZ2011_Code': 'LSOA11CD',
+                      'LA_Code': 'LAD22CD',
+                      'LA_Name': 'LAD22NM',
+                      'Country_Name': 'CTRY11NM'}
+        s_final = s_raw.rename(columns=column_map)[column_map.values()]
+
+        # Standardise headers and merge
+        lookup_final = pd.concat([ew_final, s_final])
+        lookup_final.to_csv(ews_file, index=False)
+        print("Done; cached EWS lookup file to:\n{}".format(ews_file))
+
+    return lookup_final
+
 
 def read_config(config_file):
 
@@ -814,3 +856,5 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
         return series_out, r
     else:
         return series_out
+
+ews = get_lsoa_la_map()

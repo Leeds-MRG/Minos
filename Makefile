@@ -25,7 +25,8 @@ PLOTDIR = $(CURDIR)/plots
 TESTING = $(CURDIR)/minos/testing
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 TESTING = $(SOURCEDIR)/testing
-GLASGOWSCALEDDATA = $(DATADIR)/scaled_scotland_US
+SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
+GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
 TESTING = $(SOURCEDIR)/testing
 
@@ -112,7 +113,7 @@ scot_setup: install scot_data scot_transitions scot_replenishing
 
 cv_setup: install cv_data cv_transitions cv_replenishing
 
-cv_S7_setup: install data cv_S7_transitions cv_replenishing
+cv_S7_setup: install cv_data cv_S7_transitions cv_replenishing
 
 setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthetic_glasgow_repl
 
@@ -142,6 +143,8 @@ include minos/transitions/Makefile # transitions Makefile
 include scripts/Makefile # running minos Makefile
 include minos/outcomes/Makefile # plotting makefile
 include minos/validation/Makefile # validation scripts
+include minos/outcomes/Makefile.maps  # mapping functions
+include scripts/Makefile.SCP  # SCP intervention scenarios
 #include docsrc/Makefile # sphinx makefile
 
 

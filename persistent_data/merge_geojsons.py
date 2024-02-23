@@ -17,48 +17,15 @@ import sys
 from os.path import dirname as up
 import geopandas as gpd
 import topojson as tp
+from minos.utils import get_lsoa_la_map
 
 # EWS LSOA/DZ 2011 shapefile, downloaded 02/02/24 from UKDS here:
 # https://statistics.ukdataservice.ac.uk/dataset/2011-census-geography-boundaries-lower-layer-super-output-areas-and-data-zones
-EWS_SHAPEFILE = os.path.join(up(__file__), 'spatial_data', 'infuse_lsoa_lyr_2011_clipped', 'infuse_lsoa_lyr_2011_clipped.shp')
-EWS_JSON = os.path.join(up(__file__), 'spatial_data', 'UK_super_outputs.geojson')
+SPATIAL_DIR = os.path.join(up(__file__), 'spatial_data')
+EWS_SHAPEFILE = os.path.join(SPATIAL_DIR, 'infuse_lsoa_lyr_2011_clipped', 'infuse_lsoa_lyr_2011_clipped.shp')
+EWS_JSON = os.path.join(SPATIAL_DIR, 'UK_super_outputs.geojson')
 MAP_SCALE = 50  # Unit in shapefile/geojson, appears to be metres
-
-# LSOA/DZ to LA lookups, EW + S
-EW_LOOKUP = os.path.join(up(__file__), "LSOA_(2011)_to_LSOA_(2021)_to_Local_Authority_District_(2022)_Lookup_for_England_and_Wales_(Version_2).csv")
-S_LOOKUP = os.path.join(up(__file__), "DataZone2011lookup_2022-05-31.csv")
-EWS_LOOKUP = os.path.join(up(__file__), "EWS_LSOA_2011_LA_2022.csv")
-
-
-def get_lsoa_la_map(ew_file=EW_LOOKUP,
-                    s_file=S_LOOKUP,
-                    ews_file=EWS_LOOKUP):
-
-    # Look for cached EWS lookup file; create and dump if not found
-    try:
-        print("Trying to load cached EWS LSOA-to-LA lookup file...")
-        lookup_final = pd.read_csv(ews_file)
-        print("Done")
-
-    except:
-        print("LSOA-to-LA lookup file not found; creating and caching...")
-
-        # Get EW lookup
-        ew_raw = pd.read_csv(ew_file)
-        ew_final = ew_raw[['LSOA11CD', 'LAD22CD', 'LAD22NM']]
-
-        # Get Scotland lookup
-        s_raw = pd.read_csv(s_file,
-                            encoding="ISO-8859-1")
-        column_map = {'DZ2011_Code': 'LSOA11CD', 'LA_Code': 'LAD22CD', 'LA_Name': 'LAD22NM'}
-        s_final = s_raw.rename(columns=column_map)[column_map.values()]
-
-        # Standardise headers and merge
-        lookup_final = pd.concat([ew_final, s_final])
-        lookup_final.to_csv(ews_file, index=False)
-        print("Done; cached EWS lookup file to:\n{}".format(ews_file))
-
-    return lookup_final
+LA_DIR = os.path.join(SPATIAL_DIR, 'data_by_la')
 
 
 def add_local_authorities(df):
@@ -151,10 +118,48 @@ def cache_ews_json(ews_json=EWS_JSON,
     return ews_final
 
 
+def cache_by_la_json(df_in,
+                     la_code='LA_Code',
+                     out_path=LA_DIR):
+
+    if not os.path.exists(out_path):
+        print("Output folder not found, creating: {}".format(out_path))
+        os.makedirs(out_path)
+
+    print("Caching JSONs by local authority code to: {}".format(out_path))
+    las = df_in[la_code].unique()
+    jsons_by_la = {}
+    for la in las:
+        jsons_by_la[la] = df_in.loc[df_in[la_code] == la]
+        jsons_by_la[la].to_file(os.path.join(out_path, la + ".json"))
+
+    return jsons_by_la
+
+
+def get_json_by_la(la_list=[],
+                   la_code='LA_Code',
+                   la_path=LA_DIR):
+
+    # Check which are and aren't present in LA folder
+    las_present = [el.split('.json')[0] for el in os.listdir(la_path)]
+    las_valid = sorted(list(set(la_list) & set(las_present)))
+    las_invalid = sorted(list(set(la_list) - set(las_present)))
+
+    if las_invalid:
+        print("Could not find the following local authorities in the cache folder: {}".format(las_invalid))
+
+    jsons_by_la = {}
+    for la in las_valid:
+        jsons_by_la[la] = gpd.read_file(os.path.join(la_path, la + ".json"))
+
+    return jsons_by_la
+
+
 if __name__ == '__main__':
 
     ''' Just run this line to generate cached json of LSOAs/DZs '''
     ews = cache_ews_json()
+    ews_cached = cache_by_la_json(ews)
 
     # ''' Testing 1: Just Glasgow, comparing with pre-322 version '''
     # glasgow = os.path.join(up(__file__), 'spatial_data', 'glasgow_data_zones.csv')
@@ -171,3 +176,13 @@ if __name__ == '__main__':
     # df_manc = ews.loc[ews[la_name].isin(['Manchester', 'Salford'])].copy()
     # df_manc['color'] = df_manc[la_name].map({'Manchester': 'r', 'Salford': 'b'})
     # df_manc.plot(color=df_manc['color'])
+    #
+    # ''' HR 08/02/24 Testing for caching/retrieval by LA '''
+    # las = ['E06000038', 'E08000027', 'W06000020', 'W06000021']  # Last one is made up, so should be excluded
+    # loaded = get_json_by_la(las)
+    # la_code = 'LA_Code'
+    # colour_map = {'E06000038': 'r', 'E08000027': 'b', 'W06000020': 'g'}
+    #
+    # conc = pd.concat(loaded.values())
+    # conc['c'] = conc[la_code].map(colour_map)
+    # conc.plot(color=conc.c)

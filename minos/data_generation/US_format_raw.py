@@ -308,6 +308,11 @@ def format_ukhls_columns(year):
                       'hhsize': 'hhsize', # number of people in household
                       'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban', # urban or rural household.
+                      # There are dozens of benefits variables in US this seems like
+                      # the simplest and most complete for our purposes.
+                      'benbase4': 'universal_credit',
+                      # receives core benefits (I.E. universal credit/means tested benefits).
+                      ###### PCS VARS #####
                       # Alcohol Use Disorder Variables (auditc)
                       'auditc1': 'auditc1',  # Past 12 months alcohol drink?
                       'auditc2': 'auditc2',  # Always been non-drinker
