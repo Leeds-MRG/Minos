@@ -27,6 +27,7 @@ TESTING = $(SOURCEDIR)/testing
 SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
+MANCHESTERSCALEDDATA = $(DATADIR)/scaled_manchester_US
 TESTING = $(SOURCEDIR)/testing
 
 # These paths point to the Python/R site-packages directory in the conda environment
