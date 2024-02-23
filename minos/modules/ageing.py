@@ -117,12 +117,18 @@ class Ageing(Base):
 
             assert age_chain is not None, f"age_chain is None, this should not happen. age_chain: {age_chain}"
             assert age_chain != 'None', f"age_chain is 'None', this should not happen. age_chain: {age_chain}"
+            assert age_chain != '', f"age_chain is '', this should not happen. age_chain: {age_chain}"
 
             assert not isinstance(age_chain, int), f"age_chain is int, this should not be. age_chain: {age_chain}, type: {type(age_chain)}"
 
             # increment each item by one
             # remove item if item is over 16.
-            age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
+            try:
+                age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
+            except ValueError as verror:
+                print(verror)
+                print(f"age_chain is an invalid value, this should not happen. age_chain: {age_chain}, type: {type(age_chain)}")
+                exit("Please address the problem with child ages and try again")
 
             # If there are no more children, explicitly replace with None
             # This is identified when age_chain == nan, and is therefore not a list
