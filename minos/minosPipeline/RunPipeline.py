@@ -116,7 +116,7 @@ intervention_components_map = {        #Interventions
   
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
-    "fossilFuelReplacementScheme": fossilFuelReplacementScheme()
+    "fossilFuelReplacementScheme": fossilFuelReplacementScheme(),
 
     "childUplift()": childUplift(),
 
