@@ -587,9 +587,9 @@ string_to_lineplot_function_args = {
     "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit', "edinburgh"],
     "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit', "edinburgh"],
     "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit', "edinburgh"],
-    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"]
+    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
 
-    "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"]
+    "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"],
 }
 
 if __name__ == '__main__':
