@@ -327,7 +327,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
         population.loc[who_had_children_households, 'has_newborn'] = True
-        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
+        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x))  # add new child to children ages chain.
 
         # LA 26/2/24
         # Problem when adding new babies to childless households
@@ -343,7 +343,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'has_newborn']])
 
     @staticmethod
-    def add_new_child_to_chain(self, age_chain):
+    def add_new_child_to_chain(age_chain):
 
         value = age_chain#.values[0]
         if type(value) == float or value is None or value == 'None':
