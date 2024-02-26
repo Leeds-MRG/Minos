@@ -214,6 +214,7 @@ class lmmTobacco(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=5)
 
         self.transition_model = r_utils.load_transitions(f"ncigs/mzip/ncigs_new_MZIP", self.rpy2Modules, path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "mixed_zip")
 
 
     def on_time_step(self, event):

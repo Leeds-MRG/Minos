@@ -442,5 +442,8 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #test.final <- test.nonzero * test.counts2 * 5
   #hist(test.data$ncigs_new*5, xlim=c(0, 30), freq=F, breaks=100)
   #lines(density(test.final),col='red')
+  
+  model$n_counts_fixed <- length(model$coefficients)
+  model$Sigma <- vcov(model)[0:n_counts_fixed, 0:n_counts_fixed]
   return(model)
 }

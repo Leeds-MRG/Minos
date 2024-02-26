@@ -589,4 +589,11 @@ def randomise_fixed_effects(model, rpy2_modules, type):
 
         model.rx2["coefficients"] = new_coefficients
 
+    elif type == "mixed_zip":
+        coefficients = model.rx2["coefficients"]
+        Sigma = model.rx2['Sigma']
+        MASS = rpy2_modules["MASS"]
+        new_coefficients = MASS.mvrnorm(1, coefficients, Sigma)
+        model.rx2["coefficients"] = new_coefficients
+
     return model
