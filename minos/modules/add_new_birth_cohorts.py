@@ -337,8 +337,7 @@ class nkidsFertilityAgeSpecificRates(Base):
 
     def add_new_child_to_chain(self, age_chain):
 
-        value = age_chain#.values[0]
-        if type(value) == float or value is None:
+        if age_chain == 'childless':
             return "0"
         else:
             return "0_" + age_chain
