@@ -42,7 +42,7 @@ from minos.modules.financial_situation import financialSituation
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
 from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUplift
-from minos.modules.child_poverty_intervention import childUplift
+from minos.modules.child_poverty_interventions import childUplift
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
