@@ -218,6 +218,7 @@ def relative_poverty(config_mode, boost_amount):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
+
 def universal_credit(config_mode, boost_amount, region=None):
     "nationwide policy"
     directories = f"baseline,{boost_amount}UniversalCredit"
@@ -340,27 +341,34 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
         ref = "Baseline"
         v = "SF_12"
         method = 'nanmean'
-        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                      region=region)
         uplift_amount += increment
 
+
 def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region):
-        "The same intervention in increments from £25 to £50"
-        directories = "baseline"
-        tags = "Baseline"
-        uplift_amount = 25
-        for _ in range(6):
-            directories += f",{uplift_amount}{intervention_name}"
-            tags += f",£{uplift_amount} {intervention_tag}"
-            uplift_amount += 5
-        subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
-        prefix = f"25_50_by_5_together{intervention_name}_uplift"
-        ref = "Baseline"
-        v = "SF_12"
-        method = 'nanmean'
-        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+    """
+    The same intervention in increments from £25 to £50
+    """
+    directories = "baseline"
+    tags = "Baseline"
+    uplift_amount = 25
+    for _ in range(6):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += 5
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
+    prefix = f"25_50_by_5_together{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
 
 def child_payment_25_50_only(config_mode, source, tag, subset_function, region):
-    "The same intervention in increments from £25 to £50"
+    """
+    The same intervention in increments from £25 to £50
+    """
     directories = f"baseline,25{source},50{source}"
     tags = f"Baseline,£25 {tag},£50 {tag}"
     subset_function_strings = f"{subset_function},who_boosted,who_boosted"
@@ -369,6 +377,43 @@ def child_payment_25_50_only(config_mode, source, tag, subset_function, region):
     v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
+def incremental_10_to_100_by_10(config_mode, intervention_name, intervention_tag, subset_function, increment, region):
+    """
+    The same intervention in increments from £10 to £100
+    """
+    uplift_amount = 10
+    for _ in range(10):
+        #TODO: abstract this code block as it is repeated for every incremental plot
+        directories = f"baseline,{uplift_amount}{intervention_name}"
+        tags = f"Baseline,£{uplift_amount} {intervention_tag}"
+        subset_function_strings = f"{subset_function},who_boosted,who_boosted"
+        prefix = f"{uplift_amount}_{intervention_name}_uplift"
+        ref = "Baseline"
+        v = "SF_12"
+        method = 'nanmean'
+        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                      region=region)
+        uplift_amount += increment
+
+
+def incremental_10_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+    uplift_amount = 10
+    directories = "baseline"
+    tags = "Baseline"
+    for _ in range(10):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += 10
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 10)
+    prefix = f"10_100_by_10_together{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                  region=region)
+
 
 #################
 # main function #
@@ -409,13 +454,19 @@ string_to_lineplot_function = {
     "75_relative_poverty": [75],
     "100_relative_poverty": [100],
 
+    "10_universal_credit": universal_credit,
+    "20_universal_credit": universal_credit,
     "25_universal_credit": universal_credit,
     "30_universal_credit": universal_credit,
     "35_universal_credit": universal_credit,
     "40_universal_credit": universal_credit,
     "45_universal_credit": universal_credit,
     "50_universal_credit": universal_credit,
+    "60_universal_credit": universal_credit,
+    "70_universal_credit": universal_credit,
     "75_universal_credit": universal_credit,
+    "80_universal_credit": universal_credit,
+    "90_universal_credit": universal_credit,
     "100_universal_credit": universal_credit,
 
     "25_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
@@ -442,7 +493,11 @@ string_to_lineplot_function = {
 
 
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
+    "incremental_10_100_by_10_universal_credit": incremental_10_to_100_by_10,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
+
+    "incremental_10_100_by_10_UC_Scotland": incremental_10_to_100_by_10,
+    "incremental_10_100_by_10_together_UC_Scotland": incremental_10_to_100_by_10_together,
 
     "incremental_25_50_together_universal_credit_default": child_payment_25_50_only,
 
@@ -502,7 +557,7 @@ string_to_lineplot_function_args = {
     "75_all": [75],
     "100_all": [100],
 
-    "25_universal_credit": [25, "scotland"],
+    "25_universal_credit": [25],
     "30_universal_credit": [30],
     "35_universal_credit": [35],
     "40_universal_credit": [40],
@@ -515,7 +570,7 @@ string_to_lineplot_function_args = {
     "scotland_25_universal_any_priority_subgroup": [25, "scotland"],
     "scotland_25_universal_many_priority_subgroups": [25, "scotland"],
 
-    "25_universal_credit_priority_subgroups": [25, "scotland"],
+    "25_universal_credit_priority_subgroups": [25],
     "30_universal_credit_priority_subgroups": [30],
     "35_universal_credit_priority_subgroups": [35],
     "40_universal_credit_priority_subgroups": [40],
@@ -547,6 +602,12 @@ string_to_lineplot_function_args = {
 
     "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5],
     "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", None],
+
+    "incremental_10_100_by_10_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 10],
+    "incremental_10_100_by_10_together_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", None],
+
+    "incremental_10_100_by_10_UC_Scotland": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 10, 'scotland'],
+    "incremental_10_100_by_10_together_UC_Scotland": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 'scotland'],
 
     "incremental_25_50_together_universal_credit_default": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", None],
 

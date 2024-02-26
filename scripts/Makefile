@@ -337,6 +337,12 @@ arc4_intervention_100RelativePoverty: setup
 
 ##########################################################################
 
+arc4_intervention_10UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '10UniversalCredit'
+
+arc4_intervention_20UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '20UniversalCredit'
+
 arc4_intervention_25UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
 
@@ -353,13 +359,24 @@ arc4_intervention_45UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
 arc4_intervention_50UniversalCredit:
-arc4_intervention_50UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
 
-arc4_intervention_75UniversalCredit: setup
+arc4_intervention_60UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '60UniversalCredit'
+
+arc4_intervention_70UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '70UniversalCredit'
+
+arc4_intervention_75UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
 
-arc4_intervention_100UniversalCredit: setup
+arc4_intervention_80UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '80UniversalCredit'
+
+arc4_intervention_90UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '90UniversalCredit'
+
+arc4_intervention_100UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
 ##########################################################################
@@ -420,6 +437,14 @@ arc4_universal_credit_child_uplifts: MODE=default_config
 arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
 
+arc4_UC_SCP_scotland_10_100: setup_scotland_scaled
+arc4_UC_SCP_scotland_10_100: MODE=scaled_scotland
+arc4_UC_SCP_scotland_10_100: RUN_CONFIG=$(CONFIG)scotland_scaled.yaml
+arc4_UC_SCP_scotland_10_100: arc4_baseline arc4_intervention_10UniversalCredit arc4_intervention_20UniversalCredit
+arc4_UC_SCP_scotland_10_100: arc4_intervention_30UniversalCredit arc4_intervention_40UniversalCredit
+arc4_UC_SCP_scotland_10_100: arc4_intervention_50UniversalCredit arc4_intervention_60UniversalCredit
+arc4_UC_SCP_scotland_10_100: arc4_intervention_70UniversalCredit arc4_intervention_80UniversalCredit
+arc4_UC_SCP_scotland_10_100: arc4_intervention_90UniversalCredit arc4_intervention_100UniversalCredit
 
 arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config
 arc4_priority_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
