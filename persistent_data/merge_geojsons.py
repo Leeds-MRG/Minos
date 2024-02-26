@@ -17,6 +17,7 @@ import sys
 from os.path import dirname as up
 import geopandas as gpd
 import topojson as tp
+from minos.utils import get_lsoa_la_map
 
 # EWS LSOA/DZ 2011 shapefile, downloaded 02/02/24 from UKDS here:
 # https://statistics.ukdataservice.ac.uk/dataset/2011-census-geography-boundaries-lower-layer-super-output-areas-and-data-zones
@@ -25,42 +26,6 @@ EWS_SHAPEFILE = os.path.join(SPATIAL_DIR, 'infuse_lsoa_lyr_2011_clipped', 'infus
 EWS_JSON = os.path.join(SPATIAL_DIR, 'UK_super_outputs.geojson')
 MAP_SCALE = 50  # Unit in shapefile/geojson, appears to be metres
 LA_DIR = os.path.join(SPATIAL_DIR, 'data_by_la')
-
-# LSOA/DZ to LA lookups, EW + S
-EW_LOOKUP = os.path.join(up(__file__), "LSOA_(2011)_to_LSOA_(2021)_to_Local_Authority_District_(2022)_Lookup_for_England_and_Wales_(Version_2).csv")
-S_LOOKUP = os.path.join(up(__file__), "DataZone2011lookup_2022-05-31.csv")
-EWS_LOOKUP = os.path.join(up(__file__), "EWS_LSOA_2011_LA_2022.csv")
-
-
-def get_lsoa_la_map(ew_file=EW_LOOKUP,
-                    s_file=S_LOOKUP,
-                    ews_file=EWS_LOOKUP):
-
-    # Look for cached EWS lookup file; create and dump if not found
-    try:
-        print("Trying to load cached EWS LSOA-to-LA lookup file...")
-        lookup_final = pd.read_csv(ews_file)
-        print("Done")
-
-    except:
-        print("LSOA-to-LA lookup file not found; creating and caching...")
-
-        # Get EW lookup
-        ew_raw = pd.read_csv(ew_file)
-        ew_final = ew_raw[['LSOA11CD', 'LAD22CD', 'LAD22NM']]
-
-        # Get Scotland lookup
-        s_raw = pd.read_csv(s_file,
-                            encoding="ISO-8859-1")
-        column_map = {'DZ2011_Code': 'LSOA11CD', 'LA_Code': 'LAD22CD', 'LA_Name': 'LAD22NM'}
-        s_final = s_raw.rename(columns=column_map)[column_map.values()]
-
-        # Standardise headers and merge
-        lookup_final = pd.concat([ew_final, s_final])
-        lookup_final.to_csv(ews_file, index=False)
-        print("Done; cached EWS lookup file to:\n{}".format(ews_file))
-
-    return lookup_final
 
 
 def add_local_authorities(df):

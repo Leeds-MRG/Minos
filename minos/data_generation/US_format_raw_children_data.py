@@ -7,6 +7,7 @@ import US_utils
 import pandas as pd
 import numpy as np
 
+
 def main(input_raw_data, year):
 
     # download children datasets in one at a time
@@ -57,9 +58,12 @@ def main(input_raw_data, year):
     #US_utils.save_file(collaped_children_US, "children_ages_US/", "", year)
     return collaped_children_US
 
+
 if __name__ == '__main__':
 
-    years = np.arange(2009, 2020)
+    maxyr = US_utils.get_data_maxyr()
+
+    years = np.arange(2009, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     main(data, years)
