@@ -49,7 +49,7 @@ digest_params <- function(line) {
 run_yearly_models <- function(transitionDir_path,
                               transitionSourceDir_path,
                               mod_def_name,
-                              orig_data,
+                              data,
                               mode) {
 
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
@@ -57,19 +57,19 @@ run_yearly_models <- function(transitionDir_path,
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
   ## Set some factor levels because R defaults to using alphabetical ordering
-  orig_data$housing_quality <- factor(orig_data$housing_quality, 
+  data$housing_quality <- factor(data$housing_quality, 
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  orig_data$S7_housing_quality <- factor(orig_data$S7_housing_quality, 
+  data$S7_housing_quality <- factor(data$S7_housing_quality, 
                                  levels = c('No to all', 
                                             'Yes to some', 
                                             'Yes to all'))
-  orig_data$S7_neighbourhood_safety <- factor(orig_data$S7_neighbourhood_safety,
+  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
                                     levels = c('Often', 
                                                'Some of the time', 
                                                'Hardly ever'))
-  orig_data$S7_labour_state <- factor(orig_data$S7_labour_state,
+  data$S7_labour_state <- factor(data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
                                             'Job Seeking',
@@ -79,9 +79,6 @@ run_yearly_models <- function(transitionDir_path,
 
   # read file
   repeat{
-    # first thing, take copy of the orig_data to ensure we get the same starting point each time
-    data <- orig_data
-    
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
 
@@ -112,7 +109,7 @@ run_yearly_models <- function(transitionDir_path,
     # crossval needs to start in 2010, whereas default model can have reduced timespan
     # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(max(data$time) - 4, (max(data$time)-1))
+      year.range <- seq(max(data$time) - 3, (max(data$time)-1))
     } else {
       year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
@@ -136,7 +133,7 @@ run_yearly_models <- function(transitionDir_path,
         {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-      }# skip this iteration if model not in valid types. 
+        }# skip this iteration if model not in valid types. 
       
       # reset the formula string for each year
       formula.string <- formula.string.orig
@@ -151,9 +148,9 @@ run_yearly_models <- function(transitionDir_path,
 
       ## Some models don't run in certain years (data issues) so break here
       # nutrition_quality only estimated for 2018
-      if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018, 2020)) { next }
-      # education_state only estimated for 2020->2021
-      if(dependent == 'education_state' & year != 2020) { next }
+      if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
+      # labour_state only estimated for 2018
+      if(dependent == 'education_state' & year != 2018) { next }
       # loneliness only estimated for waves starting 2017 and 2018
       if(dependent == 'loneliness' & !year > 2016) { next }
       # neighbourhood only estimated for wave 2011, 2014, and 2017
@@ -162,7 +159,8 @@ run_yearly_models <- function(transitionDir_path,
       if(grepl('neighbourhood_safety', dependent)){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
-      # Can't fit a time lagged model to SF12 in first wave
+      #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
+      # SF_12 predictor (physical health score) not available in wave 1
       if(dependent == 'SF_12' & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
@@ -204,7 +202,7 @@ run_yearly_models <- function(transitionDir_path,
       if(!year > 2016) {
         formula.string <- str_remove_all(formula.string, " \\+ factor\\(loneliness\\)")
       }
-      if(!year %in% c(2015, 2017, 2019, 2021)) {
+      if(!year %in% c(2015, 2017, 2019)) {
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(nutrition_quality\\)")
       }
       if(year < 2013) {
@@ -269,18 +267,18 @@ run_yearly_models <- function(transitionDir_path,
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
       # writing tex table of coefficients. easy writing for papers and documentation. 
-      write_coefs <- F
-      if (write_coefs)
+      write_coefs <- T
+      if (write_coefs & tolower(mod.type) != "nnet") # cant write coefs for nnet using texreg.
       {
-        texreg_file <- paste0(out.path2, "coefficients", dependent, '_', year, '_', depend.year, '.rds')
+        create.if.not.exists("data/transitions/coefficients")
+        texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', year, '_', depend.year, '.txt')
         texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
       }
-      save.path <- paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds')
-      saveRDS(model, file=save.path)
+      saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))
+
     }
     print(paste0("Finished for ", dependent, '.'))
-    print(paste0('Files saved to ', out.path2))
   }
   # close and remove connection object from memory
   close(modDefs)
@@ -355,6 +353,7 @@ transitionDir <- 'data/transitions/'
 mode <- 'default'
 
 create.if.not.exists(transitionDir)
+
 
 # Set different paths for scotland mode, cross-validation etc.
 if(scotland.mode) {

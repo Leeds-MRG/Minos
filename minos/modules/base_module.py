@@ -54,6 +54,8 @@ class Base():
         # self.priority = simulation.component_priority_map.get(self.__repr__(), PRIORITY_DEFAULT)
         # print("Priority for {} set to {}".format(self.__repr__(), self.priority))
 
+        self.transition_model = None
+
         return simulation
 
     def setup(self, builder):

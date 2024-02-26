@@ -93,6 +93,7 @@ class HourlyWage(Base):
         #                                                      path=self.transition_dir)
         self.rf_transition_model = r_utils.load_transitions(f"hourly_wage/rf/hourly_wage_RF", self.rpy2Modules,
                                                              path=self.transition_dir)
+        # TODO no randomising of weights for random forest.
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
 

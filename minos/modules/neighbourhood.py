@@ -125,9 +125,15 @@ class Neighbourhood(Base):
                 year -= 1  # e.g. 2012 moves back one year to 2011.
             year = min(year, 2017)  # transitions only go up to 2017.
 
-        transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
+        # if simulation goes beyond real data in 2020 dont load the transition model again.
+        if not self.transition_model or year <= 2017:
+            self.transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+
+
+        #transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
+        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
         return nextWaveNeighbourhood
 
     # Special methods used by vivarium.

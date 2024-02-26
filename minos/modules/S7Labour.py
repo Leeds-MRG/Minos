@@ -122,9 +122,14 @@ class S7Labour(Base):
         #year = min(self.year, 2018) # TODO just use latest model for now. Needs some kind of reweighting if extrapolating later.
         year = 2018
 
-        transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        if not self.transition_model or year <= 2018:
+            self.transition_model = r_utils.load_transitions(f"S7_labour_state/nnet/S7_labour_state_{year}_{year+1}",
+                                                             self.rpy2Modules, path=self.transition_dir)
+            #TODO not enabled for nnet. is this possible?
+            #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "nnet")
+
         # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_nnet(self.transition_model, self.rpy2Modules, pop, cols)
         return prob_df
 
     def plot(self, pop, config):
