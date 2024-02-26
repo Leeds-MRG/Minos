@@ -174,7 +174,7 @@ class lmmYJOutgoings(Base):
         newWaveMortgage['hh_mortgage'] = self.calculate_hh_mortgage(pop)
         newWaveMortgage.index = pop.index
         newWaveMortgage['hidp'] = pop['hidp']
-        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 4000)
+        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 6000)
         newWaveMortgage['hh_mortgage'] = newWaveMortgage.groupby('hidp')['hh_mortgage'].transform(np.max)
 
         #mortgage_mean = np.median(newWaveMortgage["hh_mortgage"])
@@ -182,7 +182,7 @@ class lmmYJOutgoings(Base):
         #newWaveMortgage["hh_mortgage"] *= std_ratio
         #newWaveMortgage["hh_mortgage"] -= ((std_ratio - 1) * mortgage_mean)
         #newWaveMortgage['hh_mortgage'] -= np.min(newWaveMortgage['hh_mortgage'])
-        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 15000)
+        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 6000)
         newWaveMortgage['hh_rent'] = 0.
 
         print(f"Mortgage: {np.median(newWaveMortgage['hh_mortgage'])}")
