@@ -333,7 +333,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         # Problem when adding new babies to childless households
         # Results in a string with structure '0_None'
         # Therefore we need to remove the 'None' part of the string
-        population['child_ages'] = population['child_ages'].str.replace('0_None', '0')
+        #population['child_ages'] = population['child_ages'].str.replace('0_None', '0')
+        # Spotted the add_new_child_to_chain() function below and fixed it there instead.
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
         #TODO future differentiation within a household of which kids belong to who in child age chains.
@@ -341,10 +342,11 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'has_newborn']])
 
+    @staticmethod
     def add_new_child_to_chain(self, age_chain):
 
         value = age_chain#.values[0]
-        if type(value) == float or value is None:
+        if type(value) == float or value is None or value == 'None':
             return "0"
         else:
             return "0_" + age_chain
@@ -362,7 +364,6 @@ class nkidsFertilityAgeSpecificRates(Base):
     @property
     def name(self):
         return 'nkids_age_specific_fertility'
-
 
     def __repr__(self):
         return "nkidsFertilityAgeSpecificRates()"
