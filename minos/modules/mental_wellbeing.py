@@ -209,7 +209,7 @@ class geeMWB(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -252,7 +252,7 @@ class geeMWB(Base):
 
         self.max_sf12 = None
         #only need to load this once for now.
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee/SF_12_GEE", self.rpy2_modules)
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee/SF_12_GEE", self.rpy2Modules)
 
     def update_prediction_population(self, current_pop):
         """ Update longitudinal data frame of past observations with current information.
@@ -309,7 +309,7 @@ class geeMWB(Base):
         -------
         """
         year = min(self.year, 2018)
-        return self.max_sf12 - r_utils.predict_next_timestep_gee(self.gee_transition_model, self.rpy2_modules, pop, 'SF_12')
+        return self.max_sf12 - r_utils.predict_next_timestep_gee(self.gee_transition_model, self.rpy2Modules, pop, 'SF_12')
 
 
 
@@ -338,7 +338,7 @@ class geeYJMWB(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -381,8 +381,8 @@ class geeYJMWB(Base):
         super().setup(builder)
 
         #only need to load this once for now.
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2_modules, path=self.transition_dir)
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj_gamma/SF_12_GEE_YJ_GAMMA", self.rpy2_modules, path=self.transition_dir)
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2Modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj_gamma/SF_12_GEE_YJ_GAMMA", self.rpy2Modules, path=self.transition_dir)
         self.history_data = self.generate_history_dataframe("final_US", [2014, 2017, 2020], view_columns)
 
     def on_time_step(self, event):
@@ -423,7 +423,7 @@ class geeYJMWB(Base):
         """
         self.update_history_dataframe(pop, self.year, lag=10)
         out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,
-                                                                 self.rpy2_modules,
+                                                                 self.rpy2Modules,
                                                                  current=self.history_data,
                                                                  dependent='SF_12',
                                                                  reflect=True,
@@ -456,7 +456,7 @@ class lmmYJMWB(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -498,8 +498,9 @@ class lmmYJMWB(Base):
         super().setup(builder)
 
         #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2Modules, path=self.transition_dir)
+        self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2Modules, path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -544,8 +545,8 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
-                                                               self.rpy2_modules,
+        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+                                                               self.rpy2Modules,
                                                                current= pop,
                                                                dependent='SF_12',
                                                                reflect=True,
@@ -579,7 +580,7 @@ class lmmDiffMWB(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -623,9 +624,9 @@ class lmmDiffMWB(Base):
         super().setup(builder)
 
         #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2_modules, path=self.transition_dir)
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj_gamma/SF_12_GEE_YJ_GAMMA", self.rpy2_modules, path=self.transition_dir)
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm_diff/SF_12_LMM_DIFF", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2Modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj_gamma/SF_12_GEE_YJ_GAMMA", self.rpy2Modules, path=self.transition_dir)
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm_diff/SF_12_LMM_DIFF", self.rpy2Modules, path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2014, 2017, 2020], view_columns)
 
     def on_initialize_simulants(self, pop_data):
@@ -686,7 +687,7 @@ class lmmDiffMWB(Base):
         """
         #self.update_history_dataframe(pop, self.year, lag=10)
         out_data = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                 self.rpy2_modules,
+                                                                 self.rpy2Modules,
                                                                  current= pop,
                                                                  dependent='SF_12_diff',
                                                                  reflect=False,

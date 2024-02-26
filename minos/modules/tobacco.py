@@ -123,9 +123,13 @@ class Tobacco(Base):
             year = max(self.year, 2014)
             year = min(year, 2020)
 
-        transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        # if simulation goes beyond real data in 2020 dont load the transition model again.
+        if not self.transition_model or year <= 2020:
+            self.transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "zip")
+
         # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveTobacco = r_utils.predict_next_timestep_zip(model=transition_model,
+        nextWaveTobacco = r_utils.predict_next_timestep_zip(model=self.transition_model,
                                                             rpy2Modules= self.rpy2Modules,
                                                             current=pop,
                                                             dependent='ncigs')

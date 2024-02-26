@@ -479,3 +479,65 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
     newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
 
     return newPandasPopDF[[dependent]]
+
+
+
+def randomise_fixed_effects(model, rpy2_modules, type):
+    """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
+    Parameters
+    ----------
+    model: rpy2.RO
+        What model is having fixed affects adjusted?
+    rpy2_modules: dict[rpy2.RO]
+        Dictionary of R modules used to estimate transition probabilities
+    type: string
+        Type of model having fixed effects adjusted. REquired variables can have different names (e.g. beta or coefs).
+        For now this is going to be clm and glmm. maybe extend to other types of models using MCMC.
+    Returns
+    -------
+    model rpy2.RO
+        Same model class with adjusted fixed effects.
+    """
+
+    if type == "glmm":
+        beta = model.do_slot("beta")
+        Sigma = model.do_slot("cov_matrix")
+        MASS = rpy2_modules["MASS"]
+        new_beta = MASS.mvrnorm(1, beta, Sigma)
+        model.slots['beta'] = new_beta
+    elif type == "lmm":
+        beta = model.do_slot("beta")
+        Sigma = model.do_slot("cov_matrix")
+        MASS = rpy2_modules["MASS"]
+        new_beta = MASS.mvrnorm(1, beta, Sigma)
+        model.slots['beta'] = new_beta
+    elif type == "clm":
+        beta = model.rx2['beta']
+        Sigma = model.rx2["cov_matrix"]
+        MASS = rpy2_modules["MASS"]
+        new_beta = MASS.mvrnorm(1, beta, Sigma)
+        model.rx2['beta'] = new_beta
+    elif type == "logit":
+        beta = model.rx2['beta']
+        Sigma = model.rx2["cov_matrix"]
+        MASS = rpy2_modules["MASS"]
+        new_beta = MASS.mvrnorm(1, beta, Sigma)
+        model.rx2['beta'] = new_beta
+    elif type == "zip":
+        coefficients = model.rx2["coefficients"]
+        count_betas = coefficients.rx2["count"]
+        zero_betas = coefficients.rx2["zero"]
+
+        count_Sigma = model.rx2["count_cov_matrix"]
+        zero_Sigma = model.rx2["zero_cov_matrix"]
+
+        MASS = rpy2_modules["MASS"]
+        new_count_beta = MASS.mvrnorm(1, count_betas, count_Sigma)
+        new_zero_beta = MASS.mvrnorm(1, zero_betas, zero_Sigma)
+        new_coefficients = coefficients
+        new_coefficients.rx2['count'] = new_count_beta
+        new_coefficients.rx2['zero'] = new_zero_beta
+
+        model.rx2["coefficients"] = new_coefficients
+
+    return model
