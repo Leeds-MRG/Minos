@@ -161,10 +161,10 @@ class lmmYJOutgoings(Base):
         #newWaveRent["hh_rent"] -= ((std_ratio - 1) * rent_mean)
         #newWaveRent['hh_rent'] -= np.min(newWaveRent['hh_rent'])
         newWaveRent['hh_rent'] = newWaveRent['hh_rent'].clip(0, 4000)
-        newWaveRent['hh_mortgage'] = 0.
+        #newWaveRent['hh_mortgage'] = 0.
 
         print(f"Rent: {np.median(newWaveRent['hh_rent'])}")
-        self.population_view.update(newWaveRent[['hh_rent', "hh_mortgage"]])
+        self.population_view.update(newWaveRent[['hh_rent']])
 
         #mortgagers
         pop = self.population_view.get(event.index, query="alive =='alive' & housing_tenure == 2")
@@ -174,19 +174,21 @@ class lmmYJOutgoings(Base):
         newWaveMortgage['hh_mortgage'] = self.calculate_hh_mortgage(pop)
         newWaveMortgage.index = pop.index
         newWaveMortgage['hidp'] = pop['hidp']
-        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 6000)
+        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 10000)
         newWaveMortgage['hh_mortgage'] = newWaveMortgage.groupby('hidp')['hh_mortgage'].transform(np.max)
 
-        #mortgage_mean = np.median(newWaveMortgage["hh_mortgage"])
-        #std_ratio = (np.std(pop['hh_mortgage']) / np.std(newWaveMortgage["hh_mortgage"]))
-        #newWaveMortgage["hh_mortgage"] *= std_ratio
-        #newWaveMortgage["hh_mortgage"] -= ((std_ratio - 1) * mortgage_mean)
-        #newWaveMortgage['hh_mortgage'] -= np.min(newWaveMortgage['hh_mortgage'])
-        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 6000)
-        newWaveMortgage['hh_rent'] = 0.
+        newWaveMortgage['hh_mortgage'] += 75
 
-        print(f"Mortgage: {np.median(newWaveMortgage['hh_mortgage'])}")
-        self.population_view.update(newWaveMortgage[['hh_mortgage', "hh_rent"]])
+        mortgage_mean = np.mean(newWaveMortgage["hh_mortgage"])
+        std_ratio = (np.std(pop['hh_mortgage']) / np.std(newWaveMortgage["hh_mortgage"]))
+        newWaveMortgage["hh_mortgage"] *= std_ratio
+        newWaveMortgage["hh_mortgage"] -= ((std_ratio - 1) * mortgage_mean)
+
+        newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 6000)
+        #newWaveMortgage['hh_rent'] = 0.
+
+        print(f"Mortgage: {np.mean(newWaveMortgage['hh_mortgage'])}")
+        self.population_view.update(newWaveMortgage[['hh_mortgage']])
 
         # property owners
         pop = self.population_view.get(event.index, query="alive =='alive' & housing_tenure == 1")
@@ -225,7 +227,7 @@ class lmmYJOutgoings(Base):
                                                                         dependent='hh_rent_new',
                                                                         yeo_johnson=False,
                                                                         reflect=False,
-                                                                        noise_std=10)  # 0.45 for yj. 100? for non yj.
+                                                                        noise_std=2)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -245,18 +247,18 @@ class lmmYJOutgoings(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        nextWavenetIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.mortgage_transition_model,
+        nextWaveMortgage = r_utils.predict_next_timestep_yj_gamma_glmm(self.mortgage_transition_model,
                                                                         self.rpy2Modules,
                                                                         pop,
                                                                         dependent='hh_mortgage_new',
                                                                         yeo_johnson=False,
                                                                         reflect=False,
-                                                                        noise_std=10)  # 0.45 for yj. 100? for non yj.
+                                                                        noise_std=2)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
         # next_diffs = nextWaveIncome.iloc[new_history_data]
-        return nextWavenetIncome
+        return nextWaveMortgage
 
 
 
@@ -279,7 +281,7 @@ class lmmYJOutgoings(Base):
                                                                         dependent='council_tax_new',
                                                                         yeo_johnson=False,
                                                                         reflect=False,
-                                                                        noise_std=0)  # 0.45 for yj. 100? for non yj.
+                                                                        noise_std=1)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

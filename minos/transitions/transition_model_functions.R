@@ -264,7 +264,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   }
   attr(model,"min_value") <- min_value
   
-  #browser()
+  browser()
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
@@ -444,6 +444,6 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #lines(density(test.final),col='red')
   
   model$n_counts_fixed <- length(model$coefficients)
-  model$Sigma <- vcov(model)[0:n_counts_fixed, 0:n_counts_fixed]
+  model$Sigma <- vcov(model)[0:model$n_counts_fixed, 0:model$n_counts_fixed]
   return(model)
 }

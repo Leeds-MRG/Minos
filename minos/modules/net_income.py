@@ -157,7 +157,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome["net_hh_income"] *= std_ratio
         newWavenetIncome["net_hh_income"] -= ((std_ratio - 1) * income_mean)
 
-        newWavenetIncome['net_hh_income'] -= 275
+        newWavenetIncome['net_hh_income'] -= 175
 
         newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform("mean")
         newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 12000)
