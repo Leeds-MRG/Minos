@@ -4,143 +4,6 @@ OUTCOMES=$(ROOT)/minos/outcomes
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
 
 #####################################
-# QALY Calculations
-#####################################
-
-.phony: QALY QALY_baseline QALY_energyDownlift QALY_energyDownliftNoSupport
-
-QALY:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-## Default QALYs
-
-QALY_baseline: MODE=default_config
-QALY_baseline: INTERVENTION=baseline
-QALY_baseline:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energyDownlift: MODE=default_config
-QALY_energyDownlift: INTERVENTION=energyDownlift
-QALY_energyDownlift:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energyDownliftNoSupport: MODE=default_config
-QALY_energyDownliftNoSupport: INTERVENTION=energyDownliftNoSupport
-QALY_energyDownliftNoSupport:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_livingWage: MODE=default_config
-QALY_livingWage: INTERVENTION=livingWageIntervention
-QALY_livingWage:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALYs: QALY_baseline QALY_energysupport QALY_energynosupport QALY_livwage
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-
-QALY_comparison_livingWage: QALY_baseline QALY_livingWage
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
-
-
-QALY_comparisons: QALY_comparison_livingWage QALY_comparison_energyCrises
-
-################## ^ GENERIC QALY SCRIPT ^ ##################
-
-## No Replenishment QALYs (cohort)
-
-QALY_baseline_norepl: MODE=default_no_replenishment
-QALY_baseline_norepl: INTERVENTION=baseline
-QALY_baseline_norepl:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energyDownlift_norepl: MODE=default_no_replenishment
-QALY_energyDownlift_norepl: INTERVENTION=energyDownlift
-QALY_energyDownlift_norepl:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energyDownliftNoSupport_norepl: MODE=default_no_replenishment
-QALY_energyDownliftNoSupport_norepl: INTERVENTION=energyDownliftNoSupport
-QALY_energyDownliftNoSupport_norepl:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_livingWage_norepl: MODE=default_no_replenishment
-QALY_livingWage_norepl: INTERVENTION=livingWageIntervention
-QALY_livingWage_norepl:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALYs_norepl: QALY_baseline_norepl QALY_energysupport_norepl QALY_energynosupport_norepl QALY_livwage_norepl
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-
-QALY_comparison_livingWage_norepl: QALY_baseline_norepl QALY_livwage_norepl
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
-
-## Glasgow QALYs
-
-QALY_baseline_glasgow: MODE=glasgow_scaled
-QALY_baseline_glasgow: INTERVENTION=baseline
-QALY_baseline_glasgow:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energysupport_glasgow: MODE=glasgow_scaled
-QALY_energysupport_glasgow: INTERVENTION=energyDownlift
-QALY_energysupport_glasgow:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energynosupport_glasgow: MODE=glasgow_scaled
-QALY_energynosupport_glasgow: INTERVENTION=energyDownliftNoSupport
-QALY_energynosupport_glasgow:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_livwage_glasgow: MODE=glasgow_scaled
-QALY_livwage_glasgow: INTERVENTION=livingWageIntervention
-QALY_livwage_glasgow:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALYs_glasgow: QALY_baseline_glasgow QALY_energysupport_glasgow QALY_energynosupport_glasgow QALY_livwage_glasgow
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-
-QALY_comparison_livingWage_glasgow: QALY_baseline_glasgow QALY_livwage_glasgow
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
-
-## UK scale QALYs
-
-QALY_baseline_uk: MODE=SF12_uk_scaled
-QALY_baseline_uk: INTERVENTION=baseline
-QALY_baseline_uk:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energysupport_uk: MODE=SF12_uk_scaled
-QALY_energysupport_uk: INTERVENTION=energyDownlift
-QALY_energysupport_uk:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_energynosupport_uk: MODE=SF12_uk_scaled
-QALY_energynosupport_uk: INTERVENTION=energyDownliftNoSupport
-QALY_energynosupport_uk:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALY_livwage_uk: MODE=SF12_uk_scaled
-QALY_livwage_uk: INTERVENTION=livingWageIntervention
-QALY_livwage_uk:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
-
-QALYs_uk: QALY_baseline_uk QALY_energysupport_uk QALY_energynosupport_uk QALY_livwage_uk
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_energyCrises_diff.Rmd')"
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-
-QALY_comparison_livingWage_uk: QALY_baseline_uk QALY_livwage_uk
-	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/QALY_comparison_livingWage.Rmd')"
-	firefox file://$(TESTING)/QALY_comparison_livingWage.html
-
-
-
-
-#####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
 #####################################
 
@@ -206,7 +69,7 @@ default_all_lineplots_MCS: default_all_lineplots
 
 # will change to SF_12_MCS when PCS is implemented
 all_lineplots_MCS: MODE=default_config
-all_lineplots_MCS: AGG_VAR=SF_12
+all_lineplots_MCS: AGG_VAR=SF_12_MCS
 all_lineplots_MCS: default_all_lineplots
 
 # PCS COMING SOON THIS WON'T WORK YET!
@@ -215,7 +78,7 @@ all_lineplots_PCS: AGG_VAR=SF_12_PCS
 all_lineplots_PCS: default_all_lineplots
 
 lineplot_livingWage: MODE=default_config
-lineplot_livingWage: AGG_VAR=SF_12
+lineplot_livingWage: AGG_VAR=SF_12_PCS
 lineplot_livingWage: aggregate_minos_output_living_wage
 lineplot_livingWage:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/testing_livingWage_intervention.Rmd')"
@@ -264,6 +127,15 @@ living_wage_lineplot: MODE="default_config"
 living_wage_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "living_wage"
 
+###########################
+# Energy Crisis Lineplots #
+###########################
+
+# Living Wage Intervention
+energyCrisis_lineplot: MODE="default_config"
+energyCrisis_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "ebss"
+
 ##########################################
 # Child Income Intervention Lineplots #
 #######################################
@@ -303,13 +175,50 @@ aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
 	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
 
-aggregate_25_all_children: MODE="default_config"
-aggregate_25_all_children:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
 
 #############################################################
 # Default config visualisations of universal credit uplifts #
 #############################################################
+
+##############################
+# All Children				 #
+##############################
+
+aggregate_25_all_children: MODE="default_config"
+aggregate_25_all_children:
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+
+aggregate_30_all_children: MODE="default_config"
+aggregate_30_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "30_all"
+
+aggregate_35_all_children: MODE="default_config"
+aggregate_35_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "35_all"
+
+aggregate_40_all_children: MODE="default_config"
+aggregate_40_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "40_all"
+
+aggregate_45_all_children: MODE="default_config"
+aggregate_45_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "45_all"
+
+aggregate_50_all_children: MODE="default_config"
+aggregate_50_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_all"
+
+aggregate_75_all_children: MODE="default_config"
+aggregate_75_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_all"
+
+aggregate_100_all_children: MODE="default_config"
+aggregate_100_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_all"
+
+##############################
+# Universal Credit			 #
+##############################
 
 aggregate_25_universal_credit: MODE="default_config"
 aggregate_25_universal_credit:
