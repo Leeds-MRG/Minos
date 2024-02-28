@@ -51,12 +51,19 @@ class Ageing(Base):
         #population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
         population['time'] += 1
 
+        logging.info(f"Aged population to year {event.time.year}")
+        self.population_view.update(population[['age', 'time']])
+
+        child_population = self.population_view.get(event.index, query="child_ages!='childless'")
+
         # realign children age chains for new repl population. They don't have unique hidps yet.
         # TODO remove this if/when we update household ids in repl.
         # do this by getting the oldest ALIVE member of a household and give everyone in the household that age chain.
-        population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
+        child_population['child_ages'] = child_population.groupby('hidp')['child_ages'].transform("first")
+        child_population['oecd_equiv'] = child_population.groupby('hidp')['oecd_equiv'].transform("max")
+
         # update children age chains.
-        newChildAges = self.update_child_ages(population)
+        newChildAges = self.update_child_ages(child_population)
 
         # When a child reaches 16 years old and is then removed from the child_ages and nkids columns, the
         # child_ages column is filled with a nan value instead of 'None'
@@ -67,11 +74,11 @@ class Ageing(Base):
         newChildAges['oecd_equiv'] = population['oecd_equiv'] + newChildAges['oecd_change']
         newChildAges['oecd_equiv'] = newChildAges['oecd_equiv'].astype(float)
         # oecd has to be at least 1.
-        newChildAges['oecd_equiv'] = newChildAges["oecd_equiv"].apply(lambda x: min(x, 1.0))
+        newChildAges['oecd_equiv'] = newChildAges["oecd_equiv"].clip(lower=1.0)
 
         # update new population.
-        logging.info(f"Aged population to year {event.time.year}")
-        self.population_view.update(newChildAges[['age', 'time', 'child_ages', 'nkids', 'oecd_equiv']])
+        logging.info(f"Aged children for population to year {event.time.year}")
+        self.population_view.update(newChildAges[['child_ages', 'nkids', 'oecd_equiv']])
 
 
     def update_child_ages(self, pop):
@@ -123,7 +130,7 @@ class Ageing(Base):
                 elif age == "16":
                     oecd_change -= 0.5 # leaving model. remove oecd contribution of 0.5.
                 else:
-                    new_age_chain.append(age)
+                    new_age_chain.append(age) # no oecd contribution change. just add back in.
 
 
             # get new nkids in household under 16.

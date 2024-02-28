@@ -235,6 +235,7 @@ class lmmYJNetIncome(Base):
         """
         # Note ALL THESE OUTGOINGS VALUES ARE TRANSITIONED IN AN ADDITIONAL OUTGOINGS MODULE.
         # When the outgoings model is included these are dynamic. Otherwise, static prices.
+        pop['oecd_equiv'] = pop["oecd_equiv"].apply(lambda x: min(x, 1.0))
         pop["outgoings"] = pop["hh_rent"] + pop["hh_mortgage"] + pop["council_tax"] #+ pop['yearly_energy']
         disposable_income = (pop["net_hh_income"] - pop["outgoings"]) / pop["oecd_equiv"]
         return disposable_income

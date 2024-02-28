@@ -236,6 +236,19 @@ def generate_hh_income(data):
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
 
+    # estimating missing oecd_quiv.
+    who_missing_oecd = data.loc[data['oecd_equiv'] == -9,]
+    who_missing_oecd['oecd_equiv'] = 1.0 # starting adult.
+    who_missing_oecd['n_adults'] = who_missing_oecd.groupby('hidp')['pidp'].transform(len)
+    who_missing_oecd['oecd_equiv'] += (0.5 * who_missing_oecd['n_adults']) # adding 0.5 for all other adults.
+    # TODO this is naive as we don't know chid ages (thats why they're missing in the first place.) but still a good appeoximation.
+    who_missing_oecd['oecd_equiv'] += (0.3 * who_missing_oecd['nkids']) # adding 0.5 for all other adults.
+
+    who_missing_oecd.drop(labels=['n_adults'],
+                               axis=1,
+                               inplace=True)
+    data.loc[data['oecd_equiv'] == -9, 'oecd_equiv'] = who_missing_oecd['oecd_equiv']
+
     # now drop the intermediates
     data.drop(labels=['hh_netinc', 'council_tax_lower', 'council_tax_upper', 'council_tax_draw'],
               axis=1,
