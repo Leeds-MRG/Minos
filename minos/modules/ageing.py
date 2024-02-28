@@ -25,7 +25,8 @@ class Ageing(Base):
                         'age',
                         'nkids',
                         'time',
-                        'child_ages']
+                        'child_ages',
+                        'oecd_equiv']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -55,18 +56,22 @@ class Ageing(Base):
         # do this by getting the oldest ALIVE member of a household and give everyone in the household that age chain.
         population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
         # update children age chains.
-        population = self.update_child_ages(population)
+        newChildAges = self.update_child_ages(population)
 
         # When a child reaches 16 years old and is then removed from the child_ages and nkids columns, the
         # child_ages column is filled with a nan value instead of 'None'
         # Doing this cleanup here because this is causing a mixed type column (strings for age_chains and float for nan)
         #population['child_ages'][population['child_ages'].isna()] = None
 
-        population['nkids'] = population['nkids'].astype(float)
+        newChildAges['nkids'] = newChildAges['nkids'].astype(float)
+        newChildAges['oecd_equiv'] = population['oecd_equiv'] + newChildAges['oecd_change']
+        newChildAges['oecd_equiv'] = newChildAges['oecd_equiv'].astype(float)
+        # oecd has to be at least 1.
+        newChildAges['oecd_equiv'] = newChildAges["oecd_equiv"].apply(lambda x: min(x, 1.0))
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
-        self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
+        self.population_view.update(newChildAges[['age', 'time', 'child_ages', 'nkids', 'oecd_equiv']])
 
 
     def update_child_ages(self, pop):
@@ -86,7 +91,7 @@ class Ageing(Base):
 
 
 
-        pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
+        pop[['child_ages', 'nkids', 'oecd_change']] = pop['age_nkids_tuple'].tolist()
         pop['nkids'] = pop['nkids'].astype(float)
         return pop
 
@@ -102,24 +107,34 @@ class Ageing(Base):
         if age_chain is None:
             age_chain = "childless"
         new_nkids = 0 #  default if no age chain found. assume no children.
+        oecd_change = 0
 
         # if household has no children nothing to do.
         if age_chain != "childless" and age_chain != "-9":
             # split age chain into list of strings of ages ['1', '2', '15'] etc.
             age_chain = age_chain.split("_")
             # incerment all child ages by one year. remove them if they hit 16 years old.
-            age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
+            new_age_chain = []
+            for age in age_chain:
+                age = str(int(age) + 1)
+                if age == "14":
+                    oecd_change += 0.2 # change oecd contribution from 0.3 to 0.5.
+                    new_age_chain.append(age)
+                elif age == "16":
+                    oecd_change -= 0.5 # leaving model. remove oecd contribution of 0.5.
+                else:
+                    new_age_chain.append(age)
+
 
             # get new nkids in household under 16.
-            new_nkids = len(age_chain)
+            new_nkids = len(new_age_chain)
             # If household still has children update age_chain. Otherwise set age chain to childless (None) again.
             if new_nkids > 0:
-
-                age_chain = "_".join(age_chain)
+                age_chain = "_".join(new_age_chain)
             else:
                 age_chain = "childless"
 
-        return age_chain, new_nkids
+        return age_chain, new_nkids, oecd_change
 
     # Special methods for vivarium.
     @property

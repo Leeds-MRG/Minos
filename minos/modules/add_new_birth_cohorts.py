@@ -265,7 +265,15 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
+        view_columns = ['sex',
+                        'ethnicity',
+                        'age',
+                        'nkids',
+                        'nkids_ind',
+                        'hidp',
+                        'pidp',
+                        "child_ages",
+                        "oecd_equiv"]
 
         columns_created = ['has_newborn']
 
@@ -326,6 +334,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children_hidps = population.loc[had_children, 'hidp'] # Get all HIDPs of people who've had children
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
+        population.loc[who_had_children_households, 'oecd_equiv'] += 0.3
         population.loc[who_had_children_households, 'has_newborn'] = True
         population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
 
