@@ -206,15 +206,15 @@ QALY_SCP_100_UC:
 
 QALY_vis_SCP_25_All: QALY_baseline QALY_SCP_25_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='25All'), output_file = 'QALY_SCP_25_All.html')"
-	firefox file://$(OUTCOMES)/QALY_SCP_25_All.html
+	#firefox file://$(OUTCOMES)/QALY_SCP_25_All.html
 
 QALY_vis_SCP_50_All: QALY_baseline QALY_SCP_50_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='50All'), output_file = 'QALY_SCP_50_All.html')"
-	firefox file://$(OUTCOMES)/QALY_SCP_50_All.html
+	#firefox file://$(OUTCOMES)/QALY_SCP_50_All.html
 
 QALY_vis_SCP_100_All: QALY_baseline QALY_SCP_100_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='100All'), output_file = 'QALY_SCP_100_All.html')"
-	firefox file://$(OUTCOMES)/QALY_SCP_100_All.html
+	#firefox file://$(OUTCOMES)/QALY_SCP_100_All.html
 
 QALYs_all_child: QALY_vis_SCP_25_All QALY_vis_SCP_50_All QALY_vis_SCP_100_All
 
@@ -224,14 +224,14 @@ QALYs_all_child: QALY_vis_SCP_25_All QALY_vis_SCP_50_All QALY_vis_SCP_100_All
 
 QALY_vis_SCP_25_UC: QALY_baseline QALY_SCP_25_UC
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='25UniversalCredit'), output_file = 'QALY_SCP_25_UC.html')"
-	firefox file://$(OUTCOMES)/QALY_SCP_25_UC.html
+	#firefox file://$(OUTCOMES)/QALY_SCP_25_UC.html
 
 QALY_vis_SCP_50_UC: QALY_baseline QALY_SCP_50_UC
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='50UniversalCredit'), output_file = 'QALY_SCP_50_UC.html')"
-	firefox file://$(OUTCOMES)/QALY_SCP_50_UC.html
+	#firefox file://$(OUTCOMES)/QALY_SCP_50_UC.html
 
 QALY_vis_SCP_100_UC: QALY_baseline QALY_SCP_100_UC
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='100UniversalCredit'), output_file = 'QALY_SCP_100_UC.html')"
-	firefox file://$(OUTCOMES)/QALY_SCP_50_UC.html
+	#firefox file://$(OUTCOMES)/QALY_SCP_100_UC.html
 
 QALYs_UC: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_100_UC
