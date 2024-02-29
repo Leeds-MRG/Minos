@@ -127,6 +127,22 @@ raw.inc <- raw.dat %>%
 base.inc <- base.dat %>%
   select(pidp, age, time, net_hh_income, hh_rent, hh_mortgage, council_tax, oecd_equiv)
 
+net.income.spag <- rbind(raw.inc, base.inc)
+
+density_ridges(net.income.spag, 'net_hh_income',
+               save=TRUE, 
+               save.path=save.path)
+
+pidp_sample <- sample(unique(net.income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
+net.income.spag.sample <- net.income.spag[which(net.income.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(net.income.spag.sample, 'net_hh_income',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(net.income.spag.sample, 'net_hh_income',
+               save = shall.we.save,
+               save.path = save.path)
+
+
 # net household income. 
 handover_boxplots(raw.inc, base.inc, 'net_hh_income')
 handover_lineplots(raw.inc, base.inc, "net_hh_income")

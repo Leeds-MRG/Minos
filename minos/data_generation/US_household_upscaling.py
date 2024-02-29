@@ -16,7 +16,8 @@ left (right?) merge on hidp might be the simplest way to do this?
 
 
 import pandas as pd
-from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes, get_spatial_attribute_data
+from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes
+from minos.data_generation.US_upscaling import get_spatial_attribute_data, take_exhaustive_synthpop_sample
 import numpy as np
 import US_utils
 import argparse
@@ -40,6 +41,8 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     merged_data = synthpop.merge(msim_data, how='left', on=merge_column)
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
+
+
 
 def get_data_zones(region):
     """
@@ -127,13 +130,25 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
     print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
+    exhasutive_sampled_data = take_exhaustive_synthpop_sample(merged_data, percentage)
+    exhasutive_sampled_data.reset_index(inplace=True, drop=True)
+    exhasutive_sampled_data['hidp'] *= 1e11
+
+    sampled_data = pd.concat([sampled_data, exhasutive_sampled_data])
+    sampled_data.reset_index(inplace=True, drop=True)
+    sampled_data['pidp'] = sampled_data.index
 
     # merge with spatial_attributes
     # get simd_deciles
-    sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+    # only works for scotland? could get regular imd for UK.
+    if region in ['scotland', 'glasgow', 'edinburgh']:
+        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
+
+    # why is this changing heating data type reeeee.
+    sampled_data['heating'] = sampled_data['heating'].astype(int)
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
     US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)

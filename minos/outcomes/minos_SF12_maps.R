@@ -19,14 +19,14 @@ subset_geojson <- function(data, subset_function){
 }
 
 sheffield_lsoa_subset_function <- function(data){
-  lsoas <- read.csv("persistent_data/sheffield_lsoas.csv")
+  lsoas <- read.csv("persistent_data/spatial_data/sheffield_lsoas.csv")
   lsoas <- lsoas$x # just take needed lsoa column
   return(subset(data, ZoneID %in% lsoas))
 }
 
 
 manchestser_lsoa_subset_function <- function(data){
-  lsoas <- read.csv("persistent_data/manchester_lsoas.csv")
+  lsoas <- read.csv("persistent_data/spatial_data/manchester_lsoas.csv")
   lsoas <- lsoas$x # just take needed lsoa column.
   return(subset(data, ZoneID %in% lsoas))
 }
@@ -78,7 +78,12 @@ calculate_diff <-function(data1, data2, v){
 calculate_relative_diff <-function(data1, data2, v){
   # for two data frames with some shared column v.
   # add data2$v - data1$v to data1 as diff.
-  data1$diff <- ((data2[[v]] - data1[[v]]) / data1[[v]])
+  data1$v1 <- data1[[v]]
+  data2$v2 <- data2[[v]]
+  data1 <- merge(data1, data2, by="ZoneID")
+  data1$geometry <- data1$geometry.x
+  #data1$diff <- ((data2[[v]] - data1[[v]]) / data1[[v]])
+  data1$diff <- ((data1$v2 - data1$v1) / data1$v1)
   return(data1)
 }
 
@@ -124,6 +129,7 @@ minos_diff_map <- function(data, destination_file_name, v, do_save=T){
   # similar to minos map above but compares results from two interventions.
   # uses a different purple-orange colour scale centered about 0 to better
   # show off positive/negative values.
+  browser()
   c.min <- min(data$diff) # calculate range of data for colour maps and scale.
   c.max <- max(data$diff)
   scale_limit <- max(abs(c.min), abs(c.max))
@@ -220,7 +226,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
 
-
+  browser()
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)
   minos_diff_map(data1, destination_file_name, v)

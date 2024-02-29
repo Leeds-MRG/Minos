@@ -501,7 +501,7 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
     base = rpy2Modules['base']
     stats = rpy2Modules['stats']
     GLMMAdaptive = rpy2Modules['GLMMadaptive']
-    n = current.shape[0]
+    #n = current.shape[0]
 
     # grab transition model
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -511,8 +511,18 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
     # count determines values if they actually drink
     # zero determine probability of them not drinking
 
-    counts = stats.predict(model, currentRDF, type="subject_specific")
-    zeros = counts.do_slot("zi_probs")
+    #only fit subject_specific counts model to non-zero responses. its veryxpensive.
+    zeros = stats.predict(model, newdata=currentRDF, type="zero_part")
+    is_non_zero_value = np.random.uniform(size=len(zeros)) >= zeros
+
+    non_zero_current = current.loc[is_non_zero_value, ]
+    n = non_zero_current.shape[0]
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        nonZeroCurrentRDF = ro.conversion.py2rpy(non_zero_current)
+
+    counts = stats.predict(model, newdata = nonZeroCurrentRDF, type_pred='response', type="subject_specific", cores=8)
+    #zeros = counts.do_slot("zi_probs")
     #zeros = stats.predict(model, currentRDF, type="zero_part")
 
     if noise_std:
@@ -520,13 +530,15 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         counts = ro.conversion.rpy2py(counts)
-        zeros = ro.conversion.rpy2py(zeros)
+        #zeros = ro.conversion.rpy2py(zeros)
 
 
     # draw randomly if a person drinks
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
-    preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
+    #preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
+    preds = np.zeros(shape=current.shape[0])
+    preds[is_non_zero_value, ] = counts
     #return np.ceil(preds)
     return preds
 

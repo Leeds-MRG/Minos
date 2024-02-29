@@ -160,7 +160,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['net_hh_income'] -= 175
 
         newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform("mean")
-        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 12000)
+        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 30000)
 
 
         newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
@@ -185,8 +185,10 @@ class lmmYJNetIncome(Base):
 
         income_mean = np.median(newWavenetIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income']) / np.std(newWavenetIncome["hh_income"]))
-        newWavenetIncome["hh_income"] *= std_ratio
-        newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        #newWavenetIncome["hh_income"] *= std_ratio
+        #newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        #newWavenetIncome['hh_income'] = newWavenetIncome['hh_income'].clip(-2500, 6000)
+        #newWavenetIncome['hh_income'] -= 250
 
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
         newWavenetIncome['FP10'] = (newWavenetIncome['yearly_energy'] / newWavenetIncome['hh_income'] > 0.1)
@@ -213,7 +215,7 @@ class lmmYJNetIncome(Base):
                                                                           dependent='net_hh_income_new',
                                                                           yeo_johnson=True,
                                                                           reflect=False,
-                                                                          noise_std=3)  # 0.45 for yj. 100? for non yj.
+                                                                          noise_std=10)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -235,7 +237,6 @@ class lmmYJNetIncome(Base):
         """
         # Note ALL THESE OUTGOINGS VALUES ARE TRANSITIONED IN AN ADDITIONAL OUTGOINGS MODULE.
         # When the outgoings model is included these are dynamic. Otherwise, static prices.
-        pop['oecd_equiv'] = pop["oecd_equiv"].apply(lambda x: min(x, 1.0))
         pop["outgoings"] = pop["hh_rent"] + pop["hh_mortgage"] + pop["council_tax"] #+ pop['yearly_energy']
         disposable_income = (pop["net_hh_income"] - pop["outgoings"]) / pop["oecd_equiv"]
         return disposable_income

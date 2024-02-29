@@ -177,10 +177,10 @@ class lmmYJOutgoings(Base):
         newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 10000)
         newWaveMortgage['hh_mortgage'] = newWaveMortgage.groupby('hidp')['hh_mortgage'].transform(np.max)
 
-        newWaveMortgage['hh_mortgage'] += 75
+        newWaveMortgage['hh_mortgage'] += 50
 
         mortgage_mean = np.mean(newWaveMortgage["hh_mortgage"])
-        std_ratio = (np.std(pop['hh_mortgage']) / np.std(newWaveMortgage["hh_mortgage"]))
+        std_ratio = (np.std(pop['hh_mortgage'] + 1) / np.std(newWaveMortgage["hh_mortgage"]))
         newWaveMortgage["hh_mortgage"] *= std_ratio
         newWaveMortgage["hh_mortgage"] -= ((std_ratio - 1) * mortgage_mean)
 
