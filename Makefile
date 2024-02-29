@@ -143,9 +143,9 @@ include minos/transitions/Makefile # transitions Makefile
 include scripts/Makefile # running minos Makefile
 include minos/outcomes/Makefile # plotting makefile
 include minos/validation/Makefile # validation scripts
-include minos/outcomes/Makefile.maps  # mapping functions
-include minos/outcomes/Makefile.QALY  # QALY calculations and vis
-include scripts/Makefile.SCP  # SCP intervention scenarios
+include minos/outcomes/maps.Makefile  # mapping functions
+include minos/outcomes/QALY.Makefile  # QALY calculations and vis
+include scripts/SCP.Makefile  # SCP intervention scenarios
 #include docsrc/Makefile # sphinx makefile
 
 

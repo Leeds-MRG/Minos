@@ -209,7 +209,7 @@ arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_25_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_25All arc4_intervention_25UniversalCredit
 
 
-
+arc4_qaly_SCPs: setup
 arc4_qaly_SCPs: MODE=default_config
 arc4_qaly_SCPs: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_qaly_SCPs: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_100All
