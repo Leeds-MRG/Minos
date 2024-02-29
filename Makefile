@@ -127,6 +127,9 @@ setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
+setup_manchester_scaled: install synthetic_manchester_data transitions_default synthetic_manchester_repl
+
+
 #####################################
 ### ADDITIONAL MAKEFILES
 #####################################

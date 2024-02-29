@@ -163,6 +163,23 @@ intervention_energyDownLift_uk: setup_uk_scaled
 intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'energyDownliftNoSupport'
 
+####################################################
+# Local MINOS runs using the manchester population #
+####################################################
+
+manchester_baseline: setup_manchester_scaled
+manchester_baseline: RUN_CONFIG = default/energy_manchester_scaled.yaml
+manchester_baseline: MODE=energy_manchester_scaled
+manchester_baseline: 
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+
+manchester_intervention_goodHeatingDummy: setup_manchester_scaled
+manchester_intervention_goodHeatingDummy: RUN_CONFIG = default/energy_manchester_scaled.yaml
+manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled
+manchester_intervention_goodHeatingDummy:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
+
+
 
 #####################################
 ## Running MINOS scenarios on Arc4
