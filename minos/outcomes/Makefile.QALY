@@ -145,12 +145,26 @@ QALY_comparison_livingWage_uk: QALY_baseline_uk QALY_livwage_uk
 
 
 ############################################################################################
-# Scottish Child Payment Interventions
+# Scottish Child Payment
 ############################################################################################
 
-QALY_SCP_25_UC: MODE=default_config
-QALY_SCP_25_UC: INTERVENTION=25UniversalCredit
-QALY_SCP_25_UC:
+#####################################
+# All Child
+#####################################
+
+QALY_SCP_25_All: MODE=default_config
+QALY_SCP_25_All: INTERVENTION=25All
+QALY_SCP_25_All:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_SCP_50_All: MODE=default_config
+QALY_SCP_50_All: INTERVENTION=50All
+QALY_SCP_50_All:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_SCP_75_All: MODE=default_config
+QALY_SCP_75_All: INTERVENTION=75All
+QALY_SCP_75_All:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_SCP_100_All: MODE=default_config
@@ -158,6 +172,58 @@ QALY_SCP_100_All: INTERVENTION=100All
 QALY_SCP_100_All:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_vis_SCP_100_All:
-    $(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', output_file='QALY_SCP_100_All.html', param=list(experiment='default_config/', base='baseline', intervention='100All'))"
-    firefox file://$(OUTCOMES)/QALY_SCP_100_All.html
+#####################################
+# Universal Credit
+#####################################
+
+QALY_SCP_25_UC: MODE=default_config
+QALY_SCP_25_UC: INTERVENTION=25UniversalCredit
+QALY_SCP_25_UC:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_SCP_50_UC: MODE=default_config
+QALY_SCP_50_UC: INTERVENTION=50UniversalCredit
+QALY_SCP_50_UC:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_SCP_75_UC: MODE=default_config
+QALY_SCP_75_UC: INTERVENTION=75UniversalCredit
+QALY_SCP_75_UC:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_SCP_100_UC: MODE=default_config
+QALY_SCP_100_UC: INTERVENTION=100UniversalCredit
+QALY_SCP_100_UC:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+#####################################
+# VISUALISATIONS
+#####################################
+
+##################
+# All Child
+##################
+
+QALY_vis_SCP_25_All: QALY_baseline QALY_SCP_25_All
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='25All'), output_file = 'QALY_SCP_25_All.html')"
+	firefox file://$(OUTCOMES)/QALY_SCP_25_All.html
+
+QALY_vis_SCP_50_All: QALY_baseline QALY_SCP_50_All
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='50All'), output_file = 'QALY_SCP_50_All.html')"
+	firefox file://$(OUTCOMES)/QALY_SCP_50_All.html
+
+QALY_vis_SCP_100_All: QALY_baseline QALY_SCP_100_All
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='100All'), output_file = 'QALY_SCP_100_All.html')"
+	firefox file://$(OUTCOMES)/QALY_SCP_100_All.html
+
+##################
+# Universal Credit
+##################
+
+QALY_vis_SCP_25_UC: QALY_baseline QALY_SCP_25_UC
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='25UniversalCredit'), output_file = 'QALY_SCP_25_UC.html')"
+	firefox file://$(OUTCOMES)/QALY_SCP_25_UC.html
+
+QALY_vis_SCP_50_UC: QALY_baseline QALY_SCP_50_UC
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(intervention='50UniversalCredit'), output_file = 'QALY_SCP_50_UC.html')"
+	firefox file://$(OUTCOMES)/QALY_SCP_50_UC.html

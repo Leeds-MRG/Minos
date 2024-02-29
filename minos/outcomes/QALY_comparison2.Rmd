@@ -1,9 +1,9 @@
 ---
 params:
-  experiment: ''
-  base: ''
-  intervention: ''
-title: "QALY Comparisons - r`experiment` - r`intervention` - r`baseline`"
+  experiment: 'default_config/'
+  base: 'baseline'
+  intervention: '50All'
+title: "QALY Comparisons - `r params$experiment` - `r params$intervention` - `r params$baseline`"
 output:
   html_document:
     toc: true
@@ -42,13 +42,13 @@ source(here::here('minos', 'utils_qaly.R'))
 ## Parameters
 
 ```{r}
-# experiment <- params$experiment
-# base <- params$base
-# intervention <- params$intervention
-
-experiment <- 'default_config'
-baseline <- 'baseline'
-intervention <- '100All'
+experiment <- params$experiment
+baseline <- params$base
+intervention <- params$intervention
+# 
+# experiment <- 'default_config'
+# baseline <- 'baseline'
+# intervention <- '100All'
 ```
 
 
