@@ -172,7 +172,8 @@ clean_out:
 clean_logs: ### Remove log files (including test.log, slurm, and arc logs)
 clean_logs:
 	rm -rf test.log
-	rm -rf logs/*
+	rm -rf logs/log/*
+	rm -rf logs/errors/*
 
 clean_transitions: ### Remove model .rds files
 clean_transitions:
