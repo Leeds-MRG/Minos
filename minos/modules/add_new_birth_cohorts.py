@@ -198,8 +198,6 @@ class FertilityAgeSpecificRates(Base):
         return "FertilityAgeSpecificRates()"
 
 
-
-
 class nkidsFertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
@@ -263,7 +261,7 @@ class nkidsFertilityAgeSpecificRates(Base):
                                                                    requires_columns=['sex', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
-        self.randomness = builder.randomness.get_stream('fertility')
+        self.randomness = builder.randomness.get_stream(self.generate_random_crn_key())
 
         view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
 
