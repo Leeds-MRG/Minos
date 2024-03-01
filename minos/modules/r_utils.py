@@ -519,9 +519,9 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
     n = non_zero_current.shape[0]
 
     with localconverter(ro.default_converter + pandas2ri.converter):
-        nonZeroCurrentRDF = ro.conversion.py2rpy(non_zero_current)
+        CurrentRDF = ro.conversion.py2rpy(non_zero_current)
 
-    counts = stats.predict(model, newdata = nonZeroCurrentRDF, type_pred='response', type="subject_specific", cores=8)
+    counts = stats.predict(model, newdata = CurrentRDF, type_pred='response', type="subject_specific", cores=8)
     #zeros = counts.do_slot("zi_probs")
     #zeros = stats.predict(model, currentRDF, type="zero_part")
 

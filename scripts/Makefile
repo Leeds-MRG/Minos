@@ -170,7 +170,7 @@ intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
 manchester_baseline: setup_manchester_scaled
 manchester_baseline: RUN_CONFIG = default/energy_manchester_scaled.yaml
 manchester_baseline: MODE=energy_manchester_scaled
-manchester_baseline: 
+manchester_baseline:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
 manchester_intervention_goodHeatingDummy: setup_manchester_scaled
