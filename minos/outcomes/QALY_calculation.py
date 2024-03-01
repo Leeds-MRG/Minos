@@ -19,7 +19,7 @@ import glob as glob
 import minos.utils as utils
 
 
-def aggregate_csv(filename, intervention):
+def aggregate_csv(filename, intervention, year, start_year):
     """
 
     Parameters
@@ -56,7 +56,11 @@ def aggregate_csv(filename, intervention):
     # from both of these pieces of information we can calculate incidence of mortality
     total_pop_size = len(df)
     alive_pop = df['alive'].value_counts()['alive']
-    dead_pop = df['alive'].value_counts()['dead']
+    # no dead people in first wave
+    if year == start_year:
+        dead_pop = 0
+    else:
+        dead_pop = df['alive'].value_counts()['dead']
 
     # to investigate the mortality rate we can look at the ratio of dead to alive and compare across years
     alive_ratio = (alive_pop / total_pop_size) * 100
@@ -141,7 +145,7 @@ def main(mode, intervention):
 
         # aggregate the files using multiprocessing
         with Pool() as pool:
-            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention)))
+            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention), repeat(year), repeat(start_year)))
 
         new_df = pd.DataFrame(aggregated_means)
         new_df.columns = ['run_id', 'alive_pop', 'dead_pop', 'total_pop_size', 'pop_boosted', 'total_boost', 'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
