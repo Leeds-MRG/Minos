@@ -14,7 +14,7 @@ import yaml
 from multiprocessing import Pool
 from itertools import repeat
 import glob as glob
-from aggregate_subset_functions import dynamic_subset_function
+#from aggregate_subset_functions import dynamic_subset_function
 
 import minos.utils as utils
 
@@ -136,7 +136,7 @@ def main(mode, intervention):
 
     combined_output = pd.DataFrame()
     # use multiprocessing to read in files and aggregating
-    for year in years+1:
+    for year in years:
         files = glob.glob(os.path.join(batch_source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
 
         # aggregate the files using multiprocessing
