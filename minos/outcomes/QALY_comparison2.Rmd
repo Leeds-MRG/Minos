@@ -25,7 +25,8 @@ require(here)
 require(MESS)
 require(scales)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_SCP_28Feb/QALY_analysis_SCP_test/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_SCP_28Feb/QALY_analysis_SCP_test/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/tmp/"
 #workingDir <- normalizePath('../')
 knitr::opts_knit$set(root.dir = workingDir)
 knitr::opts_chunk$set(
@@ -45,43 +46,45 @@ source(here::here(source_dir, 'utils_qaly.R'))
 ## Parameters
 
 ```{r}
-experiment <- params$experiment
-baseline <- params$base
-intervention <- params$intervention
+# experiment <- params$experiment
+# baseline <- params$base
+# intervention <- params$intervention
 # 
 # experiment <- 'default_config'
 # baseline <- 'baseline'
 # intervention <- '100All'
+
+list.files()
 ```
 
 
 ## Data
 
 ```{r}
-# read in QALY files for baseline and interventions
-out.path <- here::here('output', experiment)
-
-base.path <- get_latest_runtime_subdirectory(here::here(out.path, baseline))
-int.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention))
-
-base <- read.csv(paste0(base.path, 'qalys.csv'))
-int <- read.csv(paste0(int.path, 'qalys.csv'))
-
-# combine the dataframes
-combined <- rbind(base, int)
+# # read in QALY files for baseline and interventions
+# out.path <- here::here('output', experiment)
+# 
+# base.path <- get_latest_runtime_subdirectory(here::here(out.path, baseline))
+# int.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention))
+# 
+# base <- read.csv(paste0(base.path, 'qalys.csv'))
+# int <- read.csv(paste0(int.path, 'qalys.csv'))
+# 
+# # combine the dataframes
+# combined <- rbind(base, int)
 ```
 
 
 
 TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
 ```{r}
-# base <- read.csv('qalys_baseline.csv')
-# int <- read.csv('qalys_25All.csv')
-# 
-# combined <- rbind(base, int)
-# 
-# baseline <- 'baseline'
-# intervention <- '25All'
+base <- read.csv('qalys_base.csv')
+int <- read.csv('qalys_25All.csv')
+
+combined <- rbind(base, int)
+
+baseline <- 'baseline'
+intervention <- '25All'
 ```
 TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
 
@@ -188,7 +191,6 @@ ICER(base = base,
      int.label = intervention)
 ```
 
-
 # Total Cost of Intervention
 
 ```{r}
@@ -200,4 +202,8 @@ intervention.cost(base = base,
 ```
 
 
+
+```{r}
+
+```
 

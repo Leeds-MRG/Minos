@@ -384,7 +384,7 @@ cost.per.qaly.smooth <- function(base, base.name, int, int.name, QALY_value, int
 # Incremental Cost Effective Ratio (ICER)
 ##############################################################################
 
-ICER <- function(base, base.name, int, int.name, QALY_value, int.label) {
+ICER <- function(base, base.name, int, int.name, QALY_value, int.label, start.year = 2021) {
   combined <- rbind(base, int)
   
   combined.cost.mean <- combined %>%
@@ -413,6 +413,11 @@ ICER <- function(base, base.name, int, int.name, QALY_value, int.label) {
     mutate(ICER = (.data[[c1]] - .data[[c0]]) / (.data[[e1]] - .data[[e0]])) %>%
     select(run_id, year, ICER) %>%
     mutate(intervention = int.label)
+  
+  # No intervention in first year so can't calculate ICER
+  #TODO: Find start year automatically
+  ICER <- ICER %>%
+    filter(year != start.year)
   
   ICER.plot <- ICER %>%
     group_by(year, intervention) %>%
