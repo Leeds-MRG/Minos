@@ -159,8 +159,8 @@ intervention_components_map = {        #Interventions
 intervention_kwargs_dict = {
     "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
     "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 75, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 100, "uplift_condition": "who_kids"},
 
     "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
     "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},

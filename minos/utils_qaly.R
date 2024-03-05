@@ -221,7 +221,7 @@ auc.plots <- function(base, base.name, intervention, int.name) {
   p1 <- ggplot(data = combined.auc.plot, aes(x = intervention, y = AUC, group = intervention, fill = intervention)) +
     geom_col() +
     geom_errorbar(aes(ymin = AUC - margin, ymax = AUC + margin, width = 0.4, group = intervention)) +
-    coord_cartesian(ylim = c(max(combined.auc.plot$AUC) - (0.001 * max(combined.auc.plot$AUC)), max(combined.auc.plot$AUC) + (0.0005 * max(combined.auc.plot$AUC)))) +
+    coord_cartesian(ylim = c(min(combined.auc.plot$AUC) - max(combined.auc.plot$margin), max(combined.auc.plot$AUC) + max(combined.auc.plot$margin))) +
     labs(title = 'Total AUC comparison', subtitle = paste0(int.name, ' vs ', base.name)) +
     xlab('Intervention')
   print(p1)
