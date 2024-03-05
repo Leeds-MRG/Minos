@@ -46,13 +46,13 @@ source(here::here('minos', 'utils_qaly.R'))
 ## Parameters
 
 ```{r}
-# experiment <- params$experiment
-# baseline <- params$base
-# intervention <- params$intervention
+experiment <- params$experiment
+baseline <- params$base
+intervention <- params$intervention
 # 
-experiment <- 'default_config'
-baseline <- 'baseline'
-intervention <- '50All'
+# experiment <- 'default_config'
+# baseline <- 'baseline'
+# intervention <- '50All'
 ```
 
 
@@ -97,7 +97,7 @@ combined.pop_boosted <- combined %>%
   group_by(year, run_id, intervention) %>%
   summarise(pop_boosted = sum(pop_boosted))
 
-print(paste("There are", sum(is.na(combined.pop.boosted$pop_boosted)), "NA pop_boosted values in combined.pop.boosted.", sep = ' '))
+print(paste("There are", sum(is.na(combined.pop_boosted$pop_boosted)), "NA pop_boosted values in combined.pop.boosted.", sep = ' '))
 
 ggplot(combined.pop_boosted, aes(x = year, y = pop_boosted, group = intervention, colour = intervention)) +
   geom_smooth() +
