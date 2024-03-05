@@ -327,6 +327,8 @@ cost.per.qaly <- function(base, base.name, int, int.name, QALY_value, int.label)
     labs(title = 'Total Change in QALY Value', subtitle = paste0(int.name, ' vs ', base.name)) +
     xlab('Intervention')
   print(p3)
+  
+  print(paste("QALY value change across full simulation: ", format(total.combined.cost$TotalChange[1], big.mark = ',', trim = TRUE), sep = ' '))
 }
 
 cost.per.qaly.smooth <- function(base, base.name, int, int.name, QALY_value, int.label) {
@@ -378,6 +380,8 @@ cost.per.qaly.smooth <- function(base, base.name, int, int.name, QALY_value, int
     labs(title = 'Total Change in QALY Value', subtitle = paste0(int.name, ' vs ', base.name)) +
     xlab('Intervention')
   print(p3)
+  
+  print(paste("QALY value change across full simulation: ", format(total.combined.cost$TotalChange[1], big.mark = ',', trim = TRUE), sep = ' '))
 }
 
 ##############################################################################
@@ -473,7 +477,7 @@ ICER <- function(base, base.name, int, int.name, QALY_value, int.label, start.ye
     xlab('Intervention')
   print(p3)
   
-  print(paste0('ICER == ', ICER.final$ICER, ' +- ', ICER.final$margin))
+  print(paste0('ICER == ', format(ICER.final$ICER, big.mark = ',', trim = TRUE), ' +- ', format(ICER.final$margin, big.mark = ',', trim = TRUE)))
 }
 
 ICER.smooth <- function(base, base.name, int, int.name, QALY_value, int.label) {
@@ -538,7 +542,7 @@ ICER.smooth <- function(base, base.name, int, int.name, QALY_value, int.label) {
     xlab('Intervention')
   print(p2)
   
-  print(paste0('ICER == ', ICER.final$ICER, ' +- ', ICER.final$margin))
+  print(paste0('ICER == ', format(ICER.final$ICER, big.mark = ',', trim = TRUE), ' +- ', format(ICER.final$margin, big.mark = ',', trim = TRUE)))
 }
 
 ##############################################################################
@@ -570,10 +574,13 @@ intervention.cost <- function(base, base.name, int, int.name, int.label) {
     labs(title = 'Intervention Cost by Year', subtitle = paste0(int.name, ' vs ', base.name))
   print(p2)
   
-  total.cost.2021 <- total.cost.byYear %>%
-    filter(year == 2021)
+  total.cost.firstYr <- total.cost.byYear %>%
+    filter(year == 2022)
   
-  print(paste("Cost of intervention in the first year (2021) ==", total.cost.2021$cost_difference, sep = ' '))
+  print(paste("Cost of intervention in the first year (2022) ==", format(total.cost.firstYr$cost_difference[1],
+                                                                         big.mark = ',',
+                                                                         trim = TRUE), 
+              sep = ' '))
   
   total.cost <- total.cost.byYear %>%
     group_by(intervention, run_id) %>%
@@ -589,7 +596,10 @@ intervention.cost <- function(base, base.name, int, int.name, int.label) {
     scale_y_continuous(label = comma)
   print(p1)
   
-  print(paste("Total cost of the intervention over the full simulation (2020-2035) ==", total.cost$cost_difference, sep = ' '))
+  print(paste("Total cost of the intervention over the full simulation (2020-2035) ==", format(total.cost$cost_difference,
+                                                                                               big.mark = ',',
+                                                                                               trim = TRUE), 
+              sep = ' '))
 }
 
 intervention.cost.smooth <- function(base, base.name, int, int.name, int.label) {
@@ -610,10 +620,13 @@ intervention.cost.smooth <- function(base, base.name, int, int.name, int.label) 
     labs(title = 'Intervention Cost by Year', subtitle = paste0(int.name, ' vs ', base.name))
   print(p2)
   
-  total.cost.2021 <- total.cost.byYear %>%
-    filter(year == 2021)
+  total.cost.firstYr <- total.cost.byYear %>%
+    filter(year == 2022)
   
-  print(paste("Cost of intervention in the first year (2021) ==", total.cost.2021$cost_difference, sep = ' '))
+  print(paste("Cost of intervention in the first year (2022) ==", format(total.cost.firstYr$cost_difference[1], 
+                                                                         big.mark = ',', 
+                                                                         trim = TRUE), 
+              sep = ' '))
   
   total.cost <- total.cost.byYear %>%
     group_by(intervention, run_id) %>%
@@ -629,5 +642,8 @@ intervention.cost.smooth <- function(base, base.name, int, int.name, int.label) 
     scale_y_continuous(label = comma)
   print(p1)
   
-  print(paste("Total cost of the intervention over the full simulation (2020-2035) ==", total.cost$cost_difference, sep = ' '))
+  print(paste("Total cost of the intervention over the full simulation (2020-2035) ==", format(total.cost$cost_difference[1],
+                                                                                               big.mark = ',',
+                                                                                               trim = TRUE), 
+              sep = ' '))
 }
