@@ -141,10 +141,10 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   #test <- round(test*(predict(model, type='count')))
   #model[[depend]] <- data[[depend]]
   #model$class_preds <- predict(model)
-  #model$cov_matrix <- vcov(model)
-  #number_count_terms <- length(model$coefficients$count)
-  #model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
-  #model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
+  model$cov_matrix <- vcov(model)
+  number_count_terms <- length(model$coefficients$count)
+  model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
+  model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
@@ -187,7 +187,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
-  browser()
+  #browser()
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
@@ -264,7 +264,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   }
   attr(model,"min_value") <- min_value
   
-  browser()
+  #browser()
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.

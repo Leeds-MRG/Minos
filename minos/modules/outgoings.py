@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 from seaborn import histplot
 import numpy as np
 import logging
+import os
 
 class lmmYJOutgoings(Base):
 
@@ -383,15 +384,15 @@ class energyBills(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=0)
 
-        self.historic_yearly_electric = pd.read_csv("data/transitions/energy_prices/solid_historic.csv")
-        self.historic_yearly_gas = pd.read_csv("data/transitions/energy_prices/gas_historic.csv")
-        self.historic_yearly_solid = pd.read_csv("data/transitions/energy_prices/solid_historic.csv")
-        self.historic_yearly_liquid = pd.read_csv("data/transitions/energy_prices/liquid_historic.csv")
+        self.historic_yearly_electric = pd.read_csv("persistent_data/energy_prices/solid_historic.csv")
+        self.historic_yearly_gas = pd.read_csv("persistent_data/energy_prices/gas_historic.csv")
+        self.historic_yearly_solid = pd.read_csv("persistent_data/energy_prices/solid_historic.csv")
+        self.historic_yearly_liquid = pd.read_csv("persistent_data/energy_prices/liquid_historic.csv")
 
-        self.forecasted_yearly_electric = pd.read_csv("data/transitions/energy_prices/electric_arima.csv")
-        self.forecasted_yearly_gas = pd.read_csv("data/transitions/energy_prices/gas_arima.csv")
-        self.forecasted_yearly_solid = pd.read_csv("data/transitions/energy_prices/solid_arima.csv")
-        self.forecasted_yearly_liquid = pd.read_csv("data/transitions/energy_prices/liquid_arima.csv")
+        self.forecasted_yearly_electric = pd.read_csv("persistent_data/energy_prices/electric_arima.csv")
+        self.forecasted_yearly_gas = pd.read_csv("persistent_data/energy_prices/gas_arima.csv")
+        self.forecasted_yearly_solid = pd.read_csv("persistent_data/energy_prices/solid_arima.csv")
+        self.forecasted_yearly_liquid = pd.read_csv("persistent_data/energy_prices/liquid_arima.csv")
 
         # calculate change in energy price relative to 2020 baseline.
         self.electric_reference = self.historic_yearly_electric.iloc[30]['x']

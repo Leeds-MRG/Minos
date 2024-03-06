@@ -1,0 +1,104 @@
+library(forecast)
+library(ggfortify)
+library(readxl)
+library(tidyr)
+source("minos/transitions/utils.R")
+
+process_input_data <- function(dataset, data.column, new.name){
+  
+  subvector <- dataset[, c(data.column)]
+  subvector <- drop_na(subvector)
+  colnames(subvector) <- c(new.name)
+  return(subvector)
+}
+#energy_data <- readxl::read_xlsx("../data/energy_prices_simpler.xlsx")
+## primary energy material sources. fuel and motor oil omitted due to no UKHLS data. 
+#electricity_vector <- process_input_data(energy_data, "Real terms price indices: Electricity [Note 3]", 'electricity')
+#gas_vector <- process_input_data(energy_data, "Real terms price indices: Gas [Note 3]", "gas")
+#solid_fuel_vector <- process_input_data(energy_data, "Real terms price indices: Solid fuels [Note 3]", "solid_fuel")
+#liquid_fuel_vector <- process_input_data(energy_data, "Real terms price indices: Liquid fuels [Note 3]", "liquid_fuel")
+energy_data <- readxl::read_xlsx("../data/energy_prices_simpler_yearly.xlsx")
+# primary energy material sources. fuel and motor oil omitted due to no UKHLS data. 
+electricity_vector <- process_input_data(energy_data, "Real price indices: Electricity [Note 3]", 'electricity')
+gas_vector <- process_input_data(energy_data, "Real price indices: Gas [Note 3]", "gas")
+solid_fuel_vector <- process_input_data(energy_data, "Real price indices: Solid fuels [Note 3]", "solid_fuel")
+liquid_fuel_vector <- process_input_data(energy_data, "Real price indices: Liquid fuels [Note 3]", "liquid_fuel")
+# aggregate of the above 4. 
+#domestic_fuel_vector <- process_input_data(energy_data, "Real terms price indices: Domestic fuels\r\n[Note 1, 3]", "domestic_fuel")
+plot(electricity_vector$electricity, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Electricity Price indices"), main="Electricity")
+plot(gas_vector$gas, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Gas Price indices"), main="Gas")
+plot(solid_fuel_vector$solid_fuel, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Solid Fuel Price indices"), main="Solid Fuel (Coal)")
+plot(liquid_fuel_vector$liquid_fuel, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Liquid Fuel Price indices"), main="Liquid Fuel (Petroleum, Diesel, LPG, Heating Oil)")
+#plot(domestic_fuel_vector$domestic_fuel, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Demostrict Fuel Price indices"), main="Domestic Fuel #(Heating Oil)")
+
+electric.series <- electricity_vector$electricity #+ rnorm(length(electric.series))
+# ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
+acf(electric.series)
+acf(diff(electric.series))
+pacf(electric.series)
+#arima.electric 
+#m1 <- auto.arima(electric.series)
+m1 <- arima(electric.series, order=c(5, 0, 1))
+print(m1)
+#Box.test(residuals(m1), type="Ljung-Box")
+plot(residuals(m1))
+autoplot(forecast(m1, 40))
+checkresiduals(m1)
+print(m1$aic)
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
+
+
+gas.series <- gas_vector$gas
+# ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
+acf(gas.series)
+acf(diff(gas.series))
+pacf(gas.series)
+#arima.electric 
+m2 <- arima(gas.series, order=c(4, 0 ,1))
+#Box.test(residuals(m1), type="Ljung-Box")
+plot(residuals(m2))
+autoplot(forecast(m2, 15))
+checkresiduals(m2)
+print(m2$aic)
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
+
+
+solid.series <- solid_fuel_vector$solid_fuel
+# ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
+acf(solid.series)
+acf(diff(solid.series))
+pacf(solid.series)
+#arima.electric 
+m3 <- arima(solid.series, order=c(5, 0 ,1))
+#Box.test(residuals(m1), type="Ljung-Box")
+plot(residuals(m3))
+autoplot(forecast(m3, 15))
+checkresiduals(m3)
+print(m3$aic)
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
+
+
+liquid.series <- liquid_fuel_vector$liquid_fuel
+# ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
+acf(liquid.series)
+acf(diff(liquid.series))
+pacf(liquid.series)
+#arima.electric 
+m4 <- arima(gas.series, order=c(5, 0 ,1))
+#Box.test(residuals(m1), type="Ljung-Box")
+plot(residuals(m4))
+autoplot(forecast(m4,15))
+checkresiduals(m4)
+print(m4$aic)
+# residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
+
+# saving data to R objects for use in MINOS
+create.if.not.exists("persistent_data/energy_prices/")
+write.csv(electric.series, "persistent_data/energy_prices/solid_historic.csv")
+write.csv(gas.series, "persistent_data/energy_prices/gas_historic.csv")
+write.csv(solid.series, "persistent_data/energy_prices/solid_historic.csv")
+write.csv(liquid.series, "persistent_data/energy_prices/liquid_historic.csv")
+write.csv(forecast(m1, 15), "persistent_data/energy_prices/electric_arima.csv")
+write.csv(forecast(m2, 15), "persistent_data/energy_prices/gas_arima.csv")
+write.csv(forecast(m3, 15), "persistent_data/energy_prices/solid_arima.csv")
+write.csv(forecast(m4, 15), "persistent_data/energy_prices/liquid_arima.csv")
