@@ -365,7 +365,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # need to add tiny value to the 0 MCS values as this causes problems in log transform
     if dependent == "SF_12_MCS":
-        current.loc[current[dependent] == 0.0, dependent] = current.loc[current[dependent] == 0.0, dependent] + 0.01
+        current.loc[current[dependent] <= 0.0, dependent] = 0.01
 
 
     # Convert from pandas to R using package converter

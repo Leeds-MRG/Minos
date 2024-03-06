@@ -560,7 +560,7 @@ class lmmYJMWB(Base):
                                                                     pop,
                                                                     dependent='SF_12_MCS',
                                                                     log_transform=True,
-                                                                    noise_std=0.025)  #
+                                                                    noise_std=3)  #
 
         return nextWaveMWB
 

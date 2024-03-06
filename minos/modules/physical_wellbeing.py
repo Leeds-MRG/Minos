@@ -135,7 +135,10 @@ class SF_12_PCS(Base):
 
 
 class lmmYJPCS(Base):
-    """Mental Well-Being Module"""
+    """
+    Physical Well-Being Module
+    """
+
     # Special methods used by vivarium.
     @property
     def name(self):
@@ -192,8 +195,6 @@ class lmmYJPCS(Base):
                         'financial_situation',
                         'active',
                         'auditc',
-                        'chron_disease',
-                        'matdep',
                         'region',
                         'education_state']
 
@@ -244,14 +245,14 @@ class lmmYJPCS(Base):
         newWavePWB.index = pop.index
         #newWavePWB["SF_12_PCS"] -= 1
 
-        ### This chunk is to increase variance
+        # ### This chunk is to increase variance
         sf12_mean = np.mean(newWavePWB["SF_12_PCS"])
-        std_ratio = (10.6/np.std(newWavePWB["SF_12_PCS"]))
+        std_ratio = (10/np.std(newWavePWB["SF_12_PCS"]))
         newWavePWB["SF_12_PCS"] *= std_ratio
         newWavePWB["SF_12_PCS"] -= ((std_ratio-1)*sf12_mean)
-        newWavePWB["SF_12_PCS"] -= 1.5
-        newWavePWB["SF_12_PCS"] += (49.3 - np.mean(newWavePWB["SF_12_PCS"]))
-        #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+        newWavePWB["SF_12_PCS"] += 1
+        # #newWavePWB["SF_12_PCS"] += (49.3 - np.mean(newWavePWB["SF_12_PCS"]))
+        # #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
 
         # Clip to minimum and maximum values seen in current wave
         #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], min_PCS, max_PCS)
@@ -290,7 +291,7 @@ class lmmYJPCS(Base):
                                                                     pop,
                                                                     dependent='SF_12_PCS',
                                                                     log_transform=True,
-                                                                    noise_std=0.025)  #
+                                                                    noise_std=2)  #
 
         # nextWavePWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
         #                                                        self.rpy2_modules,
