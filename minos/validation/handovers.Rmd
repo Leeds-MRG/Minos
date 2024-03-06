@@ -125,13 +125,13 @@ base.sf12.m <- base.dat %>%
 
 sf12.m.spag <- rbind(raw.sf12.m, base.sf12.m)
 
-# sf12.m.spag.sample <- sf12.m.spag[which(sf12.m.spag$pidp %in% pidp_sample), ]
-# spaghetti_plot(sf12.m.spag.sample, 'SF_12_MCS',
-#                save = shall.we.save,
-#                save.path = save.path)
-# spaghetti_highlight_max_plot(sf12.m.spag.sample, 'SF_12_MCS',
-#                save = shall.we.save,
-#                save.path = save.path)
+#sf12.m.spag.sample <- sf12.m.spag[which(sf12.m.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(sf12.m.spag, 'SF_12_MCS',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(sf12.m.spag, 'SF_12_MCS',
+               save = shall.we.save,
+               save.path = save.path)
   
 density_ridges(sf12.m.spag, "SF_12_MCS", 
                save = shall.we.save, 

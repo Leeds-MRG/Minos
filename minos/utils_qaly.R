@@ -615,7 +615,7 @@ intervention.cost.smooth <- function(base, base.name, int, int.name, int.label) 
     select(run_id, year, cost_difference) %>%
     mutate(intervention = int.name)
   
-  p2 <- ggplot(total.cost.byYear, aes(x = year, y = cost_difference, group = intervention, fill = intervention, colour = intervention)) +
+  p2 <- ggplot(total.cost.byYear, aes(x = year, y = cost_difference)) +
     geom_smooth() +
     labs(title = 'Intervention Cost by Year', subtitle = paste0(int.name, ' vs ', base.name))
   print(p2)
@@ -637,7 +637,7 @@ intervention.cost.smooth <- function(base, base.name, int, int.name, int.label) 
   
   p1 <- ggplot(total.cost, aes(x = intervention, y = cost_difference, group = intervention, fill = intervention, colour = intervention)) +
     geom_col() +
-    geom_errorbar(aes(ymin = cost_difference - margin, ymax = cost_difference + margin, width = 0.4, group = intervention)) +
+    geom_errorbar(aes(ymin = cost_difference - margin, ymax = cost_difference + margin, width = 0.4)) +
     labs(title = 'Total cost of intervention', subtitle = paste0(int.name, ' vs ', base.name)) +
     scale_y_continuous(label = comma)
   print(p1)

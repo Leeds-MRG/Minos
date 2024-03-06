@@ -113,13 +113,13 @@ get_latest_runtime_subdirectory <- function(path) {
 #       scenario - string scenario name of which output files to read
 #       year - single year of batch output to aggregate
 #       var.list - list of variables to keep in the returned dataframe
-read_agg_subset_batch_out <- function(out.path, scenario, year, var.list) {
+read_batch_out_1year <- function(out.path, scenario, year, var.list) {
   scen.path <- paste0(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
   
   # Create file strings using year from args
   target.pattern <- paste0('[0-9]*_run_id_', year, '.csv')
-  filepath.list <- list.files(path = scenario_out_path,
+  filepath.list <- list.files(path = scen.path,
                               pattern = target.pattern,
                               full.names = TRUE)
   
@@ -144,6 +144,22 @@ read_agg_subset_batch_out <- function(out.path, scenario, year, var.list) {
   rm(augmented.list)
   
   return(final)
+}
+
+read_batch_out_all_years <- function(out.path, scenario, start.year=2021, end.year=2036, var.list, verbose=FALSE) {
+  print(paste0("Starting aggregation of output files for ", scenario, '...'))
+  var.list <- c('pidp', 'hidp', 'time', 'weight', var.list, 'alive')
+  large.df = data.frame()
+  for (i in start.year:end.year) {
+    if (verbose) { print(paste0("Aggregating files for year ", i)) }
+    new.df <- read_batch_out_1year(out.path, scenario, year=i, var.list)
+    new.df <- new.df %>%
+      filter(alive != 'dead') %>%
+      select(-alive)
+    large.df <- rbind(large.df, new.df)
+  }
+  print("All output files successfully aggregated.")
+  return(large.df)
 }
 
 
