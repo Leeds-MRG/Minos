@@ -11,9 +11,7 @@ from string import ascii_uppercase as alphabet
 def format_bands(df):
     # Tax band data oddly formatted. Put it into floats for math to work.
     df = df.apply(lambda x: x.str.rstrip()) # remove right whitespace.
-    df = df.applymap(lambda x: str(x).replace('£', '')) # remove pounds.
-    df = df.applymap(lambda x: str(x).replace(',', '')) # remove commas.
-    df = df.astype(float)  # to floats.
+    df = df.replace('[\£,]', '', regex=True).astype(float) # convert from string pounds to floats.
     return df
 
 

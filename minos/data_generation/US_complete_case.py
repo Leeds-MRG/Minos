@@ -6,6 +6,8 @@ import pandas as pd
 
 import US_utils
 
+# suppressing a warning that isn't a problem
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 def complete_case(data):
     """ main function for complete case.
@@ -73,7 +75,7 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
+                          "housing_tenure", #"heating",
                           "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage', "behind_on_bills"]
     # REMOVED:  'job_sector', 'labour_state'
 

@@ -11,6 +11,9 @@ import pandas as pd
 import numpy as np
 import sys
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
+
 from minos.data_generation import US_utils
 # import US_missing_description as USmd
 import minos.data_generation.fake_council_tax as fake_council_tax
@@ -94,7 +97,7 @@ def generate_composite_housing_quality(data):
 
     print('Generating composite for SIPHER 7 housing_quality...')
     ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)
-    data['S7_housing_quality'] = -9
+    data['S7_housing_quality'] = "-9.0" # changed this from -9 int for consistency and to supress type warning.
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 6] = 'Yes to all'
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6))] = 'Yes to some'
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 0] = 'No to all'
@@ -594,23 +597,23 @@ def generate_energy_composite(data):
 
     house_time_groupby = data.groupby(["hidp", "time"])
     # force everyone to maximum household value energy consumption to remove some missing values.
-    data['yearly_electric'] = house_time_groupby['yearly_electric'].transform(max)
-    data['yearly_gas'] = house_time_groupby['yearly_gas'].transform(max)
-    data['yearly_oil'] = house_time_groupby['yearly_oil'].transform(max)
-    data['yearly_other_fuel'] = house_time_groupby['yearly_other_fuel'].transform(max)
-    data['yearly_gas_electric'] = house_time_groupby['yearly_gas_electric'].transform(max)
+    data['yearly_electric'] = house_time_groupby['yearly_electric'].transform("max")
+    data['yearly_gas'] = house_time_groupby['yearly_gas'].transform("max")
+    data['yearly_oil'] = house_time_groupby['yearly_oil'].transform("max")
+    data['yearly_other_fuel'] = house_time_groupby['yearly_other_fuel'].transform("max")
+    data['yearly_gas_electric'] = house_time_groupby['yearly_gas_electric'].transform("max")
 
-    data['has_electric'] = house_time_groupby['has_electric'].transform(max)
-    data['has_gas'] = house_time_groupby['has_gas'].transform(max)
-    data['has_oil'] = house_time_groupby['has_oil'].transform(max)
-    data['has_other'] = house_time_groupby['has_other'].transform(max)
-    data['gas_electric_combined'] = house_time_groupby['gas_electric_combined'].transform(max)
-    data['has_none'] = house_time_groupby['has_none'].transform(max)
-    data['energy_in_rent'] = house_time_groupby['energy_in_rent'].transform(max)
+    data['has_electric'] = house_time_groupby['has_electric'].transform("max")
+    data['has_gas'] = house_time_groupby['has_gas'].transform("max")
+    data['has_oil'] = house_time_groupby['has_oil'].transform("max")
+    data['has_other'] = house_time_groupby['has_other'].transform("max")
+    data['gas_electric_combined'] = house_time_groupby['gas_electric_combined'].transform("max")
+    data['has_none'] = house_time_groupby['has_none'].transform("max")
+    data['energy_in_rent'] = house_time_groupby['energy_in_rent'].transform("max")
 
-    data['electric_payment'] = house_time_groupby['electric_payment'].transform(max)
-    data['gas_payment'] = house_time_groupby['gas_payment'].transform(max)
-    data['duel_payment'] = house_time_groupby['duel_payment'].transform(max)
+    data['electric_payment'] = house_time_groupby['electric_payment'].transform("max")
+    data['gas_payment'] = house_time_groupby['gas_payment'].transform("max")
+    data['duel_payment'] = house_time_groupby['duel_payment'].transform("max")
 
 
 
@@ -749,7 +752,7 @@ def generate_marital_status(data):
     print('Generating composite for marital status...')
 
     # first create empty var
-    data['marital_status'] = -9
+    data['marital_status'] = "-9.0" # changing from int default to supress dtype warning.
 
     ## Single never partnered
     # 1
@@ -810,6 +813,7 @@ def generate_physical_health_score(data):
 
     # finally, get the average of phealth for a mean summary score (then it doesn't matter if any are missing)
     # only do this where counter does not equal 0. These cases we will record as missing
+    data['phealth'] = data['phealth'].astype(float) # setting to float here to avoid dtype warning.
     data['phealth'][data['counter'] != 0] = data['phealth'] / data['counter']
 
     # now set those missing all to missing
