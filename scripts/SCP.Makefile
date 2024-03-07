@@ -208,9 +208,18 @@ arc4_all_25_uplifts: MODE=default_config
 arc4_all_25_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_25_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_intervention_25All arc4_intervention_25UniversalCredit
 
+#####################################
+## Arc4 QALY Combined Targets
+#####################################
 
 arc4_qaly_SCPs: setup
 arc4_qaly_SCPs: MODE=default_config
 arc4_qaly_SCPs: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_qaly_SCPs: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_100All
 arc4_qaly_SCPs: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_100UniversalCredit
+
+arc4_qaly_SCPs_Glasgow: setup_glasgow_scaled
+arc4_qaly_SCPs_Glasgow: MODE=glasgow_scaled
+arc4_qaly_SCPs_Glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_qaly_SCPs_Glasgow: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_100All
+arc4_qaly_SCPs_Glasgow: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_100UniversalCredit
