@@ -105,7 +105,7 @@ $(DATADIR)/replenishing/inflated/replenishing_pop_2015-2070.csv: $(INFLATEDDATA)
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --inflated
 
 $(DATADIR)/replenishing/scaled_scotland/replenishing_pop_2015-2070.csv: $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
-	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --scotland
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -r scotland
 
 $(SPATIALDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(COMPLETEDATA)/2020_US_cohort.csv $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json $(FINALDATA)/2020_US_cohort.csv) $(SPATIALSOURCEDIR)/ADULT_population_GB_2018.csv
 	$(PYTHON) $(DATAGEN)/US_generate_spatial_component.py --source_dir $(SPATIALSOURCEDIR)
