@@ -101,8 +101,12 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
 
     data_zones = get_data_zones(region)
-    US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2020.
-    
+    US_data = pd.read_csv("data/raw_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2020.
+
+    #US_data_previous = pd.read_csv("data/imputed_final_US/2018_US_cohort.csv")
+    #US_data_previous = US_data_previous.loc[~US_data_previous['pidp'].isin(US_data['pidp']),]
+    #US_data = pd.concat([US_data,US_data_previous])
+
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
@@ -129,6 +133,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     n_children = np.nansum(merged_data.groupby(['hidp'])['nkids'].max())
     print(f"""There are {n_children} children under 15 recorded in the dataset 
         giving {merged_data.shape[0]+n_children} total observations.""")
+    print(f"""There are {len(set(merged_data['hidp']))} unique households in this data.""")
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
