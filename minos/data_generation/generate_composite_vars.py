@@ -987,6 +987,35 @@ def generate_difference_variables(data):
     return data
 
 
+def combine_legacy_benefits(data):
+    """ Collate legacy benefits into a single universal credit variable. returns true if eligible for any of them.
+
+    Parameters
+    ----------
+    data: pd.DataFrame
+        Minos data with the legacy benefit columns
+    Returns
+    -------
+    data: pd.DataFrame
+         Minos data with legacy columns removed and combined into single universal credit column.
+    """
+
+    legacy_benefits = ['child_tax_credit', # child tax credit. note this variable is fed forwards.
+                      "working_tax_credit", # working tax credit
+                      "job_seekers_allowance", # job seeker's allowance
+                      "pension_credit", # pension credit
+                      "income_support", # income support
+                      "employment_and_support_allowance", # esa.
+                      ]
+
+    data['new_universal_credit'] = data[legacy_benefits + ['universal_credit']].any(axis=1).astype(float)
+    data.loc[(data[legacy_benefits + ['universal_credit']] < 0.).any(axis=1), "new_universal_credit"] = -9.0
+    data['universal_credit'] = data['new_universal_credit']
+    data.drop(labels= legacy_benefits + ["new_universal_credit"],
+              axis=1,
+              inplace=True)
+    return data
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -996,6 +1025,8 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
+
+    data = combine_legacy_benefits(data) # combine legacy benefits into single variable.
     data = generate_composite_housing_quality(data)  # housing_quality.
     data = generate_hh_income(data)  # hh_income.
     data = calculate_hourly_wage(data)  # hourly_wage
