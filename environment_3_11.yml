@@ -19,7 +19,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-sp
   - r-texreg
   - r-shadowtext
-  #- r-lme4
+  - r-lme4
   - r-VGAM
   - r-bestNormalize
   - r-here
