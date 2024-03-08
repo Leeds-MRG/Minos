@@ -89,11 +89,11 @@ def generate_composite_housing_quality(data):
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
     # Set to -9 if missing (currently when housing_quality == 0)
-    data['housing_quality'][data['housing_quality'] == 0] = -9
+    data['housing_quality'][data['housing_quality'] == 0] = "-9"
 
     print('Generating composite for SIPHER 7 housing_quality...')
     ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)
-    data['S7_housing_quality'] = -9
+    data['S7_housing_quality'] = "-9"
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 6] = 'Yes to all'
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6))] = 'Yes to some'
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 0] = 'No to all'
@@ -337,7 +337,7 @@ def generate_composite_neighbourhood_safety(data):
         data[var][data[var] == 1] = 2
         data[var] = data[var] - 1
 
-    data['safety'] = -9
+    data['safety'] = "-9"
     # First do very safe neighbourhood. All vars == 3 (not at all common) OR missing == -9
     # data['neighbourhood_safety'][(data['burglaries'] == 3)] = 3
     data.safety[(data['burglaries'].isin([3, -10, -9, -2, -3])) &
@@ -695,7 +695,7 @@ def generate_marital_status(data):
     print('Generating composite for marital status...')
 
     # first create empty var
-    data['marital_status'] = -9
+    data['marital_status'] = "-9"
 
     ## Single never partnered
     # 1
@@ -739,7 +739,7 @@ def generate_physical_health_score(data):
     data['pain_interfere_work'][data['pain_interfere_work'] > 0] = 6 - data['pain_interfere_work']
 
     # now create summary var and add to it
-    data['phealth'] = 0
+    data['phealth'] = 0.
     data['phealth'][data['phealth_limits_modact'] > 0] += data['phealth_limits_modact']
     data['phealth'][data['phealth_limits_stairs'] > 0] += data['phealth_limits_stairs']
     data['phealth'][data['S7_physical_health'] > 0] += data['S7_physical_health']  # formerly phealth_limits_work
@@ -747,19 +747,19 @@ def generate_physical_health_score(data):
     data['phealth'][data['pain_interfere_work'] > 0] += data['pain_interfere_work']
 
     # now a counter for how many of these variable are not missing
-    data['counter'] = 0
-    data['counter'][data['phealth_limits_modact'] > 0] += 1
-    data['counter'][data['phealth_limits_stairs'] > 0] += 1
-    data['counter'][data['S7_physical_health'] > 0] += 1  # formerly phealth_limits_work
-    data['counter'][data['phealth_limits_work_type'] > 0] += 1
-    data['counter'][data['pain_interfere_work'] > 0] += 1
+    data['counter'] = 0.
+    data['counter'][data['phealth_limits_modact'] > 0] += 1.
+    data['counter'][data['phealth_limits_stairs'] > 0] += 1.
+    data['counter'][data['S7_physical_health'] > 0] += 1.  # formerly phealth_limits_work
+    data['counter'][data['phealth_limits_work_type'] > 0] += 1.
+    data['counter'][data['pain_interfere_work'] > 0] += 1.
 
     # finally, get the average of phealth for a mean summary score (then it doesn't matter if any are missing)
     # only do this where counter does not equal 0. These cases we will record as missing
-    data['phealth'][data['counter'] != 0] = data['phealth'] / data['counter']
+    data['phealth'][data['counter'] != 0.] = data['phealth'] / data['counter']
 
     # now set those missing all to missing
-    data['phealth'][data['counter'] == 0] = -9
+    data['phealth'][data['counter'] == 0.] = -9.
 
     data.drop(labels=['phealth_limits_modact', 'phealth_limits_stairs',
                       'phealth_limits_work_type', 'pain_interfere_work',

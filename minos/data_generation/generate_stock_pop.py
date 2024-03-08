@@ -18,7 +18,7 @@ import numpy as np
 import argparse
 
 import US_utils
-
+from pandas.api.types import is_string_dtype
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
@@ -112,7 +112,16 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     var_x = var + '_x'
     var_y = var + '_y'
 
-    data_merged[var] = -9
+    # RC: added more rigorous type checking here to supress padnas dtype warnings.
+    if data_merged[var_x].dtype == int:
+        data_merged[var] = -9
+    elif data_merged[var_x].dtype == float:
+        data_merged[var] = -9.
+    elif is_string_dtype(data_merged[var_x].dtype):
+        # string/object dtype in pandas is painful to identify.
+        # this seems stable.
+        data_merged[var] = "-9.0"
+
     data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
     data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
     # drop intermediate columns

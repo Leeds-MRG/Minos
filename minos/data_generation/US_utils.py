@@ -300,7 +300,7 @@ def load_multiple_data(file_names):
     # load wave by year and mash them into one big frame.
     data = pd.DataFrame()
     for item in file_names:
-        wave = pd.read_csv(item)
+        wave = pd.read_csv(item, low_memory=False)
         data = pd.concat([data, wave], sort=False)
     data = data.reset_index(drop=True)  # Reset index so they are unique. drop=True does not keep it as a new column.
     return data
@@ -434,8 +434,8 @@ def replace_missing_with_na(data, column_list):
     return data
 
 
-missing_types = ['-1', '-2', '-7', '-8', '-9',
-                 -1., -2., -7., -8., -9.,
-                 -1, -2, -7, -8, -9,
-                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
+missing_types = ['-1', '-2', '-7', '-8', '-9', '-10',
+                 -1., -2., -7., -8., -9., -10.,
+                 -1, -2, -7, -8, -9, -10,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0', "-10.0",
                  "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]

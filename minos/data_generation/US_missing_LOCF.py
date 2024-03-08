@@ -11,6 +11,8 @@ from multiprocessing import Pool, cpu_count
 from functools import partial
 from scipy import interpolate
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 def applyParallelLOCF(dfGrouped, func, **kwargs):
     """ Apply pandas.apply() methods in parallel on groupby object.
 
@@ -41,7 +43,8 @@ def ffill_groupby(pid_groupby):
     -------
     pid_groupby : Object with forward filled variables.
     """
-    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
+    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
+    return pid_groupby.ffill(axis=0)
 
 def bfill_groupby(pid_groupby):
     """ back fill groupby object
@@ -54,7 +57,9 @@ def bfill_groupby(pid_groupby):
     -------
     pid_groupby : Object with back filled variables.
     """
-    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
+    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
+    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
+    return pid_groupby.bfill(axis=0)
 
 def fbfill_groupby(pid_groupby):
     """ forward and back fill groupby object
@@ -66,7 +71,8 @@ def fbfill_groupby(pid_groupby):
     -------
     pid_groupby : Object with forward-back filled variables.
     """
-    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
+    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
+    return pid_groupby.ffill(axis=0).bfill(axis=0)
 
 def mffill_groupby(pid_groupby):
     """
@@ -107,7 +113,7 @@ def interpolate(data, interpolate_columns, type='linear'):
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
     data = data.sort_values(by=["pidp", "time"])
-    data[interpolate_columns] = data[interpolate_columns].replace(US_utils.missing_types, np.nan)
+    #data[interpolate_columns] = data[interpolate_columns].replace(US_utils.missing_types, np.nan)
     data.index = data['time']
     data_groupby = data.groupby('pidp', sort=False, as_index=False)
     new_columns = data_groupby[interpolate_columns].apply(lambda x: x.interpolate(method=type, limit_direction='both', axis=0))
@@ -248,16 +254,24 @@ def main(data, save=False):
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]
-    data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
+
+    # replace missing types in all columns to be imputed with NA. put them back alter to preserve missing data types.
+    all_imputed_columns = list(set(f_columns + fb_columns + mf_columns + li_columns))
+    imputed_data = data.copy()
+    imputed_data[all_imputed_columns] = imputed_data[all_imputed_columns].replace(US_utils.missing_types, np.nan)
+
+    imputed_data = locf(imputed_data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
-    US_missing_description.missingness_table(data)
-    data = interpolate(data, li_columns)
+    imputed_data = interpolate(imputed_data, li_columns)
+    #US_missing_description.missingness_table(imputed_data)
     print("After interpolation of linear variables.")
-    US_missing_description.missingness_table(data)
+    # put back any values in imputed columns that are still missing.
+    imputed_data.fillna(data, inplace=True)
+    US_missing_description.missingness_table(imputed_data)
 
     if save:
-        US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
-    return data
+        US_utils.save_multiple_files(imputed_data, years, 'data/locf_US/', "")
+    return imputed_data
 
 if __name__ == "__main__":
     # Load in data.

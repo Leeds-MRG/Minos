@@ -1,0 +1,61 @@
+name: minos_conda_311
+channels:
+  - conda-forge
+  - defaults
+dependencies: # Added pip and python at top to avoid conda giving grumpy warnings
+  - pip
+  - python_abi
+  - python=3.11.7
+  #- conda-forge::conda- # For alternative method of "conda build ."; required conda-build to be installed
+  - r-base~=4.3.0
+  - r-sf
+  - r-dplyr
+  - r-tidyverse
+  - r-argparse
+  - r-ordinal
+  - r-nnet
+  - r-pscl
+  - r-geojsonsf
+  - r-sp
+  - r-texreg
+  - r-shadowtext
+  #- r-lme4
+  - r-VGAM
+  - r-bestNormalize
+  - r-here
+  - r-scales
+  - r-ggextra
+  - r-ggridges
+  - r-gghighlight
+  - r-randomForest
+  - r-parallelly
+  - r-doParallel
+  - r-caret
+  - pandoc
+  - sphinx
+  - myst-parser
+  - gcc
+  - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
+      - rpy2
+      - pyyaml>=5.4
+      - pytest
+      - pandas
+      - numpy
+      - scikit-learn
+      - setuptools
+      - matplotlib
+      - distutils_pytest
+      - striprtf
+      - geojson
+      - seaborn
+      - matplotlib
+      - sphinx-rtd-theme
+      - sphinxcontrib-bibtex
+      - nbsphinx
+      - uuid
+      - geopandas
+      - topojson
+      - vivarium
+      #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
+
+prefix:

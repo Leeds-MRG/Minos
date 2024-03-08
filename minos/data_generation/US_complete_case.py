@@ -6,6 +6,7 @@ import pandas as pd
 
 import US_utils
 
+pd.options.mode.chained_assignment = None  # default='warn'
 
 def complete_case(data):
     """ main function for complete case.
