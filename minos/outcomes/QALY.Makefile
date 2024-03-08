@@ -11,7 +11,7 @@ QALY:
 
 ## Default QALYs
 
-QALY_baseline: MODE=default_config
+QALY_baseline: MODE=$(EXPERIMENT)
 QALY_baseline: INTERVENTION=baseline
 QALY_baseline:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
@@ -152,22 +152,22 @@ QALY_comparison_livingWage_uk: QALY_baseline_uk QALY_livwage_uk
 # All Child
 #####################################
 
-QALY_SCP_25_All: MODE=default_config
+QALY_SCP_25_All: MODE=$(EXPERIMENT)
 QALY_SCP_25_All: INTERVENTION=25All
 QALY_SCP_25_All:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_SCP_50_All: MODE=default_config
+QALY_SCP_50_All: MODE=$(EXPERIMENT)
 QALY_SCP_50_All: INTERVENTION=50All
 QALY_SCP_50_All:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_SCP_75_All: MODE=default_config
+QALY_SCP_75_All: MODE=$(EXPERIMENT)
 QALY_SCP_75_All: INTERVENTION=75All
 QALY_SCP_75_All:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_SCP_100_All: MODE=default_config
+QALY_SCP_100_All: MODE=$(EXPERIMENT)
 QALY_SCP_100_All: INTERVENTION=100All
 QALY_SCP_100_All:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
@@ -176,22 +176,22 @@ QALY_SCP_100_All:
 # Universal Credit
 #####################################
 
-QALY_SCP_25_UC: MODE=default_config
+QALY_SCP_25_UC: MODE=$(EXPERIMENT)
 QALY_SCP_25_UC: INTERVENTION=25UniversalCredit
 QALY_SCP_25_UC:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_SCP_50_UC: MODE=default_config
+QALY_SCP_50_UC: MODE=$(EXPERIMENT)
 QALY_SCP_50_UC: INTERVENTION=50UniversalCredit
 QALY_SCP_50_UC:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_SCP_75_UC: MODE=default_config
+QALY_SCP_75_UC: MODE=$(EXPERIMENT)
 QALY_SCP_75_UC: INTERVENTION=75UniversalCredit
 QALY_SCP_75_UC:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_SCP_100_UC: MODE=default_config
+QALY_SCP_100_UC: MODE=$(EXPERIMENT)
 QALY_SCP_100_UC: INTERVENTION=100UniversalCredit
 QALY_SCP_100_UC:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
