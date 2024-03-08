@@ -2,7 +2,7 @@
 params:
   experiment: 'default_config/'
   base: 'baseline'
-  intervention: '50All'
+  intervention: ''
 title: "QALY Comparisons - `r params$experiment` - `r params$intervention` - `r params$baseline`"
 output:
   html_document:
