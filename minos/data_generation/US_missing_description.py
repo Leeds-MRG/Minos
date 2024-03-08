@@ -52,7 +52,7 @@ def missingness_table(data, subset = None):
         output[v] = data.loc[data[v].isin(US_utils.missing_types)][v].astype(float).astype(int).value_counts()
     output = output.replace(np.nan, 0)
 
-    col_sums = pd.DataFrame(np.sum(output)).T
+    col_sums = pd.DataFrame(np.sum(output,axis=0)).T
     output = pd.concat(objs=[output, col_sums], axis=0)
     output = output.rename({0: 'Col Sums'}, axis=0)
     row_sums = np.nansum(output, 1)
