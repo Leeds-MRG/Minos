@@ -205,7 +205,7 @@ QALY_SCP_100_UC:
 ##################
 
 QALY_vis_SCP_25_All: QALY_baseline QALY_SCP_25_All
-	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', ,intervention='25All'), output_file = 'QALY_SCP_25_All.html')"
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='25All'), output_file = 'QALY_SCP_25_All.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_25_All.html
 
 QALY_vis_SCP_50_All: QALY_baseline QALY_SCP_50_All
