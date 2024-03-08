@@ -3,6 +3,7 @@ params:
   experiment: ''
   base: ''
   intervention: ''
+  start.year: ''
 title: "QALY Comparisons - `r params$experiment` - `r params$intervention` - `r params$baseline`"
 output:
   html_document:
@@ -49,6 +50,7 @@ source(here::here('minos', 'utils_qaly.R'))
 experiment <- params$experiment
 baseline <- params$base
 intervention <- params$intervention
+start.year <- params$start.year
 # 
 # experiment <- 'default_config'
 # baseline <- 'baseline'
@@ -188,7 +190,8 @@ ICER(base = base,
      int = int,
      int.name = intervention,
      QALY_value = 70000,
-     int.label = intervention)
+     int.label = intervention,
+     start.year = start.year)
 ```
 
 # Total Cost of Intervention
