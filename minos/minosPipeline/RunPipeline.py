@@ -296,7 +296,7 @@ def RunPipeline(config, intervention=None):
     print("Priorities for components are below; change in components map if incorrect:")
     map_rev = {v: k for k, v in component_name_map.items()}
     for c in components:
-        print(c, component_priority_map[map_rev[c]])
+        print(c.name, component_priority_map[map_rev[c]])
 
     # Initiate vivarium simulation object but DO NOT setup yet.
     simulation = InteractiveContext(components=components,

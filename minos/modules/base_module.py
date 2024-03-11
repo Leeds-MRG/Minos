@@ -9,11 +9,12 @@ from datetime import datetime as dt
 from scipy.special import ndtri  # very fast standard normal sampler.
 from minos.data_generation.US_utils import load_multiple_data
 import pandas as pd
+import vivarium
 
 PRIORITY_DEFAULT = 10
 
 
-class Base():
+class Base(vivarium.Component):
 
     @property
     def name(self):
