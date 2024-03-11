@@ -82,19 +82,16 @@ libpaths: ### Grab paths to Python and R libraries
 ## Install
 ##########
 
-# Check for existence of vivarium/__init__.py in site_packages as this will tell us if install is required
-install: ### Install Minos and requirements (all except vivarium removed to conda env file)
+# Minos installation and LME4 (R, must be from source, as causes issue when installed via conda)
 install: $(SITEPACKAGES)/vivarium/__init__.py
 
 $(SITEPACKAGES)/vivarium/__init__.py:
-	@echo "Installing remaining requirements via pip..."
-	#pip install vivarium~=0.10.12 # Alternative method to specifying this in setup.py, which is called by "pip install" below
+	@echo "Installing Minos..."
 	pip install -v -e .
-	#conda develop . # Alternative method, but Minos will not be shown in "conda list"
-	@echo "Replacing a line in vivarium.framework.randomness.py because it's broken..."
-	# New pandas version no longer needs to raise a key error.
-	@sed -i.backup 's/except (IndexError, TypeError)/except (IndexError, TypeError, KeyError)/' $(SITEPACKAGES)/vivarium/framework/randomness.py
-	@echo "\nInstall complete!\n"
+	@echo "\nDone!\n"
+	@echo "Installing R packages that can't be installed via conda..."
+	Rscript -e 'install.packages("lme4", repos = "http://cran.us.r-project.org", type = "source")'
+	@echo "\nDone!\n"
 
 #####################################
 ### SETUP

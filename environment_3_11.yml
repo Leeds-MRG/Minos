@@ -19,7 +19,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-sp
   - r-texreg
   - r-shadowtext
-  - r-lme4
+#  - r-lme4
   - r-VGAM
   - r-bestNormalize
   - r-here
@@ -31,11 +31,12 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-parallelly
   - r-doParallel
   - r-caret
+  - r-nloptr
   - pandoc
   - sphinx
   - myst-parser
   - gcc
-  - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
+  - pip:
       - rpy2
       - pyyaml>=5.4
       - pytest
@@ -55,7 +56,6 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
       - uuid
       - geopandas
       - topojson
-      - vivarium
-      #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
+#      - vivarium # Removing here as better done in setup so can be caught in makefile
 
 prefix:
