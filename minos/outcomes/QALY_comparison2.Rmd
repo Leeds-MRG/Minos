@@ -51,10 +51,11 @@ experiment <- params$experiment
 baseline <- params$base
 intervention <- params$intervention
 start.year <- params$start.year
-# 
-# experiment <- 'default_config'
+# # 
+# experiment <- 'glasgow_scaled'
 # baseline <- 'baseline'
 # intervention <- '50All'
+# start.year <- 2020
 ```
 
 
@@ -88,6 +89,11 @@ TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY
 ```
 TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
 
+# Sample Information
+
+```{r}
+
+```
 
 
 # Intervention Information
