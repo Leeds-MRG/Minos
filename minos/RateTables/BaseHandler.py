@@ -18,7 +18,8 @@ class BaseHandler:
             self.cache()
         else:
             print('Fetching rate table from cache {}'.format(self.rate_table_path))
-            self.rate_table = pd.read_csv(self.rate_table_path, index_col=[0])
+            # self.rate_table = pd.read_csv(self.rate_table_path, index_col=[0])
+            self.rate_table = pd.read_csv(self.rate_table_path)
 
     def set_matrix_tables(self):
         self._build()
