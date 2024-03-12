@@ -49,7 +49,7 @@ source(here::here('minos', 'utils_qaly.R'))
 ```{r}
 experiment <- params$experiment
 baseline <- params$base
-intervention <- params$intervention
+ints <- params$intervention
 #intervention2 <- params$intervention2
 start.year <- params$start.year
 # # 
