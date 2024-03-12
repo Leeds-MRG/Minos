@@ -5,7 +5,7 @@ File for adding new cohorts from Understanding Society data to the population
 import pandas as pd
 import logging
 from minos.modules.base_module import Base
-
+import vivarium.framework.randomness.index_map
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
@@ -28,6 +28,7 @@ class Replenishment(Base):
         builder : vivarium.builder
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
+        super().setup(builder)
         self.current_year = builder.configuration.time.start.year
         config = builder.configuration
 
@@ -118,16 +119,23 @@ class Replenishment(Base):
         columns_created = ['entrance_time']
 
         # Shorthand methods for readability.
-        self.population_view = builder.population.get_view(view_columns + columns_created)  # view simulants
-        self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
-        self.register = builder.randomness.register_simulants  # register new simulants to CRN streams (seed them).
+        # self.population_view = builder.population.get_view(view_columns + columns_created)  # view simulants
+        # self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
+        # self.register = builder.randomness.register_simulants  # register new simulants to CRN streams (seed them).
 
         # Defines how this module initialises simulants when self.simulant_creater is called.
-        builder.population.initializes_simulants(self.on_initialize_simulants,
-                                                 creates_columns=view_columns + columns_created)
+        # builder.population.initializes_simulants(self.on_initialize_simulants,
+        #                                          creates_columns=view_columns + columns_created)
         # Register ageing, updating time and replenishment events on time_step.
         # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
-        super().setup(builder)
+
+        ''' HR 12/03/24 Population view setup '''
+        self._columns_created = ['entrance_time']
+        self._columns_required = view_columns
+        self.population_view = builder.population.get_view(self.columns_created + self.columns_required)
+
+        self.simulant_creater = builder.population.get_simulant_creator()
+        self.register = builder.randomness.register_simulants
 
     def on_initialize_simulants(self, pop_data):
         """ function for loading new waves of simulants into the population from US data.

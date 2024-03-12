@@ -70,6 +70,7 @@ class Mortality(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
 
         """
+        super().setup(builder)
 
         # Load in rate table data from pre-setup.
         all_cause_mortality_data = builder.data.load("cause.all_causes.cause_specific_mortality_rate")
@@ -90,19 +91,24 @@ class Mortality(Base):
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Which columns are created by this module in on_initialize_simulants.
-        columns_created = ['cause_of_death', 'years_of_life_lost']
+        # columns_created = ['cause_of_death', 'years_of_life_lost']
         # Which columns are shown from the population frame when self.population_view is called.
         # I.E. which columns are required to calculate transition probabilities or to be updated at each on_time_step.
-        view_columns = columns_created + ['alive', 'exit_time', 'age', 'sex', 'region']
-        self.population_view = builder.population.get_view(view_columns)
+        # view_columns = columns_created + ['alive', 'exit_time', 'age', 'sex', 'region']
+        # self.population_view = builder.population.get_view(view_columns)
         # When any new agents are added the columns_created for this module are initiated using this function.
-        builder.population.initializes_simulants(self.on_initialize_simulants,
-                                                 creates_columns=columns_created)
+        # builder.population.initializes_simulants(self.on_initialize_simulants,
+        #                                          creates_columns=columns_created)
         # Add an event every simulation time_step increment to see if anyone dies.
         # Priority 1/10 so simulants make this transition first.
         # No point becoming depressed if you're dead.
         # builder.event.register_listener('time_step', self.on_time_step, priority=self.priority)
-        super().setup(builder)
+
+        ''' HR 12/03/24 Population view setup '''
+        self._columns_created = ['alive', 'cause_of_death', 'years_of_life_lost', 'exit_time']
+        self._columns_required = ['age', 'sex', 'region']
+        self.population_view = builder.population.get_view(self.columns_created + self.columns_required)
+
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for mortality when new simulants are added.

@@ -65,25 +65,39 @@ class Base(vivarium.Component):
         # print("Priority for {} set to {}".format(self.__repr__(), self.priority))
         builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
 
-    def on_time_step(self, event):
-        pass
+    @property
+    def columns_created(self):
+        """Getting/setting internal attribute used throughout simulation."""
+        if not hasattr(self, '_columns_created'):
+            self._columns_created = []
+        return self._columns_created
 
-    def on_initialize_simulants(self, pop_data):
-        """  Initiate columns for mortality when new simulants are added. By default adds no columns.
+    @property
+    def columns_required(self):
+        """Getting/setting internal attribute used throughout simulation."""
+        if not hasattr(self, '_columns_required'):
+            self._columns_required = []
+        return self._columns_required
 
-        Parameters
-        ----------
-        pop_data: vivarium.framework.population.SimulantData
-            Custom vivarium class for interacting with the population data frame.
-            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-            creation_window, and current simulation state (setup/running/etc.).
-        Returns
-        -------
-        None
-        """
-        # Initiate any columns created by this module and add them to the main population.
-        # No synthetic columns for housing currently. Maybe housing history variables added here.
-        return pop_data
+    # def on_time_step(self, event):
+    #     pass
+
+    # def on_initialize_simulants(self, pop_data):
+    #     """  Initiate columns for mortality when new simulants are added. By default adds no columns.
+    #
+    #     Parameters
+    #     ----------
+    #     pop_data: vivarium.framework.population.SimulantData
+    #         Custom vivarium class for interacting with the population data frame.
+    #         It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
+    #         creation_window, and current simulation state (setup/running/etc.).
+    #     Returns
+    #     -------
+    #     None
+    #     """
+    #     # Initiate any columns created by this module and add them to the main population.
+    #     # No synthetic columns for housing currently. Maybe housing history variables added here.
+    #     return pop_data
 
     def generate_fixed_crn_key(self):
         "CRN randomness streams in vivarium use hash some input string key as the seed for RNG."
