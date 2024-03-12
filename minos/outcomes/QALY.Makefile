@@ -208,6 +208,8 @@ QALY_vis_SCP_25_All: QALY_baseline QALY_SCP_25_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='25All', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_25_All.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_25_All.html
 
+QALY_vis_SCP_50_All: EXPERIMENT=glasgow_scaled
+QALY_vis_SCP_50_All: STARTYEAR=2020
 QALY_vis_SCP_50_All: QALY_baseline QALY_SCP_50_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='50All', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_50_All.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_50_All.html
@@ -232,6 +234,8 @@ QALY_vis_SCP_25_UC: QALY_baseline QALY_SCP_25_UC
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='25UniversalCredit', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_25_UC.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_25_UC.html
 
+QALY_vis_SCP_50_UC: EXPERIMENT=glasgow_scaled
+QALY_vis_SCP_50_UC: STARTYEAR=2020
 QALY_vis_SCP_50_UC: QALY_baseline QALY_SCP_50_UC
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='50UniversalCredit', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_50_UC.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_50_UC.html

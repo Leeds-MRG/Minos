@@ -47,15 +47,16 @@ source(here::here('minos', 'utils_qaly.R'))
 ## Parameters
 
 ```{r}
-experiment <- params$experiment
-baseline <- params$base
-intervention <- params$intervention
-start.year <- params$start.year
+# experiment <- params$experiment
+# baseline <- params$base
+# intervention <- params$intervention
+# #intervention2 <- params$intervention2
+# start.year <- params$start.year
 # # 
-# experiment <- 'glasgow_scaled'
-# baseline <- 'baseline'
-# intervention <- '50All'
-# start.year <- 2020
+experiment <- 'glasgow_scaled'
+baseline <- 'baseline'
+ints <- c('50All', '50UniversalCredit')
+start.year <- 2020
 ```
 
 
@@ -65,14 +66,34 @@ start.year <- params$start.year
 # read in QALY files for baseline and interventions
 out.path <- here::here('output', experiment)
 
-base.path <- get_latest_runtime_subdirectory(here::here(out.path, baseline))
-int.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention))
+expts <- c(baseline, ints)
 
-base <- read.csv(paste0(base.path, 'qalys.csv'))
-int <- read.csv(paste0(int.path, 'qalys.csv'))
 
-# combine the dataframes
-combined <- rbind(base, int)
+combined <- data.frame()
+for (expt in expts) {
+  path <- get_latest_runtime_subdirectory(here::here(out.path, expt))
+  data <- read.csv(paste0(path, 'qalys.csv'))
+  combined <- rbind(combined, data)
+}
+```
+
+
+```{r}
+# # read in QALY files for baseline and interventions
+# out.path <- here::here('output', experiment)
+# 
+# base.path <- get_latest_runtime_subdirectory(here::here(out.path, baseline))
+# int.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention1))
+# 
+# if (intervention2 != '') {
+#   int2.path <- get_latest_runtime_subdirectory(here::here(out.path, intervention2))
+# }
+# 
+# base <- read.csv(paste0(base.path, 'qalys.csv'))
+# int <- read.csv(paste0(int.path, 'qalys.csv'))
+# 
+# # combine the dataframes
+# combined <- rbind(base, int)
 ```
 
 
@@ -105,7 +126,7 @@ combined.pop_boosted <- combined %>%
   group_by(year, run_id, intervention) %>%
   summarise(pop_boosted = sum(pop_boosted))
 
-print(paste("There are", sum(is.na(combined.pop_boosted$pop_boosted)), "NA pop_boosted values in combined.pop.boosted.", sep = ' '))
+# print(paste("There are", sum(is.na(combined.pop_boosted$pop_boosted)), "NA pop_boosted values in combined.pop.boosted.", sep = ' '))
 
 ggplot(combined.pop_boosted, aes(x = year, y = pop_boosted, group = intervention, colour = intervention)) +
   geom_smooth() +
@@ -115,58 +136,60 @@ combined.diff <- combined %>%
   select(run_id, year, intervention, total_boost) %>%
   pivot_wider(names_from = 'intervention',
               values_from = 'total_boost') %>%
-  mutate(diff.boost = .data[[intervention]] - .data[[baseline]])
+  mutate(across(all_of(ints), ~.x - .data[[baseline]], .names = "diff_{.col}")) %>%
+  select(run_id, year, contains('diff_')) %>%
+  pivot_longer(cols = contains('diff_'),
+               names_prefix = 'diff_',
+               names_to = 'scenario',
+               values_to = 'total_boost')
 
-ggplot(combined.diff, aes(x = year, y = diff.boost)) +
+ggplot(combined.diff, aes(x = year, y = total_boost, group = scenario, fill = scenario, color = scenario)) +
   geom_smooth() +
   labs(title = 'Total Boost amount by year') +
   scale_y_continuous(label = comma)
-
-ggplot(combined, aes(x = year, y = alive_ratio, group = intervention, colour = intervention)) +
-  geom_smooth() +
-  labs(title = 'Ratio of living to dead in output dataframe')
-
-## incidence of mortality
-deaths <- combined %>%
-  select(run_id, intervention, year, alive_pop, dead_pop) %>%
-  group_by(run_id, intervention) %>%
-  mutate(total_pop = alive_pop + dead_pop,
-         deaths_this_year = dead_pop - lag(dead_pop)) %>%
-  group_by(run_id, year, intervention) %>%
-  summarise(death_incidence = deaths_this_year / total_pop)
-
-ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour = intervention)) +
-  geom_smooth() +
-  labs(title = 'Incidence of Mortality Comparison')
+# 
+# ggplot(combined, aes(x = year, y = alive_ratio, group = intervention, colour = intervention)) +
+#   geom_smooth() +
+#   labs(title = 'Ratio of living to dead in output dataframe')
+# 
+# ## incidence of mortality
+# deaths <- combined %>%
+#   select(run_id, intervention, year, alive_pop, dead_pop) %>%
+#   group_by(run_id, intervention) %>%
+#   mutate(total_pop = alive_pop + dead_pop,
+#          deaths_this_year = dead_pop - lag(dead_pop)) %>%
+#   group_by(run_id, year, intervention) %>%
+#   summarise(death_incidence = deaths_this_year / total_pop)
+# 
+# ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour = intervention)) +
+#   geom_smooth() +
+#   labs(title = 'Incidence of Mortality Comparison')
 ```
 
 # QALY comparison
 
 ```{r}
-QALY_comparison(base = base,
-                base.name = baseline,
-                int = int,
-                int.name = intervention)
+# QALY_comparison(base = base,
+#                 base.name = baseline,
+#                 int = int,
+#                 int.name = intervention)
+
+QALY_comparison(combined, ints)
 ```
 
 
 ## SF12 Change
 
 ```{r}
-sf12.plots(base = base,
-           base.name = baseline,
-           int = int,
-           int.name = intervention)
+sf12.plots(combined, ints)
 ```
+
 
 
 ## Area Under the Curve
 
 ```{r}
-auc.plots(base = base, 
-          base.name = baseline,
-          intervention = int,
-          int.name = intervention)
+auc.plots(combined, ints)
 ```
 
 
@@ -175,12 +198,12 @@ auc.plots(base = base,
 The [UK Government](https://www.gov.uk/government/publications/valuation-of-risks-to-life-and-health-monetary-value-of-a-life-year-voly/a-scoping-study-on-the-valuation-of-risks-to-life-and-health-the-monetary-value-of-a-life-year-voly) has set the value of 1 QALY to be equal to $60,000. This is the number we will use for our calculations.
 
 ```{r}
-cost.per.qaly(base = base,
-              base.name = baseline,
-              int = int,
-              int.name = intervention,
-              QALY_value = 70000,  # QALY value == £60,000
-              int.label <- intervention)
+# cost.per.qaly(base = base,
+#               base.name = baseline,
+#               int = int,
+#               int.name = intervention,
+#               QALY_value = 70000,  # QALY value == £70,000
+#               int.label <- intervention)
 ```
 
 
@@ -191,23 +214,21 @@ From [NICE guidelines](https://www.nice.org.uk/process/pmg6/chapter/assessing-co
 From the NICE guidelines, there is a general consensus that anything below £20,000 is cost effective, and anything above £30,000 is not. Between £20,000 and £30,000 is a grey area, and depends on the field and other factors to decide (i.e. if a rare or important condition is tackled by an intervention then the cost-effective threshold is higher). 
 
 ```{r}
-ICER(base = base,
-     base.name = baseline,
-     int = int,
-     int.name = intervention,
+ICER(combined,
+     ints,
      QALY_value = 70000,
-     int.label = intervention,
      start.year = start.year)
 ```
+
 
 # Total Cost of Intervention
 
 ```{r}
-intervention.cost(base = base,
-                  base.name = baseline,
-                  int = int,
-                  int.name = intervention,
-                  int.label = intervention)
+# intervention.cost(base = base,
+#                   base.name = baseline,
+#                   int = int,
+#                   int.name = intervention,
+#                   int.label = intervention)
 ```
 
 
