@@ -47,16 +47,16 @@ source(here::here('minos', 'utils_qaly.R'))
 ## Parameters
 
 ```{r}
-# experiment <- params$experiment
-# baseline <- params$base
-# intervention <- params$intervention
-# #intervention2 <- params$intervention2
-# start.year <- params$start.year
+experiment <- params$experiment
+baseline <- params$base
+intervention <- params$intervention
+#intervention2 <- params$intervention2
+start.year <- params$start.year
 # # 
-experiment <- 'glasgow_scaled'
-baseline <- 'baseline'
-ints <- c('50All', '50UniversalCredit')
-start.year <- 2020
+# experiment <- 'glasgow_scaled'
+# baseline <- 'baseline'
+# ints <- c('50All', '50UniversalCredit')
+# start.year <- 2020
 ```
 
 
