@@ -125,10 +125,10 @@ arc4_intervention_25RelativePoverty:
 arc4_intervention_50RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
 
-arc4_intervention_75RelativePoverty: setup
+arc4_intervention_75RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75RelativePoverty'
 
-arc4_intervention_100RelativePoverty: setup
+arc4_intervention_100RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100RelativePoverty'
 
 ##########################################################################
@@ -149,14 +149,49 @@ arc4_intervention_45UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
 arc4_intervention_50UniversalCredit:
-arc4_intervention_50UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
 
-arc4_intervention_75UniversalCredit: setup
+arc4_intervention_55UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '55UniversalCredit'
+
+arc4_intervention_60UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '60UniversalCredit'
+
+arc4_intervention_65UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '65UniversalCredit'
+
+arc4_intervention_70UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '70UniversalCredit'
+
+arc4_intervention_75UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
 
-arc4_intervention_100UniversalCredit: setup
+arc4_intervention_80UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '80UniversalCredit'
+
+arc4_intervention_85UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '85UniversalCredit'
+
+arc4_intervention_90UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '90UniversalCredit'
+
+arc4_intervention_95UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '95UniversalCredit'
+
+arc4_intervention_100UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
+
+arc4_intervention_105UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '105UniversalCredit'
+
+arc4_intervention_110UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '110UniversalCredit'
+
+arc4_intervention_115UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '115UniversalCredit'
+
+arc4_intervention_120UniversalCredit:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '120UniversalCredit'
 
 ##########################################################################
 
@@ -218,8 +253,13 @@ arc4_qaly_SCPs: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_qaly_SCPs: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
 arc4_qaly_SCPs: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
 
-arc4_qaly_SCPs_Glasgow: setup_glasgow_scaled
-arc4_qaly_SCPs_Glasgow: MODE=glasgow_scaled
-arc4_qaly_SCPs_Glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_qaly_SCPs_Glasgow: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
-arc4_qaly_SCPs_Glasgow: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+arc4_qaly_SCPs_glasgow: setup_glasgow_scaled
+arc4_qaly_SCPs_glasgow: MODE=glasgow_scaled
+arc4_qaly_SCPs_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_qaly_SCPs_glasgow: arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit
+arc4_qaly_SCPs_glasgow: arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
+arc4_qaly_SCPs_glasgow: arc4_intervention_55UniversalCredit arc4_intervention_60UniversalCredit arc4_intervention_65UniversalCredit
+arc4_qaly_SCPs_glasgow: arc4_intervention_70UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_80UniversalCredit
+arc4_qaly_SCPs_glasgow: arc4_intervention_85UniversalCredit arc4_intervention_90UniversalCredit arc4_intervention_95UniversalCredit
+arc4_qaly_SCPs_glasgow: arc4_intervention_100UniversalCredit arc4_intervention_105UniversalCredit arc4_intervention_110UniversalCredit
+arc4_qaly_SCPs_glasgow: arc4_intervention_115UniversalCredit arc4_intervention_120UniversalCredit
