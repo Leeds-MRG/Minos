@@ -162,7 +162,7 @@ class lmmYJPCS(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -219,8 +219,9 @@ class lmmYJPCS(Base):
         #                                                     path=self.transition_dir)
         #self.glmmb_transition_model = r_utils.load_transitions(f"SF_12_PCS/glmmb/SF_12_PCS_GLMMB", self.rpy2_modules,
         #                                                    path=self.transition_dir)
-        self.lmm_transition_model = r_utils.load_transitions(f"SF_12_PCS/lmm/SF_12_PCS_LMM", self.rpy2_modules,
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12_PCS/lmm/SF_12_PCS_LMM", self.rpy2Modules,
                                                             path=self.transition_dir)
+        self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model, self.rpy2Modules, "lmm")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -274,27 +275,27 @@ class lmmYJPCS(Base):
         """
 
         # nextWavePWB = r_utils.predict_next_timestep_beta_glmm(self.glmmb_transition_model,
-        #                                                       self.rpy2_modules,
+        #                                                       self.rpy2Modules,
         #                                                       pop,
         #                                                       dependent='SF_12_PCS',
         #                                                       reflect=True,
         #                                                       noise_std=0.03)
 
         # nextWavePWB = r_utils.predict_next_rf(self.rf_transition_model,
-        #                                       self.rpy2_modules,
+        #                                       self.rpy2Modules,
         #                                       pop,
         #                                       dependent='SF_12_PCS',
         #                                       noise_std=1)
 
         nextWavePWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
-                                                                    self.rpy2_modules,
+                                                                    self.rpy2Modules,
                                                                     pop,
                                                                     dependent='SF_12_PCS',
                                                                     log_transform=True,
                                                                     noise_std=2)  #
 
         # nextWavePWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
-        #                                                        self.rpy2_modules,
+        #                                                        self.rpy2Modules,
         #                                                        current=pop,
         #                                                        dependent='SF_12_PCS',
         #                                                        reflect=True,

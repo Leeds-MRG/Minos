@@ -50,7 +50,7 @@ digest_params <- function(line) {
 run_yearly_models <- function(transitionDir_path,
                               transitionSourceDir_path,
                               mod_def_name,
-                              data,
+                              orig_data,
                               mode) {
 
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
@@ -58,19 +58,19 @@ run_yearly_models <- function(transitionDir_path,
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
 
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  orig_data$housing_quality <- factor(orig_data$housing_quality, 
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
+  orig_data$S7_housing_quality <- factor(orig_data$S7_housing_quality, 
                                  levels = c('No to all', 
                                             'Yes to some', 
                                             'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
+  orig_data$S7_neighbourhood_safety <- factor(orig_data$S7_neighbourhood_safety,
                                     levels = c('Often', 
                                                'Some of the time',
                                                'Hardly ever'))
-  data$S7_labour_state <- factor(data$S7_labour_state,
+  orig_data$S7_labour_state <- factor(orig_data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
                                             'Job Seeking',
@@ -84,7 +84,11 @@ run_yearly_models <- function(transitionDir_path,
                                    'High Risk'))
 
   # read file
-  repeat{
+  repeat {
+    
+    # take copy of original data so we can transform without worry
+    data <- orig_data
+    
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
     if(startsWith(def, '#')){next}  # If line starts with '#', line is comment and should be ignored
@@ -136,11 +140,10 @@ run_yearly_models <- function(transitionDir_path,
     valid_yearly_model_types = c("NNET", "OLS", "OLS_DIFF", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
 
     for(year in year.range) {
-      if(!is.element(mod.type, valid_yearly_model_types))
-      {
+      if(!is.element(mod.type, valid_yearly_model_types)) {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-      }# skip this iteration if model not in valid types. 
+      }  # skip this iteration if model not in valid types.
 
       # reset the formula string for each year
       formula.string <- formula.string.orig
@@ -296,7 +299,7 @@ run_yearly_models <- function(transitionDir_path,
       #write_csv(coefs, file = coef.filepath)
       # writing tex table of coefficients. easy writing for papers and documentation. 
       write_coefs <- T
-      if (write_coefs & tolower(mod.type) != "nnet") # cant write coefs for nnet using texreg.
+      if (write_coefs & tolower(mod.type) != "nnet") {  #  cant write coefs for nnet using texreg.
         create.if.not.exists("data/transitions/coefficients")
         texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', year, '_', depend.year, '.txt')
         texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
