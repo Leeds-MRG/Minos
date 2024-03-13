@@ -487,3 +487,30 @@ handover_lineplots <- function(raw, base, var) {
     xlab('Year') +
     ylab(var)
 }
+
+##############################
+# synthetic population plots #
+##############################
+
+density_comparison <- function(data1, data2, v) {
+  # plot densities of a variable from two populations. 
+  data1 <- data1[, c("group", v)]
+  data2 <- data2[, c("group", v)]
+  data <- rbind(data1, data2)
+  density_plot <- ggplot(data=data, aes(x=!!sym(v), group=group, color=group, linetype=group)) +
+    geom_density() + 
+    ggtitle(paste0("Variable: ", v)) 
+    
+  return(density_plot)
+}
+
+bars_comparison <- function(data1, data2, v) {
+  data1 <- data1[, c("group", v)]
+  data2 <- data2[, c("group", v)]
+  data <- rbind(data1, data2)
+  data <- as.data.frame(prop.table(table(data), margin=1))
+  split_barplot <- ggplot(data=data, aes(x=!!sym(v), y= Freq, fill=group)) +
+    geom_bar(stat = "identity", position = position_dodge()) 
+  return(split_barplot)
+}
+

@@ -7,6 +7,8 @@ library(sp) # ^
 library(sf) # ^ Also sucks to install. no longer used for geojsonio.
 library(tibble) # converting spatial objects to data frames.
 # library(ggrepel) # for geom_text_repel labels
+library(here)
+
 
 subset_geojson <- function(data, subset_function){
   # Subset national MINOS geoJSON output by some subset function.
@@ -19,30 +21,54 @@ subset_geojson <- function(data, subset_function){
 }
 
 sheffield_lsoa_subset_function <- function(data){
-  lsoas <- read.csv("persistent_data/sheffield_lsoas.csv")
-  lsoas <- lsoas$x # just take needed lsoa column
+  lsoas <- read.csv("persistent_data/spatial_data/sheffield_lsoas.csv")
+  lsoas <- lsoas$LSOA11CD # just take needed lsoa column
   return(subset(data, ZoneID %in% lsoas))
 }
 
 
 manchestser_lsoa_subset_function <- function(data){
-  lsoas <- read.csv("persistent_data/manchester_lsoas.csv")
-  lsoas <- lsoas$x # just take needed lsoa column.
+  lsoas <- read.csv("persistent_data/spatial_data/manchester_lsoas.csv")
+  lsoas <- lsoas$LSOA11CD # just take needed lsoa column.
   return(subset(data, ZoneID %in% lsoas))
 }
 
 
 scotland_data_zone_subset_function <- function(data){
-  datazones <- read.csv("persistent_data/scotland_data_zones.csv")
-  datazones <- datazones$DZ2011_Code
+  datazones <- read.csv(here::here("persistent_data", "spatial_data", "scotland_data_zones.csv"))
+  datazones <- datazones$LSOA11CD
   return(subset(data, ZoneID %in% datazones))
 }
 
 
 glasgow_data_zone_subset_function <- function(data){
-  datazones <- read.csv("persistent_data/glasgow_data_zones.csv")
-  datazones <- datazones$lsoa11cd
+  datazones <- read.csv("persistent_data/spatial_data/glasgow_data_zones.csv")
+  datazones <- datazones$LSOA11CD
   return(subset(data, ZoneID %in% datazones))
+}
+
+sheffield_LA_subset_function <- function(data){
+  LAs <- read.csv("persistent_data/spatial_data/sheffield_LAs.csv")
+  LAs <- LAs$LAD22NM # just take needed lsoa column
+  return(subset(data, LAD21NM %in% LAs))
+}
+
+manchester_LA_subset_function <- function(data){
+  LAs <- read.csv("persistent_data/spatial_data/manchester_LAs.csv")
+  LAs <- LAs$LAD22NM # just take needed lsoa column
+  return(subset(data, LAD21NM %in% LAs))
+}
+
+glasgow_LA_subset_function <- function(data){
+  LAs <- read.csv("persistent_data/spatial_data/glasgow_LAs.csv")
+  LAs <- LAs$LAD22NM # just take needed lsoa column
+  return(subset(data, LAD21NM %in% LAs))
+}
+
+scotland_LA_subset_function <- function(data){
+  LAs <- read.csv(here::here("persistent_data", "spatial_data", "scotland_LAs.csv"))
+  LAs <- LAs$LAD22NM # just take needed lsoa column
+  return(subset(data, LAD21NM %in% LAs))
 }
 
 
@@ -62,6 +88,28 @@ choose_lsoa_function <- function(mode){
   else {
     print("Warning no subset specified. Defaulting to Sheffield..")
     subset_function <- sheffield_lsoa_subset_function
+  }
+  return(subset_function)
+}
+
+
+
+choose_la_function <- function(mode){
+  if (tolower(mode) == "sheffield"){
+    subset_function <- sheffield_LA_subset_function
+  }
+  else if (tolower(mode) == "manchester"){
+    subset_function <- manchestser_LA_subset_function
+  }
+  else if (tolower(mode) == "scotland"){
+    subset_function <- scotland_LA_subset_function
+  }
+  else if (tolower(mode) == "glasgow"){
+    subset_function <- glasgow_LA_subset_function
+  }
+  else {
+    print("Warning no subset specified. Defaulting to Sheffield..")
+    subset_function <- sheffield_LA_subset_function
   }
   return(subset_function)
 }

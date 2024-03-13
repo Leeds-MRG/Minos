@@ -21,9 +21,19 @@ def main():
     country_name = 'CTRY11NM'
     lsoa_code = 'LSOA11CD'
 
+    manchester_LA_names = ["Bolton",
+                           "Bury",
+                           "Manchester",
+                           "Oldham",
+                           "Rochdale",
+                           "Salford",
+                           "Stockport",
+                           "Tameside",
+                           "Trafford",
+                           "Wigan"]
     # subsetting data from desired regions.
     sheffield_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Sheffield", ]
-    manchester_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Manchester", ]
+    manchester_subset = lsoa_lookup.loc[lsoa_lookup[la_name].isin(manchester_LA_names), ]
     glasgow_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Glasgow City", ]
     scotland_subset = lsoa_lookup.loc[lsoa_lookup[country_name] == "Scotland", ]
 
@@ -38,6 +48,20 @@ def main():
     manchester_lsoas.to_csv(os.path.join(spatial_path, "manchester_lsoas.csv"))
     glasgow_data_zones.to_csv(os.path.join(spatial_path, "glasgow_data_zones.csv"))
     scotland_data_zones.to_csv(os.path.join(spatial_path, "scotland_data_zones.csv"))
+
+    # do the same for LADs.
+    sheffield_lsoas = sheffield_subset[la_name]
+    manchester_lsoas = manchester_subset[la_name]
+    glasgow_data_zones = glasgow_subset[la_name]
+    scotland_data_zones = scotland_subset[la_name]
+
+    #saving
+    sheffield_lsoas.to_csv(os.path.join(spatial_path, "sheffield_LAs.csv"))
+    manchester_lsoas.to_csv(os.path.join(spatial_path, "manchester_LAs.csv"))
+    glasgow_data_zones.to_csv(os.path.join(spatial_path, "glasgow_LAs.csv"))
+    scotland_data_zones.to_csv(os.path.join(spatial_path, "scotland_LAs.csv"))
+
+
 
 
 if __name__ == '__main__':

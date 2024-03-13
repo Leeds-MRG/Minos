@@ -1,0 +1,47 @@
+---
+title: "Synthpop Validation Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r, include=FALSE}
+# include flag mutes package load messages for tidiness
+library(here)
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'utils_validation_map_vis.R'))
+library(dplyr)
+```
+
+```{r}
+raw_data <- read.csv("../../data/final_US/2020_US_cohort.csv")
+raw_data$group <- "Raw Data"
+scotland_synth_data <- read.csv("../../data/scaled_scotland_US/2020_US_cohort.csv")
+scotland_synth_data$group <- "Scotland Synthetic Data"
+
+#lsoa_to_LA_map <- read.csv(here::here("persistent_data", "EWS_LSOA_2011_LA_2022.csv"))
+# merge onto two datasets to get LA level information
+```
+
+```{r}
+lsoas <- get_subsetted_lsoa_geojson_data("scotland")
+las <- get_subsetted_la_geojson_data("scotland")
+```
+
+```{r}
+density_comparison(raw_data, scotland_synth_data, "SF_12")
+density_comparison(raw_data, scotland_synth_data, "hh_income")
+```
+
+```{r}
+bars_comparison(raw_data, scotland_synth_data, "housing_quality")
+bars_comparison(raw_data, scotland_synth_data, "neighbourhood_safety")
+```
+
+
+
+```{r}
+map_la_and_lsoa_level_variable(scotland_synth_data, "SF_12")
+```
