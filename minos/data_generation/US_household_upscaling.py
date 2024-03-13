@@ -130,11 +130,11 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
     print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
-    exhasutive_sampled_data = take_exhaustive_synthpop_sample(merged_data, percentage)
-    exhasutive_sampled_data.reset_index(inplace=True, drop=True)
-    exhasutive_sampled_data['hidp'] *= 1e11
+    #exhasutive_sampled_data = take_exhaustive_synthpop_sample(merged_data, percentage)
+    #exhasutive_sampled_data.reset_index(inplace=True, drop=True)
+    #exhasutive_sampled_data['hidp'] *= 1e11
+    #sampled_data = pd.concat([sampled_data, exhasutive_sampled_data])
 
-    sampled_data = pd.concat([sampled_data, exhasutive_sampled_data])
     sampled_data.reset_index(inplace=True, drop=True)
     sampled_data['pidp'] = sampled_data.index
 
