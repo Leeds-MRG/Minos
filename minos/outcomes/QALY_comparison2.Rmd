@@ -143,7 +143,7 @@ combined.diff <- combined %>%
                names_to = 'scenario',
                values_to = 'total_boost')
 
-ggplot(combined.diff, aes(x = year, y = total_boost, group = scenario, fill = scenario, color = scenario)) +
+ggplot(combined.diff, aes(x = year, y = total_boost, group = scenario, color = scenario)) +
   geom_smooth() +
   labs(title = 'Total Boost amount by year') +
   scale_y_continuous(label = comma)
