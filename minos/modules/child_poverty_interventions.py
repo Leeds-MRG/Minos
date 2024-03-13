@@ -90,14 +90,29 @@ class childUplift(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # print(np.mean(pop['hh_income'])) # for debugging purposes.
         # TODO probably a faster way to do this than resetting the whole column.
-        if self.uplift_condition == "who_below_poverty_line_and_kids":
-            pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
-        else:
-            pop['income_boosted'] = False
+        # if self.uplift_condition == "who_below_poverty_line_and_kids":
+        #     pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
+        # else:
+        #     pop['income_boosted'] = False
+
+        # Reset boost vars in preparation for the new wave intervention
+        pop['income_boosted'] = False
+        pop['boost_amount'] = 0
+
+        # Find households to uplift from the uplift condition supplied
         uplifted_households = np.unique(dynamic_subset_function(pop, self.uplift_condition)['hidp'])
-        pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
-        pop['boost_amount'] = pop['income_boosted'] * get_monthly_boost_amount(pop, self.uplift_amount) # £25 per week * 30.463/7 weeks per average month * nkids.
-        #pop['income_boosted'] = (pop['boost_amount'] != 0)
+        # Households on universal credit and legacy benefits are already receiving £10 SCP in our input population
+        # (2020) start. Therefore we need to reduce the intervention by £10 for these people
+        uc_households = np.unique(dynamic_subset_function(pop, 'who_universal_credit_and_kids')['hidp'])
+
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True  # set everyone who satisfies uplift condition to true.
+        pop['boost_amount'] = pop['income_boosted'] * get_monthly_boost_amount(pop, self.uplift_amount)  # £25 per week * 30.463/7 weeks per average month * nkids.
+
+        # reduce boost amount by £10 for those on universal credit as they are already receiving £10
+        pop.loc[pop['hidp'].isin(
+            uc_households), 'boost_amount'] = pop['boost_amount'] - 10
+
+        # pop['income_boosted'] = (pop['boost_amount'] != 0)
         pop['hh_income'] += pop['boost_amount']
         # print(np.mean(pop['hh_income'])) # for debugging.
         # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
