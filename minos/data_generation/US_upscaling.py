@@ -5,9 +5,11 @@
 # take those individuals in glasgow data zones
 # merge them with MINOS data to get  individuals for all of glasgow
 # take some random percentage as a subset. May not be necessary for a medium size city.
+
 import pandas as pd
 import numpy as np
 import US_utils
+
 
 def subset_zone_ids(data, subset):
     """ Return some subset of the UK national set of ZoneIDs e.g. glasgow/manchester only.
@@ -23,6 +25,7 @@ def subset_zone_ids(data, subset):
     """
     subsetted_data = data.loc[data["ZoneID"].isin(subset)]
     return subsetted_data
+
 
 def merge_with_synthpop_individuals(synthpop, msim_data, merge_column="pidp"):
     """ Merge US data on synthetic pop individual data.
@@ -44,6 +47,7 @@ def merge_with_synthpop_individuals(synthpop, msim_data, merge_column="pidp"):
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
 
+
 def get_spatial_attribute_data():
     try:
         simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[
@@ -61,6 +65,7 @@ def get_spatial_attribute_data():
                   """)
     return simd_data
 
+
 def get_knn_cluster_data():
 
     try:
@@ -75,8 +80,10 @@ def get_knn_cluster_data():
             store in persistent_data/spatial_data/.""")
     return knn_data
 
+
 def merge_with_spatial_attributes(synthpop, spatial_data, merge_column):
     return synthpop.merge(spatial_data, on=merge_column)
+
 
 def take_synthpop_sample(merged_data, percent, seed=8):
     """ Take smaller subset of full scale synthetic population
@@ -95,6 +102,7 @@ def take_synthpop_sample(merged_data, percent, seed=8):
     n = int(merged_data.shape[0] * percent)
     sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
     return sample_data
+
 
 def main():
     """

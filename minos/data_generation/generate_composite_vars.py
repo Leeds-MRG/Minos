@@ -791,6 +791,7 @@ def generate_parents_education(data):
     # Groupby hid then filter to make sure there is a 16 year old in the house
     grouped_dat = data.groupby(['hidp'], axis=1).filter(lambda d: (d.age != 16.0), axis=0)
     # filtered_dat = grouped_dat.filter(lambda d: (d['age'] != 16))
+    # TODO: FINISH THIS!
 
     return data
 
@@ -800,12 +801,12 @@ def calculate_equivalent_income(data):
 
     Parameters
     ----------
-        pop: PopulationView
-            Population from MINOS to calculate next income for.
+        data: pd.DataFrame
+            US data
     Returns
     -------
-    nextWaveIncome: pd.Series
-        Vector of new household incomes from OLS prediction.
+        data : pd.DataFrame
+            US data with variable for equivalent income
     """
     print('Calculating equivalent income...')
     # This is a deterministic calculation based on the values from each of the SIPHER7 variables
@@ -925,6 +926,339 @@ def calculate_equivalent_income(data):
     return data
 
 
+def calculate_auditc_score(data):
+    """
+    Alcohol use disorders can be assessed via the AUDITC score. This score is derived from 3 questions that form part of
+    the full 10 question AUDIT screening test, where AUDITC specifically focuses on consumption. The 3 questions are:
+
+    1. How often do you have a drink containing alcohol?
+    2. How many units of alcohol do you drink on a typical day when you are drinking?
+    3. How often have you had 6 or more units if female, or 8 or more if male, on a single occasion in the last year?
+
+    Each question is ordinal with 5 levels, depending on the 'severity' of the answer. We then score each question from
+    0-4, with higher scores meaning higher 'severity'. The total across the 3 questions then creates a score from 0-12,
+    with 0-4 meaning sensible drinking, 5-7 meaning hazardous drinking, and 8+ meaning harmful drinking.
+    See following link for information on scoring:
+    https://www.drinktalkingportal.co.uk/clinical-guidance/alcohol-abuse-screening/alcohol-audit-audit-c
+
+    To calculate this score, we rely on 4 variables in Understanding Society shown at the following link:
+    https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation?search_api_views_fulltext=auditc
+
+    Question 1 above relies on auditc1 & auditc3, question 2 relies on auditc4, and question 3 uses auditc5.
+
+    NOTE: The final variable used (auditc5) specifically mentions 6 or more drink frequency, rather than 6+/8+ units.
+            This could be a mistake in the description or the actual question asked being incorrect (not the true AUDITC
+            question). There's no information about which one it is, so I'm treating it the same as the AUDITC3 question
+            for our purposes. Added benefit that this is simpler to code without checking for gender also.
+
+    Parameters
+    ----------
+        data : pd.DataFrame
+            US data
+    Returns
+    -------
+        data : pd.DataFrame
+            US data with variable for equivalent income
+    """
+    print('Calculating AUDITC score (alcohol use disorder)...')
+
+    # AUDITC1 - How often do you have a drink containing alcohol
+    data['temp_auditc1'] = -9
+    data['temp_auditc1'][data['auditc1'] == 2] = 0  # no alcoholic drink in past 12 months
+    data['temp_auditc1'][data['auditc2'] == 1] = 0  # always been non-drinker (maybe not necessary but thorough)
+    data['temp_auditc1'][data['auditc3'] == 1] = 0  # Never drank in past 12 months (again might be doubling up)
+    data['temp_auditc1'][data['auditc3'] == 2] = 1  # Drank in past 12 months: monthly or less
+    data['temp_auditc1'][data['auditc3'] == 3] = 2  # Drank in past 12 months: 2-4 times per month
+    data['temp_auditc1'][data['auditc3'] == 4] = 3  # Drank in past 12 months: 2-3 times per week
+    data['temp_auditc1'][data['auditc3'] == 5] = 4  # Drank in past 12 months: 4+ times per week
+
+    # AUDITC2 - How many units drank on typical day
+    data['temp_auditc2'] = -9
+    data['temp_auditc2'][data['auditc1'] == 2] = 0  # no alcoholic drink in past 12 months
+    data['temp_auditc2'][data['auditc2'] == 1] = 0  # always been non-drinker (maybe not necessary but thorough)
+    data['temp_auditc2'][data['auditc3'] == 1] = 0  # Never drank in past 12 months (again might be doubling up)
+    data['temp_auditc2'][data['auditc4'] == 1] = 0  # Drinks on typical day: 1-2
+    data['temp_auditc2'][data['auditc4'] == 2] = 1  # Drinks on typical day: 3-4
+    data['temp_auditc2'][data['auditc4'] == 3] = 2  # Drinks on typical day: 5-6
+    data['temp_auditc2'][data['auditc4'] == 4] = 3  # Drinks on typical day: 7-9
+    data['temp_auditc2'][data['auditc4'] == 5] = 4  # Drinks on typical day: 10+
+
+    # AUDITC3 - Six or more drinks frequency
+    data['temp_auditc3'] = -9
+    data['temp_auditc3'][data['auditc1'] == 2] = 0  # no alcoholic drink in past 12 months
+    data['temp_auditc3'][data['auditc2'] == 1] = 0  # always been non-drinker (maybe not necessary but thorough)
+    data['temp_auditc3'][data['auditc3'] == 1] = 0  # Never drank in past 12 months (again might be doubling up)
+    data['temp_auditc3'][data['auditc5'] == 1] = 0  # Six or more drinks frequency: Never
+    data['temp_auditc3'][data['auditc5'] == 2] = 1  # Six or more drinks frequency: Less than monthly
+    data['temp_auditc3'][data['auditc5'] == 3] = 2  # Six or more drinks frequency: Monthly
+    data['temp_auditc3'][data['auditc5'] == 4] = 3  # Six or more drinks frequency: Weekly
+    data['temp_auditc3'][data['auditc5'] == 5] = 4  # Six or more drinks frequency: Daily or almost daily
+
+    # Combined score
+    data['auditc_score'] = 0
+    data['auditc_score'][data['temp_auditc1'] >= 0] += data['temp_auditc1']
+    data['auditc_score'][data['temp_auditc2'] >= 0] += data['temp_auditc2']
+    data['auditc_score'][data['temp_auditc3'] >= 0] += data['temp_auditc3']
+    # if any of the components are missing, set the final value as missing also
+    data['auditc_score'][(data['temp_auditc1'] == -9) |
+                   (data['temp_auditc2'] == -9) |
+                   (data['temp_auditc3'] == -9)] = -9
+
+    # Ordinal values
+    data['auditc'] = '-9'
+    data['auditc'][data['auditc_score'] == 0] = 'Non-drinker'  # 0 score is non-drinker
+    data['auditc'][data['auditc_score'].isin(range(1, 5))] = 'Low Risk'  # 1-4 is sensible
+    data['auditc'][data['auditc_score'].isin(range(5, 8))] = 'Increased Risk'  # 5-7 is hazardous
+    data['auditc'][data['auditc_score'] >= 8] = 'High Risk'  # 8-12 is harmful
+
+    data.drop(labels=['auditc1', 'auditc2', 'auditc3', 'auditc4', 'auditc5',
+                      'temp_auditc1', 'temp_auditc2', 'temp_auditc3',
+                      'auditc_score'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_physical_activity_binary(data):
+    """
+    To determine what is a healthy level of physical activity, we are following government guidelines found here:
+    https://www.gov.uk/government/publications/physical-activity-guidelines-adults-and-older-adults
+
+    This document states that for adults and older adults (over the age of 19), the government recommends at least 150
+    minutes of moderate activty, or 75 minutes of vigorous activity in a week. Understanding Society has some good
+    variables on moderate and vigorous activity, with the caveat that they have only been asked on waves 7,9,11, and 12.
+
+    For both moderate and vigorous activity, US includes a number of variables:
+    - Number of days in past week did activity
+    - Average hours and minutes per day of activity
+    - Average hours and minutes per week of activity (if answered don't know to how much per day)
+
+    With this, we can generate a binary variable for whether or not an individual is hitting the government exercise
+    targets.
+
+    Parameters
+    ----------
+        data : pd.DataFrame
+            US data
+    Returns
+    -------
+        data : pd.DataFrame
+            US data with binary 'active' variable
+    -------
+
+    """
+    # First do moderate activity
+    # this is a combination of information from all moderate activity variables
+    data['temp_mod_act'] = 0
+    # hours per day * 60 (for minutes) where neither is missing
+    data['temp_mod_act'][(data['mday'] >= 0) & (data['mdhrs'] >= 0)] += data['mday'] * (data['mdhrs'] * 60)
+    # minutes per day
+    data['temp_mod_act'][(data['mday'] >= 0) & (data['mdmin'] >= 0)] += data['mday'] * data['mdmin']
+    # hours per week (asked separately I think for when hours per day is unknown)
+    data['temp_mod_act'][data['mwhrs'] >= 0] += data['mwhrs']
+    # minutes per week (mins per day unknown)
+    data['temp_mod_act'][data['mwmin'] >= 0] += data['mwmin']
+    # handle missing
+    data['temp_mod_act'][(data['mday'] < 0) &
+                         (data['mdhrs'] < 0) &
+                         (data['mdmin'] < 0) &
+                         (data['mwhrs'] < 0) &
+                         (data['mwmin'] < 0)] = -9
+
+    # now vigorous
+    data['temp_vig_act'] = 0
+    # hours per day * 60 (for minutes) where neither is missing
+    data['temp_vig_act'][(data['vday'] >= 0) & (data['vdhrs'] >= 0)] += data['vday'] * (data['vdhrs'] * 60)
+    # minutes per day
+    data['temp_vig_act'][(data['vday'] >= 0) & (data['vdmin'] >= 0)] += data['vday'] * data['vdmin']
+    # hours per week (asked separately I think for when hours per day is unknown)
+    data['temp_vig_act'][data['vwhrs'] >= 0] += data['vwhrs']
+    # minutes per week (mins per day unknown)
+    data['temp_vig_act'][data['vwmin'] >= 0] += data['vwmin']
+    # handle missing
+    data['temp_vig_act'][(data['vday'] < 0) &
+                         (data['vdhrs'] < 0) &
+                         (data['vdmin'] < 0) &
+                         (data['vwhrs'] < 0) &
+                         (data['vwmin'] < 0)] = -9
+
+    # Now do the calculations for a binary active variable
+    data['active'] = -9
+    # if either more than 150 mins moderate, or 75 mins vigorous, then active == TRUE
+    data['active'][(data['temp_mod_act'] >= 150) | (data['temp_vig_act'] >= 75)] = 1
+    #data['active'][data['temp_vig_act'] >= 75] = 1
+    # if both less than 150 mins moderate and less than 75 mins vigorous, then active == FALSE
+    data['active'][(data['temp_mod_act'] < 150) & (data['temp_vig_act'] < 75)] = 0
+    # if both missing, then missing
+    data['active'][(data['temp_mod_act'] == -9) & (data['temp_vig_act'] == -9)] = -9
+
+    # drop cols no longer need
+    data.drop(labels=['temp_mod_act', 'temp_vig_act',
+                      'mday', 'mdhrs', 'mdmin', 'mwhrs', 'mwmin',
+                      'vday', 'vdhrs', 'vdmin', 'vwhrs', 'vwmin'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_matdep_proxy(data):
+    """
+    This function will create a single proxy from the information in the material deprivation variables (all named
+    matdep{letter}). Each variable is a 4 level ordinal with the following levels:
+
+    1 - I/We have this
+    2 - Can't afford it
+    3 - Don't need it now
+    4 - Does not apply
+
+    A score of 1 indicates a positive response.
+    A score of 2 indicates a negative response.
+    A score of 3 or 4 will be treated as a missing value.
+
+    Each score of 1 will increment a material deprivation score variable by 1, and the final sum over all the variables
+    will be divided by the number of non-missing items to get a score from 0-1.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with the material deprivation component variables.
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with the combined matdep proxy created, and component variables removed.
+    """
+    # Create matdepscore variable and populate from the matdep variables
+    # Matdepscore + 1 if individual indicates they have the specific variable
+    # Then no increment if individual indicates they cannot afford it
+    # Finally scores of 3 (Don't need it now) or 4 (Does not apply) will be treated as a missing value
+    data['matdepscore'] = 0
+    data['matdepscore'][data['matdepa'] == 1] += 1
+    data['matdepscore'][data['matdepd'] == 1] += 1
+    data['matdepscore'][data['matdepe'] == 1] += 1
+    data['matdepscore'][data['matdepf'] == 1] += 1
+    data['matdepscore'][data['matdepg'] == 1] += 1
+    data['matdepscore'][data['matdeph'] == 1] += 1
+    data['matdepscore'][data['matdepi'] == 1] += 1
+    data['matdepscore'][data['matdepj'] == 1] += 1
+
+    # counter to increment when values are not missing (negative or 3, 4)
+    data['counter'] = 0
+    data['counter'][data['matdepa'].isin([1, 2])] += 1
+    data['counter'][data['matdepd'].isin([1, 2])] += 1
+    data['counter'][data['matdepe'].isin([1, 2])] += 1
+    data['counter'][data['matdepf'].isin([1, 2])] += 1
+    data['counter'][data['matdepg'].isin([1, 2])] += 1
+    data['counter'][data['matdeph'].isin([1, 2])] += 1
+    data['counter'][data['matdepi'].isin([1, 2])] += 1
+    data['counter'][data['matdepj'].isin([1, 2])] += 1
+
+    # Now use the counter value and matdepscore to generate a score between 0 and 1
+    data['matdepTEMP'] = data['matdepscore'] / data['counter']
+    data['matdepTEMP'][data['counter'] == 0] = -9
+
+    # now convert to 3 level ordinal
+    data['matdep'] = -9
+    data['matdep'][data['matdepTEMP'] == 0] = 1
+    data['matdep'][(data['matdepTEMP'] > 0) & (data['matdepTEMP'] < 1)] = 2
+    data['matdep'][data['matdepTEMP'] == 1] = 3
+
+    # drop cols no longer need
+    data.drop(labels=['matdepa', 'matdepd', 'matdepe', 'matdepf', 'matdepg', 'matdeph', 'matdepi', 'matdepj',
+                      'matdepscore', 'counter', 'matdepTEMP'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+def generate_chron_disease_proxy(data):
+    """
+    For a first pass at a chronic disease proxy variable, we are going to focus on the distinction between no chronic
+    disease (CD), 1 CD, and more than 1. We think this will give us a fairly simple ordinal variable that has a strong
+    correlation with SF_12_PCS.
+
+    NOTE: There is a variable (hcond96) for none of the above conditions. I'm going to ignore this and just rely on
+    the tally of CD's we create from each individual variable.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        US data with the individual chronic disease variables.
+
+    Returns
+    -------
+    data : pd.DataFrame
+        US data with the chronic disease proxy, and component variables removed.
+    """
+
+    # first start the counter and increment with every non-missing positive response to each chronic condition
+    data['cd_counter'] = 0
+    data['cd_counter'][data['hcond1'] == 1] += 1  # Asthma
+    data['cd_counter'][data['hcond2'] == 1] += 1  # Arthritis
+    data['cd_counter'][data['hcond3'] == 1] += 1  # Congestive Heart Failure
+    data['cd_counter'][data['hcond4'] == 1] += 1  # Coronary Heart Failure
+    data['cd_counter'][data['hcond5'] == 1] += 1  # Angina
+    data['cd_counter'][data['hcond6'] == 1] += 1  # Heart attack or myocardial infarction
+    data['cd_counter'][data['hcond7'] == 1] += 1  # Stroke
+    data['cd_counter'][data['hcond8'] == 1] += 1  # Emphysema
+    data['cd_counter'][data['hcond10'] == 1] += 1  # Hypothyroidism
+    data['cd_counter'][data['hcond11'] == 1] += 1  # Chronic Bronchitis
+    data['cd_counter'][data['hcond12'] == 1] += 1  # Any kind of liver condition
+    data['cd_counter'][data['hcond13'] == 1] += 1  # Cancer or malignancy
+    data['cd_counter'][data['hcond14'] == 1] += 1  # Diabetes
+    data['cd_counter'][data['hcond15'] == 1] += 1  # Epilepsy
+    data['cd_counter'][data['hcond16'] == 1] += 1  # High blood pressure
+    data['cd_counter'][data['hcond18'] == 1] += 1  # Other long standing/chronic condition
+    data['cd_counter'][data['hcond19'] == 1] += 1  # Multiple Sclerosis
+    data['cd_counter'][data['hcond20'] == 1] += 1  # H.I.V
+    data['cd_counter'][data['hcond21'] == 1] += 1  # COPD
+
+    # next we need a missing counter to find cases where all vars are missing
+    data['cd_miss_counter'] = 0
+    data['cd_miss_counter'][data['hcond1'] < 0] += 1  # Asthma
+    data['cd_miss_counter'][data['hcond2'] < 0] += 1  # Arthritis
+    data['cd_miss_counter'][data['hcond3'] < 0] += 1  # Congestive Heart Failure
+    data['cd_miss_counter'][data['hcond4'] < 0] += 1  # Coronary Heart Failure
+    data['cd_miss_counter'][data['hcond5'] < 0] += 1  # Angina
+    data['cd_miss_counter'][data['hcond6'] < 0] += 1  # Heart attack or myocardial infarction
+    data['cd_miss_counter'][data['hcond7'] < 0] += 1  # Stroke
+    data['cd_miss_counter'][data['hcond8'] < 0] += 1  # Emphysema
+    data['cd_miss_counter'][data['hcond10'] < 0] += 1  # Hypothyroidism
+    data['cd_miss_counter'][data['hcond11'] < 0] += 1  # Chronic Bronchitis
+    data['cd_miss_counter'][data['hcond12'] < 0] += 1  # Any kind of liver condition
+    data['cd_miss_counter'][data['hcond13'] < 0] += 1  # Cancer or malignancy
+    data['cd_miss_counter'][data['hcond14'] < 0] += 1  # Diabetes
+    data['cd_miss_counter'][data['hcond15'] < 0] += 1  # Epilepsy
+    data['cd_miss_counter'][data['hcond16'] < 0] += 1  # High blood pressure
+    data['cd_miss_counter'][data['hcond18'] < 0] += 1  # Other long-standing/chronic condition
+    data['cd_miss_counter'][data['hcond19'] < 0] += 1  # Multiple Sclerosis
+    data['cd_miss_counter'][data['hcond20'] < 0] += 1  # H.I.V
+    data['cd_miss_counter'][data['hcond21'] < 0] += 1  # COPD
+
+    # 'hcond96': 'hcond96',  # Health Condition 96: None of these
+
+    data['chron_disease'] = -9
+    data['chron_disease'][data['cd_counter'] == 0] = 1  # No Chronic disease
+    data['chron_disease'][data['cd_counter'] == 1] = 2  # 1 Chronic disease
+    data['chron_disease'][data['cd_counter'] > 1] = 3  # 1+ Chronic disease
+
+    # Now missing - when all (19) CD's are missing then the ordinal variable can be labelled missing
+    data['chron_disease'][data['cd_miss_counter'] == 19] = -9  # All missing
+
+    # drop cols no longer need
+    data.drop(labels=['hcond1', 'hcond2', 'hcond3', 'hcond4', 'hcond5', 'hcond6', 'hcond7', 'hcond8', 'hcond10',
+                      'hcond11', 'hcond12', 'hcond13', 'hcond14', 'hcond15', 'hcond16', 'hcond18', 'hcond19', 'hcond20',
+                      'hcond21', 'hcond96',
+                      'cd_counter', 'cd_miss_counter'],
+              axis=1,
+              inplace=True)
+
+    return data
+
+
+
 def calculate_children(data,
                        parity_max=PARITY_MAX_DEFAULT):
     """
@@ -980,7 +1314,7 @@ def calculate_children(data,
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
+    diff_columns = ["hh_income", "SF_12_MCS", "SF_12_PCS", "nutrition_quality", 'matdep', "job_hours", 'hourly_wage']
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
@@ -1041,8 +1375,12 @@ def main():
     data = generate_marital_status(data)  # marital status
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
+    data = calculate_auditc_score(data)  # alcohol use disorder for consumption (auditc)
+    data = generate_physical_activity_binary(data)  # physical activity composite
+    data = generate_matdep_proxy(data)  # Material Deprivation proxy
+    data = generate_chron_disease_proxy(data)  # Chronic Disease proxy
     data = calculate_children(data)  # total number of biological children
-    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
+    data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

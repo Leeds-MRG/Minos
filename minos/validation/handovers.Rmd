@@ -83,220 +83,144 @@ handover_lineplots(raw.dat, base.dat, "hh_income")
 ### Spaghetti
 
 ```{r}
-raw.inc <- raw.dat %>%
-  select(pidp, age, time, hh_income)
-base.inc <- base.dat %>%
-  select(pidp, age, time, hh_income)
-
-income.spag <- rbind(raw.inc, base.inc)
-
-density_ridges(income.spag, 'hh_income',
-               save=TRUE, 
-               save.path=save.path)
-
-pidp_sample <- sample(unique(income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
-income.spag.sample <- income.spag[which(income.spag$pidp %in% pidp_sample), ]
-spaghetti_plot(income.spag.sample, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
-spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.inc, base.inc, income.spag)
+# raw.inc <- raw.dat %>%
+#   select(pidp, age, time, hh_income)
+# base.inc <- base.dat %>%
+#   select(pidp, age, time, hh_income)
+# 
+# income.spag <- rbind(raw.inc, base.inc)
+# 
+# density_ridges(income.spag, 'hh_income',
+#                save=shall.we.save, 
+#                save.path=save.path)
+# 
+# pidp_sample <- sample(unique(income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
+# income.spag.sample <- income.spag[which(income.spag$pidp %in% pidp_sample), ]
+# spaghetti_plot(income.spag.sample, 'hh_income',
+#                save = shall.we.save,
+#                save.path = save.path)
+# spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.inc, base.inc, income.spag)
 ```
 
 
-## SF12
+## SF_12_MCS
 
 ```{r}
 # sf12 boxplot handovers
-handover_boxplots(raw.dat, base.dat, 'SF_12')
-handover_lineplots(raw.dat, base.dat, "SF_12")
-# 
-# raw.sf12 <- raw.dat %>% 
-#   dplyr::select(pidp, time, SF_12) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'final_US')
-# 
-# base.sf12 <- base.dat %>%
-#   dplyr::select(pidp, time, SF_12) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'baseline_output')
-# 
-# # merge before plot
-# sf12 <- rbind(raw.sf12, base.sf12)
-# 
-# # Now plot
-# ggplot(data = sf12, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
-#   geom_smooth() +
-#   #geom_line() +
-#   geom_vline(xintercept=start.year, linetype='dotted') +
-#   labs(title = 'Mental Wellbeing (SF12)', subtitle = 'Full Sample') +
-#   xlab('Year') +
-#   ylab('SF12')
-# 
-# ## Try a version where final_US is limited to only those present from wave 1 
-# # onwards because the sample refreshments are messing with the plot
-# raw.sf12.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
-# 
-# raw.sf12.2 <- raw.dat %>% 
-#   dplyr::select(pidp, time, SF_12) %>%
-#   filter(pidp %in% raw.sf12.wave1) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'final_US')
-# 
-# base.sf12.2 <- base.dat %>%
-#   dplyr::select(pidp, time, SF_12) %>%
-#   filter(pidp %in% raw.sf12.wave1) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'baseline_output')
-# 
-# sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
-# 
-# # Now plot
-# ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
-#   geom_line() +
-#   geom_vline(xintercept=start.year, linetype='dotted') +
-#   labs(title = 'Mental Wellbeing (SF12 MCS)') +
-#   xlab('Year') +
-#   ylab('SF12')
-# 
-# if (shall.we.save) {
-#   ggsave(filename = 'SF12_wav1.png',
-#        plot = last_plot(),
-#        path = save.path)
-# }
-# 
-# rm(raw.sf12, base.sf12, sf12, raw.sf12.wave1, raw.sf12.2, base.sf12.2, sf12.2)
+handover_boxplots(raw.dat, base.dat, 'SF_12_MCS')
+handover_lineplots(raw.dat, base.dat, "SF_12_MCS")
 ```
 
 ### Spaghetti
 
 ```{r}
-raw.sf12 <- raw.dat %>%
-  select(pidp, age, time, SF_12)
-base.sf12 <- base.dat %>%
-  select(pidp, age, time, SF_12)
+raw.sf12.m <- raw.dat %>%
+  select(pidp, age, time, SF_12_MCS)
+base.sf12.m <- base.dat %>%
+  select(pidp, age, time, SF_12_MCS)
 
-sf12.spag <- rbind(raw.sf12, base.sf12)
+sf12.m.spag <- rbind(raw.sf12.m, base.sf12.m)
 
-sf12.spag.sample <- sf12.spag[which(sf12.spag$pidp %in% pidp_sample), ]
-spaghetti_plot(sf12.spag.sample, 'SF_12',
+#sf12.m.spag.sample <- sf12.m.spag[which(sf12.m.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(sf12.m.spag, 'SF_12_MCS',
                save = shall.we.save,
                save.path = save.path)
-spaghetti_highlight_max_plot(sf12.spag.sample, 'SF_12',
+spaghetti_highlight_max_plot(sf12.m.spag, 'SF_12_MCS',
                save = shall.we.save,
                save.path = save.path)
   
-density_ridges(sf12.spag, "SF_12", 
-               save = T, 
+density_ridges(sf12.m.spag, "SF_12_MCS", 
+               save = shall.we.save, 
                save.path = save.path)
 
-rm(raw.sf12, base.sf12, sf12.spag)
+rm(raw.sf12.m, base.sf12.m, sf12.m.spag, sf12.m.spag.sample)
+```
+
+## SF_12_PCS
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'SF_12_PCS')
+handover_lineplots(raw.dat, base.dat, "SF_12_PCS")
+```
+
+### Spaghetti
+
+```{r}
+raw.sf12.p <- raw.dat %>%
+  select(pidp, age, time, SF_12_PCS)
+base.sf12.p <- base.dat %>%
+  select(pidp, age, time, SF_12_PCS)
+
+sf12.p.spag <- rbind(raw.sf12.p, base.sf12.p)
+
+spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
+               save = shall.we.save,
+               save.path = save.path)
+
+density_ridges(sf12.p.spag, "SF_12_PCS", 
+               save = shall.we.save, 
+               save.path = save.path)
+
+rm(raw.sf12.p, base.sf12.p, sf12.p.spag)
+```
+
+### Histograms
+
+I have a hypothesis that the longer we run through simulation, the more simulants are predicted a negative PCS value which is then clipped to a 0. Histograms over a few snapshots of time should show if this is happening.
+
+```{r}
+pcs.2021 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2021)
+
+# pcs.2022 <- base.dat %>%
+#   select(pidp, time, SF_12_PCS) %>%
+#   filter(time == 2022)
+
+pcs.2025 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2025)
+
+pcs.2030 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2030)
+
+pcs.2036 <- base.dat %>%
+  select(pidp, time, SF_12_PCS) %>%
+  filter(time == 2036)
+
+
+merged <- rbind(pcs.2021, pcs.2025, pcs.2030, pcs.2036)
+merged$time <- as.factor(merged$time)
+
+ggplot(merged, aes(x = SF_12_PCS, group = time, colour = time, fill = time)) +
+  geom_histogram() +
+  labs(title = 'Distribution of SF_12_PCS')
+
+ggplot(merged, aes(x = SF_12_PCS, group = time, colour = time, fill = time)) +
+  geom_freqpoly() +
+  labs(title = 'Distribution of SF_12_PCS', subtitle = 'Count')
+
+ggplot(merged, aes(x = SF_12_PCS, y = after_stat(density), group = time, colour = time, fill = time)) +
+  geom_freqpoly() +
+  labs(title = 'Distribution of SF_12_PCS', subtitle = 'Density')
 ```
 
 
 ## Financial Situation
 
 ```{r}
-raw.financial_situation <- raw.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.financial_situation <- base.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-
-
-# merge before plot
-financial_situation <- rbind(raw.financial_situation, base.financial_situation)
-financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
-
-# Now plot
-ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-financial_situation.norm <- financial_situation %>%
-  group_by(time) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial situation') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'financial_situation.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
+handover_ordinal(raw.dat, base.dat, var = 'financial_situation', save = shall.we.save)
 ```
 
 ## Housing Quality
 
 ```{r}
-raw.housing <- raw.dat %>%
-  dplyr::select(pidp, time, housing_quality) %>%
-  group_by(time, housing_quality) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.housing <- base.dat %>%
-  dplyr::select(pidp, time, housing_quality) %>%
-  group_by(time, housing_quality) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-# merge before plot
-housing <- rbind(raw.housing, base.housing)
-housing$housing_quality <- as.factor(housing$housing_quality)
-
-# Now plot
-ggplot(data = housing, mapping = aes(x = time, y = n, group = housing_quality, colour = housing_quality)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Housing Quality', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-housing.norm <- housing %>%
-  group_by(time) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=housing_quality)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Housing Quality') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'housing_quality.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.housing, base.housing, housing, housing.norm)
+handover_ordinal(raw.dat, base.dat, var = 'housing_quality', save = shall.we.save)
 ```
 
 ### Spaghetti
@@ -319,50 +243,7 @@ rm(raw.housing, base.housing, housing, housing.norm)
 ## Neighbourhood Safety
 
 ```{r}
-raw.neighbour <- raw.dat %>%
-  dplyr::select(pidp, time, neighbourhood_safety) %>%
-  group_by(time, neighbourhood_safety) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.neighbour <- base.dat %>%
-  dplyr::select(pidp, time, neighbourhood_safety) %>%
-  group_by(time, neighbourhood_safety) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-# merge before plot
-neighbour <- rbind(raw.neighbour, base.neighbour)
-neighbour$neighbourhood_safety <- as.factor(neighbour$neighbourhood_safety)
-
-# Now plot
-ggplot(data = neighbour, mapping = aes(x = time, y = n, group = neighbourhood_safety, colour = neighbourhood_safety)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Neighbourhood Safety', subtitle = 'Counts by level') +
-  xlab('Year') +
-  ylab('Count')
-
-neighbour.norm <- neighbour %>%
-  group_by(time) %>%
-  filter(neighbourhood_safety != -9) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = neighbour.norm, mapping = aes(x = time, y = prct, fill=neighbourhood_safety)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Neighbourhood Safety') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'neighbourhood_safety.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-#rm(raw.neighbour, base.neighbour, neighbour, neighbour.norm)
+handover_ordinal(raw.dat, base.dat, var = 'neighbourhood_safety', save = shall.we.save)
 ```
 
 ### Spaghetti
@@ -385,50 +266,7 @@ if (shall.we.save) {
 ## Loneliness
 
 ```{r}
-raw.loneliness <- raw.dat %>%
-  dplyr::select(pidp, time, loneliness) %>%
-  group_by(time, loneliness) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.loneliness <- base.dat %>%
-  dplyr::select(pidp, time, loneliness) %>%
-  group_by(time, loneliness) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-# merge before plot
-loneliness <- rbind(raw.loneliness, base.loneliness)
-loneliness$loneliness <- as.factor(loneliness$loneliness)
-
-# Now plot
-ggplot(data = loneliness, mapping = aes(x = time, y = n, group = loneliness, colour = loneliness)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Loneliness', subtitle = 'Counts by level') +
-  xlab('Year') +
-  ylab('Count')
-
-loneliness.norm <- loneliness %>%
-  group_by(time) %>%
-  filter(loneliness != -9) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = loneliness.norm, mapping = aes(x = time, y = prct, fill=loneliness)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Loneliness') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'loneliness.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
+handover_ordinal(raw.dat, base.dat, var = 'loneliness', save = shall.we.save)
 ```
 
 ### Spaghetti
@@ -457,44 +295,14 @@ TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 handover_boxplots(raw.dat, base.dat, 'nutrition_quality')
 handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 
+test.pidps <- raw.dat %>%
+  select(pidp)
 
-# Try a version where final_US is limited to only those present from wave 1
-# onwards because the sample refreshments are messing with the plot
-# raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
-# 
-# raw.nut2 <- raw.dat %>%
-#   dplyr::select(pidp, time, nutrition_quality) %>%
-#   filter(pidp %in% raw.wave1) %>%
-#   filter(nutrition_quality >= 0) %>%
-#   group_by(time) %>%
-#   summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
-#   mutate(source = 'final_US')
-# 
-# base.nut2 <- base.dat %>%
-#   dplyr::select(pidp, time, nutrition_quality) %>%
-#   filter(pidp %in% raw.wave1) %>%
-#   group_by(time) %>%
-#   summarise(nutrition_quality = mean(nutrition_quality, na.rm = TRUE)) %>%
-#   mutate(source = 'baseline_output')
-# 
-# nutrition_quality2 <- rbind(raw.nut2, base.nut2)
-# 
-# # Now plot
-# ggplot(data = nutrition_quality2, mapping = aes(x = time, y = nutrition_quality, group = source, colour = source)) +
-#   geom_line() +
-#   geom_vline(xintercept=start.year, linetype='dotted') +
-#   labs(title = 'Nutrition Quality') +
-#   xlab('Year') +
-#   ylab('Nutrition Quality')
-# 
-# if (shall.we.save) {
-#   ggsave(filename = 'nutrition_quality_wav1.png',
-#        plot = last_plot(),
-#        path = save.path)
-# }
-# 
-# rm(raw.nut, base.nut, nutrition_quality, raw.wave1, raw.nut2, base.nut2,
-#     nutrition_quality2)
+test.base <- base.dat %>%
+  filter(pidp %in% test.pidps$pidp)
+
+handover_boxplots(raw.dat, test.base, 'nutrition_quality')
+handover_lineplots(raw.dat, test.base, 'nutrition_quality')
 ```
 
 ### Spaghetti
@@ -512,93 +320,91 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 #                save.path = save.path)
 # 
 # 
-# density_ridges(nut.spag, "nutrition_quality", 
-#                save = T, 
+# density_ridges(nut.spag, "nutrition_quality",
+#                save = T,
 #                save.path = save.path)
 # 
 # rm(raw.nut, base.nut, nut.spag)
 ```
+
+## Tobacco
+
+### ncigs mean
+
+TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
+
+```{r}
+#  nutriton quality line/boxplots.
+handover_boxplots(raw.dat, base.dat, 'ncigs')
+handover_lineplots(raw.dat, base.dat, 'ncigs')
+
+test.pidps <- raw.dat %>%
+  select(pidp)
+
+test.base <- base.dat %>%
+  filter(pidp %in% test.pidps$pidp)
+
+handover_boxplots(raw.dat, test.base, 'ncigs')
+handover_lineplots(raw.dat, test.base, 'ncigs')
+```
+
+### Spaghetti
+
+```{r}
+# raw.nut <- raw.dat %>%
+#   select(pidp, age, time, ncigs)
+# base.nut <- base.dat %>%
+#   select(pidp, age, time, ncigs)
+# 
+# nut.spag <- rbind(raw.nut, base.nut)
+# 
+# spaghetti_plot(nut.spag, 'ncigs',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# 
+# density_ridges(nut.spag, "ncigs",
+#                save = FALSE,
+#                save.path = save.path)
+# 
+# rm(raw.nut, base.nut, nut.spag)
+```
+
+### ncigs Max
+
+```{r}
+raw.ncigs_max <- raw.dat %>%
+  select(pidp, time, ncigs) %>%
+  group_by(time) %>%
+  summarise(max_ncigs = max(ncigs)) %>%
+  mutate(source = 'final_US')
+
+base.ncigs_max <- base.dat %>%
+  dplyr::select(pidp, time, ncigs) %>%
+  group_by(time) %>%
+  summarise(max_ncigs = max(ncigs)) %>%
+  mutate(source = 'baseline_output')
+
+max_ncigs <- rbind(raw.ncigs_max, base.ncigs_max)
+
+# Now plot
+ggplot(data = max_ncigs, mapping = aes(x = time, y = max_ncigs, group = source, colour = source)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Max ncigs', subtitle = 'Full Sample') +
+  xlab('Year') +
+  ylab('Average')
+```
+
 
 ## Physical Health
 
 NOTE: At present, physical health is not predicted or transitioned.
 
 ```{r}
-# first figure out how to plot final_US
-# start with hh_income
-raw.phealth <- raw.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'final_US')
-
-base.phealth <- base.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'baseline_output')
-
-# merge before plot
-phealth <- rbind(raw.phealth, base.phealth)
-
-# Now plot
-ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health', subtitle = 'Full Sample') +
-  xlab('Year') +
-  ylab('Average')
-
-## Try a version where final_US is limited to only those present from wave 1
-# onwards because the sample refreshments are messing with the plot
-raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
-
-raw.phealth2 <- raw.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  filter(pidp %in% raw.wave1) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'final_US')
-
-base.phealth2 <- base.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  filter(pidp %in% raw.wave1) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'baseline_output')
-
-phealth2 <- rbind(raw.phealth2, base.phealth2)
-
-# Now plot
-ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health') +
-  xlab('Year') +
-  ylab('Average')
-
-if (shall.we.save) {
-  ggsave(filename = 'physical_health_wav1.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-#raw.phealth.check <- raw.dat %>%
-#  select(pidp, time, phealth) %>%
-#  filter(time > 2009) %>%
-#  filter(pidp %in% raw.wave1)
-
-#base.phealth.check <- base.dat %>%
-#  select(pidp, time, phealth) %>%
-#  filter(time > 2009) %>%
-#  filter(pidp %in% raw.wave1)
-
-rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, phealth2)
-#rm(raw.phealth.check, base.phealth.check)
+handover_continuous(raw.dat, base.dat, var = 'phealth')
+handover_boxplots(raw.dat, base.dat, 'phealth')
+handover_lineplots(raw.dat, base.dat, 'phealth')
 ```
 
 ### Spaghetti
@@ -621,36 +427,7 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 ## Education
 
 ```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
-
-var <- prepped.list$var
-norm <- prepped.list$norm
-
-tit <- 'Education State'
-
-# Now plot
-ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = tit, subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = tit) +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'education_state.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, var, norm, tit)
+handover_ordinal(raw.dat, base.dat, var = 'education_state', save = shall.we.save)
 ```
 
 
@@ -776,6 +553,7 @@ if (shall.we.save) {
 
 rm(prepped.list, var, norm, tit)
 ```
+
 ```{r}
 pivoted <- combine_and_pivot_long(df1 = base.parity,
                                   df1.name = 'simulated', 
@@ -793,18 +571,130 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-raw.s <- raw.parity %>%
-  select(pidp, age, time, nkids_ind)
-base.s <- base.parity %>%
-  select(pidp, age, time, nkids_ind)
+# raw.s <- raw.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# base.s <- base.parity %>%
+#   select(pidp, age, time, nkids_ind)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'nkids_ind',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
+```
 
-spag <- rbind(raw.s, base.s)
 
-spaghetti_plot(spag, 'nkids_ind',
-               save = shall.we.save,
-               save.path = save.path)
+## Alcohol (AUDITC)
 
-rm(raw.s, base.s, spag)
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'auditc', save = shall.we.save)
+
+raw.2020.alc <- raw.dat %>% 
+  filter(time == 2020) %>%
+  group_by(auditc) %>%
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n))
+
+```
+
+## Physical Activity
+
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'active', save = shall.we.save)
+
+raw.2020.phys <- raw.dat %>% 
+  filter(time == 2020) %>%
+  group_by(active) %>%
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n))
+```
+
+## Material Deprivation
+
+```{r}
+#handover_boxplots(raw.dat, base.dat, 'matdep')
+#handover_lineplots(raw.dat, base.dat, 'matdep')
+handover_ordinal(raw.dat, base.dat, var = 'matdep', save = shall.we.save)
+
+raw.dat$chron_disease <- as.factor(raw.dat$chron_disease)
+raw.2020.cd <- raw.dat %>%
+  select(time, chron_disease, age) %>%
+  filter(time == 2020) %>%
+  mutate(age_group = cut(age, 
+                         breaks = c(0,20,30,40,50,60,70,80,90,100,120),
+                         labels = c('16-19', '20-30', '30-40', '40-50', '50-60', '60-70', '70-80', '80-90', '90-100', '100+'))) %>%
+  group_by(age_group, chron_disease) %>%
+  summarise(n = n()) %>%
+  group_by(age_group) %>%
+  mutate(prop = n / sum(n),
+         perc = prop * 100)
+  # mutate(prop = n() / sum(n),
+  #        perc = prop * 100)
+
+raw.2020.cd
+
+ggplot(raw.2020.cd, aes(x = age_group, y = perc, group = chron_disease, colour = chron_disease, fill = chron_disease)) +
+  geom_col(position = 'dodge') +
+  xlab('Age Group') +
+  ylab('Proportion')
+```
+
+```{r}
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, matdep) %>%
+#   filter(!matdep %in% miss.values)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, matdep) %>%
+#   filter(!matdep %in% miss.values)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'matdep',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
+```
+
+## Chronic Disease
+
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'chron_disease', save = shall.we.save)
+```
+
+
+```{r}
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, chron_disease) %>%
+#   filter(!chron_disease %in% miss.values)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, chron_disease) %>%
+#   filter(!chron_disease %in% miss.values)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spag$chron_disease <- as.numeric(spag$chron_disease)
+# 
+# spaghetti_plot(spag, 'chron_disease',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# density_ridges(spag, 'chron_disease',
+#                save=shall.we.save, 
+#                save.path=save.path)
+# 
+# pidp_sample <- sample(unique(spag$pidp), size=nrow(raw.s)/10, replace=FALSE)
+# spag.sample <- spag[which(spag$pidp %in% pidp_sample), ]
+# spaghetti_plot(spag.sample, 'chron_disease',
+#                save = shall.we.save,
+#                save.path = save.path)
+# spaghetti_highlight_max_plot(spag.sample, 'chron_disease',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ## Hourly Wage
@@ -815,58 +705,58 @@ handover_lineplots(raw.dat, base.dat, 'hourly_wage')
 ```
 
 ```{r}
-raw.s <- raw.dat %>%
-  select(pidp, age, time, hourly_wage)
-base.s <- base.dat %>%
-  select(pidp, age, time, hourly_wage)
-
-spag <- rbind(raw.s, base.s)
-
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-# now a version limited to 0-100
-spag <- spag %>%
-  filter(hourly_wage <= 300)
-spaghetti_plot(spag, 'hourly_wage',
-               save = shall.we.save,
-               save.path = save.path)
-
-rm(raw.s, base.s, spag)
+# raw.s <- raw.dat %>%
+#   select(pidp, age, time, hourly_wage)
+# base.s <- base.dat %>%
+#   select(pidp, age, time, hourly_wage)
+# 
+# spag <- rbind(raw.s, base.s)
+# 
+# spaghetti_plot(spag, 'hourly_wage',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# # now a version limited to 0-100
+# spag <- spag %>%
+#   filter(hourly_wage <= 300)
+# spaghetti_plot(spag, 'hourly_wage',
+#                save = shall.we.save,
+#                save.path = save.path)
+# 
+# rm(raw.s, base.s, spag)
 ```
 
 ```{r}
-# some basic statistics about hourly_wage variable
-print("Some basic statistics on hourly_wage. These are all for 2020.")
-raw.2020 <- raw.dat %>% filter(time == 2020)
-print('All living people in 2020')
-print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
-# number individuals with an hourly_wage > 0
-print('People not in work')
-print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
-
-# Number in work
-print('People in work')
-print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
-
-# Extreme hourly_wage values
-print('Extreme hourly wage values: HIGH')
-print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
-print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
-print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
-print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
-print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
-print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
-
-raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
-print('Extreme hourly wage values: LOW (non-zero)')
-print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
-print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
-print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
-print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
+# # some basic statistics about hourly_wage variable
+# print("Some basic statistics on hourly_wage. These are all for 2020.")
+# raw.2020 <- raw.dat %>% filter(time == 2020)
+# print('All living people in 2020')
+# print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
+# # number individuals with an hourly_wage > 0
+# print('People not in work')
+# print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+# print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
+# 
+# # Number in work
+# print('People in work')
+# print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
+# print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
+# 
+# # Extreme hourly_wage values
+# print('Extreme hourly wage values: HIGH')
+# print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
+# print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
+# print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
+# print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
+# print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
+# print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
+# 
+# raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
+# print('Extreme hourly wage values: LOW (non-zero)')
+# print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
+# print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
+# print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
+# print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
 ```
 
 ## S7 Labour State

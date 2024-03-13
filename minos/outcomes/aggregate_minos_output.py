@@ -63,12 +63,13 @@ def aggregate_variables_by_year(source, mode, years, tag, v, method, subset_func
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(v), repeat(method), repeat("who_alive"), repeat(mode)))
-        elif year == 2020 and tag != "Baseline":
-            continue # skip processing here. ignoring starting data from interventions.
         else:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                 zip(files, repeat(v), repeat(method), repeat(subset_func_string), repeat(mode)))
+
+        #elif year == 2020 and tag != "Baseline":
+        #    continue # skip processing here. ignoring starting data from interventions.
 
         new_df = pd.DataFrame(aggregated_means)
         new_df.columns = [v]
@@ -89,7 +90,7 @@ def main(source, mode, years, tag, v, method, subset_function_string):
     tag: list
         Corresponding name of the MINOS batch source. Usually what intervention was used. Baseline Uplift, etc..
     v: str
-        What variable to aggregate on. Defaults to SF_12
+        What variable to aggregate on. Defaults to SF_12_MCS
     method: func
         What function to aggregate over. Default np.nanmean.
     destination: str
@@ -117,7 +118,7 @@ if __name__ == '__main__':
                         help="Subdirectories within source that are aggregated. Usually experiment names baseline childUplift etc.")
     parser.add_argument("-t", "--tags", required=True, type=str,
                         help="Corresponding name tags for which data is being processed. I.E which intervention Baseline/£20 Uplift etc. Used as label in later plots.")
-    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
+    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12_MCS',
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
     parser.add_argument("-a", "--aggregate_method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to np.nanmean.")
@@ -135,9 +136,9 @@ if __name__ == '__main__':
     if method == "nanmean":
         method = np.nanmean
     else:
-        #TODO no better way to do this to my knowledge without eval() which shouldn't be used.
+        # TODO no better way to do this to my knowledge without eval() which shouldn't be used.
         raise ValueError("Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
-        #TODO replace this if...else... with a try...except block around the main function below.
+        # TODO replace this if...else... with a try...except block around the main function below.
 
 
     directories = directories.split(",")
@@ -148,7 +149,7 @@ if __name__ == '__main__':
 
         # Handle the datetime folder inside the output. Select most recent run
         runtime = os.listdir(os.path.abspath(os.path.join('output/', mode, directory)))
-        #TODO: Replace this block (or encapsulate) in a try except block for proper error handling
+        # TODO: Replace this block (or encapsulate) in a try except block for proper error handling
         if len(runtime) > 1:
             # if more than 1, select most recent datetime
             runtime = max(runtime, key=lambda d: datetime.strptime(d, "%Y_%m_%d_%H_%M_%S"))

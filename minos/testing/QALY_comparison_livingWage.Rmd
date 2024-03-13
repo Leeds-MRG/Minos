@@ -1,0 +1,205 @@
+---
+title: "QALY Comparison - Living Wage Intervention"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+require(MESS)
+require(scales)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  options(scipen=999)
+)
+rm(workingDir)
+```
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_qaly.R'))
+```
+
+
+## Data
+
+```{r}
+# # read in QALY files for baseline and interventions
+out.path <- here::here('output', 'default_config')
+#out.path <- here::here('output', 'glasgow_scaled')
+#out.path <- here::here('output', 'SF12_uk_scaled')
+
+base.path <- get_latest_runtime_subdirectory(here::here(out.path, 'baseline'))
+wage.path <- get_latest_runtime_subdirectory(here::here(out.path, 'livingWageIntervention'))
+
+base <- read.csv(paste0(base.path, 'qalys.csv'))
+wage <- read.csv(paste0(wage.path, 'qalys.csv'))
+
+# out.path <- '/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_TESTING/'
+# 
+# base <- read.csv(paste0(out.path, 'qalys_baseline.csv'))
+# wage <- read.csv(paste0(out.path, 'qalys_livwage.csv'))
+
+# combine the dataframes
+combined <- rbind(base, wage)
+```
+
+```{r}
+diff <- combined %>%
+  pivot_longer(cols = -c(run_id, year, intervention, total_pop_size, alive_pop, dead_pop),
+               names_to = 'measure') %>%
+  group_by(run_id, year, measure) %>%
+  summarise(diff = value[intervention == 'livingWageIntervention'] - value[intervention == 'baseline']) %>%
+  pivot_wider(names_from = 'measure',
+              values_from = 'diff')
+
+wage.short <- wage %>%
+  select(run_id, year, total_pop_size, alive_pop, dead_pop)
+
+combined.diff <- merge(wage.short, diff, by=c('run_id', 'year'))
+
+
+qalys_3sd <- 3 * sd(combined.diff$QALYs)
+combined.culled <- filter(combined.diff, 
+                          QALYs < QALYs + qalys_3sd,
+                          QALYs > QALYs - qalys_3sd)
+  
+  
+  # pivot_wider(id_cols = c(run_id, year),
+  #             names_from = 'intervention',
+  #             values_from = -c(run_id, year)) %>%
+  # mutate(across(ends_with('_livingWageIntervention'), .names = "{.col}_diff") - across(ends_with('_baseline')))
+```
+
+
+# Intervention Information
+
+Just going to plot some things here like how many people affected by an intervention and what the mean / total boost amounts look like.
+
+```{r}
+
+test <- combined %>%
+  filter(intervention != 'baseline')
+
+ggplot(test, aes(x = year, y = pop_boosted, group = intervention, colour = intervention)) +
+  geom_smooth() +
+  labs(title = 'Number Individuals Receiving Intervention')
+
+ggplot(filter(combined, intervention != 'baseline'), aes(x = year, y = total_boost, group = intervention, colour = intervention)) +
+  geom_smooth() +
+  labs(title = 'Total Boost amount by year')
+
+# ggplot(combined, aes(x = year, y = alive_ratio, group = intervention, colour = intervention)) +
+#   geom_smooth() +
+#   labs(title = 'Ratio of living to dead in output dataframe')
+
+## incidence of mortality
+deaths <- combined %>%
+  select(run_id, intervention, year, alive_pop, dead_pop) %>%
+  group_by(run_id, intervention) %>%
+  mutate(total_pop = alive_pop + dead_pop,
+         deaths_this_year = dead_pop - lag(dead_pop)) %>%
+  group_by(run_id, year, intervention) %>%
+  summarise(death_incidence = deaths_this_year / total_pop)
+
+ggplot(deaths, aes(x = year, y = death_incidence, group = intervention, colour = intervention)) +
+  geom_smooth() +
+  labs(title = 'Incidence of Mortality Comparison')
+```
+
+# Number people Below Living Wage
+
+```{r}
+# Only need this for the baseline 2020 input data
+base.num <- base %>%
+  filter()
+```
+
+
+# QALY comparison
+
+```{r}
+QALY_comparison(base = base,
+                base.name = 'baseline',
+                int = wage,
+                int.name = 'livingWageIntervention')
+```
+
+## SF12 Change
+
+```{r}
+sf12.plots(base = base,
+           base.name = 'baseline',
+           int = wage,
+           int.name = 'livingWageIntervention')
+```
+
+## Area Under the Curve Comparison
+
+```{r}
+auc.plots(base = base, 
+          base.name = 'baseline',
+          intervention = wage,
+          int.name = 'LivingWage')
+```
+
+# Cost per QALY
+
+The [UK Government](https://www.gov.uk/government/publications/valuation-of-risks-to-life-and-health-monetary-value-of-a-life-year-voly/a-scoping-study-on-the-valuation-of-risks-to-life-and-health-the-monetary-value-of-a-life-year-voly) has set the value of 1 QALY to be equal to $60,000. This is the number we will use for our calculations.
+
+```{r}
+cost.per.qaly(base = base,
+              base.name = 'baseline',
+              int = wage,
+              int.name = 'livingWageIntervention',
+              QALY_value = 60000,
+              int.label <- 'LivingWage')  # QALY value == £60,000
+```
+
+# Incremental Cost-Effectiveness Ratio
+
+From [NICE guidelines](https://www.nice.org.uk/process/pmg6/chapter/assessing-cost-effectiveness) about the cost-effectiveness of health interventions (7.3), and works with a statistic called the Incremental Cost-Effectiveness Ratio (ICER). The formula for calculating the ICER can be found [here](https://en.wikipedia.org/wiki/Incremental_cost-effectiveness_ratio), but in short, it represents the average incremental cost associated with 1 additional unit of the measurement of effect. In our case, the unit of measurement of effect is a QALY. 
+
+From the NICE guidelines, there is a general consensus that anything below £20,000 is cost effective, and anything above £30,000 is not. Between £20,000 and £30,000 is a grey area, and depends on the field and other factors to decide (i.e. if a rare or important condition is tackled by an intervention then the cost-effective threshold is higher).There is also a hard limit of £100,000, where any intervention with an ICER above this value is never acceptable.
+
+
+```{r}
+ICER(base = base,
+     base.name = 'baseline',
+     int = wage,
+     int.name = 'livingWageIntervention',
+     QALY_value = 60000,
+     int.label = 'LivingWage')
+```
+
+
+# Total Cost of Intervention
+
+```{r}
+intervention.cost(base = base,
+                  base.name = 'baseline',
+                  int = wage,
+                  int.name = 'livingWageIntervention',
+                  int.label = 'LivingWage')
+```
+
+```{r}
+
+```
+
+

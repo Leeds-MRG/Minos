@@ -18,9 +18,14 @@ input_data_dir: "data/final_US/cross_validation/batch5"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
-transition_dir: 'data/transitions/cross_validation/version5'
+transition_dir: 'data/transitions/cross_validation/version1'
 replenishing_dir: 'data/replenishing/cross_validation'
+
 cross_validation: TRUE
+synthetic: FALSE
+scotland: FALSE
+
+component_file: 'config/SIPHER7_components.txt'
 
 synthetic: FALSE
 

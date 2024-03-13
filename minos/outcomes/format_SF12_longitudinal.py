@@ -134,7 +134,7 @@ def relative_scaling(df, years, v, ref):
                 year_df[v] /= x_bar
                 df.loc[df['year'] == year, v] = year_df[v]
     return df
-def main(sources, years, labels, v="SF_12", destination="plots/", agger=np.nanmean, ref=None):
+def main(sources, years, labels, v="SF_12_MCS", destination="plots/", agger=np.nanmean, ref=None):
     """
 
     Parameters

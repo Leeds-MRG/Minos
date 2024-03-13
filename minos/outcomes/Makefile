@@ -1,11 +1,7 @@
 
+OUTCOMES=$(ROOT)/minos/outcomes
 
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
-
-test_plot: MODE=default_config
-test_plot: ALIVE=who_alive
-test_plot: BOOSTED=who_boosted
-test_plot: aggregate_minos_output_energy
 
 #####################################
 # Post-hoc aggregation of multiple MINOS runs on bash terminal.
@@ -30,6 +26,12 @@ default_all_lineplots: all_lineplots
 all_lineplots: aggregate_minos_output_living_wage aggregate_minos_output_all_child_uplift aggregate_minos_output_poverty_child_uplift aggregate_minos_output_energy
 vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_output_all_child_uplift aggregate_minos_output_disabled_child_uplift aggregate_minos_output_minority_child_uplift aggregate_minos_output_three_child_uplift aggregate_minos_output_young_adult_child_uplift aggregate_minos_output_uneducated_child_uplift
 
+#### PCS PLOTS
+default_all_lineplots_PCS: AGG_VAR=SF_12_PCS
+default_all_lineplots_PCS: default_all_lineplots
+
+default_all_lineplots_MCS: AGG_VAR=SF_12_MCS
+default_all_lineplots_MCS: default_all_lineplots
 
 ###################### COMBINED PLOTTING FUNCTIONS ######################
 # The following section contains targets for plotting all scenarios     #
@@ -67,7 +69,7 @@ vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_outpu
 
 # will change to SF_12_MCS when PCS is implemented
 all_lineplots_MCS: MODE=default_config
-all_lineplots_MCS: AGG_VAR=SF_12
+all_lineplots_MCS: AGG_VAR=SF_12_MCS
 all_lineplots_MCS: default_all_lineplots
 
 # PCS COMING SOON THIS WON'T WORK YET!
@@ -76,7 +78,7 @@ all_lineplots_PCS: AGG_VAR=SF_12_PCS
 all_lineplots_PCS: default_all_lineplots
 
 lineplot_livingWage: MODE=default_config
-lineplot_livingWage: AGG_VAR=SF_12
+lineplot_livingWage: AGG_VAR=SF_12_PCS
 lineplot_livingWage: aggregate_minos_output_living_wage
 lineplot_livingWage:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/testing_livingWage_intervention.Rmd')"
@@ -125,6 +127,15 @@ living_wage_lineplot: MODE="default_config"
 living_wage_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "living_wage"
 
+###########################
+# Energy Crisis Lineplots #
+###########################
+
+# Living Wage Intervention
+energyCrisis_lineplot: MODE="default_config"
+energyCrisis_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "ebss"
+
 ##########################################
 # Child Income Intervention Lineplots #
 #######################################
@@ -164,13 +175,50 @@ aggregate_25_relative_poverty: MODE="default_config"
 aggregate_25_relative_poverty:
 	bash minos/outcomes/make_lineplots_macros.sh "25_relative_poverty"
 
-aggregate_25_all_children: MODE="default_config"
-aggregate_25_all_children:
-	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
 
 #############################################################
 # Default config visualisations of universal credit uplifts #
 #############################################################
+
+##############################
+# All Children				 #
+##############################
+
+aggregate_25_all_children: MODE="default_config"
+aggregate_25_all_children:
+	bash minos/outcomes/make_lineplots_macros.sh $(MODE) "25_all"
+
+aggregate_30_all_children: MODE="default_config"
+aggregate_30_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "30_all"
+
+aggregate_35_all_children: MODE="default_config"
+aggregate_35_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "35_all"
+
+aggregate_40_all_children: MODE="default_config"
+aggregate_40_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "40_all"
+
+aggregate_45_all_children: MODE="default_config"
+aggregate_45_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "45_all"
+
+aggregate_50_all_children: MODE="default_config"
+aggregate_50_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "50_all"
+
+aggregate_75_all_children: MODE="default_config"
+aggregate_75_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "75_all"
+
+aggregate_100_all_children: MODE="default_config"
+aggregate_100_all_children:
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "100_all"
+
+##############################
+# Universal Credit			 #
+##############################
 
 aggregate_25_universal_credit: MODE="default_config"
 aggregate_25_universal_credit:

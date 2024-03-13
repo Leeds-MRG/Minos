@@ -114,8 +114,8 @@ main <- function(){
 }
 
 main()
-#main.diff("output/baseline/nanmean_SF_12_2018.geojson", 
-#          "output/povertyUplift/nanmean_SF_12_2018.geojson",
+#main.diff("output/baseline/nanmean_SF_12_MCS_2018.geojson",
+#          "output/povertyUplift/nanmean_SF_12_MCS_2018.geojson",
 #          "output/baseline/sf12_baseline_povertyUplift_diff_map.pdf", 
 #          "sheffield", 
-#          "SF_12")
+#          "SF_12_MCS")

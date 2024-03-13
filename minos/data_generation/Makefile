@@ -11,7 +11,11 @@ synthetic_glasgow_data: data glasgow_scaled_data
 
 synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 
-synthetic_uk_data: data uk_scaled_data synthetic_uk_repl
+synthetic_uk_data: data uk_scaled_data
+
+synthetic_uk_hh_data: data uk_hh_scaled_data
+
+synthetic_uk_ind_data: data uk_ind_scaled_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2021_US_cohort.csv

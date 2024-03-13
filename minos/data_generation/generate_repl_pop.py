@@ -85,7 +85,7 @@ def expand_repl(US_wave, region):
         # now update Date variable (just use US_utils function
         new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
-        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
+        # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + (5 * new_repl.index)
 
         # Universally unique identifier uuid seems like the simplest way to generate unique random numbers
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
@@ -107,7 +107,7 @@ def expand_repl(US_wave, region):
     # Luke - 20/10/23
     # synthetic upscaled glasgow data results in some duplicate pidp's still
     # only 10 on initial testing so I'm just going to remove these
-    if region == "glasgow" or region == "scotland":
+    if region == "glasgow" or region == "scotland" or region == 'uk':
         expanded_repl.drop_duplicates(subset=['pidp'],
                                       inplace=True)
 
@@ -265,6 +265,8 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+    final_repl['chron_disease'] = final_repl['chron_disease'].astype(int)
+    final_repl['matdep'] = final_repl['matdep'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)
 
@@ -280,7 +282,8 @@ def main():
                                      usage='use "%(prog)s --help" for more information')
 
     parser.add_argument("-r", "--region", default="",
-                        help="Generate replenishing population for specified synthetic scaled data. glasgow or scotland for now.")
+                        help="Generate replenishing population for specified synthetic scaled data. glasgow or "
+                             "scotland for now.")
     parser.add_argument("-s", "--scotland", action='store_true', default=False,
                         help="Select Scotland mode to only produce replenishing using scottish sample.")
     parser.add_argument("-c", "--cross_validation", dest='crossval', action='store_true', default=False,

@@ -10,6 +10,7 @@ from seaborn import histplot
 import numpy as np
 import logging
 
+
 class HourlyWage(Base):
 
     # Special methods used by vivarium.

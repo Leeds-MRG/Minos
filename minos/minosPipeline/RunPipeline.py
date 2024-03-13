@@ -17,6 +17,7 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
+from minos.modules.physical_wellbeing import SF_12_PCS, lmmYJPCS
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
@@ -26,6 +27,12 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.heating import Heating
+from minos.modules.financial_situation import FinancialSituation
+from minos.modules.housing_tenure import HousingTenure
+from minos.modules.physical_activity import PhysicalActivity
+from minos.modules.material_deprivation import MaterialDeprivation
+from minos.modules.chron_disease import ChronicDisease
 from minos.modules.job_hours import JobHours
 from minos.modules.job_sec import JobSec
 from minos.modules.hourly_wage import HourlyWage
@@ -36,8 +43,6 @@ from minos.modules.S7Neighbourhood import S7Neighbourhood
 from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
-from minos.modules.heating import Heating
-from minos.modules.financial_situation import financialSituation
 
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
@@ -69,8 +74,10 @@ components_map = {
     "geeYJMWB()": geeYJMWB(),
     "lmmYJMWB()": lmmYJMWB(),
     "lmmDiffMWB()": lmmDiffMWB(),
+    "lmmYJPCS()": lmmYJPCS(),
     "MWB()": MWB(),
     # Intermediary modules
+    "Ageing()": Ageing(),
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
@@ -82,7 +89,7 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
-    "financialSituation()": financialSituation(),
+    "FinancialSituation()": FinancialSituation(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -91,10 +98,13 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "MaterialDeprivation()": MaterialDeprivation(),
+    "PhysicalActivity()": PhysicalActivity(),
+    "HousingTenure()": HousingTenure(),
+    "ChronicDisease()": ChronicDisease(),
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
-    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -149,8 +159,8 @@ intervention_components_map = {        #Interventions
 intervention_kwargs_dict = {
     "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
     "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 75, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 100, "uplift_condition": "who_kids"},
 
     "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
     "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
@@ -260,6 +270,8 @@ def type_check(data):
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+    data['chron_disease'] = data['chron_disease'].astype(int)
+    data['matdep'] = data['matdep'].astype(int)
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
@@ -281,7 +293,13 @@ def RunPipeline(config, intervention=None):
      A dataframe with the resulting simulation
     """
     # Check modules are valid and convert to modules
-    components_raw = config['components']
+    #components_raw = config['components']
+    # read in the components from the correct text file
+    components_raw = []
+    with open(config['component_file']) as comp_file:
+        for line in comp_file:
+            components_raw.append(line.rstrip())
+
     if intervention is not None:
         #components_raw += intervention
         components_raw.append(intervention)
@@ -325,7 +343,8 @@ def RunPipeline(config, intervention=None):
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
-                    "MASS": importr("MASS")
+                    "MASS": importr("MASS"),
+                    "glmmTMB": importr("glmmTMB"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
@@ -399,15 +418,12 @@ def RunPipeline(config, intervention=None):
 
         # Print metrics for desired module.
         # TODO: this can be extended towards a generalised metrics method for each module.
-        if 'Mortality()' in config.components:
+        if 'Mortality()' in components:
             print('dead', len(pop[pop['alive'] == 'dead']))
             logging.info(f"Total dead: {len(pop[pop['alive'] == 'dead'])}")
-        if 'FertilityAgeSpecificRates()' in config.components:
+        if 'FertilityAgeSpecificRates()' in components:
             print('New children', len(pop[pop['parent_id'] != -1]))
             logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
-
-        #for component in components:
-        #    component.plot(pop, config)
 
     return simulation
 

@@ -22,6 +22,7 @@ DATAOUT = $(CURDIR)/output
 CONFIG = $(CURDIR)/config
 TRANSITION_DATA = $(DATADIR)/transitions
 PLOTDIR = $(CURDIR)/plots
+TESTING = $(CURDIR)/minos/testing
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 TESTING = $(SOURCEDIR)/testing
 SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
@@ -124,7 +125,14 @@ setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 syn
 
 setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
 
-setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
+#setup_uk_hh_scaled: install synthetic_uk_hh_data transitions_default synthetic_uk_hh_repl
+
+#setup_uk_hh_scaled_S7: install synthetic_uk_hh_data transitions_SIPHER7 synthetic_uk_hh_repl
+
+#setup_uk_ind_scaled: install synthetic_uk_ind_data transitions_default synthetic_uk_ind_repl
+
+#setup_uk_ind_scaled_S7: install synthetic_uk_ind_data transitions_SIPHER7 synthetic_uk_ind_repl
+
 
 #####################################
 ### ADDITIONAL MAKEFILES
@@ -135,8 +143,9 @@ include minos/transitions/Makefile # transitions Makefile
 include scripts/Makefile # running minos Makefile
 include minos/outcomes/Makefile # plotting makefile
 include minos/validation/Makefile # validation scripts
-include minos/outcomes/Makefile.maps  # mapping functions
-include scripts/Makefile.SCP  # SCP intervention scenarios
+include minos/outcomes/maps.Makefile  # mapping functions
+include minos/outcomes/QALY.Makefile  # QALY calculations and vis
+include scripts/SCP.Makefile  # SCP intervention scenarios
 #include docsrc/Makefile # sphinx makefile
 
 
@@ -152,6 +161,8 @@ clean_all: clean_data clean_out clean_transitions clean_logs
 clean_data: ### Remove data files generated in the pipeline
 clean_data:
 	rm -f data/*/*.csv
+	rm -f data/*/*/*.csv
+	rm -f data/*/*/*/*.csv
 
 clean_out: ### Remove all output files
 clean_out:
@@ -161,13 +172,15 @@ clean_out:
 clean_logs: ### Remove log files (including test.log, slurm, and arc logs)
 clean_logs:
 	rm -rf test.log
-	rm -rf logs/*
+	rm -rf logs/log/*
+	rm -rf logs/errors/*
 
 clean_transitions: ### Remove model .rds files
 clean_transitions:
 	rm -rf data/transitions/*/*.rds
 	rm -rf data/transitions/*/*.txt
 	rm -rf data/transitions/*/*/*.rds
+	rm -rf data/transitions/*/*/*/*.rds
 	rm -rf data/transitions/*/*/*.txt
 	rm -rf data/transitions/*/*/*/*.rds
 	rm -rf data/transitions/*/*/*/*.txt

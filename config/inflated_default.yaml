@@ -17,7 +17,12 @@ output_data_dir: "output"
 
 transition_dir: 'data/transitions'
 replenishing_dir: 'data/replenishing/inflated'
+
 cross_validation: FALSE
+synthetic: FALSE
+scotland: FALSE
+
+component_file: 'config/SF12_components.txt'
 
 synthetic: FALSE
 
@@ -30,9 +35,9 @@ synthetic: FALSE
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
-              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
-              Replenishment()]
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here
+components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), MaterialDeprivation(), ChronicDisease(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+
 scale_rates:
     method: "constant"
     constant:

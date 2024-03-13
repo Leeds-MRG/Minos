@@ -13,6 +13,7 @@ from seaborn import catplot
 import logging
 from datetime import datetime as dt
 
+
 class Housing(Base):
 
     @property
@@ -51,7 +52,6 @@ class Housing(Base):
         # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
         self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
-
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
@@ -62,14 +62,18 @@ class Housing(Base):
                         "region",
                         "education_state",
                         "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
-                        'hh_income',
-                        'hh_income_diff',
+                        "hh_income",
                         'housing_tenure',
-                        'SF_12']
+                        'urban',
+                        'financial_situation',
+                        "hh_income_diff",
+                        'loneliness',
+                        'nutrition_quality',
+                        'ncigs',
+                        "neighbourhood_safety",
+                        'SF_12_MCS',
+                        'SF_12_PCS']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each

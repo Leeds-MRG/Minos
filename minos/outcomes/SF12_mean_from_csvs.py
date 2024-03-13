@@ -10,11 +10,11 @@ def get_SF12_mean(file_names, year, source):
     for file in file_names:
         #print(file)
         data = pd.read_csv(file)
-        mean = np.nanmean(data['SF_12'])
+        mean = np.nanmean(data['SF_12_MCS'])
         #print(mean)
         means.append(mean)
 
-    means = pd.DataFrame(means, columns=["SF_12"])
+    means = pd.DataFrame(means, columns=["SF_12_MCS"])
     print(year, means)
     out_filename = source + f"means_{year}.csv"
     means.to_csv(out_filename)
