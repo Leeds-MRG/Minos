@@ -91,64 +91,35 @@ class Ageing(Base):
         return pop
 
     def increment_age_chains(self, age_chain):
-        """
+        """ update the ages of children in the age chains
 
         Returns
         -------
         age_chain: string
             List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
         """
-        # split age chain into list
-        new_nkids = 0  # default if no age chain found. assume no children.
-        value = age_chain  # .values[0]
-        if value != 'None' and value is not None:
 
-            assert value is not None, f"Value is None, this should not happen. value: {value}"
-            assert value != 'None', f"Value is 'None', this should not happen. value: {value}"
-            assert isinstance(value, str), f"Value is not str, this should not happen. value: {value}"
+        if age_chain is None:
+            age_chain = "childless"
+        new_nkids = 0 #  default if no age chain found. assume no children.
 
-            # Split delimited string to list of ages
-            age_chain = value.split("_")
-            # # If only one child the above line doesn't do anything, so need to encapsulate those in a list
-            # if age_chain:
+        # if household has no children nothing to do.
+        if age_chain != "childless" and age_chain != "-9":
+            # split age chain into list of strings of ages ['1', '2', '15'] etc.
+            age_chain = age_chain.split("_")
+            # incerment all child ages by one year. remove them if they hit 16 years old.
+            age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
 
-            assert isinstance(age_chain, list), f"age_chain is not list when it should be. age_chain: {age_chain}, type: {type(age_chain)}"
-            assert age_chain != [], f"age_chain is an empty list when it should not be. age_chain: {age_chain}, type: {type(age_chain)}"
+            # get new nkids in household under 16.
+            new_nkids = len(age_chain)
+            # If household still has children update age_chain. Otherwise set age chain to childless (None) again.
+            if new_nkids > 0:
 
-            assert age_chain is not None, f"age_chain is None, this should not happen. age_chain: {age_chain}"
-            assert age_chain != 'None', f"age_chain is 'None', this should not happen. age_chain: {age_chain}"
-            assert age_chain != '', f"age_chain is '', this should not happen. age_chain: {age_chain}"
-
-            assert not isinstance(age_chain, int), f"age_chain is int, this should not be. age_chain: {age_chain}, type: {type(age_chain)}"
-
-            # increment each item by one
-            # remove item if item is over 16.
-            try:
-                age_chain = [str(int(item) + 1) for item in age_chain if int(item) < 15]
-            except ValueError as verror:
-                print(verror)
-                print(f"age_chain is an invalid value, this should not happen. age_chain: {age_chain}, type: {type(age_chain)}")
-                exit("Please address the problem with child ages and try again")
-
-            # If there are no more children, explicitly replace with None
-            # This is identified when age_chain == nan, and is therefore not a list
-            # if age_chain.isna():
-            #if not type(age_chain).isinstance(list):
-            if not isinstance(age_chain, list):
-                age_chain = None
-
-            #age_chain = np.sort(age_chain, ascending=True)
-            # return child ages chain and length of list.
-            if age_chain:
-                new_nkids = len(age_chain)
                 age_chain = "_".join(age_chain)
             else:
-                new_nkids = 0
-                age_chain = np.nan
-        else:
-            age_chain = value
-        return age_chain, new_nkids
+                age_chain = "childless"
 
+        return age_chain, new_nkids
 
     # Special methods for vivarium.
     @property

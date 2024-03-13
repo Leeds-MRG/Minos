@@ -812,7 +812,7 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ```{r}
 raw.child.ages <- raw.dat %>%
   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2013) %>%
+  filter(time > 2013 & child_ages != 'childless') %>%
   group_by(time, hidp) %>%
   summarise(child_ages = find_mode(child_ages))
 

@@ -318,9 +318,11 @@ class lmmDiffNutrition(Base):
         super().setup(builder)
 
         # just load this once.
-        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm_diff/nutrition_quality_LMM_DIFF", self.rpy2Modules,
+        self.transition_model = r_utils.load_transitions(f"nutrition_quality/lmm_diff/nutrition_quality_LMM_DIFF", self.rpy2Modules,
                                                              path=self.transition_dir)
-        #self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
+
+#self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
@@ -380,7 +382,8 @@ class lmmDiffNutrition(Base):
         Returns
         -------
         """
-        nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
+
+        nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
                                                                         self.rpy2Modules,
                                                                         pop,
                                                                         dependent='nutrition_quality_diff',

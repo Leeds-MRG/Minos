@@ -310,7 +310,14 @@ def format_ukhls_columns(year):
                       'urban_dv': 'urban', # urban or rural household.
                       # There are dozens of benefits variables in US this seems like
                       # the simplest and most complete for our purposes.
-                      'benbase4': 'universal_credit',
+                      # including the seven needed for scp for now.
+                      'benbase4': 'universal_credit', # universal credit
+                      "benbase3" : 'child_tax_credit', # child tax credit. note this variable is fed forwards.
+                      #"othben5" : "working_tax_credit", # working tax credit. moved further down as name changes.
+                      "benbase2" : "job_seekers_allowance", # job seeker's allowance
+                      "benpen4" : "pension_credit", # pension credit
+                      "benbase1" : "income_support", # income support
+                      "bendis2" : "employment_and_support_allowance", # esa.
                       # receives core benefits (I.E. universal credit/means tested benefits).
                       ###### PCS VARS #####
                       # Alcohol Use Disorder Variables (auditc)
@@ -363,13 +370,18 @@ def format_ukhls_columns(year):
                       }
 
     # Some variables change names halfway through UKHLS.
-    # Assign different keys to variable names depending on year.
+    # Assign different key"s to variable names depending on year.
 
     # clinical depression changes in wave 10.
     if year < 2017:
         attribute_dict["hcond17"] = "depression"
     else:
         attribute_dict["hcondcode38"] = "depression"
+
+    if year < 2014:
+        attribute_dict["bentax1"] = "working_tax_credit"
+    else:
+        attribute_dict["othben5"] = "working_tax_credit"
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.

@@ -35,7 +35,7 @@ class Heating(Base):
         """
 
         # Load in inputs from pre-setup.
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -114,13 +114,14 @@ class Heating(Base):
         -------
         """
         # load transition model based on year.
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2019
-        else:
-            year = min(self.year, 2019)
-        transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}", self.rpy2_modules)
+        year = 2019
+        #transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}", self.rpy2Modules)
+        if not self.transition_model or year <= 2020:
+            self.transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}",
+                                                             self.rpy2Modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "logit")
+
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_logit(transition_model, self.rpy2_modules, pop, 'heating')
+        prob_df = r_utils.predict_next_timestep_logit(self.transition_model, self.rpy2Modules, pop, 'heating')
         prob_df.columns = [1.]
         return prob_df

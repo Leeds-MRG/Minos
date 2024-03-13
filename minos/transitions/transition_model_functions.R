@@ -68,8 +68,13 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
                  Hess=T)
   }
   model[[depend]] <- data[[depend]]
+  n_classes = length(unique(data[[depend]]))
   data[[depend]] <- NULL
+  #browser()
   model$class_preds <- predict(model, newdata = data, type='class')
+  # cutting off the vcov for the threshold variables (thetas) and keeping only for betas.
+  # maybe should randomise both.
+  model$cov_matrix <- vcov(model)[-(1:n_classes-1), -(1:n_classes-1)]
   return(model)
 }
 
@@ -90,6 +95,7 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
   # This is mildly stupid..
   model[[depend]] <- data[[depend]]
   model$class_preds <- predict(model)
+  model$cov_matrix <- vcov(model)
   return(model)
 }
 
@@ -130,10 +136,13 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
                       data = data,
                       dist = 'pois',
                       link='logit')
-    model[[depend]] <- data[[depend]]
-    model$class_preds <- predict(model)
   }
-
+  model[[depend]] <- data[[depend]]
+  model$class_preds <- predict(model)
+  model$cov_matrix <- vcov(model)
+  number_count_terms <- length(model$coefficients$count)
+  model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
+  model$zero_cov_matrix <- model$cov_matrix[-c(1:number_count_terms), -c(1:number_count_terms)]
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
@@ -210,6 +219,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   #model@transform <- yj
   #model@min_value <- min_value
   #model@max_value <- max_value
+  attr(model, "cov_matrix") <- vcov(model)
   return(model)
 }
 
@@ -282,6 +292,7 @@ estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, 
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
+  attr(model, "cov_matrix") <- vcov(model)
   return(model)
 }
 
@@ -494,12 +505,6 @@ estimate_RandomForest <- function(data, formula, depend) {
                    trControl = fitControl,
                    tuneGrid = expand.grid(mtry = 3),
                    ntree = 100)  # RF Parameters
-
-  # expand.grid(mtry = ncol(data) / 3)
-
-
-
-  #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
 
   return(rfModel)
 }

@@ -36,7 +36,7 @@ class FinancialSituation(Base):
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2_modules = builder.data.load("rpy2_modules")
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -103,17 +103,22 @@ class FinancialSituation(Base):
 
     def calculate_financial_situation(self, pop):
 
-        if self.cross_validation:
-            # LA 19/2/24
-            # factor levels for housing_tenure change in 2019 onwards. Therfore cv has to use model before 2019 if
-            # housing_tenure is included
-            year = 2018
-        else:
-            year = min(self.year, 2020)
+        year = 2020
+        # if simulation goes beyond real data in 2020 dont load the transition model again.
+        if not self.transition_model or year <= 2020:
 
-        transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
-                                                    self.rpy2_modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(transition_model,
+            if self.cross_validation:
+                # LA 19/2/24
+                # factor levels for housing_tenure change in 2019 onwards. Therfore cv has to use model before 2019 if
+                # housing_tenure is included
+                year = 2018
+
+            # load transition model and randomise the fixed effects
+            self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
+                                                             self.rpy2Modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model,
                                                                         self.rpy2_modules,
                                                                         pop,
                                                                         dependent='financial_situation')
