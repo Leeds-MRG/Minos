@@ -525,7 +525,7 @@ def get_equivalised_income_uk(ref_year=INCOME_REFERENCE_YEAR,
     if monthly:
         value = value/12
 
-    print("Median hh income for year {} (external data): {}".format(ref_year, value))
+    # print("Median hh income for year {} (external data): {}".format(ref_year, value))
     return value
 
 
@@ -562,7 +562,7 @@ def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
     # Use Minos-wise method for median hh income
     result = get_median(data)
 
-    print("Median hh income for year {} (internal data): {}".format(ref_year, result))
+    # print("Median hh income for year {} (internal data): {}".format(ref_year, result))
     return result
 
 
