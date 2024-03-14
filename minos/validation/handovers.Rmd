@@ -813,9 +813,9 @@ ggplot(data = base.child.ages.nkids, mapping = aes(x = time, y = nkids_by_year))
 ```
 
 
-## CHILD POVERTY VARS
+## Child Poverty Vars
 
-### Relative poverty
+### Relative Poverty
 
 ```{r}
 prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'relative_poverty')

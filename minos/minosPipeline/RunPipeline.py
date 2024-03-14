@@ -39,7 +39,7 @@ from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
 from minos.modules.material_deprivation import MaterialDeprivationChild
-from minos.modules.poverty_metrics import ChildPovertyMetrics
+from minos.modules.metrics import ChildPovertyMetrics
 from minos.modules.financial_situation import financialSituation
 
 from minos.modules.intervention import hhIncomeIntervention, childUplift
@@ -291,14 +291,11 @@ def type_check(data):
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
-    # data['chron_disease'] = data['chron_disease'].astype(int)
-    # data['matdep'] = data['matdep'].astype(int)
     data['heating'] = data['heating'].astype(int)
 
     # All child poverty metrics
     data['relative_poverty'] = data['relative_poverty'].astype(int)
     data['absolute_poverty'] = data['absolute_poverty'].astype(int)
-    data['low_income'] = data['low_income'].astype(int)
     data['low_income_matdep_child'] = data['low_income_matdep_child'].astype(int)
     data['relative_poverty_history'] = data['relative_poverty_history'].astype(int)
     data['persistent_poverty'] = data['persistent_poverty'].astype(int)
@@ -319,7 +316,15 @@ def RunPipeline(config, intervention=None):
     --------
      A dataframe with the resulting simulation
     """
-    # Check each of the modules is present.
+    # Check modules are valid and convert to modules
+    components_raw = config['components']
+    if intervention is not None:
+        # components_raw += intervention
+        components_raw.append(intervention)
+
+    component_priority_map, component_name_map = get_priorities()
+    components = [component_name_map[c] for c in components_raw if c in component_name_map]
+    components_invalid = [component_name_map[c] for c in components_raw if c not in component_name_map]
 
     # Replenishment always go last. (first in sim)
     components, intervention_kwargs = validate_components(config['components'], intervention)

@@ -8,8 +8,16 @@ import numpy as np
 import json
 import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
-import pickle
+from sklearn.linear_model import LinearRegression as linreg
 
+missing_types = ['-1', '-2', '-7', '-8', '-9',
+                 -1., -2., -7., -8., -9.,
+                 -1, -2, -7, -8, -9,
+                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
+                 "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
+
+# Some folder paths for ease later
+COMPOSITE_VARS_DIR = os.path.join(up(up(up(__file__))), 'data', 'composite_US')
 PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
 
 # CPI/inflation reference
@@ -20,6 +28,7 @@ CPI_REF_DEFAULT = 'CPI_202010.csv'  # Relative to 2020/2021
 # EQUIVALISED_INCOME_REFERENCE = "hdiifye2022correction2.xlsx"  # Adjusted to 2021/22 prices
 EQUIVALISED_INCOME_REF = 'hdiireferencetables202021.xlsx'  # # Adjusted to 2020/2021 prices
 INCOME_REFERENCE_YEAR = 2010
+PROJECTION_RANGE_DEFAULT = 25
 
 
 ########################
@@ -369,74 +378,6 @@ def generate_interview_date_var(data):
     return data
 
 
-''' HR 30/11/23 Get CPI inflation reference data '''
-def get_cpi_ref():
-    # cpi = pd.read_csv(os.path.join(PERSISTENT_DIR + 'CPI_202010.csv')).set_index('Date')
-    cpi = pd.read_csv(os.path.join(PERSISTENT_DIR, CPI_REF_DEFAULT))
-    cpi.drop(labels=cpi.columns[0], axis=1, inplace=True)
-    return cpi
-
-
-''' HR 15/12/23 Get median equivalised disposable household income, historical UK, 1977-2020 '''
-def get_equivalised_income_ref():
-    file_fullpath = os.path.join(PERSISTENT_DIR, EQUIVALISED_INCOME_REF)
-    inc = pd.read_excel(file_fullpath,
-                        sheet_name='Table 1',
-                        header=9-1,
-                        usecols=['Year', 'Median'],
-                        skipfooter=5,
-                        )
-    inc = inc.dropna()
-    inc['Year'] = [int(str(el).split('/')[0]) for el in inc['Year']]  # Year format changes halfway from Y to Y/Y+1
-
-    inc_dict = dict(zip(inc['Year'], inc['Median']))
-    return inc, inc_dict
-
-
-def get_reference_year_equivalised_income(income_dict=None,
-                                          ref_year=INCOME_REFERENCE_YEAR,
-                                          monthly=True):
-    if income_dict is None:
-        _, income_dict = get_equivalised_income_ref()
-
-    value = income_dict[ref_year]
-    if monthly:
-        value = value/12
-
-    # print("Reference year income: {}".format(value))
-    return value
-
-
-def inflation_adjustment(data, var):
-    """ Adjust financial values for inflation using the Consumer Price Index (CPI)
-
-    Parameters
-    ----------
-    data : pandas.DataFrame
-        The `data` containing financial variable(s) to be adjusted.
-    var : str
-        Name of a financial variable to be adjusted.
-    Returns
-    -------
-    data : pandas.DataFrame
-        Dataframe with adjusted financial values.
-    """
-    # need interview date for adjustment
-    data = generate_interview_date_var(data)
-    # Inflation adjustment using CPI
-    # read in CPI dataset
-    # cpi = pd.read_csv('persistent_data/CPI_202010.csv')
-    # cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv'))  # Workaround during child poverty testing; also fine at runtime
-    cpi = get_cpi_ref()
-    # merge cpi onto data and do adjustment, then delete cpi column (keep date)
-    data = pd.merge(data, cpi, on='Date', how='left')
-    data[var] = (data[var] / data['CPI']) * 100
-    # data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
-    data.drop(labels=['CPI'], axis=1, inplace=True)
-
-    return data
-
-
 def get_data_maxyr():
     """
     This function will calculate the final year of raw Understanding Society input data so we don't have to update
@@ -487,8 +428,176 @@ def replace_missing_with_na(data, column_list):
     return data
 
 
-missing_types = ['-1', '-2', '-7', '-8', '-9',
-                 -1., -2., -7., -8., -9.,
-                 -1, -2, -7, -8, -9,
-                 '-1.0', '-2.0', '-7.0', '-8.0', '-9.0',
-                 "Dont Know", "Refused", "Proxy", "Inapplicable", "Missing"]
+######################################
+## ALL REFERENCE INCOME STUFF BELOW ##
+######################################
+
+
+''' HR 30/11/23 Get CPI inflation reference data '''
+def get_cpi_ref():
+    # cpi = pd.read_csv(os.path.join(PERSISTENT_DIR + 'CPI_202010.csv')).set_index('Date')
+    cpi = pd.read_csv(os.path.join(PERSISTENT_DIR, CPI_REF_DEFAULT))
+    cpi.drop(labels=cpi.columns[0], axis=1, inplace=True)
+    return cpi
+
+
+def inflation_adjustment(data, var):
+    """ Adjust financial values for inflation using the Consumer Price Index (CPI)
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        The `data` containing financial variable(s) to be adjusted.
+    var : str
+        Name of a financial variable to be adjusted.
+    Returns
+    -------
+    data : pandas.DataFrame
+        Dataframe with adjusted financial values.
+    """
+    # need interview date for adjustment
+    data = generate_interview_date_var(data)
+    # Inflation adjustment using CPI
+    # read in CPI dataset
+    # cpi = pd.read_csv('persistent_data/CPI_202010.csv')
+    # cpi = pd.read_csv(os.path.join(up(up(up(__file__))), 'persistent_data/CPI_202010.csv'))  # Workaround during child poverty testing; also fine at runtime
+    cpi = get_cpi_ref()
+    # merge cpi onto data and do adjustment, then delete cpi column (keep date)
+    data = pd.merge(data, cpi, on='Date', how='left')
+    data[var] = (data[var] / data['CPI']) * 100
+    # data.drop(labels=['CPI', 'Unnamed: 0'], axis=1, inplace=True)
+    data.drop(labels=['CPI'], axis=1, inplace=True)
+
+    return data
+
+
+''' HR 15/12/23 Get median equivalised disposable household income, historical UK, 1977-2020 '''
+def get_equivalised_income_ref():
+    file_fullpath = os.path.join(PERSISTENT_DIR, EQUIVALISED_INCOME_REF)
+    inc = pd.read_excel(file_fullpath,
+                        sheet_name='Table 1',
+                        header=9-1,
+                        usecols=['Year', 'Median'],
+                        skipfooter=5,
+                        )
+    inc = inc.dropna()
+    inc['Year'] = [int(str(el).split('/')[0]) for el in inc['Year']]  # Year format changes halfway from Y to Y/Y+1
+
+    inc_dict = dict(zip(inc['Year'], inc['Median']))
+    return inc, inc_dict
+
+
+''' HR 23/01/24 Get hh income projection from UK data via linear regression to last N years of real data '''
+def income_projection(ref_year,
+                      income_dict=None,
+                      projection_range=PROJECTION_RANGE_DEFAULT):
+
+    if income_dict is None:
+        _, income_dict = get_equivalised_income_ref()
+
+    if projection_range > len(income_dict):
+        projection_range = len(income_dict)
+
+    x = np.array([list(income_dict.keys())[-projection_range:]]).T
+    y = np.array([list(income_dict.values())[-projection_range:]]).T
+
+    model = linreg()
+    model.fit(x, y)
+    value = model.predict([[ref_year]])[0][0]
+
+    return value
+
+
+def get_equivalised_income_uk(ref_year=INCOME_REFERENCE_YEAR,
+                              income_dict=None,
+                              projection_range=PROJECTION_RANGE_DEFAULT,
+                              monthly=True):
+
+    if income_dict is None:
+        _, income_dict = get_equivalised_income_ref()
+
+    # HR 22/01/24 Adding functionality for arbitrary year, using project from most recent years
+    if ref_year in income_dict:
+        value = income_dict[ref_year]
+    else:
+        value = income_projection(ref_year, income_dict, projection_range)
+
+    if monthly:
+        value = value/12
+
+    # print("Median hh income for year {} (external data): {}".format(ref_year, value))
+    return value
+
+
+''' HR 24/01/24 Must re-integrate calculation of internal median hh income (i.e. from US data)
+    as previously coded but then removed to use external (i.e. ONS) data instead;
+    however, this means relative and absolute poverty are not calculated using same data sources '''
+''' HR 29/11/23 To get hh income data for 2010/11 tax year, as absolute poverty is calculated based on that reference year
+    Grabs value from all-years data during GCV, else (i.e. at sim runtime) grabs from US composite data for 2010
+    Awkward but necessary if we use US data to calculate the inflated median, rather than all-UK median wages '''
+def get_equivalised_income_internal(ref_year=INCOME_REFERENCE_YEAR,
+                                    data=None,
+                                    income_var='hh_income'):
+
+    # Grab reference year data
+    if data is not None:
+        # Option: Get 2010 data during GCV (i.e. composite variable calculations)
+        data = data.loc[data['time'] == ref_year]
+    else:
+        # Option 2: Get 2010 data from cached US composite data (for microsim runtime)
+        filename = str(ref_year) + "_US_cohort.csv"
+        file_fullpath = os.path.join(COMPOSITE_VARS_DIR, filename)
+        data = pd.read_csv(file_fullpath)
+
+    # # Get subframe of unique household IDs and filter for living people;
+    # # will raise exception during data generation as 'alive' not present
+    # try:
+    #     data = data.loc[data['alive'] == 'alive']
+    # except:
+    #     pass
+    # sub = data.drop_duplicates(subset=['hidp'], keep='first').set_index('hidp')
+    #
+    # result = sub[income_var].median()  # Filter out any invalid or zero values
+
+    # Use Minos-wise method for median hh income
+    result = get_median(data)
+
+    # print("Median hh income for year {} (internal data): {}".format(ref_year, result))
+    return result
+
+
+''' HR 08/02/24 Moving from GCV and updating with filter for "alive" individuals, re. issue #374 '''
+''' HR 10/01/24 Moving to method to test options and allow easy changes elsewhere
+    Added options for applying weights (experimental but dumping here so all in one place) '''
+def get_median(data,
+               alive_only=True,
+               exclude_negative_values=False,
+               income_var='hh_income',
+               ):
+
+    if exclude_negative_values:
+        sub = data.loc[data[income_var] > 0.0]
+    else:
+        sub = data
+
+    if alive_only:
+        try:
+            sub = sub.loc[sub['alive'] == 'alive']
+        except:  # Will fail for input data before "alive" column has been created
+            pass
+
+    median = sub[income_var].median()
+
+    return median
+
+
+''' HR 09/02/24 Get sum over households, not individuals
+    Motivated by overcounting if we use pop['nkids'].sum() '''
+def get_hh_sum(data,
+               var='nkids'):
+
+    # Get subframe of first instance of each household (hidp); can also use groupby but this works
+    hh_sub = data.drop_duplicates(subset=['hidp'], keep='first')
+    nkids_pop = hh_sub[var].sum()
+
+    return nkids_pop

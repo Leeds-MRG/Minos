@@ -55,7 +55,7 @@ def get_data_zones(region):
     """
 
     if region == "glasgow":# get glasgow data zones, get Understanding Society data.
-        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"]  # glasgow data zone IDs.
+        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["LSOA11CD"]  # glasgow data zone IDs.
     elif region == "scotland":
         data_zones = pd.read_csv("persistent_data/spatial_data/scotland_data_zones.csv")["LSOA11CD"]
         data_zones.columns = ['lsoa11cd'] # standardise column name for zone codes.
@@ -100,7 +100,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     data_zones = get_data_zones(region)
     US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2020.
     if type(data_zones) == pd.core.series.Series:
-        subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
+        # subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
+        subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones).copy()  # Avoids multiple Pandas SettingWithCopyWarnings later
     else:
         subsetted_synthpop_data = synthpop_data # no subsetting for full UK population.
 

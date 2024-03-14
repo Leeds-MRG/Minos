@@ -237,7 +237,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     # All child poverty metrics
     final_repl['relative_poverty'] = final_repl['relative_poverty'].astype(int)
     final_repl['absolute_poverty'] = final_repl['absolute_poverty'].astype(int)
-    final_repl['low_income'] = final_repl['low_income'].astype(int)
+    # final_repl['low_income'] = final_repl['low_income'].astype(int)
     final_repl['low_income_matdep_child'] = final_repl['low_income_matdep_child'].astype(int)
     final_repl['relative_poverty_history'] = final_repl['relative_poverty_history'].astype(int)
     final_repl['persistent_poverty'] = final_repl['persistent_poverty'].astype(int)

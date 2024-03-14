@@ -10,6 +10,7 @@ from minos.data_generation import generate_composite_vars as gcv
 from minos.data_generation import US_utils
 
 
+''' All metrics related to child poverty '''
 class ChildPovertyMetrics(Base):
     @property
     def name(self):
@@ -42,11 +43,11 @@ class ChildPovertyMetrics(Base):
         view_columns = ['hidp',
                         'hh_income',
                         'relative_poverty',
-                        'relative_poverty_percentile',
+                        # 'relative_poverty_percentile',
                         'absolute_poverty',
-                        'absolute_poverty_percentile',
+                        # 'absolute_poverty_percentile',
                         'matdep_child',
-                        'low_income',
+                        # 'low_income',
                         'low_income_matdep_child',
                         'relative_poverty_history',
                         'persistent_poverty',
@@ -63,7 +64,8 @@ class ChildPovertyMetrics(Base):
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
 
         # Grab reference year hh income for absolute poverty calculations; saved recalculating at each timestep
-        self.median_reference = US_utils.get_reference_year_equivalised_income()
+        # self.median_reference = US_utils.get_equivalised_income_uk()  # 1. Using ONS/external data
+        self.median_reference = US_utils.get_equivalised_income_internal()  # 2. Using US/internal data
 
     def on_time_step(self, event):
         """Produces poverty variables on time steps.
@@ -86,10 +88,10 @@ class ChildPovertyMetrics(Base):
 
         ''' 3. Update master population with all poverty variables '''
         updated_vars = ['relative_poverty',
-                        'relative_poverty_percentile',
+                        # 'relative_poverty_percentile',
                         'absolute_poverty',
-                        'absolute_poverty_percentile',
-                        'low_income',
+                        # 'absolute_poverty_percentile',
+                        # 'low_income',
                         'low_income_matdep_child',
                         'relative_poverty_history',
                         'persistent_poverty',
@@ -98,7 +100,7 @@ class ChildPovertyMetrics(Base):
         # 06/12/23 Bodge to avoid Vivarium type error (actually PopulationError)
         vars_to_cast = {'relative_poverty': int,
                         'absolute_poverty': int,
-                        'low_income': int,
+                        # 'low_income': int,
                         'low_income_matdep_child': int,
                         'relative_poverty_history': int,
                         'persistent_poverty': int,

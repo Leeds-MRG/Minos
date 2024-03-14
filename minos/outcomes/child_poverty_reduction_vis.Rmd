@@ -20,6 +20,7 @@ require(ggridges) # for densities over time plots.
 require(knitr)
 require(here)
 require(gghighlight)
+require(dplyr)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')

@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from minos.data_generation.US_utils import get_median
 
 
 def dynamic_subset_function(data, subset_chain_string=None, mode='default_config', drop_dead=True):
@@ -19,6 +20,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_universal_credit_and_kids": [who_alive, who_kids, who_universal_credit],
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
+                     "who_relative_poverty_and_kids": [who_alive, who_relative_poverty, who_kids],
 
                      # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
@@ -180,7 +182,8 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
 
 def get_required_intervention_variables(subset_function_string):
     # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
-    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "nkids", "loneliness"]
+    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income", "neighbourhood_safety", "nkids", "loneliness",
+                         'relative_poverty', 'absolute_poverty', 'low_income_matdep_child', 'persistent_poverty']
 
     if "boosted" in subset_function_string:
         default_variables += ["income_boosted", "boost_amount"]
@@ -268,8 +271,23 @@ def who_bottom_income_quintile(df, k=1):
 
 def who_below_poverty_line(df):
     "who below poverty line?. Defined as 60% of national median hh income."
-    return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
+    median_yearly = get_median(df)
+    sub = df.loc[df['hh_income'] < 0.6*median_yearly]
+    return sub
+    # return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
     #return df.loc[df['hh_income'] <= 1300.0,]
+
+
+def who_relative_poverty(df):
+    # Get all individuals in households below relative poverty threshold
+    # Method 1, using relative_poverty variable directly
+    # print(df.columns)
+    sub = df.loc[df['relative_poverty'].astype(int) == 1]
+    # # Method 2, explicit calculation if relative_poverty variable is not present;
+    # # must calculate by individual, NOT by hh
+    # median_yearly = get_median(df)
+    # sub = df.loc[df['hh_income'] < 0.6*median_yearly]
+    return sub
 
 
 def who_boosted(df):
