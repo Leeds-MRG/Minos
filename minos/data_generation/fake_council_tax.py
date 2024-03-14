@@ -100,7 +100,8 @@ if __name__ == '__main__':
     data["council_tax_draw"] = data.apply(random_draw, axis=1)  # draw randomly between these bounds.
 
     # Handle single case where someone in London gave has wrong council tax band (Band I which only exists in Wales)
-    data['council_tax_draw'][data['council_tax_draw'].isna()] = -9
+    # data['council_tax_draw'][data['council_tax_draw'].isna()] = -9
+    data.loc[data['council_tax_draw'].isna(), 'council_tax_draw'] = -9  # Avoids Pandas SettingWithCopyWarning
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/adj_raw_US/", "")

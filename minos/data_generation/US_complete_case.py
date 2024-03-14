@@ -47,8 +47,8 @@ def complete_case_custom_years(data, var, years):
     print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
-    data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
-    # data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan, inplace=True) # Avoids Pandas SettingWithCopyWarning
+    # data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+    data.loc[(data['time'].isin(years) & data[var].isin(US_utils.missing_types)), var] = np.nan  # Avoids Pandas SettingWithCopyWarning
     data = data[~(data['time'].isin(years) & data[var].isna())]
 
     return data
@@ -90,7 +90,8 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
     # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
-    data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
+    # data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
+    data.loc[(data['time'] == 2013) & (data['ncigs'] == -8), 'ncigs'] = 0  # Avoids Pandas SettingWithCopyWarning
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2021, 1)))
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019])
