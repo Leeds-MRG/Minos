@@ -13,11 +13,11 @@ synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 
 synthetic_uk_data: data uk_scaled_data synthetic_uk_repl
 
+synthetic_manchester_data: data manchester_scaled_data synthetic_manchester_repl
+
+
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2021_US_cohort.csv
-
-adj_raw_data: ### Generate adjusted raw data, currently only simulates a council tax value
-adj_raw_data: $(ADJRAWDATA)/2021_US_cohort.csv
 
 corrected_data: ### Run a number of imputation procedures on the raw data to produce corrected data
 corrected_data: $(CORRECTDATA)/2021_US_cohort.csv
@@ -60,11 +60,15 @@ synthetic_glasgow_repl: $(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_
 
 scotland_scaled_data : $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv
 
+manchester_scaled_data : $(MANCHESTERSCALEDDATA)/2020_US_cohort.csv
+
 synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2015-2070.csv
 
 uk_scaled_data: $(UKSCALEDDATA)/2020_US_cohort.csv
 
 synthetic_uk_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv
+
+synthetic_manchester_repl: $(DATADIR)/replenishing/manchester_scaled/replenishing_pop_2015-2070.csv
 
 #sheffield_scaled_data goes here.
 
@@ -74,9 +78,6 @@ synthetic_uk_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.
 
 $(RAWDATA)/2021_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_format_raw.py --source_dir $(USSOURCEDIR)
-
-$(ADJRAWDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/fake_council_tax.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
-	$(PYTHON) $(DATAGEN)/fake_council_tax.py
 
 $(CORRECTDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_missing_deterministic.py $(DATAGEN)/US_missing_LOCF.py $(DATAGEN)/US_missing_description.py $(DATAGEN)/US_missing_data_correction.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_missing_main.py
@@ -136,3 +137,10 @@ $(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/U
 
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
+
+# synthetic input for manchester with spatial component.
+$(MANCHESTERSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py
+	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -r 'manchester' -p 10
+
+$(DATADIR)/replenishing/manchester_scaled/replenishing_pop_2015-2070.csv: $(MANCHESTERSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'manchester'

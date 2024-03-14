@@ -8,6 +8,7 @@ require(randomForest)
 require(caret)
 require(doParallel)
 require(parallelly)
+require(GLMMadaptive)
 
 ################ Model Specific Functions ################
 
@@ -121,6 +122,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
+  data <- replace.missing(data)
   
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -134,8 +136,11 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
                       dist = 'pois', 
                       link='logit')
   }
-  model[[depend]] <- data[[depend]]
-  model$class_preds <- predict(model)
+  
+  #test <- runif(n=length(predict(model, type='zero'))) > predict(model, type='zero')
+  #test <- round(test*(predict(model, type='count')))
+  #model[[depend]] <- data[[depend]]
+  #model$class_preds <- predict(model)
   model$cov_matrix <- vcov(model)
   number_count_terms <- length(model$coefficients$count)
   model$count_cov_matrix <- model$cov_matrix[c(1:number_count_terms), c(1:number_count_terms)]
@@ -244,6 +249,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
     hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
   }
   
+  
   if(include_weights) {
     model <- glmer(formula,  
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
@@ -257,6 +263,8 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    data = data)
   }
   attr(model,"min_value") <- min_value
+  
+  #browser()
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
@@ -383,4 +391,59 @@ estimate_RandomForest <- function(data, formula, depend) {
   #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
   
   return(rfModel)
+}
+
+# longitudinal (mixed effects) ZIP model
+estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, depend) {
+  
+  data <- replace.missing(data)
+  #data <- drop_na(data)
+
+  string_formulae <- strsplit(as.character(fixed_formula[3]), split=' | ', fixed=T)
+  counts_formula <- paste0(as.character(fixed_formula[2]), as.character(fixed_formula[1]), string_formulae[[1]][1])
+  zero_formula <- paste0("~ ", string_formulae[[1]][2])
+  
+  #if (depend == "ncigs_new") {
+  #  #data$ncigs <- ceiling(data$ncigs/5)
+  #  data$ncigs_new <-  ceiling(data$ncigs_new/5)
+  #}
+  
+  #browser()
+  model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
+    fixed = as.formula(counts_formula),
+    random = ~ 1 | pidp,
+    zi_fixed = as.formula(zero_formula),
+    #zi_random = ~ 1 | pidp,
+    #weights=weight,
+    iter_EM=0,
+    data = data,
+    family = zi.poisson(), max_coef_value=50)
+    #family = zi.negative.binomial(), max_phis_value=40000)
+
+  # test model with hard coded formulae.
+  #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
+  #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12),
+  #  random = ~ 1|pidp,
+  #  #weights=weight,
+  #  data = data,
+  #  family = zi.poisson(), 
+  #  zi_fixed = ~ scale(age) + scale(SF_12))
+  
+  #browser()
+  #test.data <- drop_na(data)
+  #test.zeros <- predict(model, newdata = drop_na(data), type='zero')
+  #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
+  #test.counts2 <- predict(model, newdata = drop_na(data), type='subject_specific')
+  #test.counts <- predict(model, newdata = drop_na(data), type='mean_subject')
+  
+  #test.zeros <- attr(test.counts2, "zi_probs")
+  #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
+  
+  #test.final <- test.nonzero * test.counts2 * 5
+  #hist(test.data$ncigs_new*5, xlim=c(0, 30), freq=F, breaks=100)
+  #lines(density(test.final),col='red')
+  
+  model$n_counts_fixed <- length(model$coefficients)
+  model$Sigma <- vcov(model)[0:model$n_counts_fixed, 0:model$n_counts_fixed]
+  return(model)
 }

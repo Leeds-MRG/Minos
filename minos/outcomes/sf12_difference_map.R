@@ -27,7 +27,16 @@ main <- function(){
   year <- args$year
   synth <- args$synth
   v <- args$var
+
+  #output_subdir <- "energy_manchester_scaled"
+  #run <- "baseline"
+  #intervention <- "goodHeatingDummy"
+  #region <- "manchester"
+  #year <- 2024
+  #synth <- T
+  #v <- "SF_12"
   
+    
   ## handle runtime subdirectory
   # first construct geojson file path and name from arguments
   # baseline

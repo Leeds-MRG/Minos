@@ -195,6 +195,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_uses_energy_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
                      "who_uses_energy_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
 
+                    "who_poor_heating": [who_alive, who_poor_heating]
                      }
 
     subset_chain = subset_chains[subset_chain_string]
@@ -453,3 +454,6 @@ def get_region_lsoas(region):
                              "edinburgh": "edinburgh_data_zones.csv"}
     lsoas_file_path = "persistent_data/spatial_data/" + region_file_name_dict[region]
     return pd.read_csv(lsoas_file_path)
+
+def who_poor_heating(df):
+    return df.query("heating == 0")

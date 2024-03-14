@@ -6,37 +6,34 @@ import logging
 from datetime import datetime as dt
 
 
-class financialSituation(Base):
+class behindOnBills(Base):
 
 
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'financial_situation'
+        return 'behind_on_bills'
 
     def __repr__(self):
-        return "financialSituation()"
+        return "behindOnBills()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
-
         Notes
         -----
         - Load in data from pre_setup
         - Register any value producers/modifiers for income
         - Add required columns to population data frame
         - Update other required items such as randomness stream.
-
         Parameters
         ----------
         builder : vivarium.engine.Builder
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
-
         """
 
         # Load in inputs from pre-setup.
         # self.transition_model = builder.data.load("income_transition")
-        self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.rpy2_modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -63,7 +60,8 @@ class financialSituation(Base):
                         'hh_income',
                         'marital_status',
                         'housing_tenure',
-                        "financial_situation",
+                        "behind_on_bills",
+                        "SF_12"
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -75,12 +73,10 @@ class financialSituation(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
-        super().setup(builder)
+        builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
     def on_time_step(self, event):
-        """ Predicts the hh_income for the next timestep.
-
+        """ Predicts the ability to pay bills for the next point in time.
         Parameters
         ----------
         event : vivarium.population.PopulationEvent
@@ -90,25 +86,18 @@ class financialSituation(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
-        nextWaveFinancialPerception = self.calculate_financial_situation(pop)
-        nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
-                                                                list(nextWaveFinancialPerception.columns+1),
-                                                                nextWaveFinancialPerception).astype(float)
-        nextWaveFinancialPerception.index = pop.index
-        #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
+        nextWaveBills = self.calculate_behind_on_bills(pop)
+        nextWaveBills["behind_on_bills"] = self.random.choice(nextWaveBills.index,
+                                                                  list(nextWaveBills.columns+1),
+                                                                  nextWaveBills).astype(float)
+        nextWaveBills.index = pop.index
+        #nextWaveBills["financial_situation"] = nextWaveBills["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
-        self.population_view.update(nextWaveFinancialPerception['financial_situation'])
+        self.population_view.update(nextWaveBills['behind_on_bills'])
 
-    def calculate_financial_situation(self, pop):
-        year = 2020
-        # if simulation goes beyond real data in 2020 dont load the transition model again.
-        if not self.transition_model or year <= 2020:
-            self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
-                                                             self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
-
-        #transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2Modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop,
-                                                                        dependent='financial_situation')
-        return nextWaveFinancialPerception
+    def calculate_behind_on_bills(self, pop):
+        year = 2019
+        transition_model = r_utils.load_transitions(f"behind_on_bills/clm/behind_on_bills_{year}_{year + 1}", self.rpy2_modules)
+        nextWaveBills = r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent='behind_on_bills')
+        return nextWaveBills

@@ -103,6 +103,18 @@ def force_minus_ten(data, index, column):
     data.loc[index, column] = "-10.0"
     return data
 
+def force_minus_twelve(data, index, column):
+    """
+    Parameters
+    ----------
+    data
+    index
+    column
+    Returns
+    -------
+    """
+    data.loc[index, column] = "-12.0"
+    return data
 
 def doesnt_smoke(data):
     return data['smoker'] == 2

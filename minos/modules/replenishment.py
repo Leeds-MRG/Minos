@@ -103,18 +103,41 @@ class Replenishment(Base):
         #                 'job_hours_diff',
         #                 'hourly_wage_diff',
         #                 'child_ages',
+        #                 'net_hh_income',
+        #                 'net_hh_income_diff',
+        #                 'council_tax',
+        #                 'oecd_equiv',
+        #                 'outgoings',
+        #                 'hh_mortgage',
+        #                 'hh_rent',
+        #                 'gas_electric_combined',
+        #                 'electric_payment',
+        #                 'duel_payment',
+        #                 'gas_payment',
+        #                 'yearly_oil',
+        #                 'yearly_gas_electric',
+        #                 'yearly_gas',
+        #                 'yearly_electric',
+        #                 'yearly_other_fuel',
+        #                 #'hourly_rate',
+        #                 "behind_on_bills",
+        #                 'ncars',
         #                 ]
 
-        view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
+
+        view_columns = list(pd.read_csv(config.input_data_dir +
+                                        "/" +
+                                        str(config.time.start.year) +
+                                        "_US_cohort.csv").columns)
 
 
-        if config.synthetic:  # only have spatial column and new pidp for synthpop.
-            view_columns += ["ZoneID",
-                             # "new_pidp",
-                             'local_simd_deciles',
-                             'simd_decile',
-                             # 'cluster'
-                             ]
+        #if config.synthetic:  # only have spatial column and new pidp for synthpop.
+        #    view_columns += ["ZoneID",
+        #                     # "new_pidp",
+        #                     'local_simd_deciles',
+        #                     'simd_decile',
+        #                     # 'cluster'
+        #                     ]
         columns_created = ['entrance_time']
 
         # Shorthand methods for readability.

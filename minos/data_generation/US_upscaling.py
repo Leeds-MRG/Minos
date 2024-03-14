@@ -96,6 +96,44 @@ def take_synthpop_sample(merged_data, percent, seed=8):
     sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
     return sample_data
 
+def take_exhaustive_synthpop_sample(merged_data, percent, seed=8):
+    """ Take smaller subset of full scale synthetic population. ensure all z
+
+    Parameters
+    ----------
+    merged_data: pd.DataFrame
+        Full scale population data.
+    percent, seed : float
+
+    Returns
+    -------
+    sample_data : pd.DataFrame
+        A percent sample of merged_data chosen with random seed.
+    """
+    n = int(merged_data.shape[0] * percent)
+    sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
+    return sample_data
+
+def take_exhaustive_synthpop_sample(merged_data, percent, seed=8):
+    """ Take smaller subset of full scale synthetic population but ensure all data zones are present.
+
+    Parameters
+    ----------
+    merged_data: pd.DataFrame
+        Full scale population data.
+    percent, seed : float
+
+    Returns
+    -------
+    sample_data : pd.DataFrame
+        A percent sample of merged_data chosen with random seed.
+    """
+    n = int(merged_data.shape[0] * percent)
+    #n_zones = len(set(merged_data['ZoneID']))
+    sample_data = merged_data.groupby('ZoneID', as_index=False).apply(lambda df: df.sample(n=50, replace=False, random_state = seed))
+    #sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
+    return sample_data
+
 def main():
     """
     1. Grab individual synthetic spatial population for UK.

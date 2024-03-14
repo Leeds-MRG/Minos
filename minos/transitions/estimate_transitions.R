@@ -111,7 +111,7 @@ run_yearly_models <- function(transitionDir_path,
     if(mode == 'cross_validation') {
       year.range <- seq(max(data$time) - 3, (max(data$time)-1))
     } else {
-      year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
+      year.range <- seq(max(data$time) - 4, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
 
@@ -244,7 +244,7 @@ run_yearly_models <- function(transitionDir_path,
                                        depend = next.dependent)
         
       } else if(tolower(mod.type) == 'zip') {
-
+        use.weights <- F
         model <- estimate_yearly_zip(data = merged,
                                      formula = form,
                                      include_weights = use.weights,

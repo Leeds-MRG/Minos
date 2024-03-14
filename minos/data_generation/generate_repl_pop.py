@@ -91,7 +91,7 @@ def expand_repl(US_wave, region):
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
         # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
         # bit shifting makes number that only relies on clock to improve uniqueness but less random.
-        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e16)
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e18)
         # [(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
 
         # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
@@ -240,10 +240,15 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'scaled_scotland_US'
         output_dir = 'data/replenishing/scotland_scaled'
         source_year = 2020
+    elif region == "manchester":
+        data_source = 'scaled_manchester_US'
+        output_dir = 'data/replenishing/manchester_scaled'
+        source_year = 2020
     elif region == 'uk':
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
+
 
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"

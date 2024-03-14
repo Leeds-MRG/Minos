@@ -27,6 +27,7 @@ TESTING = $(SOURCEDIR)/testing
 SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
+MANCHESTERSCALEDDATA = $(DATADIR)/scaled_manchester_US
 TESTING = $(SOURCEDIR)/testing
 
 # These paths point to the Python/R site-packages directory in the conda environment
@@ -125,6 +126,9 @@ setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 syn
 setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
+
+setup_manchester_scaled: install synthetic_manchester_data transitions_default synthetic_manchester_repl
+
 
 #####################################
 ### ADDITIONAL MAKEFILES

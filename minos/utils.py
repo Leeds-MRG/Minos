@@ -38,7 +38,7 @@ S_LOOKUP = os.path.join(PERSISTENT_DIR, "DataZone2011lookup_2022-05-31.csv")
 EWS_LOOKUP = os.path.join(PERSISTENT_DIR, "EWS_LSOA_2011_LA_2022.csv")
 
 
-def get_lsoa_la_map(ew_file=EW_LOOKUP,
+def  get_lsoa_la_map(ew_file=EW_LOOKUP,
                     s_file=S_LOOKUP,
                     ews_file=EWS_LOOKUP):
 

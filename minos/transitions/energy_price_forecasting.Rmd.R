@@ -1,26 +1,9 @@
----
-title: "Energy Price Forecasting."
-output: 'html_document'
----
-
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
-```{r}
-library(reticulate)
-use_condaenv("minos_condagcc")  
-# package preamble.
 library(forecast)
 library(ggfortify)
 library(readxl)
 library(tidyr)
 source("minos/transitions/utils.R")
-```
 
-
-
-```{r}
 process_input_data <- function(dataset, data.column, new.name){
   
   subvector <- dataset[, c(data.column)]
@@ -47,9 +30,7 @@ plot(gas_vector$gas, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Gas Pri
 plot(solid_fuel_vector$solid_fuel, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Solid Fuel Price indices"), main="Solid Fuel (Coal)")
 plot(liquid_fuel_vector$liquid_fuel, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Liquid Fuel Price indices"), main="Liquid Fuel (Petroleum, Diesel, LPG, Heating Oil)")
 #plot(domestic_fuel_vector$domestic_fuel, type='l', xlab="Quarter (0 = Q1 1990", ylab=c("Real Demostrict Fuel Price indices"), main="Domestic Fuel #(Heating Oil)")
-```
 
-```{r}
 electric.series <- electricity_vector$electricity #+ rnorm(length(electric.series))
 # ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
 acf(electric.series)
@@ -65,10 +46,8 @@ autoplot(forecast(m1, 40))
 checkresiduals(m1)
 print(m1$aic)
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
-```
 
 
-```{r}
 gas.series <- gas_vector$gas
 # ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
 acf(gas.series)
@@ -82,9 +61,8 @@ autoplot(forecast(m2, 15))
 checkresiduals(m2)
 print(m2$aic)
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
-```
 
-```{r}
+
 solid.series <- solid_fuel_vector$solid_fuel
 # ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
 acf(solid.series)
@@ -98,11 +76,8 @@ autoplot(forecast(m3, 15))
 checkresiduals(m3)
 print(m3$aic)
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
-```
 
 
-
-```{r}
 liquid.series <- liquid_fuel_vector$liquid_fuel
 # ACF, difference 1 ACF and PACF suggests AR(2)  difference 1 and MA(4) structure (2, 1, 4) in ARIMA.
 acf(liquid.series)
@@ -116,19 +91,14 @@ autoplot(forecast(m4,15))
 checkresiduals(m4)
 print(m4$aic)
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
-```
 
-
-
-```{r}
 # saving data to R objects for use in MINOS
-create.if.not.exists("data/transitions/energy_prices/")
-write.csv(electric.series, "data/transitions/energy_prices/solid_historic.csv")
-write.csv(gas.series, "data/transitions/energy_prices/gas_historic.csv")
-write.csv(solid.series, "data/transitions/energy_prices/solid_historic.csv")
-write.csv(liquid.series, "data/transitions/energy_prices/liquid_historic.csv")
-write.csv(forecast(m1, 15), "data/transitions/energy_prices/electric_arima.csv")
-write.csv(forecast(m2, 15), "data/transitions/energy_prices/gas_arima.csv")
-write.csv(forecast(m3, 15), "data/transitions/energy_prices/solid_arima.csv")
-write.csv(forecast(m4, 15), "data/transitions/energy_prices/liquid_arima.csv")
-```
+create.if.not.exists("persistent_data/energy_prices/")
+write.csv(electric.series, "persistent_data/energy_prices/solid_historic.csv")
+write.csv(gas.series, "persistent_data/energy_prices/gas_historic.csv")
+write.csv(solid.series, "persistent_data/energy_prices/solid_historic.csv")
+write.csv(liquid.series, "persistent_data/energy_prices/liquid_historic.csv")
+write.csv(forecast(m1, 15), "persistent_data/energy_prices/electric_arima.csv")
+write.csv(forecast(m2, 15), "persistent_data/energy_prices/gas_arima.csv")
+write.csv(forecast(m3, 15), "persistent_data/energy_prices/solid_arima.csv")
+write.csv(forecast(m4, 15), "persistent_data/energy_prices/liquid_arima.csv")

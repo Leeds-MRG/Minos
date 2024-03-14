@@ -6,6 +6,8 @@ import pandas as pd
 
 import US_utils
 
+# suppressing a warning that isn't a problem
+pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 def complete_case(data):
     """ main function for complete case.
@@ -73,8 +75,8 @@ if __name__ == "__main__":
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
-                          "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
+                          "housing_tenure", "heating",
+                          "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage', "behind_on_bills"]
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -115,7 +117,6 @@ if __name__ == "__main__":
                     'newest_education_state',
                     'health_limits_social',
                     'future_financial_situation',
-                    'behind_on_bills',
                     'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.
                                         # remove them here or as late as needed.

@@ -387,6 +387,15 @@ epcg_simd_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
 
 
+
+#########################
+# Housing Interventions #
+#########################
+
+aggregate_minos_good_housing_dummy:
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "good_heating_dummy"
+
+
 ########################################################################
 # need to add macros for these in make_lineplot_macros.sh. do later..  #
 ########################################################################

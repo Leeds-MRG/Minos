@@ -21,9 +21,11 @@ def main():
     country_name = 'CTRY11NM'
     lsoa_code = 'LSOA11CD'
 
+    manchester_LAs = ["Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford",
+                      "Stockport", "Tameside", "Trafford", "Wigan"]
     # subsetting data from desired regions.
     sheffield_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Sheffield", ]
-    manchester_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Manchester", ]
+    manchester_subset = lsoa_lookup.loc[lsoa_lookup[la_name].isin(manchester_LAs), ]
     glasgow_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Glasgow City", ]
     scotland_subset = lsoa_lookup.loc[lsoa_lookup[country_name] == "Scotland", ]
 

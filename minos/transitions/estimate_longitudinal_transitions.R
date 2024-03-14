@@ -19,7 +19,7 @@ require(tidyverse)
 require(stringr)
 require(texreg)
 require(dplyr)
-require(ordinal)
+#require(ordinal)
 require(nnet)
 require(pscl)
 require(bestNormalize)
@@ -39,7 +39,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "MZIP")
   
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
   
@@ -101,7 +101,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.reflect=FALSE
     }
     
-    if (dependent %in% c("SF_12", "hh_income")) {
+    if (dependent %in% c("SF_12", "hh_income", "net_hh_income")) {
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
@@ -160,7 +160,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # For SF12 predicting current state given changes in all other information and previous SF12 value. 
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
     # We have SF_12_last in the model formula for 2019 SF12. 
-    if (dependent == "nutrition_quality" || dependent == "hh_income")  {
+    if (dependent %in% c("nutrition_quality", "hh_income", "net_hh_income", "hh_rent", "hh_mortgage", "council_tax", 'yearly_energy', 'ncigs', 'ncars') ) {
       # get leading nutrition/income value and label with _new.
        data <- data %>%
          group_by(pidp) %>%
@@ -195,6 +195,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
       #
+      if (dependent %in% c("hh_rent_new", "hh_mortgage_new", "council_tax_new")) {
+        sorted_df <- sorted_df[which(sorted_df[, c(dependent)]>1), ]  
+        do.reflect <- F
+        do.yeo_johnson <- T
+      }
+      
       model <- estimate_longitudinal_glmm(data = sorted_df,
                                           formula = form, 
                                           include_weights = use.weights, 
@@ -238,7 +244,14 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,
                                      depend = dependent)
+    } else if (tolower(mod.type) == "mzip") {
+      
+      model <- estimate_mixed_zip(data = sorted_df,
+                                   fixed_formula = form,
+                                   include_weights=F,
+                                   depend = dependent)
     }
+    
     
     write_coefs <- F
     if (write_coefs)

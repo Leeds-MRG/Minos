@@ -18,17 +18,23 @@ from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
+from minos.modules.net_income import lmmYJNetIncome
+from minos.modules.outgoings import lmmYJOutgoings
+from minos.modules.behind_on_bills import behindOnBills
+
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
-from minos.modules.tobacco import Tobacco
+from minos.modules.tobacco import Tobacco, lmmTobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
 from minos.modules.job_hours import JobHours
 from minos.modules.job_sec import JobSec
 from minos.modules.hourly_wage import HourlyWage
+from minos.modules.outgoings import energyBills
+from minos.modules.ncars import nCars
 
 from minos.modules.S7Labour import S7Labour
 from minos.modules.S7Housing import S7Housing
@@ -72,6 +78,7 @@ components_map = {
     "MWB()": MWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
+    "lmmTobacco()": lmmTobacco(),
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),
@@ -81,8 +88,12 @@ components_map = {
     "geeYJIncome()": geeYJIncome(),
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
+    "lmmYJNetIncome()": lmmYJNetIncome(),
+    "lmmYJOutgoings()": lmmYJOutgoings(),
     "Income()": Income(),
     "financialSituation()": financialSituation(),
+    "behindOnBills()": behindOnBills(),
+    "nCars()": nCars(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -94,6 +105,7 @@ components_map = {
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
+    "energyBills()": energyBills(),
     "Ageing()": Ageing(),
 }
 
@@ -325,6 +337,7 @@ def RunPipeline(config, intervention=None):
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
+                    "GLMMadaptive": importr("GLMMadaptive"),
                     "MASS": importr("MASS")
                     }
     simulation._data.write("rpy2_modules",

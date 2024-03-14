@@ -91,9 +91,7 @@ class JobSec(Base):
 
         job_sec_prob_df["job_sec"] = self.random.choice(job_sec_prob_df.index,
                                                                 list(job_sec_prob_df.columns),
-                                                                job_sec_prob_df)  # + 1
-        # NOTE: No longer adding 1 to the job_sec predicted value, as job_sec ranges from 0-8. When adding 1 we lose the
-        # zero category
+                                                                job_sec_prob_df)
 
         job_sec_prob_df.index = pop.index
 
