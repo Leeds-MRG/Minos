@@ -291,14 +291,11 @@ def type_check(data):
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
-    # data['chron_disease'] = data['chron_disease'].astype(int)
-    # data['matdep'] = data['matdep'].astype(int)
     data['heating'] = data['heating'].astype(int)
 
     # All child poverty metrics
     data['relative_poverty'] = data['relative_poverty'].astype(int)
     data['absolute_poverty'] = data['absolute_poverty'].astype(int)
-    # data['low_income'] = data['low_income'].astype(int)
     data['low_income_matdep_child'] = data['low_income_matdep_child'].astype(int)
     data['relative_poverty_history'] = data['relative_poverty_history'].astype(int)
     data['persistent_poverty'] = data['persistent_poverty'].astype(int)

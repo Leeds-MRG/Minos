@@ -43,8 +43,8 @@ class Ageing(Base):
         """
         # get alive people and add time in years to their age.
         population = self.population_view.get(event.index, query="alive == 'alive'")
+        type_to_recast = population.dtypes['nkids']
         population['age'] += event.step_size / pd.Timedelta(days=365.25)
-
 
         # add one to current year
         #population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
@@ -61,7 +61,7 @@ class Ageing(Base):
         logging.info(f"Aged population to year {event.time.year}")
 
         #if type(population['nkids'][0]) == float:
-        population['nkids'] = population['nkids'].astype(int)
+        population['nkids'] = population['nkids'].astype(type_to_recast)
         self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
 
 
