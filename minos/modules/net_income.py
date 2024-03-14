@@ -157,7 +157,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome["net_hh_income"] *= std_ratio
         newWavenetIncome["net_hh_income"] -= ((std_ratio - 1) * income_mean)
 
-        newWavenetIncome['net_hh_income'] -= 175
+        #newWavenetIncome['net_hh_income'] -= 175
 
         newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform("mean")
         newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 30000)
@@ -185,10 +185,10 @@ class lmmYJNetIncome(Base):
 
         income_mean = np.median(newWavenetIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income']) / np.std(newWavenetIncome["hh_income"]))
-        #newWavenetIncome["hh_income"] *= std_ratio
-        #newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
-        #newWavenetIncome['hh_income'] = newWavenetIncome['hh_income'].clip(-2500, 6000)
-        #newWavenetIncome['hh_income'] -= 250
+        newWavenetIncome["hh_income"] *= std_ratio
+        newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        newWavenetIncome['hh_income'] = newWavenetIncome['hh_income'].clip(-2500, 15000)
+        newWavenetIncome['hh_income'] -= 250
 
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
         newWavenetIncome['FP10'] = (newWavenetIncome['yearly_energy'] / newWavenetIncome['hh_income'] > 0.1)
@@ -215,7 +215,7 @@ class lmmYJNetIncome(Base):
                                                                           dependent='net_hh_income_new',
                                                                           yeo_johnson=True,
                                                                           reflect=False,
-                                                                          noise_std=10)  # 0.45 for yj. 100? for non yj.
+                                                                          noise_std=15)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

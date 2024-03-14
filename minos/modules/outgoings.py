@@ -178,12 +178,12 @@ class lmmYJOutgoings(Base):
         newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 10000)
         newWaveMortgage['hh_mortgage'] = newWaveMortgage.groupby('hidp')['hh_mortgage'].transform(np.max)
 
-        newWaveMortgage['hh_mortgage'] += 50
+        #newWaveMortgage['hh_mortgage'] += 50
 
-        mortgage_mean = np.mean(newWaveMortgage["hh_mortgage"])
-        std_ratio = (np.std(pop['hh_mortgage'] + 1) / np.std(newWaveMortgage["hh_mortgage"]))
-        newWaveMortgage["hh_mortgage"] *= std_ratio
-        newWaveMortgage["hh_mortgage"] -= ((std_ratio - 1) * mortgage_mean)
+        #mortgage_mean = np.mean(newWaveMortgage["hh_mortgage"])
+        #std_ratio = (np.std(pop['hh_mortgage'] + 1) / np.std(newWaveMortgage["hh_mortgage"]))
+        #newWaveMortgage["hh_mortgage"] *= std_ratio
+        #newWaveMortgage["hh_mortgage"] -= ((std_ratio - 1) * mortgage_mean)
 
         newWaveMortgage['hh_mortgage'] = newWaveMortgage['hh_mortgage'].clip(0, 6000)
         #newWaveMortgage['hh_rent'] = 0.
@@ -228,7 +228,7 @@ class lmmYJOutgoings(Base):
                                                                         dependent='hh_rent_new',
                                                                         yeo_johnson=False,
                                                                         reflect=False,
-                                                                        noise_std=2)  # 0.45 for yj. 100? for non yj.
+                                                                        noise_std=5)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
@@ -254,7 +254,7 @@ class lmmYJOutgoings(Base):
                                                                         dependent='hh_mortgage_new',
                                                                         yeo_johnson=False,
                                                                         reflect=False,
-                                                                        noise_std=2)  # 0.45 for yj. 100? for non yj.
+                                                                        noise_std=5)  # 0.45 for yj. 100? for non yj.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

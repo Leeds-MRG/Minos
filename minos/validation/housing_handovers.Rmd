@@ -56,7 +56,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r}
 
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)[1:12]
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
 out.path <- here::here('output', 'energy_default_config/')
@@ -69,7 +69,7 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```{r}
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
-start.year <- 2021
+start.year <- 2020
 # make sure we only overlap on one year for now or else tomfoolery happens. (the plots look bad).
 # we may want this overlap in the future? probably not.
 raw.dat <- raw.dat[which(raw.dat$time <= start.year), ]
@@ -132,6 +132,7 @@ net.income.spag <- rbind(raw.inc, base.inc)
 density_ridges(net.income.spag, 'net_hh_income',
                save=TRUE, 
                save.path=save.path)
+handover_boxplots(raw.dat, base.dat, 'net_hh_income')
 
 pidp_sample <- sample(unique(net.income.spag$pidp), size=nrow(raw.inc)/10, replace=FALSE)
 net.income.spag.sample <- net.income.spag[which(net.income.spag$pidp %in% pidp_sample), ]
