@@ -394,7 +394,7 @@ QALY_vis_SCP_UC_glasgow: QALY_baseline QALY_SCP_25_UC QALY_SCP_50_UC QALY_SCP_75
 QALY_vis_SCP_UC_glasgow_25_50: EXPERIMENT=glasgow_scaled
 QALY_vis_SCP_UC_glasgow_25_50: STARTYEAR=2020
 QALY_vis_SCP_UC_glasgow_25_50: QALY_baseline QALY_SCP_25_UC QALY_SCP_30_UC QALY_SCP_35_UC QALY_SCP_40_UC QALY_SCP_45_UC QALY_SCP_50_UC
-	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention=c('25UniversalCredit', '30UniversalCredit', '35UniversalCredit', '40UniversalCredit', '45UniversalCredit', '50UniversalCredit'), start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_UC_25_50.html')""
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention=c('25UniversalCredit', '30UniversalCredit', '35UniversalCredit', '40UniversalCredit', '45UniversalCredit', '50UniversalCredit'), start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_UC_25_50.html')"
 
 QALY_vis_SCP_UC_glasgow_ALL: EXPERIMENT=glasgow_scaled
 QALY_vis_SCP_UC_glasgow_ALL: STARTYEAR=2020
