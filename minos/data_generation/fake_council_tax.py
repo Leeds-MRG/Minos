@@ -86,7 +86,8 @@ def main(data):
 
     # data for conversions between LADs to region and council tax band (A, B,...) to numeric boundaries (£1200-£1400)
     #https://www.completelymoved.co.uk/money/advice/council-tax-bands-table-of-all-uk-regions-compared
-    lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
+    #lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
+    lad_to_band = pd.read_csv("persistent_data/23_24_LA_council_tax_bands.csv")
     lad_to_region = US_utils.load_json("persistent_data/JSON/", "LAD_to_region_name.json")
 
     band_columns = ['Band A', 'Band B', 'Band C', 'Band D', 'Band E',
