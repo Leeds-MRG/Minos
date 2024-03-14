@@ -231,7 +231,7 @@ def generate_hh_income(data):
     data = US_utils.inflation_adjustment(data, "hh_income")
 
     # now drop the intermediates
-    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv',
+    data.drop(labels=['hh_rent', 'hh_mortgage', 'outgoings', 'hh_netinc', 'oecd_equiv',
                       'council_tax_lower', 'council_tax_upper', 'council_tax_draw'],
               axis=1,
               inplace=True)
