@@ -55,7 +55,7 @@ def get_data_zones(region):
     """
 
     if region == "glasgow":# get glasgow data zones, get Understanding Society data.
-        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["lsoa11cd"]  # glasgow data zone IDs.
+        data_zones = pd.read_csv("persistent_data/spatial_data/glasgow_data_zones.csv")["LSOA11CD"]  # glasgow data zone IDs.
     elif region == "scotland":
         data_zones = pd.read_csv("persistent_data/spatial_data/scotland_data_zones.csv")["LSOA11CD"]
         data_zones.columns = ['lsoa11cd'] # standardise column name for zone codes.
