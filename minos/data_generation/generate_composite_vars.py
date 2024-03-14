@@ -13,6 +13,7 @@ import sys
 
 from minos.data_generation import US_utils
 # import US_missing_description as USmd
+import minos.data_generation.fake_council_tax as fake_council_tax
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -214,7 +215,11 @@ def generate_hh_income(data):
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+
+    data = fake_council_tax.main(data)
+    data['council_tax'] = data.groupby(['hidp'])['council_tax'].transform('max')
     data["council_tax"][data["council_tax"] < 0] = 0
+
     data["outgoings"] = -9
     data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
@@ -226,7 +231,8 @@ def generate_hh_income(data):
     data = US_utils.inflation_adjustment(data, "hh_income")
 
     # now drop the intermediates
-    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv'],
+    data.drop(labels=['hh_rent', 'hh_mortgage', 'council_tax', 'outgoings', 'hh_netinc', 'oecd_equiv',
+                      'council_tax_lower', 'council_tax_upper', 'council_tax_draw'],
               axis=1,
               inplace=True)
 
