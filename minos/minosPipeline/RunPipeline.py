@@ -343,7 +343,7 @@ def RunPipeline(config, intervention=None):
         #for component in components:
         #    component.plot(pop, config)
 
-    return simulation
+    return output_file_path
 
 
 def get_output_data_filename(config, year=0):
