@@ -78,6 +78,8 @@ shall.we.save <- FALSE
 
 handover_boxplots(raw.dat, base.dat, 'hh_income')
 handover_lineplots(raw.dat, base.dat, "hh_income")
+handover_boxplots(raw.dat, base.dat, 'council_tax')
+handover_lineplots(raw.dat, base.dat, "council_tax")
 ```
 
 ### Spaghetti
