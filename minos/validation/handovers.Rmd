@@ -106,6 +106,13 @@ handover_lineplots(raw.dat, base.dat, "hh_income")
 # rm(raw.inc, base.inc, income.spag)
 ```
 
+## Council Tax
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'council_tax')
+handover_lineplots(raw.dat, base.dat, "council_tax")
+```
+
 
 ## SF_12_MCS
 
