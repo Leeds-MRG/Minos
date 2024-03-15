@@ -4,16 +4,14 @@
 import pandas as pd
 import numpy as np
 
-import US_utils
+from minos.data_generation import US_utils
 from string import ascii_uppercase as alphabet
 
 
 def format_bands(df):
     # Tax band data oddly formatted. Put it into floats for math to work.
     df = df.apply(lambda x: x.str.rstrip()) # remove right whitespace.
-    df = df.applymap(lambda x: str(x).replace('£', '')) # remove pounds.
-    df = df.applymap(lambda x: str(x).replace(',', '')) # remove commas.
-    df = df.astype(float)  # to floats.
+    df = df.replace('[\£,]', '', regex=True).astype(float) # convert from string pounds to floats.
     return df
 
 
@@ -65,15 +63,31 @@ def random_draw(x):
         # TODO can use pretty much any distribution you want here so long as it draws between these bounds.
     return np.random.uniform(lb, ub)
 
+def main(data):
 
-if __name__ == '__main__':
-    maxyr = US_utils.get_data_maxyr()
-    years = np.arange(1991, maxyr)
-    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
-    data = US_utils.load_multiple_data(file_names)
+    # yearly band D council tax percentage increases from 2010/2011 to 2023/2024
+    yearly_percentage_changes = [1.8, 0.0, 0.3, 0.8, 0.8,1.1,3.1,4.0,5.1,4.7,3.9,4.4,3.5,5.1,]
+    #backtrack from 2023/24 calculating reduction in council tax.
+    # formula is old_band = 1/(1+percentage_change). e.g if theres a 25 percentage increase from year 1 to year 2.
+    # to go from year 2 to year 1 is an 1/(1+0.25)=0.8 20 percent decrease.
+
+    # reverse the list to work backwards.
+    yearly_percentage_changes = yearly_percentage_changes[::-1]
+    # add a one to the front. this is the starting 23/24 year where the bands are correct and dont need to do anything.
+    yearly_percentage_changes = [1] + yearly_percentage_changes
+    for i in range(len(yearly_percentage_changes)):
+        if i == 0:
+            continue
+        yearly_percentage_changes[i] = yearly_percentage_changes[i-1] * 1/(1+yearly_percentage_changes[i]/100)
+    # reverse back to correct time order.
+    yearly_percentage_changes = yearly_percentage_changes[::-1]
+    # convert to dict to allow mapping year in data to percentage change in council tax band.
+    yearly_percentage_changes = dict(zip(range(2009,2024), yearly_percentage_changes))
 
     # data for conversions between LADs to region and council tax band (A, B,...) to numeric boundaries (£1200-£1400)
-    lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
+    #https://www.completelymoved.co.uk/money/advice/council-tax-bands-table-of-all-uk-regions-compared
+    #lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
+    lad_to_band = pd.read_csv("persistent_data/23_24_LA_council_tax_bands.csv")
     lad_to_region = US_utils.load_json("persistent_data/JSON/", "LAD_to_region_name.json")
 
     band_columns = ['Band A', 'Band B', 'Band C', 'Band D', 'Band E',
@@ -99,9 +113,21 @@ if __name__ == '__main__':
     data["council_tax_lower"] = data.apply(lambda x: lower_bound(x, ct_bands), axis=1)  # establish individual lower and upper bounds.
     data["council_tax_upper"] = data.apply(lambda x: upper_bound(x, ct_bands), axis=1)
     data["council_tax_draw"] = data.apply(random_draw, axis=1)  # draw randomly between these bounds.
+    data['council_tax_draw'] = data['council_tax_draw']/12 # convert to monthly bill.
+
+    data['yearly_council_tax_change'] = data['time'].replace(yearly_percentage_changes)
+    data['council_tax_draw'] = data['council_tax_draw'] * data['yearly_council_tax_change']
 
     # Handle single case where someone in London gave has wrong council tax band (Band I which only exists in Wales)
     data['council_tax_draw'][data['council_tax_draw'].isna()] = -9
+    data['council_tax'] = data['council_tax_draw']
+    return data
 
-    print('Finished composite generation. Saving data...')
+if __name__ == '__main__':
+    maxyr = US_utils.get_data_maxyr()
+    years = np.arange(1991, maxyr)
+    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    data = US_utils.load_multiple_data(file_names)
+    main(data)
+    print('Finished generating council_tax_data. Saving data...')
     US_utils.save_multiple_files(data, years, "data/adj_raw_US/", "")
