@@ -19,7 +19,7 @@ import glob as glob
 import minos.utils as utils
 
 
-def aggregate_csv(filename, intervention, year, start_year):
+def aggregate_csv(filename, intervention, year, start_year, subpop=None):
     """
 
     Parameters
@@ -32,10 +32,7 @@ def aggregate_csv(filename, intervention, year, start_year):
 
     Returns
     -------
-     : vector
-        Vector of information about that specific run for that specific year. This is to be aggregated in the
-        Multiprocessing pool to generate a dataframe with each row corresponding to a specific run in a specific
-        intervention.
+
     """
     df = pd.read_csv(filename, low_memory=False)
     #if subset_func_string:
@@ -122,7 +119,7 @@ def calculate_qaly(df):
     return df
 
 
-def main(mode, intervention):
+def main(mode, intervention, subpop=None):
 
     # set file directory
     file_dir = os.path.join('output/', mode, intervention)
@@ -178,10 +175,19 @@ if __name__ == '__main__':
                         help="Which experiment are we calculating for?")
     parser.add_argument("-i", "--intervention", required=False, default="baseline",
                         help="Is this a baseline or intervention run? Which intervention if intervention?")
+    parser.add_argument("-s", "--subpopulation", default=None,
+                        help="Which subpopulation on which to calculate QALYs.")
 
     args = parser.parse_args()
 
     mode = args.mode
     intervention = args.intervention
+    subpop = args.subpopulation
 
-    main(mode, intervention)
+    acceptable_subpopulations = ['UC_kids', 'age_groups']
+    if subpop not in acceptable_subpopulations:
+        raise ValueError(f"Provided subpopulation not available for subsetting. "
+                         f"See below for acceptable subpopulations: "
+                         f"{acceptable_subpopulations}")
+
+    main(mode, intervention, subpop)
