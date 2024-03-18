@@ -32,13 +32,13 @@ base_dir = os.path.dirname(base_dir)  # go up one folder
 import sys
 sys.path.insert(0, base_dir)
 
-from ligerfunctions.household_quality.household_quality_intervention import household_quality_intervention
+from ligerfunctions.house_quality.house_quality_intervention import house_quality_intervention
 from sipherdb.sipher_database import SqlDB
 
 
-def household_quality_liger_glasgow(x):
+def house_quality_liger_glasgow(x):
 
-    y = household_quality_intervention(x=x, sql_db=SqlDB.POSTGRESQL, area_name='Glasgow City',
+    y = house_quality_intervention(x=x, sql_db=SqlDB.POSTGRESQL, area_name='Glasgow City',
                                        geographic_level_area='LAD', geographic_level_for_intervention='MSOA')
     return y
 
@@ -52,6 +52,6 @@ if __name__ == "__main__":
     input_data = [bool(random.getrandbits(1)) for _ in range(n_locations_for_intervention)]
 
     start = time.time()
-    y = household_quality_liger_glasgow(x=input_data)
+    y = house_quality_liger_glasgow(x=input_data)
     print(y)
     print(f"{(time.time() - start):.2f} Seconds ")

@@ -17,7 +17,7 @@ class Namespace:
         self.__dict__.update(kwargs)
 
 
-def household_quality_intervention(
+def house_quality_intervention(
         x,
         sql_db,
         area_name,
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     input_data = [bool(random.getrandbits(1)) for _ in range(n_locations_for_intervention)]
 
     start = time.time()
-    y = household_quality_intervention(
+    y = house_quality_intervention(
         x=input_data, sql_db=sql_db, area_name=area_name,
         geographic_level_area=geographic_level_area,
         geographic_level_for_intervention=geographic_level_for_intervention
