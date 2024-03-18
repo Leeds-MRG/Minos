@@ -4,8 +4,10 @@ import time
 import os
 import numpy as np
 import pandas as pd
+
 from minos.data_generation.generate_repl_pop import generate_replenishing
 from scripts.run import run
+from minos.data_generation.generate_composite_vars import calculate_equivalent_income
 
 from sipherdb.sipher_database import SipherDatabase
 from sipherdb.sipher_database import SqlDB
@@ -84,6 +86,9 @@ def house_quality_intervention(
     choices = ['Yes to all', 'Yes to some', 'No to all']
     df_in['S7_housing_quality'] = np.select(conditions, choices)
 
+    # recalculate equivalent income
+    df_in = calculate_equivalent_income(df_in)
+
     # count the number of households with intervention
     df_h = df_in.drop_duplicates(subset=['hidp'])
     number_household_with_intervention = df_h['intervention'].sum()
@@ -159,8 +164,8 @@ def house_quality_intervention(
 
 if __name__ == "__main__":
 
-    random.seed(1)
-    np.random.seed(1)
+    random.seed(10)
+    np.random.seed(10)
 
     sql_db = SqlDB.POSTGRESQL
     db = SipherDatabase()
