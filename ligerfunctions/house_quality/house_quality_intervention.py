@@ -51,7 +51,7 @@ def house_quality_intervention(
         locations_for_intervention_df.set_index('lsoa_code', inplace=True)
     locations_for_intervention_df.loc[:, 'intervention'] = x
 
-    # 1. Read the population file for intervention and upgrade the household quality
+    # 1. Read the population file for intervention and upgrade the house quality
     df_in = (pd
              .read_csv(os.path.join('data/scaled_glasgow_US', '2020_US_cohort_original.csv'))
              .rename(columns={'ZoneID': 'lsoa_code'})
@@ -110,9 +110,10 @@ def house_quality_intervention(
                           cross_validation=cross_validation,
                           inflated=inflated,
                           region=region,
-                          final_year=2021)
+                          final_year=2026)
+
     # 3. Run the pipeline
-    args = Namespace(config='/home/jduro/sipher/ws5/Minos/config/S7_glasgow_scaled.yaml',
+    args = Namespace(config=os.path.join(os.getcwd(), 'config/S7_glasgow_scaled.yaml'),
                      intervention=None,
                      runID=None,
                      runtime=None,
@@ -158,8 +159,8 @@ def house_quality_intervention(
 
 if __name__ == "__main__":
 
-    random.seed(10)
-    np.random.seed(10)
+    random.seed(1)
+    np.random.seed(1)
 
     sql_db = SqlDB.POSTGRESQL
     db = SipherDatabase()
