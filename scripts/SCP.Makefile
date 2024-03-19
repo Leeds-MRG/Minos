@@ -45,6 +45,8 @@ intervention_100RelativePoverty: setup
 intervention_25UniversalCredit_scotland: setup_scotland_scaled
 	$(PYTHON) scripts/run.py -c config/scotland_scaled.yaml -o scotland_scaled -i '25UniversalCredit'
 
+intervention_25UniversalCredit_glasgow: setup_glasgow_scaled
+	$(PYTHON) scripts/run.py -c config/glasgow_scaled.yaml -o glasgow_scaled -i '25UniversalCredit'
 
 intervention_25UniversalCredit: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
@@ -248,10 +250,10 @@ arc4_all_25_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_inte
 #####################################
 
 arc4_qaly_SCPs: setup
-arc4_qaly_SCPs: MODE=default_config
-arc4_qaly_SCPs: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_qaly_SCPs: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
-arc4_qaly_SCPs: arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+arc4_qaly_SCPs: MODE=scotland_scaled
+arc4_qaly_SCPs: RUN_CONFIG=$(CONFIG)/scotland_scaled.yaml
+arc4_qaly_SCPs: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit
+arc4_qaly_SCPs: arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
 
 arc4_qaly_SCPs_UC_glasgow: setup_glasgow_scaled
 arc4_qaly_SCPs_UC_glasgow: MODE=glasgow_scaled
