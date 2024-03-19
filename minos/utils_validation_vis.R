@@ -571,12 +571,12 @@ q_q_comparison <- function(raw, cv, var) {
 
 handover_boxplots <- function(raw, baseline, var) {
   raw.var <- raw %>%
-    dplyr::select(pidp, time, all_of(var)) %>%
+    dplyr::select(time, all_of(var)) %>%
     dplyr::filter(!.data[[var]] %in% miss.values)
   raw.var$source <- 'final_US'
 
   baseline.var <- baseline %>%
-    dplyr::select(pidp, time, all_of(var)) %>%
+    dplyr::select(time, all_of(var)) %>%
     dplyr::filter(!.data[[var]] %in% miss.values)
   baseline.var$source <- 'baseline_output'
 
@@ -600,14 +600,14 @@ handover_boxplots <- function(raw, baseline, var) {
 handover_lineplots <- function(raw, base, var) {
   # GENERALISE THIS AND DOCSTRING
   raw.means <- raw %>%
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(time, var) %>%
     dplyr::filter(!.data[[var]] %in% miss.values) %>%
     group_by(time) %>%
     summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
     mutate(source = 'final_US')
 
   base.means <- base %>%
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(time, var) %>%
     dplyr::filter(!.data[[var]] %in% miss.values) %>%
     group_by(time) %>%
     summarise(summary_var = mean(!!sym(var))) %>%

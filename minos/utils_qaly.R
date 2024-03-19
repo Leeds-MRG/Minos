@@ -80,7 +80,7 @@ QALY_comparison <- function(combined, ints) {
               lower = mean_QALY_change - margin,
               upper = mean_QALY_change + margin)
   
-  p3 <- ggplot(combined.QALY.change.confint, aes(x = year, y = mean_QALY_change, group = scenario, color = scenario, fill = scenario)) +
+  p3 <- ggplot(combined.QALY.change.confint, aes(x = year, y = mean_QALY_change, group = scenario, color = scenario)) +  # fill = scenario
     geom_ribbon(aes(ymin = lower, ymax = upper)) +
     geom_line(color = 'black') +
     geom_hline(yintercept = 0, linetype = 'dashed') +

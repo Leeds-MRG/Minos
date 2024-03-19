@@ -50,12 +50,11 @@ source(here::here('minos', 'utils_qaly.R'))
 experiment <- params$experiment
 baseline <- params$base
 ints <- params$intervention
-#intervention2 <- params$intervention2
 start.year <- params$start.year
-# # 
-# experiment <- 'glasgow_scaled'
+# #
+# experiment <- 'arc_batch_10'
 # baseline <- 'baseline'
-# ints <- c('50All', '50UniversalCredit')
+# ints <- c('25UniversalCredit', '50UniversalCredit', '75UniversalCredit', '100UniversalCredit')
 # start.year <- 2020
 ```
 
@@ -169,11 +168,6 @@ ggplot(combined.diff, aes(x = year, y = total_boost, group = scenario, color = s
 # QALY comparison
 
 ```{r}
-# QALY_comparison(base = base,
-#                 base.name = baseline,
-#                 int = int,
-#                 int.name = intervention)
-
 QALY_comparison(combined, ints)
 ```
 
