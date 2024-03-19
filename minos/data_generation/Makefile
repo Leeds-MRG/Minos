@@ -9,7 +9,7 @@ data: raw_data corrected_data composite_data complete_data final_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
 
-synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
+synthetic_scotland_data: data scotland_scaled_data
 
 synthetic_uk_data: data uk_scaled_data
 
