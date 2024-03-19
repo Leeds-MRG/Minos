@@ -28,9 +28,15 @@ MAP_SCALE = 50  # Unit in shapefile/geojson, appears to be metres
 LA_DIR = os.path.join(SPATIAL_DIR, 'data_by_la')
 
 # HR 21/02/24 Some city regions to LA maps for #413; all correct for LSOA (2011) and LA (2022)
-REGIONAL_LA_DICT = {'Greater Manchester': ['Manchester', 'Salford', 'Trafford', 'Wigan', 'Stockport', 'Bury', 'Bolton', 'Oldham', 'Tameside', 'Rochdale'],
-                    'Glasgow City Region': ['East Dunbartonshire', 'East Renfrewshire', 'Glasgow City', 'Inverclyde', 'North Lanarkshire', 'Renfrewshire', 'South Lanarkshire', 'West Dunbartonshire'],
+REGIONAL_LA_DICT = {'Greater Manchester': ['Manchester', 'Salford', 'Trafford', 'Wigan', 'Stockport', 'Bury', 'Bolton',
+                                           'Oldham', 'Tameside', 'Rochdale'],
+                    'Glasgow City Region': ['East Dunbartonshire', 'East Renfrewshire', 'Glasgow City', 'Inverclyde',
+                                            'North Lanarkshire', 'Renfrewshire', 'South Lanarkshire',
+                                            'West Dunbartonshire'],
                     'Sheffield City Region': ['Sheffield', 'Barnsley', 'Doncaster', 'Rotherham'],
+                    'Cardiff Capital Region': ['Blaenau Gwent', 'Bridgend', 'Caerphilly', 'Cardiff', 'Merthyr Tydfil',
+                                               'Monmouthshire', 'Newport', 'Rhondda Cynon Taf', 'Torfaen',
+                                               'Vale of Glamorgan'],
                     }
 
 
