@@ -38,20 +38,55 @@ from sipherdb.sipher_database import SqlDB
 
 def house_quality_liger_glasgow(x):
 
-    y = house_quality_intervention(x=x, sql_db=SqlDB.POSTGRESQL, area_name='Glasgow City',
-                                       geographic_level_area='LAD', geographic_level_for_intervention='MSOA')
+    y = house_quality_intervention(
+        x=x, sql_db=SqlDB.POSTGRESQL, area_name='Glasgow City',
+        geographic_level_area='LAD',
+        geographic_level_for_intervention='MSOA'
+    )
     return y
+
+
+def generate_boolean_list(length, num_true):
+    # Initialize the list with all False values
+    boolean_list = [False] * length
+
+    # Ensure the number of True values does not exceed the length of the list
+    num_true = min(num_true, length)
+
+    # Generate unique random indices for True values
+    true_indices = random.sample(range(length), num_true)
+
+    # Set True at the selected indices
+    for index in true_indices:
+        boolean_list[index] = True
+
+    return boolean_list
 
 
 if __name__ == "__main__":
 
-    random.seed(10)
-    np.random.seed(10)
+    seed = 10
+    random.seed(seed)
+    np.random.seed(seed)
 
     n_locations_for_intervention = 136
-    input_data = [bool(random.getrandbits(1)) for _ in range(n_locations_for_intervention)]
+    # input_data = [bool(random.getrandbits(1)) for _ in range(n_locations_for_intervention)]
 
-    start = time.time()
-    y = house_quality_liger_glasgow(x=input_data)
-    print(y)
-    print(f"{(time.time() - start):.2f} Seconds ")
+    # build a DOE
+    number_of_solutions = 50
+    sampling_plan = [generate_boolean_list(n_locations_for_intervention, i) for i in range(number_of_solutions)]
+    import csv
+    with open('sampling_plan.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        splan = [[int(b) for b in x] for x in sampling_plan]
+        writer.writerows(splan)
+
+    for i in range(number_of_solutions):
+        input_data = sampling_plan[i]
+        # print(input_data)
+        start = time.time()
+        y = house_quality_liger_glasgow(x=input_data)
+        y.append(time.time() - start)
+        with open(r'responses.csv', 'a') as f1:
+            writer = csv.writer(f1)
+            writer.writerow(y)
