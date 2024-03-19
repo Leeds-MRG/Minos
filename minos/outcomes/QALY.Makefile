@@ -288,19 +288,26 @@ QALY_vis_SCP_25_All: QALY_baseline QALY_SCP_25_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='25All', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_25_All.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_25_All.html
 
-QALY_vis_SCP_50_All: EXPERIMENT=glasgow_scaled
-QALY_vis_SCP_50_All: STARTYEAR=2020
+
 QALY_vis_SCP_50_All: QALY_baseline QALY_SCP_50_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='50All', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_50_All.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_50_All.html
+
+QALY_vis_SCP_50_All: QALY_baseline QALY_SCP_75_All
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='75All', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_75_All.html')"
 
 QALY_vis_SCP_100_All: QALY_baseline QALY_SCP_100_All
 	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='100All', start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_100_All.html')"
 	#firefox file://$(OUTCOMES)/QALY_SCP_100_All.html
 
+QALY_vis_SCP_25_100_All: EXPERIMENT=default_config
+QALY_vis_SCP_25_100_All: STARTYEAR=2021
+QALY_vis_SCP_25_100_All: QALY_baseline QALY_SCP_25_All QALY_SCP_50_All QALY_SCP_75_All QALY_SCP_100_All
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention=c('25All', '50All', '75All', '100All'), start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_25_100_All.html')"
+
 QALYs_all_child: EXPERIMENT=default_config
 QALYs_all_child: STARTYEAR=2021
-QALYs_all_child: QALY_vis_SCP_25_All QALY_vis_SCP_50_All QALY_vis_SCP_100_All
+QALYs_all_child: QALY_vis_SCP_25_All QALY_vis_SCP_50_All QALY_vis_SCP_75_All QALY_vis_SCP_100_All
 
 QALYs_all_child_glasgow: EXPERIMENT=glasgow_scaled
 QALYs_all_child_glasgow: STARTYEAR=2020
