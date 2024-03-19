@@ -9,6 +9,43 @@ import glob
 from string import ascii_lowercase as alphabet  # For creating wave specific attribute columns. See get_ukhls_columns.
 import pickle
 
+''' HR 15/03/24 Decorator that recasts variables as desired to avoid Vivarium/Pandas dtype error
+    Works for any function where a population is passed
+    Default arg position pop_argument_position (e.g. for class method where args are (self, pop)) is 1,
+    otherwise you must specify position
+    
+    Example usage for Ageing.update_child_ages (on which this was tested) is below:
+
+    @correct_types(vars_to_recast=['nkids'])
+    def update_child_ages(self, pop):
+        <REST OF FUNCTION>
+        
+    The following line is then redundant, as is anything else that recasts:
+    pop['nkids'] = pop['nkids'].astype(float)
+'''
+def correct_types(*args, **kwargs):
+    def decorator(func):
+        def __wrapper(*func_args, **func_kwargs):
+
+            # Do something before (get var types)
+            pop_arg_position = kwargs.get('pop_arg_position', 1)
+            pop = func_args[pop_arg_position]
+            vars_to_recast = kwargs['vars_to_recast']
+            var_dict = {v: pop.dtypes[v] for v in vars_to_recast}
+
+            # Call function
+            pop = func(*func_args, **func_kwargs)
+
+            # Do something after (recast to previous var types)
+            for v in vars_to_recast:
+                print("Recasting {} to {}".format(v, var_dict[v]))
+                pop[v] = pop[v].astype(var_dict[v])
+
+            return pop
+        return __wrapper
+    return decorator
+
+
 ########################
 # Single wave functions.
 ########################
