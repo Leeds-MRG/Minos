@@ -381,6 +381,10 @@ QALYs_UC_glasgow: EXPERIMENT=glasgow_scaled
 QALYs_UC_glasgow: STARTYEAR=2020
 QALYs_UC_glasgow: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY_vis_SCP_100_UC
 
+QALYs_UC_scotland: EXPERIMENT=scotland_scaled
+QALYs_UC_scotland: STARTYEAR=2020
+QALYs_UC_scotland: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY_vis_SCP_100_UC
+
 QALY_vis_SCP_all_child_glasgow: EXPERIMENT=glasgow_scaled
 QALY_vis_SCP_all_child_glasgow: STARTYEAR=2020
 QALY_vis_SCP_all_child_glasgow: QALY_baseline QALY_SCP_25_All QALY_SCP_50_All QALY_SCP_75_All QALY_SCP_100_All

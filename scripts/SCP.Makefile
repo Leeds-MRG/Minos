@@ -249,11 +249,11 @@ arc4_all_25_uplifts: arc4_baseline arc4_intervention_25RelativePoverty arc4_inte
 ## Arc4 QALY Combined Targets
 #####################################
 
-arc4_qaly_SCPs: setup
-arc4_qaly_SCPs: MODE=scotland_scaled
-arc4_qaly_SCPs: RUN_CONFIG=$(CONFIG)/scotland_scaled.yaml
-arc4_qaly_SCPs: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit
-arc4_qaly_SCPs: arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
+arc4_qaly_SCPs_Scotland: setup
+arc4_qaly_SCPs_Scotland: MODE=scotland_scaled
+arc4_qaly_SCPs_Scotland: RUN_CONFIG=$(CONFIG)/scotland_scaled.yaml
+arc4_qaly_SCPs_Scotland: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_50UniversalCredit
+arc4_qaly_SCPs_Scotland: arc4_intervention_75UniversalCredit arc4_intervention_100UniversalCredit
 
 arc4_qaly_SCPs_UC_glasgow: setup_glasgow_scaled
 arc4_qaly_SCPs_UC_glasgow: MODE=glasgow_scaled
