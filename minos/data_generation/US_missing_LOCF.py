@@ -244,7 +244,9 @@ def main(data, save=False):
     # note columns can be forward and back filled for immutables like ethnicity.
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
-                 'nkids_ind_raw'] # 'ncigs', 'ndrinks']
+                 'nkids_ind_raw', 'universal_credit', 'child_tax_credit', "working_tax_credit", "job_seekers_allowance",
+                 "pension_credit", "income_support", "employment_and_support_allowance",
+                ] # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]
