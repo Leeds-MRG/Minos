@@ -404,6 +404,8 @@ def RunPipeline(config, intervention=None):
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+    # order columns for better outputs
+    pop = arrange_output_columns(pop, config)
     pop.to_csv(output_file_path)
     print("Saved initial data to: ", output_file_path)
     logging.info(f"Saved initial data to: {output_file_path}")
@@ -432,6 +434,8 @@ def RunPipeline(config, intervention=None):
         output_data_filename = get_output_data_filename(config, year)
 
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+        # Order output columns
+        pop = arrange_output_columns(pop, config)
         pop.to_csv(output_file_path)
         print("Saved data to: ", output_file_path)
         logging.info(f"Saved data to: {output_file_path}")
@@ -466,3 +470,47 @@ def get_output_data_filename(config, year=0):
     output_data_filename += f"{config.time.start.year + year}.csv"
 
     return output_data_filename
+
+
+def arrange_output_columns(data, config):
+    """
+    The purpose of this function is to arrange the columns in the output dataframe to be in a more useful configuration,
+    where we can locate important columns more easily than just searching through the dataframe as we have been doing.
+
+    The order I am planning on is:
+    - Unique ID columns (pidp, hidp)
+    - Time
+    - Demographic vars
+    #- Mortality associated vars (alive, cause of death, exit_time, years of life lost)
+    - Financial vars
+    - Pathways
+    - Outcome (SF12 vars or Equivalent Income)
+    - Secondary vars
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    # TODO: Organise this better so that sf12 and S7 vars are correctly specified. Did this quick so not complete.
+
+    run_agnostic_vars = ['pidp', 'hidp', 'time',
+                         'age', 'sex', 'ethnicity', 'region', 'education_state', 'marital_status', 'hhsize',
+                         #'alive', 'cause_of_death', 'exit_time', 'years_of_life_lost',
+                         'hh_income', 'hourly_wage', 'council_tax',
+                         'loneliness', 'housing_quality', 'neighbourhood_safety', 'ncigs', 'nutrition_quality',
+                         'auditc', 'active',
+                         'SF_12_PCS', 'SF_12_PCS_diff', 'SF_12_MCS', 'SF_12_MCS_diff']
+
+    sf12_specific = []
+
+    S7_specific = []
+
+    # Add specified vars in lists above to the start of the dataframe, and add in remaining cols at the end in their
+    # current order
+    data = data[run_agnostic_vars + [c for c in data.columns if c not in run_agnostic_vars]]
+
+    return data
