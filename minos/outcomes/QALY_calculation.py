@@ -14,12 +14,12 @@ import yaml
 from multiprocessing import Pool
 from itertools import repeat
 import glob as glob
-#from aggregate_subset_functions import dynamic_subset_function
+from aggregate_subset_functions import dynamic_subset_function
 
 import minos.utils as utils
 
 
-def aggregate_csv(filename, intervention, year, start_year, subpop=None):
+def aggregate_csv(filename, intervention, year, start_year, subset_func_string=None):
     """
 
     Parameters
@@ -35,9 +35,9 @@ def aggregate_csv(filename, intervention, year, start_year, subpop=None):
 
     """
     df = pd.read_csv(filename, low_memory=False)
-    #if subset_func_string:
-        #df = dynamic_subset_function(df, subset_func_string, mode)
-    #print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
+    if subset_func_string:
+        df = dynamic_subset_function(df, subset_func_string, mode)
+        print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
 
     # get the run_id from the filename and attach to the dataset (if batch run)
     filename_nopath = filename.split(sep='/')[-1]
@@ -119,7 +119,7 @@ def calculate_qaly(df):
     return df
 
 
-def main(mode, intervention, subpop=None):
+def main(mode, intervention, subset_func_string=None):
 
     # set file directory
     file_dir = os.path.join('output/', mode, intervention)
@@ -142,10 +142,12 @@ def main(mode, intervention, subpop=None):
 
         # aggregate the files using multiprocessing
         with Pool() as pool:
-            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention), repeat(year), repeat(start_year)))
+            aggregated_means = pool.starmap(aggregate_csv, zip(files, repeat(intervention), repeat(year),
+                                                               repeat(start_year), repeat(subset_func_string)))
 
         new_df = pd.DataFrame(aggregated_means)
-        new_df.columns = ['run_id', 'alive_pop', 'dead_pop', 'total_pop_size', 'pop_boosted', 'total_boost', 'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
+        new_df.columns = ['run_id', 'alive_pop', 'dead_pop', 'total_pop_size', 'pop_boosted', 'total_boost',
+                          'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])
@@ -175,19 +177,13 @@ if __name__ == '__main__':
                         help="Which experiment are we calculating for?")
     parser.add_argument("-i", "--intervention", required=False, default="baseline",
                         help="Is this a baseline or intervention run? Which intervention if intervention?")
-    parser.add_argument("-s", "--subpopulation", default=None,
+    parser.add_argument("-s", "--subset", default=None,
                         help="Which subpopulation on which to calculate QALYs.")
 
     args = parser.parse_args()
 
     mode = args.mode
     intervention = args.intervention
-    subpop = args.subpopulation
+    subset_func_string = args.subset
 
-    acceptable_subpopulations = ['UC_kids', 'age_groups']
-    if subpop not in acceptable_subpopulations:
-        raise ValueError(f"Provided subpopulation not available for subsetting. "
-                         f"See below for acceptable subpopulations: "
-                         f"{acceptable_subpopulations}")
-
-    main(mode, intervention, subpop)
+    main(mode, intervention, subset_func_string)
