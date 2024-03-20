@@ -86,6 +86,9 @@ def house_quality_intervention(
     choices = ['Yes to all', 'Yes to some', 'No to all']
     df_in['S7_housing_quality'] = np.select(conditions, choices)
 
+    choices = ['High', 'Medium', 'Low']
+    df_in['housing_quality'] = np.select(conditions, choices)
+
     # recalculate equivalent income
     df_in = calculate_equivalent_income(df_in)
 
@@ -188,7 +191,7 @@ if __name__ == "__main__":
         elif geographic_level_for_intervention == "LSOA":
             n_locations_for_intervention = sdb.number_of_lsoas_in_ca(ca_name=area_name)
 
-    input_data = [bool(random.getrandbits(1)) for _ in range(n_locations_for_intervention)]
+    input_data = [True for _ in range(n_locations_for_intervention)]
 
     start = time.time()
     y = house_quality_intervention(
