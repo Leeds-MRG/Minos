@@ -24,18 +24,18 @@ def main(year, params, param_names, source):
     SF12_data = pd.read_csv("output/livingWage/baseline_vs_livingWage.csv")
     spatial_data = spatial_data.merge(SF12_data, how='left')
 
-    # generate new SF_12 column that is living wage if in cluster 5 and baseline otherwise.
-    spatial_data["SF_12"] = spatial_data["baseline"]
-    spatial_data["SF_12"] = spatial_data["lwage"]
+    # generate new SF_12_MCS column that is living wage if in cluster 5 and baseline otherwise.
+    spatial_data["SF_12_MCS"] = spatial_data["baseline"]
+    spatial_data["SF_12_MCS"] = spatial_data["lwage"]
     # TODO make this clearer as a function.
     # OMIT ME IF NO INCLUSION OF CLUSTER DIFFERENCE.
-    #spatial_data.loc[spatial_data['Cluster'] == 5, "SF_12"] = spatial_data.loc[spatial_data['Cluster'] == 5, "lwage"]
+    #spatial_data.loc[spatial_data['Cluster'] == 5, "SF_12_MCS"] = spatial_data.loc[spatial_data['Cluster'] == 5, "lwage"]
     spatial_data.drop(labels=['baseline', 'lwage'],
               axis=1,
               inplace=True)
 
     # group by lsoa and take SF12 mean.
-    spatial_data = spatial_data.groupby("ZoneID", as_index=False)[["Cluster", "SF_12"]].mean()
+    spatial_data = spatial_data.groupby("ZoneID", as_index=False)[["Cluster", "SF_12_MCS"]].mean()
 
     # save to useful data.
     sf12_dict = defaultdict(int, zip(spatial_data["ZoneID"], spatial_data["SF_12"]))

@@ -198,8 +198,6 @@ class FertilityAgeSpecificRates(Base):
         return "FertilityAgeSpecificRates()"
 
 
-
-
 class nkidsFertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
@@ -263,7 +261,7 @@ class nkidsFertilityAgeSpecificRates(Base):
                                                                    requires_columns=['sex', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
-        self.randomness = builder.randomness.get_stream('fertility')
+        self.randomness = builder.randomness.get_stream(self.generate_random_crn_key())
 
         view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
 
@@ -327,7 +325,14 @@ class nkidsFertilityAgeSpecificRates(Base):
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
         population.loc[who_had_children_households, 'has_newborn'] = True
-        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
+        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x))  # add new child to children ages chain.
+
+        # LA 26/2/24
+        # Problem when adding new babies to childless households
+        # Results in a string with structure '0_None'
+        # Therefore we need to remove the 'None' part of the string
+        #population['child_ages'] = population['child_ages'].str.replace('0_None', '0')
+        # Spotted the add_new_child_to_chain() function below and fixed it there instead.
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
         #TODO future differentiation within a household of which kids belong to who in child age chains.
@@ -335,7 +340,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'has_newborn']])
 
-    def add_new_child_to_chain(self, age_chain):
+    @staticmethod
+    def add_new_child_to_chain(age_chain):
 
         if age_chain == 'childless':
             return "0"
@@ -355,7 +361,6 @@ class nkidsFertilityAgeSpecificRates(Base):
     @property
     def name(self):
         return 'nkids_age_specific_fertility'
-
 
     def __repr__(self):
         return "nkidsFertilityAgeSpecificRates()"

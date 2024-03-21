@@ -18,7 +18,7 @@ def get_means_dataframe(params, year):
         if p[0] not in out.keys():
             out[p[0]] = {}
         try:
-            out[p[0]][p[1]] = np.nanmean(pd.read_csv(file_name)["SF_12"])
+            out[p[0]][p[1]] = np.nanmean(pd.read_csv(file_name)["SF_12_MCS"])
         except:
             out[p[0]][p[1]] = np.nanmean(pd.read_csv(file_name)["0"])
 

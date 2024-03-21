@@ -1,0 +1,192 @@
+---
+title: "Testing Interventions - QALY Focus"
+output: html_notebook
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+```
+
+
+
+```{r}
+output.dir <- here::here('output', 'default_config/')
+
+var.list <- c('hh_income', 'age', 'sex', 'ethnicity', 'region', 'education_state', 'nkids', 'hhsize', 
+              'housing_quality', 'neighbourhood_safety', 'loneliness', 'ncigs', 'nutrition_quality', 
+              'active', 'auditc', 
+              'S7_labour_state', 
+              'SF_12_MCS', 'SF_12_PCS')
+
+base <- read_batch_out_all_years(out.path = output.dir,
+                                 scenario = 'baseline',
+                                 var.list = var.list)
+all50 <- read_batch_out_all_years(out.path = output.dir,
+                                 scenario = '50All',
+                                 var.list = var.list)
+UC50 <- read_batch_out_all_years(out.path = output.dir,
+                                 scenario = '50UniversalCredit',
+                                 var.list = var.list)
+
+base$scen <- 'baseline'
+all50$scen <- 'all50'
+UC50$scen <- 'UC50'
+
+data <- rbind(base, all50, UC50)
+
+```
+
+# Functions
+
+## Ordinal Vars
+
+```{r}
+pathway_plots_ordinal <- function(data, var, levels = c(1,2,3)) {
+  df <- data %>% 
+    group_by(time, scen, .data[[var]]) %>%
+    summarise(n = n()) %>%
+    group_by(time, scen) %>%
+    mutate(prop = (n / sum(n)) * 100)
+  
+  for (level in levels) {
+    p <- ggplot(dplyr::filter(df, .data[[var]] == level), aes(x = time, y = prop, group = scen, fill = scen, color = scen)) +
+            geom_line() +
+            labs(title = var, subtitle = level)
+    print(p)
+  }
+}
+
+pathway_plots_continuous <- function(data, var) {
+  df <- data %>%
+    group_by(time, scen, .data[[var]]) %>%
+    summarise(mean_var = mean(.data[[var]]))
+  
+  p1 <- ggplot(data, aes(x = time, y = .data[[var]], group = scen, fill = scen, color = scen)) +
+    geom_smooth() +
+    labs(title = var, subtitle = 'Loess Smoothed')
+  
+  p2 <- ggplot(df, aes(x = time, y = mean_var, group = scen, fill = scen, color = scen)) +
+    geom_smooth() +
+    labs(title = var, subtitle = 'Mean')
+  
+  print(p1)
+  print(p2)
+}
+```
+
+
+# INCOME CHANGE DUE TO INTERVENTION
+
+```{r}
+ggplot(data, aes(x = time, y = hh_income, group = scen, fill = scen, color = scen)) +
+  geom_smooth() +
+  labs(title = 'Household Income Comparison') +
+  xlab('Year') +
+  ylab('Mean Household Income')
+```
+
+
+# PATHWAYS CHANGE DUE TO INTERVENTION
+
+## Housing Quality
+
+```{r}
+pathway_plots_ordinal(data, var = 'housing_quality', levels = c('Low', 'Medium', 'High'))
+```
+
+## Neighbourhood Safety
+
+```{r}
+pathway_plots_ordinal(data, var = 'neighbourhood_safety')
+```
+
+
+
+
+## Loneliness
+
+```{r}
+pathway_plots_ordinal(data, var = 'loneliness')
+```
+
+## Tobacco
+
+```{r}
+pathway_plots_continuous(data, var = 'ncigs')
+```
+
+## Tobacco
+
+```{r}
+pathway_plots_continuous(data, var = 'nutrition_quality')
+```
+
+## Active
+
+```{r}
+pathway_plots_ordinal(data, var = 'active', levels = c(0,1))
+```
+
+
+## AUDITC
+
+```{r}
+pathway_plots_ordinal(data, var = 'auditc', levels = c('Non-drinker', 'Low Risk', 'Increased Risk', 'High Risk'))
+```
+
+# OUTCOMES
+
+## MCS
+
+```{r}
+pathway_plots_continuous(data, var = 'SF_12_MCS')
+```
+
+## PCS
+
+```{r}
+pathway_plots_continuous(data, var = 'SF_12_PCS')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+

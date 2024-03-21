@@ -118,10 +118,10 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     # drop intermediate columns
     data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
 
-    # last step is to impute the still missing with the mean value. Without this we would have to drop all the
-    # missing values, meaning anybody not in wave 11 would be removed. This is dodgy because we don't know who should be
-    # missing, but I don't know what else to do
-    # data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
+    # last step is to impute the still missing with the median value (code is different for continuous vs ordinal vars).
+    # Without this we would have to drop all the missing values, meaning anybody not in wave 11 would be removed.
+    # This is dodgy because we don't know who should actually be missing, but I don't know what else to do
+    #data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
     if var_type == 'continuous':
         data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
             data_merged[var][data_merged['time'] == paste_year].median()
@@ -185,6 +185,36 @@ def generate_stock(projections, cross_validation):
                           copy_year=2014,
                           paste_year=2015,
                           var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='heating',
+                          copy_year=2020,
+                          paste_year=2021,
+                          var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='heating',
+                          copy_year=2014,
+                          paste_year=2015,
+                          var_type='ordinal')
+    # data = wave_data_copy(data,
+    #                       var='matdep',
+    #                       copy_year=2020,
+    #                       paste_year=2021,
+    #                       var_type='ordinal')
+    # data = wave_data_copy(data,
+    #                       var='matdep',
+    #                       copy_year=2014,
+    #                       paste_year=2015,
+    #                       var_type='ordinal')
+    # data = wave_data_copy(data,
+    #                       var='matdep',
+    #                       copy_year=2016,
+    #                       paste_year=2017,
+    #                       var_type='ordinal')
+    data = wave_data_copy(data,
+                          var='nutrition_quality',
+                          copy_year=2019,
+                          paste_year=2020,
+                          var_type='ordinal')
 
     # Set loneliness and ncigs as int
     data['loneliness'] = data['loneliness'].astype('int64')
@@ -192,6 +222,24 @@ def generate_stock(projections, cross_validation):
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
     #data['housing_quality'] = data['housing_quality'].astype('int64')
+
+    # drop some columns that are not needed
+    data.drop(labels=['job_duration_m',
+                      'job_duration_y',
+                      'job_industry',
+                      'job_occupation',
+                      'alcohol_spending',
+                      'ndrinks',
+                      'job_inc',
+                      'jb_inc_per',
+                      'depression',
+                      'birth_month',
+                      'academic_year',
+                      'gross_paypm',
+                      'gross_pay_se',
+                      'job_hours_se'],
+              inplace=True,
+              axis=1)
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 

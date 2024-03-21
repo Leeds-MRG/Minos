@@ -69,7 +69,7 @@ intervention_energyDownLift: setup
 intervention_energyDownLiftNoSupport: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
-all_scenarios: MODE = default_config
+all_scenarios: MODE=default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift intervention_energyDownLiftNoSupport
 
@@ -77,12 +77,18 @@ all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
+qaly_scenarios: MODE=default_config
+qaly_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
+qaly_scenarios: baseline intervention_energyDownLift intervention_energyDownLiftNoSupport intervention_livingWage
+
+qaly_scenarios_no_replenishment: MODE=default_no_replenishment
+qaly_scenarios_no_replenishment: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
+qaly_scenarios_no_replenishment: baseline intervention_energyDownLift intervention_energyDownLiftNoSupport intervention_livingWage
 
 ############################################
 ## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
 ############################################
 
-baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 baseline_glasgow: setup_glasgow_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/glasgow_scaled.yaml -o glasgow_scaled
 
@@ -135,27 +141,26 @@ intervention_energyDownLiftNoSupport_scotland: setup_scotland_scaled
 ## Local single runs of MINOS SF12 experiments using the UK (GB) synthetic population.
 ############################################
 
-baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 baseline_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled
 
 intervention_hhIncome_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomeIntervention'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomeIntervention'
 
 intervention_hhIncomeChildUplift_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomeChildUplift'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomeChildUplift'
 
 intervention_PovertyLineChildUplift_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomePovertyLineChildUplift'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'hhIncomePovertyLineChildUplift'
 
 intervention_livingWage_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'livingWageIntervention'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'livingWageIntervention'
 
 intervention_energyDownLift_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'energyDownlift'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'energyDownlift'
 
 intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'energyDownliftNoSupport'
+	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o SF12_uk_scaled -i 'energyDownliftNoSupport'
 
 
 #####################################
@@ -228,6 +233,26 @@ arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
 
 arc4_cv_baseline: cv_setup
 	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
+
+arc4_qaly_scenarios: setup
+arc4_qaly_scenarios: MODE=default_config
+arc4_qaly_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
+arc4_qaly_scenarios: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
+
+arc4_qaly_scenarios_glasgow: setup_glasgow_scaled
+arc4_qaly_scenarios_glasgow: MODE=glasgow_scaled
+arc4_qaly_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+arc4_qaly_scenarios_glasgow: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
+
+arc4_qaly_scenarios_uk: setup_uk_scaled
+arc4_qaly_scenarios_uk: MODE=SF12_uk_scaled
+arc4_qaly_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
+arc4_qaly_scenarios_uk: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
+
+arc4_qaly_scenarios_no_replenishment: setup
+arc4_qaly_scenarios_no_replenishment: MODE=default_no_replenishment
+arc4_qaly_scenarios_no_replenishment: RUN_CONFIG=$(CONFIG)/default_noReplenishment.yaml
+arc4_qaly_scenarios_no_replenishment: arc4_baseline arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport arc4_intervention_livingWage
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.

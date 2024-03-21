@@ -153,15 +153,15 @@ main <- function() {
   data4$time <- factor(data4$time)
   
   # spaghetti and violin plots over time for SF12
-  sf12_violin <- violin_plot(data, "SF_12")
-  sf12_spag <- spaghetti_plot(data, "SF_12")
+  sf12_violin <- violin_plot(data, "SF_12_MCS")
+  sf12_spag <- spaghetti_plot(data, "SF_12_MCS")
   
-  sf12_violin2 <- violin_plot(data2, "SF_12")
-  sf12_spag2 <- spaghetti_plot(data2, "SF_12")
+  sf12_violin2 <- violin_plot(data2, "SF_12_MCS")
+  sf12_spag2 <- spaghetti_plot(data2, "SF_12_MCS")
   
   # joint plots SF12 for two interventions together with colour groupings. 
-  joint_spaghetti_plot(data, data2, "SF_12", "baseline", "energy poverty")
-  #joint_violin_plot <- joint_violin_plot(data3, data2, "SF_12", "base", 'energy poverty measures')
+  joint_spaghetti_plot(data, data2, "SF_12_MCS", "baseline", "energy poverty")
+  #joint_violin_plot <- joint_violin_plot(data3, data2, "SF_12_MCS", "base", 'energy poverty measures')
   
   # Stacked barplots for discrete data. 
   #housing_barplot <- percent_barplot(data, "housing_quality", "Baseline")

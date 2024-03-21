@@ -1,0 +1,110 @@
+---
+title: "AUDITC Testing"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(knitr)
+require(here)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+## Data
+
+```{r}
+# Read raw datafiles in
+comp.files <- list.files(here::here('data', 'composite_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+comp.dat <- do.call(rbind, lapply(comp.files, read.csv)) 
+
+final.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+final.dat <- do.call(rbind, lapply(final.files, read.csv))
+
+cv.files <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+cv.dat <- do.call(rbind, lapply(final.files, read.csv))
+```
+
+# Analysis
+
+```{r}
+comp <- comp.dat %>%
+  dplyr::select(pidp, time, auditc) %>%
+  dplyr::filter(time >= 2015) %>%
+  dplyr::filter(time != 2016, time != 2018) %>%
+  group_by(time, auditc) %>%
+  count()
+
+comp$auditc <- as.factor(comp$auditc)
+
+ggplot(comp, aes(x = time, y = n, group = auditc, color = auditc)) +
+  geom_line() +
+  labs(title = 'AUDITC - Corrected Data') +
+  ylab('Counts')
+```
+
+
+
+```{r}
+final <- final.dat %>%
+  dplyr::select(pidp, time, auditc) %>%
+  dplyr::filter(time >= 2015) %>%
+  dplyr::filter(time != 2016, time != 2018) %>%
+  group_by(time, auditc) %>%
+  count()
+
+final$auditc <- as.factor(final$auditc)
+
+ggplot(final, aes(x = time, y = n, group = auditc, color = auditc)) +
+  geom_line() +
+  labs(title = 'AUDITC - Final Data') +
+  ylab('Counts')
+```
+
+```{r}
+cv <- cv.dat %>%
+  dplyr::select(pidp, time, auditc) %>%
+  dplyr::filter(time >= 2015) %>%
+  dplyr::filter(time != 2016, time != 2018) %>%
+  group_by(time, auditc) %>%
+  count()
+
+cv$auditc <- as.factor(cv$auditc)
+
+ggplot(cv, aes(x = time, y = n, group = auditc, color = auditc)) +
+  geom_line() +
+  labs(title = 'AUDITC - Cross-Validation Batch 1') +
+  ylab('Counts')
+```
+
+
+```{r}
+
+```
+

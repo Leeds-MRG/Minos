@@ -6,7 +6,7 @@ import logging
 from datetime import datetime as dt
 
 
-class financialSituation(Base):
+class FinancialSituation(Base):
 
 
     # Special methods used by vivarium.
@@ -15,7 +15,7 @@ class financialSituation(Base):
         return 'financial_situation'
 
     def __repr__(self):
-        return "financialSituation()"
+        return "FinancialSituation()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -62,7 +62,9 @@ class financialSituation(Base):
                         'job_sec',
                         'hh_income',
                         'marital_status',
-                        'housing_tenure'
+                        'hhsize',
+                        'housing_tenure',
+                        'financial_situation',
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -100,14 +102,24 @@ class financialSituation(Base):
         self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
+
         year = 2020
         # if simulation goes beyond real data in 2020 dont load the transition model again.
         if not self.transition_model or year <= 2020:
+
+            if self.cross_validation:
+                # LA 19/2/24
+                # factor levels for housing_tenure change in 2019 onwards. Therfore cv has to use model before 2019 if
+                # housing_tenure is included
+                year = 2018
+
+            # load transition model and randomise the fixed effects
             self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
                                                              self.rpy2Modules, path=self.transition_dir)
             self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
-        #transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2Modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop,
+        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model,
+                                                                        self.rpy2_modules,
+                                                                        pop,
                                                                         dependent='financial_situation')
         return nextWaveFinancialPerception

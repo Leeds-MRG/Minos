@@ -1,13 +1,16 @@
 source("minos/transitions/utils.R")
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
-require(randomForest)
-require(caret)
-require(doParallel)
-require(parallelly)
+
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
+library(glmmTMB)
+#library(msm)
+library(randomForest)
+library(caret)
+library(doParallel)
+library(parallelly)
 
 ################ Model Specific Functions ################
 
@@ -17,12 +20,12 @@ require(parallelly)
 # information available)
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
-  
+
   if (transform){
     yj <-  yeojohnson(data[, c(depend)], standardize=FALSE)
     data[, c(depend)] <- predict(yj)
   }
-  
+
   if(include_weights) {
     # fit the model including weights (after 2009)
     model <- lm(formula,
@@ -34,7 +37,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, 
                 data = data)
   }
   model[[depend]] <- data[[depend]]
-  
+
   if (transform){
     model$transform <- yj
   }
@@ -42,7 +45,7 @@ estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, 
 }
 
 estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
   data <- data[, append(all.vars(formula), c("time", 'pidp', 'weight'))]
@@ -77,19 +80,19 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
 
 
 estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   data = replace.missing(data)
-  
+
   if(include_weights) {
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
   } else {
     model <- glm(formula, family=binomial(link="logit"), data=data)
   }
   # add obs and preds to model object for any later plotting.
-  # This is mildly stupid.. 
+  # This is mildly stupid..
   model[[depend]] <- data[[depend]]
   model$class_preds <- predict(model)
   model$cov_matrix <- vcov(model)
@@ -98,11 +101,11 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
 
 
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
-  
+
   if(include_weights) {
     model <- multinom(formula = formula,
                       data = data,
@@ -121,7 +124,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   if(include_weights) {
     model <- zeroinfl(formula = formula,
                       data = data,
@@ -131,7 +134,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   } else {
     model <- zeroinfl(formula = formula,
                       data = data,
-                      dist = 'pois', 
+                      dist = 'pois',
                       link='logit')
   }
   model[[depend]] <- data[[depend]]
@@ -143,7 +146,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
   #print(summary(model))
   #prs<- 1 - (logLik(model)/logLik(zeroinfl(next_ncigs ~ 1, data=dat.subset, dist='negbin', link='logit')))
   #print(prs)
-  
+
   return(model)
 }
 
@@ -155,25 +158,47 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
 nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 
-estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
-  
+estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, log_transform, reflect) {
+
   data <- replace.missing(data)
   #data <- drop_na(data)
+  
+  # If min == 0, then add small amount before log_transform
+  # if (min(data[[depend]] == 0) && (log_transform)) {
+  #   print("Adding small value for log_transform")
+  #   data[[depend]] <- data[[depend]] + 0.001
+  # }
+  
+  if ((depend == 'SF_12_MCS') & log_transform) {
+    data[[depend]] <- data[[depend]] + 0.001
+  }
+  
+  # remove rows with null weight values
+  #data <- data[!is.na(data$weight), ]
+  
   max_value <- nanmax(data[[depend]])
+  min_value <- nanmin(data[[depend]])
+  
   if (reflect) {
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson) {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
+  
+  # LA 8/2/24
+  ## Log Normal Transformation for PCS
+  if (log_transform) {
+    data[[depend]] <- log(data[[depend]])
+  }
 
   if(include_weights) {
-    model <- lmer(formula,  
-                  weights=weight, 
+    model <- lmer(formula,
+                  weights=weight,
                   data = data)
   } else {
-    model <- lmer(formula, 
+    model <- lmer(formula,
                   data = data)
   }
   if (yeo_johnson) {
@@ -182,8 +207,16 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
+  
+  ## LA 9/2/24 
+  # Saving min and max value from input data for clipping in r_utils function
+  if (depend %in% c('SF_12_PCS', 'SF_12_MCS')) {
+    attr(model,"min_value") <- min_value
+    attr(model,"max_value") <- max_value
+  }
+  
   #browser()
-  #model@transform <- yj 
+  #model@transform <- yj
   #model@min_value <- min_value
   #model@max_value <- max_value
   attr(model, "cov_matrix") <- vcov(model)
@@ -192,7 +225,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
 
 
 estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALSE, depend, reflect, yeo_johnson) {
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
   if (yeo_johnson){
@@ -201,11 +234,11 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   }
 
   if(include_weights) {
-    model <- lmer(formula,  
-                   weights=weight, 
+    model <- lmer(formula,
+                   weights=weight,
                    data = data)
   } else {
-    model <- lmer(formula, 
+    model <- lmer(formula,
                    data = data)
   }
   if (yeo_johnson){
@@ -214,21 +247,21 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
   #attr(model,"max_value") <- max_value
   #attr(model,"min_value") <- min_value
   #browser()
-  
+
   #model@transform <- yj # S4 class uses @ rather than $ for assignment. y tho?
   #model@min_value <- min_value
   #model@max_value <- max_value
   return(model)
 }
 
-estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
-  
+estimate_gamma_glmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
+
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
   if (reflect) {
     max_value <- nanmax(data[[depend]])
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson)
   {
@@ -238,26 +271,21 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
 
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
-  
-  if (depend == 'hourly_wage') {
-    # Histogram of hourly_wage_diff
-    hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
-  }
-  
+
   if(include_weights) {
-    model <- glmer(formula,  
+    model <- glmer(formula,
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
                    family=Gamma(link='log'), # gamma family with log link.
-                   weights=weight, 
+                   weights=weight,
                    data = data)
   } else {
-    model <- glmer(formula, 
-                   nAGQ=0, 
+    model <- glmer(formula,
+                   nAGQ=0,
                    family=Gamma(link='log'),
                    data = data)
   }
   attr(model,"min_value") <- min_value
-  
+
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
       }
@@ -269,42 +297,42 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
 }
 
 estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
-  
+
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
   if (reflect) {
     max_value <- nanmax(data[[depend]])
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)]
   }
   if (yeo_johnson)
   {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-  
+
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
-  
+
   if (depend == 'hourly_wage') {
     # Histogram of hourly_wage_diff
     hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
   }
-  
+
   if(include_weights) {
-    model <- lmer(formula,  
+    model <- lmer(formula,
                    nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
                    family=gaussian(link='identity'), # Gaussian family with identity link
-                   weights=weight, 
+                   weights=weight,
                    data = data)
   } else {
-    model <- lmer(formula, 
-                   nAGQ=0, 
+    model <- lmer(formula,
+                   nAGQ=0,
                    family=gaussian(link='identity'),
                    data = data)
   }
   attr(model,"min_value") <- min_value
-  
+
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
   }
@@ -314,7 +342,7 @@ estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FA
   return(model)
 }
 
-estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend) 
+estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALSE, depend)
 {
   #data[[depend]] <- as.factor(data[[depend]])
   data <- replace.missing(data)
@@ -339,28 +367,130 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
   return (model)
 }
 
-estimate_longitudinal_clmm <- function(data, formula, depend) 
+estimate_longitudinal_clmm <- function(data, formula, depend)
 {
+
+  print('In the function call')
+
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
+
+  print('Before fitting the model')
+
+  print(formula)
+
   model <- clmm2(formula,
-                random=factor(pidp),
-                link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
-                threshold="flexible",
-                nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+                  random=factor(pidp),
+                  link='probit', # logistic link function (can use probit or cloglog as well.)
+                  data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data.
+                  threshold="flexible",
+                  nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)
 }
 
+estimate_beta_glmm <- function(data, formula, depend, reflect) {
+  # Beta family for GLMM is for data in interval 0-1 only. It can model 
+  # fractional data 
+
+  data <- replace.missing(data)
+  #data <- drop_na(data)
+  
+  if (reflect) {
+    max_value <- nanmax(data[[depend]]) - 0.01
+    data[, c(depend)] <- max_value - data[, c(depend)]
+  }
+  
+  # Convert data to range 0-1
+  if (depend %in% c('SF_12_MCS', 'SF_12_PCS')) {
+    data[[depend]] = data[[depend]] / 100
+  }
+
+  model <- glmmTMB(formula,
+                   data = data,
+                   family = beta_family(link = 'logit'),
+                   weights = weight,
+                   na.action = na.omit,
+                   verbose = TRUE)
+  
+  if (reflect) {
+    attr(model,"max_value") <- max_value # Works though.
+  }
+
+  return (model)
+}
+
+estimate_longitudinal_msm <- function(data, formula, depend, start.year) {
+
+  data <- replace.missing(data)
+
+  # Now set up the variable specific information the model needs such as subject, allowed transition matrix etc.
+  # Also needs some data wrangling to ensure that subjects have multiple waves of information, and that there
+  # are no intermittent missing waves as the msm function cannot handle this
+  # TODO: Impute missing intermittent waves??
+  if (depend == 'chron_disease') {
+    print('Defining allowed transition matrix. Only unidirection transitions allowed.')
+    allowed.trans.matrix <- rbind( c( 1, 1, 1 ), c( 0, 1, 1 ), c( 0, 0, 1 ) )
+
+    print('Preparing data for MSM model estimation...')
+    # sort dataframe by pidp and time so observations within subjects are consecutive in the data
+    data <- data %>%
+      select(pidp, time, everything()) %>% # put pidp and time at the front of the df
+      group_by(pidp) %>%
+      filter(n() > 1) %>%  # filter individuals with only 1 observation in data
+      group_by(pidp) %>%
+      complete(time = start.year:2020) %>%  # complete the data (insert missing rows for the time period of interest)
+      filter(!cumprod(is.na(age)) & rev(!cumprod(is.na(rev(age))))) %>%  # remove leading and trailing missing rows
+      group_by(pidp) %>%
+      mutate(contains.na = if_any(everything(), is.na)) %>%  # test for any intermittent missing (i.e. if respondent misses a wave - msm model cannot handle this)
+      filter(!any(contains.na == TRUE)) %>%
+      select(pidp, time, -contains.na, everything())
+
+    data <- data[order(data$pidp, data$time), ] # order everything by pidp and time so individuals time points are in consecutive order (msm needs this)
+    rownames(data) <- NULL
+
+    subj <- data$pidp
+  }
+
+  print('This is the formula:')
+  print(formula)
+
+  print('Fitting the MSM model...')
+  # ms_object <- msm(formula = formula,
+  #                 subject = subj,
+  #                 data = data,
+  #                 qmatrix = allowed.trans.matrix,
+  #                 gen.inits = TRUE,
+  #                 obstype = 1,
+  #                 na.action = na.omit)
+
+  ms_object <- msm(formula = formula,
+                   subject = subj,
+                   data = data)
+
+  ms_model <- msm1(ms_object)
+
+  return(model)
+}
+
+estimate_survival <- function(data, formula, depend) {
+
+  data <- replace.missing(data)
+  data <- drop_na(data)
+
+  model <- survreg(formula, data = data, dist = 'extreme')
+
+  return(model)
+}
+
 estimate_RandomForest <- function(data, formula, depend) {
-  
+
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
-  
-  numCores <- availableCores() / 2
-  
+
+  numCores <- availableCores() - 1
+
   registerDoParallel(cores = numCores)
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
 
@@ -368,19 +498,13 @@ estimate_RandomForest <- function(data, formula, depend) {
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
   set.seed(123)
-  
+
   # Adjusting the model parameters to use fewer trees and limit depth
-  rfModel <- train(formula, data = data, 
+  rfModel <- train(formula, data = data,
                    method = "rf",
                    trControl = fitControl,
-                   tuneGrid = expand.grid(mtry = 3), 
+                   tuneGrid = expand.grid(mtry = 3),
                    ntree = 100)  # RF Parameters
-  
-  # expand.grid(mtry = ncol(data) / 3)
-  
-  
-  
-  #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
-  
+
   return(rfModel)
 }

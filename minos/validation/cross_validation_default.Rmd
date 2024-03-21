@@ -143,39 +143,77 @@ print(inc.20)
 rm(inc.14, inc.16, inc.18, inc.20)
 ```
 
-# SF_12
+# SF_12_MCS
 
 ```{r}
-cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
-multi_year_boxplots(raw, cv, 'SF_12')
-snapshot_OP_plots(raw, cv, 'SF_12', target.years = c(2015, 2017, 2019, 2021))
-q_q_comparison(raw, cv, 'SF_12')
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12_MCS')
+multi_year_boxplots(raw, cv, 'SF_12_MCS')
+snapshot_OP_plots(raw, cv, 'SF_12_MCS', target.years = c(2015, 2017, 2019, 2021))
+q_q_comparison(raw, cv, 'SF_12_MCS')
 ```
 ```{r}
 sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
                                  target.year = 2015)
 print(sf12.14)
 ```
 ```{r}
 sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
                                  target.year = 2017)
 print(sf12.16)
 ```
 ```{r}
 sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
                                  target.year = 2019)
 print(sf12.18)
 ```
 ```{r}
 sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
                                  predicted = cv, 
-                                 var = 'SF_12', 
+                                 var = 'SF_12_MCS', 
+                                 target.year = 2021)
+print(sf12.20)
+rm(sf12.14, sf12.16, sf12.18, sf12.20)
+```
+
+# SF_12_PCS
+
+```{r}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12_PCS')
+multi_year_boxplots(raw, cv, 'SF_12_PCS')
+snapshot_OP_plots(raw, cv, 'SF_12_PCS', target.years = c(2015, 2017, 2019, 2021))
+q_q_comparison(raw, cv, 'SF_12_PCS')
+```
+```{r}
+sf12.14 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
+                                 target.year = 2015)
+print(sf12.14)
+```
+```{r}
+sf12.16 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
+                                 target.year = 2017)
+print(sf12.16)
+```
+```{r}
+sf12.18 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
+                                 target.year = 2019)
+print(sf12.18)
+```
+```{r}
+sf12.20 <- marg_dist_densigram_plot_oneyear(observed = raw, 
+                                 predicted = cv, 
+                                 var = 'SF_12_PCS', 
                                  target.year = 2021)
 print(sf12.20)
 rm(sf12.14, sf12.16, sf12.18, sf12.20)
@@ -273,6 +311,66 @@ cv_ordinal_plots(pivoted.df = heat.pivoted,
 rm(heat.pivoted)
 ```
 
+# Alcohol
+
+```{r}
+alc.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'auditc')
+
+cv_ordinal_plots(pivoted.df = alc.pivoted, 
+                 var = 'auditc',
+                 save = FALSE)
+rm(alc.pivoted)
+```
+
+# Physical Activity
+
+```{r}
+active.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'active')
+
+cv_ordinal_plots(pivoted.df = active.pivoted, 
+                 var = 'active',
+                 save = FALSE)
+rm(active.pivoted)
+```
+
+# Material Deprivation
+
+```{r}
+matdep.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'matdep')
+
+cv_ordinal_plots(pivoted.df = matdep.pivoted, 
+                 var = 'matdep',
+                 save = FALSE)
+rm(matdep.pivoted)
+```
+
+# Chronic Disease
+
+```{r}
+chron_disease.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'chron_disease')
+
+cv_ordinal_plots(pivoted.df = chron_disease.pivoted, 
+                 var = 'chron_disease',
+                 save = FALSE)
+rm(chron_disease.pivoted)
+```
+
 # S7 Labour State
 
 ```{r}
@@ -362,13 +460,13 @@ q_q_comparison(raw, cv, 'nkids')
 
 ```{r}
 raw.nkids_max <- raw %>%
-  dplyr::select(pidp, time, nkids) %>%
+  dplyr::select(time, nkids) %>%
   group_by(time) %>%
   summarise(max_nkids = max(nkids)) %>%
   mutate(source = 'final_US')
 
 cv.nkids_max <- cv %>%
-  dplyr::select(pidp, time, nkids) %>%
+  dplyr::select(time, nkids) %>%
   group_by(time) %>%
   summarise(max_nkids = max(nkids)) %>%
   mutate(source = 'baseline_output')

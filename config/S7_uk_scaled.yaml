@@ -20,6 +20,9 @@ replenishing_dir: 'data/replenishing/uk_scaled'
 
 cross_validation: FALSE
 synthetic: TRUE
+scotland: FALSE
+
+component_file: 'config/SIPHER7_components.txt'
 
 # REALLY IMPORTANT NOTE FOR THE LOVE OF GOD READ ME.
 # The order of these listed components is important. They are initialised last one in first one off.

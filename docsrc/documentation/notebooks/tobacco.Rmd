@@ -37,26 +37,26 @@ Two set of variables are needed for the logistic and poisson parts of the ZIP mo
 
 Variables that predict how much a person smokes.
 
-age. persons age. generally older people and very young smoke. 
-SF_12. wellbeing estimates number of cigarettes smoked.
-labour_state. whether a person is employed or not.
-ethnicity. certain ethnicities more likely to smoke cigarettes. 
-education_state. highest qualification.
-job_sec job quality
-hh_income household income
-ncigs previous number consumed.
+- age. persons age. generally older people and very young smoke. 
+- SF_12. wellbeing estimates number of cigarettes smoked.
+- labour_state. whether a person is employed or not.
+- ethnicity. certain ethnicities more likely to smoke cigarettes. 
+- education_state. highest qualification.
+- job_sec job quality
+- hh_income household income
+- ncigs previous number consumed.
 
 Variables that predict whether a person smokes
 
-ethnicity. certain ethnicities more likely to smoke cigarettes. 
-labour_state. whether a person is employed or not.
-age
-SF_12. wellbeing estimates number of cigarettes smoked.
-ncigs previous number consumed.
+- ethnicity. certain ethnicities more likely to smoke cigarettes. 
+- labour_state. whether a person is employed or not.
+- age
+- SF_12. wellbeing estimates number of cigarettes smoked.
+- ncigs previous number consumed.
 
 ### Results
   
-Almost all coefficients significant. Particularly prevous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
+Almost all coefficients significant. Particularly previous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
 
 
 ```{r tobacco_output, echo=FALSE}

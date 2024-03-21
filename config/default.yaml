@@ -25,8 +25,11 @@ cross_validation: FALSE
 synthetic: FALSE
 scotland: FALSE
 
+component_file: 'config/SF12_components.txt'
+
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), HourlyWage(), JobSec(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here
+#components : [lmmYJMWB(), lmmYJPCS(), Loneliness(), Tobacco(), Alcohol(), PhysicalActivity(), Neighbourhood(), MaterialDeprivation(), Heating(), Housing(), HousingTenure(), lmmYJNutrition(), financialSituation(), S7Labour(), HourlyWage(), JobSec(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 
 
 scale_rates:

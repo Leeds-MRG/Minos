@@ -73,7 +73,7 @@ def relative_scaling(df, v, ref):
     return df
 
 
-def main(output_dir, source_directories, tags, v="SF_12", method="nanmean", destination = None, ref=None):
+def main(output_dir, source_directories, tags, v="SF_12_MCS", method="nanmean", destination = None, ref=None):
     """
 
     Parameters
