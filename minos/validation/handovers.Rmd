@@ -1,4 +1,5 @@
 ---
+ 
 title: "MINOS Handover Plots"
 output:
   html_document:
@@ -55,7 +56,6 @@ raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 
 out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
-#base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
 ```
 
 ## Constants
@@ -78,8 +78,6 @@ shall.we.save <- FALSE
 
 handover_boxplots(raw.dat, base.dat, 'hh_income')
 handover_lineplots(raw.dat, base.dat, "hh_income")
-handover_boxplots(raw.dat, base.dat, 'council_tax')
-handover_lineplots(raw.dat, base.dat, "council_tax")
 ```
 
 ### Spaghetti
@@ -107,6 +105,13 @@ handover_lineplots(raw.dat, base.dat, "council_tax")
 # 
 # rm(raw.inc, base.inc, income.spag)
 ```
+
+### Income Inequality
+
+```{r}
+handover_inequality_80_20(raw.dat, base.dat, var = 'hh_income')
+```
+
 
 ## Council Tax
 
@@ -149,6 +154,13 @@ density_ridges(sf12.m.spag, "SF_12_MCS",
 rm(raw.sf12.m, base.sf12.m, sf12.m.spag, sf12.m.spag.sample)
 ```
 
+### Inequality
+
+```{r}
+handover_inequality_80_20(raw.dat, base.dat, var = 'SF_12_MCS')
+```
+
+
 ## SF_12_PCS
 
 ```{r}
@@ -176,6 +188,13 @@ density_ridges(sf12.p.spag, "SF_12_PCS",
 
 rm(raw.sf12.p, base.sf12.p, sf12.p.spag)
 ```
+
+### Inequality
+
+```{r}
+handover_inequality_80_20(raw.dat, base.dat, var = 'SF_12_PCS')
+```
+
 
 ### Histograms
 

@@ -138,7 +138,7 @@ handover_ordinal <- function(raw.dat, base.dat, var, save=FALSE) {
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'baseline_output')
-  
+
   raw.var[[var]] <- as.factor(raw.var[[var]])
   base.var[[var]] <- as.factor(base.var[[var]])
 
@@ -583,7 +583,7 @@ handover_boxplots <- function(raw, baseline, var) {
   combined <- rbind(raw.var, baseline.var)
   combined$time <- as.factor(combined$time)
   combined <- drop_na(combined)
-  
+
   if (var %in% c('hh_income', 'equivalent_income')) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var %in% c('ncigs', 'hourly_wage')) {
@@ -623,4 +623,30 @@ handover_lineplots <- function(raw, base, var) {
     labs(title = var, subtitle = 'Full Sample') +
     xlab('Year') +
     ylab(var)
+}
+
+handover_inequality_80_20 <- function(raw.dat, base.dat, var) {
+  raw.income_inequality <- raw.dat %>%
+    group_by(time) %>%
+    summarise(percentile_20 = quantile(.data[[var]], probs = c(.20)),
+              percentile_80 = quantile(.data[[var]], probs = c(.80))) %>%
+    mutate(ineq_80_20 = percentile_80 - percentile_20,
+           source = 'raw')
+
+  base.income_inequality <- base.dat %>%
+    group_by(time) %>%
+    summarise(percentile_20 = quantile(.data[[var]], probs = c(.20)),
+              percentile_80 = quantile(.data[[var]], probs = c(.80))) %>%
+    mutate(ineq_80_20 = percentile_80 - percentile_20,
+           source = 'simulated')
+
+  combined <- rbind(raw.income_inequality, base.income_inequality)
+
+  p1 <- ggplot(combined, aes(x = time, y = ineq_80_20, group = source, color = source)) +
+    geom_line() +
+    geom_vline(xintercept = start.year, linetype='dashed') +
+    labs(title = paste0('80:20 Ratio ', var)) +
+    xlab('Year') +
+    ylab('80:20 Ratio')
+  print(p1)
 }
