@@ -25,6 +25,7 @@ minos/*/__pycache__/
 */*/*/.DS_Store
 
 # data folders generated in code
+data/*
 data/*/*.csv
 data/*.csv
 data/final_US/cross_validation/*
