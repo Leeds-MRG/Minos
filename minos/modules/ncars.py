@@ -108,14 +108,14 @@ class nCars(Base):
         non_zero_ncars = newWaveNCars.loc[newWaveNCars['ncars']>0, ]
         ncars_mean = np.mean(non_zero_ncars["ncars"])
         std_ratio = (np.std(pop.loc[pop['ncars']>0, 'ncars'])/np.std(non_zero_ncars['ncars']))
-        non_zero_ncars["ncars"] *= std_ratio
-        non_zero_ncars["ncars"] -= ((std_ratio-1)*ncars_mean)
-        non_zero_ncars['ncars'] += 0.175
+        #non_zero_ncars["ncars"] *= std_ratio
+        #non_zero_ncars["ncars"] -= ((std_ratio-1)*ncars_mean)
+        #non_zero_ncars['ncars'] += 0.175 #0.175
         newWaveNCars.loc[newWaveNCars['ncars']>0, 'ncars'] = non_zero_ncars['ncars']
 
         newWaveNCars['ncars'] = newWaveNCars['ncars'].clip(0, 10)
         newWaveNCars['hidp'] = pop['hidp']
-        newWaveNCars['ncars'] = newWaveNCars.groupby(by=['hidp'])['ncars'].transform('mean')
+        newWaveNCars['ncars'] = newWaveNCars.groupby(by=['hidp'])['ncars'].transform('max')
         newWaveNCars['ncars'] = np.round(newWaveNCars['ncars']).astype(int) # switch back to ints. viv column takes float though..
         newWaveNCars['ncars'] = newWaveNCars['ncars'].astype(float)
 

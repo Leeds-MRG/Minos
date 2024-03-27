@@ -164,15 +164,21 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   
   data <- replace.missing(data)
   #data <- drop_na(data)
-  max_value <- nanmax(data[[depend]])
+  
+  if (depend %in% c("hh_mortgage_new")) {
+    data <- data[which(data[depend]>0),]
+  }
+  
   if (reflect) {
+    max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)] 
   }
   if (yeo_johnson) {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-
+  
+  #browser()
   if(include_weights) {
     model <- lmer(formula,  
                   weights=weight, 
@@ -249,6 +255,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
     hist(data$hourly_wage_diff, main = "Distribution of hourly_wage_diff", xlab = "hourly_wage_diff")
   }
   
+  #browser()
   
   if(include_weights) {
     model <- glmer(formula,  
@@ -352,12 +359,12 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
-  model <- clmm2(formula,
                 random=factor(pidp),
                 link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = tail(data, 1000), # get seg fault if using too many rows :(. clip to most recent data. 
+                data = data, # get seg fault if using too many rows :(. clip to most recent data. 
                 threshold="flexible",
-                nAGQ=1) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+                nAGQ=-1,
+                Hess=TRUE) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)
 }
 
@@ -397,7 +404,7 @@ estimate_RandomForest <- function(data, formula, depend) {
 estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, depend) {
   
   data <- replace.missing(data)
-  #data <- drop_na(data)
+  data <- drop_na(data)
 
   string_formulae <- strsplit(as.character(fixed_formula[3]), split=' | ', fixed=T)
   counts_formula <- paste0(as.character(fixed_formula[2]), as.character(fixed_formula[1]), string_formulae[[1]][1])
@@ -408,7 +415,6 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #  data$ncigs_new <-  ceiling(data$ncigs_new/5)
   #}
   
-  #browser()
   model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
     fixed = as.formula(counts_formula),
     random = ~ 1 | pidp,
@@ -417,13 +423,18 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
     #weights=weight,
     iter_EM=0,
     data = data,
-    family = zi.poisson(), max_coef_value=50)
+    #family = zi.poisson(), 
+    #family = zi.negative.binomial(), 
+    family = hurdle.lognormal(), 
+    max_coef_value=50)
     #family = zi.negative.binomial(), max_phis_value=40000)
-
+  #browser()
+  
   # test model with hard coded formulae.
   #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
   #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12),
-  #  random = ~ 1|pidp,
+  #  random = ~ 1|pidp,MZIP : ncars ~ scale(ncars) + scale(age) + I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
+
   #  #weights=weight,
   #  data = data,
   #  family = zi.poisson(), 
@@ -432,18 +443,69 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   #browser()
   #test.data <- drop_na(data)
   #test.zeros <- predict(model, newdata = drop_na(data), type='zero')
-  #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
+  #$test.nonzero <- runif(n=nrow(test.data)) > test.zeros
   #test.counts2 <- predict(model, newdata = drop_na(data), type='subject_specific')
   #test.counts <- predict(model, newdata = drop_na(data), type='mean_subject')
   
   #test.zeros <- attr(test.counts2, "zi_probs")
   #test.nonzero <- runif(n=nrow(test.data)) > test.zeros
   
-  #test.final <- test.nonzero * test.counts2 * 5
-  #hist(test.data$ncigs_new*5, xlim=c(0, 30), freq=F, breaks=100)
+  #test.final <- test.nonzero * test.counts2 #* 5
+  #hist(test.data$ncigs_new, xlim=c(0, 30), freq=F, breaks=100)
   #lines(density(test.final),col='red')
   
   model$n_counts_fixed <- length(model$coefficients)
   model$Sigma <- vcov(model)[0:model$n_counts_fixed, 0:model$n_counts_fixed]
   return(model)
 }
+
+# diff(pnorm(c(-Inf, 0, colMeans(MC1$CP), Inf)-colMeans(MC1$Sol) %*% c(1,1), 0, sqrt(1+sum(colMeans(MC1$VCV))))) # for tempcold and contactno
+#quantile.calc <- function(X,) {return (diff(pnorm(X, 0, sqrt(1+sum(colMeans(MC1$VCV))))))}
+quantile.calc <- function(X, model, var) {
+  # draw quantile density function values for each threshold given the 
+  # individual linear predictor mean and variance.
+  # differencing determines the percentage of probability for belonging in each bin. 
+  return (diff(pnorm(X, 0, var)))
+}
+#m1 <- MCMCglmm(factor(housing_quality, levels=c("Low", "Medium", "High")) ~ hh_income, random= ~hidp, data=small.data, family="ordinal")
+
+MCMCglmm.predict.ordinal.bins <- function(model, newdata, factor_levels) {
+  # This is Rob's attempt at copying the clm predict type classes function
+  # for the MCMCglmm package. Lets us use longitdunal ordinal models in MINOS. 
+  
+  # The idea is each person has a linear predictor for household quality.
+  # We assume this linear predictor is normal distributed with some mean and 
+  # variance (mu/sigma).
+  # The ordinal model also calculates threshold for each level of the response variable.
+  # e.g. for housing quality with low medium and high levels it calculate two threshholds.
+  # if the low/medium threshold was 1.5 any linear predictor value below 1.5 is 
+  # assigned housing quality low. Otherwise they are either medium or high.
+  # similarly a medium threshold may be 4.2. If the predictor is between 1.5 and 
+  # 4.2 the housing is medium. Over 4.2 it is high. 
+  
+  # The objective here is then to determine what percentage of the linear
+  # predictor normal distribution lies in each threshold bin. If an individual
+  # has linear predictor 2.2 and very low variance almost all of the probability
+  # weight will be in the medium bin. Hence a very high chance of drawing medium
+  # housing quality on the next wave. 
+  
+  # Calculate linear predictor terms. 
+  # This is the estimated ordinal variable fgiven current info and model coefficients. 
+  prediction <- predict(model, newdata)
+  # Calculate the prediction threshholds for each individual. 
+  # This is a set of number of factor levels + 1 numbers. 
+  # e.g. housing quality has three levels (low,medium,high) so 4 columns here.
+  # this is used to calculate what percentage of the normal distribution lies
+  # within these threshholds.
+  predictor.thresholds <- as.data.frame(replicate(nrow(newdata), c(-Inf, 0, colMeans(model$CP), Inf))) - prediction
+  # calculate the normal distribution for linear predictor of each individual.
+  # calculate the probability of belonging in each factor bin. 
+  bin.probabilities <- lapply(predictor.thresholds, quantile.calc, var=sqrt(1+sum(colMeans(model$VCV))))
+  
+  # tidy and set row and column names.
+  bin.probabilities <- t(as.data.frame(bin.probabilities))
+  colnames(bin.probabilities) <- factor_levels
+  rownames(bin.probabilities) <- NULL
+  return(bin.probabilities)
+}
+

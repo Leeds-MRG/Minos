@@ -166,12 +166,12 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     prediction = stats.predict(model, currentRDF, type="prob")
 
     # Convert prob matrix back to pandas.
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
-    predictionDF = pd.DataFrame(prediction_matrix_list)
+    #with localconverter(ro.default_converter + pandas2ri.converter):
+    #    prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
+    #predictionDF = pd.DataFrame(prediction_matrix_list)
 
-    return predictionDF
-
+    #return predictionDF
+    return pd.DataFrame(np.array(prediction)[0])
 
 def predict_nnet(model, rpy2Modules, current, columns):
     """
@@ -200,11 +200,11 @@ def predict_nnet(model, rpy2Modules, current, columns):
 
     prediction = stats.predict(model, currentRDF, type="probs", na_action='na_omit')
 
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(prediction)
+    #with localconverter(ro.default_converter + pandas2ri.converter):
+    #    newPandasPopDF = ro.conversion.rpy2py(prediction)
 
-    return pd.DataFrame(newPandasPopDF, columns=columns)
-
+    #return pd.DataFrame(newPandasPopDF, columns=columns)
+    return pd.DataFrame(np.array(prediction), columns=columns)
 
 def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
@@ -239,10 +239,11 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
 
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        counts = ro.conversion.rpy2py(counts)
-        zeros = ro.conversion.rpy2py(zeros)
-
+    #with localconverter(ro.default_converter + pandas2ri.converter):
+    #    counts = ro.conversion.rpy2py(counts)
+    #    zeros = ro.conversion.rpy2py(zeros)
+    #counts = np.array(counts)
+    #zeros = np.array(zeros)
     # draw randomly if a person drinks
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
@@ -362,6 +363,8 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     elif (dependent in valid_dependents) and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = ols_data.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
+    elif noise_std:
+        prediction = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
     else:
         prediction = ols_data # no noise is added.
 
@@ -373,14 +376,14 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        #ols_data = ro.conversion.rpy2py(ols_data)
-        prediction_output = ro.conversion.rpy2py(prediction)
+    #with localconverter(ro.default_converter + pandas2ri.converter):
+    #    #ols_data = ro.conversion.rpy2py(ols_data)
+    #    prediction_output = ro.conversion.rpy2py(prediction)
 
-    return pd.DataFrame(prediction_output, columns=[dependent])
+    #return pd.DataFrame(prediction_output, columns=[dependent])
+    return np.array(prediction)
 
-
-def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 0, rescale=False):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -425,22 +428,33 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     prediction = prediction.ro + (min_value.ro - 0.001) # invert shift to strictly positive values.
 
-    if dependent == 'nutrition_quality':
-        prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif dependent == "SF_12" and noise_std:
+    if rescale:
+        std_ratio = np.std(stats.predict(yj,currentRDF.rx2(dependent)))/np.std(prediction)
+        variable_mean = np.mean(prediction)
+        prediction.ro *= std_ratio
+        prediction.ro -= ((std_ratio - 1) * variable_mean)
+        #prediction = ro.FloatVector(prediction)
+        #with localconverter(ro.default_converter + pandas2ri.converter):
+        #    prediction = ro.conversion.py2rpy(pd.DataFrame(prediction, columns=['prediction']))
+
+    if dependent == "SF_12" and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent in ["hh_income_new", 'hourly_wage']) and noise_std:
+    elif (dependent in ["hh_income_new", 'hourly_wage', 'net_hh_income']) and noise_std:
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
         noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -5, 5) #0.005
-        with localconverter(ro.default_converter + numpy2ri.converter):
-            Rnoise = ro.conversion.py2rpy(noise)
+        Rnoise = ro.FloatVector(noise)
         prediction = prediction.ro + Rnoise # add gaussian noise.
+    elif noise_std:
+        prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
     else:
+        print(f"Warning! No noise parameter specified for dependent variable: {dependent}.")
         prediction = prediction
+
+
 
     if yeo_johnson:
         prediction = stats.predict(yj, newdata=prediction, inverse=True)  # invert yj transform.
@@ -450,11 +464,9 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        prediction_output = ro.conversion.rpy2py(prediction)
-
-    return pd.DataFrame(prediction_output, columns=[dependent])
-
+    #with localconverter(ro.default_converter + pandas2ri.converter):
+    #    prediction_output = ro.conversion.rpy2py(prediction)
+    return np.array(prediction)
 
 def predict_next_rf(model, rpy2_modules, current, dependent):
 

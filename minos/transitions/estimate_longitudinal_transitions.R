@@ -101,7 +101,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.reflect=FALSE
     }
     
-    if (dependent %in% c("SF_12", "hh_income", "net_hh_income")) {
+    if (dependent %in% c("SF_12", "hh_income", "net_hh_income", "hh_rent", "council_tax")) {
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
@@ -195,7 +195,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
       #
-      if (dependent %in% c("hh_rent_new", "hh_mortgage_new", "council_tax_new")) {
+      if (dependent %in% c("hh_rent_new", "council_tax_new")) {
         sorted_df <- sorted_df[which(sorted_df[, c(dependent)]>1), ]  
         do.reflect <- F
         do.yeo_johnson <- T

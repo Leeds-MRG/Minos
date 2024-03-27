@@ -64,9 +64,30 @@ def random_draw(x):
     return np.random.uniform(lb, ub)
 
 def main(data):
+
+    # yearly band D council tax percentage increases from 2010/2011 to 2023/2024
+    yearly_percentage_changes = [1.8, 0.0, 0.3, 0.8, 0.8,1.1,3.1,4.0,5.1,4.7,3.9,4.4,3.5,5.1,]
+    #backtrack from 2023/24 calculating reduction in council tax.
+    # formula is old_band = 1/(1+percentage_change). e.g if theres a 25 percentage increase from year 1 to year 2.
+    # to go from year 2 to year 1 is an 1/(1+0.25)=0.8 20 percent decrease.
+
+    # reverse the list to work backwards.
+    yearly_percentage_changes = yearly_percentage_changes[::-1]
+    # add a one to the front. this is the starting 23/24 year where the bands are correct and dont need to do anything.
+    yearly_percentage_changes = [1] + yearly_percentage_changes
+    for i in range(len(yearly_percentage_changes)):
+        if i == 0:
+            continue
+        yearly_percentage_changes[i] = yearly_percentage_changes[i-1] * 1/(1+yearly_percentage_changes[i]/100)
+    # reverse back to correct time order.
+    yearly_percentage_changes = yearly_percentage_changes[::-1]
+    # convert to dict to allow mapping year in data to percentage change in council tax band.
+    yearly_percentage_changes = dict(zip(range(2009,2024), yearly_percentage_changes))
+
     # data for conversions between LADs to region and council tax band (A, B,...) to numeric boundaries (£1200-£1400)
     #https://www.completelymoved.co.uk/money/advice/council-tax-bands-table-of-all-uk-regions-compared
-    lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
+    #lad_to_band = pd.read_csv("persistent_data/lad_tax_bands.csv")
+    lad_to_band = pd.read_csv("persistent_data/23_24_LA_council_tax_bands.csv")
     lad_to_region = US_utils.load_json("persistent_data/JSON/", "LAD_to_region_name.json")
 
     band_columns = ['Band A', 'Band B', 'Band C', 'Band D', 'Band E',
@@ -93,6 +114,9 @@ def main(data):
     data["council_tax_upper"] = data.apply(lambda x: upper_bound(x, ct_bands), axis=1)
     data["council_tax_draw"] = data.apply(random_draw, axis=1)  # draw randomly between these bounds.
     data['council_tax_draw'] = data['council_tax_draw']/12 # convert to monthly bill.
+
+    data['yearly_council_tax_change'] = data['time'].replace(yearly_percentage_changes)
+    data['council_tax_draw'] = data['council_tax_draw'] * data['yearly_council_tax_change']
 
     # Handle single case where someone in London gave has wrong council tax band (Band I which only exists in Wales)
     data['council_tax_draw'][data['council_tax_draw'].isna()] = -9

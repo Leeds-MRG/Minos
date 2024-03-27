@@ -151,6 +151,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['net_hh_income'] = self.calculate_net_income(pop)
         newWavenetIncome.index = pop.index
         newWavenetIncome['hidp'] = pop['hidp']
+        newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform("mean")
 
         income_mean = np.median(newWavenetIncome["net_hh_income"])
         std_ratio = (np.std(pop['net_hh_income']) / np.std(newWavenetIncome["net_hh_income"]))
@@ -159,9 +160,7 @@ class lmmYJNetIncome(Base):
 
         #newWavenetIncome['net_hh_income'] -= 175
 
-        newWavenetIncome['net_hh_income'] = newWavenetIncome.groupby('hidp')['net_hh_income'].transform("mean")
-        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-1000, 30000)
-
+        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-5000, 30000)
 
         newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
 
@@ -176,19 +175,13 @@ class lmmYJNetIncome(Base):
 
         # calculate disposable income from net income as per composite variable formula.
         newWavenetIncome['hh_income'] = self.subtract_outgoings(newWavenetIncome)
-        # newWaveIncome["hh_income"] -= 75
-        # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
-        # print(std_ratio)
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-        # print("income", np.mean(newWaveIncome['hh_income']))
 
         income_mean = np.median(newWavenetIncome["hh_income"])
         std_ratio = (np.std(pop['hh_income']) / np.std(newWavenetIncome["hh_income"]))
         newWavenetIncome["hh_income"] *= std_ratio
         newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
         newWavenetIncome['hh_income'] = newWavenetIncome['hh_income'].clip(-2500, 15000)
-        newWavenetIncome['hh_income'] -= 250
+        newWavenetIncome['hh_income'] -= 400
 
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
         newWavenetIncome['FP10'] = (newWavenetIncome['yearly_energy'] / newWavenetIncome['hh_income'] > 0.1)
@@ -215,7 +208,7 @@ class lmmYJNetIncome(Base):
                                                                           dependent='net_hh_income_new',
                                                                           yeo_johnson=True,
                                                                           reflect=False,
-                                                                          noise_std=15)  # 0.45 for yj. 100? for non yj.
+                                                                          noise_std=0.35)  # 0.25 best so far.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year
