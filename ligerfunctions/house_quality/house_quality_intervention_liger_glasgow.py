@@ -36,7 +36,7 @@ from ligerfunctions.house_quality.house_quality_intervention import house_qualit
 from sipherdb.sipher_database import SqlDB
 
 
-def house_quality_liger_glasgow(x):
+def house_quality_intervention_liger_glasgow(x):
 
     y = house_quality_intervention(
         x=x, sql_db=SqlDB.POSTGRESQL, area_name='Glasgow City',
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         input_data = sampling_plan[i]
         # print(input_data)
         start = time.time()
-        y = house_quality_liger_glasgow(x=input_data)
+        y = house_quality_intervention_liger_glasgow(x=input_data)
         y.append(time.time() - start)
         with open(r'responses.csv', 'a') as f1:
             writer = csv.writer(f1)

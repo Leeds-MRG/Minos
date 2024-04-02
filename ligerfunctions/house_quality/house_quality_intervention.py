@@ -13,6 +13,9 @@ from sipherdb.sipher_database import SipherDatabase
 from sipherdb.sipher_database import SqlDB
 from sipherdb.query.general_queries import GeneralDataQueries
 
+ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '../..'))
+os.chdir(ROOT_DIR)
+
 
 class Namespace:
     def __init__(self, **kwargs):
@@ -34,7 +37,7 @@ def house_quality_intervention(
     geographic_level_for_intervention = geographic_level_for_intervention.upper()
 
     db = SipherDatabase()
-    db.init_class(sql_db=sql_db, db_config_file=os.path.join(os.getcwd(), 'database.ini'))
+    db.init_class(sql_db=sql_db, db_config_file=os.path.join(ROOT_DIR, 'database.ini'))
     sdb = GeneralDataQueries()
 
     if geographic_level_for_intervention == "MSOA":
@@ -121,7 +124,7 @@ def house_quality_intervention(
                           final_year=2026)
 
     # 3. Run the pipeline
-    args = Namespace(config=os.path.join(os.getcwd(), 'config/S7_glasgow_scaled.yaml'),
+    args = Namespace(config=os.path.join(ROOT_DIR, 'config/S7_glasgow_scaled.yaml'),
                      intervention=None,
                      runID=None,
                      runtime=None,
@@ -172,7 +175,7 @@ if __name__ == "__main__":
 
     sql_db = SqlDB.POSTGRESQL
     db = SipherDatabase()
-    db.init_class(sql_db=sql_db, db_config_file=os.path.join(os.getcwd(), 'database.ini'))
+    db.init_class(sql_db=sql_db, db_config_file=os.path.join(ROOT_DIR, 'database.ini'))
     sdb = GeneralDataQueries()
 
     area_name = "Glasgow City"
