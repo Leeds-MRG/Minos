@@ -5,7 +5,6 @@
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
 data: raw_data corrected_data composite_data complete_data final_data
-#  adj_raw_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
 
@@ -82,7 +81,7 @@ $(RAWDATA)/2021_US_cohort.csv: $(DATAGEN)/US_format_raw.py $(DATAGEN)/US_utils.p
 $(ADJRAWDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/fake_council_tax.py $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/fake_council_tax.py
 
-$(CORRECTDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_missing_deterministic.py $(DATAGEN)/US_missing_LOCF.py $(DATAGEN)/US_missing_description.py $(DATAGEN)/US_missing_data_correction.py $(PERSISTJSON)/*.json
+$(CORRECTDATA)/2021_US_cohort.csv: $(ADJRAWDATA)/2021_US_cohort.csv $(DATAGEN)/US_missing_main.py $(DATAGEN)/US_utils.py $(DATAGEN)/US_missing_deterministic.py $(DATAGEN)/US_missing_LOCF.py $(DATAGEN)/US_missing_description.py $(DATAGEN)/US_missing_data_correction.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_missing_main.py
 
 $(COMPOSITEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_composite_vars.py $(PERSISTJSON)/*.json

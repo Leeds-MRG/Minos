@@ -54,8 +54,8 @@ source(here::here('minos', 'validation', 'utils.r'))
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'glasgow_scaled/')
-#out.path <- here::here('output', 'default_config/')
+#out.path <- here::here('output', 'glasgow_scaled/')
+out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
@@ -82,6 +82,21 @@ raw.dat$age_bucket <- cut(raw.dat$age,
 
 handover_ordinal(raw.dat, base.dat, var = 'age_bucket', save = shall.we.save)
 ```
+
+## Max Age
+
+```{r}
+raw.maxAge <- raw.dat %>%
+  group_by(time) %>%
+  summarise(max_age = max(age))
+
+base.maxAge <- base.dat %>%
+  group_by(time) %>%
+  summarise(max_age = max(age))
+
+handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+```
+
 
 # Population Counts
 

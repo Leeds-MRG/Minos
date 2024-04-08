@@ -63,6 +63,7 @@ def random_draw(x):
         # TODO can use pretty much any distribution you want here so long as it draws between these bounds.
     return np.random.uniform(lb, ub)
 
+
 def main(data):
 
     # yearly band D council tax percentage increases from 2010/2011 to 2023/2024
@@ -82,7 +83,7 @@ def main(data):
     # reverse back to correct time order.
     yearly_percentage_changes = yearly_percentage_changes[::-1]
     # convert to dict to allow mapping year in data to percentage change in council tax band.
-    yearly_percentage_changes = dict(zip(range(2009,2024), yearly_percentage_changes))
+    yearly_percentage_changes = dict(zip(range(2009, 2024), yearly_percentage_changes))
 
     # data for conversions between LADs to region and council tax band (A, B,...) to numeric boundaries (£1200-£1400)
     #https://www.completelymoved.co.uk/money/advice/council-tax-bands-table-of-all-uk-regions-compared
@@ -113,7 +114,7 @@ def main(data):
     data["council_tax_lower"] = data.apply(lambda x: lower_bound(x, ct_bands), axis=1)  # establish individual lower and upper bounds.
     data["council_tax_upper"] = data.apply(lambda x: upper_bound(x, ct_bands), axis=1)
     data["council_tax_draw"] = data.apply(random_draw, axis=1)  # draw randomly between these bounds.
-    data['council_tax_draw'] = data['council_tax_draw']/12 # convert to monthly bill.
+    data['council_tax_draw'] = data['council_tax_draw'] / 12  # convert to monthly bill.
 
     data['yearly_council_tax_change'] = data['time'].replace(yearly_percentage_changes)
     data['council_tax_draw'] = data['council_tax_draw'] * data['yearly_council_tax_change']
@@ -121,9 +122,18 @@ def main(data):
     # Handle single case where someone in London gave has wrong council tax band (Band I which only exists in Wales)
     data['council_tax_draw'][data['council_tax_draw'].isna()] = -9
     data['council_tax'] = data['council_tax_draw']
+
+    # Remove intermediate columns
+    # now drop the intermediates
+    data.drop(labels=['council_tax_lower', 'council_tax_upper', 'council_tax_draw'],
+              axis=1,
+              inplace=True)
+
     return data
 
+
 if __name__ == '__main__':
+
     maxyr = US_utils.get_data_maxyr()
     years = np.arange(1991, maxyr)
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
