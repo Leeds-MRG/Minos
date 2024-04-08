@@ -53,9 +53,8 @@ source(here::here('minos', 'validation', 'utils.r'))
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
-#base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
+out.path <- here::here('output', 'glasgow_scaled/')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE, drop.zero.weight = TRUE)
 ```
 
 ## Constants
@@ -68,6 +67,44 @@ create.if.not.exists(save.path)
 shall.we.save <- FALSE
 ```
 
+# Age Structure
+
+```{r}
+# assign to age_bucket in raw data
+cut_bins <- c(-1, 15, 19, 24, 29, 44, 59, 74, 200)
+cut_labels <- c("0to15", "16to19", "20to24", "25to29", "30to44", "45to59", "60to74", "75plus")
+
+raw.dat$age_bucket <- cut(raw.dat$age, 
+                          breaks = cut_bins, 
+                          labels = cut_labels)
+
+handover_ordinal(raw.dat, base.dat, var = 'age_bucket', save = shall.we.save)
+```
+
+# Population Counts
+
+```{r}
+raw.alive <- raw.dat %>%
+  group_by(time) %>%
+  summarise(n = n())
+
+base.alive <- base.dat %>%
+  group_by(time) %>%
+  summarise(n = n())
+
+#handover_boxplots(raw.alive, base.alive, 'n')
+handover_lineplots(raw.alive, base.alive, "n")
+
+rm(raw.alive, base.alive)
+```
+
+# Universal Credit
+
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'universal_credit', save = shall.we.save)
+```
+
+
 # PATHWAYS
 
 ## Income
@@ -78,8 +115,6 @@ shall.we.save <- FALSE
 
 handover_boxplots(raw.dat, base.dat, 'hh_income')
 handover_lineplots(raw.dat, base.dat, "hh_income")
-handover_boxplots(raw.dat, base.dat, 'council_tax')
-handover_lineplots(raw.dat, base.dat, "council_tax")
 ```
 
 ### Spaghetti
