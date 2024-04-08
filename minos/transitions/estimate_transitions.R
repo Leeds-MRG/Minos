@@ -160,7 +160,7 @@ run_yearly_models <- function(transitionDir_path,
       # nutrition_quality only estimated for 2018
       if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
       # labour_state only estimated for 2018
-      if(dependent == 'education_state' & year != 2018) { next }
+      if(dependent == 'education_state' & year != 2020) { next }
       # loneliness only estimated for waves starting 2017 and 2018
       if(dependent == 'loneliness' & !year > 2016) { next }
       # neighbourhood only estimated for wave 2011, 2014, and 2017
