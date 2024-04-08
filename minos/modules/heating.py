@@ -36,6 +36,7 @@ class Heating(Base):
 
         # Load in inputs from pre-setup.
         self.rpy2Modules = builder.data.load("rpy2_modules")
+        self.config = builder.configuration
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -87,18 +88,20 @@ class Heating(Base):
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
-        pop = self.population_view.get(event.index, query="alive=='alive'")
-        self.year = event.time.year
+        interventions_without_heating = ["GoodHeatingDummy()", "GBIS()", "fossilFuelReplacementScheme()"]
+        if not list(set(interventions_without_heating) & set(self.config.components)):
+            pop = self.population_view.get(event.index, query="alive=='alive'")
+            self.year = event.time.year
 
-        heating_prob_df = self.calculate_heating(pop)
-        heating_prob_df[0.] = 1 - heating_prob_df[1.0]
-        heating_prob_df.index = pop.index
-        heating_prob_df["heating"] = self.random.choice(heating_prob_df.index,
-                                                        list(heating_prob_df.columns),
-                                                        heating_prob_df)
-        heating_prob_df.index = pop.index
-        heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
-        self.population_view.update(heating_prob_df["heating"])
+            heating_prob_df = self.calculate_heating(pop)
+            heating_prob_df[0.] = 1 - heating_prob_df[1.0]
+            heating_prob_df.index = pop.index
+            heating_prob_df["heating"] = self.random.choice(heating_prob_df.index,
+                                                            list(heating_prob_df.columns),
+                                                            heating_prob_df)
+            heating_prob_df.index = pop.index
+            heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
+            self.population_view.update(heating_prob_df["heating"])
 
     def calculate_heating(self, pop):
         """Calculate heating transition distribution based on provided people/indices.

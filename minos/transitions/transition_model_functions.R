@@ -359,6 +359,7 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   data <- replace.missing(data)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
+  model <- clmm2(fixed = formula,
                 random=factor(pidp),
                 link='probit', # logistic link function (can use probit or cloglog as well.)
                 data = data, # get seg fault if using too many rows :(. clip to most recent data. 
