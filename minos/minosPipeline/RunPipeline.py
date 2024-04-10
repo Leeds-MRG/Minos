@@ -338,7 +338,7 @@ def RunPipeline(config, intervention=None):
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
                     "GLMMadaptive": importr("GLMMadaptive"),
-                    "MASS": importr("MASS")
+                    "MASS": importr("MASS"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

@@ -70,14 +70,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     prediction = stats.predict(model, currentRDF)
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[[dependent]]
+    return np.array(prediction)
 
 
 def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year):
@@ -111,19 +104,44 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     prediction = stats.predict(model, currentRDF)
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
+    return np.array(prediction)
+
+
+def predict_next_timestep_logit(model, rpy2modules, current, dependent):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : vivarium.framework.population.PopulationView
+        View including columns that are required for prediction
+    dependent : str
+        The dependent variable we are trying to predict
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2modules['base']
+    stats = rpy2modules['stats']
+    #glm = rpy2modules['glm']
+
+    # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+        currentRDF = ro.conversion.py2rpy(current)
 
-    # Now rename the predicted var (have to drop original column first)
-    #newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    # NOTE clm package predict function is a bit wierdly written. The predict type "prob" gives the probability of an
+    # individual belonging to each possible next state. If there are 4 states this is a 4xn matrix.
+    # If the response variable (y in this case/ next housing state) is specific it ONLY gives the probability of being
+    # in next true state (1xn matrix). Not an issue here as next housing state y isn't in the vivarium population.
 
-    # Now add the predicted value to hh_income and drop predicted
-    newPandasPopDF['new_dependent'] = newPandasPopDF[[dependent, 'predicted']].sum(axis=1)
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    # R predict.clm method returns a matrix of probabilities of belonging in each state.
+    prediction = stats.predict(model, currentRDF, type="response")
 
-    # new_dependent is module var, predicted is module_diff var
-    return newPandasPopDF[['new_dependent', 'predicted']]
+    # Convert prob matrix back to pandas.
+    return np.array(prediction)
 
 
 def predict_next_timestep_clm(model, rpy2modules, current, dependent):
@@ -166,12 +184,8 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     prediction = stats.predict(model, currentRDF, type="prob")
 
     # Convert prob matrix back to pandas.
-    #with localconverter(ro.default_converter + pandas2ri.converter):
-    #    prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
-    #predictionDF = pd.DataFrame(prediction_matrix_list)
-
-    #return predictionDF
     return pd.DataFrame(np.array(prediction)[0])
+
 
 def predict_nnet(model, rpy2Modules, current, columns):
     """
@@ -200,10 +214,9 @@ def predict_nnet(model, rpy2Modules, current, columns):
 
     prediction = stats.predict(model, currentRDF, type="probs", na_action='na_omit')
 
-    #with localconverter(ro.default_converter + pandas2ri.converter):
-    #    newPandasPopDF = ro.conversion.rpy2py(prediction)
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        newPandasPopDF = ro.conversion.rpy2py(prediction)
 
-    #return pd.DataFrame(newPandasPopDF, columns=columns)
     return pd.DataFrame(np.array(prediction), columns=columns)
 
 def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
@@ -239,15 +252,10 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
 
-    #with localconverter(ro.default_converter + pandas2ri.converter):
-    #    counts = ro.conversion.rpy2py(counts)
-    #    zeros = ro.conversion.rpy2py(zeros)
-    #counts = np.array(counts)
-    #zeros = np.array(zeros)
     # draw randomly if a person drinks
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
-    preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
+    preds = (np.random.uniform(size=len(zeros)) >= zeros) * counts
     return np.ceil(preds)
 
 
@@ -285,16 +293,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
 
-    newRPopDF = base.cbind(currentRDF, predicted = prediction)
-    # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[[dependent]]
+    return np.array(prediction)
 
 
 def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 0):
@@ -363,8 +362,6 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     elif (dependent in valid_dependents) and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = ols_data.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif noise_std:
-        prediction = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
     else:
         prediction = ols_data # no noise is added.
 
@@ -376,14 +373,9 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
-    #with localconverter(ro.default_converter + pandas2ri.converter):
-    #    #ols_data = ro.conversion.rpy2py(ols_data)
-    #    prediction_output = ro.conversion.rpy2py(prediction)
-
-    #return pd.DataFrame(prediction_output, columns=[dependent])
     return np.array(prediction)
 
-def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 0, rescale=False):
+def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -428,33 +420,22 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     prediction = prediction.ro + (min_value.ro - 0.001) # invert shift to strictly positive values.
 
-    if rescale:
-        std_ratio = np.std(stats.predict(yj,currentRDF.rx2(dependent)))/np.std(prediction)
-        variable_mean = np.mean(prediction)
-        prediction.ro *= std_ratio
-        prediction.ro -= ((std_ratio - 1) * variable_mean)
-        #prediction = ro.FloatVector(prediction)
-        #with localconverter(ro.default_converter + pandas2ri.converter):
-        #    prediction = ro.conversion.py2rpy(pd.DataFrame(prediction, columns=['prediction']))
-
-    if dependent == "SF_12" and noise_std:
+    if dependent == 'nutrition_quality':
+        prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+    elif dependent == "SF_12" and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent in ["hh_income_new", 'hourly_wage', 'net_hh_income']) and noise_std:
+    elif (dependent in ["hh_income_new", 'hourly_wage']) and noise_std:
         #VGAM = rpy2_modules["VGAM"]
         #prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
         noise = np.clip(stats.rcauchy(current.shape[0], 0, 0.005), -5, 5) #0.005
-        Rnoise = ro.FloatVector(noise)
+        with localconverter(ro.default_converter + numpy2ri.converter):
+            Rnoise = ro.conversion.py2rpy(noise)
         prediction = prediction.ro + Rnoise # add gaussian noise.
-    elif noise_std:
-        prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
     else:
-        print(f"Warning! No noise parameter specified for dependent variable: {dependent}.")
         prediction = prediction
-
-
 
     if yeo_johnson:
         prediction = stats.predict(yj, newdata=prediction, inverse=True)  # invert yj transform.
@@ -464,9 +445,8 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
-    #with localconverter(ro.default_converter + pandas2ri.converter):
-    #    prediction_output = ro.conversion.rpy2py(prediction)
     return np.array(prediction)
+
 
 def predict_next_rf(model, rpy2_modules, current, dependent):
 
@@ -483,15 +463,7 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
     prediction = stats.predict(model, newdata=currentRDF)
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[[dependent]]
-
+    return np.array(prediction)
 
 
 def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, noise_std):
@@ -555,6 +527,7 @@ def predict_next_timestep_mixed_zip(model, rpy2Modules, current, dependent, nois
     return preds
 
 
+
 def randomise_fixed_effects(model, rpy2_modules, type):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
     Parameters
@@ -591,7 +564,7 @@ def randomise_fixed_effects(model, rpy2_modules, type):
         new_beta = MASS.mvrnorm(1, beta, Sigma)
         model.rx2['beta'] = new_beta
     elif type == "logit":
-        beta = model.rx2['beta']
+        beta = model.rx2['coefficients']
         Sigma = model.rx2["cov_matrix"]
         MASS = rpy2_modules["MASS"]
         new_beta = MASS.mvrnorm(1, beta, Sigma)
@@ -611,13 +584,6 @@ def randomise_fixed_effects(model, rpy2_modules, type):
         new_coefficients.rx2['count'] = new_count_beta
         new_coefficients.rx2['zero'] = new_zero_beta
 
-        model.rx2["coefficients"] = new_coefficients
-
-    elif type == "mixed_zip":
-        coefficients = model.rx2["coefficients"]
-        Sigma = model.rx2['Sigma']
-        MASS = rpy2_modules["MASS"]
-        new_coefficients = MASS.mvrnorm(1, coefficients, Sigma)
         model.rx2["coefficients"] = new_coefficients
 
     return model

@@ -62,7 +62,10 @@ class Heating(Base):
                         'hh_income',
                         'urban',
                         'housing_tenure',
-                        'financial_situation'
+                        'financial_situation',
+                        'heating',
+                        'yearly_energy',
+                        'behind_on_bills'
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -93,14 +96,15 @@ class Heating(Base):
             pop = self.population_view.get(event.index, query="alive=='alive'")
             self.year = event.time.year
 
-            heating_prob_df = self.calculate_heating(pop)
+            heating_prob_df = pd.DataFrame(self.calculate_heating(pop))
+            heating_prob_df.columns = [1.0]
             heating_prob_df[0.] = 1 - heating_prob_df[1.0]
             heating_prob_df.index = pop.index
             heating_prob_df["heating"] = self.random.choice(heating_prob_df.index,
                                                             list(heating_prob_df.columns),
                                                             heating_prob_df)
             heating_prob_df.index = pop.index
-            heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
+            #heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
             self.population_view.update(heating_prob_df["heating"])
 
     def calculate_heating(self, pop):
@@ -123,5 +127,7 @@ class Heating(Base):
 
         # returns probability matrix (3xn) of next ordinal state.
         prob_df = r_utils.predict_next_timestep_logit(self.transition_model, self.rpy2Modules, pop, 'heating')
-        prob_df.columns = [1.]
+        #prob_df = pd.DataFrame(prob_df)
+        #prob_df.columns = ['0']
+        #prob_df['1'] = 1 - prob_df['0']
         return prob_df
