@@ -70,14 +70,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     prediction = stats.predict(model, currentRDF)
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[[dependent]]
+    return np.array(prediction)
 
 
 def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year):
@@ -111,19 +104,7 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     prediction = stats.predict(model, currentRDF)
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    #newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    #newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    # Now add the predicted value to hh_income and drop predicted
-    newPandasPopDF['new_dependent'] = newPandasPopDF[[dependent, 'predicted']].sum(axis=1)
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    # new_dependent is module var, predicted is module_diff var
-    return newPandasPopDF[['new_dependent', 'predicted']]
+    return np.array(prediction)
 
 
 def predict_next_timestep_clm(model, rpy2modules, current, dependent):
@@ -166,11 +147,7 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     prediction = stats.predict(model, currentRDF, type="prob")
 
     # Convert prob matrix back to pandas.
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        prediction_matrix_list = ro.conversion.rpy2py(prediction[0])
-    predictionDF = pd.DataFrame(prediction_matrix_list)
-
-    return predictionDF
+    return pd.DataFrame(np.array(prediction)[0])
 
 
 def predict_nnet(model, rpy2Modules, current, columns):
@@ -203,8 +180,7 @@ def predict_nnet(model, rpy2Modules, current, columns):
     with localconverter(ro.default_converter + pandas2ri.converter):
         newPandasPopDF = ro.conversion.rpy2py(prediction)
 
-    return pd.DataFrame(newPandasPopDF, columns=columns)
-
+    return pd.DataFrame(np.array(prediction), columns=columns)
 
 def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
@@ -239,14 +215,11 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
 
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        counts = ro.conversion.rpy2py(counts)
-        zeros = ro.conversion.rpy2py(zeros)
 
     # draw randomly if a person drinks
     # if they drink assign them their predicted value from count.
     # otherwise assign 0 (no spending).
-    preds = (np.random.uniform(size=zeros.shape) >= zeros) * counts
+    preds = (np.random.uniform(size=len(zeros)) >= zeros) * counts
     return np.ceil(preds)
 
 
@@ -284,16 +257,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
 
-    newRPopDF = base.cbind(currentRDF, predicted = prediction)
-    # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[[dependent]]
+    return np.array(prediction)
 
 
 def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 0):
@@ -373,12 +337,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        #ols_data = ro.conversion.rpy2py(ols_data)
-        prediction_output = ro.conversion.rpy2py(prediction)
-
-    return pd.DataFrame(prediction_output, columns=[dependent])
-
+    return np.array(prediction)
 
 def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
     """
@@ -450,10 +409,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        prediction_output = ro.conversion.rpy2py(prediction)
-
-    return pd.DataFrame(prediction_output, columns=[dependent])
+    return np.array(prediction)
 
 
 def predict_next_rf(model, rpy2_modules, current, dependent):
@@ -471,15 +427,7 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
     prediction = stats.predict(model, newdata=currentRDF)
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
-    return newPandasPopDF[[dependent]]
-
+    return np.array(prediction)
 
 
 def randomise_fixed_effects(model, rpy2_modules, type):
