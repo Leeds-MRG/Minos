@@ -482,7 +482,10 @@ class lmmYJMWB(Base):
                         'SF_12',
                         'SF_12_diff',
                         'pidp',
-                        'hh_income'
+                        'hh_income',
+                        'net_hh_income',
+                        'yearly_energy',
+                        'heating'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)

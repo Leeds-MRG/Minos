@@ -392,26 +392,46 @@ class goodHeatingDummy(Base):
         # transition models and any outputs.
         view_columns = ['alive',
                         'heating',
-                        'housing_quality']
-        columns_created = []
+                        'housing_quality',
+                        'hidp']
+
+        columns_created = ["who_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
 
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'who_boosted': False,  # who boosted?,
+                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
     def on_time_step(self, event):
-        pass
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        # buff housing pop as required.
-        unheated_pop = pop.loc[pop['heating'] == 0, ]
+        # get households with poor heating.
+        poor_heating_houses = pop.loc[pop['heating'] == 0., ]['hidp']
+        pop.loc[pop['hidp'].isin(poor_heating_houses), 'heating'] = 0.
+        pop['who_boosted'] += (pop['heating']== 0.)
+
+        unheated_pop = pop.loc[pop['heating'] == 0., ]
         unheated_pop.loc[unheated_pop['housing_quality'] == "Medium", 'housing_quality'] = "High"
         unheated_pop.loc[unheated_pop['housing_quality'] == "Low", 'housing_quality'] = "Medium"
-        pop.loc[pop['heating'] == 0, 'housing_quality'] = unheated_pop['housing_quality']
+        pop.loc[pop['heating'] == 0., 'housing_quality'] = unheated_pop['housing_quality']
 
         # set heating cost to one.
         #pop['housing_quality'] = pop['housing_quality'].clip(0, 6)
-        pop['heating'] = 1
-        self.population_view.update(pop)
+        pop['heating'] = 1.
+
+        self.population_view.update(pop[['heating', 'who_boosted']])
 
 class GBIS(Base):
 

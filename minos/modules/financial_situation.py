@@ -64,6 +64,7 @@ class financialSituation(Base):
                         'marital_status',
                         'housing_tenure',
                         "financial_situation",
+                        'yearly_energy'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
