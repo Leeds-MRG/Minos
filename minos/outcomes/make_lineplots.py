@@ -383,7 +383,7 @@ def find_MINOS_years_range(file_path):
 def weighted_nanmean(df, v, weights="weight", scale=1):
     #df = df.loc[df['weight'] > 0]
     #df.loc[df.index, weights] = 1/df[weights]
-    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+    return np.nansum(df[v] * df[weights]) / np.nansum(df[weights]) * scale
     #return np.nansum(df[v])
 
 
@@ -439,7 +439,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         latest_file_path = find_latest_source_file_path(file_path)
         years = find_MINOS_years_range(latest_file_path)
 
-        print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
+        print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v} using subset {subset_function_string}")
         new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years,
                                                          subset_function_string, v=v, ref=ref,
                                                          method=method, region=region)

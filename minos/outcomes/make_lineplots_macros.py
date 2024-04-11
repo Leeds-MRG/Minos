@@ -371,16 +371,13 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
 def generic_single_lineplot(config_mode, source, tag, subset_function):
     "The same intervention in increments from £25 to £100"
     directories = f"baseline,{source}"
-    tags = f"Baseline,£25 {tag}"
+    tags = f"Baseline,{tag}"
     subset_function_strings = f"{subset_function},who_boosted"
-    prefix = f"25_100_incremental_{tag}_uplift"
+    prefix = f"{tag}_uplift"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
-
-
-
 
 #################
 # main function #

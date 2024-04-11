@@ -393,7 +393,7 @@ epcg_simd_lineplot:
 #########################
 
 aggregate_minos_good_housing_dummy:
-	python3 minos/outcomes/make_lineplots_macros.py "default_config" "good_heating_dummy"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "good_heating_dummy"
 
 
 ########################################################################
