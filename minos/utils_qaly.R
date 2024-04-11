@@ -72,6 +72,14 @@ QALY_comparison <- function(combined, ints) {
     labs(title = 'QALY change')
   print(p2)
   
+  p3 <- ggplot(data = combined.QALY.change, aes(x = year, y = QALYs, group = interaction(year, scenario), fill = scenario)) +
+    geom_boxplot() +
+    stat_summary(fun=mean, geom="line", aes(group=scenario), linetype = 'dashed')  + 
+    stat_summary(fun=mean, geom="point", aes(group=scenario)) +
+    xlab('Year') +
+    ylab('QALYs')
+  print(p3)
+  
   combined.QALY.change.confint <- combined.QALY.change %>%
     group_by(year, scenario) %>%
     summarise(n = n(),
@@ -80,14 +88,14 @@ QALY_comparison <- function(combined, ints) {
               lower = mean_QALY_change - margin,
               upper = mean_QALY_change + margin)
   
-  p3 <- ggplot(combined.QALY.change.confint, aes(x = year, y = mean_QALY_change, group = scenario, color = scenario)) +  # fill = scenario
-    geom_ribbon(aes(ymin = lower, ymax = upper)) +
-    geom_line(color = 'black') +
+  p4 <- ggplot(combined.QALY.change.confint, aes(x = year, y = mean_QALY_change, group = scenario, color = scenario, fill = scenario)) +  # 
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.5) +
+    geom_line(aes(color = scenario), linetype = 'dashed') +
     geom_hline(yintercept = 0, linetype = 'dashed') +
     labs(title = 'QALY Change') +
     xlab('Year') +
     ylab('QALYs')
-  print(p3)
+  print(p4)
 }
 
 
@@ -175,16 +183,16 @@ sf12.plots <- function(combined, ints) {
               margin = qt(0.975, df = n - 1) * (sd(difference) / sqrt(n))) # 95% confidence intervals
   
   p5 <- ggplot(filter(combined.small, SF12 == 'MCS'), aes(x = year, y = mean_diff, group = scenario, color = scenario, fill = scenario)) +
-    geom_ribbon(aes(ymin = mean_diff - margin, ymax = mean_diff + margin), fill = 'grey70') +
-    geom_line() +
+    geom_ribbon(aes(ymin = mean_diff - margin, ymax = mean_diff + margin), linetype = 'dotted', alpha = 0.5) +
+    geom_line(aes(color = scenario), linetype = 'dashed') +
     geom_hline(yintercept = 0, linetype = 'dashed') +
     labs(title = 'Change in SF_12_MCS') +
     xlab('Year') +
     ylab('Change in MCS')
   
   p6 <- ggplot(filter(combined.small, SF12 == 'PCS'), aes(x = year, y = mean_diff, group = scenario, color = scenario, fill = scenario)) +
-    geom_ribbon(aes(ymin = mean_diff - margin, ymax = mean_diff + margin), fill = 'grey70') +
-    geom_line() +
+    geom_ribbon(aes(ymin = mean_diff - margin, ymax = mean_diff + margin), linetype = 'dotted', alpha = 0.5) +
+    geom_line(aes(color = scenario), linetype = 'dashed') +
     geom_hline(yintercept = 0, linetype = 'dashed') +
     labs(title = 'Change in SF_12_PCS') +
     xlab('Year') +

@@ -591,7 +591,7 @@ handover_boxplots <- function(raw, baseline, var) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }
 
-  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
+  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill = source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
 }

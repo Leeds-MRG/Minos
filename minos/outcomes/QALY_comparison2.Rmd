@@ -19,12 +19,12 @@ output:
 
 ```{r "setup", include=FALSE}
 
-require(tidyverse)
-require(ggplot2)
-require(knitr)
-require(here)
-require(MESS)
-require(scales)
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+library(here)
+library(MESS)
+library(scales)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/QALY_SCP_28Feb/QALY_analysis_SCP_test/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/PLOTS_FROM_ARC/tmp/"
@@ -52,10 +52,13 @@ baseline <- params$base
 ints <- params$intervention
 start.year <- params$start.year
 # #
-# experiment <- 'arc_batch_10'
+#experiment <- 'default_batch_10'
+# experiment <- 'default_config'
 # baseline <- 'baseline'
-# ints <- c('25UniversalCredit', '50UniversalCredit', '75UniversalCredit', '100UniversalCredit')
-# start.year <- 2020
+# #ints <- c('25UniversalCredit', '50UniversalCredit', '75UniversalCredit', '100UniversalCredit')
+# ints <- c('25All', '50All', '75All', '100All')
+# #ints <- c('25All', '50All', '100All')
+# start.year <- 2021
 ```
 
 
@@ -99,13 +102,20 @@ for (expt in expts) {
 
 TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
 ```{r}
-# base <- read.csv('qalys_base.csv')
-# int <- read.csv('qalys_25All.csv')
-# 
-# combined <- rbind(base, int)
+# out.path <- here::here('output', 'tmp_down2/')
 # 
 # baseline <- 'baseline'
-# intervention <- '25All'
+# ints <- c('25All', '50All', '75All', '100All')
+# 
+# start.year <- 2021
+# 
+# expts <- c(baseline, ints)
+# 
+# combined <- data.frame()
+# for (expt in expts) {
+#   data <- read.csv(paste0(out.path, expt, '_qalys.csv'))
+#   combined <- rbind(combined, data)
+# }
 ```
 TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY 
 
@@ -118,18 +128,28 @@ TESTING TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY TEMPORARY
 
 # Intervention Information
 
-Just going to plot some things here like how many people affected by an intervention and what the mean / total boost amounts look like.
+## Boosted Population
 
 ```{r}
 combined.pop_boosted <- combined %>%
-  group_by(year, run_id, intervention) %>%
-  summarise(pop_boosted = sum(pop_boosted))
+  group_by(year, intervention, run_id) %>%
+  summarise(pop_boosted = sum(pop_boosted, na.rm = TRUE))
 
 # print(paste("There are", sum(is.na(combined.pop_boosted$pop_boosted)), "NA pop_boosted values in combined.pop.boosted.", sep = ' '))
 
-ggplot(combined.pop_boosted, aes(x = year, y = pop_boosted, group = intervention, colour = intervention)) +
-  geom_smooth() +
+combined.pop_boosted.boxplot <- combined.pop_boosted %>%
+  filter(year != start.year) %>%
+  filter(intervention != baseline)
+
+ggplot(combined.pop_boosted.boxplot, aes(x = year, y = pop_boosted, group = interaction(year, intervention), color = intervention)) +
+  geom_boxplot() +
   labs(title = 'Number Individuals Receiving Intervention')
+
+```
+
+## Boost Amount
+
+```{r}
 
 combined.diff <- combined %>%
   select(run_id, year, intervention, total_boost) %>%
@@ -169,6 +189,66 @@ ggplot(combined.diff, aes(x = year, y = total_boost, group = scenario, color = s
 
 ```{r}
 QALY_comparison(combined, ints)
+```
+
+
+```{r}
+# #QALY_comparison <- function(combined, ints) {
+#   
+# p1 <- ggplot(data = combined, aes(x = year, y = QALYs, group = intervention, colour = intervention)) +
+#   geom_smooth() +
+#   labs(title = 'QALYs per year')
+# print(p1)
+# 
+# # Now change from baseline
+# combined.QALY.change <- combined %>%
+#   select(run_id, year, intervention, QALYs) %>%
+#   pivot_wider(names_from = 'intervention',
+#               values_from = 'QALYs') %>%
+#   #mutate(QALYs = .data[[int.name]] - .data[[base.name]]) %>%
+#   mutate(across(all_of(ints), ~.x - .data[[baseline]], .names = "QALYs_{.col}")) %>%
+#   select(run_id, year, contains('QALYs')) %>%
+#   pivot_longer(cols = contains('QALYs'),
+#                names_prefix = 'QALYs_',
+#                names_to = 'scenario',
+#                values_to = 'QALYs')
+# 
+# p2 <- ggplot(data = combined.QALY.change, aes(x = year, y = QALYs, group = scenario, color = scenario, fill = scenario)) +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_smooth() +
+#   labs(title = 'QALY change')
+# print(p2)
+# 
+# combined.QALY.change$year <- as.factor(combined.QALY.change$year)
+# combined.QALY.change$scenario <- as.factor(combined.QALY.change$scenario)
+# 
+# p3 <- ggplot(data = combined.QALY.change, aes(x = year, y = QALYs, group = interaction(year, scenario), fill = scenario)) +
+#   geom_boxplot() +
+#   stat_summary(fun=mean, geom="line", aes(group=scenario), linetype = 'dashed')  + 
+#   stat_summary(fun=mean, geom="point", aes(group=scenario))
+# print(p3)
+# 
+# 
+# 
+# combined.QALY.change.confint <- combined.QALY.change %>%
+#   group_by(year, scenario) %>%
+#   summarise(n = n(),
+#             mean_QALY_change = mean(QALYs),
+#             margin = qt(0.975, df = n - 1) * (sd(QALYs) / sqrt(n)),
+#             lower = mean_QALY_change - margin,
+#             upper = mean_QALY_change + margin)
+# 
+# p4 <- ggplot(combined.QALY.change.confint, aes(x = year, y = mean_QALY_change, group = scenario, color = scenario, fill = scenario)) +  # 
+#   geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.5) +
+#   geom_line(aes(color = scenario), linetype = 'dashed') +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   labs(title = 'QALY Change') +
+#   xlab('Year') +
+#   ylab('QALYs')
+# print(p4)
+# 
+# 
+# #}
 ```
 
 
