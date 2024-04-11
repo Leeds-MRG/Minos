@@ -225,8 +225,8 @@ arc4_all_child_uplifts: MODE=scaled_glasgow #MODE=default_config
 arc4_all_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
 arc4_all_child_uplifts: arc4_baseline arc4_intervention_25All arc4_intervention_50All arc4_intervention_75All arc4_intervention_100All
 
-arc4_all_child_10_100: MODE=scaled_glasgow #MODE=default_config
-arc4_all_child_10_100: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
+arc4_all_child_10_100: MODE=default_config
+arc4_all_child_10_100: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_all_child_10_100: arc4_baseline arc4_intervention_10All arc4_intervention_20All arc4_intervention_30All
 arc4_all_child_10_100: arc4_intervention_40All arc4_intervention_50All arc4_intervention_60All arc4_intervention_70All
 arc4_all_child_10_100: arc4_intervention_80All arc4_intervention_90All arc4_intervention_100All
