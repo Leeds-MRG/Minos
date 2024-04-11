@@ -48,14 +48,15 @@ class Nutrition(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'education_state',
                         'S7_labour_state',
                         'job_sec',
                         'hh_income',
                         'alcohol_spending',
                         'ncigs',
-                        'nutrition_quality']
+                        'nutrition_quality',
+                        'financial_situation']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -159,6 +160,7 @@ class lmmYJNutrition(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
+
         view_columns = ['time',
                         "age",
                         "sex",
@@ -171,7 +173,8 @@ class lmmYJNutrition(Base):
                         'nutrition_quality',
                         'nutrition_quality_diff',
                         'ncigs',
-                        "SF_12"
+                        "SF_12_MCS",
+                        'SF_12_PCS'
                         ]
 
         #view_columns += self.transition_model.rx2('model').names
@@ -233,12 +236,11 @@ class lmmYJNutrition(Base):
         -------
         """
         nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='nutrition_quality_new',
-                                                                       reflect=False,
-                                                                       yeo_johnson= False,
-                                                                       noise_std=1)#
+                                                                          self.rpy2Modules,
+                                                                          pop,
+                                                                          dependent='nutrition_quality_new',
+                                                                          log_transform=False,
+                                                                          noise_std=1)
 
         return nextWaveNutrition
 

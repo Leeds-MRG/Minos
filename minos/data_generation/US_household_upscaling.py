@@ -14,12 +14,13 @@ left (right?) merge on hidp might be the simplest way to do this?
 
 """
 
-
 import pandas as pd
-from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes, get_spatial_attribute_data
+from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes, \
+    get_spatial_attribute_data
 import numpy as np
 import US_utils
 import argparse
+
 
 def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """ Merge US data on synthetic pop individual data.
@@ -28,8 +29,8 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     ----------
     synthpop, msim_data : pd.DataFrame
         synthetic spatial population and US msim_data to merge.
-        merge_column : str
-            Which column to merge upon? usually pidp/hidp
+    merge_column : str
+        Which column to merge upon? usually pidp/hidp
     Returns
     -------
     merged_data : pd.DataFrame
@@ -37,9 +38,11 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """
     synthpop[f"new_{merge_column}"] = np.arange(synthpop.shape[0])
     synthpop[merge_column] = synthpop[merge_column].astype(int)
+    msim_data[merge_column] = msim_data[merge_column].astype(int)
     merged_data = synthpop.merge(msim_data, how='left', on=merge_column)
-    #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
+    # merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
+
 
 def get_data_zones(region):
     """
@@ -72,7 +75,7 @@ def get_data_zones(region):
     return data_zones
 
 
-def main(region, percentage = 100, bootstrapping=False, n=100_000):
+def main(region, percentage=100, bootstrapping=False, n=100_000):
     """
     1. Grab individual synthetic spatial population for UK.
     2. Take subset of spatial population in a specific subregion.
@@ -83,13 +86,17 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     Parameters
     ----------
 
+    percentage : int
+        What percent of the synthetic population to use for subsetting
     bootstrapping : bool
         Do bootstrapping on top of synthetic sample to induce uncertainty?
     n : int
         number of boostrapping samples to take.
     """
     # get synthetic data.
-    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020S_population.csv"
+    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population.csv"
+    #synthpop_file_path = "persistent_data/spatial_data/HHSPUKL_population.csv"
+    #synthpop_file_path = "persistent_data/spatial_data/IndSPUKL_population.csv"
     try:
         synthpop_data = pd.read_csv(synthpop_file_path)  # this is individual population weighted data.
     except FileNotFoundError as e:
@@ -97,13 +104,12 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
         print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
         raise
 
-
     data_zones = get_data_zones(region)
     US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
-        subsetted_synthpop_data = synthpop_data # no subsetting for full UK population.
+        subsetted_synthpop_data = synthpop_data  # no subsetting for full UK population.
 
     # if bootstrapping sample from subsetted synthetic data with replacement.
     if bootstrapping:
@@ -112,7 +118,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # merge synthetic and US data together.
     subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
-    merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
+    merged_data = merged_data.dropna(axis=0, subset=[
+        "time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
     # scramble new hidp and pidp.
@@ -121,16 +128,19 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data['pidp'] = merged_data.index  # creating new pidps.
 
     # take subset of sample if desired. defaults to 100% for now.
-    sampled_data = take_synthpop_sample(merged_data, percentage/100)
+    sampled_data = take_synthpop_sample(merged_data, percentage / 100)
     print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
 
     # merge with spatial_attributes
-    # get simd_deciles
-    sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+    # Get SIMD Deciles for Scottish data
+    if region in ['scotland', 'glasgow']:
+        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
 
+    # US_utils.check_output_dir(f"data/scaled_{region}_US/hh/")  # check save directory exists or create it.
+    # US_utils.save_file(sampled_data, f"data/scaled_{region}_US/hh/", '', 2020)
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
     US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
 
@@ -165,5 +175,3 @@ if __name__ == '__main__':
         bootstrap_sample_size = 1
 
     main(region, percentage, do_bootstrapping, bootstrap_sample_size)
-
-

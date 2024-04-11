@@ -44,43 +44,54 @@ digest_params <- function(line) {
   return(return.list)
 }
 
+
 ################ Main Run Loop ################
 
 run_yearly_models <- function(transitionDir_path,
                               transitionSourceDir_path,
                               mod_def_name,
-                              data,
+                              orig_data,
                               mode) {
 
   ## Read in model definitions from file including formula and model type (OLS,CLM,etc.)
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
+
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  orig_data$housing_quality <- factor(orig_data$housing_quality, 
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
+  orig_data$S7_housing_quality <- factor(orig_data$S7_housing_quality, 
                                  levels = c('No to all', 
                                             'Yes to some', 
                                             'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
+  orig_data$S7_neighbourhood_safety <- factor(orig_data$S7_neighbourhood_safety,
                                     levels = c('Often', 
-                                               'Some of the time', 
+                                               'Some of the time',
                                                'Hardly ever'))
-  data$S7_labour_state <- factor(data$S7_labour_state,
+  orig_data$S7_labour_state <- factor(orig_data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
                                             'Job Seeking',
                                             'FT Education',
                                             'Family Care',
                                             'Not Working'))
+  orig_data$auditc <- factor(orig_data$auditc,
+                        levels = c('Non-drinker',
+                                   'Low Risk',
+                                   'Increased Risk',
+                                   'High Risk'))
 
   # read file
-  repeat{
+  repeat {
+    
+    # take copy of original data so we can transform without worry
+    data <- orig_data
+    
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
+    if(startsWith(def, '#')){next}  # If line starts with '#', line is comment and should be ignored
 
     # Get model type
     split1 <- str_split(def, pattern = " : ")[[1]]
@@ -125,16 +136,15 @@ run_yearly_models <- function(transitionDir_path,
 
     # add 'next_' keyword to dependent variable
     formula.string.orig <- paste0('next_', formula.string.orig)
-    
+
     valid_yearly_model_types = c("NNET", "OLS", "OLS_DIFF", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
-    
+
     for(year in year.range) {
-      if(!is.element(mod.type, valid_yearly_model_types))
-        {
+      if(!is.element(mod.type, valid_yearly_model_types)) {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))
         next
-        }# skip this iteration if model not in valid types. 
-      
+      }  # skip this iteration if model not in valid types.
+
       # reset the formula string for each year
       formula.string <- formula.string.orig
 
@@ -150,7 +160,7 @@ run_yearly_models <- function(transitionDir_path,
       # nutrition_quality only estimated for 2018
       if(dependent == 'nutrition_quality' & !year %in% c(2014, 2016, 2018)) { next }
       # labour_state only estimated for 2018
-      if(dependent == 'education_state' & year != 2018) { next }
+      if(dependent == 'education_state' & year != 2020) { next }
       # loneliness only estimated for waves starting 2017 and 2018
       if(dependent == 'loneliness' & !year > 2016) { next }
       # neighbourhood only estimated for wave 2011, 2014, and 2017
@@ -159,11 +169,17 @@ run_yearly_models <- function(transitionDir_path,
       if(grepl('neighbourhood_safety', dependent)){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
+      # alcohol model (auditc) only in specific years
+      if(dependent == 'auditc' & !year %in% c(2014, 2016, 2018, 2019)) { next }
+      # active only in specific years
+      if(dependent == 'active' & !year %in% c(2014, 2016, 2018, 2019)) { next }
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
-      if(dependent == 'SF_12' & year == 2009) { next }
+      if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
+      if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) { next }
+      if(dependent %in% c('chron_disease') & year < 2011) { next }
 
       print(paste0('Starting estimation for ', dependent, ' in ', year))
 
@@ -174,8 +190,8 @@ run_yearly_models <- function(transitionDir_path,
       indep.df <- data %>%
         filter(time == year)
       # dependent from T+1 (rename to 'next_{dependent}' soon)
-      depen.df <- data %>% 
-        filter(time == depend.year) %>% 
+      depen.df <- data %>%
+        filter(time == depend.year) %>%
         select(pidp, all_of(dependent))
 
       # rename to next_{dependent}
@@ -193,9 +209,11 @@ run_yearly_models <- function(transitionDir_path,
       }
 
       #print(formula.string)
-      ## For the SF_12 model alone, we need to modify the formula on the fly
+      ## For the SF_12 models (MCS & PCS), we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
+      # CHANGE 9/10/23: We remove these variables because they're not present, 
+      #                 so we should do this for all models and not just SF_12
       if(!year %in% c(2011, 2014, 2017, 2020)) {
         formula.string <- str_remove_all(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
       }
@@ -206,7 +224,20 @@ run_yearly_models <- function(transitionDir_path,
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(nutrition_quality\\)")
       }
       if(year < 2013) {
+        formula.string <- str_remove_all(formula.string, " \\+ ncigs")
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(ncigs\\)")
+      }
+      if(!year %in% c(2015, 2017, 2019, 2020)) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(auditc\\)")
+      }
+      if(!year %in% c(2015, 2017, 2019, 2020)) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(active\\)")
+      }
+      if(!year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(matdep\\)")
+      }
+      if(year < 2011) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(chron_disease\\)")
       }
       #print(formula.string)
       # Now make string into formula
@@ -242,7 +273,7 @@ run_yearly_models <- function(transitionDir_path,
                                        formula = form,
                                        include_weights = use.weights,
                                        depend = next.dependent)
-        
+
       } else if(tolower(mod.type) == 'zip') {
 
         model <- estimate_yearly_zip(data = merged,
@@ -268,8 +299,7 @@ run_yearly_models <- function(transitionDir_path,
       #write_csv(coefs, file = coef.filepath)
       # writing tex table of coefficients. easy writing for papers and documentation. 
       write_coefs <- T
-      if (write_coefs & tolower(mod.type) != "nnet") # cant write coefs for nnet using texreg.
-      {
+      if (write_coefs & tolower(mod.type) != "nnet") {  #  cant write coefs for nnet using texreg.
         create.if.not.exists("data/transitions/coefficients")
         texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', year, '_', depend.year, '.txt')
         texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
@@ -320,8 +350,8 @@ parser$add_argument('-d',
                     action='store_true',
                     dest='default',
                     default=FALSE,
-                    help='Run in default mode. This is the default MINOS 
-                    experiment, where the models estimated in this mode 
+                    help='Run in default mode. This is the default MINOS
+                    experiment, where the models estimated in this mode
                     include hh_income as the policy lever, SF12 MCS and
                     PCS as the outcomes of interest, and a series of pathways
                     from hh_income to both outcomes.')
@@ -331,7 +361,7 @@ parser$add_argument('-s7',
                     action='store_true',
                     dest='SIPHER7',
                     default=FALSE,
-                    help='Run the SIPHER7 experiment models. In this mode, 
+                    help='Run the SIPHER7 experiment models. In this mode,
                     only the transition models needed to run the SIPHER7
                     equivalent income experiment are estimated. This includes
                     hh_income as the policy lever, then all the SIPHER7
@@ -389,7 +419,7 @@ if (mode == 'cross_validation') {
     # set up batch vector and remove one element each loop
     batch.vec <- c(1,2,3,4,5)
     batch.vec <- batch.vec[!batch.vec %in% i]
-    
+
     # now start new loop to list files in each batch and read data into a single object.
     # open a dataframe for collecting up multiple batches together
     combined.data <- data.frame()
@@ -403,10 +433,10 @@ if (mode == 'cross_validation') {
       combined.data <- rbind(combined.data, batch.dat)
     }
     rm(batch.dat, batch.path, batch.filelist)
-    
+
     out.dir <- paste0(transitionDir, 'version', i, '/')
     create.if.not.exists(out.dir)
-    
+
     run_yearly_models(out.dir, transSourceDir, modDefFilename, combined.data, mode)
   }
 } else {
@@ -416,7 +446,7 @@ if (mode == 'cross_validation') {
                          full.names = TRUE,
                          pattern = '[0-9]{4}_US_cohort.csv')
   data <- do.call(rbind, lapply(filelist, read.csv))
-  
+
   run_yearly_models(transitionDir, transSourceDir, modDefFilename, data, mode)
 }
 

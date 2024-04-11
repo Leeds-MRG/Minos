@@ -14,7 +14,7 @@ def all_child_lineplot(*args):
     subset_function_strings = "who_kids,who_boosted"
     prefix = "baseline_all_child_uplift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean')
 
 
@@ -24,7 +24,7 @@ def poverty_line_child_lineplot(*args):
     subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
     prefix = "baseline_poverty_child_uplift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean', region=None)
 
 
@@ -35,7 +35,7 @@ def living_wage_lineplot(*args):
     prefix = "baseline_living_wage"
     config_mode = "default_config"
     ref="Baseline"
-    v="SF_12"
+    v="SF_12_MCS"
     method = "nanmean"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method)
@@ -50,7 +50,7 @@ def epcg_and_no_support_lineplot(*args):
     prefix = "baseline_energy_downlift"
     config_mode = "default_config"
     ref="Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = "nanmean"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method)
@@ -64,7 +64,7 @@ def ebss_lineplot(*args):
     subset_function_strings = "who_uses_energy,who_boosted"
     prefix = "baseline_ebss"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean')
 
 
@@ -74,7 +74,7 @@ def all_five_lineplots(*args):
     subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = "all_five_combined"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean')
 
 
@@ -102,7 +102,7 @@ def glasgow_deciles_lineplot(config_mode, source, subset_function):
     subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
     prefix = f"25_{source}_simd_deciles"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -114,7 +114,7 @@ def poverty_line_simd_deciles_lineplot(*args):
     prefix = "25_poverty_simd_deciles"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -126,7 +126,7 @@ def poverty_line_first_decile_lineplot(*args):
     prefix = "25_poverty_first_simd_decile"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -138,7 +138,7 @@ def poverty_line_tenth_decile_lineplot(*args):
     prefix = "25_poverty_tenth_simd_decile"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     # lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -150,7 +150,7 @@ def poverty_line_fifth_decile_lineplot(*args):
     prefix = "25_poverty_fifth_simd_decile"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -162,7 +162,7 @@ def simd_decile_baseline_lineplot(*args):
     prefix = "baseline_simd_deciles"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -174,7 +174,7 @@ def epcg_simd_deciles_lineplot(*args):
     prefix = "ebss_simd_deciles"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -185,7 +185,7 @@ def quintiles_lineplot(config_mode, source, region):
     subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
     prefix = f"{source}_{region}_simd_quintiles_"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
@@ -202,7 +202,7 @@ def all_child(config_mode, boost_amount):
     subset_function_strings = "who_kids,who_boosted"
     prefix = f"{boost_amount}_all"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -214,7 +214,7 @@ def relative_poverty(config_mode, boost_amount):
     subset_function_strings = "who_relative_poverty_and_kids,who_boosted"
     prefix = f"{boost_amount}_relative_poverty"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -226,7 +226,7 @@ def universal_credit(config_mode, boost_amount, region=None):
     subset_function_strings = "who_universal_credit_and_kids,who_boosted"
     prefix = f"{boost_amount}_{region}_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
@@ -238,7 +238,7 @@ def universal_credit_priority_young_mothers(config_mode, boost_amount, region=No
     subset_function_strings = "who_young_mothers,who_young_mothers"
     prefix = f"{boost_amount}_single_mothers_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
@@ -250,7 +250,7 @@ def universal_credit_priority_subgroups(config_mode, boost_amount, region):
     subset_function_strings = "who_priority_subgroups_and_kids,who_priority_subgroups_and_kids"
     prefix = f"{boost_amount}_any_subgroup_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method, region=region)
@@ -263,7 +263,7 @@ def universal_credit_multiple_priority_subgroups(config_mode, boost_amount, regi
     subset_function_strings = "who_multiple_priority_subgroups_and_kids,who_multiple_priority_subgroups_and_kids"
     prefix = f"{boost_amount}_many_subgroups_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method, region=region)
@@ -276,7 +276,7 @@ def priority_only(config_mode, boost_amount):
     subset_function_strings = "who_vulnerable_subgroups,who_boosted"
     prefix = f"{boost_amount}_priority"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -288,7 +288,7 @@ def UC_priority(config_mode, boost_amount):
     subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
     prefix = f"{boost_amount}_UC_and_priority"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -300,7 +300,7 @@ def UC_relative_poverty(config_mode, boost_amount):
     subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
     prefix = f"{boost_amount}_UC_and_relative_poverty"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -312,7 +312,7 @@ def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subs
     subset_function_strings = f"{subset_function},who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = f"25_100_incremental_{intervention_name}_uplift"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -324,7 +324,7 @@ def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subse
     subset_function_strings = f"{subset_function},who_boosted,who_boosted"
     prefix = f"25_50_incremental_{intervention_name}_uplift"
     ref = "Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
     method = 'SF12_AUC'
@@ -340,7 +340,7 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
         subset_function_strings = f"{subset_function},who_boosted,who_boosted"
         prefix = f"{uplift_amount}_{intervention_name}_uplift"
         ref = "Baseline"
-        v = "SF_12"
+        v = "SF_12_MCS"
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
         uplift_amount += increment
@@ -358,7 +358,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
         prefix = f"25_50_by_5_together{intervention_name}_uplift"
         ref = "Baseline"
-        v = "SF_12"
+        v = "SF_12_MCS"
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
@@ -392,10 +392,10 @@ string_to_lineplot_function = {
     "75_UC_priority": UC_priority,
     "100_UC_priority": UC_priority,
 
-    "25_all": relative_poverty,
-    "50_all": relative_poverty,
-    "75_all": relative_poverty,
-    "100_all": relative_poverty,
+    "25_all": all_child,
+    "50_all": all_child,
+    "75_all": all_child,
+    "100_all": all_child,
 
     "25_relative_poverty_": [25],
     "50_relative_poverty": [50],

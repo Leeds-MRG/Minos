@@ -63,6 +63,8 @@ depression_change = US_utils.load_json(json_source, "depression_change.json")
 heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 ## Location
 region_dict = US_utils.load_json(json_source, "region.json")
+## Housing Tenure
+housing_tenure_dict = US_utils.load_json(json_source, 'housing_tenure.json')
 
 
 def format_sex(data):
@@ -238,8 +240,8 @@ def format_ukhls_columns(year):
                       'sclonely': 'loneliness',  # is lonely.
                       # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                       'sex': 'sex',  # biological sex.
-                      'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                      'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
+                      'sf12mcs_dv': 'SF_12_MCS',  # SF12 mental component summary
+                      'sf12pcs_dv': 'SF_12_PCS',  # SF12 physical component summary
                       'smoker': 'smoker',  # Currently smokes.
                       # TODO waves present roughly matches ncigs. no data for waves 1-5.
                       # for waves 2 and 5 similar variable 'smnow' could be used.
@@ -308,18 +310,78 @@ def format_ukhls_columns(year):
                       'urban_dv': 'urban', # urban or rural household.
                       # There are dozens of benefits variables in US this seems like
                       # the simplest and most complete for our purposes.
-                      'benbase4': 'universal_credit',
+                      # including the seven needed for scp for now.
+                      'benbase4': 'universal_credit', # universal credit
+                      "benbase3" : 'child_tax_credit', # child tax credit. note this variable is fed forwards.
+                      #"othben5" : "working_tax_credit", # working tax credit. moved further down as name changes.
+                      "benbase2" : "job_seekers_allowance", # job seeker's allowance
+                      "benpen4" : "pension_credit", # pension credit
+                      "benbase1" : "income_support", # income support
+                      "bendis2" : "employment_and_support_allowance", # esa.
                       # receives core benefits (I.E. universal credit/means tested benefits).
+                      ###### PCS VARS #####
+                      # Alcohol Use Disorder Variables (auditc)
+                      'auditc1': 'auditc1',  # Past 12 months alcohol drink?
+                      'auditc2': 'auditc2',  # Always been non-drinker
+                      'auditc3': 'auditc3',  # Alcohol frequency past 12 months
+                      'auditc4': 'auditc4',  # Drinks on typical day
+                      'auditc5': 'auditc5',  # Six or more drinks frequency
+                      # Exercise/activity variables
+                      'mday': 'mday',  # 7 days moderate activites
+                      'mdhrs': 'mdhrs',  # usual hours moderate activities
+                      'mdmin': 'mdmin',  # usual minute moderate activities
+                      'mwhrs': 'mwhrs',  # weekly hours moderate activities
+                      'mwmin': 'mwmin',  # weekly minutes moderate activities
+                      'vday': 'vday',  # 7 days vigorous activites
+                      'vdhrs': 'vdhrs',  # usual hours vigorous activities
+                      'vdmin': 'vdmin',  # usual minute vigorous activities
+                      'vwhrs': 'vwhrs',  # weekly hours vigorous activities
+                      'vwmin': 'vwmin',  # weekly minutes vigorous activities
+                      # Material Deprivation vars
+                      'matdepa': 'matdepa',  # Material Deprivation: Holiday
+                      'matdepd': 'matdepd',  # Material Deprivation: House
+                      'matdepe': 'matdepe',  # Material Deprivation: Contents Insurance
+                      'matdepf': 'matdepf',  # Material Deprivation: Regular Savings
+                      'matdepg': 'matdepg',  # Material Deprivation: Replace worn out furniture
+                      'matdeph': 'matdeph',  # Material Deprivation: Replace or repair major electrical goods
+                      'matdepi': 'matdepi',  # Material Deprivation: Money for self
+                      'matdepj': 'matdepj',  # Material Deprivation: Keep up with bills
+                      # Chronic Disease Vars
+                      'hcond1': 'hcond1',  # Health Condition 1: Asthma
+                      'hcond2': 'hcond2',  # Health Condition 2: Arthritis
+                      'hcond3': 'hcond3',  # Health Condition 3: Congestive Heart Failure
+                      'hcond4': 'hcond4',  # Health Condition 4: Coronary Heart Failure
+                      'hcond5': 'hcond5',  # Health Condition 5: Angina
+                      'hcond6': 'hcond6',  # Health Condition 6: Heart attack or myocardial infarction
+                      'hcond7': 'hcond7',  # Health Condition 7: Stroke
+                      'hcond8': 'hcond8',  # Health Condition 8: Emphysema
+                      'hcond10': 'hcond10',  # Health Condition 10: Hypothyroidism
+                      'hcond11': 'hcond11',  # Health Condition 11: Chronic Bronchitis
+                      'hcond12': 'hcond12',  # Health Condition 12: Any kind of liver condition
+                      'hcond13': 'hcond13',  # Health Condition 13: Cancer or malignancy
+                      'hcond14': 'hcond14',  # Health Condition 14: Diabetes
+                      'hcond15': 'hcond15',  # Health Condition 15: Epilepsy
+                      'hcond16': 'hcond16',  # Health Condition 16: High blood pressure
+                      'hcond18': 'hcond18',  # Health Condition 18: Other long standing/chronic condition
+                      'hcond19': 'hcond19',  # Health Condition 19: Multiple Sclerosis
+                      'hcond20': 'hcond20',  # Health Condition 20: H.I.V
+                      'hcond21': 'hcond21',  # Health Condition 21: COPD
+                      'hcond96': 'hcond96',  # Health Condition 96: None of these
                       }
 
     # Some variables change names halfway through UKHLS.
-    # Assign different keys to variable names depending on year.
+    # Assign different key"s to variable names depending on year.
 
     # clinical depression changes in wave 10.
     if year < 2017:
         attribute_dict["hcond17"] = "depression"
     else:
         attribute_dict["hcondcode38"] = "depression"
+
+    if year < 2014:
+        attribute_dict["bentax1"] = "working_tax_credit"
+    else:
+        attribute_dict["othben5"] = "working_tax_credit"
 
     # All attributes have a wave dependent suffix apart from identifiersb (pidp, hidp etc.).
     # Adjust attribute_columns as necessary.
@@ -335,6 +397,19 @@ def format_ukhls_columns(year):
 
 def format_council_tax(data):
     """Format any council tax data for calculation of monthly overheads."""
+
+
+def format_housing_tenure(data):
+    """
+    Format housing tenure variable
+
+    Returns
+    -------
+    data : pd.DataFrame
+        Data with housing_tenure formatted to strings
+    """
+    data["housing_tenure"] = data["housing_tenure"].astype(str).map(housing_tenure_dict)
+    return data
 
 
 def format_ukhls_ethnicity(data):
@@ -546,6 +621,7 @@ def format_data(year, data, verbose):
     data = format_ukhls_employment(data)
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
+    data = format_housing_tenure(data)
 
     #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
     if year >= 2014:

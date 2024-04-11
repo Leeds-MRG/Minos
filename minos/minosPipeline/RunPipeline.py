@@ -17,6 +17,7 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
+from minos.modules.physical_wellbeing import SF_12_PCS, lmmYJPCS
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
 from minos.modules.labour import Labour
@@ -26,6 +27,12 @@ from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.heating import Heating
+from minos.modules.financial_situation import FinancialSituation
+from minos.modules.housing_tenure import HousingTenure
+from minos.modules.physical_activity import PhysicalActivity
+from minos.modules.material_deprivation import MaterialDeprivation
+from minos.modules.chron_disease import ChronicDisease
 from minos.modules.job_hours import JobHours
 from minos.modules.job_sec import JobSec
 from minos.modules.hourly_wage import HourlyWage
@@ -36,8 +43,6 @@ from minos.modules.S7Neighbourhood import S7Neighbourhood
 from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
-from minos.modules.heating import Heating
-from minos.modules.financial_situation import financialSituation
 
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
@@ -69,8 +74,10 @@ components_map = {
     "geeYJMWB()": geeYJMWB(),
     "lmmYJMWB()": lmmYJMWB(),
     "lmmDiffMWB()": lmmDiffMWB(),
+    "lmmYJPCS()": lmmYJPCS(),
     "MWB()": MWB(),
     # Intermediary modules
+    "Ageing()": Ageing(),
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
@@ -82,7 +89,7 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
-    "financialSituation()": financialSituation(),
+    "FinancialSituation()": FinancialSituation(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -91,10 +98,13 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "MaterialDeprivation()": MaterialDeprivation(),
+    "PhysicalActivity()": PhysicalActivity(),
+    "HousingTenure()": HousingTenure(),
+    "ChronicDisease()": ChronicDisease(),
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
-    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -136,8 +146,20 @@ intervention_components_map = {        #Interventions
     "40UniversalCredit": childUplift(),
     "45UniversalCredit": childUplift(),
     "50UniversalCredit": childUplift(),
+    "55UniversalCredit": childUplift(),
+    "60UniversalCredit": childUplift(),
+    "65UniversalCredit": childUplift(),
+    "70UniversalCredit": childUplift(),
     "75UniversalCredit": childUplift(),
+    "80UniversalCredit": childUplift(),
+    "85UniversalCredit": childUplift(),
+    "90UniversalCredit": childUplift(),
+    "95UniversalCredit": childUplift(),
     "100UniversalCredit": childUplift(),
+    "105UniversalCredit": childUplift(),
+    "110UniversalCredit": childUplift(),
+    "115UniversalCredit": childUplift(),
+    "120UniversalCredit": childUplift(),
 
     "25Priority": childUplift(),
     "50Priority": childUplift(),
@@ -149,8 +171,8 @@ intervention_components_map = {        #Interventions
 intervention_kwargs_dict = {
     "25All": {"uplift_amount": 25, "uplift_condition": "who_kids"},
     "50All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-    "75All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
-    "100All": {"uplift_amount": 50, "uplift_condition": "who_kids"},
+    "75All": {"uplift_amount": 75, "uplift_condition": "who_kids"},
+    "100All": {"uplift_amount": 100, "uplift_condition": "who_kids"},
 
     "25RelativePoverty": {"uplift_amount": 25, "uplift_condition": "who_below_poverty_line_and_kids"},
     "50RelativePoverty": {"uplift_amount": 50, "uplift_condition": "who_below_poverty_line_and_kids"},
@@ -163,8 +185,20 @@ intervention_kwargs_dict = {
     "40UniversalCredit": {"uplift_amount": 40, "uplift_condition": "who_universal_credit_and_kids"},
     "45UniversalCredit": {"uplift_amount": 45, "uplift_condition": "who_universal_credit_and_kids"},
     "50UniversalCredit": {"uplift_amount": 50, "uplift_condition": "who_universal_credit_and_kids"},
+    "55UniversalCredit": {"uplift_amount": 55, "uplift_condition": "who_universal_credit_and_kids"},
+    "60UniversalCredit": {"uplift_amount": 60, "uplift_condition": "who_universal_credit_and_kids"},
+    "65UniversalCredit": {"uplift_amount": 65, "uplift_condition": "who_universal_credit_and_kids"},
+    "70UniversalCredit": {"uplift_amount": 70, "uplift_condition": "who_universal_credit_and_kids"},
     "75UniversalCredit": {"uplift_amount": 75, "uplift_condition": "who_universal_credit_and_kids"},
+    "80UniversalCredit": {"uplift_amount": 80, "uplift_condition": "who_universal_credit_and_kids"},
+    "85UniversalCredit": {"uplift_amount": 85, "uplift_condition": "who_universal_credit_and_kids"},
+    "90UniversalCredit": {"uplift_amount": 90, "uplift_condition": "who_universal_credit_and_kids"},
+    "95UniversalCredit": {"uplift_amount": 95, "uplift_condition": "who_universal_credit_and_kids"},
     "100UniversalCredit": {"uplift_amount": 100, "uplift_condition": "who_universal_credit_and_kids"},
+    "105UniversalCredit": {"uplift_amount": 105, "uplift_condition": "who_universal_credit_and_kids"},
+    "110UniversalCredit": {"uplift_amount": 110, "uplift_condition": "who_universal_credit_and_kids"},
+    "115UniversalCredit": {"uplift_amount": 115, "uplift_condition": "who_universal_credit_and_kids"},
+    "120UniversalCredit": {"uplift_amount": 120, "uplift_condition": "who_universal_credit_and_kids"},
 
     "25Priority": {"uplift_amount": 25, "uplift_condition": "who_vulnerable_subgroups"},
     "50Priority": {"uplift_amount": 50, "uplift_condition": "who_vulnerable_subgroups"},
@@ -260,6 +294,8 @@ def type_check(data):
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+    data['chron_disease'] = data['chron_disease'].astype(int)
+    data['matdep'] = data['matdep'].astype(int)
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
@@ -281,7 +317,13 @@ def RunPipeline(config, intervention=None):
      A dataframe with the resulting simulation
     """
     # Check modules are valid and convert to modules
-    components_raw = config['components']
+    #components_raw = config['components']
+    # read in the components from the correct text file
+    components_raw = []
+    with open(config['component_file']) as comp_file:
+        for line in comp_file:
+            components_raw.append(line.rstrip())
+
     if intervention is not None:
         #components_raw += intervention
         components_raw.append(intervention)
@@ -325,7 +367,8 @@ def RunPipeline(config, intervention=None):
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
-                    "MASS": importr("MASS")
+                    "MASS": importr("MASS"),
+                    "glmmTMB": importr("glmmTMB"),
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
@@ -361,6 +404,8 @@ def RunPipeline(config, intervention=None):
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+    # order columns for better outputs
+    pop = arrange_output_columns(pop, config)
     pop.to_csv(output_file_path)
     print("Saved initial data to: ", output_file_path)
     logging.info(f"Saved initial data to: {output_file_path}")
@@ -389,6 +434,8 @@ def RunPipeline(config, intervention=None):
         output_data_filename = get_output_data_filename(config, year)
 
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+        # Order output columns
+        pop = arrange_output_columns(pop, config)
         pop.to_csv(output_file_path)
         print("Saved data to: ", output_file_path)
         logging.info(f"Saved data to: {output_file_path}")
@@ -399,15 +446,12 @@ def RunPipeline(config, intervention=None):
 
         # Print metrics for desired module.
         # TODO: this can be extended towards a generalised metrics method for each module.
-        if 'Mortality()' in config.components:
+        if 'Mortality()' in components:
             print('dead', len(pop[pop['alive'] == 'dead']))
             logging.info(f"Total dead: {len(pop[pop['alive'] == 'dead'])}")
-        if 'FertilityAgeSpecificRates()' in config.components:
+        if 'FertilityAgeSpecificRates()' in components:
             print('New children', len(pop[pop['parent_id'] != -1]))
             logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
-
-        #for component in components:
-        #    component.plot(pop, config)
 
     return simulation
 
@@ -426,3 +470,47 @@ def get_output_data_filename(config, year=0):
     output_data_filename += f"{config.time.start.year + year}.csv"
 
     return output_data_filename
+
+
+def arrange_output_columns(data, config):
+    """
+    The purpose of this function is to arrange the columns in the output dataframe to be in a more useful configuration,
+    where we can locate important columns more easily than just searching through the dataframe as we have been doing.
+
+    The order I am planning on is:
+    - Unique ID columns (pidp, hidp)
+    - Time
+    - Demographic vars
+    #- Mortality associated vars (alive, cause of death, exit_time, years of life lost)
+    - Financial vars
+    - Pathways
+    - Outcome (SF12 vars or Equivalent Income)
+    - Secondary vars
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    # TODO: Organise this better so that sf12 and S7 vars are correctly specified. Did this quick so not complete.
+
+    run_agnostic_vars = ['pidp', 'hidp', 'time',
+                         'age', 'sex', 'ethnicity', 'region', 'education_state', 'marital_status', 'hhsize',
+                         #'alive', 'cause_of_death', 'exit_time', 'years_of_life_lost',
+                         'hh_income', 'hourly_wage', 'council_tax',
+                         'loneliness', 'housing_quality', 'neighbourhood_safety', 'ncigs', 'nutrition_quality',
+                         'auditc', 'active',
+                         'SF_12_PCS', 'SF_12_PCS_diff', 'SF_12_MCS', 'SF_12_MCS_diff']
+
+    sf12_specific = []
+
+    S7_specific = []
+
+    # Add specified vars in lists above to the start of the dataframe, and add in remaining cols at the end in their
+    # current order
+    data = data[run_agnostic_vars + [c for c in data.columns if c not in run_agnostic_vars]]
+
+    return data

@@ -72,9 +72,9 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
-                          "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
+                          "education_state", 'region', "age", "job_sector", 'SF_12_MCS', 'SF_12_PCS',
+                          'financial_situation', "housing_tenure", 'urban', 'heating', "nkids_ind",
+                          'S7_labour_state', 'job_hours', 'hourly_wage']
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -105,6 +105,19 @@ if __name__ == "__main__":
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2022, 1)))
 
+
+    # PCS complete case vars
+    data['chron_disease'] = data['chron_disease'].astype(int)
+    # data = complete_case_custom_years(data, 'chron_disease', years=list(range(2011, 2022, 1)))
+
+    # PCS Vars
+    # AUDITC (alcohol) - present in 2015, 2017, 2019, 2020
+    data = complete_case_custom_years(data, 'auditc', years=[2015, 2017, 2019, 2020, 2021])
+    # active (physical activity) - present in 2015, 2017, 2019, 2020
+    data = complete_case_custom_years(data, 'active', years=[2015, 2017, 2019, 2020, 2021])
+    # chronic disease in the all years function
+    # matdep (Material Deprivation) - present in 2009, 2010, 2012, 2014, 2016, 2018, 2020
+    # data = complete_case_custom_years(data, 'matdep', years=[2009, 2010, 2012, 2014, 2016, 2018, 2020])
 
     drop_columns = [#'financial_situation',  # these are just SF12 MICE columns for now. see US_format_raw.py
                     'ghq_depression',

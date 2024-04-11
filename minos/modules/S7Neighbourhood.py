@@ -51,7 +51,6 @@ class S7Neighbourhood(Base):
                         'region',
                         'hh_income',
                         'S7_neighbourhood_safety',
-                        'SF_12',
                         'S7_labour_state',
                         'education_state',
                         'housing_quality',

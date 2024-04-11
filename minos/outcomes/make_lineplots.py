@@ -75,17 +75,17 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
     new_df["number_boosted"] = [df.shape[0]] + np.sum(df.groupby("hidp")['nkids'].max())
     new_df[f'summed_{v}'] = [sum(df[v])]
 
-    if v == "SF_12" and df.shape[0] !=0:
+    if v == "SF_12_MCS" and df.shape[0] !=0:
         #df = df.loc[df['weight']>0, ]
         #df['weight'] = 1/df['weight']
         #new_df[f"prct_below_45.6"] = sum(df['weight']*(df['SF_12'] < 45.6))/sum(df['weight'])
-        new_df[f"prct_below_45.6"] = sum(df['SF_12'] < 45.6)/df.shape[0]
+        new_df[f"prct_below_45.6"] = sum(df['SF_12_MCS'] < 45.6)/df.shape[0]
     if "boost_amount" in df.columns:
         new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
 
 
-def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
+def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12_MCS", aggregate_method=np.nanmean,
                   mode="default_config", region=None):
     """
 
@@ -111,6 +111,11 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         required_columns.append("ZoneID")
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
+
+    # Occasionally (unsure why) we get some records with a missing weight var (== nan). Replace these with 0
+    # (never seen more than 1 so I think this is fine)
+    data['weight'][data['weight'].isna()] = 0
+
     population_size = data.shape[0]
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
@@ -129,7 +134,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     return agg_value
 
 
-def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", ref="Baseline", method=np.nanmean,
+def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12_MCS", ref="Baseline", method=np.nanmean,
                                 mode="default_config", region=None):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
@@ -181,7 +186,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 aggregated_means = [None]
 
             if method == weighted_nanmean or method == child_uplift_cost_sum:
-                single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
+                single_year_aggregates = pd.DataFrame(aggregated_means, columns=[v])
                 single_year_aggregates['year'] = year
                 single_year_aggregates['tag'] = tag
                 aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
@@ -193,8 +198,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                     aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
             elif method == aggregate_boosted_counts_and_cumulative_score:
                 for i, single_year_aggregate in enumerate(aggregated_means):
-                    if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
-                        single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
+                    if not isinstance(single_year_aggregate, pd.DataFrame):  # if no data available create a dummy frame to preserve data frame structure.
+                        single_year_aggregate = pd.DataFrame([i], columns=['number_boosted'])
                         single_year_aggregate["number_boosted"] = np.nan
                         single_year_aggregate[f"summed_{v}"] = np.nan
                         single_year_aggregate["intervention_cost"] = np.nan
@@ -333,7 +338,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
 
     # Sort out axis labels
     y_label = v
-    if v == 'SF_12':
+    if v == 'SF_12_MCS':
         y_label = 'SF12 MCS Percentage Change'
 
     if method == weighted_nanmean:
@@ -383,7 +388,7 @@ def find_MINOS_years_range(file_path):
 def weighted_nanmean(df, v, weights="weight", scale=1):
     #df = df.loc[df['weight'] > 0]
     #df.loc[df.index, weights] = 1/df[weights]
-    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+    return np.nansum(df[v] * df[weights]) / np.nansum(df[weights]) * scale
     #return np.nansum(df[v])
 
 
@@ -396,7 +401,7 @@ def child_uplift_cost_sum(df, v, weights='weight'):
     return np.nansum(weights * group[v].min())/np.nansum(weights)
 
 
-def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
+def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12_MCS",
          method='nanmean', region=None):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
@@ -445,11 +450,11 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                                                          method=method, region=region)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    if v == "SF_12" and method == weighted_nanmean:
+    if v == "SF_12_MCS" and method == weighted_nanmean:
         scaled_data = relative_scaling(aggregate_long_stack, v, ref)
         print("relative scaling done. plotting.. ")
         aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-    elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
+    elif v == "SF_12_MCS" and method == aggregate_boosted_counts_and_cumulative_score:
         # groupby intervention and cumsum over time.
         aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()
         #scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
@@ -515,16 +520,16 @@ if __name__ == '__main__':
     print("MAIN HERE IS JUST FOR DEBUGGING. RUN MAIN IN A NOTEBOOK INSTEAD. ")
 
     #define test parameters and run.
-    directories = "baseline,25RelativePoverty,50RelativePoverty"
-    tags = "Baseline,25 Relative Poverty,50 Relative Poverty"
-    subset_function_strings = "who_below_living_wage_and_kids,who_boosted,who_boosted"
-    prefix = "baseline_25_50_relative_poverty"
-    mode = 'default_config'
-    ref = "Baseline"
-    v = "SF12"
-    method = 'nanmean'
+    # directories = "baseline,25RelativePoverty,50RelativePoverty"
+    # tags = "Baseline,25 Relative Poverty,50 Relative Poverty"
+    # subset_function_strings = "who_below_living_wage_and_kids,who_boosted,who_boosted"
+    # prefix = "baseline_25_50_relative_poverty"
+    # mode = 'default_config'
+    # ref = "Baseline"
+    # v = "SF12"
+    # method = 'nanmean'
 
-    main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
+    #main(directories, tags, subset_function_strings, prefix, mode, ref, v, method)
 
 
 # TODO find a way to aggregate boxplots/ridgelines together

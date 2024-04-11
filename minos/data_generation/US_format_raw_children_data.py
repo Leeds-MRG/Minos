@@ -10,7 +10,6 @@ import numpy as np
 
 def main(input_raw_data, year):
 
-
     # download children datasets in one at a time
     child_name = US_utils.US_file_name(year, "../UKDA-6614-stata/stata/stata13_se/", "child")    # get hidp, pidp, and age.
     child_data = US_utils.load_file(child_name)

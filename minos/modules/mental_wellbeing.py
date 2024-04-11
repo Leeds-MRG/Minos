@@ -1,6 +1,6 @@
 """
-Module for mwb in Minos.
-Calculation of change in SF12
+Module for SF_12_MCS in Minos.
+Calculation of next mental wellbeing state
 """
 
 import pandas as pd
@@ -62,14 +62,16 @@ class MWB(Base):
                         'S7_labour_state',
                         'job_sec',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'housing_quality',
                         'phealth',
                         'ncigs',
                         'nutrition_quality',
                         'neighbourhood_safety',
                         'loneliness',
-                        'SF_12_diff']
+                        'SF_12_diff',
+                        'financial_situation',
+                        'active']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -119,10 +121,10 @@ class MWB(Base):
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=['SF_12'])
-        # newWaveMWB = newWaveMWB.rename(columns={"new_dependent": "SF_12",
-        #                                         "predicted": "SF_12_diff"})
-        # newWaveMWB = newWaveMWB.to_frame(name='SF_12')
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12_MCS"])
+        # newWaveMWB = newWaveMWB.rename(columns={"new_dependent": "SF_12_MCS",
+        #                                         "predicted": "SF_12_MCS_diff"})
+        # newWaveMWB = newWaveMWB.to_frame(name='SF_12_MCS')
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = pop.index
         SF_12sd = np.std(newWaveMWB["SF_12"])
@@ -130,8 +132,7 @@ class MWB(Base):
         newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, 10/SF_12sd)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-
-        self.population_view.update(newWaveMWB['SF_12'])
+        self.population_view.update(newWaveMWB['SF_12_MCS'])
 
     def calculate_mwb(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -145,14 +146,14 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols/SF_12_{year}_{year + 1}",
+        transition_model = r_utils.load_transitions(f"SF_12_MCS/ols/SF_12_MCS_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
 
         return r_utils.predict_next_timestep_ols(transition_model,
                                                       self.rpy2Modules,
                                                       pop,
-                                                      'SF_12')
+                                                      'SF_12_MCS')
 
     def calculate_mwb_rateofchange(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -166,20 +167,20 @@ class MWB(Base):
         """
         # year can only be 2017 as its the only year with data for all vars
         year = 2017
-        transition_model = r_utils.load_transitions(f"SF_12/ols_diff/SF_12_{year}_{year + 1}",
+        transition_model = r_utils.load_transitions(f"SF_12_MCS/ols_diff/SF_12_MCS_{year}_{year + 1}",
                                                     self.rpy2Modules,
                                                     path=self.transition_dir)
 
         return r_utils.predict_next_timestep_ols_diff(transition_model,
-                                                 self.rpy2Modules,
-                                                 pop,
-                                                 'SF_12',
-                                                 year=self.year)
+                                                      self.rpy2Modules,
+                                                      pop,
+                                                      'SF_12_MCS',
+                                                      year=self.year)
 
     def plot(self, pop, config):
         file_name = config.output_plots_dir + f"mwb_hist_{self.year}.pdf"
         f = plt.figure()
-        histplot(pop, x="SF_12", stat='density')
+        histplot(pop, x="SF_12_MCS", stat='density')
         plt.savefig(file_name)
         plt.close('all')
 
@@ -252,7 +253,7 @@ class geeMWB(Base):
 
         self.max_sf12 = None
         #only need to load this once for now.
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee/SF_12_GEE", self.rpy2Modules)
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/gee/SF_12_MCS_GEE", self.rpy2_modules)
 
     def update_prediction_population(self, current_pop):
         """ Update longitudinal data frame of past observations with current information.
@@ -279,24 +280,24 @@ class geeMWB(Base):
 
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        if self.max_sf12 == None:
-            self.max_sf12 = np.max(pop["SF_12"])
-            self.SF12_std = np.std(pop["SF_12"])
+        if self.max_sf12_MCS == None:
+            self.max_sf12_MCS = np.max(pop["SF_12_MCS"])
+            self.SF12_MCS_std = np.std(pop["SF_12_MCS"])
 
         ## Predict next income value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12_MCS"])
         # Set index type to int (instead of object as previous)
         newWaveMWB.index = pop.index
 
-        SF12_mean = np.mean(newWaveMWB["SF_12"])
+        SF12_MCS_mean = np.mean(newWaveMWB["SF_12_MCS"])
         # scale SF12 to have standard deviation 10.
-        newWaveMWB['SF_12'] += self.generate_gaussian_noise(newWaveMWB.index, 0, (self.SF12_std/np.std(newWaveMWB["SF_12"]))**2)
+        newWaveMWB['SF_12_MCS'] += self.generate_gaussian_noise(newWaveMWB.index, 0, (self.SF12_MCS_std/np.std(newWaveMWB["SF_12_MCS"]))**2)
 
-        #print(np.mean(newWaveMWB["SF_12"]))
+        #print(np.mean(newWaveMWB["SF_12_MCS"]))
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        self.population_view.update(newWaveMWB['SF_12'])
+        self.population_view.update(newWaveMWB['SF_12_MCS'])
 
 
     def calculate_mwb(self, pop):
@@ -309,7 +310,7 @@ class geeMWB(Base):
         -------
         """
         year = min(self.year, 2018)
-        return self.max_sf12 - r_utils.predict_next_timestep_gee(self.gee_transition_model, self.rpy2Modules, pop, 'SF_12')
+        return self.max_sf12_MCS - r_utils.predict_next_timestep_gee(self.gee_transition_model, self.rpy2_modules, pop, 'SF_12_MCS')
 
 
 
@@ -360,7 +361,7 @@ class geeYJMWB(Base):
                         'labour_state',
                         #'job_sec',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'housing_quality',
                         #'phealth',
                         'ncigs',
@@ -381,8 +382,8 @@ class geeYJMWB(Base):
         super().setup(builder)
 
         #only need to load this once for now.
-        self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj/SF_12_GEE_YJ", self.rpy2Modules, path=self.transition_dir)
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj_gamma/SF_12_GEE_YJ_GAMMA", self.rpy2Modules, path=self.transition_dir)
+        self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/gee_yj/SF_12_MCS_GEE_YJ", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/gee_yj_gamma/SF_12_GEE_YJ_GAMMA", self.rpy2_modules, path=self.transition_dir)
         self.history_data = self.generate_history_dataframe("final_US", [2014, 2017, 2020], view_columns)
 
     def on_time_step(self, event):
@@ -401,15 +402,15 @@ class geeYJMWB(Base):
 
         # Predict next mwb value
         newWaveMWB = self.calculate_mwb(pop)
-        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12"])
+        newWaveMWB = pd.DataFrame(newWaveMWB, columns=["SF_12_MCS"])
         newWaveMWB.index = pop.index # aligning index to vivarium builder dataframe. ensures assignment of new values to correct individuals.
-        #newWaveMWB["SF_12"] -= 2
-        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
+        #newWaveMWB["SF_12_MCS"] -= 2
+        newWaveMWB["SF_12_MCS"] = np.clip(newWaveMWB["SF_12_MCS"], 0, 100) # keep within [0, 100] bounds of SF12.
         #newWaveMWB.sort_index(inplace=True)
-        print(np.mean(newWaveMWB["SF_12"]))
+        print(np.mean(newWaveMWB["SF_12_MCS"]))
 
         # Update population with new income
-        self.population_view.update(newWaveMWB['SF_12'])
+        self.population_view.update(newWaveMWB['SF_12_MCS'])
 
 
     def calculate_mwb(self, pop):
@@ -425,7 +426,7 @@ class geeYJMWB(Base):
         out_data = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,
                                                                  self.rpy2Modules,
                                                                  current=self.history_data,
-                                                                 dependent='SF_12',
+                                                                 dependent='SF_12_MCS',
                                                                  reflect=True,
                                                                  noise_std= 0.85)#1
         return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
@@ -469,6 +470,7 @@ class lmmYJMWB(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
+
         view_columns = ["age",
                         "sex",
                         "ethnicity",
@@ -479,10 +481,11 @@ class lmmYJMWB(Base):
                         "loneliness",
                         "nutrition_quality",
                         "ncigs",
-                        'SF_12',
-                        'SF_12_diff',
+                        'SF_12_MCS',
+                        'SF_12_MCS_diff',
                         'pidp',
-                        'hh_income'
+                        'hh_income',
+                        'time'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -498,9 +501,9 @@ class lmmYJMWB(Base):
         super().setup(builder)
 
         #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12_MCS/lmm/SF_12_MCS_LMM", self.rpy2Modules, path=self.transition_dir)
+        self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model, self.rpy2Modules, "lmm")
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/glmm/SF_12_MCS_GLMM", self.rpy2_modules, path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -514,26 +517,26 @@ class lmmYJMWB(Base):
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
-        pop["SF_12_last"] = pop["SF_12"]
+        pop["SF_12_MCS_last"] = pop["SF_12_MCS"]
 
         # Predict next mwb value
-        newWaveMWB = pd.DataFrame(columns=['SF_12'])
-        newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+        newWaveMWB = pd.DataFrame(columns=['SF_12_MCS'])
+        newWaveMWB['SF_12_MCS'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
         #newWaveMWB["SF_12"] -= 1
 
-        sf12_mean = np.mean(newWaveMWB["SF_12"])
-        std_ratio = (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] *= (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
-        newWaveMWB["SF_12"] -= 1.5
-        #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
-        newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
-        # Update population with new SF12
-        #print(np.mean(newWaveMWB["SF_12"]))
-        #print(np.std(newWaveMWB["SF_12"]))
-        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
+        sf12_mean = np.mean(newWaveMWB["SF_12_MCS"])
+        std_ratio = (11/np.std(newWaveMWB["SF_12_MCS"]))
+        newWaveMWB["SF_12_MCS"] *= (11/np.std(newWaveMWB["SF_12_MCS"]))
+        newWaveMWB["SF_12_MCS"] -= ((std_ratio-1)*sf12_mean)
+        #newWaveMWB["SF_12_MCS"] -= 1.5
+        #newWaveMWB["SF_12_MCS"] += (50 - np.mean(newWaveMWB["SF_12_MCS"]))
+        #newWaveMWB["SF_12_MCS"] = np.clip(newWaveMWB["SF_12_MCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+        newWaveMWB["SF_12_MCS_diff"] = newWaveMWB["SF_12_MCS"] - pop["SF_12_MCS"]
+        # Update population with new SF12_MCS
+        #print(np.mean(newWaveMWB["SF_12_MCS"]))
+        #print(np.std(newWaveMWB["SF_12_MCS"]))
+        self.population_view.update(newWaveMWB[['SF_12_MCS', "SF_12_MCS_diff"]])
 
 
     def calculate_mwb(self, pop):
@@ -545,14 +548,22 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
-                                                               self.rpy2Modules,
-                                                               current= pop,
-                                                               dependent='SF_12',
-                                                               reflect=True,
-                                                               yeo_johnson= True,
-                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
-        return out_data
+        # nextWaveMWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
+        #                                                        self.rpy2_modules,
+        #                                                        current= pop,
+        #                                                        dependent='SF_12_MCS',
+        #                                                        reflect=True,
+        #                                                        yeo_johnson= True,
+        #                                                        noise_std= 0.1)  # 5 for non yj, 0.35 for yj
+
+        nextWaveMWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    pop,
+                                                                    dependent='SF_12_MCS',
+                                                                    log_transform=True,
+                                                                    noise_std=3)  #
+
+        return nextWaveMWB
 
 
 class lmmDiffMWB(Base):

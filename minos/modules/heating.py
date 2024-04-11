@@ -58,11 +58,15 @@ class Heating(Base):
                         "loneliness",
                         "nutrition_quality",
                         "ncigs",
+                        "heating",
+                        "marital_status",
+                        "urban",
+                        'hhsize',
+                        "housing_tenure",
+                        "financial_situation",
                         'hh_income',
-                        'urban',
-                        'housing_tenure',
-                        'financial_situation'
                         ]
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -97,7 +101,6 @@ class Heating(Base):
                                                         list(heating_prob_df.columns),
                                                         heating_prob_df)
         heating_prob_df.index = pop.index
-        heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
         self.population_view.update(heating_prob_df["heating"])
 
     def calculate_heating(self, pop):
@@ -111,7 +114,11 @@ class Heating(Base):
         -------
         """
         # load transition model based on year.
-        year = 2019
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2018
+        else:
+            year = min(self.year, 2019)
         #transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}", self.rpy2Modules)
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}",

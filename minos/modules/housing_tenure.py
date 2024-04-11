@@ -56,6 +56,7 @@ class HousingTenure(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
+
         view_columns = ["age",
                         "sex",
                         "ethnicity",
@@ -66,6 +67,7 @@ class HousingTenure(Base):
                         'financial_situation',
                         'hh_income'
                         ]
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -123,8 +125,10 @@ class HousingTenure(Base):
         """
         # load transition model based on year.
         if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2020
+            # LA 19/2/24
+            # factor levels for housing_tenure change in 2019 onwards. Therfore cv has to use model before 2019 as
+            # input population is derived from 2015 (currently)
+            year = 2018
         else:
             year = min(self.year, 2020)
 
@@ -137,11 +141,6 @@ class HousingTenure(Base):
                     'Rented from employer', 'Rented private unfurnished', 'Rented private furnished', 'Other']
 
 
-
-        if not self.transition_model or year <= 2020:
-            self.transition_model = r_utils.load_transitions(f"housing_tenure/nnet/housing_tenure_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-            # TODO not implemented for nnet.
-            #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "nnet")
 
 
         #transition_model = r_utils.load_transitions(f"housing_tenure/nnet/housing_tenure_{year}_{year+1}",

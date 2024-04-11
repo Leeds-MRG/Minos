@@ -1,14 +1,12 @@
 ## Validation plotting functions for MINOS
+
 require(ggplot2)
 require(ggridges)
 require(viridis)
-
-require(ggplot2)
 require(ggExtra)
 require(here)
 require(scales)
 require(gghighlight)
-require(viridis)
 
 miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
                  -10., -9., -8., -7., -3., -2., -1.)
@@ -21,57 +19,188 @@ validation_prep_ordinal <- function(raw.dat, base.dat, var) {
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'US')
-  
+
   base <- base.dat %>%
     dplyr::select(pidp, time, all_of(var)) %>%
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'baseline_output')
-  
+
   combined <- rbind(raw, base)
   combined[[var]] <- as.factor(combined[[var]])
-  
+
   var.norm <- combined %>%
     group_by(time) %>%
     filter(.data[[var]] != -9) %>%
     mutate(total = sum(n)) %>%
     mutate(prct = (n / total))
-  
+
   prepped <- list(var = combined,
                   norm = var.norm)
-  
+
   return(prepped)
 }
 
 ############ PLOTTING ############
 
+handover_continuous <- function(raw.dat, base.dat, var, save = FALSE) {
+  raw.var <- raw.dat %>%
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'final_US')
+
+  base.var <- base.dat %>%
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'baseline_output')
+
+  # merge before plot
+  merged <- rbind(raw.var, base.var)
+
+  # Now plot
+  p1 <- ggplot(data = merged, mapping = aes(x = time, y = mean, group = source, colour = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Full Sample') +
+    xlab('Year') +
+    ylab(var)
+
+  ## Try a version where final_US is limited to only those present from wave 1
+  # onwards because the sample refreshments are messing with the plot
+  raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+
+  raw.var2 <- raw.dat %>%
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(pidp %in% raw.wave1) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm = TRUE)) %>%
+    mutate(source = 'final_US')
+
+  base.var2 <- base.dat %>%
+    dplyr::select(pidp, time, all_of(var), weight) %>%
+    filter(pidp %in% raw.wave1) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm = TRUE)) %>%
+    mutate(source = 'baseline_output')
+
+  merged2 <- rbind(raw.var2, base.var2)
+
+  # Now plot
+  p2 <- ggplot(data = merged2, mapping = aes(x = time, y = mean, group = source, colour = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Wave 1 Sample') +
+    xlab('Year') +
+    ylab(var)
+
+  if (save) {
+    ggsave(filename = paste0(var, '.png'),
+           plot = p1,
+           path = save.path)
+  }
+  print(p1)
+  print(p2)
+}
+
+handover_ordinal <- function(raw.dat, base.dat, var, save=FALSE) {
+  raw.var <- raw.dat %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'final_US')
+
+  base.var <- base.dat %>%
+    dplyr::select(pidp, time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'baseline_output')
+
+  raw.var[[var]] <- as.factor(raw.var[[var]])
+  base.var[[var]] <- as.factor(base.var[[var]])
+
+  merged <- rbind(raw.var, base.var)
+  merged[[var]] <- as.factor(merged[[var]])
+
+  p1 <- ggplot(data = merged, mapping = aes(x = time, y = n, group = .data[[var]], colour = .data[[var]])) +
+    geom_line() +
+    geom_point() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Counts by Level') +
+    xlab('Year') +
+    ylab('Count')
+
+  var.norm <- merged %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total))
+
+  p2 <- ggplot(data = var.norm, mapping = aes(x = time, y = prct, fill=.data[[var]])) +
+    geom_bar(stat = 'identity') +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var) +
+    xlab('Year') +
+    ylab('Proportion')
+
+  if (save) {
+    ggsave(filename = paste0(var, '.png',),
+           plot = last_plot(),
+           path = save.path)
+  }
+  print(p1)
+  print(p2)
+}
+
 spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
 {
   # spaghetti plot displaying trajectories over time for continuous variable v
   # data: list Some dataset to plot. Needs v, time and pidp variables.
-  # v : some continuous variable to plot. 
+  # v : some continuous variable to plot.
   # save : whether to save the plot
   # save.path : path to save plot at, must be defined if save == TRUE
-  
-  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
+
+  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion.
   data_plot <- data[, c("time", "pidp", v)]
   # Remove missing values
   data_plot <- data_plot %>%
     filter(!.data[[v]] %in% miss.values)
-  
+
   # get range of years to figure out if this is handover or not
   if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }
-    
-  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) + 
-    ggplot2::labs(x = "time", y = v) + 
-    ggplot2::theme_classic() + 
-    ggplot2::theme(text = ggplot2::element_text(size = 12)) + 
+
+  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) +
+    ggplot2::labs(x = "time", y = v) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(text = ggplot2::element_text(size = 12)) +
     ggplot2::geom_line(colour="blue", alpha=0.2) +
     ggplot2::geom_point() +
     gghighlight::gghighlight(max(!!sym(v)) > 20)
-  
+
   if (save) {
     if(is.null(save.path)) {
       stop('ERROR: save.path must be defined when saving the plot')
@@ -86,7 +215,7 @@ spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     if (!is.null(filename.tag)) {
       save.filename <- paste0(filename.tag, '_', save.filename)
     }
-    
+
     ggsave(filename = save.filename,
            plot = output_plot,
            path = save.path)
@@ -98,29 +227,29 @@ spaghetti_highlight_max_plot <- function(data, v, save=FALSE, save.path=NULL, fi
 {
   # spaghetti plot displaying trajectories over time for continuous variable v
   # data: list Some dataset to plot. Needs v, time and pidp variables.
-  # v : some continuous variable to plot. 
+  # v : some continuous variable to plot.
   # save : whether to save the plot
   # save.path : path to save plot at, must be defined if save == TRUE
-  
-  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
+
+  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion.
   data_plot <- data[, c("time", "pidp", v)]
   # Remove missing values
   data_plot <- data_plot %>%
     filter(!.data[[v]] %in% miss.values)
-  
+
   # get range of years to figure out if this is handover or not
   if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }
-  
-  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), color=factor(pidp), group = pidp)) + 
-    ggplot2::labs(x = "time", y = v) + 
-    ggplot2::theme_classic() + 
-    ggplot2::theme(text = ggplot2::element_text(size = 12)) + 
+
+  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), color=factor(pidp), group = pidp)) +
+    ggplot2::labs(x = "time", y = v) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(text = ggplot2::element_text(size = 12)) +
     ggplot2::geom_line() +
     ggplot2::geom_point() +
     gghighlight::gghighlight(min(!!sym(v)) < 5, (pidp %% 1000) == 13, use_direct_label=FALSE, max_highlight=10)
-  
+
   if (save) {
     if(is.null(save.path)) {
       stop('ERROR: save.path must be defined when saving the plot')
@@ -135,7 +264,7 @@ spaghetti_highlight_max_plot <- function(data, v, save=FALSE, save.path=NULL, fi
     if (!is.null(filename.tag)) {
       save.filename <- paste0(filename.tag, '_', save.filename)
     }
-    
+
     ggsave(filename = save.filename,
            plot = output_plot,
            path = save.path)
@@ -147,17 +276,17 @@ violin_plot <- function(data, v)
 {
   # plot violins (similar to boxplots) over time for continuous variable v
   # data: list Some dataset to plot. Needs v, time and pidp variables.
-  # v : some continuous variable to plot. 
+  # v : some continuous variable to plot.
   data <- data[, c("time", "pidp", v)]
   data <- data[order(data$pidp, data$time),]
   data$time <- factor(data$time)
   data <- data %>%
     filter(!.data[[v]] %in% miss.values)
-  
+
   violin_long <- ggplot(data, aes_string(x = 'time', y = v)) +
     geom_violin() +
     geom_boxplot(width = 0.1, outlier.colour = "blue") +
-    theme_classic() + 
+    theme_classic() +
     scale_y_continuous(limits = quantile(data[, c(v)], c(0.001, 0.999), na.rm =TRUE))
   return(violin_long)
 }
@@ -171,7 +300,7 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
   if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }
-  
+
   data_plot$time <- factor(data_plot$time)
   data_plot <- data_plot[order(data_plot$time),]
   output_plot <- ggplot(data_plot, aes(x=!!sym(v), y=time)) +
@@ -179,7 +308,7 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
                  #scale_color_viridis_d() +
                  scale_color_cyclical(values=c("#F8766D", "#00BA38","#619CFF")) +
                  scale_linetype_cyclical(values=c(1, 2, 3))
-  
+
   if(save) {
     if(is.null(save.path)) {
       stop('ERROR: save.path must be defined when saving the plot')
@@ -194,15 +323,15 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     if (!is.null(filename.tag)) {
       save.filename <- paste0(filename.tag, '_', save.filename)
     }
-    
+
     ggsave(filename = save.filename,
            plot = output_plot,
            path = save.path)
   }
   return(output_plot)
 }
-# 
-marg_dist_densigram_plot_oneyear <- function(observed, 
+#
+marg_dist_densigram_plot_oneyear <- function(observed,
                                              predicted,
                                              var,
                                              target.year = 2021,
@@ -214,10 +343,10 @@ marg_dist_densigram_plot_oneyear <- function(observed,
   # get just the SF12 columns and rename for later
   o.end <- o.end %>% select(pidp, all_of(var)) %>% rename(observed = var)
   p.end <- p.end %>% select(pidp, all_of(var)) %>% rename(predicted = var)
-  
+
   # combine before we plot
   combined <- merge(o.end, p.end, by = 'pidp')
-  
+
   if (var %in% c('hh_income', 'equivalent_income')) {
     # do inverse hyperbolic sine transformation for hh_income
     asinh_trans <- scales::trans_new(
@@ -225,7 +354,7 @@ marg_dist_densigram_plot_oneyear <- function(observed,
       transform = function(x) {asinh(x)},
       inverse = function(x) {sinh(x)}
     )
-    
+
     p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
       geom_point(alpha = 0.6, size=0.1) +
       #geom_smooth() +
@@ -237,7 +366,7 @@ marg_dist_densigram_plot_oneyear <- function(observed,
       theme(legend.position = c(0.15, 0.9)) +
       labs(title = paste0(var, ' - ', target.year),
            subtitle = 'Marginal Distributions - Inverse Hyperbolic Sine transformation') +
-      coord_fixed() # force equal sized axes for easier interpretation. 
+      coord_fixed() # force equal sized axes for easier interpretation.
   } else {
     # no transformation for other vars
     p <- ggplot(data = combined, aes(x = observed, y = predicted)) +
@@ -249,11 +378,11 @@ marg_dist_densigram_plot_oneyear <- function(observed,
       labs(title = paste0(var, ' - ', target.year),
            subtitle = 'Marginal Distributions')
   }
-  
+
   p1 <- ggMarginal(p, type='densigram', xparams = list(position = 'dodge'), yparams=list(position = 'dodge'))
-  
+
   plot.name <- paste0('scatter_marg_densigram_', var, '_', target.year, '.png')
-  
+
   if(save) {
     ggsave(filename = plot.name,
            plot = p1,
@@ -293,46 +422,46 @@ cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   cv5.inc$source <- 'cv5'
   cv5.inc$mode <- 'cross-validation'
-  
+
   raw.inc <- raw %>%
     filter(.data[[var]] != -9) %>%
     group_by(time) %>%
     summarise(mean.var = mean(.data[[var]], na.rm = TRUE))
   raw.inc$source <- 'raw'
   raw.inc$mode <- 'raw'
-  
+
   cv.list <- list(cv1.inc, cv2.inc, cv3.inc, cv4.inc, cv5.inc)
   cv.inc <- do.call(rbind, cv.list)
-  
+
   df.list <- list(cv.inc, raw.inc)
   combined <- do.call(rbind, df.list)
-  
+
   # First plot all cv runs separately
   p1 <- ggplot(combined, aes(x = time, y = mean.var, group = source, color = source, linetype = mode)) +
     geom_line() +
     labs(title = paste0(var, ': CV vs raw'), subtitle = 'Individual CV runs') +
     ylab(var)
   print(p1)
-  
+
   cv.inc2 <- cv.inc %>%
     group_by(time) %>%
     summarise(var = mean(mean.var),
               min = min(mean.var),
               max = max(mean.var))
   cv.inc2$source <- 'cross-validation'
-  
+
   raw.inc <- raw.inc %>%
     select(-mode) %>%
     mutate(var = mean.var,
            min = mean.var,
            max = mean.var) %>%
     select(-mean.var)
-  
+
   combined2 <- rbind(cv.inc2, raw.inc)
-  
+
   p2 <- ggplot(combined2, aes(x = time, y = var, group = source, color = source)) +
     geom_line() +
-    geom_ribbon(aes(ymin = min, ymax = max, fill = source), 
+    geom_ribbon(aes(ymin = min, ymax = max, fill = source),
                 alpha = 0.1,
                 linetype = 'dashed') +
     labs(title = paste0(var, ': CV vs raw'), subtitle = 'Combined CV runs') +
@@ -343,24 +472,26 @@ cv.mean.plots <- function(cv1, cv2, cv3, cv4, cv5, raw, var) {
 snapshot_OP_plots <- function(raw, cv, var, target.years) {
   cv.snap <- cv %>%
     select(pidp, time, all_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values) %>%
     filter(time %in% target.years) %>%
     rename(predicted = .data[[var]])
-  
+
   raw.snap <- raw %>%
     select(pidp, time, all_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values) %>%
     filter(time %in% target.years) %>%
     rename(observed = .data[[var]])
-  
+
   snap <- merge(cv.snap, raw.snap,
                 by = c('pidp', 'time'))
-  
+
   if (var %in% c('hh_income', 'equivalent_income')) {
     asinh_trans <- scales::trans_new(
       "inverse_hyperbolic_sine",
       transform = function(x) {asinh(x)},
       inverse = function(x) {sinh(x)}
     )
-    
+
     ggplot(snap, aes(x = observed, y = predicted)) +
       geom_point() +
       scale_y_continuous(trans=asinh_trans) +
@@ -384,25 +515,27 @@ snapshot_OP_plots <- function(raw, cv, var, target.years) {
 ## Yearly box plots for multiple years, compared between raw and cv runs
 multi_year_boxplots <- function(raw, cv, var) {
   raw.var <- raw %>%
-    dplyr::select(time, all_of(var))
+    dplyr::select(time, all_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values)
   raw.var$source <- 'raw'
-  
+
   cv.var <- cv %>%
-    dplyr::select(time, all_of(var))
+    dplyr::select(time, all_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values)
   cv.var$source <- 'cross-validation'
-  
+
   combined <- rbind(raw.var, cv.var)
   combined$time <- as.factor(combined$time)
   combined <- drop_na(combined)
-  combined <- filter(combined, .data[[var]] != -9)
-  
+  #combined <- filter(combined, .data[[var]] != -9)
+
   if (var %in% c('hh_income', 'equivalent_income')) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var == 'ncigs') {
     #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }
-  
+
   ggplot(data = combined, aes(x = time, y = .data[[var]], group = interaction(time, source), color = source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
@@ -410,20 +543,22 @@ multi_year_boxplots <- function(raw, cv, var) {
 
 q_q_comparison <- function(raw, cv, var) {
   raw.inc <- raw %>%
-    select(pidp, time, any_of(var))
+    select(pidp, time, any_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values)
   raw.inc$source <- 'raw'
   cv.inc <- cv %>%
-    select(pidp, time, any_of(var))
+    select(pidp, time, any_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values)
   cv.inc$source <- 'cross-validation'
-  
+
   combined <- rbind(raw.inc, cv.inc)
   combined <- filter(combined, .data[[var]] != -9)
-  
+
   if (var == 'ncigs') {
     print('Removing ncigs == 0 values for this plot')
     combined <- filter(combined, .data[[var]] != 0)
   }
-  
+
   ggplot(combined, aes(sample = .data[[var]], group = source, color = source)) +
     stat_qq() +
     labs(title = paste0(var, ': Q-Q'))
@@ -436,27 +571,27 @@ q_q_comparison <- function(raw, cv, var) {
 
 handover_boxplots <- function(raw, baseline, var) {
   raw.var <- raw %>%
-    dplyr::select(pidp, time, all_of(var))
+    dplyr::select(time, all_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values)
   raw.var$source <- 'final_US'
-  
+
   baseline.var <- baseline %>%
-    dplyr::select(pidp, time, all_of(var))
+    dplyr::select(time, all_of(var)) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values)
   baseline.var$source <- 'baseline_output'
-  
+
   combined <- rbind(raw.var, baseline.var)
   combined$time <- as.factor(combined$time)
   combined <- drop_na(combined)
-  combined <- filter(combined, .data[[var]] != -9)
-  
-  # Do some filtering to remove extreme values
+
   if (var %in% c('hh_income', 'equivalent_income')) {
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), .data[[var]] > quantile(.data[[var]], 0.01))
   } else if (var %in% c('ncigs', 'hourly_wage')) {
     #combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99))
     combined <- filter(combined, .data[[var]] < quantile(.data[[var]], 0.99), !.data[[var]] == 0)
   }
-  
-  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
+
+  ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill = source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
 }
@@ -464,21 +599,23 @@ handover_boxplots <- function(raw, baseline, var) {
 # summarise(summary_var = weighted.mean(x = .data[[var]], w = weight)) %>%
 handover_lineplots <- function(raw, base, var) {
   # GENERALISE THIS AND DOCSTRING
-  raw.means <- raw %>% 
-    dplyr::select(pidp, time, var) %>%
+  raw.means <- raw %>%
+    dplyr::select(time, var) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values) %>%
     group_by(time) %>%
     summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
     mutate(source = 'final_US')
-  
+
   base.means <- base %>%
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(time, var) %>%
+    dplyr::filter(!.data[[var]] %in% miss.values) %>%
     group_by(time) %>%
     summarise(summary_var = mean(!!sym(var))) %>%
     mutate(source = 'baseline_output')
-  
+
   # merge before plot
   combined <- rbind(raw.means, base.means)
-  
+
   # Now plot
   ggplot(data = combined, aes(x = time, y = summary_var, group = source, color = source)) +
     geom_line() +
@@ -486,4 +623,30 @@ handover_lineplots <- function(raw, base, var) {
     labs(title = var, subtitle = 'Full Sample') +
     xlab('Year') +
     ylab(var)
+}
+
+handover_inequality_80_20 <- function(raw.dat, base.dat, var) {
+  raw.income_inequality <- raw.dat %>%
+    group_by(time) %>%
+    summarise(percentile_20 = quantile(.data[[var]], probs = c(.20)),
+              percentile_80 = quantile(.data[[var]], probs = c(.80))) %>%
+    mutate(ineq_80_20 = percentile_80 - percentile_20,
+           source = 'raw')
+
+  base.income_inequality <- base.dat %>%
+    group_by(time) %>%
+    summarise(percentile_20 = quantile(.data[[var]], probs = c(.20)),
+              percentile_80 = quantile(.data[[var]], probs = c(.80))) %>%
+    mutate(ineq_80_20 = percentile_80 - percentile_20,
+           source = 'simulated')
+
+  combined <- rbind(raw.income_inequality, base.income_inequality)
+
+  p1 <- ggplot(combined, aes(x = time, y = ineq_80_20, group = source, color = source)) +
+    geom_line() +
+    geom_vline(xintercept = start.year, linetype='dashed') +
+    labs(title = paste0('80:20 Ratio ', var)) +
+    xlab('Year') +
+    ylab('80:20 Ratio')
+  print(p1)
 }

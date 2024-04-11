@@ -47,13 +47,14 @@ class Tobacco(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("tobacco")
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
+        view_columns = ["pidp",
+                        "age",
                         "sex",
                         "ethnicity",
                         "region",
@@ -65,7 +66,8 @@ class Tobacco(Base):
                         "ncigs",
                         'job_sec',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
+                        'SF_12_PCS',
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -99,10 +101,21 @@ class Tobacco(Base):
         newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop))
         newWaveTobacco.columns = ['ncigs']
         newWaveTobacco.index = pop.index
-        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
+
+        # clip values to a reasonable range to nullify extreme projections
+        # hopefully this step will be nullified when we move to a longitudinal zip model
         newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
+        # Also seem to have another unfortunate problem that only happens in 2030 (maybe after also but fails in 2030)
+        # Some NA values are included in ncigs prediction, which fails the type casting below. For a quick fix which
+        # will also hopefully be nullified with the new transition model, we can just force these to 300
+        # THIS IS ASSUMING THESE ARE PREDICTED AN INFINITE VALUE THAT IS RECORDED AS NA
+        newWaveTobacco['ncigs'][newWaveTobacco['ncigs'].isna()] = 0
+
+        # final step cast to int to maintain data types in population_view
+        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+
         self.population_view.update(newWaveTobacco["ncigs"])
 
     def calculate_tobacco(self, pop):
