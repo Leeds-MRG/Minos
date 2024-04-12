@@ -362,6 +362,70 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+
+def incremental_10_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+    "The same intervention in increments from £10 to £100"
+    directories = "baseline"
+    tags = "Baseline"
+    uplift_amount = 10
+    uplift_increment = 10
+    max_uplift = 100
+    num_lines = max_uplift / uplift_increment
+    for _ in range(num_lines):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += uplift_increment
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * str(num_lines))
+    prefix = f"10_100_by_10_together{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                  region=region)
+
+
+def incremental_10_to_50_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+    "The same intervention in increments from £10 to £50"
+    directories = "baseline"
+    tags = "Baseline"
+    uplift_amount = 10
+    uplift_increment = 10
+    max_uplift = 50
+    num_lines = max_uplift / uplift_increment
+    for _ in range(num_lines):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += uplift_increment
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * str(num_lines))
+    prefix = f"10_50_by_10_together{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                  region=region)
+
+
+def incremental_60_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+    "The same intervention in increments from £10 to £50"
+    directories = "baseline"
+    tags = "Baseline"
+    uplift_amount = 60
+    uplift_increment = 10
+    max_uplift = 100
+    num_lines = max_uplift / uplift_increment
+    for _ in range(num_lines):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += uplift_increment
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * str(num_lines))
+    prefix = f"60_100_by_10_together{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                  region=region)
+
+
 #################
 # main function #
 #################
@@ -402,13 +466,19 @@ string_to_lineplot_function = {
     "75_relative_poverty": [75],
     "100_relative_poverty": [100],
 
+    "10_universal_credit": universal_credit,
+    "20_universal_credit": universal_credit,
     "25_universal_credit": universal_credit,
     "30_universal_credit": universal_credit,
     "35_universal_credit": universal_credit,
     "40_universal_credit": universal_credit,
     "45_universal_credit": universal_credit,
     "50_universal_credit": universal_credit,
+    "60_universal_credit": universal_credit,
+    "70_universal_credit": universal_credit,
     "75_universal_credit": universal_credit,
+    "80_universal_credit": universal_credit,
+    "90_universal_credit": universal_credit,
     "100_universal_credit": universal_credit,
 
     "25_universal_credit_priority_subgroups": universal_credit_priority_subgroups,
@@ -492,13 +562,19 @@ string_to_lineplot_function_args = {
     "75_all": [75],
     "100_all": [100],
 
+    "10_universal_credit": [10],
+    "20_universal_credit": [20],
     "25_universal_credit": [25],
     "30_universal_credit": [30],
     "35_universal_credit": [35],
     "40_universal_credit": [40],
     "45_universal_credit": [45],
     "50_universal_credit": [50],
+    "60_universal_credit": [60],
+    "70_universal_credit": [70],
     "75_universal_credit": [75],
+    "80_universal_credit": [80],
+    "90_universal_credit": [90],
     "100_universal_credit": [100],
 
     "scotland_25_universal_credit_young_mothers": [25, "scotland"],
