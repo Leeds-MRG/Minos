@@ -375,7 +375,7 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
         directories += f",{uplift_amount}{intervention_name}"
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
-    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * str(num_lines))
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
     prefix = f"10_100_by_10_together{intervention_name}_uplift"
     ref = "Baseline"
     v = "SF_12"
@@ -396,7 +396,7 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
         directories += f",{uplift_amount}{intervention_name}"
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
-    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * str(num_lines))
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
     prefix = f"10_50_by_10_together{intervention_name}_uplift"
     ref = "Baseline"
     v = "SF_12"
@@ -406,7 +406,7 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
 
 
 def incremental_60_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
-    "The same intervention in increments from £10 to £50"
+    "The same intervention in increments from £60 to £100"
     directories = "baseline"
     tags = "Baseline"
     uplift_amount = 60
@@ -417,7 +417,7 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
         directories += f",{uplift_amount}{intervention_name}"
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
-    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * str(num_lines))
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
     prefix = f"60_100_by_10_together{intervention_name}_uplift"
     ref = "Baseline"
     v = "SF_12"
