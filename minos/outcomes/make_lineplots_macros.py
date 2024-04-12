@@ -370,7 +370,7 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
     uplift_amount = 10
     uplift_increment = 10
     max_uplift = 100
-    num_lines = max_uplift / uplift_increment
+    num_lines = int(max_uplift / uplift_increment)
     for _ in range(num_lines):
         directories += f",{uplift_amount}{intervention_name}"
         tags += f",£{uplift_amount} {intervention_tag}"
@@ -391,7 +391,7 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
     uplift_amount = 10
     uplift_increment = 10
     max_uplift = 50
-    num_lines = max_uplift / uplift_increment
+    num_lines = int(max_uplift / uplift_increment)
     for _ in range(num_lines):
         directories += f",{uplift_amount}{intervention_name}"
         tags += f",£{uplift_amount} {intervention_tag}"
@@ -412,7 +412,7 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
     uplift_amount = 60
     uplift_increment = 10
     max_uplift = 100
-    num_lines = max_uplift / uplift_increment
+    num_lines = int(max_uplift / uplift_increment)
     for _ in range(num_lines):
         directories += f",{uplift_amount}{intervention_name}"
         tags += f",£{uplift_amount} {intervention_tag}"
