@@ -346,7 +346,7 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
         uplift_amount += increment
 
 
-def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
         "The same intervention in increments from £25 to £50"
         directories = "baseline"
         tags = "Baseline"
@@ -615,8 +615,8 @@ string_to_lineplot_function_args = {
 
     "incremental_25_50_relative_poverty": ["RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids"],
 
-    "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids", 5, "scotland"],
-    "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "Universal Credit", "who_universal_credit_and_kids", "scotland"],
+    "incremental_25_50_by_5_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids",],
+    "incremental_25_50_by_5_together_universal_credit": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
     "incremental_10_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_10_to_50_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
