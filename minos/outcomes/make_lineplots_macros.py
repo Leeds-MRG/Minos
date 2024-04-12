@@ -363,7 +363,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
-def incremental_10_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+def incremental_10_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
     "The same intervention in increments from £10 to £100"
     directories = "baseline"
     tags = "Baseline"
@@ -384,7 +384,7 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
                   region=region)
 
 
-def incremental_10_to_50_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+def incremental_10_to_50_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
     "The same intervention in increments from £10 to £50"
     directories = "baseline"
     tags = "Baseline"
@@ -405,7 +405,7 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
                   region=region)
 
 
-def incremental_60_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+def incremental_60_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
     "The same intervention in increments from £10 to £50"
     directories = "baseline"
     tags = "Baseline"
