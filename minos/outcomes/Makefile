@@ -212,6 +212,24 @@ vis_60_100_by_10_together_UC: MODE="default_config"
 vis_60_100_by_10_together_UC:
 		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together"
 
+### UC, kids, and RelativePoverty
+
+vis_25_50_by_5_together_UC_RelPov: MODE="default_config"
+vis_25_50_by_5_together_UC_RelPov:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_universal_credit_RelPov"
+
+vis_10_100_by_10_together_UC_RelPov: MODE="default_config"
+vis_10_100_by_10_together_UC_RelPov:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_100_by_10_together_RelPov"
+
+vis_10_50_by_10_together_UC_RelPov: MODE="default_config"
+vis_10_50_by_10_together_UC_RelPov:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_50_by_10_together_RelPov"
+
+vis_60_100_by_10_together_UC_RelPov: MODE="default_config"
+vis_60_100_by_10_together_UC_RelPov:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together_RelPov"
+
 ##########################################
 # Custom subset for social science paper #
 ##########################################

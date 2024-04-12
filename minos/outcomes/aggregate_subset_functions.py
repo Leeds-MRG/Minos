@@ -21,6 +21,8 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
 
+                     "who_UC_kids_relative_poverty": [who_alive, who_kids, who_below_poverty_line, who_universal_credit],
+
                      # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
                      "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],

@@ -511,6 +511,10 @@ string_to_lineplot_function = {
     "incremental_10_to_50_by_10_together": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together": incremental_60_to_100_by_10_together,
 
+    "incremental_10_to_100_by_10_together_RelPov": incremental_10_to_100_by_10_together,
+    "incremental_10_to_50_by_10_together_RelPov": incremental_10_to_50_by_10_together,
+    "incremental_60_to_100_by_10_together_RelPov": incremental_60_to_100_by_10_together,
+
     "social_science_all_plots": social_science_all_plots,
 
     "glasgow_baseline_quintile": quintiles_lineplot,
@@ -621,6 +625,11 @@ string_to_lineplot_function_args = {
     "incremental_10_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_10_to_50_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_60_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+
+    "incremental_25_50_by_5_together_universal_credit_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
+    "incremental_10_to_100_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
+    "incremental_10_to_50_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
+    "incremental_60_to_100_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
 
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
