@@ -426,10 +426,31 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
                   region=region)
 
 
+def incremental_25_to_100_by_25_together_RelPov(config_mode, intervention_name, intervention_tag, subset_function, region=None):
+
+    directories = "baseline"
+    tags = "Baseline"
+    uplift_amount = 25
+    uplift_increment = 25
+    max_uplift = 100
+    num_lines = int((max_uplift - uplift_amount) / uplift_increment) + 1
+    for _ in range(num_lines):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += uplift_increment
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
+    prefix = f"25_100_by_25_together{intervention_name}_uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
+                  region=region)
+
 #################
 # main function #
 #################
 
+#TODO: Comments? Headings? Anything to help another developer??? Literally anything we can add to make this easier to understand and work on??
 
 string_to_lineplot_function = {
     # initial line plots
@@ -456,6 +477,8 @@ string_to_lineplot_function = {
     "75_UC_priority": UC_priority,
     "100_UC_priority": UC_priority,
 
+
+    #TODO: FIX THIS?? Is it meant to say relative poverty?
     "25_all": relative_poverty,
     "50_all": relative_poverty,
     "75_all": relative_poverty,
@@ -515,6 +538,11 @@ string_to_lineplot_function = {
     "incremental_10_to_100_by_10_together_RelPov": incremental_10_to_100_by_10_together,
     "incremental_10_to_50_by_10_together_RelPov": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together_RelPov": incremental_60_to_100_by_10_together,
+
+
+    ## TEST ##
+    "incremental_25_to_100_by_25_together_RelPov": incremental_25_to_100_by_25_together_RelPov,
+    ## TEST ##
 
     "social_science_all_plots": social_science_all_plots,
 
@@ -631,6 +659,8 @@ string_to_lineplot_function_args = {
     "incremental_10_to_100_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
     "incremental_10_to_50_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
     "incremental_60_to_100_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
+
+    "incremental_25_to_100_by_25_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_relative_poverty"],
 
     "glasgow_relative_poverty_quintile": ['25RelativePoverty'],
     "glasgow_universal_credit_quintile": ['25UniversalCredit'],
