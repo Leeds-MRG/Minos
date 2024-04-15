@@ -13,6 +13,7 @@ arc_aspatial_goodHeatingDummy:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
 
 arc4_transitions:
-	bash scripts/arc_submit_transitions.sh
+	qsub 'scripts/arc_run_transitions.sh'
+
 
 

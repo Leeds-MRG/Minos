@@ -4,6 +4,12 @@
 
 ## Set current working directory
 #$ -cwd
+#!/bin/bash
+
+# This script must be run with qsub if running on Arc
+
+## Set current working directory
+#$ -cwd
 ## Use current environment variables and modules
 #$ -V
 ## Request hours of runtime
@@ -11,9 +17,8 @@
 ## Email if a run aborts
 #$ -m a
 ## Select memory
-#$ -l h_vmem=5G # was 15 for big runs
-## Choose cores. See arc website for more details. 5 high memory cores chosen here.
-#$ -pe smp 16
+## just use one node
+#$ -l nodes=1
 ## Set logs directories
 #$ -o ./logs/transitions/
 #$ -e ./logs/transitions/
