@@ -12,7 +12,7 @@
 ## Select memory
 #$ -l h_vmem=10G # was 15 for big runs
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
-#$ -pe smp 16
+#$ -pe smp 10
 ## Set logs directories
 #$ -o ./logs/transitions/
 #$ -e ./logs/transitions/
