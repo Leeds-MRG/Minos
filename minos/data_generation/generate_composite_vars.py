@@ -993,6 +993,27 @@ def generate_difference_variables(data):
     return data
 
 
+def generate_poverty_cohort_var(data):
+    """
+    This function assigns a relative poverty flag to individuals in relative poverty in the input population.
+    This variable WILL NOT be transitioned. This is to because calculating a new threshold each wave is affected by
+    the intervention itself, where money is handed to low income individuals and therefore the poverty threshold is
+    different.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+
+    data['init_relative_poverty'] = data.loc[data['hh_income'] <= (np.nanmedian(data['hh_income']) * 0.6),]
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1017,7 +1038,8 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
-    data = generate_difference_variables(data) # difference variables for longitudinal/difference models.
+    data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
+    data = generate_poverty_cohort_var(data)  # initial relative poverty variable
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

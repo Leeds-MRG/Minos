@@ -21,7 +21,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
 
-                     "who_UC_kids_relative_poverty": [who_alive, who_kids, who_below_poverty_line, who_universal_credit],
+                     "who_UC_kids_relative_poverty": [who_alive, who_kids, who_below_poverty_line_init_cohort, who_universal_credit],
 
                      # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
@@ -329,6 +329,15 @@ def who_below_poverty_line(df):
     "who below poverty line?. Defined as 60% of national median hh income."
     return df.loc[df['hh_income'] <= (np.nanmedian(df['hh_income']) * 0.6),]
     # return df.loc[df['hh_income'] <= 1300.0,]
+
+
+def who_below_poverty_line_init_cohort(df):
+    """
+    Who in relative poverty in input population?
+    This variable is not transitioned, it exists only to allow us to follow a cohort of those in relative poverty for
+    plotting and other comparisons.
+    """
+    return df.query("`init_relative_poverty` == True")
 
 
 def who_boosted(df):

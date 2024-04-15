@@ -165,23 +165,24 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # files = files[:10]
         # 2018 is special case - not simulated yet and therefore doesn't have any of the tags for subset functions
         # Therefore we are just going to get everyone alive for now
-        # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
+        # TODO: Set this value from the config file so it only happens for the year before simulation
+        #  (currently 2020) and isn't hardcoded
 
         if (year > 2020 or tag == ref) or method == aggregate_boosted_counts_and_cumulative_score:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
-                                                    zip(files, repeat(subset_func_string), repeat(v), repeat(method),
-                                                        repeat(mode), repeat(region)))
-            #if tag == "No Support" and year == 2035:
+                                                zip(files, repeat(subset_func_string), repeat(v), repeat(method),
+                                                    repeat(mode), repeat(region)))
+            # if tag == "No Support" and year == 2035:
             #    #print(len(aggregated_means))
             #    #print([type(item) for item in aggregated_means])
-            if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
-                print(
-                    f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
+            if not aggregated_means:  # if no datasets found for given year supply a dummy row.
+                print(f"warning no datasets found for intervention {tag} and year {year}. "
+                      f"This will result in a blank datapoint in the final lineplot.")
                 aggregated_means = [None]
 
             if method == weighted_nanmean or method == child_uplift_cost_sum:
-                single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
+                single_year_aggregates = pd.DataFrame(aggregated_means, columns=[v])
                 single_year_aggregates['year'] = year
                 single_year_aggregates['tag'] = tag
                 aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
@@ -194,7 +195,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
             elif method == aggregate_boosted_counts_and_cumulative_score:
                 for i, single_year_aggregate in enumerate(aggregated_means):
                     if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
-                        single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
+                        single_year_aggregate = pd.DataFrame([i], columns=['number_boosted'])
                         single_year_aggregate["number_boosted"] = np.nan
                         single_year_aggregate[f"summed_{v}"] = np.nan
                         single_year_aggregate["intervention_cost"] = np.nan
