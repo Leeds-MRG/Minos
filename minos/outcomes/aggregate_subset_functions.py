@@ -247,6 +247,9 @@ def get_required_intervention_variables(subset_function_string):
     if "universal_credit" in subset_function_string:
         default_variables += ['universal_credit']
 
+    if "UC" in subset_function_string:
+        default_variables += ['universal_credit']
+
     if "below_poverty_line" in subset_function_string:
         default_variables += []
 
