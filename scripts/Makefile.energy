@@ -1,3 +1,17 @@
+
+###################
+# Housing Scripts #
+###################
+
+housing_baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
+housing_baseline: RUN_CONFIG=config/energy_default.yaml
+housing_baseline: MODE=energy_default_config
+housing_baseline:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+
+
+
+
 manchester_intervention_goodHeatingDummy: setup_manchester_scaled
 manchester_intervention_goodHeatingDummy: RUN_CONFIG = default/energy_manchester_scaled.yaml
 manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled

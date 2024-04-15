@@ -358,13 +358,3 @@ S7_intervention_energyDownLift_glasgow: setup_glasgow_scaled_S7
 S7_intervention_energyDownLiftNoSupport_glasgow: setup_glasgow_scaled_S7
 	$(PYTHON) scripts/run.py -c $(CONFIG)/S7_glasgow_scaled.yaml -o SIPHER7_glasgow -i 'energyDownliftNoSupport'
 
-
-###################
-# Housing Scripts #
-###################
-
-housing_baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
-housing_baseline: RUN_CONFIG=config/energy_default.yaml
-housing_baseline: MODE=energy_default_config
-housing_baseline: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
