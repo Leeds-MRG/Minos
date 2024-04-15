@@ -18,4 +18,4 @@
 #$ -e ./logs/transitions/
 
 mkdir -p ./logs/transitions
-Rscript minos/transitions/estimate_transitions.R
+Rscript minos/transitions/estimate_longitudinal_transitions.R

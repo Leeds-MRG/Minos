@@ -28,6 +28,6 @@ arc_aspatial_goodHeatingDummy:
 
 arc4_transitions:
 	qsub 'scripts/arc_run_transitions.sh'
-
+	qsub 'scripts/arc_run_longitudinal_transitions.sh'
 
 
