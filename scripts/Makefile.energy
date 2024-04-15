@@ -1,0 +1,16 @@
+manchester_intervention_goodHeatingDummy: setup_manchester_scaled
+manchester_intervention_goodHeatingDummy: RUN_CONFIG = default/energy_manchester_scaled.yaml
+manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled
+manchester_intervention_goodHeatingDummy:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
+
+arc4_goodHeatingDummy: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
+
+arc_aspatial_goodHeatingDummy: RUN_CONFIG = default/energy_default.yaml
+arc_aspatial_goodHeatingDummy: MODE = energy_default
+arc_aspatial_goodHeatingDummy:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
+
+arc4_transitions:
+    bash scripts/arc_run_transitions.sh
