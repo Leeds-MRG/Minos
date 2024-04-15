@@ -1,5 +1,3 @@
-include scripts/Makefile # data generation Makefile. files paths need fixing do later.
-
 ###################
 # Housing Scripts #
 ###################
@@ -20,7 +18,7 @@ manchester_intervention_goodHeatingDummy:
 arc4_housing_baseline: MODE = energy_default_config
 arc4_housing_baseline: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 arc4_housing_baseline:
-	arc4_baseline
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)line
 
 arc4_goodHeatingDummy: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
