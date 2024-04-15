@@ -10,9 +10,9 @@
 ## Email if a run aborts
 #$ -m a
 ## Select memory
-#$ -l h_vmem=10G # was 15 for big runs
+#$ -l h_vmem=4G # was 15 for big runs
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
-#$ -pe smp 10
+#$ -pe smp 8
 ## Set logs directories
 #$ -o ./logs/transitions/
 #$ -e ./logs/transitions/
