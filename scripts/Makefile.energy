@@ -1,3 +1,4 @@
+include scripts/Makefile # data generation Makefile. files paths need fixing do later.
 
 ###################
 # Housing Scripts #
@@ -10,13 +11,16 @@ housing_baseline:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
 
-
-
 manchester_intervention_goodHeatingDummy: setup_manchester_scaled
 manchester_intervention_goodHeatingDummy: RUN_CONFIG = default/energy_manchester_scaled.yaml
 manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled
 manchester_intervention_goodHeatingDummy:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
+
+arc4_housing_baseline: MODE = energy_default_config
+arc4_housing_baseline: RUN_CONFIG = $(CONFIG)/energy_default.yaml
+arc4_housing_baseline:
+	arc4_baseline
 
 arc4_goodHeatingDummy: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
