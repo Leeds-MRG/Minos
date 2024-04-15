@@ -23,9 +23,9 @@ arc4_housing_baseline:
 arc4_goodHeatingDummy: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
 
-arc_aspatial_goodHeatingDummy: RUN_CONFIG = default/energy_default.yaml
-arc_aspatial_goodHeatingDummy: MODE = energy_default
-arc_aspatial_goodHeatingDummy:
+arc4_aspatial_goodHeatingDummy: RUN_CONFIG = config/energy_default.yaml
+arc4_aspatial_goodHeatingDummy: MODE = energy_default
+arc4_aspatial_goodHeatingDummy:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
 
 arc4_transitions:
