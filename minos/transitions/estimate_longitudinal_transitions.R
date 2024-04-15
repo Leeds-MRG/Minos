@@ -11,6 +11,7 @@
 # execute the loop.
 ########################################################################
 
+print(getwd())
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
