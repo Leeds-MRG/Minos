@@ -984,6 +984,9 @@ def calculate_children(data,
 
 
 def generate_difference_variables(data):
+
+    print('Generating difference variables...')
+
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
     diff_columns = ["hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
@@ -1009,7 +1012,10 @@ def generate_poverty_cohort_var(data):
 
     """
 
-    data['init_relative_poverty'] = data.loc[data['hh_income'] <= (np.nanmedian(data['hh_income']) * 0.6),]
+    print('Generating initial poverty cohort vars...')
+
+    data['init_relative_poverty'] = -9
+    data.loc[data['hh_income'] <= (np.nanmedian(data['hh_income']) * 0.6), 'init_relative_poverty'] = 1
 
     return data
 
