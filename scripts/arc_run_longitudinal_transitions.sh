@@ -6,7 +6,7 @@
 ## Use current environment variables and modules
 #$ -V
 ## Request hours of runtime
-#$ -l h_rt=48:00:00
+#$ -l h_rt=2:00:00
 ## Email if a run aborts
 #$ -m a
 ## Select memory
