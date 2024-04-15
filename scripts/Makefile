@@ -173,14 +173,6 @@ manchester_baseline: MODE=energy_manchester_scaled
 manchester_baseline:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
-manchester_intervention_goodHeatingDummy: setup_manchester_scaled
-manchester_intervention_goodHeatingDummy: RUN_CONFIG = default/energy_manchester_scaled.yaml
-manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled
-manchester_intervention_goodHeatingDummy:
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
-
-
-
 #####################################
 ## Running MINOS scenarios on Arc4
 #####################################
