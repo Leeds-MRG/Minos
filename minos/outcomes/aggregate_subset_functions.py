@@ -21,7 +21,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
 
-                     "who_UC_kids_relative_poverty": [who_alive, who_kids, who_below_poverty_line_init_cohort, who_universal_credit],
+                     "who_UC_kids_RelPov": [who_alive, who_kids, who_below_poverty_line_init_cohort, who_universal_credit],
 
                      # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
@@ -244,11 +244,11 @@ def get_required_intervention_variables(subset_function_string):
     if "kids" in subset_function_string:
         default_variables += ["nkids"]
 
-    if "universal_credit" in subset_function_string:
+    if any(substring in subset_function_string for substring in ["UC", "UniversalCredit"]):
         default_variables += ['universal_credit']
 
-    if "UC" in subset_function_string:
-        default_variables += ['universal_credit']
+    if any(substring in subset_function_string for substring in ["RelPov", "relative_poverty"]):
+        default_variables += ['init_relative_poverty']
 
     if "below_poverty_line" in subset_function_string:
         default_variables += []

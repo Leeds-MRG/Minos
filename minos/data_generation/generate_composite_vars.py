@@ -1016,6 +1016,7 @@ def generate_poverty_cohort_var(data):
 
     data['init_relative_poverty'] = -9
     data.loc[data['hh_income'] <= (np.nanmedian(data['hh_income']) * 0.6), 'init_relative_poverty'] = 1
+    data.loc[data['hh_income'] > (np.nanmedian(data['hh_income']) * 0.6), 'init_relative_poverty'] = 0  # or False
 
     return data
 
