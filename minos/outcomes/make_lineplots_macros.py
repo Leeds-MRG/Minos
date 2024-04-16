@@ -392,7 +392,7 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
     subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
-    prefix = f"10_100_by_10_together{unique_filename}uplift"
+    prefix = f"10_100_by_10_together_{unique_filename}uplift"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
