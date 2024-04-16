@@ -996,7 +996,7 @@ def generate_difference_variables(data):
     return data
 
 
-def generate_poverty_cohort_var(data):
+def generate_poverty_cohort_vars(data):
     """
     This function assigns a relative poverty flag to individuals in relative poverty in the input population.
     This variable WILL NOT be transitioned. This is to because calculating a new threshold each wave is affected by
@@ -1014,9 +1014,27 @@ def generate_poverty_cohort_var(data):
 
     print('Generating initial poverty cohort vars...')
 
+    ## Relative Poverty
     data['init_relative_poverty'] = -9
     data.loc[data['hh_income'] <= (np.nanmedian(data['hh_income']) * 0.6), 'init_relative_poverty'] = 1
     data.loc[data['hh_income'] > (np.nanmedian(data['hh_income']) * 0.6), 'init_relative_poverty'] = 0  # or False
+
+    ## Absolute poverty
+    # First calculate the median income for 2010/2011
+    median_income_2010 = data[data['time'] == 2010]['hh_income'].median()
+    # Now adjust for inflation before applying it to the data
+    # This means packaging the median up in a dataframe with some more information to pass to the inflation adjustment
+    # function in US_utils
+    median_df = pd.DataFrame({'hh_int_y': [2010],
+                              'hh_int_m': [12],
+                              'median_hh_income': [median_income_2010]})
+    adjusted = US_utils.inflation_adjustment(median_df, var='median_hh_income')
+    adjusted_median = adjusted.loc[:, 'median_hh_income'][0]
+
+    # Finally calculate those above and below the threshold
+    data['init_absolute_poverty'] = -9
+    data.loc[data['hh_income'] <= adjusted_median, 'init_absolute_poverty'] = 1
+    data.loc[data['hh_income'] > adjusted_median, 'init_absolute_poverty'] = 0  # or False
 
     return data
 
@@ -1046,7 +1064,7 @@ def main():
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
-    data = generate_poverty_cohort_var(data)  # initial relative poverty variable
+    data = generate_poverty_cohort_vars(data)  # initial relative poverty variable
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
