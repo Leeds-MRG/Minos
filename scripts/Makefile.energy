@@ -24,9 +24,19 @@ arc4_goodHeatingDummy: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
 
 arc4_aspatial_goodHeatingDummy: RUN_CONFIG = config/energy_default.yaml
-arc4_aspatial_goodHeatingDummy: MODE = energy_default
+arc4_aspatial_goodHeatingDummy: MODE = energy_default_config
 arc4_aspatial_goodHeatingDummy:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
+
+arc4_aspatial_GBIS: RUN_CONFIG = config/energy_default.yaml
+arc4_aspatial_GBIS: MODE = energy_default_config
+arc4_aspatial_GBIS:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
+
+arc4_aspatial_FFRS: RUN_CONFIG = config/energy_default.yaml
+arc4_aspatial_FFRS: MODE = energy_default_config
+arc4_aspatial_FFRS:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'FFRS'
 
 arc4_transitions:
 	qsub 'scripts/arc_run_transitions.sh'
