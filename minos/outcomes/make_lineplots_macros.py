@@ -347,26 +347,42 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
 
 
 def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
-        "The same intervention in increments from £25 to £50"
-        directories = "baseline"
-        tags = "Baseline"
-        uplift_amount = 25
-        for _ in range(6):
-            directories += f",{uplift_amount}{intervention_name}"
-            tags += f",£{uplift_amount} {intervention_tag}"
-            uplift_amount += 5
-        subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
-        prefix = f"25_50_by_5_together{intervention_name}_uplift"
-        ref = "Baseline"
-        v = "SF_12"
-        method = 'nanmean'
-        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+    "The same intervention in increments from £25 to £50"
+    directories = "baseline"
+    tags = "Baseline"
+
+    # Pick things out of the subset function to use in the filename
+    unique_filename = ""
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+        unique_filename += "UC_"
+    if "RelPov" in subset_function:
+        unique_filename += "RelPov_"
+
+    uplift_amount = 25
+    for _ in range(6):
+        directories += f",{uplift_amount}{intervention_name}"
+        tags += f",£{uplift_amount} {intervention_tag}"
+        uplift_amount += 5
+    subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
+    prefix = f"25_50_by_5_together{unique_filename}uplift"
+    ref = "Baseline"
+    v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
 def incremental_10_to_100_by_10_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
     "The same intervention in increments from £10 to £100"
     directories = "baseline"
     tags = "Baseline"
+
+    # Pick things out of the subset function to use in the filename
+    unique_filename = ""
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+        unique_filename += "UC_"
+    if "RelPov" in subset_function:
+        unique_filename += "RelPov_"
+
     uplift_amount = 10
     uplift_increment = 10
     max_uplift = 100
@@ -376,7 +392,7 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
     subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
-    prefix = f"10_100_by_10_together{intervention_name}_uplift"
+    prefix = f"10_100_by_10_together{unique_filename}uplift"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
@@ -388,6 +404,14 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
     "The same intervention in increments from £10 to £50"
     directories = "baseline"
     tags = "Baseline"
+
+    # Pick things out of the subset function to use in the filename
+    unique_filename = ""
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+        unique_filename += "UC_"
+    if "RelPov" in subset_function:
+        unique_filename += "RelPov_"
+
     uplift_amount = 10
     uplift_increment = 10
     max_uplift = 50
@@ -397,7 +421,7 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
     subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
-    prefix = f"10_50_by_10_together{intervention_name}_uplift"
+    prefix = f"10_50_by_10_together_{unique_filename}uplift"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
@@ -409,6 +433,14 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
     "The same intervention in increments from £60 to £100"
     directories = "baseline"
     tags = "Baseline"
+
+    # Pick things out of the subset function to use in the filename
+    unique_filename = ""
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+        unique_filename += "UC_"
+    if "RelPov" in subset_function:
+        unique_filename += "RelPov_"
+
     uplift_amount = 60
     uplift_increment = 10
     max_uplift = 100
@@ -418,7 +450,7 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += uplift_increment
     subset_function_strings = f"{subset_function}" + (f",{subset_function}" * num_lines)
-    prefix = f"60_100_by_10_together{intervention_name}_uplift"
+    prefix = f"60_100_by_10_together_{unique_filename}uplift"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
