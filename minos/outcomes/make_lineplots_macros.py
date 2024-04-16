@@ -699,10 +699,10 @@ string_to_lineplot_function_args = {
     "incremental_10_to_50_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_60_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
-    "incremental_25_50_by_5_together_universal_credit_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
-    "incremental_10_to_100_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
-    "incremental_10_to_50_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
-    "incremental_60_to_100_by_10_together_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
+    "incremental_25_50_by_5_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
+    "incremental_10_to_100_by_10_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
+    "incremental_10_to_50_by_10_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
+    "incremental_60_to_100_by_10_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
 
     ### TEST ###
     "incremental_25_to_100_by_25_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
