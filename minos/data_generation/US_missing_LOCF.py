@@ -11,6 +11,7 @@ from multiprocessing import Pool, cpu_count
 from functools import partial
 from scipy import interpolate
 
+
 def applyParallelLOCF(dfGrouped, func, **kwargs):
     """ Apply pandas.apply() methods in parallel on groupby object.
 
@@ -29,6 +30,7 @@ def applyParallelLOCF(dfGrouped, func, **kwargs):
         ret_list = p.map(partial(func, **kwargs), [group for name, group in dfGrouped])
     return pd.concat(ret_list)
 
+
 def ffill_groupby(pid_groupby):
     """ forward fill groupby object
 
@@ -41,7 +43,9 @@ def ffill_groupby(pid_groupby):
     -------
     pid_groupby : Object with forward filled variables.
     """
-    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
+    pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
+    return pid_groupby.apply(lambda x: x.fillna(method="ffill"))
+
 
 def bfill_groupby(pid_groupby):
     """ back fill groupby object
@@ -54,7 +58,9 @@ def bfill_groupby(pid_groupby):
     -------
     pid_groupby : Object with back filled variables.
     """
-    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
+    pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
+    return pid_groupby.apply(lambda x: x.fillna(method="bfill"))
+
 
 def fbfill_groupby(pid_groupby):
     """ forward and back fill groupby object
@@ -66,7 +72,10 @@ def fbfill_groupby(pid_groupby):
     -------
     pid_groupby : Object with forward-back filled variables.
     """
-    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
+    # Replace missing types with NAN, then forward and backward fill missings
+    pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
+    return pid_groupby.apply(lambda x: x.fillna(method="ffill").fillna(method="bfill"))
+
 
 def mffill_groupby(pid_groupby):
     """
@@ -87,6 +96,7 @@ def mffill_groupby(pid_groupby):
     """
     return pid_groupby.apply(
         lambda x: pd.DataFrame.cummax(x))
+
 
 def interpolate(data, interpolate_columns, type='linear'):
     """ Interpolate column based on year time index.
@@ -117,6 +127,7 @@ def interpolate(data, interpolate_columns, type='linear'):
     new_columns.columns = interpolate_columns
     data[interpolate_columns] = new_columns
     return data
+
 
 def linear_interpolator_groupby(pid_groupby, type="forward"):
     """ Linear interpolation for deterministic increases like age.
@@ -151,6 +162,7 @@ def linear_interpolator_groupby(pid_groupby, type="forward"):
     return pid_groupby.apply(lambda x: x.interpolate(method="linear", limit_direction=type))
     #return pid_groupby.apply(lambda x: interpolate.interp1d(x["time"], x["age"])(x["age"]))
 
+
 def locf_sort(data, sort_vars, group_vars):
     """ Put data into pandas groupby for LOCF interpolation
 
@@ -174,6 +186,7 @@ def locf_sort(data, sort_vars, group_vars):
     # at once.
     pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
     return pid_groupby
+
 
 def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns=None):
     """ Last observation carrying for correcting missing data.
@@ -233,6 +246,7 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data
 
+
 def main(data, save=False):
 
     US_missing_description.missingness_table(data)
@@ -258,6 +272,7 @@ def main(data, save=False):
     if save:
         US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
     return data
+
 
 if __name__ == "__main__":
     # Load in data.
