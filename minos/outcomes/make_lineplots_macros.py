@@ -491,6 +491,8 @@ string_to_lineplot_function = {
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
 
     "good_heating_dummy": generic_single_lineplot,
+    "GBIS": generic_single_lineplot,
+    "fossilFuelReplacementScheme": generic_single_lineplot,
 }
 
 string_to_lineplot_function_args = {
@@ -587,6 +589,9 @@ string_to_lineplot_function_args = {
     "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
 
     "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"],
+    "GBIS": ["GBIS", "GBIS", "who_poor_heating"],
+    #"GBIS": ["GBIS", "GBIS", "who_relative_poverty"],
+    "FFRS": ["fossilFuelReplacementScheme", "Good Heating Dummy", "who_poor_heating"],
 }
 
 if __name__ == '__main__':
