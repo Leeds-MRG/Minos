@@ -493,7 +493,6 @@ class GBIS(Base):
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
-        pass
         # get some households below the poverty line.
         # replace their heating to 1.
         # reduce their energy bills by £3XX per year (plus some heterogeneity?).
