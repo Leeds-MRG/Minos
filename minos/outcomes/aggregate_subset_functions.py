@@ -25,6 +25,10 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_UC_kids_RelPov": [who_alive, who_kids, who_relative_poverty_init_cohort, who_universal_credit],
                      "who_UC_kids_AbsPov": [who_alive, who_kids, who_absolute_poverty_init_cohort, who_universal_credit],
 
+                     # Universal Credit and Gender
+                     "who_UC_kids_male": [who_alive, who_kids, who_universal_credit, who_male],
+                     "who_UC_kids_female": [who_alive, who_kids, who_universal_credit, who_female],
+
                      # Scottish gov sgugested priort subgroups.
                      "who_disabled": [who_alive, who_kids, who_disabled],
                      "who_ethnic_minority": [who_alive, who_kids, who_ethnic_minority],
@@ -252,6 +256,12 @@ def get_required_intervention_variables(subset_function_string):
     if any(substring in subset_function_string for substring in ["RelPov", "relative_poverty"]):
         default_variables += ['init_relative_poverty']
 
+    if any(substring in subset_function_string for substring in ["AbsPov", "absolute_poverty"]):
+        default_variables += ['init_absolute_poverty']
+
+    if any(substring in subset_function_string for substring in ["male", "female"]):
+        default_variables += ['sex']
+
     if "below_poverty_line" in subset_function_string:
         default_variables += []
 
@@ -373,6 +383,10 @@ def who_ethnic_minority(df):
 
 def who_female(df):
     return df.query("sex == 'female'")
+
+
+def who_male(df):
+    return df.query("sex == 'male'")
 
 
 def who_kids(df):

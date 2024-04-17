@@ -585,15 +585,29 @@ string_to_lineplot_function = {
     "incremental_10_to_50_by_10_together": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together": incremental_60_to_100_by_10_together,
 
+    ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": incremental_25_to_50_by_5_together,
     "incremental_10_to_100_by_10_together_UC_RelPov": incremental_10_to_100_by_10_together,
     "incremental_10_to_50_by_10_together_UC_RelPov": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together_UC_RelPov": incremental_60_to_100_by_10_together,
 
+    ## Universal Credit and Absolute Poverty
     "incremental_25_50_by_5_together_UC_AbsPov": incremental_25_to_50_by_5_together,
     "incremental_10_to_100_by_10_together_UC_AbsPov": incremental_10_to_100_by_10_together,
     "incremental_10_to_50_by_10_together_UC_AbsPov": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together_UC_AbsPov": incremental_60_to_100_by_10_together,
+
+    ## Universal Credit and Gender
+    # Male
+    "incremental_25_50_by_5_together_UC_male": incremental_25_to_50_by_5_together,
+    "incremental_10_to_100_by_10_together_UC_male": incremental_10_to_100_by_10_together,
+    "incremental_10_to_50_by_10_together_UC_male": incremental_10_to_50_by_10_together,
+    "incremental_60_to_100_by_10_together_UC_male": incremental_60_to_100_by_10_together,
+    # Male
+    "incremental_25_50_by_5_together_UC_female": incremental_25_to_50_by_5_together,
+    "incremental_10_to_100_by_10_together_UC_female": incremental_10_to_100_by_10_together,
+    "incremental_10_to_50_by_10_together_UC_female": incremental_10_to_50_by_10_together,
+    "incremental_60_to_100_by_10_together_UC_female": incremental_60_to_100_by_10_together,
 
 
     ### TEST ###
@@ -712,15 +726,30 @@ string_to_lineplot_function_args = {
     "incremental_10_to_50_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_60_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
+
+    ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
     "incremental_10_to_100_by_10_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
     "incremental_10_to_50_by_10_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
     "incremental_60_to_100_by_10_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
 
+    ## Universal Credit and Absolute Poverty
     "incremental_25_50_by_5_together_UC_AbsPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_AbsPov"],
     "incremental_10_to_100_by_10_together_UC_AbsPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_AbsPov"],
     "incremental_10_to_50_by_10_together_UC_AbsPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_AbsPov"],
     "incremental_60_to_100_by_10_together_UC_AbsPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_AbsPov"],
+
+    ## Universal Credit and Gender
+    # Male
+    "incremental_25_50_by_5_together_UC_male": ["UniversalCredit", "UniversalCredit", "who_UC_kids_male"],
+    "incremental_10_to_100_by_10_together_UC_male": ["UniversalCredit", "UniversalCredit", "who_UC_kids_male"],
+    "incremental_10_to_50_by_10_together_UC_male": ["UniversalCredit", "UniversalCredit", "who_UC_kids_male"],
+    "incremental_60_to_100_by_10_together_UC_male": ["UniversalCredit", "UniversalCredit", "who_UC_kids_male"],
+    # Male
+    "incremental_25_50_by_5_together_UC_female": ["UniversalCredit", "UniversalCredit", "who_UC_kids_female"],
+    "incremental_10_to_100_by_10_together_UC_female": ["UniversalCredit", "UniversalCredit", "who_UC_kids_female"],
+    "incremental_10_to_50_by_10_together_UC_female": ["UniversalCredit", "UniversalCredit", "who_UC_kids_female"],
+    "incremental_60_to_100_by_10_together_UC_female": ["UniversalCredit", "UniversalCredit", "who_UC_kids_female"],
 
     ### TEST ###
     "incremental_25_to_100_by_25_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],

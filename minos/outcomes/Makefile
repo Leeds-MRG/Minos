@@ -261,6 +261,31 @@ vis_60_100_by_10_together_UC_AbsPov:
 vis_together_UC_AbsPov: vis_25_50_by_5_together_UC_AbsPov vis_10_100_by_10_together_UC_AbsPov
 vis_together_UC_AbsPov: vis_10_50_by_10_together_UC_AbsPov vis_60_100_by_10_together_UC_AbsPov
 
+### UC, kids, and Gender
+
+vis_25_50_by_5_together_UC_gender: MODE="default_config"
+vis_25_50_by_5_together_UC_gender:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_UC_male"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_UC_female"
+
+vis_10_100_by_10_together_UC_gender: MODE="default_config"
+vis_10_100_by_10_together_UC_gender:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_100_by_10_together_UC_male"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_100_by_10_together_UC_female"
+
+vis_10_50_by_10_together_UC_gender: MODE="default_config"
+vis_10_50_by_10_together_UC_gender:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_50_by_10_together_UC_male"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_50_by_10_together_UC_female"
+
+vis_60_100_by_10_together_UC_gender: MODE="default_config"
+vis_60_100_by_10_together_UC_gender:
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together_UC_male"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together_UC_female"
+
+vis_together_UC_AbsPov: vis_25_50_by_5_together_UC_gender vis_10_100_by_10_together_UC_gender
+vis_together_UC_AbsPov: vis_10_50_by_10_together_UC_gender vis_60_100_by_10_together_UC_gender
+
 ##########################################
 # Custom subset for social science paper #
 ##########################################
