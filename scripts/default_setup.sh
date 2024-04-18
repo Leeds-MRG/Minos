@@ -1,37 +1,39 @@
+#!/bin/bash
+
 # Directories and paths
-export ROOT=$(CURDIR)
-USSOURCEDIR = $(CURDIR)/../UKDA-6614-stata/stata/stata13_se/
-SPATIALSOURCEDIR = $(CURDIR)/../US_spatial_lookup/
-DATADIR = $(CURDIR)/data
-RAWDATA = $(DATADIR)/raw_US
-ADJRAWDATA = $(DATADIR)/adj_raw_US
-CORRECTDATA = $(DATADIR)/corrected_US
-COMPOSITEDATA = $(DATADIR)/composite_US
-COMPLETEDATA = $(DATADIR)/complete_US
-INFLATEDDATA = $(DATADIR)/inflated_US
-FINALDATA = $(DATADIR)/final_US
-SPATIALDATA = $(DATADIR)/spatial_US
-SCOTDATA = $(DATADIR)/scotland_US
-PERSISTDATA = $(CURDIR)/persistent_data
-PERSISTJSON = $(PERSISTDATA)/JSON
-SOURCEDIR = $(CURDIR)/minos
-DATAGEN = $(SOURCEDIR)/data_generation
-TRANSITION_SOURCE = $(SOURCEDIR)/transitions
-MODULES = $(SOURCEDIR)/modules
-DATAOUT = $(CURDIR)/output
-CONFIG = $(CURDIR)/config
-TRANSITION_DATA = $(DATADIR)/transitions
-PLOTDIR = $(CURDIR)/plots
-GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
-TESTING = $(SOURCEDIR)/testing
-SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
-GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
-UKSCALEDDATA = $(DATADIR)/scaled_uk_US
-TESTING = $(SOURCEDIR)/testing
+ROOT=$(pwd)
+USSOURCEDIR=$ROOT/../UKDA-6614-stata/stata/stata13_se/
+SPATIALSOURCEDIR=$ROOT/../US_spatial_lookup/
+DATADIR=$ROOT/data
+RAWDATA=$DATADIR/raw_US
+ADJRAWDATA=$DATADIR/adj_raw_US
+CORRECTDATA=$DATADIR/corrected_US
+COMPOSITEDATA=$DATADIR/composite_US
+COMPLETEDATA=$DATADIR/complete_US
+INFLATEDDATA=$DATADIR/inflated_US
+FINALDATA=$DATADIR/final_US
+SPATIALDATA=$DATADIR/spatial_US
+SCOTDATA=$DATADIR/scotland_US
+PERSISTDATA=$CURDIR/persistent_data
+PERSISTJSON=$PERSISTDATA/JSON
+SOURCEDIR=$ROOT/minos
+DATAGEN=$SOURCEDIR/data_generation
+TRANSITION_SOURCE=$SOURCEDIR/transitions
+MODULES=$SOURCEDIR/modules
+DATAOUT=$ROOT/output
+CONFIG=$ROOT/config
+TRANSITION_DATA=$DATADIR/transitions
+PLOTDIR=$ROOT/plots
+GLASGOWSCALEDDATA=$DATADIR/scaled_glasgow_US
+TESTING=$SOURCEDIR/testing
+SCOTLANDSCALEDDATA=$DATADIR/scaled_scotland_US
+GLASGOWSCALEDDATA=$DATADIR/scaled_glasgow_US
+UKSCALEDDATA=$DATADIR/scaled_uk_US
+TESTING=$SOURCEDIR/testing
 
 # Executables
-PYTHON = python
-RSCRIPT = Rscript
+PYTHON=python
+RSCRIPT=Rscript
 
 # This script will run through the entire setup target for Minos, for the purpose of submitting this as a job for
 # arc.
