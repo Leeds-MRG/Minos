@@ -126,6 +126,11 @@ setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
+
+## Arc setup as a submitted job
+setup_arc:
+	bash scripts/arc_setup_submit.sh
+
 #####################################
 ### ADDITIONAL MAKEFILES
 #####################################
