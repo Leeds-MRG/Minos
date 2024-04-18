@@ -108,14 +108,21 @@ class childUplift(Base):
         pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True  # set everyone who satisfies uplift condition to true.
         pop['boost_amount'] = pop['income_boosted'] * get_monthly_boost_amount(pop, self.uplift_amount)  # £25 per week * 30.463/7 weeks per average month * nkids.
 
-        # Universal Credit recipients were receiving a £10 SCP in 2020, which increased to £25 in 2021
-        # Therefore we need to reduce the intervention received by these amounts in these years to make it fully accurate
-        if event.time.year == 2020:
-            pop.loc[pop['hidp'].isin(
-                uc_households), 'boost_amount'] = pop['boost_amount'] - 10
-        if event.time.year == 2021:
-            pop.loc[pop['hidp'].isin(
-                uc_households), 'boost_amount'] = pop['boost_amount'] - 25
+
+        ###### LA 18/4/24 WE HAVE DECIDED AGAINST DOING THIS #####
+        # We cannot know who has and has not already received the SCP intervention in our data, so we cannot be sure if
+        # we are taking money away from someone who never received it in the first place. Also only Scottish
+        # recipients would be receiving the SCP in the first place, which make up only a fraction of the population,
+        # so we would be removing money from more people than received it in the first place.
+        #
+        # # Universal Credit recipients were receiving a £10 SCP in 2020, which increased to £25 in 2021
+        # # Therefore we need to reduce the intervention received by these amounts in these years to make it fully accurate
+        # if event.time.year == 2020:
+        #     pop.loc[pop['hidp'].isin(
+        #         uc_households), 'boost_amount'] = pop['boost_amount'] - 10
+        # if event.time.year == 2021:
+        #     pop.loc[pop['hidp'].isin(
+        #         uc_households), 'boost_amount'] = pop['boost_amount'] - 25
 
         # pop['income_boosted'] = (pop['boost_amount'] != 0)
         pop['hh_income'] += pop['boost_amount']
