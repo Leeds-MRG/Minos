@@ -43,37 +43,37 @@ RSCRIPT=Rscript
 
 # Raw data
 echo "Collating raw data..."
-$(PYTHON) $(DATAGEN)/US_format_raw.py --source_dir $(USSOURCEDIR)
+$PYTHON $DATAGEN/US_format_raw.py --source_dir $USSOURCEDIR
 
 # Impute Missing
 echo "Imputing missing data..."
-$(PYTHON) $(DATAGEN)/US_missing_main.py
+$PYTHON $DATAGEN/US_missing_main.py
 
 # Create Composite Variables
 echo "Generating composite variables..."
-$(PYTHON) $(DATAGEN)/generate_composite_vars.py
+$PYTHON $DATAGEN/generate_composite_vars.py
 
 # Run Complete Case
 echo "Running Complete Case..."
-$(PYTHON) $(DATAGEN)/US_complete_case.py
+$PYTHON $DATAGEN/US_complete_case.py
 
 # Create Stock Population (Final_US)
 echo "Creating stock population..."
-$(PYTHON) $(DATAGEN)/generate_stock_pop.py
+$PYTHON $DATAGEN/generate_stock_pop.py
 
 
 
 # Generate Transition Models
 echo "Running transition models..."
-mkdir -p $(TRANSITION_DATA)
-$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default
-$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --default
+mkdir -p $TRANSITION_DATA
+$RSCRIPT $SOURCEDIR/transitions/estimate_transitions.R --default
+$RSCRIPT $SOURCEDIR/transitions/estimate_longitudinal_transitions.R --default
 
 
 
 # Create Replenishing Population
 echo "Generating replenishing population..."
-$(PYTHON) $(DATAGEN)/generate_repl_pop.py
+$PYTHON $DATAGEN/generate_repl_pop.py
 
 
 echo "All steps complete!"
