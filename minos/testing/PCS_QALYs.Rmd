@@ -1,0 +1,71 @@
+---
+title: "Physical Component Score and QALYs"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# Introduction
+
+
+
+```{r "setup-environment", include=False}
+require(tidyverse)
+require(ggplot2)
+require(ggridges) # for densities over time plots. 
+require(knitr)
+require(here)
+require(dplyr)
+require(tidyr)
+require(purrr)
+require(gghighlight)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+```{r "setup-utils", include=False}
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+source(here::here('minos', 'utils_qaly.R'))
+```
+
+```{r "setup-parameters", include=False}
+#experiment <- 'glasgow_scaled'
+#baseline <- 'baseline'
+#ints <- c('50All', '50UniversalCredit')
+#start.year <- 2020
+```
+
+```{r "setup-data", include=False}
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
+
+#out.path <- here::here('output', 'glasgow_scaled/')
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+```
+
+# Tran
+
+```{r}
+
+```
+
+
+
+
+

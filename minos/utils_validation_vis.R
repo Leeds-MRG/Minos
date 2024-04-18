@@ -126,14 +126,14 @@ handover_continuous <- function(raw.dat, base.dat, var, save = FALSE) {
 
 handover_ordinal <- function(raw.dat, base.dat, var, save=FALSE) {
   raw.var <- raw.dat %>%
-    dplyr::select(pidp, time, all_of(var)) %>%
+    dplyr::select(time, all_of(var)) %>%
     filter(!.data[[var]] %in% miss.values) %>%
     group_by(time, .data[[var]]) %>%
     count() %>%
     mutate(source = 'final_US')
 
   base.var <- base.dat %>%
-    dplyr::select(pidp, time, all_of(var)) %>%
+    dplyr::select(time, all_of(var)) %>%
     filter(!.data[[var]] %in% miss.values) %>%
     group_by(time, .data[[var]]) %>%
     count() %>%
