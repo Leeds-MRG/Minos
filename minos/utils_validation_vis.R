@@ -650,3 +650,73 @@ handover_inequality_80_20 <- function(raw.dat, base.dat, var) {
     ylab('80:20 Ratio')
   print(p1)
 }
+
+
+## Age Pyramid
+
+# First, let's create a function to generate the age pyramid for a specific year
+create_age_pyramid <- function(df_year, time) {
+  ggplot(df_year, aes(x = age_group, y = n, fill = source)) +
+    geom_bar(stat = "identity", position = "identity") +
+    scale_fill_manual(values = c("observed" = "blue", "predicted" = "red")) +
+    coord_flip() +
+    labs(title = paste("Age Pyramid - Year", time),
+         x = "Age Group", y = "Count") +
+    theme_minimal()
+}
+
+age_pyramid <- function(raw.dat, base.dat) {
+  
+  brks = c(75, 80, 85, 90, 95, 100, 105, 110)
+  lbls = c("75to80", "80to85", "85to90", "90to95", "95to100", "100to105", "105to110")
+  var <- 'age_group'
+  
+  raw.oldAgePct <- raw.dat %>%
+    filter(age > 75) %>%
+    mutate(age_group = cut(age,
+                           breaks = brks,
+                           labels = lbls)) %>%
+    dplyr::select(time, age_group) %>%
+    group_by(time, age_group) %>%
+    count() %>%
+    mutate(source = 'predicted')
+  
+  base.oldAgePct <- base.dat %>%
+    filter(age > 75) %>%
+    mutate(age_group = cut(age,
+                           breaks = brks,
+                           labels = lbls)) %>%
+    dplyr::select(time, age_group) %>%
+    group_by(time, age_group) %>%
+    count() %>%
+    mutate(source = 'observed')
+  
+  raw.oldAgePct[[var]] <- as.factor(raw.oldAgePct[[var]])
+  base.oldAgePct[[var]] <- as.factor(base.oldAgePct[[var]])
+  
+  merged <- rbind(raw.oldAgePct, base.oldAgePct)
+  merged[[var]] <- as.factor(merged[[var]])
+  
+  
+  var.norm <- merged %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total) * 100)
+  
+  # Now, let's create the animation
+  pyramid_animation <- ggplot(var.norm, aes(group = time)) +
+    transition_states(time, transition_length = 1, state_length = 1) +
+    enter_fade() +
+    exit_fade() +
+    geom_bar(aes(x = age_group, y = n, fill = source), 
+             stat = "identity", position = "identity") +
+    scale_fill_manual(values = c("observed" = "blue", "predicted" = "red")) +
+    coord_flip() +
+    labs(title = "Age Pyramid - Year: {closest_state}",
+         x = "Age Group", y = "Count") +
+    theme_minimal() +
+    shadow_mark()
+  
+  #anim_save("age_pyramid_animation.gif", pyramid_animation)
+  animate(pyramid_animation, renderer = gifski_renderer("age_pyramid_animation.gif"))
+}
