@@ -269,8 +269,26 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
                    family=Gamma(link='log'),
                    data = data)
   }
-  attr(model,"min_value") <- min_value
+  #browser()
+  attr(model, "min_value") <- min_value
+  attr(model, "cov_matrix") <- vcov(model)
   
+
+  #attr(model, "frame") <- list(terms=colnames(model@frame))
+
+  
+  #resp <- attr(model, "resp")
+  #resp2 <- list(eta=resp$eta)
+  #attr(model, "resp") <- resp2
+  
+  
+  #pp <- attr(model, "pp")
+  #pp2 <- list(b=pp$b)
+  #attr(model, "pp") <- pp2
+  
+  #call <- attr(model, "call")
+  #call2 <- list(formula=call$formula)
+  #attr(model, "call") <- call2
   #browser()
   
   if (yeo_johnson){
@@ -279,7 +297,8 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
-  attr(model, "cov_matrix") <- vcov(model)
+  
+  #model2 <- glmer_chop(model)
   return(model)
 }
 
@@ -510,3 +529,36 @@ MCMCglmm.predict.ordinal.bins <- function(model, newdata, factor_levels) {
   return(bin.probabilities)
 }
 
+
+glmer_chop <- function(object) {
+  newobj <- object
+  newobj@frame <- model.frame(object)[0,]
+  newobj@pp <- with(object@pp,
+                    new("merPredD",
+                        Lambdat=Lambdat,
+                        Lind=Lind,
+                        theta=theta,
+                        u=u,u0=u0,
+                        n=nrow(X),
+                        X=matrix(1,nrow=nrow(X)),
+                        Zt=Zt)) ## .sparseDiagonal(n,shape="g")))
+  newobj@resp <- new("glmResp",family=binomial(),y=numeric(0))
+  return(newobj)
+}
+
+
+lmer_chop <- function(object) {
+  newobj <- object
+  newobj@frame <- model.frame(object)[0,]
+  newobj@pp <- with(object@pp,
+                    new("merPredD",
+                        Lambdat=Lambdat,
+                        Lind=Lind,
+                        theta=theta,
+                        u=u,u0=u0,
+                        n=nrow(X),
+                        X=matrix(1,nrow=nrow(X)),
+                        Zt=Zt)) ## .sparseDiagonal(n,shape="g")))
+  newobj@resp <- new('lmerResp', family = gaussian(), y=numeric(0))
+  return(newobj)
+}
