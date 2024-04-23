@@ -57,12 +57,34 @@ raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 #out.path <- here::here('output', 'glasgow_scaled/')
 out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+
+trans.path <- here::here('data', 'transitions/')
 ```
 
-# Tran
+# PCS Pathways
+
+1.  Housing Quality
+2.  Nutrition Quality
+3.  Tobacco Use
+4.  Loneliness
+5.  Physical Activity (new)
+6.  Alcohol Use Disorders (new)
+
+## Transition Model
+
+The formula we use for estimating a transition model for PCS is shown below:
+
+> SF_12_PCS ~ scale(SF_12_PCS_last) + I(scale(SF_12_PCS_last)\*\*2) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + scale(age) + I(scale(age)\*\*2) + relevel(factor(region), ref = 'Scotland') + relevel(factor(education_state), ref = "1") + factor(housing_quality) + scale(hh_income) + scale(nutrition_quality) + I(factor(ncigs>0)) + factor(loneliness) + factor(active) + factor(auditc) + (1|pidp) + time
+
+This can be grouped into categories: - Previous values - Demographics - Pathways - Random term
+
+We use a Linear Mixed-effects Model (LMM) to calculate transition probabilities 
+
 
 ```{r}
+pcs.mod <- readRDS(file = paste0(trans.path, 'SF_12_PCS/lmm/SF_12_PCS_LMM.rds'))
 
+summary(pcs.mod)
 ```
 
 
