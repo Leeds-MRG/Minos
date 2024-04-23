@@ -384,6 +384,11 @@ QALYs_UC: EXPERIMENT=default_config
 QALYs_UC: STARTYEAR=2021
 QALYs_UC: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY_vis_SCP_100_UC
 
+QALY_vis_SCP_25_100_UC: EXPERIMENT=default_config
+QALY_vis_SCP_25_100_UC: STARTYEAR=2021
+QALY_vis_SCP_25_100_UC: QALY_baseline QALY_SCP_25_UC QALY_SCP_50_UC QALY_SCP_75_UC QALY_SCP_100_UC
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention=c('25UniversalCredit', '50UniversalCredit', '75UniversalCredit', '100UniversalCredit'), start.year='$(STARTYEAR)'), output_file = 'QALY_SCP_25_100_UC.html')"
+
 QALYs_UC_glasgow: EXPERIMENT=glasgow_scaled
 QALYs_UC_glasgow: STARTYEAR=2020
 QALYs_UC_glasgow: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY_vis_SCP_100_UC

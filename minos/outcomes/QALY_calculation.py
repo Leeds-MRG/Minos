@@ -31,8 +31,7 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
         from data.
 
     Returns
-    -------
-
+    ------
     """
     df = pd.read_csv(filename, low_memory=False)
     if subset_func_string:
