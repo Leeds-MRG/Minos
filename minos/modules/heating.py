@@ -91,7 +91,7 @@ class Heating(Base):
         # Draw individuals next states randomly from this distribution.
         # Adjust other variables according to changes in state. E.g. a birth would increase child counter by one.
 
-        interventions_without_heating = ["GoodHeatingDummy()", "GBIS()", "fossilFuelReplacementScheme()"]
+        interventions_without_heating = ["GoodHeatingDummy", "GBIS", "fossilFuelReplacementScheme"]
         if not list(set(interventions_without_heating) & set(self.config.components)):
             pop = self.population_view.get(event.index, query="alive=='alive'")
             self.year = event.time.year

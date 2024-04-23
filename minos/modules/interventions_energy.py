@@ -465,11 +465,16 @@ class GBIS(Base):
                         "region",
                         "hidp",
                         "S7_labour_state",
-                        'hh_income',
+                        #'hh_income',
                         #"universal_income",
                         #"council_tax",
-                        'heating']
-        columns_created = ["income_boosted", 'boost_cost', 'boost_amount']
+                        'heating',
+                        'housing_quality',
+                        'dwelling_type',
+                        'number_of_rooms',
+                        'council_tax_band'
+                        ]
+        columns_created = ["income_boosted", 'intervention_cost', 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -485,7 +490,7 @@ class GBIS(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
-                                   'boost_cost': 0.,
+                                   'intervention_cost': 0.,
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
 
@@ -493,18 +498,80 @@ class GBIS(Base):
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
-        # get some households below the poverty line.
-        # replace their heating to 1.
-        # reduce their energy bills by £3XX per year (plus some heterogeneity?).
 
+        # get the population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
-        # TODO get some fraction of households rather than absolutely everyone.
-        pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
-        # TODO heterogeneity/validation in the boost amount.
-        pop['boost_amount'] = pop['income_boosted'] * 350.
+        non_england_band_E = pop.loc[(pop['council_tax_band'] == 5.) * (pop['region'].isin(['Scotland', "Wales"])), 'hidp']
+        bands_A_D = pop.loc[pop['council_tax_band'].isin([1., 2., 3., 4.]), 'hidp']
+        not_intervened = pop.loc[pop['income_boosted']==False, 'hidp']
+        eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
+        pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True
+
+        pop.loc[pop['hidp'].isin(eligible_hidps), 'yearly_energy'] += pop.loc[pop['hidp'].isin(eligible_hidps), 'boost_amount']
+        # who gets the intervention?
+        # for now, choosing households below the poverty line.
+        # TODO look at those with high FP10 or low council tax bands instead?
+        #pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
+
+        # get non-english council tax band E
+        # get national coumcil tax bands A-D
+        # get FP10 positive.
+        # get low heatng?
+
+        # what does the intervention do?  what do houses get?
+        # assume all houses here gain cavity wall insulation.
+        # https://energyadvicehelpline.org/insulation-save-you-on-energy-bills/
+        # 455 detached, 265 semi, 155 terrace, 200 bungalow, 125 apartment.
+
+        # assuming all households in rural areas can't get cavity insulation.
+        # use solid wall insulation instead? more expensive but larger savings. households before 1990.
+
         # TODO check households on housing quality as well.
         pop.loc[pop["income_boosted"]==True, "heating"] = 1
+
+        # TODO heterogeneity/validation in the boost amount.
+        pop['boost_amount'] = pop['income_boosted'] * 125.
+
+        # adjust by dwelling type. more savings with more rooms.
+        pop.loc[pop['dwelling_type']==1, 'boost_amount'] *=  200/125 # adjust to 200 for houses.
+        # cant differentiate between house types for now.
+        #pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
+        pop.loc[pop['dwelling_type']==3, 'boost_amount'] *= 200/125 # bungalows
+
+
+        pop['boost_amount'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
+        # best we can do in lieu of square footage.
+
+        # adjust by rural/urban?
+
+
+        # adjust income variables
+        #pop['yearly_energy'] -= pop['boost_amount']
+
+
+        # how much does it cost?
+        pop['intervention_cost'] = 1000. # get cost. adjust by household etc. as abiove.
+        # adjust cost by dwelling type.
+
+        # adjust by dwelling type. more savings with more rooms.
+        pop.loc[pop['dwelling_type']==1, 'intervention_cost'] *=  2 # adjust to 200 for houses.
+        # cant differentiate between house types for now.
+        #pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
+        pop.loc[pop['dwelling_type']==3, 'intervention_cost'] *= 2 # bungalows
+
+
+        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
+        # best we can do in lieu of square footage.
+
+        # adjust costs further by number of rooms in lieu of terraced/detached housing type.
+
+        # adjust based on government region? rural/urban?
+
+        #TODO two waves for cavity/solid insulation.
+
+
+        # update population
         self.population_view.update(pop)
 
 
@@ -542,8 +609,11 @@ class fossilFuelReplacementScheme(Base):
                         'hh_income',
                         #"universal_credit",
                         'heating',
+                        'housing_quality',
                         'yearly_electric',
-                        'yearly_gas']
+                        'yearly_gas',
+                        'dwelling_type',
+                        'number_of_rooms']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -570,15 +640,46 @@ class fossilFuelReplacementScheme(Base):
         # replace with similar electrical hour percentage.
         # standing charges issues?
 
+
+        # get the whole population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
+        # who recieves the intervention? low income households with electrical consumption?
         # TODO get some fraction of households rather than absolutely everyone.
-        pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
+        # get households with gas/other fuel consumption. low income/FP10?
+        who_low_income = pop.loc[pop['hh_income']<0.6*np.median(pop['hh_income'], "hidp"), ]
+        who_energy_poor = pop.loc[pop["FP10"]==True, "hidp"]
+        pop = pop.loc[pop['hidp'].isin(who_energy_poor + who_low_income), ] # get low income low energy households. 
+
+        # what is the intervention. convert gas and fuel other usage to electrical. find paper estimate conversion costs.
         # TODO heterogeneity in conversion costs. particularly RE: current contracts and standing charges.
-        electric_to_gas_cost_ratio = 0.5
-        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio
-        # TODO any influence on housing quality? yearly energy should feed into housing_quality as a variable or percentage net income expenditure.
+        electric_to_gas_cost_ratio = 2.7
+        #TODO this is the real meat of the intervention. need to vary kwh cost ratios and usage dependent on scenarios.
+        # e.g. if a boiler tax comes in how does this ratio change and make electical heating more viable?
+        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio # convert from 2.7:1 kwh costs
+        pop['yearly_gas_to_electric'] *= 0.5 # convert to half as much kwh used as electric heating much more efficient.
+
+
         pop['yearly_gas'] = 0.
         pop['yearly_electric'] += pop['yearly_gas_to_electric']
+
+        #  how much does this cost? estimate cost for heat pump systems based on housing size, type and location.
+        # boiler replacements etc.
+        # intervention cost as with GBIS.
+
+        # how much does it cost?
+        pop['intervention_cost'] = 1000. # get cost. adjust by household etc. as abiove.
+        # adjust cost by dwelling type.
+
+        # adjust by dwelling type. more savings with more rooms.
+        pop.loc[pop['dwelling_type']==1, 'intervention_cost'] *=  2 # adjust to 200 for houses.
+        # cant differentiate between house types for now.
+        #pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
+        pop.loc[pop['dwelling_type']==3, 'intervention_cost'] *= 2 # bungalows
+
+
+        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
+
+        # update the population
         self.population_view.update(pop[['yearly_electric', 'yearly_gas']])
 
