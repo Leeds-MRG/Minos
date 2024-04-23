@@ -218,6 +218,8 @@ def generate_hh_income(data):
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
     data["hh_rent"][data["hh_rent"] < 0] = 0
     data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+
+    data['council_tax_band'] = data['council_tax']
     data = fake_council_tax.main(data)
     data['council_tax'] = data.groupby(['hidp'])['council_tax'].transform('max')
     data["council_tax"][data["council_tax"] < 0] = 0
@@ -1034,6 +1036,49 @@ def calculate_children(data,
               inplace=True)
     return data
 
+def format_housing_types(data):
+    """
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    # assign bungalows different value from detached. based on number of floors
+    #who_detached_houses_bungalows = data.loc[data['dwelling_type'] == 1, ]
+    #who_detached_houses_bungalows.loc[who_detached_houses_bungalows['floors'] == 1, "dwelling_type"] = 9
+    #data.loc[data['dwelling_type'] == 1,] = who_detached_houses_bungalows
+
+
+    #dwelling type. 1 is house. 2 is apartment. 3 is bungalow.
+    # initially assign everyone to house.
+    data['dwelling_type'] = 1
+
+    # has one floor is bungalow or apartment. more than 1 floor is a house and is assigned 1.
+    data.loc[data['floors'] == 1, 'dwelling_type'] += 1
+
+    # has one floor and entrance floor is not on ground level.
+    # these are apartments and not bungalows.
+    data.loc[(data['entrance_floor'] >= 3) * (data['floors'] == 1), 'dwelling_type'] += 1
+
+    # some groundfloor aparments incorrectly put in bungalows.
+    # Assign one floor, groundfloor entrance bungalows with no pensioners as apartments.
+    data.loc[(data['floors'] == 1) * (data['n_pensioners']==0), 'dwelling_type'] = 2
+
+    # one floor and entrance not on the ground floor is an apartment
+    # everything with entrance on ground floor. assume households with no old people are apartments.
+
+    # everyone with more than one floor is assumed to be a house. cant differentiate further without imputed variable.
+    # urgh.
+
+
+
+    print('generated housing charactersitic composites.')
+    return data
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1043,6 +1088,7 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
+    data = format_housing_types(data)
     data = generate_composite_housing_quality(data)  # housing_quality.
     data = generate_hh_income(data)  # hh_income.
     data = calculate_hourly_wage(data)  # hourly_wage
@@ -1058,6 +1104,7 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
+    data = data.copy() # defragment
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

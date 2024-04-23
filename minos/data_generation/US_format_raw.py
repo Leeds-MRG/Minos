@@ -315,6 +315,13 @@ def format_ukhls_columns(year):
                       # the simplest and most complete for our purposes.
                       'benbase4': 'universal_credit',
                       # receives core benefits (I.E. universal credit/means tested benefits).
+                      #"dwltype": "dwelling_type",
+                      "floors": "floors", #number of floors in the house. used to determined between bungalow/detached. etc.
+                      "addfloor": 'entrance_floor', # entrance floor of the building.
+                      "npensioner_dv": "n_pensioners", # number of pensioners.
+                      "hsroom": "number_of_rooms", # number of rooms.
+                      "hsbeds": "number_of_bedrooms", # number of bedrooms
+                      #"hstype": "household_type", # household type #BHPS only
                       }
 
     # Some variables change names halfway through UKHLS.
@@ -520,6 +527,38 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
 
+def combine_indresp_hhsamp(year, indresp, hhsamp_name):
+    """ Function to collect and merge the indresp and hhsamp files for a specific year.
+
+    Parameters
+    ----------
+    year : int
+        The `year` of the wave being processed.
+    indresp_name : str
+        The name of the indresp file for specific year
+    combined : str
+        Name of the hhsamp file for specific year
+    Returns
+    -------
+    indresp_hhsamp: pd.DataFrame
+        Dataframe containing indresp and hhresp data combined on hid
+    """
+    # load both indresp and hhresp files
+    hhsamp = US_utils.load_file(hhsamp_name)
+
+    # calculate wave letter based on year, and generate hidp variable name for use as merge key
+    wave_letter = US_utils.get_wave_letter(year)
+    if year < 2009:
+        merge_key = f"b{wave_letter}_hidp"
+    else:
+        merge_key = f"{wave_letter}_hidp"
+
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
+    combined = indresp.merge(right=hhsamp, on=merge_key, suffixes=('', '_delme'))
+    combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
+    return combined
+
 
 def format_data(year, data, verbose):
     """ Main function for formatting US data. Loads formats and saves each wave sequentially.
@@ -581,9 +620,13 @@ def main(wave_years: list, file_source: str, verbose: bool, file_output: str) ->
         # Merge the indresp and hhresp files for a particular year then format
         indresp_name = US_utils.US_file_name(year, file_source, "indresp")
         hhresp_name = US_utils.US_file_name(year, file_source, "hhresp")
-        indresp_hhresp = combine_indresp_hhresp(year, indresp_name, hhresp_name)
+        hhsamp_name = US_utils.US_file_name(year, file_source, "hhsamp")
 
-        data = format_data(year, indresp_hhresp, verbose)
+
+        indresp_hhresp_data = combine_indresp_hhresp(year, indresp_name, hhresp_name)
+        indresp_hhresp_hhsamp = combine_indresp_hhsamp(year, indresp_hhresp_data, hhsamp_name)
+
+        data = format_data(year, indresp_hhresp_hhsamp, verbose)
 
         # check for and remove any null rows (1 created in bhps due to merge)
         data = data.loc[~data["pidp"].isnull()]

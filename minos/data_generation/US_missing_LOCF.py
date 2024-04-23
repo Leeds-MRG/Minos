@@ -251,7 +251,7 @@ def main(data, save=False):
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'ethnicity', 'sex', 'birth_year',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
                  'nkids_ind_raw'] # 'ncigs', 'ndrinks']
-    fb_columns = ["sex", "ethnicity", "birth_year", 'heating']  # or here if they're immutable.
+    fb_columns = ["sex", "ethnicity", "birth_year", 'heating', "number_of_rooms", "number_of_bedrooms", "floors"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]
 
