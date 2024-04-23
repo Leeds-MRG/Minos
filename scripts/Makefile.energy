@@ -2,7 +2,7 @@
 # Housing Scripts #
 ###################
 
-#arc4 transitions on node rather than login pc. 
+#arc4 transitions on node rather than login pc.
 
 arc4_transitions:
 	qsub 'scripts/arc_run_transitions.sh'

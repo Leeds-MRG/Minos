@@ -448,6 +448,54 @@ rm(raw.housing, base.housing, housing, housing.norm)
 # rm(raw.s, base.s, spag)
 ```
 
+## Heating
+
+
+```{r}
+raw.heating <- raw.dat %>%
+  dplyr::select(pidp, time, heating) %>%
+  group_by(time, heating) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.heating <- base.dat %>%
+  dplyr::select(pidp, time, heating) %>%
+  group_by(time, heating) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+# merge before plot
+heating <- rbind(raw.heating, base.heating)
+heating$heating <- as.factor(heating$heating)
+
+# Now plot
+ggplot(data = heating, mapping = aes(x = time, y = n, group = heating, colour = heating)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Heating', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+heating.norm <- heating %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = heating.norm, mapping = aes(x = time, y = prct, fill=heating)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Heating') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'heating.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.heating, base.heating, heating, heating.norm)
+```
 
 
 ## Housing Tenure
