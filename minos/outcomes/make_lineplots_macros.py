@@ -731,6 +731,11 @@ string_to_lineplot_function_args = {
     "incremental_10_to_50_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_60_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
+    ## Universal Credit
+    "incremental_25_50_by_5_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+    "incremental_10_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+    "incremental_10_to_50_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+    "incremental_60_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
     ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
