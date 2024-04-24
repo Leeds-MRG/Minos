@@ -395,6 +395,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   if (startsWith(getwd(), "/nobackup")) {
     numCores<- availableCores(method="SGE")-1 # use all cores on arc. 
+    print(numCores)
   } else {
     numCores <- availableCores() / 2 # use less cores on local machines. 
   }
