@@ -250,7 +250,7 @@ def get_required_intervention_variables(subset_function_string):
     if "kids" in subset_function_string:
         default_variables += ["nkids"]
 
-    if any(substring in subset_function_string for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function_string for substring in ["UC", "UniversalCredit", "universal_credit"]):
         default_variables += ['universal_credit']
 
     if any(substring in subset_function_string for substring in ["RelPov", "relative_poverty"]):
@@ -259,7 +259,7 @@ def get_required_intervention_variables(subset_function_string):
     if any(substring in subset_function_string for substring in ["AbsPov", "absolute_poverty"]):
         default_variables += ['init_absolute_poverty']
 
-    if any(substring in subset_function_string for substring in ["male", "female"]):
+    if any(substring in subset_function_string for substring in ["male", "female", "gender"]):
         default_variables += ['sex']
 
     if "below_poverty_line" in subset_function_string:
