@@ -18,6 +18,7 @@ require(GLMMadaptive)
 # information available)
 
 print(detectCores())
+print(availableCores())
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
   
