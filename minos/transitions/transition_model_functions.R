@@ -357,7 +357,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
   
-  numCores <- availableCores() / 2
+  numCores <- availableCores() - 1
   
   registerDoParallel(cores = numCores)
   
