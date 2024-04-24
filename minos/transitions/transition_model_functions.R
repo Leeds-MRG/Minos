@@ -17,8 +17,6 @@ require(GLMMadaptive)
 # to include the survey weights in estimation (only no for 2009 where no weight
 # information available)
 
-print(detectCores())
-print(availableCores(method="SGE"))
 
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
   
@@ -396,7 +394,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
   
   if (startsWith(getwd(), "/nobackup")) {
-    numCores<- availableCores()-1 # use all cores on arc. 
+    numCores<- availableCores(method="SGE")-1 # use all cores on arc. 
   } else {
     numCores <- availableCores() / 2 # use less cores on local machines. 
   }
