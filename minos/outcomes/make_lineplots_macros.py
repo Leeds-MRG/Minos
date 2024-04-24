@@ -580,10 +580,15 @@ string_to_lineplot_function = {
 
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
-
     "incremental_10_to_100_by_10_together": incremental_10_to_100_by_10_together,
     "incremental_10_to_50_by_10_together": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together": incremental_60_to_100_by_10_together,
+
+    ## Universal Credit
+    "incremental_25_50_by_5_together_UC": incremental_25_to_50_by_5_together,
+    "incremental_10_to_100_by_10_together_UC": incremental_10_to_100_by_10_together,
+    "incremental_10_to_50_by_10_together_UC": incremental_10_to_50_by_10_together,
+    "incremental_60_to_100_by_10_together_UC": incremental_60_to_100_by_10_together,
 
     ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": incremental_25_to_50_by_5_together,
