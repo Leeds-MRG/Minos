@@ -395,8 +395,11 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   print('Beginning estimation of the RandomForest model. This can take a while, its probably not frozen...')
   
-  numCores <- availableCores() / 2
-  
+  if (startsWith(getwd(), "/nobackup")) {
+    numCores<- availableCores()-1 # use all cores on arc. 
+  } else {
+    numCores <- availableCores() / 2 # use less cores on local machines. 
+  }
   registerDoParallel(cores = numCores)
   
   data <- replace.missing(data)
