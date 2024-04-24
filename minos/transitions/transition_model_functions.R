@@ -17,6 +17,8 @@ require(GLMMadaptive)
 # to include the survey weights in estimation (only no for 2009 where no weight
 # information available)
 
+detectCores()
+
 estimate_yearly_ols <- function(data, formula, include_weights = FALSE, depend, transform = FALSE) {
   
   if (transform){
