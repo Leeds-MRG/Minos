@@ -87,17 +87,19 @@ class lmmYJNetIncome(Base):
                         "yearly_energy",
                         'hh_int_m',
                         'time',
-                        'hidp'
+                        'hidp',
+                        "FP10"
                         ]
 
-        columns_created = ["FP10"]
+        #columns_created = ["FP10"]
+        columns_created = []
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)  # + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
-        builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
+        #builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.

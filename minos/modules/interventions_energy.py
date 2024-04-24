@@ -472,7 +472,8 @@ class GBIS(Base):
                         'housing_quality',
                         'dwelling_type',
                         'number_of_rooms',
-                        'council_tax_band'
+                        'council_tax_band',
+                        'yearly_oil'
                         ]
         columns_created = ["income_boosted", 'intervention_cost', 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
@@ -613,7 +614,9 @@ class fossilFuelReplacementScheme(Base):
                         'yearly_electric',
                         'yearly_gas',
                         'dwelling_type',
-                        'number_of_rooms']
+                        'number_of_rooms',
+                        "FP10",
+                        'yearly_energy']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -647,9 +650,12 @@ class fossilFuelReplacementScheme(Base):
         # who recieves the intervention? low income households with electrical consumption?
         # TODO get some fraction of households rather than absolutely everyone.
         # get households with gas/other fuel consumption. low income/FP10?
-        who_low_income = pop.loc[pop['hh_income']<0.6*np.median(pop['hh_income'], "hidp"), ]
+        who_low_income = pop.loc[pop['hh_income']<0.6*np.median(pop['hh_income']), "hidp"]
         who_energy_poor = pop.loc[pop["FP10"]==True, "hidp"]
-        pop = pop.loc[pop['hidp'].isin(who_energy_poor + who_low_income), ] # get low income low energy households. 
+        not_intervened = pop.loc[pop['income_boosted']==False, 'hidp']
+        eligible_hidps = set(list(who_low_income) + list(who_energy_poor)).intersection(not_intervened)
+
+        pop = pop.loc[pop['hidp'].isin(eligible_hidps), ] # get low income low energy households.
 
         # what is the intervention. convert gas and fuel other usage to electrical. find paper estimate conversion costs.
         # TODO heterogeneity in conversion costs. particularly RE: current contracts and standing charges.
@@ -662,6 +668,16 @@ class fossilFuelReplacementScheme(Base):
 
         pop['yearly_gas'] = 0.
         pop['yearly_electric'] += pop['yearly_gas_to_electric']
+        pop['yearly_energy'] -= pop['yearly_gas_to_electric']
+
+        # TODO do the same fuel oil/other.
+        electric_to_gas_cost_ratio = 0.5 # TODO get a real number.
+        pop['yearly_oil_to_electric'] = pop['yearly_oil'] * electric_to_gas_cost_ratio # convert from 2.7:1 kwh costs
+        pop['yearly_oil_to_electric'] *= 0.5 # convert to half as much kwh used as electric heating much more efficient.
+
+        pop['yearly_oil'] = 0.
+        pop['yearly_electric'] += pop['yearly_oil_to_electric']
+        pop['yearly_energy'] -= pop['yearly_oil_to_electric']
 
         #  how much does this cost? estimate cost for heat pump systems based on housing size, type and location.
         # boiler replacements etc.

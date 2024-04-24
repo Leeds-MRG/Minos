@@ -617,7 +617,8 @@ def generate_energy_composite(data):
     data['gas_payment'] = house_time_groupby['gas_payment'].transform("max")
     data['duel_payment'] = house_time_groupby['duel_payment'].transform("max")
 
-
+    # does household energy spending exceed 10% of net income?
+    data["FP10"] = 10 * data['yearly_energy'] > data['net_hh_income']
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['has_electric',
@@ -1104,7 +1105,7 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
-    data = data.copy() # defragment
+    data = data.copy()  # defragmention of dataframe.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
