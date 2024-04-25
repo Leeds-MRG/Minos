@@ -379,7 +379,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     init_absolute_poverty = do.call(rbind, lapply(loaded.file.list, group_summarise, 'init_absolute_poverty')),
     UC_rel_pov = do.call(rbind, lapply(loaded.file.list, UC_rel_pov_summarise)),
     UC_abs_pov = do.call(rbind, lapply(loaded.file.list, UC_abs_pov_summarise)),
-    UC_gender = do.call(rbind, lapply(loaded.file.list, UC_gender_summarise)),
+    #UC_gender = do.call(rbind, lapply(loaded.file.list, UC_gender_summarise)),
     # priority_ethnicity = do.call(rbind, lapply(loaded.file.list, priority_summarise_ethnicity)),
     # priority_child_under_one = do.call(rbind, lapply(loaded.file.list, priority_summarise_child_under_one)),
     # priority_three_plus_children = do.call(rbind, lapply(loaded.file.list, priority_summarise_three_plus_children)),
@@ -436,8 +436,8 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   UC_abs_pov_combined <- bind_rows(lapply(output, `[[`, "UC_abs_pov"))
   UC_abs_pov_combined$time <- year
   
-  UC_gender_combined <- bind_rows(lapply(output, `[[`, "UC_gender"))
-  UC_gender_combined$time <- year
+  #UC_gender_combined <- bind_rows(lapply(output, `[[`, "UC_gender"))
+  #UC_gender_combined$time <- year
   
   # Extract and bind 'SIMD_decile' tibbles
   # treated_simd_decile <- bind_rows(lapply(output, `[[`, "simd_decile"))
@@ -467,7 +467,7 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
                           init_absolute_poverty = init_abs_pov_combined,
                           UC_rel_pov = UC_rel_pov_combined,
                           UC_abs_pov = UC_abs_pov_combined,
-                          UC_gender = UC_gender_combined
+                          #UC_gender = UC_gender_combined
                           )
                           # simd_decile = treated_simd_decile,
                           # simd_quintile = treated_simd_quintile,
@@ -537,10 +537,10 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, st
   write.csv(x = UC_abs_pov_combined,
             file = here::here(save.path, paste0(scenario, '_UC_abs_pov_summary.csv')))
   
-  UC_gender_combined <- bind_rows(lapply(all.years.list, `[[`, "UC_gender"))
-  UC_gender_combined$scenario <- scenario
-  write.csv(x = UC_gender_combined,
-            file = here::here(save.path, paste0(scenario, '_UC_gender_summary.csv')))
+  #UC_gender_combined <- bind_rows(lapply(all.years.list, `[[`, "UC_gender"))
+  #UC_gender_combined$scenario <- scenario
+  #write.csv(x = UC_gender_combined,
+  #          file = here::here(save.path, paste0(scenario, '_UC_gender_summary.csv')))
   
   # # Extract and bind 'SIMD_decile' tibbles
   # simd_decile <- bind_rows(lapply(all.years.list, `[[`, "simd_decile"))
