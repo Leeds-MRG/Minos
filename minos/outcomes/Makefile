@@ -491,7 +491,7 @@ aggregate_minos_GBIS:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "GBIS"
 
 aggregate_minos_FFRS:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "FFRS"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "fossilFuelReplacementScheme"
 
 
 
