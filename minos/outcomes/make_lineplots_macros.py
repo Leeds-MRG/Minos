@@ -591,7 +591,7 @@ string_to_lineplot_function_args = {
     "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"],
     "GBIS": ["GBIS", "GBIS", "who_poor_heating"],
     #"GBIS": ["GBIS", "GBIS", "who_relative_poverty"],
-    "fossilFuelReplacementScheme": ["fossilFuelReplacementScheme", "Good Heating Dummy", "who_below_poverty_line"],
+    "fossilFuelReplacementScheme": ["fossilFuelReplacementScheme", "FFRS", "who_kids"],
 }
 
 if __name__ == '__main__':

@@ -7,8 +7,6 @@ import logging
 from minos.modules.base_module import Base
 
 
-
-
 class energyBaseline(Base):
 
     # actual high energy prices. with EPCG and EBSS serve as the ongoing 'baseline'?
@@ -56,22 +54,19 @@ class energyBaseline(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
-
     def on_time_step(self, event):
-
         logging.info("INTERVENTION:")
         logging.info(f"\tApplying effects of the energy downlift intervention in year {event.time.year}...")
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']
+        # pop['hh_income'] -= pop['boost_amount']
         # reset boost amount to 0 before calculating next uplift
         pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
@@ -79,8 +74,9 @@ class energyBaseline(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
-        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        pop['boost_amount'] = (
+                    -(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
@@ -93,7 +89,6 @@ class energyBaseline(Base):
         logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
         logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
-
 
 
 class energyDownlift(Base):
@@ -140,22 +135,19 @@ class energyDownlift(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=4)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
-
     def on_time_step(self, event):
-
         logging.info("INTERVENTION:")
         logging.info(f"\tApplying effects of the energy downlift intervention in year {event.time.year}...")
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']
+        # pop['hh_income'] -= pop['boost_amount']
         # reset boost amount to 0 before calculating next uplift
         pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
@@ -163,8 +155,9 @@ class energyDownlift(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
-        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (2.3 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        pop['boost_amount'] = (
+                    -(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
@@ -177,7 +170,6 @@ class energyDownlift(Base):
         logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
         logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
         logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
-
 
 
 class energyDownliftNoSupport(Base):
@@ -224,18 +216,16 @@ class energyDownliftNoSupport(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=3)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
-
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        #pop['hh_income'] -= pop['boost_amount']
+        # pop['hh_income'] -= pop['boost_amount']
         # reset boost amount to 0 before calculating next uplift
         pop['boost_amount'] = 0
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
@@ -243,8 +233,9 @@ class energyDownliftNoSupport(Base):
         # Subset everyone who is under poverty line.
         # TODO sheffield median not necessarily national average. need some work to store national macro estimates from somewhere?
         # TODO is an 80% increase correct? More dynamic assumption needed?
-        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
-        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        pop['boost_amount'] = (
+                    -(pop['yearly_energy'] / 12) * (3.0 - 1))  # 130% of monthly fuel bill subtracted from dhi.
+        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (1.8 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         pop['income_boosted'] = pop['boost_amount'] != 0
@@ -301,48 +292,47 @@ class energyBillSupportScheme(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
-
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
         # DONT SUBTRACT FROM INCOME AS IT SEEMS TO UNDO ITSELF AAAAAAAAA.
-        #pop['hh_income'] -= pop['boost_amount']
+        # pop['hh_income'] -= pop['boost_amount']
         # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
         # About £800 as of 2020 + adjustment for inflation.
         # Subset everyone who is under poverty line.
         year = min(self.year, 2023)
-        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300))  # 80% of monthly fuel bill subtracted from dhi.
-        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300 - 1))  # 80% of monthly fuel bill subtracted from dhi.
+        pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (
+                    energy_cap_prices[year] / 1300))  # 80% of monthly fuel bill subtracted from dhi.
+        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300 - 1))  # 80% of monthly fuel bill subtracted from dhi.
         # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
 
         # Energy Bill Support Schemes (EBSS) interventions
         # £400 to all households base. £600 in Northern Ireland and Wales.
         if self.year >= 2022:
             pop['boost_amount'] += 400
-            pop.loc[pop['region']=="Northern Ireland", 'boost_amount'] += 200
-            pop.loc[pop['region']=="Wales", 'boost_amount'] += 200
+            pop.loc[pop['region'] == "Northern Ireland", 'boost_amount'] += 200
+            pop.loc[pop['region'] == "Wales", 'boost_amount'] += 200
 
             # £900 for those on means tested (need benefits variables)
             # TODO how is this determined? Needs extra variable from US. Work out what 'means tested' is and any US mapping.
             # £300 for households with pensioners (labour states)
-            pensioner_houses = pop.loc[pop['S7_labour_state']=="Retired", 'hidp']
+            pensioner_houses = pop.loc[pop['S7_labour_state'] == "Retired", 'hidp']
             pop.loc[pop['hidp'].isin(pensioner_houses), 'boost_amount'] += 300
             # £150 for households with long term sick/disabled individuals.
-            disability_houses = pop.loc[pop['S7_labour_state']=="Sick/Disabled", 'hidp']
+            disability_houses = pop.loc[pop['S7_labour_state'] == "Sick/Disabled", 'hidp']
             pop.loc[pop['hidp'].isin(disability_houses), 'boost_amount'] += 150
             # £650 for those on universal credit
-            universal_credit_houses = pop.loc[pop['universal_income']==1, 'hidp']
+            universal_credit_houses = pop.loc[pop['universal_income'] == 1, 'hidp']
             pop.loc[pop['hidp'].isin(universal_credit_houses), 'boost_amount'] += 650
             # £150 for council tax bands A-D. Work out who has council_tax value between 1 and 4 in two stages.
-            ct_band_D_houses = pop.loc[pop['council_tax']<=4, ['council_tax', 'hidp']]
-            ct_band_A_D_houses = ct_band_D_houses.loc[ct_band_D_houses['council_tax']>=1, 'hidp']
+            ct_band_D_houses = pop.loc[pop['council_tax'] <= 4, ['council_tax', 'hidp']]
+            ct_band_A_D_houses = ct_band_D_houses.loc[ct_band_D_houses['council_tax'] >= 1, 'hidp']
             pop.loc[pop['hidp'].isin(ct_band_A_D_houses), 'boost_amount'] += 150
 
         # discounting based on tariff type (prepayment meters/fixed rate tariffs/ all different (cant do this..)
@@ -404,7 +394,6 @@ class goodHeatingDummy(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
-
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
@@ -418,20 +407,21 @@ class goodHeatingDummy(Base):
     def on_time_step(self, event):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # get households with poor heating.
-        poor_heating_houses = pop.loc[pop['heating'] == 0., ]['hidp']
+        poor_heating_houses = pop.loc[pop['heating'] == 0.,]['hidp']
         pop.loc[pop['hidp'].isin(poor_heating_houses), 'heating'] = 0.
-        pop['income_boosted'] += (pop['heating']== 0.)
+        pop['income_boosted'] += (pop['heating'] == 0.)
 
-        unheated_pop = pop.loc[pop['heating'] == 0., ]
+        unheated_pop = pop.loc[pop['heating'] == 0.,]
         unheated_pop.loc[unheated_pop['housing_quality'] == "Medium", 'housing_quality'] = "High"
         unheated_pop.loc[unheated_pop['housing_quality'] == "Low", 'housing_quality'] = "Medium"
         pop.loc[pop['heating'] == 0., 'housing_quality'] = unheated_pop['housing_quality']
 
         # set heating cost to one.
-        #pop['housing_quality'] = pop['housing_quality'].clip(0, 6)
+        # pop['housing_quality'] = pop['housing_quality'].clip(0, 6)
         pop['heating'] = 1.
 
         self.population_view.update(pop[['heating', 'income_boosted']])
+
 
 class GBIS(Base):
 
@@ -465,9 +455,9 @@ class GBIS(Base):
                         "region",
                         "hidp",
                         "S7_labour_state",
-                        #'hh_income',
-                        #"universal_income",
-                        #"council_tax",
+                        # 'hh_income',
+                        # "universal_income",
+                        # "council_tax",
                         'heating',
                         'housing_quality',
                         'dwelling_type',
@@ -475,7 +465,7 @@ class GBIS(Base):
                         'council_tax_band',
                         'yearly_oil'
                         ]
-        columns_created = ["income_boosted", 'intervention_cost', 'boost_amount']
+        columns_created = ["income_boosted", 'intervention_cost']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -488,33 +478,31 @@ class GBIS(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
 
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
-                                   'intervention_cost': 0.,
-                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                   'intervention_cost': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
-
 
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
-
         # get the population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
-        non_england_band_E = pop.loc[(pop['council_tax_band'] == 5.) * (pop['region'].isin(['Scotland', "Wales"])), 'hidp']
+        non_england_band_E = pop.loc[
+            (pop['council_tax_band'] == 5.) * (pop['region'].isin(['Scotland', "Wales"])), 'hidp']
         bands_A_D = pop.loc[pop['council_tax_band'].isin([1., 2., 3., 4.]), 'hidp']
-        not_intervened = pop.loc[pop['income_boosted']==False, 'hidp']
+        not_intervened = pop.loc[pop['income_boosted'] == False, 'hidp']
         eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
         pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True
 
         # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
-        pop.loc[pop['hidp'].isin(eligible_hidps), 'yearly_energy'] += pop.loc[pop['hidp'].isin(eligible_hidps), 'boost_amount']
+        pop.loc[pop['hidp'].isin(eligible_hidps), 'yearly_energy'] += pop.loc[
+            pop['hidp'].isin(eligible_hidps), 'boost_amount']
         # who gets the intervention?
         # for now, choosing households below the poverty line.
         # TODO look at those with high FP10 or low council tax bands instead?
-        #pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
+        # pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
 
         # get non-english council tax band E
         # get national coumcil tax bands A-D
@@ -530,51 +518,47 @@ class GBIS(Base):
         # use solid wall insulation instead? more expensive but larger savings. households before 1990.
 
         # TODO check households on housing quality as well.
-        pop.loc[pop["income_boosted"]==True, "heating"] = 1
+        pop.loc[pop["income_boosted"] == True, "heating"] = 1
 
         # TODO heterogeneity/validation in the boost amount.
         pop['boost_amount'] = pop['income_boosted'] * 125.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type']==1, 'boost_amount'] *=  200/125 # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'boost_amount'] *= 200 / 125  # adjust to 200 for houses.
         # cant differentiate between house types for now.
-        #pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type']==3, 'boost_amount'] *= 200/125 # bungalows
+        # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
+        pop.loc[pop['dwelling_type'] == 3, 'boost_amount'] *= 200 / 125  # bungalows
 
-
-        pop['boost_amount'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
+        pop['boost_amount'] *= pop['number_of_rooms'] * 1.2  # adjust by number of rooms.
         # best we can do in lieu of square footage.
 
         # adjust by rural/urban?
 
-
         # adjust income variables
-        #pop['yearly_energy'] -= pop['boost_amount']
-
+        # pop['yearly_energy'] -= pop['boost_amount']
 
         # how much does it cost?
-        pop['intervention_cost'] = 10000. # get cost. adjust by household etc. as abiove.
+        pop['intervention_cost'] = 10000.  # get cost. adjust by household etc. as abiove.
         # adjust cost by dwelling type.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type']==1, 'intervention_cost'] *=  2 # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'intervention_cost'] *= 2  # adjust to 200 for houses.
         # cant differentiate between house types for now.
-        #pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type']==3, 'intervention_cost'] *= 2 # bungalows
+        # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
+        pop.loc[pop['dwelling_type'] == 3, 'intervention_cost'] *= 2  # bungalows
 
-
-        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
+        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2  # adjust by number of rooms.
         # best we can do in lieu of square footage.
 
         # adjust costs further by number of rooms in lieu of terraced/detached housing type.
 
         # adjust based on government region? rural/urban?
 
-        #TODO two waves for cavity/solid insulation.
-
+        # TODO two waves for cavity/solid insulation.
 
         # update population
-        self.population_view.update(pop)
+        self.population_view.update(
+            pop['intervention_cost', 'income_boosted', 'heating', 'yearly_energy', 'housing_quality'])
 
 
 class fossilFuelReplacementScheme(Base):
@@ -609,7 +593,7 @@ class fossilFuelReplacementScheme(Base):
                         "hidp",
                         "S7_labour_state",
                         'hh_income',
-                        #"universal_credit",
+                        # "universal_credit",
                         'heating',
                         'housing_quality',
                         'yearly_electric',
@@ -619,7 +603,7 @@ class fossilFuelReplacementScheme(Base):
                         "FP10",
                         'yearly_energy',
                         'yearly_oil']
-        columns_created = ["income_boosted", 'boost_amount']
+        columns_created = ["income_boosted", 'intervention_cost']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -632,11 +616,9 @@ class fossilFuelReplacementScheme(Base):
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
 
-
-
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
-                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                   'intervention_cost': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -645,37 +627,39 @@ class fossilFuelReplacementScheme(Base):
         # replace with similar electrical hour percentage.
         # standing charges issues?
 
-
         # get the whole population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
         # who recieves the intervention? low income households with electrical consumption?
         # TODO get some fraction of households rather than absolutely everyone.
         # get households with gas/other fuel consumption. low income/FP10?
-        who_low_income = pop.loc[pop['hh_income']<0.6*np.median(pop['hh_income']), "hidp"]
-        who_energy_poor = pop.loc[pop["FP10"]==True, "hidp"]
-        not_intervened = pop.loc[pop['income_boosted']==False, 'hidp']
+        who_low_income = pop.loc[pop['hh_income'] < 0.6 * np.median(pop['hh_income']), "hidp"]
+        who_energy_poor = pop.loc[pop["FP10"] == True, "hidp"]
+        not_intervened = pop.loc[pop['income_boosted'] == False, 'hidp']
         eligible_hidps = set(list(who_low_income) + list(who_energy_poor)).intersection(not_intervened)
 
-        pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True # get low income low energy households.
+        pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True  # get low income low energy households.
 
         # what is the intervention. convert gas and fuel other usage to electrical. find paper estimate conversion costs.
         # TODO heterogeneity in conversion costs. particularly RE: current contracts and standing charges.
         electric_to_gas_cost_ratio = 2.7
-        #TODO this is the real meat of the intervention. need to vary kwh cost ratios and usage dependent on scenarios.
+        # TODO this is the real meat of the intervention. need to vary kwh cost ratios and usage dependent on scenarios.
         # e.g. if a boiler tax comes in how does this ratio change and make electical heating more viable?
-        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio * pop['income_boosted'] # convert from 2.7:1 kwh costs
-        pop['yearly_gas_to_electric'] *= 0.5 # convert to half as much kwh used as electric heating much more efficient.
-
+        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio * pop[
+            'income_boosted']  # convert from 2.7:1 kwh costs
+        pop[
+            'yearly_gas_to_electric'] *= 0.5  # convert to half as much kwh used as electric heating much more efficient.
 
         pop.loc[pop['income_boosted'] == True, 'yearly_gas'] = 0.
         pop['yearly_electric'] += pop['yearly_gas_to_electric']
         pop['yearly_energy'] -= pop['yearly_gas_to_electric']
 
         # TODO do the same fuel oil/other.
-        electric_to_gas_cost_ratio = 0.5 # TODO get a real number.
-        pop['yearly_oil_to_electric'] = pop['yearly_oil'] * electric_to_gas_cost_ratio  * pop['income_boosted'] # convert from 2.7:1 kwh costs
-        pop['yearly_oil_to_electric'] *= 0.5 # convert to half as much kwh used as electric heating much more efficient.
+        electric_to_gas_cost_ratio = 0.5  # TODO get a real number.
+        pop['yearly_oil_to_electric'] = pop['yearly_oil'] * electric_to_gas_cost_ratio * pop[
+            'income_boosted']  # convert from 2.7:1 kwh costs
+        pop[
+            'yearly_oil_to_electric'] *= 0.5  # convert to half as much kwh used as electric heating much more efficient.
 
         pop.loc[pop['income_boosted'] == True, 'yearly_oil'] = 0.
         pop['yearly_electric'] += pop['yearly_oil_to_electric']
@@ -686,18 +670,18 @@ class fossilFuelReplacementScheme(Base):
         # intervention cost as with GBIS.
 
         # how much does it cost?
-        pop['intervention_cost'] = 1000. # get cost. adjust by household etc. as abiove.
+        pop['intervention_cost'] = 1000.  # get cost. adjust by household etc. as abiove.
         # adjust cost by dwelling type.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type']==1, 'intervention_cost'] *=  2 # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'intervention_cost'] *= 2  # adjust to 200 for houses.
         # cant differentiate between house types for now.
-        #pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type']==3, 'intervention_cost'] *= 2 # bungalows
+        # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
+        pop.loc[pop['dwelling_type'] == 3, 'intervention_cost'] *= 2  # bungalows
 
-
-        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
+        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2  # adjust by number of rooms.
 
         # update the population
-        self.population_view.update(pop)
-
+        self.population_view.update(pop[['yearly_electric', 'yearly_gas',
+                                         'yearly_oil', 'yearly_energy',
+                                         'intervention_cost', 'income_boosted']])
