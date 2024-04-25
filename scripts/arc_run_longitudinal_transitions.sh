@@ -14,8 +14,8 @@
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 8
 ## Set logs directories
-#$ -o ./logs/transitions/
-#$ -e ./logs/transitions/
+#$ -o ./logs/data_gen/
+#$ -e ./logs/data_gen/
 
-mkdir -p ./logs/transitions
+mkdir -p ./logs/data_gen
 Rscript minos/transitions/estimate_longitudinal_transitions.R
