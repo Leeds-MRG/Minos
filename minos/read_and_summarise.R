@@ -205,8 +205,7 @@ UC_abs_pov_summarise <- function(data) {
 UC_gender_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
-      filter(universal_credit == 1) %>%
-      group_by(sex, run_id) %>%
+      group_by(universal_credit, sex, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
@@ -215,8 +214,7 @@ UC_gender_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
-      filter(universal_credit == 1) %>%
-      group_by(sex, run_id) %>%
+      group_by(universal_credit, sex, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
