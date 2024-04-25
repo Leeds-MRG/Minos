@@ -4,9 +4,8 @@ mkdir -p logs/sum
 mkdir -p logs/sum/log
 mkdir -p logs/sum/errors
 
-
 ## Check that 3 arguments have been provided
-if [ "$#" -eq 3 ]; then
+if [[ "$#" -ne 3 ]]; then
   echo "You have not submitted the correct number of command line arguments (3). The required arguments in order are:"
   echo "1. Output subdirectory i.e. default_config"
   echo "2. Save directory. This will be created if it does not exist already. i.e. summary_out"
@@ -15,6 +14,7 @@ if [ "$#" -eq 3 ]; then
   echo "Usage: $0 <output_subdirectory> <save_directory> <scenario_name>"
   echo "E.g.: $0 default_config summary_out baseline"
   echo "This will summarise datafiles found in default_config/baseline, and save the files to default_config/summary_out/"
+  echo
   exit 1
 fi
 
