@@ -9,7 +9,7 @@
 ## Request hours of runtime
 #$ -l h_rt=6:00:00
 ## Email if a run aborts
-#$ -m a
+#$ -m ae
 ## Select memory
 #$ -l h_vmem=15G # was 15 for big runs
 ## Choose cores. See arc website for more details.
