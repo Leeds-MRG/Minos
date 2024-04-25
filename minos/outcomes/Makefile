@@ -1,4 +1,30 @@
 
+##############################################################
+# SCP & CPR output summary generation in R #
+##############################################################
+
+scp_summary_out:
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out baseline
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 10UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 20UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 25UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 30UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 35UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 40UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 45UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 50UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 60UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 70UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 80UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 90UniversalCredit
+	bash scripts/arc_SCP_submit_sum.sh default_config scp_summary_out 100UniversalCredit
+
+##############################################################
+# SCP & CPR Visualisation Notebooks #
+##############################################################
+
+scp_summary_vis:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/SCP_vis_summary.Rmd')"
 
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
 
