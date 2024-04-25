@@ -235,7 +235,7 @@ def get_required_intervention_variables(subset_function_string):
                          "neighbourhood_safety", "nkids", "loneliness"]
 
     if "boosted" in subset_function_string:
-        default_variables += ["who_boosted", "boost_amount"]
+        default_variables += ["income_boosted", "boost_amount"]
 
     if "decile" in subset_function_string or "quintile" in subset_function_string:
         default_variables += ["ZoneID", "simd_decile"]
@@ -331,7 +331,7 @@ def who_below_poverty_line(df):
 
 def who_boosted(df):
     # Get anyone who receives an income boost..
-    return df.query("`who_boosted` == True")
+    return df.query("`income_boosted` == True")
 
 
 def who_disabled(df):

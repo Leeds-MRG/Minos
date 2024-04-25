@@ -387,15 +387,6 @@ epcg_simd_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
 
 
-
-#########################
-# Housing Interventions #
-#########################
-
-aggregate_minos_good_housing_dummy:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "good_heating_dummy"
-
-
 ########################################################################
 # need to add macros for these in make_lineplot_macros.sh. do later..  #
 ########################################################################
@@ -484,3 +475,23 @@ aggregate_combined_vulnerable:
 
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
+
+
+
+
+
+#########################
+# Housing Interventions #
+#########################
+
+aggregate_minos_good_housing_dummy:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "good_heating_dummy"
+
+aggregate_minos_GBIS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "GBIS"
+
+aggregate_minos_FFRS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "FFRS"
+
+
+

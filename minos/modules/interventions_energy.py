@@ -410,7 +410,7 @@ class goodHeatingDummy(Base):
         builder.event.register_listener("time_step", self.on_time_step)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'who_boosted': False,  # who boosted?,
+        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
                                    'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
@@ -420,7 +420,7 @@ class goodHeatingDummy(Base):
         # get households with poor heating.
         poor_heating_houses = pop.loc[pop['heating'] == 0., ]['hidp']
         pop.loc[pop['hidp'].isin(poor_heating_houses), 'heating'] = 0.
-        pop['who_boosted'] += (pop['heating']== 0.)
+        pop['income_boosted'] += (pop['heating']== 0.)
 
         unheated_pop = pop.loc[pop['heating'] == 0., ]
         unheated_pop.loc[unheated_pop['housing_quality'] == "Medium", 'housing_quality'] = "High"
@@ -431,7 +431,7 @@ class goodHeatingDummy(Base):
         #pop['housing_quality'] = pop['housing_quality'].clip(0, 6)
         pop['heating'] = 1.
 
-        self.population_view.update(pop[['heating', 'who_boosted']])
+        self.population_view.update(pop[['heating', 'income_boosted']])
 
 class GBIS(Base):
 
@@ -616,7 +616,8 @@ class fossilFuelReplacementScheme(Base):
                         'dwelling_type',
                         'number_of_rooms',
                         "FP10",
-                        'yearly_energy']
+                        'yearly_energy',
+                        'yearly_oil']
         columns_created = ["income_boosted", 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
