@@ -21,6 +21,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
 
+                     "who_UC_and_kids": [who_alive, who_kids, who_universal_credit],
                      # Universal Credit and Poverty (Relative and Absolute)
                      "who_UC_kids_RelPov": [who_alive, who_kids, who_relative_poverty_init_cohort, who_universal_credit],
                      "who_UC_kids_AbsPov": [who_alive, who_kids, who_absolute_poverty_init_cohort, who_universal_credit],

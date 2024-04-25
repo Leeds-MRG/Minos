@@ -353,7 +353,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
@@ -382,7 +382,7 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
@@ -415,7 +415,7 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
@@ -448,7 +448,7 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
@@ -481,7 +481,7 @@ def incremental_25_100_by_25_together(config_mode, intervention_name, interventi
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
@@ -744,10 +744,10 @@ string_to_lineplot_function_args = {
     "incremental_60_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
     ## Universal Credit
-    "incremental_25_50_by_5_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
-    "incremental_10_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
-    "incremental_10_to_50_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
-    "incremental_60_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
+    "incremental_25_50_by_5_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
+    "incremental_10_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
+    "incremental_10_to_50_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
+    "incremental_60_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
 
     ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],
