@@ -374,7 +374,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   }
   
   # Add SIMD quintiles alongside deciles
-  loaded.file.list <- lapply(loaded.file.list, simd_generate_quintiles)
+  #loaded.file.list <- lapply(loaded.file.list, simd_generate_quintiles)
   
   # Create list for summarised outputs and process each type of summary
   summary.out.list <- list(
@@ -489,7 +489,7 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   return(combined_output)
 }
 
-read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, start.year=2020, end.year=2035, verbose=TRUE, drop.dead = TRUE) {
+read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, start.year=2021, end.year=2036, verbose=TRUE, drop.dead = TRUE) {
   print(paste0("Starting aggregation of output files for ", scenario, '...'))
   
   all.years.list <- list()
