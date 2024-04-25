@@ -509,6 +509,7 @@ class GBIS(Base):
         eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
         pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True
 
+        # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
         pop.loc[pop['hidp'].isin(eligible_hidps), 'yearly_energy'] += pop.loc[pop['hidp'].isin(eligible_hidps), 'boost_amount']
         # who gets the intervention?
         # for now, choosing households below the poverty line.
@@ -552,7 +553,7 @@ class GBIS(Base):
 
 
         # how much does it cost?
-        pop['intervention_cost'] = 1000. # get cost. adjust by household etc. as abiove.
+        pop['intervention_cost'] = 10000. # get cost. adjust by household etc. as abiove.
         # adjust cost by dwelling type.
 
         # adjust by dwelling type. more savings with more rooms.
@@ -656,27 +657,27 @@ class fossilFuelReplacementScheme(Base):
         not_intervened = pop.loc[pop['income_boosted']==False, 'hidp']
         eligible_hidps = set(list(who_low_income) + list(who_energy_poor)).intersection(not_intervened)
 
-        pop = pop.loc[pop['hidp'].isin(eligible_hidps), ] # get low income low energy households.
+        pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True # get low income low energy households.
 
         # what is the intervention. convert gas and fuel other usage to electrical. find paper estimate conversion costs.
         # TODO heterogeneity in conversion costs. particularly RE: current contracts and standing charges.
         electric_to_gas_cost_ratio = 2.7
         #TODO this is the real meat of the intervention. need to vary kwh cost ratios and usage dependent on scenarios.
         # e.g. if a boiler tax comes in how does this ratio change and make electical heating more viable?
-        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio # convert from 2.7:1 kwh costs
+        pop['yearly_gas_to_electric'] = pop['yearly_gas'] * electric_to_gas_cost_ratio * pop['income_boosted'] # convert from 2.7:1 kwh costs
         pop['yearly_gas_to_electric'] *= 0.5 # convert to half as much kwh used as electric heating much more efficient.
 
 
-        pop['yearly_gas'] = 0.
+        pop.loc[pop['income_boosted'] == True, 'yearly_gas'] = 0.
         pop['yearly_electric'] += pop['yearly_gas_to_electric']
         pop['yearly_energy'] -= pop['yearly_gas_to_electric']
 
         # TODO do the same fuel oil/other.
         electric_to_gas_cost_ratio = 0.5 # TODO get a real number.
-        pop['yearly_oil_to_electric'] = pop['yearly_oil'] * electric_to_gas_cost_ratio # convert from 2.7:1 kwh costs
+        pop['yearly_oil_to_electric'] = pop['yearly_oil'] * electric_to_gas_cost_ratio  * pop['income_boosted'] # convert from 2.7:1 kwh costs
         pop['yearly_oil_to_electric'] *= 0.5 # convert to half as much kwh used as electric heating much more efficient.
 
-        pop['yearly_oil'] = 0.
+        pop.loc[pop['income_boosted'] == True, 'yearly_oil'] = 0.
         pop['yearly_electric'] += pop['yearly_oil_to_electric']
         pop['yearly_energy'] -= pop['yearly_oil_to_electric']
 
@@ -698,5 +699,5 @@ class fossilFuelReplacementScheme(Base):
         pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2 # adjust by number of rooms.
 
         # update the population
-        self.population_view.update(pop[['yearly_electric', 'yearly_gas']])
+        self.population_view.update(pop)
 
