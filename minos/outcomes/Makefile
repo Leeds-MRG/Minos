@@ -286,6 +286,10 @@ vis_60_100_by_10_together_UC_gender:
 vis_together_UC_Gender: vis_25_50_by_5_together_UC_gender vis_10_100_by_10_together_UC_gender
 vis_together_UC_Gender: vis_10_50_by_10_together_UC_gender vis_60_100_by_10_together_UC_gender
 
+
+
+vis_together_all_UC: vis_together_UC vis_together_UC_RelPov vis_together_UC_AbsPov
+
 ##########################################
 # Custom subset for social science paper #
 ##########################################
