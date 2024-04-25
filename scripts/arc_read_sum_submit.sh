@@ -35,4 +35,4 @@ mkdir -p "$1/$2"
 echo "Generating summary outputs for $3 in $1"
 echo "Files will be saved in $2"
 
-qsub scripts/arc_SCP_summarise.sh $1 $2 $3
+qsub scripts/arc_read_summarise.sh $1 $2 $3
