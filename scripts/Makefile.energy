@@ -61,7 +61,7 @@ arc4_aspatial_GBIS:
 arc4_aspatial_FFRS: RUN_CONFIG = config/energy_default.yaml
 arc4_aspatial_FFRS: MODE = energy_default_config
 arc4_aspatial_FFRS:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'FFRS'
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
 
 
