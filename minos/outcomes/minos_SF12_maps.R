@@ -229,6 +229,8 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   browser()
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)
+  
+  data1 <- data1[data1$diff < 10, ]
   minos_diff_map(data1, destination_file_name, v)
 
   # deprecated code to plot simd maps and calculate correlation between simd and sf12 improvement.

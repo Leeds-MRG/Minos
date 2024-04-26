@@ -385,7 +385,7 @@ class goodHeatingDummy(Base):
                         'housing_quality',
                         'hidp']
 
-        columns_created = ["who_boosted", 'boost_amount']
+        columns_created = ['income_boosted']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -400,7 +400,7 @@ class goodHeatingDummy(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
-                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                   },  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -419,7 +419,7 @@ class goodHeatingDummy(Base):
         # set heating cost to one.
         # pop['housing_quality'] = pop['housing_quality'].clip(0, 6)
         pop['heating'] = 1.
-
+        pop['heating'] = pop['heating'].astype(int)
         self.population_view.update(pop[['heating', 'income_boosted']])
 
 

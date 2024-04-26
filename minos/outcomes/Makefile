@@ -493,5 +493,16 @@ aggregate_minos_GBIS:
 aggregate_minos_FFRS:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_default_config" "fossilFuelReplacementScheme"
 
+aggregate_minos_manchester_good_housing_dummy:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy"
+
+aggregate_minos_manchester_GBIS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS"
+
+aggregate_minos_manchester_FFRS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "fossilFuelReplacementScheme"
+
+
+
 
 
