@@ -150,6 +150,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # why is this changing heating data type reeeee.
     sampled_data['heating'] = sampled_data['heating'].astype(int)
 
+    sampled_data.update(sampled_data.select_dtypes(include=np.number).applymap('{:,g}'.format))
+
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
     US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
 
