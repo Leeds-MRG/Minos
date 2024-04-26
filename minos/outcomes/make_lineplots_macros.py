@@ -359,8 +359,10 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
-    if any(substring in subset_function for substring in ["gender", "male", "female"]):
-        unique_filename += "gender_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 25
     for _ in range(6):
@@ -388,8 +390,10 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
-    if any(substring in subset_function for substring in ["gender", "male", "female"]):
-        unique_filename += "gender_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 10
     uplift_increment = 10
@@ -421,8 +425,10 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
-    if any(substring in subset_function for substring in ["gender", "male", "female"]):
-        unique_filename += "gender_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 10
     uplift_increment = 10
@@ -454,8 +460,10 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
-    if any(substring in subset_function for substring in ["gender", "male", "female"]):
-        unique_filename += "gender_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 60
     uplift_increment = 10
@@ -487,8 +495,10 @@ def incremental_25_100_by_25_together(config_mode, intervention_name, interventi
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
-    if any(substring in subset_function for substring in ["gender", "male", "female"]):
-        unique_filename += "gender_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 25
     uplift_increment = 25
