@@ -24,6 +24,11 @@ housing_handovers:
 	# open html file in firefox
 	firefox file://$(VALIDATION)/housing_handovers.html
 
+housing_manchester_handovers:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/housing_manchester_handovers.Rmd')"
+	# open html file in firefox
+	firefox file://$(VALIDATION)/housing_manchester_handovers.html
+
 handovers_S7:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/handovers_S7.Rmd')"
 	# open html file in firefox

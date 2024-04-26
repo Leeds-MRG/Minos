@@ -273,4 +273,3 @@ get_latest_runtime_subdirectory <- function(path) {
   }
   return(path)
 }
-
