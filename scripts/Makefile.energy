@@ -1,17 +1,16 @@
-###################
-# Housing Scripts #
-###################
-
-#arc4 transitions on node rather than login pc.
+#arc4 transitions on actual 8 cores smp node rather than login node.
 
 arc4_transitions:
 	qsub 'scripts/arc_run_transitions.sh'
 	qsub 'scripts/arc_run_longitudinal_transitions.sh'
 
+#######################
+# Aspatial model runs #
+#######################
 
-#######################
-# Housing Single Runs #
-#######################
+################################
+# Aspatial Housing Single Runs #
+################################
 
 housing_baseline: ### Baseline run of MINOS, using configuration defined in testConfig.yaml
 housing_baseline: RUN_CONFIG=config/energy_default.yaml
@@ -28,41 +27,82 @@ intervention_GBIS:
 intervention_fossilFuelReplacementScheme:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
-#synth population runs.
-
-manchester_intervention_goodHeatingDummy: setup_manchester_scaled
-manchester_intervention_goodHeatingDummy: RUN_CONFIG = default/energy_manchester_scaled.yaml
-manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled
-manchester_intervention_goodHeatingDummy:
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
-
-###################################
-# ARC4 Energy Batch Interventions #
-###################################
+#######################################
+# ARC4 Aspatial Housing Interventions #
+#######################################
 
 arc4_housing_baseline: MODE = energy_default_config
 arc4_housing_baseline: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 arc4_housing_baseline:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
-arc4_goodHeatingDummy: setup
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
-
-arc4_aspatial_goodHeatingDummy: RUN_CONFIG = config/energy_default.yaml
+arc4_aspatial_goodHeatingDummy: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 arc4_aspatial_goodHeatingDummy: MODE = energy_default_config
 arc4_aspatial_goodHeatingDummy:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
 
-arc4_aspatial_GBIS: RUN_CONFIG = config/energy_default.yaml
+arc4_aspatial_GBIS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 arc4_aspatial_GBIS: MODE = energy_default_config
 arc4_aspatial_GBIS:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
-arc4_aspatial_FFRS: RUN_CONFIG = config/energy_default.yaml
+arc4_aspatial_FFRS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 arc4_aspatial_FFRS: MODE = energy_default_config
 arc4_aspatial_FFRS:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
+###########################
+# Manchester Spatial data #
+###########################
 
+######################################
+# Manchester Individual Housing Runs #
+######################################
 
+manchester_housing_baseline: setup_manchester_scaled
+manchester_housing_baseline: RUN_CONFIG=default/energy_manchester_scaled.yaml
+manchester_housing_baseline: MODE=energy_manchester_scaled
+manchester_housing_baseline:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
+manchester_intervention_goodHeatingDummy: setup_manchester_scaled
+manchester_intervention_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+manchester_intervention_goodHeatingDummy: MODE=energy_manchester_scaled
+manchester_intervention_goodHeatingDummy:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
+
+manchester_intervention_GBIS: setup_manchester_scaled
+manchester_intervention_GBIS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+manchester_intervention_GBIS: MODE=energy_manchester_scaled
+manchester_intervention_GBIS:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
+
+manchester_intervention_fossilFuelReplacementScheme: setup_manchester_scaled
+manchester_intervention_fossilFuelReplacementScheme: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+manchester_intervention_fossilFuelReplacementScheme: MODE=energy_manchester_scaled
+manchester_intervention_fossilFuelReplacementScheme:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
+
+########################################
+# ARC Manchester Housing Interventions #
+########################################
+
+arc4_manchester_housing_baseline: MODE=energy_default_config
+arc4_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_housing_baseline:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
+
+arc4_manchester_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_goodHeatingDummy: MODE=energy_manchester_scaled
+arc4_manchester_goodHeatingDummy:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
+
+arc4_manchester_GBIS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_GBIS: MODE=energy_manchester_scaled
+arc4_manchester_GBIS:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
+
+arc4_manchester_FFRS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_FFRS: MODE=energy_manchester_scaled
+arc4_manchester_FFRS:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
