@@ -104,7 +104,7 @@ class Heating(Base):
                                                             list(heating_prob_df.columns),
                                                             heating_prob_df)
             heating_prob_df.index = pop.index
-            #heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
+            heating_prob_df['heating'] = heating_prob_df['heating'].astype(int)
             self.population_view.update(heating_prob_df["heating"])
 
     def calculate_heating(self, pop):
