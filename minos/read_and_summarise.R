@@ -401,12 +401,16 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
                               pattern = target.pattern,
                               full.names = TRUE)
   
-  #print(paste0("Number of files to process in year ", year, ': ', length(filepath.list)))
-  
   # Split filepath.list into batches
   batches <- split(filepath.list, ceiling(seq_along(filepath.list)/batch.size))
   
   output <- lapply(batches, parallel_read_summarise, drop.dead)
+  
+  for (i in seq_along(output)) {
+    if (length(output[[i]]) == 0) {
+      print(paste("Batch", i, "is empty. Files processed:", batches[[i]]))
+    }
+  }
   
   # Extract and bind 'whole_pop' tibbles
   whole_pop_combined <- bind_rows(lapply(output, `[[`, "whole_pop"))
