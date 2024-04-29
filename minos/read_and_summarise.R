@@ -368,28 +368,36 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   
   # Create list for summarised outputs and process each type of summary
   summary.out.list <- list(
-    whole_pop = do.call(rbind, lapply(loaded.file.list, whole_pop_summarise)),
-    families = do.call(rbind, lapply(loaded.file.list, families_summarise)),
-    treated = do.call(rbind, lapply(loaded.file.list, treated_summarise)),
-    # simd_decile = do.call(rbind, lapply(loaded.file.list, group_summarise, 'simd_decile')),
-    # simd_quintile = do.call(rbind, lapply(loaded.file.list, group_summarise, 'simd_quintile')),
-    sex = do.call(rbind, lapply(loaded.file.list, group_summarise, 'sex')),
-    UC = do.call(rbind, lapply(loaded.file.list, group_summarise, 'universal_credit')),
-    init_relative_poverty = do.call(rbind, lapply(loaded.file.list, group_summarise, 'init_relative_poverty')),
-    init_absolute_poverty = do.call(rbind, lapply(loaded.file.list, group_summarise, 'init_absolute_poverty')),
-    UC_rel_pov = do.call(rbind, lapply(loaded.file.list, UC_rel_pov_summarise)),
-    UC_abs_pov = do.call(rbind, lapply(loaded.file.list, UC_abs_pov_summarise)),
-    #UC_gender = do.call(rbind, lapply(loaded.file.list, UC_gender_summarise)),
-    # priority_ethnicity = do.call(rbind, lapply(loaded.file.list, priority_summarise_ethnicity)),
-    # priority_child_under_one = do.call(rbind, lapply(loaded.file.list, priority_summarise_child_under_one)),
-    # priority_three_plus_children = do.call(rbind, lapply(loaded.file.list, priority_summarise_three_plus_children)),
-    # priority_mother_under_25 = do.call(rbind, lapply(loaded.file.list, priority_summarise_mother_under_25))
-    #priority_disabled = do.call(rbind, lapply(loaded.file.list, priority_summarise_disabled))
+    whole_pop = NULL,
+    families = NULL,
+    treated = NULL,
+    sex = NULL,
+    UC = NULL,
+    init_relative_poverty = NULL,
+    init_absolute_poverty = NULL,
+    UC_rel_pov = NULL,
+    UC_abs_pov = NULL
   )
+  
+  for (i in seq_along(loaded.file.list)) {
+    if (!is.null(loaded.file.list[[i]])) {
+      summary.out.list$whole_pop <- do.call(rbind, lapply(loaded.file.list[[i]], whole_pop_summarise))
+      summary.out.list$families <- do.call(rbind, lapply(loaded.file.list[[i]], families_summarise))
+      summary.out.list$treated <- do.call(rbind, lapply(loaded.file.list[[i]], treated_summarise))
+      summary.out.list$sex <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'sex'))
+      summary.out.list$UC <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'universal_credit'))
+      summary.out.list$init_relative_poverty <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'init_relative_poverty'))
+      summary.out.list$init_absolute_poverty <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'init_absolute_poverty'))
+      summary.out.list$UC_rel_pov <- do.call(rbind, lapply(loaded.file.list[[i]], UC_rel_pov_summarise))
+      summary.out.list$UC_abs_pov <- do.call(rbind, lapply(loaded.file.list[[i]], UC_abs_pov_summarise))
+    }
+  }
+  
   rm(loaded.file.list)
   
   return(summary.out.list)
 }
+
 
 read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = TRUE, batch.size = 10) {
   scen.path <- here::here(out.path, scenario)
@@ -403,6 +411,13 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   
   # Split filepath.list into batches
   batches <- split(filepath.list, ceiling(seq_along(filepath.list)/batch.size))
+  
+  for (i in seq_along(batches)) {
+    if (length(batches[[i]]) == 0) {
+      empty_batches <- c(empty_batches, i)
+      print(paste("Batch", i, "is empty. Files processed:", batches[[i]]))
+    }
+  }
   
   output <- lapply(batches, parallel_read_summarise, drop.dead)
   
