@@ -414,7 +414,7 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   
   for (i in seq_along(batches)) {
     if (length(batches[[i]]) == 0) {
-      empty_batches <- c(empty_batches, i)
+      #empty_batches <- c(empty_batches, i)
       print(paste("Batch", i, "is empty. Files processed:", batches[[i]]))
     }
   }
