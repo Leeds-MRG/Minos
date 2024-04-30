@@ -350,15 +350,24 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   no_cores <- availableCores(omit=1)
   plan(multisession, workers = no_cores)  # Set up parallel plan
   
+  
+  print('About to use future_lapply...')
+  
   # Use future_lapply with file_paths and fread
   loaded.file.list <- future_lapply(file_paths, fread, stringsAsFactors = TRUE)
+  
+  print('Converting data.tables to data.frames...')
   
   # Optionally convert data.tables to data.frames
   loaded.file.list <- lapply(loaded.file.list, as.data.frame)
   
+  print('Dropping dead...')
+  
   if (drop.dead) {
     loaded.file.list <- lapply(loaded.file.list, drop_dead)
   }
+  
+  print('Adding run_id...')
   
   # Add run_id to each dataframe
   for (i in seq_along(loaded.file.list)) {
@@ -368,6 +377,8 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   
   # Add SIMD quintiles alongside deciles
   #loaded.file.list <- lapply(loaded.file.list, simd_generate_quintiles)
+  
+  print('Generating Null list for outputs...')
   
   # Create list for summarised outputs and process each type of summary
   summary.out.list <- list(
@@ -381,6 +392,8 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     UC_rel_pov = NULL,
     UC_abs_pov = NULL
   )
+  
+  print('Populating the Null list...')
   
   for (i in seq_along(loaded.file.list)) {
     if (!is.null(loaded.file.list[[i]])) {
@@ -397,6 +410,8 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   }
   
   rm(loaded.file.list)
+  
+  print('parallel_read_summarise function complete.')
   
   return(summary.out.list)
 }
