@@ -343,6 +343,9 @@ priority_summarise_disabled <- function(data) {
 ###################### READ FUNCTIONS  ######################
 
 parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
+  
+  print('Beginning parallel_read_summarise function...')
+  
   #no_cores <- detectCores() - 1  # Reserve one core for the system
   no_cores <- availableCores(omit=1)
   plan(multisession, workers = no_cores)  # Set up parallel plan
@@ -400,6 +403,9 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
 
 
 read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = TRUE, batch.size = 10) {
+  
+  print('Starting the read_and_sumarise_batch_1year function...')
+  
   scen.path <- here::here(out.path, scenario)
   scen.path <- get_latest_runtime_subdirectory(scen.path)
   
@@ -409,8 +415,12 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
                               pattern = target.pattern,
                               full.names = TRUE)
   
+  print('Splitting the filepath.list into batches...')
+  
   # Split filepath.list into batches
   batches <- split(filepath.list, ceiling(seq_along(filepath.list)/batch.size))
+  
+  print('Checking for empty batches...')
   
   for (i in seq_along(batches)) {
     if (length(batches[[i]]) == 0) {
@@ -418,6 +428,8 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
       print(paste("Batch", i, "is empty. Files processed:", batches[[i]]))
     }
   }
+  
+  print('Generating output from batches...')
   
   output <- lapply(batches, parallel_read_summarise, drop.dead)
   
