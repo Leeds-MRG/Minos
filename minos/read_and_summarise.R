@@ -72,6 +72,12 @@ whole_pop_summarise <- function(data) {
                 mean_cost = mean(boost_amount))
     #TODO: Add number households affected by interventions and other stats
   } else {
+    
+    print('This is causing problems for some reason. Reached this point...')
+    
+    write.csv(x = data,
+              file = '/nobackup/medlarc/Minos/tmp/test.csv')
+    
     data <- data %>%
       group_by(run_id) %>%
       summarise(count = n(),
