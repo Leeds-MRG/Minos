@@ -381,6 +381,9 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     loaded.file.list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
   }
   
+  write.csv(x = loaded.file.list,
+            file = '/nobackup/medlarc/Minos/tmp/loaded_file_list.csv')
+  
   # Add SIMD quintiles alongside deciles
   #loaded.file.list <- lapply(loaded.file.list, simd_generate_quintiles)
   
