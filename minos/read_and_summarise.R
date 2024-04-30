@@ -427,6 +427,8 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
     }
   }
   
+  print('This is where we are in the read_and_summarise_batch_1year function!')
+  
   # Extract and bind 'whole_pop' tibbles
   whole_pop_combined <- bind_rows(lapply(output, `[[`, "whole_pop"))
   whole_pop_combined$time <- year
@@ -507,6 +509,8 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, st
     one.year.list <- read_and_sumarise_batch_1year(out.path, scenario, year=i, drop.dead)
     all.years.list[[i]] <- one.year.list
   }
+  
+  print('We have reached this point!!!')
   
   # Final step is to collapse all the individual year summary dfs to a combined df over all years
   # Then write to file
