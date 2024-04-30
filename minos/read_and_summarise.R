@@ -72,12 +72,6 @@ whole_pop_summarise <- function(data) {
                 mean_cost = mean(boost_amount))
     #TODO: Add number households affected by interventions and other stats
   } else {
-    
-    print('This is causing problems for some reason. Reached this point...')
-    
-    write.csv(x = data,
-              file = '/nobackup/medlarc/Minos/tmp/test.csv')
-    
     data <- data %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -381,9 +375,6 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     loaded.file.list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
   }
   
-  write.csv(x = loaded.file.list,
-            file = '/nobackup/medlarc/Minos/tmp/loaded_file_list.csv')
-  
   # Add SIMD quintiles alongside deciles
   #loaded.file.list <- lapply(loaded.file.list, simd_generate_quintiles)
   
@@ -402,19 +393,18 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
     UC_abs_pov = NULL
   )
   
-  print('Populating the Null list...')
-  
   for (i in seq_along(loaded.file.list)) {
-    if (!is.null(loaded.file.list[[i]])) {
-      summary.out.list$whole_pop <- do.call(rbind, lapply(loaded.file.list[[i]], whole_pop_summarise))
-      summary.out.list$families <- do.call(rbind, lapply(loaded.file.list[[i]], families_summarise))
-      summary.out.list$treated <- do.call(rbind, lapply(loaded.file.list[[i]], treated_summarise))
-      summary.out.list$sex <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'sex'))
-      summary.out.list$UC <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'universal_credit'))
-      summary.out.list$init_relative_poverty <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'init_relative_poverty'))
-      summary.out.list$init_absolute_poverty <- do.call(rbind, lapply(loaded.file.list[[i]], group_summarise, 'init_absolute_poverty'))
-      summary.out.list$UC_rel_pov <- do.call(rbind, lapply(loaded.file.list[[i]], UC_rel_pov_summarise))
-      summary.out.list$UC_abs_pov <- do.call(rbind, lapply(loaded.file.list[[i]], UC_abs_pov_summarise))
+    print(paste0('Starting summary out generation for iteration ', i))
+    if (!is.null(loaded.file.list[i])) {
+      summary.out.list$whole_pop <- do.call(rbind, intermed)
+      summary.out.list$families <- do.call(rbind, lapply(loaded.file.list[i], families_summarise))
+      summary.out.list$treated <- do.call(rbind, lapply(loaded.file.list[i], treated_summarise))
+      summary.out.list$sex <- do.call(rbind, lapply(loaded.file.list[i], group_summarise, 'sex'))
+      summary.out.list$UC <- do.call(rbind, lapply(loaded.file.list[i], group_summarise, 'universal_credit'))
+      summary.out.list$init_relative_poverty <- do.call(rbind, lapply(loaded.file.list[i], group_summarise, 'init_relative_poverty'))
+      summary.out.list$init_absolute_poverty <- do.call(rbind, lapply(loaded.file.list[i], group_summarise, 'init_absolute_poverty'))
+      summary.out.list$UC_rel_pov <- do.call(rbind, lapply(loaded.file.list[i], UC_rel_pov_summarise))
+      summary.out.list$UC_abs_pov <- do.call(rbind, lapply(loaded.file.list[i], UC_abs_pov_summarise))
     }
   }
   
@@ -642,6 +632,8 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, st
 ################################# RUNNING SCRIPT #################################
 
 args <- commandArgs(trailingOnly=TRUE)
+# Test args
+#args <- list('default_config', 'scp_summary_out', 'baseline')
 
 out.path <- here::here('output', args[1])
 save.path <- here::here(out.path, args[2])
@@ -658,8 +650,8 @@ create.if.not.exists(save.path)
 
 
 read_batch_out_all_years_summarise(out.path,
-                                   scenario = scen,
-                                   save.path = save.path,
-                                   verbose = TRUE)
+                                  scenario = scen,
+                                  save.path = save.path,
+                                  verbose = TRUE)
 
 print(paste0('Output files for ', scen, ' successfully summarised.'))
