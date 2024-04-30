@@ -396,7 +396,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   for (i in seq_along(loaded.file.list)) {
     print(paste0('Starting summary out generation for iteration ', i))
     if (!is.null(loaded.file.list[i])) {
-      summary.out.list$whole_pop <- do.call(rbind, intermed)
+      summary.out.list$whole_pop <- do.call(rbind, lapply(loaded.file.list[i], whole_pop_summarise))
       summary.out.list$families <- do.call(rbind, lapply(loaded.file.list[i], families_summarise))
       summary.out.list$treated <- do.call(rbind, lapply(loaded.file.list[i], treated_summarise))
       summary.out.list$sex <- do.call(rbind, lapply(loaded.file.list[i], group_summarise, 'sex'))
