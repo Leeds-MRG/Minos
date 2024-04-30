@@ -372,7 +372,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   # Add run_id to each dataframe
   for (i in seq_along(loaded.file.list)) {
     run_id <- extract_run_id(file_paths[i])
-    loaded.file.list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
+    loaded.file.list[i]$run_id <- as.numeric(str_remove(run_id, "^0+"))
   }
   
   # Add SIMD quintiles alongside deciles
@@ -437,9 +437,9 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   print('Checking for empty batches...')
   
   for (i in seq_along(batches)) {
-    if (length(batches[[i]]) == 0) {
+    if (length(batches[i]) == 0) {
       #empty_batches <- c(empty_batches, i)
-      print(paste("Batch", i, "is empty. Files processed:", batches[[i]]))
+      print(paste("Batch", i, "is empty. Files processed:", batches[i]))
     }
   }
   
@@ -448,8 +448,8 @@ read_and_sumarise_batch_1year <- function(out.path, scenario, year, drop.dead = 
   output <- lapply(batches, parallel_read_summarise, drop.dead)
   
   for (i in seq_along(output)) {
-    if (length(output[[i]]) == 0) {
-      print(paste("Batch", i, "is empty. Files processed:", batches[[i]]))
+    if (length(output[i]) == 0) {
+      print(paste("Batch", i, "is empty. Files processed:", batches[i]))
     }
   }
   
@@ -533,7 +533,7 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, st
   for (i in start.year:end.year) {
     if (verbose) { print(paste0("Aggregating files for year ", i)) }
     one.year.list <- read_and_sumarise_batch_1year(out.path, scenario, year=i, drop.dead)
-    all.years.list[[i]] <- one.year.list
+    all.years.list[i] <- one.year.list
   }
   
   print('We have reached this point!!!')
