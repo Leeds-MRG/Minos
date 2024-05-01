@@ -189,6 +189,18 @@ def quintiles_lineplot(config_mode, source, region):
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
+def generic_simd_quintiles_lineplot(config_mode, source, tag):
+    directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
+    tags = "National Average,First,Second,Third,Fourth,Fifth"
+    subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
+    prefix = f"{source}_simd_quintiles"
+    ref = "National Average"
+    v = "SF_12"
+    method = 'nanmean'
+    region=None
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
 
 ######################################################
 # Space for child uplifts split by amount and subset #
@@ -493,6 +505,8 @@ string_to_lineplot_function = {
     "good_heating_dummy": generic_single_lineplot,
     "GBIS": generic_single_lineplot,
     "fossilFuelReplacementScheme": generic_single_lineplot,
+
+    "good_heating_dummy_quintiles": generic_simd_quintiles_lineplot,
 }
 
 string_to_lineplot_function_args = {
@@ -592,6 +606,8 @@ string_to_lineplot_function_args = {
     "GBIS": ["GBIS", "GBIS", "who_poor_heating"],
     #"GBIS": ["GBIS", "GBIS", "who_relative_poverty"],
     "fossilFuelReplacementScheme": ["fossilFuelReplacementScheme", "FFRS", "who_kids"],
+
+    "good_heating_dummy_quintiles": ["goodHeatingDummy", "Good Heating Dummy Quintiles"],
 }
 
 if __name__ == '__main__':

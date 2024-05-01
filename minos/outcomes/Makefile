@@ -502,7 +502,8 @@ aggregate_minos_manchester_GBIS:
 aggregate_minos_manchester_FFRS:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "fossilFuelReplacementScheme"
 
-
+aggregate_minos_manchester_good_housing_dummy_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy_quintiles"
 
 
 
