@@ -11,7 +11,7 @@ population:
 
 mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
 fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/scaled_manchester_US"
+input_data_dir: "data/scaled_manchester_aligned_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 

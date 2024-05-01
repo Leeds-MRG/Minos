@@ -44,21 +44,29 @@ def merge_with_synthpop_individuals(synthpop, msim_data, merge_column="pidp"):
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
     return merged_data
 
-def get_spatial_attribute_data():
-    try:
-        simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[
-                ["DZ", "SIMD2020v2_Decile"]]
-        simd_data.columns = ["ZoneID", "simd_decile"]
-        simd_data["local_simd_deciles"] = pd.qcut(simd_data["simd_decile"], q=10, labels = list(range(1, 11)))
-        #simd_dict = dict(zip(simd_data["DZ"], simd_data["SIMD2020v2_Decile"]))
-    except FileNotFoundError as e:
-        print(e)
-        print("""
-                  \nREADME::\n
-                  "SIMD to datazone map shouldn't be in the MINOS git. 
-                  If you don't have it download it from here (as of july 2023).\n 
-                  https://www.gov.scot/publications/scottish-index-of-multiple-deprivation-2020v2-data-zone-look-up/
-                  """)
+def get_spatial_attribute_data(region):
+    if region in ['edinburgh', 'glasgow', 'scotland']:
+        try:
+            simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[
+                    ["DZ", "SIMD2020v2_Decile"]]
+            simd_data.columns = ["ZoneID", "simd_decile"]
+            simd_data["local_simd_deciles"] = pd.qcut(simd_data["simd_decile"], q=10, labels = list(range(1, 11)))
+            #simd_dict = dict(zip(simd_data["DZ"], simd_data["SIMD2020v2_Decile"]))
+        except FileNotFoundError as e:
+            print(e)
+            print("""
+                      \nREADME::\n
+                      "SIMD to datazone map shouldn't be in the MINOS git. 
+                      If you don't have it download it from here (as of july 2023).\n 
+                      https://www.gov.scot/publications/scottish-index-of-multiple-deprivation-2020v2-data-zone-look-up/
+                      """)
+    else:
+        simd_data = pd.read_csv("persistent_data/spatial_data/uk_imd2019.csv")[["LSOA", "Rank"]]
+        # https://data.cdrc.ac.uk/dataset/index-multiple-deprivation-imd
+        simd_data.columns = ['ZoneID', 'simd_decile']
+        simd_data['simd_deciles'] = pd.qcut(simd_data['simd_decile'], q=10, labels = list(range(1, 11)))
+        simd_data["local_simd_deciles"] = simd_data['simd_deciles']
+
     return simd_data
 
 def get_knn_cluster_data():

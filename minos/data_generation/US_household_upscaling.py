@@ -21,6 +21,7 @@ from minos.data_generation.US_upscaling import get_spatial_attribute_data, take_
 import numpy as np
 import US_utils
 import argparse
+from minos.data_generation.align_household_spatial_data import main as align_main
 
 def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """ Merge US data on synthetic pop individual data.
@@ -106,7 +107,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
 
     data_zones = get_data_zones(region)
-    US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    #US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
@@ -141,8 +143,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # merge with spatial_attributes
     # get simd_deciles
     # only works for scotland? could get regular imd for UK.
-    if region in ['scotland', 'glasgow', 'edinburgh']:
-        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+    if region in ['scotland', 'glasgow', 'edinburgh', 'manchester']:
+        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(region), "ZoneID")
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
@@ -150,41 +152,47 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # why is this changing heating data type reeeee.
     sampled_data['heating'] = sampled_data['heating'].astype(int)
 
-    sampled_data.update(sampled_data.select_dtypes(include=np.number).applymap('{:,g}'.format))
+    #sampled_data.update(sampled_data.select_dtypes(include=np.number).applymap('{:,g}'.format))
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
     US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
 
+    print("aligning other spatial variables")
+    align_main(region)
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
-    parser.add_argument("-r", "--region", required=True, type=str,
-                        help="""The region to subset for the UK synthetic population.
-                              glasgow, scotland, manchester, sheffield, uk only for now.""")
-    parser.add_argument("-p", "--percentage", required=False, type=int,
-                        help="Percentage of synthetic population to use (e.g. 0-100%).")
-    parser.add_argument("-b", "--do_bootstrapping", required=False, type=bool,
-                        help="Bootstrapping the synthetic population to incudce uncertainty?")
-    parser.add_argument("-s", "--bootstrap_sample_size", required=False, type=int,
-                        help="How many bootstrap samples to take. Should only be used with do_bootstrapping above.")
+    # parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
+    # parser.add_argument("-r", "--region", required=True, type=str,
+    #                     help="""The region to subset for the UK synthetic population.
+    #                           glasgow, scotland, manchester, sheffield, uk only for now.""")
+    # parser.add_argument("-p", "--percentage", required=False, type=int,
+    #                     help="Percentage of synthetic population to use (e.g. 0-100%).")
+    # parser.add_argument("-b", "--do_bootstrapping", required=False, type=bool,
+    #                     help="Bootstrapping the synthetic population to incudce uncertainty?")
+    # parser.add_argument("-s", "--bootstrap_sample_size", required=False, type=int,
+    #                     help="How many bootstrap samples to take. Should only be used with do_bootstrapping above.")
+    #
+    # args = vars(parser.parse_args())
+    # print(args)
+    # region = args['region']
+    # if 'percentage' in args.keys():
+    #     percentage = args['percentage']
+    # else:
+    #     percentage = 100
+    # if 'do_bootstrapping' in args.keys():
+    #     do_bootstrapping = args['do_bootstrapping']
+    # else:
+    #     do_bootstrapping = False
+    # if "bootstrap_sample_size" in args.keys():
+    #     bootstrap_sample_size = args['bootstrap_sample_size']
+    # else:
+    #     bootstrap_sample_size = 1
 
-    args = vars(parser.parse_args())
-    print(args)
-    region = args['region']
-    if 'percentage' in args.keys():
-        percentage = args['percentage']
-    else:
-        percentage = 100
-    if 'do_bootstrapping' in args.keys():
-        do_bootstrapping = args['do_bootstrapping']
-    else:
-        do_bootstrapping = False
-    if "bootstrap_sample_size" in args.keys():
-        bootstrap_sample_size = args['bootstrap_sample_size']
-    else:
-        bootstrap_sample_size = 1
-
+    region = 'manchester'
+    percentage = 10
+    do_bootstrapping = False
+    bootstrap_sample_size = 1
     main(region, percentage, do_bootstrapping, bootstrap_sample_size)
 
 

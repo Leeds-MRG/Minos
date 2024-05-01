@@ -302,6 +302,8 @@ def generate_transition_stock(projections, cross_validation):
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
     #data['housing_quality'] = data['housing_quality'].astype('int64')
 
+    data = generate_difference_variables(data)
+
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
 
     # Cross Validation stuff
@@ -374,6 +376,8 @@ def generate_input_stock(projections, cross_validation):
     data['nutrition_quality'] = data['nutrition_quality'].astype(int)
     #data['housing_quality'] = data['housing_quality'].astype(int)
 
+    data = generate_difference_variables(data)
+
     US_utils.save_multiple_files(data, years, "data/imputed_final_US/", "")
 
     # Cross Validation stuff
@@ -424,3 +428,5 @@ def main():
     generate_transition_stock(projections, cross_validation)
     generate_input_stock(projections, cross_validation)
 
+if __name__ == '__main__':
+    main()
