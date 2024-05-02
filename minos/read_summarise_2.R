@@ -65,6 +65,10 @@ create.if.not.exists <- function(path) {
 ###################### SUMMARISE FUNCTIONS  ######################
 
 whole_pop_summarise <- function(data) {
+  
+  print(data$hh_income)
+  print(data$SF_12)
+  
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       group_by(run_id) %>%
@@ -112,6 +116,7 @@ families_summarise <- function(data) {
 
 treated_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
+    print(head(data))
     data <- data %>%
       filter(income_boosted == TRUE) %>%
       group_by(run_id) %>%
@@ -131,6 +136,10 @@ treated_summarise <- function(data) {
       mutate(total_cost = 0,
              mean_cost = 0)
   }
+  
+  write.csv(x = data,
+            file = '/nobackup/medlarc/Minos/tmp/testing_treated.csv')
+  
   return(data)
 }
 
@@ -331,10 +340,10 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
 
 # Step 5: Script Execution
 for (year in 2021:2036) {
-  print(sprintf('Starting for year ', year))
+  print(sprintf('Starting for year %s', year))
   data_list <- load_data_for_year(scen.path, year)
   generate_summary_csv(data_list, year, summary_funcs, save.path2)
-  print(sprintf('Finished for year ', year))
+  print(sprintf('Finished for year %s', year))
 }
 
 # # Combine summaries across years for each type of summary
