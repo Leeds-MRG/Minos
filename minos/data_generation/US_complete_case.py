@@ -98,6 +98,9 @@ if __name__ == "__main__":
     #data = complete_case_custom_years(data, 'job_sector', years=[2014])
     data = complete_case_custom_years(data, 'hh_income', years=[2015])
 
+    # Universal Credit var (only doing it for start years for now)
+    data = complete_case_custom_years(data, 'hh_income', years=[2020, 2021])
+
     # SIPHER 7 complete case stuff
     data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2022, 1)))
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
