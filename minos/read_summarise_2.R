@@ -290,7 +290,7 @@ generate_summary_csv <- function(data_list, year, summary_funcs, save.path) {
 # Step 4: Combine Summaries Across Years
 combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2) {
   for (summary_name in names(summary_funcs)) {
-    sprintf('About to combine summaries for %s', summary_name)
+    print(sprintf('About to combine summaries for %s', summary_name))
     combined_summary <- NULL
     for (year in 2021:2036) {
       summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
@@ -331,8 +331,10 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
 
 # Step 5: Script Execution
 for (year in 2021:2036) {
+  print(sprintf('Starting for year ', year))
   data_list <- load_data_for_year(scen.path, year)
   generate_summary_csv(data_list, year, summary_funcs, save.path2)
+  print(sprintf('Finished for year ', year))
 }
 
 # # Combine summaries across years for each type of summary
