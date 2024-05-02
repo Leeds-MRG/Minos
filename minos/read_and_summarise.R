@@ -80,6 +80,8 @@ whole_pop_summarise <- function(data) {
       mutate(total_cost = 0,
              mean_cost = 0)
   }
+  
+  print('whole_pop_summarise complete.')
   return(data)
 }
 
@@ -344,41 +346,39 @@ priority_summarise_disabled <- function(data) {
 
 parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   
-  print('Beginning parallel_read_summarise function...')
+  #print('Beginning parallel_read_summarise function...')
   
   #no_cores <- detectCores() - 1  # Reserve one core for the system
   no_cores <- availableCores(omit=1)
   plan(multisession, workers = no_cores)  # Set up parallel plan
   
   
-  print('About to use future_lapply...')
+  #print('About to use future_lapply...')
   
   # Use future_lapply with file_paths and fread
   loaded.file.list <- future_lapply(file_paths, fread, stringsAsFactors = TRUE)
   
-  print('Converting data.tables to data.frames...')
+  #print('Converting data.tables to data.frames...')
   
   # Optionally convert data.tables to data.frames
   loaded.file.list <- lapply(loaded.file.list, as.data.frame)
   
-  print('Dropping dead...')
+  #print('Dropping dead...')
   
   if (drop.dead) {
     loaded.file.list <- lapply(loaded.file.list, drop_dead)
   }
   
-  print('Adding run_id...')
-  
   # Add run_id to each dataframe
   for (i in seq_along(loaded.file.list)) {
     run_id <- extract_run_id(file_paths[i])
-    loaded.file.list[i]$run_id <- as.numeric(str_remove(run_id, "^0+"))
+    loaded.file.list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
   }
   
   # Add SIMD quintiles alongside deciles
   #loaded.file.list <- lapply(loaded.file.list, simd_generate_quintiles)
   
-  print('Generating Null list for outputs...')
+  #print('Generating Null list for outputs...')
   
   # Create list for summarised outputs and process each type of summary
   summary.out.list <- list(
@@ -394,7 +394,7 @@ parallel_read_summarise <- function(file_paths, drop.dead = TRUE) {
   )
   
   for (i in seq_along(loaded.file.list)) {
-    print(paste0('Starting summary out generation for iteration ', i))
+    print(paste0('Starting summary out generation for group ', i))
     if (!is.null(loaded.file.list[i])) {
       summary.out.list$whole_pop <- do.call(rbind, lapply(loaded.file.list[i], whole_pop_summarise))
       summary.out.list$families <- do.call(rbind, lapply(loaded.file.list[i], families_summarise))
@@ -631,9 +631,9 @@ read_batch_out_all_years_summarise <- function(out.path, scenario, save.path, st
 
 ################################# RUNNING SCRIPT #################################
 
-args <- commandArgs(trailingOnly=TRUE)
+#args <- commandArgs(trailingOnly=TRUE)
 # Test args
-#args <- list('default_config', 'scp_summary_out', 'baseline')
+args <- list('default_config', 'scp_summary_out', 'baseline')
 
 out.path <- here::here('output', args[1])
 save.path <- here::here(out.path, args[2])

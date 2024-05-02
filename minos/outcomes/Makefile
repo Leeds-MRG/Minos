@@ -6,6 +6,9 @@
 scp_test_sum:
 	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out baseline
 
+scp_local_test_sum:
+	Rscript minos/read_summarise_2.R default_config scp_summary_out baseline
+
 scp_summary_out:
 	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out baseline
 	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 10UniversalCredit
