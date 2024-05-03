@@ -65,10 +65,6 @@ create.if.not.exists <- function(path) {
 ###################### SUMMARISE FUNCTIONS  ######################
 
 whole_pop_summarise <- function(data) {
-  
-  print(data$hh_income)
-  print(data$SF_12)
-  
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       group_by(run_id) %>%
@@ -115,10 +111,9 @@ families_summarise <- function(data) {
 }
 
 treated_summarise <- function(data) {
-  if ('boost_amount' %in% names(data)) {
-    print(head(data))
+  if (('boost_amount' %in% names(data)) & (mean(data$time) != 2021)) {
     data <- data %>%
-      filter(income_boosted == TRUE) %>%
+      filter(income_boosted == 'True') %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -136,10 +131,6 @@ treated_summarise <- function(data) {
       mutate(total_cost = 0,
              mean_cost = 0)
   }
-  
-  write.csv(x = data,
-            file = '/nobackup/medlarc/Minos/tmp/testing_treated.csv')
-  
   return(data)
 }
 
@@ -315,8 +306,8 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
 
 ###################### RUN THIS STUFF! ######################
 
-args <- commandArgs(trailingOnly=TRUE)
-#args <- list('default_config', 'scp_summary_out', 'baseline')
+#args <- commandArgs(trailingOnly=TRUE)
+args <- list('default_config', 'scp_summary_out', '50UniversalCredit')
 
 out.path <- here::here('output', args[1])
 save.path1 <- here::here(out.path, args[2], args[3])
@@ -346,9 +337,8 @@ for (year in 2021:2036) {
   print(sprintf('Finished for year %s', year))
 }
 
-# # Combine summaries across years for each type of summary
-# for (summary_type in summary_funcs) {
-#   combine_summaries_across_years(summary_type, save.path)
-# }
-
+# Combine summaries across years for each type of summary
 combine_summaries_across_years(summary_funcs, save.path1, save.path2)
+
+# Remove intermediates folder and its contents
+unlink(save.path2, recursive = TRUE)
