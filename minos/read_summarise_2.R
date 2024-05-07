@@ -56,6 +56,14 @@ drop_dead <- function(data) {
   return(data)
 }
 
+drop_zero_weight <- function(data) {
+  # Drop zero weight or missing weight individuals
+  data <- data %>%
+    filter(weight != 0) %>%
+    filter(weight > 0)
+  return(data)
+}
+
 create.if.not.exists <- function(path) {
   if(!file.exists(path)) {
     dir.create(path = path)
@@ -67,6 +75,7 @@ create.if.not.exists <- function(path) {
 whole_pop_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -76,6 +85,7 @@ whole_pop_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -89,6 +99,7 @@ whole_pop_summarise <- function(data) {
 families_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       filter(nkids > 0) %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -99,6 +110,7 @@ families_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       filter(nkids > 0) %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -113,6 +125,7 @@ families_summarise <- function(data) {
 treated_summarise <- function(data) {
   if (('boost_amount' %in% names(data)) & (mean(data$time) != 2021)) {
     data <- data %>%
+      filter(weight > 0) %>%
       filter(income_boosted == 'True') %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -123,6 +136,7 @@ treated_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       filter((universal_credit == 1) & (nkids > 0)) %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -137,6 +151,7 @@ treated_summarise <- function(data) {
 group_summarise <- function(data, group.var) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(.data[[group.var]], run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -146,6 +161,7 @@ group_summarise <- function(data, group.var) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(.data[[group.var]], run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -164,6 +180,7 @@ simd_generate_quintiles <- function(data) {
 UC_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -173,6 +190,7 @@ UC_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -186,6 +204,7 @@ UC_summarise <- function(data) {
 UC_rel_pov_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, init_relative_poverty, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -195,6 +214,7 @@ UC_rel_pov_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, init_relative_poverty, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -208,6 +228,7 @@ UC_rel_pov_summarise <- function(data) {
 UC_abs_pov_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, init_absolute_poverty, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -217,6 +238,7 @@ UC_abs_pov_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, init_absolute_poverty, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -230,6 +252,7 @@ UC_abs_pov_summarise <- function(data) {
 UC_gender_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, sex, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -239,6 +262,7 @@ UC_gender_summarise <- function(data) {
     #TODO: Add number households affected by interventions and other stats
   } else {
     data <- data %>%
+      filter(weight > 0) %>%
       group_by(universal_credit, sex, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -260,6 +284,10 @@ load_data_for_year <- function(scen.path, year) {
                           pattern = file_pattern,
                           full.names = TRUE)
   data_list <- lapply(file_list, read.csv)
+  
+  # Now drop dead and zero weight
+  data_list <- lapply(data_list, drop_dead)
+  data_list <- lapply(data_list, drop_zero_weight)
   
   # Add run_id to each dataframe
   for (i in seq_along(data_list)) {
