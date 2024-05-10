@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import minos.utils as utilities
-from os.path import dirname as up
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
 from minos.modules.base_module import Base
@@ -26,6 +25,9 @@ class FertilityAgeSpecificRates(Base):
     @property
     def name(self):
         return 'age_specific_fertility'
+
+    def __repr__(self):
+        return "FertilityAgeSpecificRates()"
 
     @staticmethod
     def pre_setup(config, simulation):
@@ -194,17 +196,19 @@ class FertilityAgeSpecificRates(Base):
         asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
         return asfr_data
 
-    def __repr__(self):
-        return "FertilityAgeSpecificRates()"
-
-
 
 
 class nkidsFertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
     """
-    # @staticmethod
+    @property
+    def name(self):
+        return 'nkids_age_specific_fertility'
+
+    def __repr__(self):
+        return "nkidsFertilityAgeSpecificRates()"
+
     def pre_setup(self, config, simulation):
         """ Load in anything required for the module to run.
 
@@ -294,8 +298,6 @@ class nkidsFertilityAgeSpecificRates(Base):
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
-
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -350,12 +352,3 @@ class nkidsFertilityAgeSpecificRates(Base):
         columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
         asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
         return asfr_data
-
-
-    @property
-    def name(self):
-        return 'nkids_age_specific_fertility'
-
-
-    def __repr__(self):
-        return "nkidsFertilityAgeSpecificRates()"
