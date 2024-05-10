@@ -21,10 +21,10 @@ class ChildPovertyReductionRELATIVE(Base):
 
     @property
     def name(self):
-        return "child_poverty_reduction_sustain"
+        return "child_poverty_reduction_relative"
 
     def __repr__(self):
-        return "ChildPovertyReductionSUSTAIN()"
+        return "ChildPovertyReductionRELATIVE()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
