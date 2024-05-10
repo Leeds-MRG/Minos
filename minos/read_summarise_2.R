@@ -191,7 +191,7 @@ treated_summarise <- function(data) {
   } else {
     data <- data %>%
       filter(weight > 0) %>%
-      filter((universal_credit == 1) & (nkids > 0)) %>%
+      filter((init_relative_poverty == 1) & (nkids > 0)) %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
