@@ -78,6 +78,9 @@ all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
 
+intervention_childPovertyReductionRelative: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRELATIVE'
+
 ############################################
 ## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
 ############################################
@@ -188,6 +191,9 @@ arc4_intervention_energyDownLiftNoSupport:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
+
+arc4_intervention_childPovertyReductionRELATIVE:
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRELATIVE'
 
 ## All default scenarios
 arc4_all_scenarios_default: setup
