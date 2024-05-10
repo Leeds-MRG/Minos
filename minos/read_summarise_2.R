@@ -96,6 +96,60 @@ whole_pop_summarise <- function(data) {
   return(data)
 }
 
+whole_pop_income_quintile_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+families_income_quint_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
 families_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
@@ -352,7 +406,9 @@ scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
 summary_funcs <- c(whole_pop = whole_pop_summarise,
+                   whole_pop_income_quint = whole_pop_income_quintile_summarise,
                    families = families_summarise,
+                   families_income_quint = families_income_quint_summarise,
                    treated = treated_summarise,
                    UC = UC_summarise,
                    UC_rel_pov = UC_rel_pov_summarise,
