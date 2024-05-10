@@ -446,7 +446,7 @@ priority_summarise_disabled <- function(data) {
 priority_summarise_any <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
-      group_by(run_id, hipd) %>%
+      group_by(run_id, hidp) %>%
       mutate(priority_ethnic = ifelse(any(ethnicity != 'WBI', TRUE, FALSE)),
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0, TRUE, FALSE)),
              priority_three_plus_children = ifelse(any(nkids >= 3, TRUE, FALSE)),
@@ -464,7 +464,7 @@ priority_summarise_any <- function(data) {
                 mean_cost = mean(boost_amount))
   } else {
     data <- data %>%
-      group_by(run_id, hipd) %>%
+      group_by(run_id, hidp) %>%
       mutate(priority_ethnic = ifelse(any(ethnicity != 'WBI', TRUE, FALSE)),
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0, TRUE, FALSE)),
              priority_three_plus_children = ifelse(any(nkids >= 3, TRUE, FALSE)),
@@ -487,7 +487,7 @@ priority_summarise_any <- function(data) {
 priority_summarise_num <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
-      group_by(run_id, hipd) %>%
+      group_by(run_id, hidp) %>%
       mutate(priority_ethnic = ifelse(any(ethnicity != 'WBI', TRUE, FALSE)),
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0, TRUE, FALSE)),
              priority_three_plus_children = ifelse(any(nkids >= 3, TRUE, FALSE)),
@@ -504,7 +504,7 @@ priority_summarise_num <- function(data) {
       
   } else {
     data <- data %>%
-      group_by(run_id, hipd) %>%
+      group_by(run_id, hidp) %>%
       mutate(priority_ethnic = ifelse(any(ethnicity != 'WBI', TRUE, FALSE)),
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0, TRUE, FALSE)),
              priority_three_plus_children = ifelse(any(nkids >= 3, TRUE, FALSE)),
@@ -547,13 +547,7 @@ load_data_for_year <- function(scen.path, year) {
   return(data_list)
 }
 
-# Step 2: Summary Functions
-calculate_summary_by_group <- function(data, group_var) {
-  summary <- aggregate(. ~ group_var, data = data, FUN = sum)  # Example summary calculation
-  return(summary)
-}
-
-# Step 3: Generate Summary CSVs
+# Step 2: Generate Summary CSVs
 generate_summary_csv <- function(data_list, year, summary_funcs, save.path) {
   for (summary_name in names(summary_funcs)) {
     summary_func <- summary_funcs[[summary_name]]
@@ -564,7 +558,7 @@ generate_summary_csv <- function(data_list, year, summary_funcs, save.path) {
   }
 }
 
-# Step 4: Combine Summaries Across Years
+# Step 3: Combine Summaries Across Years
 combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2) {
   for (summary_name in names(summary_funcs)) {
     print(sprintf('About to combine summaries for %s', summary_name))
