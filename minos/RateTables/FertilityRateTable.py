@@ -22,8 +22,8 @@ PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
 NEWETHPOP_FOLDER_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, "Fertility")
 
 PARITY_MAX_DEFAULT = generate_composite_vars.PARITY_MAX_DEFAULT
-AGE_RANGE_DEFAULT = [10,49]
-YEAR_RANGE_DEFAULT = [2011,2021]
+AGE_RANGE_DEFAULT = [10, 49]
+YEAR_RANGE_DEFAULT = [2011, 2021]
 
 PARITY_SHEET = "Table"
 PARITY_HEADER = 6
@@ -210,8 +210,8 @@ def extend_parity_ons(df_parity,
     births_concat = births_concat.set_index(['year', 'age'])
 
     fert_concat = births_concat.divide(pop_concat)
-    fert_concat = fert_concat.replace([np.inf, -np.inf, np.NaN], 0.0) # Reset all blow-ups to zero (as caused by zero population values)
-    fert_concat = fert_concat.mask(fert_concat > 1, 1) # Reset f > 1 to f = 1, as this is a probability so must be 0 < f < 1
+    fert_concat = fert_concat.replace([np.inf, -np.inf, np.NaN], 0.0)  # Reset all blow-ups to zero (as caused by zero population values)
+    fert_concat = fert_concat.mask(fert_concat > 1, 1)  # Reset f > 1 to f = 1, as this is a probability so must be 0 < f < 1
     fert_concat = fert_concat.mask(fert_concat < 0, 0)  # Reset f < 0 to f = 0, as this is a probability so must be 0 < f < 1
 
     # # HR 13/06/23 Add total fertility df for use later
@@ -295,7 +295,7 @@ def apply_parity_to_newethpop(births_ons,
         else:
             f_simple = [0]*len(f_trunc)
 
-        f_block = pd.concat([data]*n, axis=1).T # Duplicate and stack n rows
+        f_block = pd.concat([data]*n, axis=1).T  # Duplicate and stack n rows
         # print(f_trunc)
         f_block['nkids_ind'] = range(n)
         f_block['fertility'] = f_simple
@@ -303,7 +303,7 @@ def apply_parity_to_newethpop(births_ons,
         # TESTING: Some optional columns
         # data['f_ons'] = f_ons
         # data['factor'] = factor
-        f_block.drop("mean_value", axis=1, inplace=True) # Remove "mean_value" to ensure not being used in pipeline
+        f_block.drop("mean_value", axis=1, inplace=True)  # Remove "mean_value" to ensure not being used in pipeline
 
         fert_list.append(f_block)
 
