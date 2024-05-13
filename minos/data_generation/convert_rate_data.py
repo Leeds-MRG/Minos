@@ -113,7 +113,7 @@ def main(file_source):
     d1 = collapse_LAD_to_region(data, file_source + "regional_" + file_name)
 
     file_name = "Fertility2011_LEEDS1_2.csv"
-    data = pd.read_csv(file_source + file_name, index_col=0) # Specifying index column removes extraneous column of unnecessary data
+    data = pd.read_csv(file_source + file_name, index_col=0)  # Specifying index column removes extraneous column of unnecessary data
     d2 = collapse_LAD_to_region(data, file_source + "regional_" + file_name)
     return d1, d2
 
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     d1, d2 = main(file_source)
 
     ## Testing...
-    # cache_fertility_by_region(year_range=[2011,2013], by_region=False)
-    # cache_mortality_by_region(year_range=[2011,2013], by_region=False)
+    # cache_fertility_by_region(year_range=[2011, 2013], by_region=False)
+    # cache_mortality_by_region(year_range=[2011, 2013], by_region=False)
     # cache_fertility_by_region()
     # cache_mortality_by_region()

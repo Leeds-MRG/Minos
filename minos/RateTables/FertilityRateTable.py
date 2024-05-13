@@ -15,6 +15,7 @@ RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
 # RATETABLE_FILE_DEFAULT = "fertility_rate_table_1.csv"
 # RATETABLE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, RATETABLE_FILE_DEFAULT)
 
+PARITY_DEFAULT = True
 PARITY_PATH_DEFAULT = RATETABLE_PATH_DEFAULT
 PARITY_FILE_DEFAULT = "fertilityratesbyparity1934to2020englandandwales.xlsx"
 PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
@@ -123,7 +124,7 @@ def extend_parity_ons(df_parity,
     to_extend_by = n - len(pop_headers) + 2
     # print(to_extend_by)
 
-    for year,year_data in year_dict.items():
+    for year, year_data in year_dict.items():
 
         # 1. Extend population to lower and upper age range by taking mean of nearest values
         cols = [col for col in year_data.columns if col in pop_headers]
@@ -320,8 +321,20 @@ class FertilityRateTable(BaseHandler):
     def __init__(self, configuration):
         super().__init__(configuration=configuration)
         self.scaling_method = self.configuration["scale_rates"]["method"]
-        self.filename = f'fertility_rate_table_{self.configuration["scale_rates"][self.scaling_method]["fertility"]}.csv'
+        self.filename = f'fertility_rate_table_{self.configuration["scale_rates"][self.scaling_method]["fertility"]}'
+
+        # HR 13/05/24 Adding option for excluding parity for #369
+        if 'parity' in self.configuration:
+            self.parity = self.configuration['parity']
+        else:
+            self.parity = PARITY_DEFAULT
+        if not self.parity:
+            self.filename += '_noparity'
+
+        self.filename += '.csv'
         self.rate_table_path = self.rate_table_dir + self.filename
+        print("Path to rate table: {}".format(self.rate_table_path))
+
         self.source_file = self.configuration.path_to_fertility_file
         if "parity_max" in self.configuration:
             self.parity_max = self.configuration["parity_max"]
@@ -340,7 +353,7 @@ class FertilityRateTable(BaseHandler):
         except FileNotFoundError as e:
             print("Couldn't load from source file")
             print("\n", e, "\n")
-            print("Creating source file from primary data...")
+            print("Creating source file from primary NewEthPop data...")
             dump_path = cache_fertility_by_region()
             if dump_path:
                 print("Dumped source file to:", dump_path)
@@ -360,7 +373,8 @@ class FertilityRateTable(BaseHandler):
 
         # HR 21/06/23 Expanding fertility rate table by parity
         # print("Expanding NewEthPop fertility data with parity data from ONS 1934-2020")
-        self.rate_table = self.add_parity()
+        if self.parity:
+            self.rate_table = self.add_parity()
 
         if self.configuration["scale_rates"][self.scaling_method]["fertility"] != 1:
             print(f'Scaling the fertility rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["fertility"]}')
