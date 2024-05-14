@@ -18,15 +18,16 @@ Handover plots are not strictly statistical validation, but more a type of 'sani
 
 ```{r "setup", include=FALSE}
 
-require(tidyverse)
-require(ggplot2)
-require(ggridges) # for densities over time plots. 
-require(knitr)
-require(here)
-require(dplyr)
-require(tidyr)
-require(purrr)
-require(gghighlight)
+library(tidyverse)
+library(ggplot2)
+library(ggridges) # for densities over time plots. 
+library(knitr)
+library(here)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(gghighlight)
+library(spatstat)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -51,10 +52,14 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r}
 # Read raw datafiles in
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
-raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
 
 out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
 #base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
 ```
 
@@ -106,6 +111,46 @@ spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
                save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
+```
+
+### Poverty Thresholds
+
+#### Relative
+```{r}
+rel.threshold.raw <- raw.dat %>%
+  select(time, weight, hh_income) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6))
+
+rel.threshold.base <- base.dat %>%
+  select(time, weight, hh_income) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6)) %>%
+  filter(time != 2021)
+
+rel.threshold <- rbind(rel.threshold.raw, rel.threshold.base)
+
+ggplot(data = rel.threshold, aes(x = time, y = poverty_threshold)) +
+  geom_col() +
+  geom_hline(yintercept = rel.threshold$poverty_threshold[rel.threshold$time == 2020], linetype='dotted') +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
+  labs(title = 'Relative poverty threshold over time') +
+  xlab('Year') +
+  ylab('Threshold')
+#rm(rel.threshold)
+```
+
+#### Absolute
+```{r}
+raw.2010 <- raw.dat %>%
+  filter(time == 2010)
+
+abs.threshold <- weighted.median(x = raw.2010$hh_income, 
+                                 w = raw.2010$weight, 
+                                 na.rm = TRUE)
+abs.threshold <- abs.threshold * 0.6
+
+print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
 ```
 
 
