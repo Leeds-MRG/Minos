@@ -201,6 +201,9 @@ arc4_baseline_cpr:
 arc4_intervention_childPovertyReductionRELATIVE:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
 
+arc4_intervention_childPovertyReductionRELATIVE_2:
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
+
 arc4_intervention_ChildPovertyReductionABSOLUTE:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
 

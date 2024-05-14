@@ -30,6 +30,10 @@ CPR_rel_sum:
 	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
 	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE
 
+CPR_rel2_sum:
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE_2
+
 CPR_abs_sum:
 	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
 	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionABSOLUTE
