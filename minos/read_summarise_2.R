@@ -452,7 +452,9 @@ priority_summarise_any <- function(data) {
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
              priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
+             num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+                                         priority_three_plus_children, priority_mother_under_25,
+                                         priority_disabled)),
              priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
       ungroup() %>%
@@ -471,7 +473,9 @@ priority_summarise_any <- function(data) {
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
              priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
+             num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+                                         priority_three_plus_children, priority_mother_under_25,
+                                         priority_disabled)),
              priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
       ungroup() %>%
@@ -644,10 +648,10 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    families = families_summarise,
                    families_income_quint = families_income_quint_summarise,
                    treated = treated_summarise,
-                   priority_any = priority_summarise_any,
-                   priority_any2 = priority_summarise_any2,
-                   priority_num = priority_summarise_num
+                   priority_any = priority_summarise_any
 )
+#                   priority_any2 = priority_summarise_any2,
+#                   priority_num = priority_summarise_num
 #                   UC = UC_summarise,
 #                   UC_rel_pov = UC_rel_pov_summarise,
 #                   UC_abs_pov = UC_abs_pov_summarise,
