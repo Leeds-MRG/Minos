@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import logging
+from math import ceil
 
 from minos.modules.base_module import Base
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
@@ -24,7 +25,7 @@ class ChildPovertyReductionRELATIVE(Base):
         return "child_poverty_reduction_relative"
 
     def __repr__(self):
-        return "ChildPovertyReductionRELATIVE()"
+        return "ChildPovertyReductionRELATIVE"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -48,7 +49,7 @@ class ChildPovertyReductionRELATIVE(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'hidp']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -60,7 +61,8 @@ class ChildPovertyReductionRELATIVE(Base):
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
-        builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        #builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
@@ -92,42 +94,52 @@ class ChildPovertyReductionRELATIVE(Base):
 
         # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
-        # Reset the previous income_boosted for testing
+
+        print(f"Number of people already boosted: {full_pop['income_boosted'].sum()}")
+
+        # DO NOT reset the previous income_boosted for testing
+        # We need to track people who have been intervened so we can continue the intervention indefinitely
         # full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
         self.population_view.update(full_pop[['boost_amount']])
-        median_income = full_pop['hh_income'].median()
+        # LA 22/1/24 median income now calculated by household instead of individual
+        median_income = full_pop.groupby('hidp').first()['hh_income'].median()
+
+        # Number of kids should be calculated by household also
         # 2. Total number of kids
-        nkids_total = full_pop['nkids'].sum()
+        nkids_total = full_pop.groupby('hidp').first()['nkids'].sum()
+        #nkids_total = full_pop['nkids'].sum()
 
-        # # HR 07/11/23 Correcting method of calculating total number of kids in full pop
-        # Select first instance of each hidp to avoid duplicating nkids
-        # nkids_total = full_pop.drop_duplicates(subset=['hidp'], keep='first')['nkids'].sum()
-        # full_pop_nodupes = full_pop.drop_duplicates(subset=['hidp'], keep='first')
-        # nkids_pop = full_pop_nodupes['nkids'].sum()
-        # print('## TOTAL KIDS ## ')
-        # print('Method 1 (simple sum): {}'.format(nkids_total))
-        # print('Method 2 (unique HHs): {}'.format(nkids_pop))
-
-        # TODO probably a faster way to do this than resetting the whole column.
-        # full_pop['hh_income'] -= full_pop['boost_amount']  # reset boost
         # 3. Find all households in relative poverty
         relative_poverty_threshold = median_income * 0.6
-        target_pop = self.population_view.get(event.index,
-                                              query=f"alive == 'alive' & nkids > 0 & hh_income < "
-                                                    f"{relative_poverty_threshold}")
+        # target_pop = self.population_view.get(event.index,
+        #                                       query=f"alive == 'alive' & nkids > 0 & hh_income < "
+        #                                             f"{relative_poverty_threshold}")
+        target_pop = full_pop[(full_pop['nkids'] > 0) & (full_pop['hh_income'] < relative_poverty_threshold)]
+
         # 3a. This is the SUSTAIN intervention, so we want to find the households that have previously received the
         # intervention (if any) and uplift them again. This is to simulate ongoing support for a set of families
-        target_pop['boost_amount'][(target_pop['income_boosted'] == True) &  # previously uplifted
-                                   (target_pop['hh_income'] < median_income)] = median_income - target_pop['hh_income']
-        target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']
-        self.population_view.update(target_pop[['hh_income', 'boost_amount']])
-        target_pop = self.population_view.get(event.index,
-                                              query=f"alive == 'alive' & nkids > 0 & hh_income < "
-                                                    f"{relative_poverty_threshold}")
+        target_pop['boost_amount'][(target_pop['income_boosted'] is True) &  # previously uplifted
+                                   (target_pop['hh_income'] < relative_poverty_threshold)] = (  # in relative poverty
+                relative_poverty_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
+
+        target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
+
+        # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
+        for index, row in target_pop.iterrows():
+            pidp = row['pidp']
+            if pidp in full_pop['pidp'].values:
+                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['hh_income']
+                full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
+                full_pop.loc[full_pop['pidp'] == pidp, 'income_boosted'] = row['income_boosted']
+
+        #self.population_view.update(target_pop[['hh_income', 'boost_amount']])
+        #target_pop = self.population_view.get(event.index,
+        #                                      query=f"alive == 'alive' & nkids > 0 & hh_income < "
+        #                                            f"{relative_poverty_threshold}")
 
         # 4. Calculate the proportion of children in relative poverty
-        target_pop_nkids = target_pop['nkids'].sum()
+        target_pop_nkids = target_pop.groupby('hidp').first()['nkids'].sum()
         prop_in_poverty = target_pop_nkids / nkids_total
         print(f"Percentage of children in poverty: {prop_in_poverty * 100}")
 
@@ -151,12 +163,14 @@ class ChildPovertyReductionRELATIVE(Base):
         print(f"Proportion to uplift this year: {proportion_to_uplift}")
 
         # 6. Calculate number of children to elevate out of poverty based on proportion to uplift
-        nkids_to_uplift = round(target_pop_nkids * proportion_to_uplift)
+        nkids_to_uplift = ceil(nkids_total * proportion_to_uplift)
 
         # 7. Randomly select households by hidp until we hit the nkids_to_uplift target
+        # first get a dataframe of just one person per household
+        target_pop_hh_representative = target_pop.groupby('hidp').first().reset_index()
         target_hidps = []
         kids = 0
-        for i in target_pop.sample(frac=1).iterrows():
+        for i in target_pop_hh_representative.sample(frac=1).iterrows():
             if (kids + i[1]['nkids']) <= nkids_to_uplift:
                 kids += i[1]['nkids']
                 target_hidps.append(i[1]['hidp'])
@@ -164,25 +178,46 @@ class ChildPovertyReductionRELATIVE(Base):
                 break
 
         print(f"Number of households to uplift: {len(target_hidps)}")
-        print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
+        #print(f"Number of children to uplift: {target_pop[target_pop['hidp'].isin(target_hidps)]['nkids'].sum()}")
+        target_pop_hhs = target_pop[target_pop['hidp'].isin(target_hidps)]
+        target_pop_hhs_kids = target_pop_hhs.groupby('hidp').first()['nkids'].sum()
+        print(f"Number of children to uplift: {target_pop_hhs_kids}")
 
         # 8. Calculate boost amount for each household and apply
-        uplift_pop = self.population_view.get(event.index,
-                                              query=f"alive == 'alive' & hidp.isin({target_hidps})")
-        uplift_pop['boost_amount'] = median_income - uplift_pop['hh_income']
-        uplift_pop['income_boosted'] = (uplift_pop['boost_amount'] != 0)
+        # uplift_pop = self.population_view.get(event.index,
+        #                                       query=f"alive == 'alive' & hidp.isin({target_hidps})")
+        uplift_pop = target_pop[target_pop['hidp'].isin(target_hidps)]
+
+        # boost is amount to take them above poverty threshold (+1 to guarantee above threshold and not equal to)
+        uplift_pop['boost_amount'] = relative_poverty_threshold - uplift_pop['hh_income'] + 1
+        # assign income_boosted == True if previously True or uplifted in current wave
+        uplift_pop['income_boosted'] = True
         uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
         # 9. Update original population with uplifted values
-        self.population_view.update(uplift_pop[['hh_income', 'income_boosted', 'boost_amount']])
+        # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
+        for index, row in uplift_pop.iterrows():
+            pidp = row['pidp']
+            if pidp in full_pop['pidp'].values:
+                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['hh_income']
+                full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
+                full_pop.loc[full_pop['pidp'] == pidp, 'income_boosted'] = row['income_boosted']
 
-        target_pop2 = self.population_view.get(event.index,
-                                               query=f"alive == 'alive' & nkids > 0 & hh_income < "
-                                                     f"{relative_poverty_threshold}")
+        # Convert 'income_boosted' column back to boolean type
+        full_pop['income_boosted'] = full_pop['income_boosted'].astype(bool)
 
-        print(f"Proportion of children in poverty AFTER intervention: {target_pop2['nkids'].sum() / nkids_total}")
+        self.population_view.update(full_pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        # Check the population still in poverty
+        # target_pop2 = self.population_view.get(event.index,
+        #                                        query=f"alive == 'alive' & nkids > 0 & hh_income < "
+        #                                              f"{relative_poverty_threshold}")
+        still_in_pov = full_pop[(full_pop['nkids'] > 0) & (full_pop['hh_income'] < relative_poverty_threshold)]
+
+        print(f"Proportion of children in poverty AFTER intervention: {still_in_pov.groupby('hidp').first()['nkids'].sum() / nkids_total}")
 
         # 10. Logging
+        #TODO: Change these to household calculations
         logging.info(f"\tNumber of people uplifted: {sum(uplift_pop['income_boosted'])}")
         logging.info(f"\t...which is {(sum(uplift_pop['income_boosted']) / len(full_pop)) * 100}% of the total "
                      f"population.")

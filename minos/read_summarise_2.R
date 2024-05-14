@@ -451,14 +451,11 @@ priority_summarise_any <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
+             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
+             priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
       ungroup() %>%
-      mutate(num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
-                                         priority_three_plus_children, priority_mother_under_25,
-                                         priority_disabled)),
-             priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
-             ) %>%
       filter(priority_any == TRUE) %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -473,14 +470,11 @@ priority_summarise_any <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
+             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
+             priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
       ungroup() %>%
-      mutate(num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
-                                         priority_three_plus_children, priority_mother_under_25,
-                                         priority_disabled)),
-             priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
-             ) %>%
       filter(priority_any == TRUE) %>%
       group_by(run_id) %>%
       summarise(count = n(),
@@ -500,14 +494,11 @@ priority_summarise_any2 <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
-      ) %>%
-      ungroup() %>%
-      mutate(num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
-                                         priority_three_plus_children, priority_mother_under_25,
-                                         priority_disabled)),
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
+             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
              priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
+      ungroup() %>%
       group_by(run_id, priority_any) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -521,14 +512,11 @@ priority_summarise_any2 <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
-             ) %>%
-      ungroup() %>%
-      mutate(num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
-                                         priority_three_plus_children, priority_mother_under_25,
-                                         priority_disabled)),
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
+             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
              priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
              ) %>%
+      ungroup() %>%
       group_by(run_id, priority_any) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -547,14 +535,10 @@ priority_summarise_num <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
+             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()) # divide rowSum by n individuals in hh
       ) %>%
       ungroup() %>%
-      mutate(num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
-                                         priority_three_plus_children, priority_mother_under_25,
-                                         priority_disabled)),
-             priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
-             ) %>%
       group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -569,14 +553,10 @@ priority_summarise_num <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
+             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()) # divide rowSum by n individuals in hh
       ) %>%
       ungroup() %>%
-      mutate(num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
-                                         priority_three_plus_children, priority_mother_under_25,
-                                         priority_disabled)),
-             priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
-      ) %>%
       group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
