@@ -53,8 +53,8 @@ output/*/*/*
 test.log
 
 # testing
-#testing/
-#testing/*
+testing/
+testing/*
 # just for time being remove the tests and data (not in use currently)
 tests/
 tests/data/*
@@ -78,6 +78,8 @@ persistent_data/Fertility/
 persistent_data/Fertility/*
 persistent_data/Mortality/
 persistent_data/Mortality/*
+persistent_data/HH2011PopEst2020S_population.csv
+persistent_data/Ind2011PopEst2020S_population.csv
 
 # conda env.
 conda_minos
@@ -111,3 +113,7 @@ minos/testing/*_files/
 # python notebooks for testing
 notebooks/equivalent_income_test.ipynb
 notebooks/testing_scottish_sample.ipynb
+notebooks/hh_composition_composite.ipynb
+notebooks/new_housing_composite.ipynb
+notebooks/testing_new_transition_vars.ipynb
+notebooks/equivalent_income.ipynb
