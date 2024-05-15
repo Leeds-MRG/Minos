@@ -5,6 +5,7 @@ It DOES NOT handle missing data. see US_missing.py.
 import pandas as pd
 import numpy as np
 import argparse
+import time
 
 import US_utils
 
@@ -482,6 +483,58 @@ def format_analysis_weight(data, year):
     return data
 
 
+def remove_scottish_sample(data):
+    """
+    WARNING!!
+    This function will remove all Scottish individuals from the sample. This is for a specific intervention and purpose,
+    and in general should not be running. If you do not know why you would want to remove Scottish individuals from the
+    sample, this function should not be running.
+
+    We are removing Scottish individuals to enable some specific work investigating the effects of the Scottish Child
+    Payment benefit. Due to issues with the sample and lack of a variable, we cannot know who in Understanding Society
+    has already received the benefit. Therefore, to do a proper counterfactual, we will run the intervention and apply
+    the benefit to NON-SCOTTISH INDIVIDUALS ONLY. This is why we have to remove Scottish individuals from the sample.
+
+    Once again, if you are not expecting Scottish individuals to be removed from the sample, this is a mistake and you
+    should check carefully whether you are on the correct branch, or something catastrophic has happened in version
+    control.
+    WARNING!!
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+
+    warning_string = """
+    
+    WARNING!!
+    We are about to remove all Scottish individuals from the sample. This is for a specific intervention and purpose,
+    and in general should not be running. If you do not know why you would want to remove Scottish individuals from the
+    sample, there has been a mistake and you should check US_format_raw.py
+    
+    We are removing Scottish individuals to enable some specific work investigating the effects of the Scottish Child
+    Payment benefit. Due to issues with the sample and lack of a variable, we cannot know who in Understanding Society
+    has already received the benefit. Therefore, to do a proper counterfactual, we will run the intervention and apply
+    the benefit to NON-SCOTTISH INDIVIDUALS ONLY. This is why we have to remove Scottish individuals from the sample.
+    
+    Once again, if you are not expecting Scottish individuals to be removed from the sample, this is a mistake and you
+    should check carefully whether you are on the correct branch, or if something catastrophic has happened in version 
+    control.
+    WARNING!!
+    
+    """
+
+    print(warning_string)
+    time.sleep(1)
+
+    data = data[data['region'] != 'Scotland']
+    return data
+
+
 def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     """ Function to collect and merge the indresp and hhresp files for a specific year.
 
@@ -582,6 +635,12 @@ def main(wave_years: list, file_source: str, verbose: bool, file_output: str) ->
 
         # check for and remove any null rows (1 created in bhps due to merge)
         data = data.loc[~data["pidp"].isnull()]
+
+
+        ## WARNING ##
+        # Don't do this if you don't know why it's happening
+        data = remove_scottish_sample(data)
+        ## WARNING ##
 
         # Save formatted data
         US_utils.save_file(data, file_output, "", year)
