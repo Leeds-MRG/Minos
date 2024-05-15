@@ -1,0 +1,158 @@
+---
+title: "Diagnosing Child Poverty Reduction Interventions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+This document presents results from a host of interventions on child poverty, including visualisations of the change in SF_12_MCS compared with baseline.
+
+```{r "setup", include=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(ggridges) # for densities over time plots. 
+library(knitr)
+library(here)
+library(gghighlight)
+
+workingDir <- "/home/luke/Documents/MINOS/Minos/"
+#workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+```{r "imports", include=FALSE}
+source(here::here('minos', 'utils_datain.R'))
+#source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+```{r, include=FALSE}
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 
+                                    'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+rel.dat <- read_singular_local_out(out.path, 
+                                   'ChildPovertyReductionRELATIVE', 
+                                   drop.dead = TRUE,
+                                   drop.zero.weight = TRUE)
+# rel.int.2 <- read_singular_local_out(out.path, 
+#                                      'ChildPovertyReductionRELATIVE_2', 
+#                                      drop.dead = TRUE,
+#                                      drop.zero.weight = TRUE)
+abs.int <- read_singular_local_out(out.path, 
+                                   'ChildPovertyReductionABSOLUTE', 
+                                   drop.dead = TRUE,
+                                   drop.zero.weight = TRUE)
+```
+
+# Household Income
+
+i.e. is the intervention working?
+
+## All Pop
+
+```{r}
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+rel.inc <- rel.dat %>%
+  select(pidp, hidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+inc <- rbind(base.inc, rel.inc)
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(base.dat, aes(x = hh_income, y = time, group = time, color = 'blue', alpha = 0.3)) +
+  geom_density_ridges() +
+  geom_density_ridges(data = rel.dat, aes(x = hh_income, y = time, group = time, color = 'red')) +
+  theme(legend.position = 'none') +
+  labs(title = 'Relative Poverty Reduction Intervention - Red')
+```
+
+## Households With Children
+
+```{r}
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, hh_income, age, nkids, weight) %>%
+  mutate(nkids_any = (nkids > 0)) %>%
+  filter(nkids_any == TRUE) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+rel.inc <- rel.dat %>%
+  select(pidp, hidp, time, hh_income, age, nkids, weight) %>%
+  mutate(nkids_any = (nkids > 0)) %>%
+  filter(nkids_any = TRUE) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+inc <- rbind(base.inc, rel.inc)
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+```
+
+## Boosted Pop
+
+```{r}
+boosted.pidps <- rel.int %>%
+  filter(income_boosted == 'TRUE') %>%
+  select(pidp)
+
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, hh_income, weight) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+rel.inc <- rel.dat %>%
+  select(pidp, hidp, time, hh_income, weight) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+inc <- rbind(base.inc, rel.inc)
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
