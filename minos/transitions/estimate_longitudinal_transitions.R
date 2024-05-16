@@ -109,6 +109,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     } else {
       do.yeo.johnson = F
     }
+    
+    if (dependent %in% c('SF_12_PCS', 'SF_12_MCS', 'SF_12')) {
+      do.log.transform <- T
+    } else {
+      do.log.transform <- F
+    }
 
     # experimental ordinal long models. ignore.
     # if (mod.type == "ORDGEE") {
