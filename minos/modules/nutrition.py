@@ -233,12 +233,11 @@ class lmmYJNutrition(Base):
         -------
         """
         nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='nutrition_quality_new',
-                                                                       reflect=False,
-                                                                       yeo_johnson= False,
-                                                                       noise_std=1)#
+                                                                          self.rpy2Modules,
+                                                                          pop,
+                                                                          dependent='nutrition_quality_new',
+                                                                          log_transform=False,
+                                                                          noise_std=1)
 
         return nextWaveNutrition
 

@@ -469,7 +469,8 @@ class lmmYJMWB(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
+        view_columns = ["time",
+                        "age",
                         "sex",
                         "ethnicity",
                         "region",
@@ -497,10 +498,14 @@ class lmmYJMWB(Base):
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
 
-        #only need to load this once for now.
-        self.lmm_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2Modules, path=self.transition_dir)
-        #self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "lmm")
+        # only need to load this once for now.
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    "lmm")
+        # self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/glmm/SF_12_MCS_GLMM", self.rpy2_modules, path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -533,7 +538,7 @@ class lmmYJMWB(Base):
         # Update population with new SF12_MCS
         # print(np.mean(newWaveMWB["SF_12"]))
         # print(np.std(newWaveMWB["SF_12"]))
-        self.population_view.update(newWaveMWB[['SF_12', "SF_12_MCS_diff"]])
+        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
 
     def calculate_mwb(self, pop):
