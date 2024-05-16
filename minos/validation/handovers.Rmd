@@ -997,6 +997,12 @@ base.child.ages.expanded <- base.child.ages.expanded %>%
   mutate(source = 'baseline')
 
 combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
+
+combined$expanded_child_ages <- factor(combined$expanded_child_ages,
+                                       levels = c('0', '1', '2', '3', '4', '5', 
+                                                  '6', '7', '8', '9', '10', 
+                                                  '11', '12', '13', '14', '15', 
+                                                  '16', 'childless'))
   
 ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
   geom_line() +
@@ -1006,12 +1012,12 @@ ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded
   xlab('Year') +
   ylab('Count')
 
-ggplot(data = combined, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
+ggplot(data = combined, mapping = aes(x = expanded_child_ages, y = age_counts, group = factor(time), colour = factor(time))) +
   geom_line() +
   geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
   scale_colour_viridis_d() +
-  xlab('Year') +
+  xlab('Age') +
   ylab('Count')
 
 base.child.ages.nkids <- base.dat %>%
