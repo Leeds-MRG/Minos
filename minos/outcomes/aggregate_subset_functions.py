@@ -222,7 +222,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
         if type(subset_function) == list:  # if the function has additional args pass them here.
             subset_function, subset_args = subset_function
             data.loc[list(
-                set(data.index) - set(subset_function(data, subset_args)).index), "who_final_boosted_subset"] *= False
+                set(data.index) - set(subset_function(data, subset_args).index)), "who_final_boosted_subset"] *= False
         else:  # if function has no additional args pass them here.
             data.loc[list(set(data.index) - set(subset_function(data).index)), "who_final_boosted_subset"] *= False
 
@@ -438,7 +438,8 @@ def who_kth_simd_decile(df, *args):
 
 def who_kth_simd_quintile(df, *args):
     k = args[0][0]
-    return df.loc[np.ceil(df["simd_decile"] / 2) == k]
+    df['simd_quintile'] = pd.qcut(df['simd_decile'], q=5, labels = range(1, 6)).astype(int)
+    return df.loc[np.ceil(df["simd_quintile"]) == k, ]
 
 
 def who_glasgow(df):

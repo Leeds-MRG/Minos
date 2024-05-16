@@ -146,6 +146,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     if region in ['scotland', 'glasgow', 'edinburgh', 'manchester']:
         sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(region), "ZoneID")
 
+
+
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
 
@@ -162,37 +164,37 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
 if __name__ == '__main__':
 
-    # parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
-    # parser.add_argument("-r", "--region", required=True, type=str,
-    #                     help="""The region to subset for the UK synthetic population.
-    #                           glasgow, scotland, manchester, sheffield, uk only for now.""")
-    # parser.add_argument("-p", "--percentage", required=False, type=int,
-    #                     help="Percentage of synthetic population to use (e.g. 0-100%).")
-    # parser.add_argument("-b", "--do_bootstrapping", required=False, type=bool,
-    #                     help="Bootstrapping the synthetic population to incudce uncertainty?")
-    # parser.add_argument("-s", "--bootstrap_sample_size", required=False, type=int,
-    #                     help="How many bootstrap samples to take. Should only be used with do_bootstrapping above.")
-    #
-    # args = vars(parser.parse_args())
-    # print(args)
-    # region = args['region']
-    # if 'percentage' in args.keys():
-    #     percentage = args['percentage']
-    # else:
-    #     percentage = 100
-    # if 'do_bootstrapping' in args.keys():
-    #     do_bootstrapping = args['do_bootstrapping']
-    # else:
-    #     do_bootstrapping = False
-    # if "bootstrap_sample_size" in args.keys():
-    #     bootstrap_sample_size = args['bootstrap_sample_size']
-    # else:
-    #     bootstrap_sample_size = 1
+    parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
+    parser.add_argument("-r", "--region", required=True, type=str,
+                        help="""The region to subset for the UK synthetic population.
+                              glasgow, scotland, manchester, sheffield, uk only for now.""")
+    parser.add_argument("-p", "--percentage", required=False, type=int,
+                        help="Percentage of synthetic population to use (e.g. 0-100%).")
+    parser.add_argument("-b", "--do_bootstrapping", required=False, type=bool,
+                        help="Bootstrapping the synthetic population to incudce uncertainty?")
+    parser.add_argument("-s", "--bootstrap_sample_size", required=False, type=int,
+                        help="How many bootstrap samples to take. Should only be used with do_bootstrapping above.")
 
-    region = 'manchester'
-    percentage = 10
-    do_bootstrapping = False
-    bootstrap_sample_size = 1
+    args = vars(parser.parse_args())
+    print(args)
+    region = args['region']
+    if 'percentage' in args.keys():
+        percentage = args['percentage']
+    else:
+        percentage = 100
+    if 'do_bootstrapping' in args.keys():
+        do_bootstrapping = args['do_bootstrapping']
+    else:
+        do_bootstrapping = False
+    if "bootstrap_sample_size" in args.keys():
+        bootstrap_sample_size = args['bootstrap_sample_size']
+    else:
+        bootstrap_sample_size = 1
+
+    #region = 'manchester'
+    #percentage = 10
+    #do_bootstrapping = False
+    #bootstrap_sample_size = 1
     main(region, percentage, do_bootstrapping, bootstrap_sample_size)
 
 

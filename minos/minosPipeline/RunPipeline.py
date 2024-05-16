@@ -51,7 +51,7 @@ from minos.modules.interventions_child_poverty import hhIncomePovertyLineChildUp
 from minos.modules.interventions_child_poverty import childUplift
 from minos.modules.interventions_living_wage import livingWageIntervention
 from minos.modules.interventions_energy import energyDownlift, energyDownliftNoSupport
-from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
+from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme, EPCG
 
 # from minos.modules.metrics import ChildPovertyMetrics
 
@@ -129,6 +129,7 @@ intervention_components_map = {        #Interventions
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
     "fossilFuelReplacementScheme": fossilFuelReplacementScheme(),
+    "EPCG": EPCG(),
 
     "childUplift()": childUplift(),
 
@@ -381,7 +382,7 @@ def RunPipeline(config, intervention=None):
 
     logging.info('Simulation loop start...')
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
-    for year in range(1, config.time.num_years + 1):
+    for year in range(config.time.end.year+1-config.time.start.year):
 
         logging.info(f'Begin simulation for year {config.time.start.year + year}')
 

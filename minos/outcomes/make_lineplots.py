@@ -180,10 +180,11 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                     f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
                 aggregated_means = [None]
 
-            if method == weighted_nanmean or method == child_uplift_cost_sum:
+            if method in [weighted_nanmean, child_uplift_cost_sum]:
                 single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
                 single_year_aggregates['year'] = year
                 single_year_aggregates['tag'] = tag
+                single_year_aggregates['subset_function'] = subset_func_string
                 aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
             elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
                 for i, single_year_aggregate in enumerate(aggregated_means):
@@ -397,7 +398,7 @@ def child_uplift_cost_sum(df, v, weights='weight'):
 
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
-         method='nanmean', region=None):
+         method='nanmean', region=None, do_simd_quintiles = False):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
 
@@ -446,9 +447,22 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
     if v == "SF_12" and method == weighted_nanmean:
-        scaled_data = relative_scaling(aggregate_long_stack, v, ref)
-        print("relative scaling done. plotting.. ")
-        aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+        if not do_simd_quintiles:
+            scaled_data = relative_scaling(aggregate_long_stack, v, ref)
+            print("relative scaling done. plotting.. ")
+            aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+        else:
+            print("start relative scaling..")
+            scaled_data = pd.DataFrame()
+            for subset_function_string in np.unique(aggregate_long_stack['subset_function']):
+                aggregate_long_stack_subsection = aggregate_long_stack.loc[
+                    aggregate_long_stack['subset_function'] == subset_function_string,]
+                aggregate_long_stack_subsection = relative_scaling(aggregate_long_stack_subsection, v, ref)
+                aggregate_long_stack_subsection = aggregate_long_stack_subsection.loc[
+                    aggregate_long_stack_subsection['tag'] != "Baseline", ]
+                scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
+            aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+
     elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
         # groupby intervention and cumsum over time.
         aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()

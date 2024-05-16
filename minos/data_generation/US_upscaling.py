@@ -50,7 +50,7 @@ def get_spatial_attribute_data(region):
             simd_data = pd.read_csv("persistent_data/spatial_data/scotland_simd_to_data_zones.csv")[
                     ["DZ", "SIMD2020v2_Decile"]]
             simd_data.columns = ["ZoneID", "simd_decile"]
-            simd_data["local_simd_deciles"] = pd.qcut(simd_data["simd_decile"], q=10, labels = list(range(1, 11)))
+            #simd_data["local_simd_deciles"] = pd.qcut(simd_data["simd_decile"], q=10, labels = list(range(1, 11)))
             #simd_dict = dict(zip(simd_data["DZ"], simd_data["SIMD2020v2_Decile"]))
         except FileNotFoundError as e:
             print(e)
@@ -61,12 +61,10 @@ def get_spatial_attribute_data(region):
                       https://www.gov.scot/publications/scottish-index-of-multiple-deprivation-2020v2-data-zone-look-up/
                       """)
     else:
-        simd_data = pd.read_csv("persistent_data/spatial_data/uk_imd2019.csv")[["LSOA", "Rank"]]
+        simd_data = pd.read_csv("persistent_data/spatial_data/uk_imd2019.csv")[["LSOA", "SOA_decile"]] #'Rank'
         # https://data.cdrc.ac.uk/dataset/index-multiple-deprivation-imd
-        simd_data.columns = ['ZoneID', 'simd_decile']
-        simd_data['simd_deciles'] = pd.qcut(simd_data['simd_decile'], q=10, labels = list(range(1, 11)))
-        simd_data["local_simd_deciles"] = simd_data['simd_deciles']
-
+        simd_data.columns = ['ZoneID', 'simd_deciles']
+        #simd_data['local_simd_deciles'] = pd.qcut(simd_data['simd_deciles'], q=10, labels=np.arange(1, 11))
     return simd_data
 
 def get_knn_cluster_data():

@@ -148,7 +148,7 @@ def run(args):
     logging.info(f"Beginning a {scenario} simulation.")
     if args.runID:
         logging.info(f"This is run {args.runID} of a batch run.")
-    logging.info(f"Beginning simulation in {config.time.start.year}, running for {config.time.num_years} years until {config.time.end.year}")
+    logging.info(f"Beginning simulation in {config.time.start.year}, running for {config.time.end.year - config.time.start.year} years until {config.time.end.year}")
     logging.info("Pipeline start...")
     #TODO: Add more here.
 

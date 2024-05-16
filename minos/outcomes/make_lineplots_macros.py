@@ -190,15 +190,21 @@ def quintiles_lineplot(config_mode, source, region):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 def generic_simd_quintiles_lineplot(config_mode, source, tag):
-    directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
-    tags = "National Average,First,Second,Third,Fourth,Fifth"
-    subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
+    directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 6 times and cut off last comma.
+    tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
+    subset_function_strings = """who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"""
+
+    # directories = "baseline,"*2 + (f"{source}," * 2)[:-1]  # repeat 6 times and cut off last comma.
+    # tags = "Baseline,Baseline,First,Second"
+    # subset_function_strings = """who_first_simd_quintile,who_second_simd_quintile,who_first_simd_quintile,who_second_simd_quintile"""
+
     prefix = f"{source}_simd_quintiles"
-    ref = "National Average"
+    ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
     region=None
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region, do_simd_quintiles=True)
 
 
 

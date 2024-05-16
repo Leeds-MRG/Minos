@@ -102,11 +102,27 @@ def generate_composite_housing_quality(data):
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6))] = 'Yes to some'
     data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 0] = 'No to all'
 
+    overcrowding_limits = {1: 2,
+                           2: 3,
+                           3: 5,
+                           4: 7.5,
+                           5: 10}
+    # get max people per household for it to be considered overcrowded.
+    data['is_overcrowded'] = data["number_of_bedrooms"].map(overcrowding_limits)
+    # find total people in each house. (sum plus nkids)
+    data['npeople'] = data.groupby(by='hidp')['pidp'].transform('count')
+    data['npeople'] += data['nkids']
+    # determine if households have more people in them than the statutory limit. (I.E. find overcrowded households).
+    data['is_overcrowded'] = data['is_overcrowded'] > data['npeople']
+    # override for 6+ bedrooms. assume not overcrowded. tiny proportion anyway.
+    data.loc[data['number_of_bedrooms'] > 6, "is_overcrowded"] = False
+
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
-                      'tumble_dryer', 'dishwasher', 'microwave',],# 'heating'],
+                      'tumble_dryer', 'dishwasher', 'microwave', 'npeople'],# 'heating'],
               axis=1,
               inplace=True)
+
 
     return data
 
@@ -1105,7 +1121,6 @@ def main():
     data = generate_physical_health_score(data)  # physical health score
     data = calculate_equivalent_income(data)  # equivalent income
     data = calculate_children(data)  # total number of biological children
-    data = data.copy()  # defragmention of dataframe.
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

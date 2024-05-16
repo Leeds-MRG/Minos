@@ -10,10 +10,11 @@ import US_missing_description
 from multiprocessing import Pool, cpu_count
 from functools import partial
 from scipy import interpolate
+from itertools import repeat
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-def applyParallelLOCF(dfGrouped, func, **kwargs):
+def applyParallelLOCF(dfGrouped, func, columns):
     """ Apply pandas.apply() methods in parallel on groupby object.
 
     Parameters
@@ -28,10 +29,12 @@ def applyParallelLOCF(dfGrouped, func, **kwargs):
         Object with func applied.
     """
     with Pool(cpu_count()) as p:
-        ret_list = p.map(partial(func, **kwargs), [group for name, group in dfGrouped])
+        #ret_list = p.map(partial(func, **kwargs), [group for name, group in dfGrouped])
+        #dfGrouped = zip([group for name, group in dfGrouped])
+        ret_list = p.starmap(func, zip(dfGrouped, repeat(columns)))
     return pd.concat(ret_list)
 
-def ffill_groupby(pid_groupby):
+def ffill_groupby(pid_groupby, f_columns):
     """ forward fill groupby object
 
     Parameters
@@ -44,9 +47,9 @@ def ffill_groupby(pid_groupby):
     pid_groupby : Object with forward filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
-    return pid_groupby.ffill()
+    return pid_groupby[f_columns].ffill()
 
-def bfill_groupby(pid_groupby):
+def bfill_groupby(pid_groupby, b_columns):
     """ back fill groupby object
 
     Parameters
@@ -59,9 +62,9 @@ def bfill_groupby(pid_groupby):
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby.bfill()
+    return pid_groupby[b_columns].bfill()
 
-def fbfill_groupby(pid_groupby):
+def fbfill_groupby(pid_groupby, fb_columns):
     """ forward and back fill groupby object
     Parameters
     ----------
@@ -72,9 +75,9 @@ def fbfill_groupby(pid_groupby):
     pid_groupby : Object with forward-back filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby.ffill().bfill()
+    return pid_groupby[fb_columns].ffill().bfill()
 
-def mffill_groupby(pid_groupby):
+def mffill_groupby(pid_groupby, mf_columns):
     """
     Forward fill the maximum observation in groupby object. The filled variable would only be able to increase over
     time.
@@ -91,7 +94,7 @@ def mffill_groupby(pid_groupby):
     -------
     pid_groupby : Object with maximum observation forward filled objects
     """
-    return pid_groupby.apply(
+    return pid_groupby[mf_columns].apply(
         lambda x: pd.DataFrame.cummax(x))
 
 def interpolate(data, interpolate_columns, type='linear'):
@@ -216,25 +219,26 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns
     # Acts as a for loop to fill items by each individual. If you dont this it will try and fill the whole dataframe
     # at once.
     pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
+    pid_groupby = [group for name, group in pid_groupby]
 
     print("groupby done. interpolating..")
     # Fill missing data by individual for given carrying type. Forwards, backwards, or forward then backwards.
     # See pandas ffill and bfill functions for more details.
     if f_columns:
         # Forward fill.
-        fill = applyParallelLOCF(pid_groupby[f_columns], ffill_groupby)
+        fill = applyParallelLOCF(pid_groupby, ffill_groupby, f_columns)
         data[f_columns] = fill[f_columns]
     if b_columns:
         # backward fill. only use this on IMMUTABLE attributes.
-        fill = applyParallelLOCF(pid_groupby[b_columns], bfill_groupby)
+        fill = applyParallelLOCF(pid_groupby, bfill_groupby, b_columns)
         data[b_columns] = fill[b_columns]
     if fb_columns:
         # forwards and backwards fill. again immutables only.
-        fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
+        fill = applyParallelLOCF(pid_groupby, fbfill_groupby, fb_columns)
         data[fb_columns] = fill[fb_columns]
     if mf_columns:
         # Forward fill monotonic
-        fill = applyParallelLOCF(pid_groupby[mf_columns], mffill_groupby)
+        fill = applyParallelLOCF(pid_groupby, mffill_groupby, mf_columns)
         data[mf_columns] = fill[mf_columns]
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data

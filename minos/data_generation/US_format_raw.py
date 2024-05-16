@@ -9,6 +9,8 @@ import argparse
 import US_utils
 
 import US_format_raw_children_data
+from multiprocessing import Pool, cpu_count
+from itertools import repeat
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -635,10 +637,47 @@ def main(wave_years: list, file_source: str, verbose: bool, file_output: str) ->
         US_utils.save_file(data, file_output, "", year)
 
 
+def multithread_main(wave_year: int, file_source: str, verbose: bool, file_output: str) -> None:
+    """ Main file for processing raw US data.
+
+    Parameters
+    ----------
+    wave_year: int
+        What year to process data for. Data goes from 1990-2021 currently.
+    file_source, file_output : str
+        Where is minos of the raw US data.
+        Where should processed data be output to.
+        Which section of US data is being used. Usually independent response (indresp).
+    """
+
+    # Loop over wave years and format data.
+    # Two types of wave with different naming conventions and variables.
+    # The BHPS waves circa 2008 and ukhls waves post 2009 have different classes for processing.
+
+    # Merge the indresp and hhresp files for a particular year then format
+    indresp_name = US_utils.US_file_name(wave_year, file_source, "indresp")
+    hhresp_name = US_utils.US_file_name(wave_year, file_source, "hhresp")
+    hhsamp_name = US_utils.US_file_name(wave_year, file_source, "hhsamp")
+
+
+    indresp_hhresp_data = combine_indresp_hhresp(wave_year, indresp_name, hhresp_name)
+    indresp_hhresp_hhsamp = combine_indresp_hhsamp(wave_year, indresp_hhresp_data, hhsamp_name)
+
+    data = format_data(wave_year, indresp_hhresp_hhsamp, verbose)
+
+    # check for and remove any null rows (1 created in bhps due to merge)
+    data = data.loc[~data["pidp"].isnull()]
+
+    # Save formatted data
+    US_utils.save_file(data, file_output, "", wave_year)
+
+
+
 if __name__ == "__main__":
 
     maxyr = US_utils.get_data_maxyr()
-    years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
+    years = [i for i in range(1991, maxyr )]
+    #years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
 
     # Take source from command line args (or most likely from Makefile variable)
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
@@ -654,4 +693,7 @@ if __name__ == "__main__":
     # source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
     output = "data/raw_US/"
 
-    main(years, source, verbose, output)
+    #main(years, source, verbose, output)
+
+    with Pool(cpu_count()) as p:
+        p.starmap(multithread_main, zip(years, repeat(source), repeat(verbose), repeat(output)))
