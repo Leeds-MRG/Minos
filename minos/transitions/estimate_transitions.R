@@ -81,6 +81,7 @@ run_yearly_models <- function(transitionDir_path,
   repeat{
     def = readLines(modDefs, n = 1) # Read one line from the connection.
     if(identical(def, character(0))){break} # If the line is empty, exit.
+    if(startsWith(def, '#')){next}  # If line starts with '#', line is comment and should be ignored
 
     # Get model type
     split1 <- str_split(def, pattern = " : ")[[1]]
