@@ -176,7 +176,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
       dependent <-  paste0(dependent, "_new")
     }
-    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'matdep', 'chron_disease')) {
+    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 'chron_disease')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
