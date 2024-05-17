@@ -18,6 +18,9 @@ housing_baseline: MODE=energy_default_config
 housing_baseline:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
+intervention_EPCG:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'EPCG'
+
 intervention_goodHeatingDummy:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
 
@@ -96,6 +99,11 @@ arc4_manchester_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.
 arc4_manchester_goodHeatingDummy: MODE=energy_manchester_scaled
 arc4_manchester_goodHeatingDummy:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
+
+arc4_manchester_EPCG: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_EPCG: MODE=energy_manchester_scaled
+arc4_manchester_EPCG:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'EPCG'
 
 arc4_manchester_GBIS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 arc4_manchester_GBIS: MODE=energy_manchester_scaled

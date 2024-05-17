@@ -69,10 +69,6 @@ intervention_energyDownLift: setup
 intervention_energyDownLiftNoSupport: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
-intervention_goodHeatingDummy: setup
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'gootHeatingDummy'
-
-
 all_scenarios: MODE = default_config
 all_scenarios: RUN_CONFIG=$(CONFIG)/default.yaml
 all_scenarios: baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift intervention_energyDownLiftNoSupport
