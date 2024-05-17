@@ -45,14 +45,14 @@ base.dat <- read_singular_local_out(out.path,
                                     'baseline', 
                                     drop.dead = TRUE, 
                                     drop.zero.weight = TRUE)
-rel.dat <- read_singular_local_out(out.path, 
+rel.int <- read_singular_local_out(out.path, 
                                    'ChildPovertyReductionRELATIVE', 
                                    drop.dead = TRUE,
                                    drop.zero.weight = TRUE)
-# rel.int.2 <- read_singular_local_out(out.path, 
-#                                      'ChildPovertyReductionRELATIVE_2', 
-#                                      drop.dead = TRUE,
-#                                      drop.zero.weight = TRUE)
+rel.int.2 <- read_singular_local_out(out.path,
+                                     'ChildPovertyReductionRELATIVE_2',
+                                     drop.dead = TRUE,
+                                     drop.zero.weight = TRUE)
 abs.int <- read_singular_local_out(out.path, 
                                    'ChildPovertyReductionABSOLUTE', 
                                    drop.dead = TRUE,
@@ -72,7 +72,7 @@ base.inc <- base.dat %>%
   summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
   mutate(scen = 'Baseline')
 
-rel.inc <- rel.dat %>%
+rel.inc <- rel.int %>%
   select(pidp, hidp, time, hh_income, weight) %>%
   group_by(time) %>%
   summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
@@ -86,7 +86,7 @@ ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen
 
 ggplot(base.dat, aes(x = hh_income, y = time, group = time, color = 'blue', alpha = 0.3)) +
   geom_density_ridges() +
-  geom_density_ridges(data = rel.dat, aes(x = hh_income, y = time, group = time, color = 'red')) +
+  geom_density_ridges(data = rel.int, aes(x = hh_income, y = time, group = time, color = 'red')) +
   theme(legend.position = 'none') +
   labs(title = 'Relative Poverty Reduction Intervention - Red')
 ```
@@ -102,7 +102,7 @@ base.inc <- base.dat %>%
   summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
   mutate(scen = 'Baseline')
 
-rel.inc <- rel.dat %>%
+rel.inc <- rel.int %>%
   select(pidp, hidp, time, hh_income, age, nkids, weight) %>%
   mutate(nkids_any = (nkids > 0)) %>%
   filter(nkids_any = TRUE) %>%
@@ -121,21 +121,23 @@ ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen
 
 ```{r}
 boosted.pidps <- rel.int %>%
-  filter(income_boosted == 'TRUE') %>%
+  filter(income_boosted == 'True') %>%
   select(pidp)
 
 base.inc <- base.dat %>%
-  select(pidp, hidp, time, hh_income, weight) %>%
+  select(pidp, hidp, time, hh_income, SF_12, weight) %>%
   filter(pidp %in% boosted.pidps$pidp) %>%
   group_by(time) %>%
-  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE)) %>%
   mutate(scen = 'Baseline')
 
-rel.inc <- rel.dat %>%
-  select(pidp, hidp, time, hh_income, weight) %>%
+rel.inc <- rel.int %>%
+  select(pidp, hidp, time, hh_income, SF_12, weight) %>%
   filter(pidp %in% boosted.pidps$pidp) %>%
   group_by(time) %>%
-  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE)) %>%
   mutate(scen = 'Relative')
 
 inc <- rbind(base.inc, rel.inc)
@@ -143,7 +145,123 @@ inc <- rbind(base.inc, rel.inc)
 ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
   geom_line() +
   geom_point()
+
+ggplot(inc, aes(x = time, y = SF_12, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
 ```
+
+
+
+
+
+# TESTING THE BOOSTED POP
+
+```{r}
+boosted.pidps <- rel.int %>%
+  filter(income_boosted == 'True') %>%
+  select(pidp)
+
+# Define the recoding mapping for housing_quality
+recoding_mapping <- c("Low" = 1, "Medium" = 2, "High" = 3)  # Adjust as needed
+
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, age, hh_income, SF_12, housing_quality, neighbourhood_safety, ncigs, nutrition_quality, loneliness, nkids, weight) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  mutate_at(vars(housing_quality), ~recode(., !!!recoding_mapping)) %>%
+  group_by(time) %>%
+  summarise(boosted_pop = n(),
+            age = mean(age, na.rm = TRUE),
+            hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE),
+            housing_quality = weighted.mean(x = housing_quality, w = weight, na.rm = TRUE),
+            neighbourhood_safety = weighted.mean(x = neighbourhood_safety, w = weight, na.rm = TRUE),
+            ncigs = weighted.mean(x = ncigs, w = weight, na.rm = TRUE),
+            nutrition_quality = weighted.mean(x = nutrition_quality, w = weight, na.rm = TRUE),
+            loneliness = weighted.mean(x = loneliness, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+
+rel.inc <- rel.int %>%
+  select(pidp, hidp, time, age, hh_income, SF_12, housing_quality, neighbourhood_safety, ncigs, nutrition_quality, loneliness, nkids, weight) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  mutate_at(vars(housing_quality), ~recode(., !!!recoding_mapping)) %>%
+  group_by(time) %>%
+  summarise(boosted_pop = n(),
+            age = mean(age, na.rm = TRUE),
+            hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE),
+            housing_quality = weighted.mean(x = housing_quality, w = weight, na.rm = TRUE),
+            neighbourhood_safety = weighted.mean(x = neighbourhood_safety, w = weight, na.rm = TRUE),
+            ncigs = weighted.mean(x = ncigs, w = weight, na.rm = TRUE),
+            nutrition_quality = weighted.mean(x = nutrition_quality, w = weight, na.rm = TRUE),
+            loneliness = weighted.mean(x = loneliness, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+base.treated <- base.dat %>%
+  select(pidp, time, hh_income) %>%
+  filter(pidp %in% boosted.pidps$pidp)
+
+rel.treated <- rel.int %>%
+  select(pidp, time, hh_income) %>%
+  filter(pidp %in% boosted.pidps$pidp)
+
+inc <- rbind(base.inc, rel.inc)
+```
+
+```{r}
+ggplot(inc, aes(x = time, y = boosted_pop, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = age, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(base.treated, aes(x = hh_income, y = time, group = time, color = 'blue', alpha = 0.3)) +
+  geom_density_ridges() +
+  geom_density_ridges(data = rel.treated, aes(x = hh_income, y = time, group = time, color = 'red')) +
+  theme(legend.position = 'none') +
+  labs(title = 'Relative Poverty Reduction Intervention - Red')
+
+ggplot(inc, aes(x = time, y = SF_12, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = housing_quality, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = neighbourhood_safety, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = ncigs, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = nutrition_quality, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = loneliness, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+```
+
+
+
+
+
+
+
+
+
 
 ```{r}
 

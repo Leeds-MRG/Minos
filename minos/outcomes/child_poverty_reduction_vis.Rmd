@@ -42,7 +42,10 @@ out.path <- here::here('output', 'default_config/')
 base.dat <- read_singular_local_out(out.path, 'baseline', 
                                     drop.dead = TRUE,
                                     drop.zero.weight = TRUE)
-int.dat <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE', 
+# int.dat <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE', 
+#                                    drop.dead = TRUE,
+#                                    drop.zero.weight = TRUE)
+int.dat <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE_2',
                                    drop.dead = TRUE,
                                    drop.zero.weight = TRUE)
 int2.dat <- read_singular_local_out(out.path, 'ChildPovertyReductionABSOLUTE', 
@@ -102,13 +105,13 @@ We can also look at how many people are receiving the intervention over time, an
 
 ```{r}
 
-hh_boosted <- int.dat %>%
-    select(hidp, time, income_boosted, boost_amount, nkids) %>%
-    filter(income_boosted == 'True') %>%
-    group_by(time) %>%
-    summarise(n_boosted = length(unique(hidp)),
-              total_boost = sum(boost_amount),
-              kids_boosted = sum(nkids))
+# hh_boosted <- int2.dat %>%
+#     select(hidp, time, income_boosted, boost_amount, nkids) %>%
+#     filter(income_boosted == 'True') %>%
+#     group_by(time) %>%
+#     summarise(n_boosted = length(unique(hidp)),
+#               total_boost = sum(boost_amount),
+#               kids_boosted = sum(nkids))
 
 sample_information <- function(int.dat, target.year) {
   hh_boosted <- int.dat %>%
@@ -302,38 +305,38 @@ treatment.on.treated.change.SF12 <- function(base.dat, int.dat) {
 treatment.on.treated.change.SF12(base.dat, int.dat)
 ```
 
-## Absolute Poverty
+# Absolute Poverty
 
-### Boosted Sample
+## Boosted Sample
 
 ```{r}
 sample_information(int2.dat, target.year = 2030)
 ```
 
-### SF_12_MCS
+## SF_12_MCS
 
-#### Full Population
+### Full Population
 
 ```{r}
 full.sample.change.SF12(base.dat, int2.dat)
 ```
 
-#### Families with children
+### Families with children
 
 ```{r}
-all.families.change.SF12(base.dat, int.dat)
+all.families.change.SF12(base.dat, int2.dat)
 ```
 
-#### Families w/ children under poverty line
+### Families w/ children under poverty line
 
 ```{r}
-poverty.families.change.SF12(base.dat, int.dat, threshold)
+poverty.families.change.SF12(base.dat, int2.dat, threshold)
 ```
 
-#### Treatment on the Treated
+### Treatment on the Treated
 
 ```{r}
-treatment.on.treated.change.SF12(base.dat, int.dat)
+treatment.on.treated.change.SF12(base.dat, int2.dat)
 ```
 
 # Diagnostics

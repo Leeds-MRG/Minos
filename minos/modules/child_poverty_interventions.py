@@ -27,7 +27,7 @@ def get_weighted_median(data):
     -------
 
     """
-    data.sort_values(by='hh_income', inplace=True)
+    data.sort_values(by='hh_income', ascending=True, inplace=True)
     cumsum = data['weight'].cumsum()
     cutoff = data['weight'].sum() / 2.0
     median = data['weight'][cumsum >= cutoff].iloc[0]
@@ -66,7 +66,7 @@ class ChildPovertyReductionRELATIVE(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', 'weight']
         columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -121,10 +121,10 @@ class ChildPovertyReductionRELATIVE(Base):
         #self.population_view.update(full_pop[['boost_amount']])
 
         # LA 22/1/24 median income now calculated by household instead of individual
-        #median_income = full_pop.groupby('hidp').first()['hh_income'].median()
+        median_income = full_pop.groupby('hidp').first()['hh_income'].median()
         # LA 14/5/24 median calculation now weighted median over households
-        full_pop_hh_rep = full_pop.groupby('hidp').first()
-        median_income = get_weighted_median(full_pop_hh_rep)
+        #full_pop_hh_rep = full_pop.groupby('hidp').first()
+        #median_income = get_weighted_median(full_pop_hh_rep)
 
         # Number of kids should be calculated by household also
         # 2. Total number of kids
@@ -256,10 +256,10 @@ class ChildPovertyReductionRELATIVE_2(Base):
 
     @property
     def name(self):
-        return "child_poverty_reduction_relative"
+        return "child_poverty_reduction_relative_2"
 
     def __repr__(self):
-        return "ChildPovertyReductionRELATIVE"
+        return "ChildPovertyReductionRELATIVE_2"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
