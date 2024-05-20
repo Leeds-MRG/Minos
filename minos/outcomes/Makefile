@@ -507,3 +507,18 @@ aggregate_minos_manchester_good_housing_dummy_quintiles:
 
 
 
+
+aggregate_minos_manchester_EPCG_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_quintiles" "SF_12"
+
+aggregate_minos_manchester_GBIS_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_quintiles" "SF_12"
+
+aggregate_minos_manchester_EPCG_GBIS_SF_12:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_SF_12" "SF_12"
+
+aggregate_minos_manchester_EPCG_GBIS_intervention_cost:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_intervention_cost" "boost_amount"
+
+aggregate_minos_manchester_EPCG_GBIS_yearly_energy:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_yearly_energy" "yearly_energy"

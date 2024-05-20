@@ -94,7 +94,7 @@ def social_science_all_plots(config_mode):
 # glasgow spatial population lineplots #
 ########################################
 
-def glasgow_deciles_lineplot(config_mode, source, subset_function):
+def glasgow_deciles_lineplot(config_mode, v, source, subset_function):
     # directories = f"baseline," + (f"{source}," * 10)[:-1] # repeat 11 times and cut off last comma.
     directories = f"{source}," + (f"{source}," * 10)[:-1]  # repeat 11 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth,Sixth,Seventh,Eighth,Ninth,Tenth"
@@ -102,7 +102,6 @@ def glasgow_deciles_lineplot(config_mode, source, subset_function):
     subset_function_strings = "who_alive,who_first_simd_decile,who_second_simd_decile,who_third_simd_decile,who_fourth_simd_decile,who_fifth_simd_decile,who_sixth_simd_decile,who_seventh_simd_decile,who_eighth_simd_decile,who_ninth_simd_decile,who_tenth_simd_decile"
     prefix = f"25_{source}_simd_deciles"
     ref = "National Average"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -179,17 +178,16 @@ def epcg_simd_deciles_lineplot(*args):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def quintiles_lineplot(config_mode, source, region):
+def quintiles_lineplot(config_mode, v, source, region):
     directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth"
     subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
     prefix = f"{source}_{region}_simd_quintiles_"
     ref = "National Average"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
-def generic_simd_quintiles_lineplot(config_mode, source, tag):
+def generic_simd_quintiles_lineplot(config_mode, v, source, tag):
     directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 6 times and cut off last comma.
     tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
     subset_function_strings = """who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"""
@@ -200,7 +198,6 @@ def generic_simd_quintiles_lineplot(config_mode, source, tag):
 
     prefix = f"{source}_simd_quintiles"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     region=None
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
@@ -213,143 +210,132 @@ def generic_simd_quintiles_lineplot(config_mode, source, tag):
 ######################################################
 
 
-def all_child(config_mode, boost_amount):
+def all_child(config_mode, v, boost_amount):
     """nationwide policy"""
     directories = f"baseline,{boost_amount}All"
     tags = f"Baseline,£{boost_amount} Nationwide"
     subset_function_strings = "who_kids,who_boosted"
     prefix = f"{boost_amount}_all"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def relative_poverty(config_mode, boost_amount):
+def relative_poverty(config_mode, v, boost_amount):
     "nationwide policy"
     directories = f"baseline,{boost_amount}RelativePoverty"
     tags = f"Baseline,£{boost_amount} Relative Poverty"
     subset_function_strings = "who_relative_poverty_and_kids,who_boosted"
     prefix = f"{boost_amount}_relative_poverty"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def universal_credit(config_mode, boost_amount, region=None):
+def universal_credit(config_mode, v, boost_amount, region=None):
     "nationwide policy"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_universal_credit_and_kids,who_boosted"
     prefix = f"{boost_amount}_{region}_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
-def universal_credit_priority_young_mothers(config_mode, boost_amount, region=None):
+def universal_credit_priority_young_mothers(config_mode, v, boost_amount, region=None):
     "just the single mothers"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_young_mothers,who_young_mothers"
     prefix = f"{boost_amount}_single_mothers_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
-def universal_credit_priority_subgroups(config_mode, boost_amount, region):
+def universal_credit_priority_subgroups(config_mode, v, boost_amount, region):
     "any subgroup at all"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_priority_subgroups_and_kids,who_priority_subgroups_and_kids"
     prefix = f"{boost_amount}_any_subgroup_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method, region=region)
 
 
-def universal_credit_multiple_priority_subgroups(config_mode, boost_amount, region):
+def universal_credit_multiple_priority_subgroups(config_mode, v, boost_amount, region):
     "2+ subgroups"
     directories = f"baseline,{boost_amount}UniversalCredit"
     tags = f"Baseline,£{boost_amount} Universal Credit"
     subset_function_strings = "who_multiple_priority_subgroups_and_kids,who_multiple_priority_subgroups_and_kids"
     prefix = f"{boost_amount}_many_subgroups_universal_credit"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method, region=region)
 
 
-def priority_only(config_mode, boost_amount):
+def priority_only(config_mode, v, boost_amount):
     "universal credit (the actual intervention) only lineplot"
     directories = f"baseline,{boost_amount}Priority"
     tags = f"Baseline,£{boost_amount} Priority Groups"
     subset_function_strings = "who_vulnerable_subgroups,who_boosted"
     prefix = f"{boost_amount}_priority"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def UC_priority(config_mode, boost_amount):
+def UC_priority(config_mode, v, boost_amount):
     "UC and priority interventions on one lineplot."
     directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}Priority"
     tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} Priority Groups"
     subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
     prefix = f"{boost_amount}_UC_and_priority"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def UC_relative_poverty(config_mode, boost_amount):
+def UC_relative_poverty(config_mode, v, boost_amount):
     "UC and priority interventions on one lineplot."
     directories = f"baseline,{boost_amount}UniversalCredit,{boost_amount}RelativePoverty"
     tags = f"Baseline,£{boost_amount} Universal Credit,£{boost_amount} All in Relative Poverty"
     subset_function_strings = "who_universal_credit_and_kids,who_boosted,who_boosted"
     prefix = f"{boost_amount}_UC_and_relative_poverty"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def incremental_25_to_100(config_mode, intervention_name, intervention_tag, subset_function):
+def incremental_25_to_100(config_mode, v, intervention_name, intervention_tag, subset_function):
     "The same intervention in increments from £25 to £100"
     directories = f"baseline,25{intervention_name},50{intervention_name},75{intervention_name},100{intervention_name}"
     tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag},£75 {intervention_tag},£100 {intervention_tag}"
     subset_function_strings = f"{subset_function},who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = f"25_100_incremental_{intervention_name}_uplift"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def incremental_25_to_50(config_mode, intervention_name, intervention_tag, subset_function):
+def incremental_25_to_50(config_mode, v, intervention_name, intervention_tag, subset_function):
     "The same intervention in increments from £25 to £50"
     directories = f"baseline,25{intervention_name},50{intervention_name}"
     tags = f"Baseline,£25 {intervention_tag},£50 {intervention_tag}"
     subset_function_strings = f"{subset_function},who_boosted,who_boosted"
     prefix = f"25_50_incremental_{intervention_name}_uplift"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
     method = 'SF12_AUC'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, subset_function, increment, region):
+def incremental_25_to_50_by_5(config_mode, v, intervention_name, intervention_tag, subset_function, increment, region):
     uplift_amount = 25
     for _ in range(6):
         "The same intervention in increments from £25 to £50"
@@ -358,13 +344,12 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
         subset_function_strings = f"{subset_function},who_boosted,who_boosted"
         prefix = f"{uplift_amount}_{intervention_name}_uplift"
         ref = "Baseline"
-        v = "SF_12"
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
         uplift_amount += increment
 
 
-def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+def incremental_25_to_50_by_5_together(config_mode, v, intervention_name, intervention_tag, subset_function, region):
         "The same intervention in increments from £25 to £50"
         directories = "baseline"
         tags = "Baseline"
@@ -376,7 +361,6 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
         prefix = f"25_50_by_5_together{intervention_name}_uplift"
         ref = "Baseline"
-        v = "SF_12"
         method = 'nanmean'
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
@@ -386,16 +370,26 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
 ##########################
 
 
-def generic_single_lineplot(config_mode, source, tag, subset_function):
+def generic_single_lineplot(config_mode, v, source, tag, subset_function):
     "The same intervention in increments from £25 to £100"
     directories = f"baseline,{source}"
     tags = f"Baseline,{tag}"
     subset_function_strings = f"{subset_function},who_boosted"
     prefix = f"{tag}_uplift"
     ref = "Baseline"
-    v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+def generic_multiple_lineplot(config_mode, v, sources, tags, subset_functions):
+    "The same intervention in increments from £25 to £100"
+    directories = ','.join(sources)
+    ref = tags[0]
+    tags = ','.join(tags)
+    subset_function_strings = ','.join(subset_functions)
+    prefix = '_'.join(tags.split(','))
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
 
 #################
 # main function #
@@ -513,6 +507,12 @@ string_to_lineplot_function = {
     "fossilFuelReplacementScheme": generic_single_lineplot,
 
     "good_heating_dummy_quintiles": generic_simd_quintiles_lineplot,
+    "EPCG_quintiles": generic_simd_quintiles_lineplot,
+    "GBIS_quintiles": generic_simd_quintiles_lineplot,
+
+    "EPCG_GBIS_SF_12": generic_multiple_lineplot,
+    "EPCG_GBIS_yearly_energy": generic_multiple_lineplot,
+    "EPCG_GBIS_intervention_cost": generic_multiple_lineplot,
 }
 
 string_to_lineplot_function_args = {
@@ -614,15 +614,31 @@ string_to_lineplot_function_args = {
     "fossilFuelReplacementScheme": ["fossilFuelReplacementScheme", "FFRS", "who_kids"],
 
     "good_heating_dummy_quintiles": ["goodHeatingDummy", "Good Heating Dummy Quintiles"],
+    "EPCG_quintiles": ["EPCG", "EPCG Quintiles"],
+    "GBIS_quintiles": ["GBIS", "GBIS Quintiles"],
+
+    "EPCG_GBIS_SF_12": [["baseline", "EPCG", "GBIS"],
+                                ["Baseline", "EPCG", "GBIS"],
+                                ["who_uses_energy", "who_boosted", "who_boosted"]],
+    "EPCG_GBIS_yearly_energy": [["baseline", "EPCG", "GBIS"],
+                                ["Baseline", "EPCG", "GBIS"],
+                                ["who_uses_energy", "who_uses_energy", "who_uses_energy"]],
+    "EPCG_GBIS_intervention_cost": [["EPCG", "GBIS"],
+                                ["EPCG", "GBIS"],
+                                ["who_boosted", "who_boosted"]],
 }
 
 if __name__ == '__main__':
 
     config_mode = sys.argv[1]
     plot_choice = sys.argv[2]
+    if len(sys.argv) >= 3:
+        plot_var = sys.argv[3]
+    else:
+        plot_var = "SF_12"
     plot_function = string_to_lineplot_function[plot_choice]
     if plot_choice in string_to_lineplot_function_args.keys():
         plot_function_args = string_to_lineplot_function_args[plot_choice]
     else:
         plot_function_args = []
-    plot_function(config_mode, *plot_function_args)
+    plot_function(config_mode, plot_var, *plot_function_args)

@@ -233,10 +233,10 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
 def get_required_intervention_variables(subset_function_string):
     # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
     default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", 'time', "housing_quality", "hh_income",
-                         "neighbourhood_safety", "nkids", "loneliness"]
+                         "neighbourhood_safety", "nkids", "loneliness", 'yearly_energy']
 
     if "boosted" in subset_function_string:
-        default_variables += ["income_boosted"] #boost_amount
+        default_variables += ["income_boosted", "boost_amount"] #boost_amount
 
     if "decile" in subset_function_string or "quintile" in subset_function_string:
         default_variables += ["ZoneID", "simd_decile"]
@@ -438,8 +438,8 @@ def who_kth_simd_decile(df, *args):
 
 def who_kth_simd_quintile(df, *args):
     k = args[0][0]
-    df['simd_quintile'] = pd.qcut(df['simd_decile'], q=5, labels = range(1, 6)).astype(int)
-    return df.loc[np.ceil(df["simd_quintile"]) == k, ]
+    df['simd_quintile'] = df['simd_decile'] // 2
+    return df.loc[df["simd_quintile"] == k, ]
 
 
 def who_glasgow(df):

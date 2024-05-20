@@ -446,7 +446,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                                                          method=method, region=region)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    if v == "SF_12" and method == weighted_nanmean:
+    if v in ["SF_12"] and method == weighted_nanmean:
         if not do_simd_quintiles:
             scaled_data = relative_scaling(aggregate_long_stack, v, ref)
             print("relative scaling done. plotting.. ")
@@ -462,6 +462,11 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                     aggregate_long_stack_subsection['tag'] != "Baseline", ]
                 scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
             aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+    elif v in ["yearly_energy", 'intervention_cost'] and method == weighted_nanmean:
+        if not do_simd_quintiles:
+            #scaled_data = relative_scaling(aggregate_long_stack, v, ref)
+            #print("relative scaling done. plotting.. ")
+            aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
 
     elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
         # groupby intervention and cumsum over time.
