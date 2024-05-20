@@ -63,7 +63,7 @@ def get_spatial_attribute_data(region):
     else:
         simd_data = pd.read_csv("persistent_data/spatial_data/uk_imd2019.csv")[["LSOA", "SOA_decile"]] #'Rank'
         # https://data.cdrc.ac.uk/dataset/index-multiple-deprivation-imd
-        simd_data.columns = ['ZoneID', 'simd_deciles']
+        simd_data.columns = ['ZoneID', 'simd_decile']
         #simd_data['local_simd_deciles'] = pd.qcut(simd_data['simd_deciles'], q=10, labels=np.arange(1, 11))
     return simd_data
 
