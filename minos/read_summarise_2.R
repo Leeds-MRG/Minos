@@ -279,6 +279,32 @@ UC_rel_pov_summarise <- function(data) {
   return(data)
 }
 
+UC_kids_rel_pov_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0,
+             nkids > 0) %>%
+      group_by(universal_credit, init_relative_poverty, run_id) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0,
+             nkids > 0) %>%
+      group_by(universal_credit, init_relative_poverty, run_id) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
 UC_abs_pov_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
@@ -293,6 +319,32 @@ UC_abs_pov_summarise <- function(data) {
   } else {
     data <- data %>%
       filter(weight > 0) %>%
+      group_by(universal_credit, init_absolute_poverty, run_id) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+UC_kids_abs_pov_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0,
+             nkids > 0) %>%
+      group_by(universal_credit, init_absolute_poverty, run_id) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0,
+             nkids > 0) %>%
       group_by(universal_credit, init_absolute_poverty, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
