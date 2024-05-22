@@ -133,6 +133,10 @@ class ChildPovertyReductionRELATIVE(Base):
 
         # 3. Find all households in relative poverty
         relative_poverty_threshold = median_income * 0.6
+
+        print(f"Median income: {median_income}")
+        print(f"Relative Poverty Threshold: {relative_poverty_threshold}")
+
         # target_pop = self.population_view.get(event.index,
         #                                       query=f"alive == 'alive' & nkids > 0 & hh_income < "
         #                                             f"{relative_poverty_threshold}")
