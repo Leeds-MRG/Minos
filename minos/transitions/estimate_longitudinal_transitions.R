@@ -48,6 +48,17 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                     levels = c('No to all', 
                                                'Yes to some', 
                                                'Yes to all'))
+  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
+                                         levels = c('Often', 
+                                                    'Some of the time', 
+                                                    'Hardly ever'))
+  data$S7_labour_state <- factor(data$S7_labour_state,
+                                 levels = c('FT Employed',
+                                            'PT Employed',
+                                            'Job Seeking',
+                                            'FT Education',
+                                            'Family Care',
+                                            'Not Working'))
 
   valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO")
 
@@ -126,7 +137,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.log.transform <- F
     }
     
-    if (dependent %in% c('housing_quality')) {
+    if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety', 'job_sec')) {
       data[[dependent]] <- factor(data[[dependent]])
     }
 
@@ -190,7 +201,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
       dependent <-  paste0(dependent, "_new")
     }
-    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 'chron_disease', 'housing_quality')) {
+    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 
+                              'chron_disease', 'housing_quality',
+                              'loneliness', 'neighbourhood_safety', 'job_sec')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -208,6 +221,10 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
+    
+    
+    
+    print(sprintf("Model is being fit on %d individual records...", nrow(sorted_df)))
 
     # function call and parameters based on model type.
     if(tolower(mod.type) == 'glmm') {

@@ -69,6 +69,11 @@ class JobSec(Base):
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
 
+        self.jbs_transition_model = r_utils.load_transitions(f"job_sec/rfo/job_sec_RFO",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        # self.hq_transition_model = r_utils.randomise_fixed_effects(self.hq_transition_model, self.rpy2Modules, "rf")
+
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -87,13 +92,13 @@ class JobSec(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
+        pop['job_sec_last'] = pop['job_sec']
+
         job_sec_prob_df = self.calculate_job_sec(pop)
 
         job_sec_prob_df["job_sec"] = self.random.choice(job_sec_prob_df.index,
                                                                 list(job_sec_prob_df.columns),
                                                                 job_sec_prob_df)  # + 1
-        # NOTE: No longer adding 1 to the job_sec predicted value, as job_sec ranges from 0-8. When adding 1 we lose the
-        # zero category
 
         job_sec_prob_df.index = pop.index
 
@@ -112,21 +117,27 @@ class JobSec(Base):
         Returns
         -------
         """
-        # load transition model based on year.
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2019
-        else:
-            year = min(self.year, 2019)
+        # # load transition model based on year.
+        # if self.cross_validation:
+        #     # if cross-val, fix year to final year model
+        #     year = 2019
+        # else:
+        #     year = min(self.year, 2019)
+        #
+        # # if simulation goes beyond real data in 2020 dont load the transition model again.
+        # if not self.transition_model or year <= 2019:
+        #     self.transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        #     self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        #
+        # #transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        # # returns probability matrix (3xn) of next ordinal state.
+        # prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'job_sec')
 
-        # if simulation goes beyond real data in 2020 dont load the transition model again.
-        if not self.transition_model or year <= 2019:
-            self.transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        prob_df = r_utils.predict_next_rf_ordinal(self.jbs_transition_model,
+                                                  self.rpy2Modules,
+                                                  pop,
+                                                  dependent='job_sec')
 
-        #transition_model = r_utils.load_transitions(f"job_sec/clm/job_sec_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'job_sec')
         return prob_df
 
     def plot(self, pop, config):
