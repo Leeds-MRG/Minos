@@ -19,7 +19,7 @@ $(TRANSITION_DATA):
 ############# Default #############
 
 transitions_default: | $(TRANSITION_DATA)
-transitions_default: final_data $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds
+transitions_default: final_data $(TRANSITION_DATA)/SF_12/lmm/SF_12_LMM.rds $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds
 
 $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default

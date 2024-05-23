@@ -32,6 +32,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-doParallel
   - r-caret
   - r-spatstat
+  - r-ranger
   - pandoc
   - sphinx
   - myst-parser

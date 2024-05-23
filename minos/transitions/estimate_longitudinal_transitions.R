@@ -38,8 +38,18 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   # fit models to this grand data frame.
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
+  
+  ## Set some factor levels because R defaults to using alphabetical ordering
+  data$housing_quality <- factor(data$housing_quality, 
+                                 levels = c('Low',
+                                            'Medium',
+                                            'High'))
+  data$S7_housing_quality <- factor(data$S7_housing_quality, 
+                                    levels = c('No to all', 
+                                               'Yes to some', 
+                                               'Yes to all'))
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO")
 
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
 
@@ -115,6 +125,10 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     } else {
       do.log.transform <- F
     }
+    
+    if (dependent %in% c('housing_quality')) {
+      data[[dependent]] <- factor(data[[dependent]])
+    }
 
     # experimental ordinal long models. ignore.
     # if (mod.type == "ORDGEE") {
@@ -176,7 +190,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
       dependent <-  paste0(dependent, "_new")
     }
-    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 'chron_disease')) {
+    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 'chron_disease', 'housing_quality')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -242,6 +256,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,
                                      depend = dependent)
+      
+    } else if (tolower(mod.type) == "rfo") {
+      
+      model <- estimate_RandomForestOrdinal(data = sorted_df,
+                                            formula = form,
+                                            depend = dependent)
     }
 
     write_coefs <- F

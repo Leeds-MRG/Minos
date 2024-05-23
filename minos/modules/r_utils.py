@@ -488,6 +488,39 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
+def predict_next_rf_ordinal(model, rpy2_modules, current, dependent):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    ranger = rpy2_modules['ranger']
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    #prediction = stats.predict(model, newdata=currentRDF)
+    prediction = ro.r.predict(model, data=currentRDF)
+    predictions = prediction.rx2('predictions')
+
+    # newRPopDF = base.cbind(currentRDF, predicted=predictions)
+    # # Convert back to pandas
+    # with localconverter(ro.default_converter + pandas2ri.converter):
+    #     newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+    #
+    # # Now rename the predicted var (have to drop original column first)
+    # newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
+    # newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        prediction_matrix_list = ro.conversion.rpy2py(predictions)
+
+    #prediction_matrix_list = ro.conversion.rpy2py(predictions[0])
+    predictionDF = pd.DataFrame(prediction_matrix_list)
+
+    return predictionDF
+
 
 def randomise_fixed_effects(model, rpy2_modules, type):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS

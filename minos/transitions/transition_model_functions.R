@@ -1,13 +1,14 @@
 source("minos/transitions/utils.R")
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
-require(randomForest)
-require(caret)
-require(doParallel)
-require(parallelly)
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
+library(randomForest)
+library(caret)
+library(doParallel)
+library(parallelly)
+library(ranger)
 
 ################ Model Specific Functions ################
 
@@ -400,7 +401,8 @@ estimate_RandomForest <- function(data, formula, depend) {
   set.seed(123)
 
   # Adjusting the model parameters to use fewer trees and limit depth
-  rfModel <- train(formula, data = data,
+  rfModel <- train(formula, 
+                   data = data,
                    method = "rf",
                    trControl = fitControl,
                    tuneGrid = expand.grid(mtry = 3),
@@ -413,4 +415,29 @@ estimate_RandomForest <- function(data, formula, depend) {
   #model <- randomForest(formula, data = data, ntree = 100, do.trace = TRUE)
 
   return(rfModel)
+}
+
+estimate_RandomForestOrdinal <- function(data, formula, depend) {
+  
+  print('Beginning estimation of the Ordinal RandomForest model...')
+  
+  numCores <- availableCores() - 1
+  
+  registerDoParallel(cores = numCores)
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  
+  set.seed(123)
+  
+  # Train the ranger model
+  ranger_model <- ranger(
+    formula = formula,
+    data = data,
+    num.trees = 100,
+    probability = TRUE,
+    verbose = TRUE
+  )
+  
+  return(ranger_model)
 }

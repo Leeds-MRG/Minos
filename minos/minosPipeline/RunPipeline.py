@@ -344,7 +344,8 @@ def RunPipeline(config, intervention=None):
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
-                    "MASS": importr("MASS")
+                    "MASS": importr("MASS"),
+                    "ranger": importr("ranger")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
