@@ -172,6 +172,9 @@ def reweight_repl(expanded_repl, projections):
     expanded_repl['weight'] = (expanded_repl['weight'] - min(expanded_repl['weight'])) / (
             max(expanded_repl['weight']) - min(expanded_repl['weight']))
 
+    # Handle missing weight var (believe this is caused by ethnicity constraints missing an ethnic group)
+    expanded_repl.loc[expanded_repl['weight'].isna(), 'weight'] = 0
+
     return expanded_repl
 
 

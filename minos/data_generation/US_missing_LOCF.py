@@ -43,8 +43,9 @@ def ffill_groupby(pid_groupby):
     -------
     pid_groupby : Object with forward filled variables.
     """
-    pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
-    return pid_groupby.apply(lambda x: x.fillna(method="ffill"))
+    #pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
+    #return pid_groupby.apply(lambda x: x.fillna(method="ffill"))
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
 
 
 def bfill_groupby(pid_groupby):
@@ -58,8 +59,9 @@ def bfill_groupby(pid_groupby):
     -------
     pid_groupby : Object with back filled variables.
     """
-    pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
-    return pid_groupby.apply(lambda x: x.fillna(method="bfill"))
+    #pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
+    #return pid_groupby.apply(lambda x: x.fillna(method="bfill"))
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
 
 
 def fbfill_groupby(pid_groupby):
@@ -73,8 +75,10 @@ def fbfill_groupby(pid_groupby):
     pid_groupby : Object with forward-back filled variables.
     """
     # Replace missing types with NAN, then forward and backward fill missings
-    pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
-    return pid_groupby.apply(lambda x: x.fillna(method="ffill").fillna(method="bfill"))
+    #pid_groupby.replace(US_utils.missing_types, np.NaN, inplace=True)
+    #return pid_groupby.apply(lambda x: x.fillna(method="ffill").fillna(method="bfill"))
+    return pid_groupby.apply(
+        lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
 
 
 def mffill_groupby(pid_groupby):

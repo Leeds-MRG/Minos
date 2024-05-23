@@ -1,0 +1,412 @@
+---
+title: "Diagnosing Child Poverty Reduction Interventions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+# SETUP
+
+This document presents results from a host of interventions on child poverty, including visualisations of the change in SF_12_MCS compared with baseline.
+
+```{r "setup", include=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(ggridges) # for densities over time plots. 
+library(knitr)
+library(here)
+library(gghighlight)
+
+workingDir <- "/home/luke/Documents/MINOS/Minos/"
+#workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+```{r "imports", include=FALSE}
+source(here::here('minos', 'utils_datain.R'))
+#source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+```{r, include=FALSE}
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 
+                                    'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+rel.int <- read_singular_local_out(out.path, 
+                                   'ChildPovertyReductionRELATIVE', 
+                                   drop.dead = TRUE,
+                                   drop.zero.weight = TRUE)
+# rel.int.2 <- read_singular_local_out(out.path,
+#                                      'ChildPovertyReductionRELATIVE_2',
+#                                      drop.dead = TRUE,
+#                                      drop.zero.weight = TRUE)
+# abs.int <- read_singular_local_out(out.path, 
+#                                    'ChildPovertyReductionABSOLUTE', 
+#                                    drop.dead = TRUE,
+#                                    drop.zero.weight = TRUE)
+```
+
+# Household Income
+
+i.e. is the intervention working?
+
+## All Pop
+
+```{r}
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+rel.inc <- rel.int %>%
+  select(pidp, hidp, time, hh_income, weight) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+inc <- rbind(base.inc, rel.inc)
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(base.dat, aes(x = hh_income, y = time, group = time, color = 'blue', alpha = 0.3)) +
+  geom_density_ridges() +
+  geom_density_ridges(data = rel.int, aes(x = hh_income, y = time, group = time, color = 'red')) +
+  theme(legend.position = 'none') +
+  labs(title = 'Relative Poverty Reduction Intervention - Red')
+```
+
+## Households With Children
+
+```{r}
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, hh_income, age, nkids, weight) %>%
+  mutate(nkids_any = (nkids > 0)) %>%
+  filter(nkids_any == TRUE) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+rel.inc <- rel.int %>%
+  select(pidp, hidp, time, hh_income, age, nkids, weight) %>%
+  mutate(nkids_any = (nkids > 0)) %>%
+  filter(nkids_any = TRUE) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+inc <- rbind(base.inc, rel.inc)
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+```
+
+## Boosted Pop
+
+```{r}
+boosted.pidps <- rel.int %>%
+  filter(income_boosted == 'True') %>%
+  select(pidp)
+
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, hh_income, SF_12, weight) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+rel.inc <- rel.int %>%
+  select(pidp, hidp, time, hh_income, SF_12, weight) %>%
+  filter(pidp %in% boosted.pidps$pidp) %>%
+  group_by(time) %>%
+  summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+inc <- rbind(base.inc, rel.inc)
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = SF_12, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+```
+
+
+
+
+
+# TESTING THE BOOSTED POP
+
+
+```{r}
+boosted.pidps <- rel.int %>%
+  filter(income_boosted == 'True') %>%
+  select(pidp, time)
+
+# Define the recoding mapping for housing_quality
+recoding_mapping <- c("Low" = 1, "Medium" = 2, "High" = 3)  # Adjust as needed
+
+base.inc <- base.dat %>%
+  select(pidp, hidp, time, age, hh_income, SF_12, housing_quality, neighbourhood_safety, ncigs, nutrition_quality, loneliness, nkids, weight) %>%
+  inner_join(boosted.pidps, by = c("pidp", "time")) %>%
+  mutate_at(vars(housing_quality), ~recode(., !!!recoding_mapping)) %>%
+  group_by(time) %>%
+  summarise(boosted_pop = n(),
+            age = mean(age, na.rm = TRUE),
+            hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE),
+            housing_quality = weighted.mean(x = housing_quality, w = weight, na.rm = TRUE),
+            neighbourhood_safety = weighted.mean(x = neighbourhood_safety, w = weight, na.rm = TRUE),
+            ncigs = weighted.mean(x = ncigs, w = weight, na.rm = TRUE),
+            nutrition_quality = weighted.mean(x = nutrition_quality, w = weight, na.rm = TRUE),
+            loneliness = weighted.mean(x = loneliness, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Baseline')
+
+
+rel.inc <- rel.int %>%
+  select(pidp, hidp, time, age, hh_income, SF_12, housing_quality, neighbourhood_safety, ncigs, nutrition_quality, loneliness, nkids, weight) %>%
+  inner_join(boosted.pidps, by = c("pidp", "time")) %>%
+  mutate_at(vars(housing_quality), ~recode(., !!!recoding_mapping)) %>%
+  group_by(time) %>%
+  summarise(boosted_pop = n(),
+            age = mean(age, na.rm = TRUE),
+            hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE),
+            SF_12 = weighted.mean(x = SF_12, w = weight, na.rm = TRUE),
+            housing_quality = weighted.mean(x = housing_quality, w = weight, na.rm = TRUE),
+            neighbourhood_safety = weighted.mean(x = neighbourhood_safety, w = weight, na.rm = TRUE),
+            ncigs = weighted.mean(x = ncigs, w = weight, na.rm = TRUE),
+            nutrition_quality = weighted.mean(x = nutrition_quality, w = weight, na.rm = TRUE),
+            loneliness = weighted.mean(x = loneliness, w = weight, na.rm = TRUE)) %>%
+  mutate(scen = 'Relative')
+
+base.treated <- base.dat %>%
+  select(pidp, time, hh_income, SF_12, nutrition_quality, ncigs) %>%
+  inner_join(boosted.pidps, by = c("pidp", "time")) %>%
+  mutate(scen = 'Baseline')
+
+rel.treated <- rel.int %>%
+  select(pidp, time, hh_income, SF_12, nutrition_quality, ncigs) %>%
+  inner_join(boosted.pidps, by = c("pidp", "time")) %>%
+  mutate(scen = 'Intervention')
+
+inc <- rbind(base.inc, rel.inc)
+treated <- rbind(base.treated, rel.treated)
+```
+
+```{r}
+ggplot(inc, aes(x = time, y = boosted_pop, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = age, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(base.treated, aes(x = hh_income, y = time, group = time, alpha = 0.3), color = 'blue') +
+  geom_density_ridges() +
+  geom_density_ridges(data = rel.treated, aes(x = hh_income, y = time, group = time), color = 'red') +
+  theme(legend.position = 'none') +
+  labs(title = 'Relative Poverty Reduction Intervention - Red')
+
+ggplot(inc, aes(x = time, y = SF_12, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = housing_quality, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = neighbourhood_safety, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = ncigs, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = nutrition_quality, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+ggplot(inc, aes(x = time, y = loneliness, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_point()
+
+```
+
+```{r}
+ggplot(treated, aes(x = time, y = hh_income, group = interaction(time, scen), fill = scen)) +
+  geom_boxplot()
+
+ggplot(treated, aes(x = time, y = SF_12, group = interaction(time, scen), fill = scen)) +
+  geom_boxplot()
+
+ggplot(treated, aes(x = time, y = nutrition_quality, group = interaction(time, scen), fill = scen)) +
+  geom_boxplot()
+
+ggplot(treated, aes(x = time, y = ncigs, group = interaction(time, scen), fill = scen)) +
+  geom_boxplot()
+```
+
+```{r}
+base.housing <- base.dat %>%
+  dplyr::select(pidp, time, housing_quality) %>%
+  group_by(time, housing_quality) %>%
+  count() %>%
+  mutate(scen = 'Baseline')
+
+rel.housing <- rel.int %>%
+  dplyr::select(pidp, time, housing_quality) %>%
+  group_by(time, housing_quality) %>%
+  count() %>%
+  mutate(scen = 'Intervention')
+
+housing <- rbind(base.housing, rel.housing)
+housing$housing_quality <- as.factor(housing$housing_quality)
+
+housing.norm <- housing %>%
+  group_by(time, scen) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+# Plot the data
+ggplot(data = housing.norm, mapping = aes(x = factor(time), y = prct, fill = housing_quality)) +
+  geom_bar(stat = 'identity', position = 'stack') +
+  facet_wrap(~ scen, nrow = 2) +
+  labs(title = 'Housing Quality Over Time', x = 'Year', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(data = housing.norm, mapping = aes(x = factor(time), y = prct, fill = housing_quality)) +
+  geom_bar(stat = 'identity', position = position_dodge(width = 0.9)) +
+  facet_wrap(~ scen, nrow = 2) +
+  labs(title = 'Housing Quality Over Time', x = 'Year', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+```{r}
+# Plot the data
+ggplot(data = housing.norm, mapping = aes(x = factor(time), y = prct, fill = housing_quality)) +
+  geom_bar(stat = 'identity', position = position_dodge(width = 0.8), aes(group = scen)) +
+  labs(title = 'Housing Quality Over Time', x = 'Year', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ scen, scales = "free_y", ncol = 2)
+
+ggplot(data = housing.norm, mapping = aes(x = interaction(time, scen), y = prct, fill = housing_quality)) +
+  geom_bar(stat = 'identity', position = 'stack') +
+  labs(title = 'Housing Quality Over Time', x = 'Year and Scenario', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+# Create a combined variable for interspersed plotting
+housing.norm2 <- housing.norm %>%
+  mutate(year_scen = interaction(time, scen, sep = " - "))
+
+# Plot the data
+ggplot(data = housing.norm2, mapping = aes(x = year_scen, y = prct, fill = housing_quality)) +
+  geom_bar(stat = 'identity', position = 'stack') +
+  labs(title = 'Housing Quality Over Time', x = 'Year and Scenario', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+# Prepare data for line plot
+housing.norm3 <- housing %>%
+  group_by(time, scen, housing_quality) %>%
+  summarize(prct = sum(n) / sum(housing$n)) %>%
+  ungroup()
+
+# Line plot with faceting by scenario
+ggplot(data = housing.norm3, mapping = aes(x = time, y = prct, color = housing_quality, group = housing_quality)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  facet_wrap(~ scen) +
+  labs(title = 'Housing Quality Over Time by Scenario', x = 'Year', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r}
+# Generate proportions
+housing.norm5 <- housing %>%
+  group_by(time, scen) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total)) %>%
+  ungroup()
+
+# Create a combined variable for interspersed plotting
+housing.norm5 <- housing.norm5 %>%
+  mutate(year_scen = interaction(time, scen, sep = " - "))
+
+# Plot the data with different color schemes
+ggplot(data = housing.norm5, mapping = aes(x = factor(time), y = prct, fill = housing_quality, group = scen)) +
+  geom_bar(stat = 'identity', position = position_dodge(width = 0.9)) +
+  facet_wrap(~ scen, ncol = 1) +
+  labs(title = 'Housing Quality Over Time', x = 'Year', y = 'Proportion') +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+

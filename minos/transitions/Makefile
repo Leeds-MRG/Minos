@@ -24,7 +24,7 @@ transitions_default: final_data $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds $(T
 $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default
 
-$(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/SF_12/lmm/SF_12_LMM.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --default
 
 ############# SIPHER7 #############
@@ -45,7 +45,7 @@ cv_transitions: $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_201
 $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --cross_validation
 
-$(TRANSITION_DATA)/cross_validation/version5/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/cross_validation/version5/SF_12/lmm/SF_12_LMM.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --cross_validation
 
 ############# SIPHER7 - Cross Validation #############

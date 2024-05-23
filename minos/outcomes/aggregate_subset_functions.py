@@ -21,6 +21,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_scottish": [who_alive, who_scottish],
                      "who_uses_energy": [who_alive, who_uses_energy],
 
+                     "who_UC_and_kids": [who_alive, who_kids, who_universal_credit],
                      # Universal Credit and Poverty (Relative and Absolute)
                      "who_UC_kids_RelPov": [who_alive, who_kids, who_relative_poverty_init_cohort, who_universal_credit],
                      "who_UC_kids_AbsPov": [who_alive, who_kids, who_absolute_poverty_init_cohort, who_universal_credit],
@@ -250,7 +251,7 @@ def get_required_intervention_variables(subset_function_string):
     if "kids" in subset_function_string:
         default_variables += ["nkids"]
 
-    if any(substring in subset_function_string for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function_string for substring in ["UC", "UniversalCredit", "universal_credit"]):
         default_variables += ['universal_credit']
 
     if any(substring in subset_function_string for substring in ["RelPov", "relative_poverty"]):
@@ -259,7 +260,7 @@ def get_required_intervention_variables(subset_function_string):
     if any(substring in subset_function_string for substring in ["AbsPov", "absolute_poverty"]):
         default_variables += ['init_absolute_poverty']
 
-    if any(substring in subset_function_string for substring in ["male", "female"]):
+    if any(substring in subset_function_string for substring in ["male", "female", "gender"]):
         default_variables += ['sex']
 
     if "below_poverty_line" in subset_function_string:

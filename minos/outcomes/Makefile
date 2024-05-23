@@ -1,4 +1,53 @@
 
+##############################################################
+# SCP & CPR output summary generation in R #
+##############################################################
+
+scp_test_sum:
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 50UniversalCredit
+
+scp_local_test_sum:
+	Rscript minos/read_summarise_2.R default_config scp_summary_out baseline
+	Rscript minos/read_summarise_2.R default_config scp_summary_out 50UniversalCredit
+
+scp_summary_out:
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 10UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 20UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 25UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 30UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 35UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 40UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 45UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 50UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 60UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 70UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 80UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 90UniversalCredit
+	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 100UniversalCredit
+
+CPR_rel_sum:
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE
+
+CPR_rel2_sum:
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE_2
+
+CPR_abs_sum:
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionABSOLUTE
+
+CPR_local_test_sum:
+	Rscript minos/read_summarise_2.R default_config cpr_summary_out baseline
+	Rscript minos/read_summarise_2.R default_config cpr_summary_out ChildPovertyReductionRELATIVE
+
+##############################################################
+# SCP & CPR Visualisation Notebooks #
+##############################################################
+
+scp_summary_vis:
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/SCP_vis_summary.Rmd')"
 
 #TODO: Now that the makefile is split and in the same directory as its scripts, can we do relative paths?
 
@@ -198,19 +247,19 @@ aggregate_50_universal_credit:
 
 vis_25_50_by_5_together_UC: MODE="default_config"
 vis_25_50_by_5_together_UC:
-		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_universal_credit"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_25_50_by_5_together_UC"
 
 vis_10_100_by_10_together_UC: MODE="default_config"
 vis_10_100_by_10_together_UC:
-		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_100_by_10_together"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_100_by_10_together_UC"
 
 vis_10_50_by_10_together_UC: MODE="default_config"
 vis_10_50_by_10_together_UC:
-		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_50_by_10_together"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_10_to_50_by_10_together_UC"
 
 vis_60_100_by_10_together_UC: MODE="default_config"
 vis_60_100_by_10_together_UC:
-		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together"
+		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together_UC"
 
 vis_together_UC: vis_25_50_by_5_together_UC vis_10_100_by_10_together_UC
 vis_together_UC: vis_10_50_by_10_together_UC vis_60_100_by_10_together_UC
@@ -283,8 +332,12 @@ vis_60_100_by_10_together_UC_gender:
 		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together_UC_male"
 		python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_60_to_100_by_10_together_UC_female"
 
-vis_together_UC_AbsPov: vis_25_50_by_5_together_UC_gender vis_10_100_by_10_together_UC_gender
-vis_together_UC_AbsPov: vis_10_50_by_10_together_UC_gender vis_60_100_by_10_together_UC_gender
+vis_together_UC_Gender: vis_25_50_by_5_together_UC_gender vis_10_100_by_10_together_UC_gender
+vis_together_UC_Gender: vis_10_50_by_10_together_UC_gender vis_60_100_by_10_together_UC_gender
+
+
+
+vis_together_all_UC: vis_together_UC vis_together_UC_RelPov vis_together_UC_AbsPov
 
 ##########################################
 # Custom subset for social science paper #

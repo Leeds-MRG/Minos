@@ -62,6 +62,7 @@ class Base():
         component_priority_map = builder.data.load("component_priority_map")
         self.priority = component_priority_map.get(self.__repr__(), PRIORITY_DEFAULT)
         # print("Priority for {} set to {}".format(self.__repr__(), self.priority))
+        # TODO: Use a try except on the line below to catch components with no priority set
         builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
 
     def on_time_step(self, event):

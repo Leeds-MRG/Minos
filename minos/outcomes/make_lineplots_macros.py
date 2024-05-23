@@ -353,10 +353,16 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
+    if "AbsPov" in subset_function:
+        unique_filename += "AbsPov_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 25
     for _ in range(6):
@@ -364,7 +370,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
         tags += f",£{uplift_amount} {intervention_tag}"
         uplift_amount += 5
     subset_function_strings = f"{subset_function}" + (f",{subset_function}" * 6)
-    prefix = f"25_50_by_5_together{unique_filename}uplift"
+    prefix = f"25_50_by_5_together_{unique_filename}uplift"
     ref = "Baseline"
     v = "SF_12"
     method = 'nanmean'
@@ -378,12 +384,16 @@ def incremental_10_to_100_by_10_together(config_mode, intervention_name, interve
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 10
     uplift_increment = 10
@@ -409,12 +419,16 @@ def incremental_10_to_50_by_10_together(config_mode, intervention_name, interven
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 10
     uplift_increment = 10
@@ -440,12 +454,16 @@ def incremental_60_to_100_by_10_together(config_mode, intervention_name, interve
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 60
     uplift_increment = 10
@@ -471,12 +489,16 @@ def incremental_25_100_by_25_together(config_mode, intervention_name, interventi
 
     # Pick things out of the subset function to use in the filename
     unique_filename = ""
-    if any(substring in subset_function for substring in ["UC", "UniversalCredit"]):
+    if any(substring in subset_function for substring in ["UC", "UniversalCredit", "universal_credit"]):
         unique_filename += "UC_"
     if "RelPov" in subset_function:
         unique_filename += "RelPov_"
     if "AbsPov" in subset_function:
         unique_filename += "AbsPov_"
+    if "male" in subset_function:
+        unique_filename += "male_"
+    if "female" in subset_function:
+        unique_filename += "female_"
 
     uplift_amount = 25
     uplift_increment = 25
@@ -580,10 +602,15 @@ string_to_lineplot_function = {
 
     "incremental_25_50_by_5_universal_credit": incremental_25_to_50_by_5,
     "incremental_25_50_by_5_together_universal_credit": incremental_25_to_50_by_5_together,
-
     "incremental_10_to_100_by_10_together": incremental_10_to_100_by_10_together,
     "incremental_10_to_50_by_10_together": incremental_10_to_50_by_10_together,
     "incremental_60_to_100_by_10_together": incremental_60_to_100_by_10_together,
+
+    ## Universal Credit
+    "incremental_25_50_by_5_together_UC": incremental_25_to_50_by_5_together,
+    "incremental_10_to_100_by_10_together_UC": incremental_10_to_100_by_10_together,
+    "incremental_10_to_50_by_10_together_UC": incremental_10_to_50_by_10_together,
+    "incremental_60_to_100_by_10_together_UC": incremental_60_to_100_by_10_together,
 
     ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": incremental_25_to_50_by_5_together,
@@ -726,6 +753,11 @@ string_to_lineplot_function_args = {
     "incremental_10_to_50_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
     "incremental_60_to_100_by_10_together": ["UniversalCredit", "UniversalCredit", "who_universal_credit_and_kids"],
 
+    ## Universal Credit
+    "incremental_25_50_by_5_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
+    "incremental_10_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
+    "incremental_10_to_50_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
+    "incremental_60_to_100_by_10_together_UC": ["UniversalCredit", "UniversalCredit", "who_UC_and_kids"],
 
     ## Universal Credit and Relative Poverty
     "incremental_25_50_by_5_together_UC_RelPov": ["UniversalCredit", "UniversalCredit", "who_UC_kids_RelPov"],

@@ -213,13 +213,14 @@ class lmmYJNutrition(Base):
 
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = pop.index
-        #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
-        newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 110) # clipping because of idiot that eats 150 vegetables per week.
+        # newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
+        newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0,
+                                                        110)  # clipping because of idiot that eats 150 vegetables per week.
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        #print('nutrition', np.mean(newWaveNutrition['nutrition_quality']))
+        # print('nutrition', np.mean(newWaveNutrition['nutrition_quality']))
         self.population_view.update(newWaveNutrition[['nutrition_quality', 'nutrition_quality_diff']])
 
     def calculate_nutrition(self, pop):
@@ -233,12 +234,11 @@ class lmmYJNutrition(Base):
         -------
         """
         nextWaveNutrition = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='nutrition_quality_new',
-                                                                       reflect=False,
-                                                                       yeo_johnson= False,
-                                                                       noise_std=1)#
+                                                                          self.rpy2Modules,
+                                                                          pop,
+                                                                          dependent='nutrition_quality_new',
+                                                                          log_transform=False,
+                                                                          noise_std=1)
 
         return nextWaveNutrition
 
