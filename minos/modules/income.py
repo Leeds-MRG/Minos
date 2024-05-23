@@ -671,23 +671,28 @@ class lmmYJIncome(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
+
+        # dummy column to load new prediction into.
         pop['hh_income_new'] = pop['hh_income']
-        ## Predict next income value
+
+
+        ## Predict next income values
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
-        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
+        # calculate household income mean
         income_mean = np.mean(newWaveIncome["hh_income"])
+        # calculate change in standard deviation between waves.
         std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        # rescale income to have new mean but keep old standard deviation.
         newWaveIncome["hh_income"] *= std_ratio
         newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
         #newWaveIncome["hh_income"] -= 75
-        # #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
-        #print(std_ratio)
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income
-        #print("income", np.mean(newWaveIncome['hh_income']))
+
+        # difference in hh income
+        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
+
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
