@@ -700,14 +700,17 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    families = families_summarise,
                    families_income_quint = families_income_quint_summarise,
                    treated = treated_summarise,
-                   priority_any = priority_summarise_any
-)
+                   priority_any = priority_summarise_any,
+                   UC = UC_summarise,
+                   UC_rel_pov = UC_rel_pov_summarise,
+                   UC_kids_rel_pov = UC_kids_rel_pov_summarise,
+                   UC_abs_pov = UC_abs_pov_summarise,
+                   UC_kids_abs_pov = UC_kids_abs_pov_summarise,
+                   UC_gender = UC_gender_summarise
+                   )
 #                   priority_any2 = priority_summarise_any2,
 #                   priority_num = priority_summarise_num
-#                   UC = UC_summarise,
-#                   UC_rel_pov = UC_rel_pov_summarise,
-#                   UC_abs_pov = UC_abs_pov_summarise,
-#                   UC_gender = UC_gender_summarise)
+
 
 # Step 5: Script Execution
 for (year in 2021:2036) {
