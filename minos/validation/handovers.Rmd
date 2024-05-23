@@ -247,57 +247,6 @@ density_ridges(sf12.spag, "SF_12",
 rm(raw.sf12, base.sf12, sf12.spag)
 ```
 
-
-## Financial Situation
-
-```{r}
-raw.financial_situation <- raw.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.financial_situation <- base.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-
-
-# merge before plot
-financial_situation <- rbind(raw.financial_situation, base.financial_situation)
-financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
-
-# Now plot
-ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-financial_situation.norm <- financial_situation %>%
-  group_by(time) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial situation') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'financial_situation.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
-```
-
 ## Housing Quality
 
 ```{r}
@@ -665,6 +614,56 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 # rm(raw.s, base.s, spag)
 ```
 
+## S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
+
+lab.state <- prepped.list$var
+lab.state.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_labour_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_labour_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+# ADDITIONAL VARIABLES
+
 ## Education
 
 ```{r}
@@ -730,6 +729,56 @@ cv_ordinal_plots(pivoted.df = pivoted,
 #                save.path = save.path)
 # 
 # rm(raw.s, base.s, spag)
+```
+
+## Financial Situation
+
+```{r}
+raw.financial_situation <- raw.dat %>%
+  dplyr::select(pidp, time, financial_situation) %>%
+  group_by(time, financial_situation) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.financial_situation <- base.dat %>%
+  dplyr::select(pidp, time, financial_situation) %>%
+  group_by(time, financial_situation) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+financial_situation <- rbind(raw.financial_situation, base.financial_situation)
+financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
+
+# Now plot
+ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+financial_situation.norm <- financial_situation %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Financial situation') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'financial_situation.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
 ## nkids Household
@@ -883,87 +932,6 @@ spaghetti_plot(spag, 'hourly_wage',
 rm(raw.s, base.s, spag)
 ```
 
-```{r}
-# some basic statistics about hourly_wage variable
-print("Some basic statistics on hourly_wage. These are all for 2020.")
-raw.2020 <- raw.dat %>% filter(time == 2020)
-print('All living people in 2020')
-print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
-# number individuals with an hourly_wage > 0
-print('People not in work')
-print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
-
-# Number in work
-print('People in work')
-print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
-
-# Extreme hourly_wage values
-print('Extreme hourly wage values: HIGH')
-print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
-print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
-print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
-print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
-print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
-print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
-
-raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
-print('Extreme hourly wage values: LOW (non-zero)')
-print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
-print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
-print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
-print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
-```
-
-## S7 Labour State
-
-```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
-
-lab.state <- prepped.list$var
-lab.state.norm <- prepped.list$norm
-
-# Now plot
-ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'S7_labour_state.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, lab.state, lab.state.norm)
-```
-
-
-
-```{r}
-pivoted <- combine_and_pivot_long(df1 = base.dat, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw.dat, 
-                                       df2.name = 'raw', 
-                                       var = 'S7_labour_state')
-
-cv_ordinal_plots(pivoted.df = pivoted, 
-                 var = 'S7_labour_state',
-                 save = shall.we.save,
-                 save.path = save.path)
-```
-
 ## Child Ages
 
 ```{r}
@@ -1043,6 +1011,7 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
   ylab('Count')
 
 ```
+
 
 ```{r}
 
