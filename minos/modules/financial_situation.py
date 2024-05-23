@@ -6,7 +6,7 @@ import logging
 from datetime import datetime as dt
 
 
-class financialSituation(Base):
+class FinancialSituation(Base):
 
 
     # Special methods used by vivarium.
@@ -15,7 +15,7 @@ class financialSituation(Base):
         return 'financial_situation'
 
     def __repr__(self):
-        return "financialSituation()"
+        return "FinancialSituation()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -62,7 +62,8 @@ class financialSituation(Base):
                         'job_sec',
                         'hh_income',
                         'marital_status',
-                        'housing_tenure'
+                        'housing_tenure',
+                        'financial_situation'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -77,6 +78,11 @@ class financialSituation(Base):
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
 
+        self.fs_transition_model = r_utils.load_transitions(f"financial_situation/rfo/financial_situation_RFO",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        # self.hq_transition_model = r_utils.randomise_fixed_effects(self.hq_transition_model, self.rpy2Modules, "rf")
+
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
 
@@ -89,6 +95,8 @@ class financialSituation(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
+        pop['financial_situation_last'] = pop['financial_situation']
+
         nextWaveFinancialPerception = self.calculate_financial_situation(pop)
         nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
                                                                 list(nextWaveFinancialPerception.columns+1),
@@ -100,14 +108,20 @@ class financialSituation(Base):
         self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
-        year = 2020
-        # if simulation goes beyond real data in 2020 dont load the transition model again.
-        if not self.transition_model or year <= 2020:
-            self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
-                                                             self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        # year = 2020
+        # # if simulation goes beyond real data in 2020 dont load the transition model again.
+        # if not self.transition_model or year <= 2020:
+        #     self.transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}",
+        #                                                      self.rpy2Modules, path=self.transition_dir)
+        #     self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        #
+        # #transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2Modules)
+        # nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop,
+        #                                                                 dependent='financial_situation')
 
-        #transition_model = r_utils.load_transitions(f"financial_situation/clm/financial_situation_{year}_{year + 1}", self.rpy2Modules)
-        nextWaveFinancialPerception = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop,
-                                                                        dependent='financial_situation')
-        return nextWaveFinancialPerception
+        prob_df = r_utils.predict_next_rf_ordinal(self.fs_transition_model,
+                                                  self.rpy2Modules,
+                                                  pop,
+                                                  dependent='financial_situation')
+
+        return prob_df

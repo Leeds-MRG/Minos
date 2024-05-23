@@ -137,7 +137,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.log.transform <- F
     }
     
-    if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety', 'job_sec')) {
+    if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety',
+                         'job_sec', 'financial_situation')) {
       data[[dependent]] <- factor(data[[dependent]])
     }
 
@@ -203,7 +204,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     }
     else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 
                               'chron_disease', 'housing_quality',
-                              'loneliness', 'neighbourhood_safety', 'job_sec')) {
+                              'loneliness', 'neighbourhood_safety', 'job_sec',
+                              'financial_situation')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
