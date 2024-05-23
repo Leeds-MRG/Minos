@@ -107,20 +107,31 @@ class Housing(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
+        pop['housing_quality_last'] = pop['housing_quality']
+
         housing_prob_df = self.calculate_housing(pop)
 
         housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
 
+        # Use argmax to pick the class with the highest probability
+        #housing_prob_df['housing_quality_numeric'] = housing_prob_df.values.argmax(axis=1) + 1
+
         housing_prob_df.index = pop.index
 
         # convert numeric prediction into string factors (low, medium, high)
-        housing_factor_dict = {1: 'Low',
-                               2: 'Medium',
+        # NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model
+        housing_factor_dict = {1: 'Medium',
+                               2: 'Low',
                                3: 'High'}
         housing_prob_df.replace({'housing_quality': housing_factor_dict},
                                 inplace=True)
+
+        # Map numeric predictions to string labels
+        #housing_prob_df['housing_quality'] = housing_prob_df['housing_quality_numeric'].map(housing_factor_dict)
+
+        #print(housing_prob_df.head())
 
         # pop = self.population_view.get(event.index, query="alive=='alive'")
         # self.year = event.time.year

@@ -504,15 +504,6 @@ def predict_next_rf_ordinal(model, rpy2_modules, current, dependent):
     prediction = ro.r.predict(model, data=currentRDF)
     predictions = prediction.rx2('predictions')
 
-    # newRPopDF = base.cbind(currentRDF, predicted=predictions)
-    # # Convert back to pandas
-    # with localconverter(ro.default_converter + pandas2ri.converter):
-    #     newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
-    #
-    # # Now rename the predicted var (have to drop original column first)
-    # newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    # newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
-
     with localconverter(ro.default_converter + pandas2ri.converter):
         prediction_matrix_list = ro.conversion.rpy2py(predictions)
 
