@@ -199,16 +199,16 @@ arc4_intervention_energyDownLiftNoSupport:
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
 arc4_baseline_cpr:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr2
 
 arc4_intervention_childPovertyReductionRELATIVE:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr2 -i 'ChildPovertyReductionRELATIVE'
 
 arc4_intervention_childPovertyReductionRELATIVE_2:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr2 -i 'ChildPovertyReductionRELATIVE_2'
 
 arc4_intervention_ChildPovertyReductionABSOLUTE:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr2 -i 'ChildPovertyReductionABSOLUTE'
 
 ## All default scenarios
 arc4_all_scenarios_default: setup
