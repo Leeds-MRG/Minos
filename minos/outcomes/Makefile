@@ -42,6 +42,12 @@ CPR_local_test_sum:
 	Rscript minos/read_summarise_2.R default_config cpr_summary_out baseline
 	Rscript minos/read_summarise_2.R default_config cpr_summary_out ChildPovertyReductionRELATIVE
 
+CPR_all_sum:
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE_2
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionABSOLUTE
+
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
 ##############################################################
