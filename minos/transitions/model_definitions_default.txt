@@ -1,10 +1,10 @@
 RFO : housing_quality ~ age + sex + ethnicity + region + education_state + neighbourhood_safety + loneliness + nutrition_quality + ncigs + hh_income + housing_tenure + housing_quality_last
-RF : hourly_wage ~ time + sex + age + I(age**2) + ethnicity + region + education_state + urban + job_sec
 RFO : loneliness ~ age + sex + ethnicity + region + education_state + housing_quality + neighbourhood_safety + loneliness_last + nutrition_quality + ncigs + job_sec + hh_income + marital_status
 RFO : neighbourhood_safety ~ age + sex + ethnicity + region + education_state + neighbourhood_safety_last + hh_income
 NNET : education_state ~ factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region)
 NNET : S7_labour_state ~ factor(S7_labour_state) + scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1")
 RFO : job_sec ~ job_sec_last + age + sex + ethnicity + region + education_state
+RFO : behind_on_bills ~ behind_on_bills_last + age + sex + ethnicity + region + education_state + hh_income + job_sec
 RFO : financial_situation ~ financial_situation_last + age + sex + ethnicity + region + education_state + housing_quality + neighbourhood_safety + loneliness + nutrition_quality + ncigs + job_sec + hh_income + marital_status + housing_tenure
 GLMM : hh_income ~ scale(hh_income) + scale(age) + I(scale(age)**2) +  I(scale(age)**3) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + relevel(factor(job_sec), ref = '3') + scale(SF_12) + relevel(factor(S7_labour_state), ref = 'FT Employed') + (1|pidp)
 LMM : nutrition_quality ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + scale(hh_income) + (1|pidp) + (1|hidp) + time

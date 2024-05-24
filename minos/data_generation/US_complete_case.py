@@ -72,10 +72,9 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
-                          "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
-    # REMOVED:  'job_sector', 'labour_state'
+                          "education_state", 'region', "age", 'financial_situation', #'SF_12',
+                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
+    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)
     data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
@@ -118,7 +117,6 @@ if __name__ == "__main__":
                     'newest_education_state',
                     'health_limits_social',
                     'future_financial_situation',
-                    'behind_on_bills',
                     'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.
                                         # remove them here or as late as needed.
