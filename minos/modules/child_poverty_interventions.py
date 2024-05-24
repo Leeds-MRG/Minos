@@ -178,8 +178,10 @@ class ChildPovertyReductionRELATIVE(Base):
         else:
             prop_above_target = 0
 
-        if years_remaining > 0:  # before 2030
+        if (years_remaining > 0) & (years_remaining != 1):  # before 2030 (but not 2029)
             proportion_to_uplift = prop_above_target / years_remaining
+        elif years_remaining == 1:  # 2029 - divide by 2 as diving by 1 means meeting target 1 year early
+            proportion_to_uplift = prop_above_target / 2
         elif years_remaining == 0:  # in 2030
             proportion_to_uplift = prop_above_target
         elif years_remaining < 0:  # after 2030, fix to target level
@@ -396,8 +398,10 @@ class ChildPovertyReductionRELATIVE_2(Base):
         else:
             prop_above_target = 0
 
-        if years_remaining > 0:  # before 2030
+        if (years_remaining > 0) & (years_remaining != 1):  # before 2030 (but not 2029)
             proportion_to_uplift = prop_above_target / years_remaining
+        elif years_remaining == 1:  # 2029 - divide by 2 as diving by 1 means meeting target 1 year early
+            proportion_to_uplift = prop_above_target / 2
         elif years_remaining == 0:  # in 2030
             proportion_to_uplift = prop_above_target
         elif years_remaining < 0:  # after 2030, fix to target level
@@ -607,8 +611,10 @@ class ChildPovertyReductionABSOLUTE(Base):
         else:
             prop_above_target = 0
 
-        if years_remaining > 0:  # before 2030
+        if (years_remaining > 0) & (years_remaining != 1):  # before 2030 (but not 2029)
             proportion_to_uplift = prop_above_target / years_remaining
+        elif years_remaining == 1:  # 2029 - divide by 2 as diving by 1 means meeting target 1 year early
+            proportion_to_uplift = prop_above_target / 2
         elif years_remaining == 0:  # in 2030
             proportion_to_uplift = prop_above_target
         elif years_remaining < 0:  # after 2030, fix to target level
