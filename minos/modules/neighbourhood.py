@@ -55,7 +55,9 @@ class Neighbourhood(Base):
                         "nutrition_quality",
                         "ncigs",
                         'hh_income',
-                        'job_sec'
+                        'job_sec',
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)

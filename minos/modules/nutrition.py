@@ -171,7 +171,9 @@ class lmmYJNutrition(Base):
                         'nutrition_quality',
                         'nutrition_quality_diff',
                         'ncigs',
-                        "SF_12"
+                        "SF_12",
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
 
         #view_columns += self.transition_model.rx2('model').names

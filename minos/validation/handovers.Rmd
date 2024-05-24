@@ -781,6 +781,57 @@ if (shall.we.save) {
 rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
+## Behind On Bills
+
+```{r}
+raw.behind_on_bills <- raw.dat %>%
+  dplyr::select(pidp, time, behind_on_bills) %>%
+  group_by(time, behind_on_bills) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.behind_on_bills <- base.dat %>%
+  dplyr::select(pidp, time, behind_on_bills) %>%
+  group_by(time, financial_situation) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+behind_on_bills <- rbind(raw.behind_on_bills, base.behind_on_bills)
+behind_on_bills$behind_on_bills <- as.factor(behind_on_bills$behind_on_bills)
+
+# Now plot
+ggplot(data = behind_on_bills, mapping = aes(x = time, y = n, group = behind_on_bills, colour = behind_on_bills)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Behind On Bills', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+behind_on_bills.norm <- behind_on_bills %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = behind_on_bills.norm, mapping = aes(x = time, y = prct, fill=behind_on_bills)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Behind On Bills') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'behind_on_bills.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.norm)
+```
+
+
 ## nkids Household
 
 ```{r}

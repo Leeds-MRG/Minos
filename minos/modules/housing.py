@@ -69,7 +69,9 @@ class Housing(Base):
                         'hh_income',
                         'hh_income_diff',
                         'housing_tenure',
-                        'SF_12']
+                        'SF_12',
+                        'behind_on_bills',
+                        'financial_situation']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

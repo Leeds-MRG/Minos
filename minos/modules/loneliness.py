@@ -62,7 +62,9 @@ class Loneliness(Base):
                         'hh_income',
                         'marital_status',
                         "SF_12",
-                        'hh_comp'
+                        'hh_comp',
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
