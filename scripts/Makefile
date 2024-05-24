@@ -215,6 +215,9 @@ arc4_intervention_childPovertyReductionRELATIVE_2:
 arc4_intervention_ChildPovertyReductionABSOLUTE:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
 
+arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReductionRELATIVE
+arc4_child_pov_interventions: arc4_intervention_childPovertyReductionRELATIVE_2 arc4_intervention_ChildPovertyReductionABSOLUTE
+
 ## All default scenarios
 arc4_all_scenarios_default: setup
 arc4_all_scenarios_default: MODE=default_config
