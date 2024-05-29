@@ -89,6 +89,22 @@ raw.dat$age_bucket <- cut(raw.dat$age,
 handover_ordinal(raw.dat, base.dat, var = 'age_bucket', save = shall.we.save)
 ```
 
+## Age Structure (Households with Children)
+
+```{r}
+raw.dat_fam <- raw.dat %>%
+  filter(nkids > 0)
+
+base.dat_fam <- base.dat %>%
+  filter(nkids > 0)
+
+empty.dat <- raw.dat %>%
+  filter(age > 150)
+
+handover_ordinal(raw.dat_fam, base.dat_fam, var = 'age_bucket', save = shall.we.save)
+handover_ordinal(empty.dat, base.dat_fam, var = 'age_bucket', save = shall.we.save)
+```
+
 ## Max Age
 
 ```{r}
@@ -202,6 +218,8 @@ var.norm <- merged %>%
 
 ## Population Counts
 
+### Total Pop
+
 ```{r}
 raw.alive <- raw.dat %>%
   group_by(time) %>%
@@ -216,6 +234,181 @@ handover_lineplots(raw.alive, base.alive, "n")
 
 rm(raw.alive, base.alive)
 ```
+
+### Households
+
+```{r}
+raw.hhs <- raw.dat %>%
+  select(hidp, time) %>%
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'final_US')
+
+base.hhs <- base.dat %>%
+  select(hidp, time) %>%
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.hhs, base.hhs)
+
+ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
+  geom_point() +
+  geom_line() +
+  labs(title = 'Households Count')
+```
+
+
+### Households With Children
+
+```{r}
+raw.households_with_kids <- raw.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'final_US')
+
+base.households_with_kids <- base.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.household_count_by_year, base.household_count_by_year)
+
+ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
+  geom_point() +
+  geom_line() +
+  labs(title = 'Households with Children Count')
+```
+
+### Households With Children (Income Quintile)
+
+```{r}
+raw.hhs_kids.income_quint <- raw.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  mutate(income_group = case_when(
+    hh_income <= 1000 ~ "<= 1000",
+    hh_income <= 1500 ~ "1001 - 1500",
+    hh_income <= 2000 ~ "1501 - 2000",
+    hh_income <= 2500 ~ "2001 - 2500",
+    hh_income > 2500  ~ "> 2500"
+  )) %>%
+  group_by(time, income_group) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'final_US')
+
+base.hhs_kids.income_quint <- base.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  mutate(income_group = case_when(
+    hh_income <= 1000 ~ "<= 1000",
+    hh_income <= 1500 ~ "1001 - 1500",
+    hh_income <= 2000 ~ "1501 - 2000",
+    hh_income <= 2500 ~ "2001 - 2500",
+    hh_income > 2500  ~ "> 2500"
+  )) %>%
+  group_by(time, income_group) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.hhs_kids.income_quint, base.hhs_kids.income_quint)
+combined$income_group <- factor(combined$income_group)
+
+ggplot(combined, aes(x = time, y = n, group = income_group, color = income_group, fill = income_group)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
+```
+
+#### Proportions
+
+```{r}
+calculate_hh_proportions <- function(data) {
+  # Step 1: Filter for households with children
+  households_with_kids <- data %>%
+    filter(nkids > 0) %>%
+    select(hidp, time, hh_income) %>%
+    distinct()
+  
+  # Step 2: Create income group based on thresholds
+  households_with_kids <- households_with_kids %>%
+    mutate(income_group = case_when(
+      hh_income <= 1000 ~ "<= 1000",
+      hh_income <= 1500 ~ "1001 - 1500",
+      hh_income <= 2000 ~ "1501 - 2000",
+      hh_income <= 2500 ~ "2001 - 2500",
+      hh_income > 2500  ~ "> 2500"
+    ))
+  
+  # Step 3: Count households within each income group per year
+  household_counts <- households_with_kids %>%
+    group_by(time, income_group) %>%
+    summarise(count = n(), .groups = 'drop')
+  
+  # Step 4: Calculate total households with children per year
+  total_households_per_year <- households_with_kids %>%
+    group_by(time) %>%
+    summarise(total_count = n(), .groups = 'drop')
+  
+  # Step 5: Calculate proportion of households in each group per year
+  household_proportions <- household_counts %>%
+    left_join(total_households_per_year, by = "time") %>%
+    mutate(proportion = count / total_count) %>%
+    select(time, income_group, proportion)
+  
+  return(household_proportions)
+}
+
+raw.hh_kids_prop <- calculate_hh_proportions(raw.dat)
+base.hh_kids_prop <- calculate_hh_proportions(base.dat)
+
+raw.hh_kids_prop$source <- 'final_US'
+raw.hh_kids_prop <- filter(raw.hh_kids_prop, time != start.year)
+base.hh_kids_prop$source <- 'baseline'
+
+combined <- rbind(raw.hh_kids_prop, base.hh_kids_prop)
+combined$income_group <- factor(combined$income_group)
+
+ggplot(combined, aes(x = time, y = proportion, group = income_group, color = income_group, fill = income_group)) +
+  geom_col() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
+```
+
+
+```{r}
+# Step 1: Filter for households with children
+households_with_kids <- raw.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income) %>%
+  distinct() %>%
+  select(-hidp)
+
+# Step 2: Calculate income quintiles
+households_with_kids <- households_with_kids %>%
+  group_by(time) %>%
+  mutate(income_quintile = ntile(hh_income, 5)) %>%
+  ungroup()
+
+# Step 3: Count households within each income quintile per year
+household_count_by_income_quintile <- households_with_kids %>%
+  group_by(time, income_quintile) %>%
+  summarise(n = n())
+
+household_count_by_income_quintile
+```
+
 
 # PATHWAYS
 
@@ -979,8 +1172,16 @@ rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.n
 ## nkids Household
 
 ```{r}
-handover_boxplots(raw.dat, base.dat, 'nkids')
-handover_lineplots(raw.dat, base.dat, 'nkids')
+raw.hh_unique <- raw.dat %>%
+  select(hidp, time, nkids) %>%
+  distinct()
+
+base.hh_unique <- base.dat %>%
+  select(hidp, time, nkids) %>%
+  distinct()
+
+#handover_boxplots(raw.hh_unique, base.hh_unique, 'nkids')
+handover_lineplots(raw.hh_unique, base.hh_unique, 'nkids')
 ```
 
 ```{r}
