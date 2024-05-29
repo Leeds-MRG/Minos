@@ -45,18 +45,18 @@ base.dat <- read_singular_local_out(out.path,
                                     'baseline', 
                                     drop.dead = TRUE, 
                                     drop.zero.weight = TRUE)
-rel.int <- read_singular_local_out(out.path, 
-                                   'ChildPovertyReductionRELATIVE', 
-                                   drop.dead = TRUE,
-                                   drop.zero.weight = TRUE)
-# rel.int.2 <- read_singular_local_out(out.path,
-#                                      'ChildPovertyReductionRELATIVE_2',
-#                                      drop.dead = TRUE,
-#                                      drop.zero.weight = TRUE)
-# abs.int <- read_singular_local_out(out.path, 
-#                                    'ChildPovertyReductionABSOLUTE', 
+# rel.int <- read_singular_local_out(out.path, 
+#                                    'ChildPovertyReductionRELATIVE', 
 #                                    drop.dead = TRUE,
 #                                    drop.zero.weight = TRUE)
+rel.int <- read_singular_local_out(out.path,
+                                     'ChildPovertyReductionRELATIVE_2',
+                                     drop.dead = TRUE,
+                                     drop.zero.weight = TRUE)
+abs.int <- read_singular_local_out(out.path,
+                                   'ChildPovertyReductionABSOLUTE',
+                                   drop.dead = TRUE,
+                                   drop.zero.weight = TRUE)
 ```
 
 # Household Income

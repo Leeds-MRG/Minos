@@ -303,7 +303,8 @@ SF12_change_percentage_income_quint <- function(summary_group, scen.list) {
 ```
 
 ```{r}
-scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE')
+#scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+scen.list.test <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 whole_pop_data <- do.call(rbind, generate_df_list('whole_pop', scen.list.test))
 ```
 
@@ -396,78 +397,78 @@ SF12_change_percentage(summary_group = 'priority_any',
 ```{r}
 #SF12_change_income_quint <- function(summary_group, scen.list) {
 
-summary_group <- 'priority_num'
-
-  tit <- ' '
-  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
-  if (summary_group == 'families') { tit <- 'Families' }
-
-  #summary_group <- paste0(summary_group, '_income_quint')
-
-  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
-
-  plot_data <- data %>%
-    select(run_id, income_quintile, SF_12, mean_cost, year, scen) %>%
-    pivot_wider(names_from = scen,
-                values_from = c(SF_12, mean_cost),
-                names_sep = '.') %>%
-    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
-    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
-    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
-                 names_to = c(".value", "scen"),
-                 names_sep = "\\.") %>%
-    filter(scen != 'baseline') %>%
-    select(-scen)
-
-  plot_data$income_quintile <- factor(plot_data$income_quintile)
-
-  plot_data_confint <- plot_data %>%
-    group_by(year, income_quintile) %>%
-    summarise(n = n(),
-              mean_SF12_change = mean(diff_SF_12),
-              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
-              lower = mean_SF12_change - margin,
-              upper = mean_SF12_change + margin)
-
-  plot_data_confint2 <- plot_data %>%
-    group_by(year, income_quintile) %>%
-    summarise(n = n(),
-              mean_SF12_change = mean(diff_SF_12),
-              margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
-              lower = mean_SF12_change - margin,
-              upper = mean_SF12_change + margin)
-
-
-  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
-    geom_hline(yintercept = 0, linetype = 'dashed') +
-    geom_vline(xintercept = 2030, linetype = 'dotted') +
-    geom_smooth() +
-    labs(title = tit, subtitle = 'Income Quintile') +
-    xlab('Year') +
-    ylab('Change in SF-12')
-
-  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
-    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
-    geom_line(linetype = 'dashed') +
-    geom_point() +
-    geom_hline(yintercept = 0, linetype = 'dashed') +
-    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
-    labs(title = tit, subtitle = 'Income Quintile') +
-    xlab('Year') +
-    ylab('Change in SF-12')
-
-  p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
-    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
-    geom_line(linetype = 'dashed') +
-    geom_point() +
-    geom_hline(yintercept = 0, linetype = 'dashed') +
-    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
-    labs(title = tit, subtitle = 'Income Quintile') +
-    xlab('Year') +
-    ylab('Change in SF-12')
-
-  print(p1)
-  print(p2)
+# summary_group <- 'priority_num'
+# 
+#   tit <- ' '
+#   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+#   if (summary_group == 'families') { tit <- 'Families' }
+# 
+#   #summary_group <- paste0(summary_group, '_income_quint')
+# 
+#   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+# 
+#   plot_data <- data %>%
+#     select(run_id, income_quintile, SF_12, mean_cost, year, scen) %>%
+#     pivot_wider(names_from = scen,
+#                 values_from = c(SF_12, mean_cost),
+#                 names_sep = '.') %>%
+#     mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+#     rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+#     pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+#                  names_to = c(".value", "scen"),
+#                  names_sep = "\\.") %>%
+#     filter(scen != 'baseline') %>%
+#     select(-scen)
+# 
+#   plot_data$income_quintile <- factor(plot_data$income_quintile)
+# 
+#   plot_data_confint <- plot_data %>%
+#     group_by(year, income_quintile) %>%
+#     summarise(n = n(),
+#               mean_SF12_change = mean(diff_SF_12),
+#               margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+#               lower = mean_SF12_change - margin,
+#               upper = mean_SF12_change + margin)
+# 
+#   plot_data_confint2 <- plot_data %>%
+#     group_by(year, income_quintile) %>%
+#     summarise(n = n(),
+#               mean_SF12_change = mean(diff_SF_12),
+#               margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
+#               lower = mean_SF12_change - margin,
+#               upper = mean_SF12_change + margin)
+# 
+# 
+#   p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
+#     geom_hline(yintercept = 0, linetype = 'dashed') +
+#     geom_vline(xintercept = 2030, linetype = 'dotted') +
+#     geom_smooth() +
+#     labs(title = tit, subtitle = 'Income Quintile') +
+#     xlab('Year') +
+#     ylab('Change in SF-12')
+# 
+#   p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
+#     geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+#     geom_line(linetype = 'dashed') +
+#     geom_point() +
+#     geom_hline(yintercept = 0, linetype = 'dashed') +
+#     geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+#     labs(title = tit, subtitle = 'Income Quintile') +
+#     xlab('Year') +
+#     ylab('Change in SF-12')
+# 
+#   p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
+#     geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+#     geom_line(linetype = 'dashed') +
+#     geom_point() +
+#     geom_hline(yintercept = 0, linetype = 'dashed') +
+#     geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+#     labs(title = tit, subtitle = 'Income Quintile') +
+#     xlab('Year') +
+#     ylab('Change in SF-12')
+# 
+#   print(p1)
+#   print(p2)
 #}
 ```
 
