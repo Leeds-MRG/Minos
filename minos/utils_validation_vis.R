@@ -45,6 +45,137 @@ validation_prep_ordinal <- function(raw.dat, base.dat, var) {
 
 ############ PLOTTING ############
 
+handover_continuous <- function(raw.dat, base.dat, var, save = FALSE) {
+  raw.var <- raw.dat %>%
+    dplyr::select(time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'final_US')
+  
+  base.var <- base.dat %>%
+    dplyr::select(time, all_of(var), weight) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm=TRUE)) %>%
+    mutate(source = 'baseline_output')
+  
+  # merge before plot
+  merged <- rbind(raw.var, base.var)
+  
+  # Now plot
+  p1 <- ggplot(data = merged, mapping = aes(x = time, y = mean, group = source, colour = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Full Sample') +
+    xlab('Year') +
+    ylab(var)
+  
+  ## Try a version where final_US is limited to only those present from wave 1
+  # onwards because the sample refreshments are messing with the plot
+  raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+  
+  raw.var2 <- raw.dat %>%
+    dplyr::select(time, all_of(var), weight) %>%
+    filter(pidp %in% raw.wave1) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm = TRUE)) %>%
+    mutate(source = 'final_US')
+  
+  base.var2 <- base.dat %>%
+    dplyr::select(time, all_of(var), weight) %>%
+    filter(pidp %in% raw.wave1) %>%
+    filter(time != 2009) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    drop_na() %>%
+    group_by(time) %>%
+    summarise(mean = weighted.mean(x = .data[[var]],
+                                   w = weight,
+                                   na.rm = TRUE)) %>%
+    mutate(source = 'baseline_output')
+  
+  merged2 <- rbind(raw.var2, base.var2)
+  
+  # Now plot
+  p2 <- ggplot(data = merged2, mapping = aes(x = time, y = mean, group = source, colour = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Wave 1 Sample') +
+    xlab('Year') +
+    ylab(var)
+  
+  if (save) {
+    ggsave(filename = paste0(var, '.png'),
+           plot = p1,
+           path = save.path)
+  }
+  print(p1)
+  print(p2)
+}
+
+handover_ordinal <- function(raw.dat, base.dat, var, save=FALSE) {
+  raw.var <- raw.dat %>%
+    dplyr::select(time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'final_US')
+  
+  base.var <- base.dat %>%
+    dplyr::select(time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'baseline_output')
+  
+  raw.var[[var]] <- as.factor(raw.var[[var]])
+  base.var[[var]] <- as.factor(base.var[[var]])
+  
+  merged <- rbind(raw.var, base.var)
+  merged[[var]] <- as.factor(merged[[var]])
+  
+  p1 <- ggplot(data = merged, mapping = aes(x = time, y = n, group = .data[[var]], colour = .data[[var]])) +
+    geom_line() +
+    geom_point() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Counts by Level') +
+    xlab('Year') +
+    ylab('Count')
+  
+  var.norm <- merged %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total))
+  
+  p2 <- ggplot(data = var.norm, mapping = aes(x = time, y = prct, fill=.data[[var]])) +
+    geom_bar(stat = 'identity') +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var) +
+    xlab('Year') +
+    ylab('Proportion')
+  
+  if (save) {
+    ggsave(filename = paste0(var, '.png',),
+           plot = last_plot(),
+           path = save.path)
+  }
+  print(p1)
+  print(p2)
+}
+
 spaghetti_plot <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
 {
   # spaghetti plot displaying trajectories over time for continuous variable v
@@ -464,13 +595,13 @@ handover_boxplots <- function(raw, baseline, var) {
 handover_lineplots <- function(raw, base, var) {
   # GENERALISE THIS AND DOCSTRING
   raw.means <- raw %>% 
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(time, var) %>%
     group_by(time) %>%
     summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
     mutate(source = 'final_US')
   
   base.means <- base %>%
-    dplyr::select(pidp, time, var) %>%
+    dplyr::select(time, var) %>%
     group_by(time) %>%
     summarise(summary_var = mean(!!sym(var))) %>%
     mutate(source = 'baseline_output')
