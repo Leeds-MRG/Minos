@@ -42,15 +42,22 @@ def reweight_stock(data, projections):
         Expanded dataset reweighted by sex
     """
     print('Reweighting by age, sex, and ethnic group...')
+
+    # data in projections has age top-coded at 90. To avoid issues with these groups we need to create a new var
+    # with a top-coded age also, then set these ages back later
+    data['age_orig'] = data['age']
+    data['age'][data['age'] > 90] = 90
+
     # first group_by sex and year and sum weight for totals, then rename before merge
     summed_weights = data.groupby(['sex', 'time', 'age', 'ethnicity'])['weight'].sum().reset_index()
     summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
 
     # merge the projection data and summed weights for reweighting
     data = data.merge(projections, on=['time', 'sex', 'age', 'ethnicity'])
-    data = data.merge(summed_weights, on=['time', 'sex', 'age', 'ethnicity'])
+    reweighted_data = data.merge(summed_weights, on=['time', 'sex', 'age', 'ethnicity'])
 
-    reweighted_data = data
+    # re-assign original ages after topcoding age var
+    reweighted_data['age'] = reweighted_data['age_orig']
 
     # now reweight new population file
     reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
@@ -59,7 +66,7 @@ def reweight_stock(data, projections):
                          inplace=True,
                          axis=1)
 
-    # Final step is to rescale the new weights to range(0,1). The previous large weights broke some of the transition
+    # Now rescale the new weights to range(0,1). The previous large weights broke some of the transition
     # models, specifically the zero-inflated poisson for ncigs
     #TODO: There is another method of rescaling using the numpy.ptp() method that might be faster. Maybe worth looking into (see link below)
     # https://stackoverflow.com/questions/38103467/rescaling-to-0-1-certain-columns-from-pandas-python-dataframe

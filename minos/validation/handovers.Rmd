@@ -73,6 +73,150 @@ create.if.not.exists(save.path)
 shall.we.save <- FALSE
 ```
 
+# DEMOGRAPHICS
+
+## Age Structure
+
+```{r}
+# assign to age_bucket in raw data
+cut_bins <- c(-1, 15, 19, 24, 29, 44, 59, 74, 200)
+cut_labels <- c("0to15", "16to19", "20to24", "25to29", "30to44", "45to59", "60to74", "75plus")
+
+raw.dat$age_bucket <- cut(raw.dat$age, 
+                          breaks = cut_bins, 
+                          labels = cut_labels)
+
+handover_ordinal(raw.dat, base.dat, var = 'age_bucket', save = shall.we.save)
+```
+
+## Max Age
+
+```{r}
+raw.maxAge <- raw.dat %>%
+  group_by(time) %>%
+  summarise(max_age = max(age))
+
+base.maxAge <- base.dat %>%
+  group_by(time) %>%
+  summarise(max_age = max(age))
+
+handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+
+## Check counts in very old age groups
+brks = c(75, 80, 85, 90, 95, 100, 105, 110)
+lbls = c("75to80", "80to85", "85to90", "90to95", "95to100", "100to105", "105to110")
+
+raw.countOldAge <- raw.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  group_by(time, age_group) %>%
+  summarise(age_group_counts = n()) %>%
+  mutate(source = 'observed')
+
+base.countOldAge <- base.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  group_by(time, age_group) %>%
+  summarise(age_group_counts = n()) %>%
+  mutate(source = 'predicted')
+
+combined <- rbind(raw.countOldAge, base.countOldAge)
+
+ggplot(combined, aes(x = time, y = age_group_counts, group = age_group, colour = age_group)) +
+  geom_line() +
+  geom_vline(xintercept = 2021, linetype = 'dashed') +
+  labs(title = 'Counts by older age group', subtitle = '75 to 110 by 5 year groups') +
+  xlab('Year') +
+  ylab('Count')
+
+
+
+
+
+raw.countOldAge <- raw.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls))
+
+base.countOldAge <- base.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls))
+
+handover_ordinal(raw.countOldAge, base.countOldAge, var = 'age_group', save = shall.we.save)
+  
+```
+
+```{r}
+# Having a go at an age pyramid, hopefully animated
+
+brks = c(75, 80, 85, 90, 95, 100, 105, 110)
+lbls = c("75to80", "80to85", "85to90", "90to95", "95to100", "100to105", "105to110")
+
+var <- 'age_group'
+
+# start with calculating percentages
+#raw.oldAgePct
+#base.oldAgePct
+
+raw.oldAgePct <- raw.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  dplyr::select(time, age_group) %>%
+  group_by(time, age_group) %>%
+  count() %>%
+  mutate(source = 'predicted')
+
+base.oldAgePct <- base.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  dplyr::select(time, all_of(var)) %>%
+  #filter(!.data[[var]] %in% miss.values) %>%
+  group_by(time, .data[[var]]) %>%
+  count() %>%
+  mutate(source = 'observed')
+
+raw.oldAgePct[[var]] <- as.factor(raw.oldAgePct[[var]])
+base.oldAgePct[[var]] <- as.factor(base.oldAgePct[[var]])
+
+merged <- rbind(raw.oldAgePct, base.oldAgePct)
+merged[[var]] <- as.factor(merged[[var]])
+
+
+var.norm <- merged %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total) * 100)
+```
+
+
+## Population Counts
+
+```{r}
+raw.alive <- raw.dat %>%
+  group_by(time) %>%
+  summarise(n = n())
+
+base.alive <- base.dat %>%
+  group_by(time) %>%
+  summarise(n = n())
+
+#handover_boxplots(raw.alive, base.alive, 'n')
+handover_lineplots(raw.alive, base.alive, "n")
+
+rm(raw.alive, base.alive)
+```
+
 # PATHWAYS
 
 ## Income
@@ -792,7 +936,7 @@ raw.behind_on_bills <- raw.dat %>%
 
 base.behind_on_bills <- base.dat %>%
   dplyr::select(pidp, time, behind_on_bills) %>%
-  group_by(time, financial_situation) %>%
+  group_by(time, behind_on_bills) %>%
   count() %>%
   mutate(source = 'baseline_output')
 
