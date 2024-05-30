@@ -378,7 +378,8 @@ class energyBills(Base):
                         'housing_tenure',
                         'heating',
                         "housing_quality",
-                        'hidp'
+                        'hidp',
+                        'financial_situation'
                         ]
 
         # columns_created = ['hh_income_diff']
@@ -447,13 +448,20 @@ class energyBills(Base):
         # fixed tariffs according to gaspay variables. These prices don't change with market forces.
         fixed_tariffs = [1, 5, 8]
 
-
+        # gas and electric mean charges from https://www.ofgem.gov.uk/energy-price-cap
+        gas_standing_charges = (~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs)*pop['yearly_gas']>(365*0.3143))*365*0.3143
+        split_energy_bills_pop['yearly_gas'] -= gas_standing_charges
         # adjust gas pricing if not on a fixed tariff.
         split_energy_bills_pop.loc[
-            ~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs), "yearly_gas"] *= gas_price_ratio
+            ~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs)*pop['yearly_gas']>0, "yearly_gas"] *= gas_price_ratio
+        split_energy_bills_pop['yearly_gas'] += gas_standing_charges
+
         # adjust electric pricing if not on a fixed tariff.
+        electric_standing_charges = (~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs)*pop['yearly_electric']>(365*0.6010))*365*0.6010
+        split_energy_bills_pop['yearly_electric'] -= electric_standing_charges
         split_energy_bills_pop.loc[
-            ~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs), "yearly_electric"] *= electric_price_ratio
+            ~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs)*pop['yearly_electric']>0, "yearly_electric"] *= electric_price_ratio
+        split_energy_bills_pop['yearly_electric'] += electric_standing_charges
 
         # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
         split_energy_bills_pop["yearly_oil"] *= liquid_price_ratio
@@ -464,21 +472,23 @@ class energyBills(Base):
                                                    split_energy_bills_pop['yearly_oil'] +
                                                    split_energy_bills_pop['yearly_other_fuel'])
 
-        # adjust gas pricing if not on a fixed tariff.
-        split_energy_bills_pop.loc[
-            ~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs), "yearly_gas"] *= gas_price_ratio
-        # adjust electric pricing if not on a fixed tariff.
-        split_energy_bills_pop.loc[
-            ~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs), "yearly_electric"] *= electric_price_ratio
 
-        # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
-        split_energy_bills_pop["yearly_oil"] *= liquid_price_ratio
-        split_energy_bills_pop['yearly_other_fuel'] *= solid_price_ratio
-
-        split_energy_bills_pop['yearly_energy'] = (split_energy_bills_pop['yearly_electric'] +
-                                                   split_energy_bills_pop['yearly_gas'] +
-                                                   split_energy_bills_pop['yearly_oil'] +
-                                                   split_energy_bills_pop['yearly_other_fuel'])
+        # #TODO adding in standing charges.
+        # # adjust gas pricing if not on a fixed tariff.
+        # split_energy_bills_pop.loc[
+        #     ~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs), "yearly_gas"] *= gas_price_ratio
+        # # adjust electric pricing if not on a fixed tariff.
+        # split_energy_bills_pop.loc[
+        #     ~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs), "yearly_electric"] *= electric_price_ratio
+        #
+        # # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
+        # split_energy_bills_pop["yearly_oil"] *= liquid_price_ratio
+        # split_energy_bills_pop['yearly_other_fuel'] *= solid_price_ratio
+        #
+        # split_energy_bills_pop['yearly_energy'] = (split_energy_bills_pop['yearly_electric'] +
+        #                                            split_energy_bills_pop['yearly_gas'] +
+        #                                            split_energy_bills_pop['yearly_oil'] +
+        #                                            split_energy_bills_pop['yearly_other_fuel'])
 
         # adding updated price back into population.
         pop.loc[pop['gas_electric_combined']==1, 'yearly_energy'] = split_energy_bills_pop['yearly_energy']
@@ -491,24 +501,30 @@ class energyBills(Base):
         # TODO can probably do better I.E. spatially disaggregated information on energy usage ratios in rural vs urban areas or by  LSOA.
 
         joint_energy_bills_pop = pop.loc[pop['gas_electric_combined'] == 2,]
-        electric_gas_current_spend = joint_energy_bills_pop.loc[~joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs), 'yearly_gas_electric']
+
+        electric_gas_standing_charges = (joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs)*pop['yearly_gas_electric']>(365*(0.6010+0.3143)))*365*(0.6010+0.3143)
+        joint_energy_bills_pop['yearly_gas_electric'] -= electric_gas_standing_charges
+        electric_gas_current_spend = joint_energy_bills_pop.loc[~joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs)*pop['yearly_gas_electric']>0, 'yearly_gas_electric']
         electric_gas_current_spend = (((2700*electric_price_ratio*electric_gas_current_spend)/(2700+11500)) +
                                       ((11500*gas_price_ratio*electric_gas_current_spend)/(2700+11500)))
+        joint_energy_bills_pop['yearly_gas_electric'] += electric_gas_standing_charges
         joint_energy_bills_pop.loc[~joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs), 'yearly_gas_electric'] = electric_gas_current_spend
 
-        joint_energy_bills_pop['yearly_energy'] = (joint_energy_bills_pop['yearly_gas_electric'] +
-                                                   joint_energy_bills_pop['yearly_oil'] +
-                                                   joint_energy_bills_pop['yearly_other_fuel'])
+        # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
+        joint_energy_bills_pop["yearly_oil"] *= liquid_price_ratio
+        #TODO a lot of -8s here.
+        joint_energy_bills_pop['yearly_other_fuel'] *= solid_price_ratio
+
+        joint_energy_bills_pop['yearly_energy'] = joint_energy_bills_pop['yearly_gas_electric'] + joint_energy_bills_pop['yearly_oil'] + joint_energy_bills_pop['yearly_other_fuel']
 
         pop.loc[pop['gas_electric_combined'] == 2, 'yearly_energy'] = joint_energy_bills_pop['yearly_energy']
 
-
-        pop['next_yearly_energy'] = pop['yearly_energy']
         newWaveYearlyEnergy = pd.DataFrame(self.calculate_yearly_energy(pop))
         newWaveYearlyEnergy.columns = ['yearly_energy']
         newWaveYearlyEnergy.index = pop.index
         pop['yearly_energy'] = newWaveYearlyEnergy['yearly_energy']
-        pop['yearly_energy'] = pop['yearly_energy'].clip(-1000, 25000)
+        #pop['yearly_energy'] = pop['yearly_energy'].clip(-1000, 25000)
+        pop['yearly_energy'] = pop['yearly_energy'].clip(0, 25000)
         pop['yearly_energy'] = pop.groupby(by=['hidp'])['yearly_energy'].transform("mean")
         # update yearly energy bill for application in gross hh income. literally just sum the gas, electic, duel and other together.
         self.population_view.update(pop['yearly_energy'])
@@ -549,10 +565,12 @@ class energyBills(Base):
         # UKHLS detail than this and by ONS definition this encompasses all 'other' anyway except vehicle and motor
         # oils.
 
+        #scaling vs 2020 prices to get overall change in pricing.
         electric_price /= self.electric_reference
         gas_price /= self.gas_reference
         liquid_price /= self.liquid_reference
         solid_price /= self.solid_reference
+
         return electric_price, gas_price, liquid_price, solid_price
 
 

@@ -61,7 +61,8 @@ class S7Labour(Base):
                         "hh_income",
                         "education_state",
                         "S7_physical_health",
-                        'S7_mental_health']
+                        'S7_mental_health',
+                        'financial_situation']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

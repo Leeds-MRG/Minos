@@ -485,7 +485,9 @@ class lmmYJMWB(Base):
                         'hh_income',
                         'net_hh_income',
                         'yearly_energy',
-                        'heating'
+                        'heating',
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)

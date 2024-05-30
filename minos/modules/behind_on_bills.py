@@ -61,7 +61,9 @@ class behindOnBills(Base):
                         'marital_status',
                         'housing_tenure',
                         "behind_on_bills",
-                        "SF_12"
+                        "SF_12",
+                        'yearly_energy',
+                        'financial_situation'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
