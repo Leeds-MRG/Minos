@@ -48,6 +48,7 @@ from minos.modules.intervention import hhIncomePovertyLineChildUplift
 from minos.modules.intervention import livingWageIntervention
 from minos.modules.intervention import energyDownlift, energyPriceCapGuarantee, energyBillSupportScheme, energyDownliftNoSupport
 from minos.modules.intervention import ChildPovertyReductionRANDOM, ChildPovertyReductionSUSTAIN, ChildPovertyIntervention
+from minos.modules.intervention import ChildPovertyReductionRELATIVE_2, ChildPovertyReductionABSOLUTE
 
 # for viz.
 from minos.outcomes.minos_distribution_visualisation import *
@@ -138,6 +139,8 @@ intervention_components_map = {        #Interventions
     "ChildPovertyReductionRANDOM": ChildPovertyReductionRANDOM(),
     "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
     "ChildPovertyIntervention": ChildPovertyIntervention(),
+    "ChildPovertyReductionRELATIVE_2": ChildPovertyReductionRELATIVE_2(),
+    "ChildPovertyReductionABSOLUTE": ChildPovertyReductionABSOLUTE()
 }
 
 

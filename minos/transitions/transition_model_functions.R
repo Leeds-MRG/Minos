@@ -1,9 +1,9 @@
 source("minos/transitions/utils.R")
-require(ordinal)
-require(nnet)
-require(pscl)
-require(bestNormalize)
-require(lme4)
+library(ordinal)
+library(nnet)
+library(pscl)
+library(bestNormalize)
+library(lme4)
 
 ################ Model Specific Functions ################
 

@@ -4,6 +4,16 @@
 #TODO add bash script with 4 interventions (no poverty line).
 
 ##############################################################
+# SCP & CPR output summary generation in R #
+##############################################################
+
+CPR_all_sum:
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out baseline
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionRELATIVE_2
+	bash scripts/arc_read_sum_submit.sh default_cpr cpr_summary_out ChildPovertyReductionABSOLUTE
+
+
+##############################################################
 # Post-hoc aggregation of multiple MINOS runs into lineplots #
 ##############################################################
 
