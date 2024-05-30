@@ -598,8 +598,8 @@ priority_summarise_num <- function(data) {
       mutate(num_priority_groups = case_when(
         num_priority_groups == 1 ~ 1,
         num_priority_groups == 2 ~ 2,
-        num_priority_groups >= 3 ~ 3) %>%
-      group_by(num_priority_groups, run_id)) %>%
+        num_priority_groups >= 3 ~ 3)) %>%
+      group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
@@ -620,8 +620,8 @@ priority_summarise_num <- function(data) {
       mutate(num_priority_groups = case_when(
         num_priority_groups == 1 ~ 1,
         num_priority_groups == 2 ~ 2,
-        num_priority_groups >= 3 ~ 3) %>%
-          group_by(num_priority_groups, run_id)) %>%
+        num_priority_groups >= 3 ~ 3)) %>%
+          group_by(num_priority_groups, run_id) %>%
       group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -673,7 +673,7 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
   for (summary_name in names(summary_funcs)) {
     print(sprintf('About to combine summaries for %s', summary_name))
     combined_summary <- NULL
-    for (year in 2021:2036) {
+    for (year in 2020:2035) {
       summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
       year_summary <- read.csv(summary_filename)
       year_summary$year <- year
@@ -688,9 +688,10 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
 ###################### RUN THIS STUFF! ######################
 
 args <- commandArgs(trailingOnly=TRUE)
-#args <- list('default_config', 'scp_summary_out', '50UniversalCredit')
+#args <- list('default_config', 'cpr_summary_out', 'baseline')
 
 out.path <- here::here('output', args[1])
+#out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
 save.path.base <- here::here(out.path, args[2])
 save.path1 <- here::here(save.path.base, args[3])
 save.path2 <- here::here(save.path1, 'intermediates')
@@ -711,7 +712,6 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    treated = treated_summarise,
                    priority_any = priority_summarise_any,
                    priority_num = priority_summarise_num
-                   
                    )
 # UC = UC_summarise,
 # UC_rel_pov = UC_rel_pov_summarise,
@@ -723,7 +723,7 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
 
 
 # Step 5: Script Execution
-for (year in 2021:2036) {
+for (year in 2020:2035) {
   print(sprintf('Starting for year %s', year))
   data_list <- load_data_for_year(scen.path, year)
   generate_summary_csv(data_list, year, summary_funcs, save.path2)
