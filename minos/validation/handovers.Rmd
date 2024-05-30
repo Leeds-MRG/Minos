@@ -66,7 +66,7 @@ base.dat <- read_singular_local_out(out.path, 'baseline',
 ## Constants
 
 ```{r}
-start.year <- 2021
+start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
@@ -264,7 +264,7 @@ ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = sou
 ### Households With Children
 
 ```{r}
-raw.households_with_kids <- raw.dat %>%
+raw.household_count_by_year <- raw.dat %>%
   filter(nkids > 0) %>%
   select(hidp, time) %>%  # Select relevant columns to reduce data size
   distinct() %>%
@@ -272,7 +272,7 @@ raw.households_with_kids <- raw.dat %>%
   summarise(n = n()) %>%
   mutate(source = 'final_US')
 
-base.households_with_kids <- base.dat %>%
+base.household_count_by_year <- base.dat %>%
   filter(nkids > 0) %>%
   select(hidp, time) %>%  # Select relevant columns to reduce data size
   distinct() %>%
