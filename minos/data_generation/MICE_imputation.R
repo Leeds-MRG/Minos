@@ -1,21 +1,22 @@
-source("minos/transitions/utils.R")
 library(mice)
+library(here)
+library(argparse)
+library(logr)
+source("minos/utils_datain.R")
+source("minos/transitions/utils.R")
 
-
-save.path <- "minos/outcomes/paper1_plots/"
-mice.data.dir <- "data/composite_US/"
-
-
-main <- function(){
+main <- function(n_imputations, iterations_per_imputation){
   
-  # load in all 2009-2020 datasets
-  mice.filelist <- list.files(mice.data.dir,
-                              include.dirs = FALSE,
-                              full.names = TRUE,
-                              pattern = '[0-9]{4}_US_cohort.csv')
-  mice.data <- do.call(rbind, lapply(mice.filelist, read.csv))
-  # get required variables and replace missing value codes.
-  mice.data <- replace.missing(mice.data)
+  log_file_path <- file.path(here::here("data", "mice_US"), "test.log")
+  create.if.not.exists(paste0(here::here("data"),"/mice_US/"))
+  lf <- log_open(log_file_path)
+  log_print("loading data.")
+  # load in all post LOCFcorrected data? maybe composite?
+  # MICE impuation from notebook
+  # save to individual waves.
+  # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
+  start.data <- read_all_UKHLS_waves(here::here("data/"), "composite_US") 
+  start.data <- start.data[which(start.data$time>=2018),]
   
   mice_columns <- c("age", 
                     "region", 
@@ -46,63 +47,86 @@ main <- function(){
                     "hh_income",
                     "neighbourhood_safety",
                     "S7_labour_state",
-                    #"yearly_energy",
-                    "nutrition_quality"
+                    "yearly_energy",
+                    "nutrition_quality",
+                    "job_hours",
+                    "nkids_ind",
+                    "housing_tenure",
+                    "job_sector",
+                    "marital_status",
+                    'hourly_wage'
                     #"hh_comp", 
-                    #"marital_status"
   )
   
-  # minimal imp set for debugging.
-  mice_columns <- c("age", 
-                    "region", 
-                    "sex", 
-                    "SF_12"
-  )
+  start.data$clinical_depression <- as.factor(start.data$clinical_depression)  
+  start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)  
+  start.data$marital_status <- as.factor(start.data$marital_status)  
   
-  # get all non-imputed variables to add back in later.
-  other.variables <- setdiff(colnames(mice.data), mice_columns)
+  other.data <- start.data[, !names(start.data) %in% mice_columns]
+  mice.data <- start.data[, c(mice_columns)]
+  mice.data <- replace.missing(mice.data)
   
-  mice.data$ethnicity <- factor(mice.data$ethnicity)
-  mice.data$S7_labour_state <- factor(mice.data$S7_labour_state)
-  mice.data$region <- factor(mice.data$region)
-  mice.data$heating <- factor(mice.data$heating)
-  mice.data$job_sec <- factor(mice.data$job_sec)
-  mice.data$education_state <- factor(mice.data$education_state)
-  mice.data$sex <- factor(mice.data$sex)
-  #mice.data$smoker <- factor(mice.data$smoker)
-  mice.data$behind_on_bills <- factor(mice.data$behind_on_bills)
-  mice.data$ghq_depression <- factor(mice.data$ghq_depression)
-  mice.data$ghq_happiness <- factor(mice.data$ghq_happiness)
-  mice.data$clinical_depression <- factor(mice.data$clinical_depression)
-  mice.data$scsf1 <- factor(mice.data$scsf1)
-  mice.data$health_limits_social <- factor(mice.data$ghq_depression)
-  mice.data$housing_tenure <- factor(mice.data$housing_tenure)
-  mice.data$urban <- factor(mice.data$urban)
-  mice.data$marital_status <- factor(mice.data$marital_status)
+  #cached <- TRUE
+  #  print("Loading Cached MICE data.")
+  #if (cached == TRUE) {
+  #  mice.set <- readRDS("data/transitions/MICE_set.rds")
+  #  final.mice.data <- complete(mice.set, 1)
+  #  final.mice.data <- cbind(final.mice.data, other.data)
+  #}
+  #else 
+  log_print("Starting MICE with parameters.")
+  log_print("")
+  log_print("Number of Imputated Populations: ")
+  log_print(n_imputations)
+  log_print("MICE iterations per imputed population: ")
+  log_print(iterations_per_imputation)
   
-  
-  n_iter <- 30
-  max_iter <- 10
-  # future mice is parallelised version of MICE.
-  #mice_set <- mice(data = mice.data[, imp_columns], #method=method,
-  #                 m = n_iter, maxit = max_iter,
-  #                 remove.collinear=T)
-  
+  print("Starting MICE. Will take about 20 minutes on an arc4 node (subject to getting a node).")
   start.time <- Sys.time()
-  print("starting mice")
-  # tried to get progress bar working to no avail. think it needs an interactive session. 
-  mice_set <- futuremice(data = mice.data[, mice_columns], #method=method,
-                                                  m = n_iter, maxit = max_iter)
-  end.time <- Sys.time()
-  print("Time Elapsed: ")
-  print(end.time-start.time)
-  saveRDS(mice_set, "data/transitions/MICE_set2.rds") # failsafe so we don't have to impute twice.
   
-  # adding in all non-imputed variables and cast back to mids object. 
-  mice.long <- complete(mice_set, action = "long", include=T)
-  #mice.long[, c(other.variables)] <-  mice.data[, c(other.variables)]
-  mice_set.full <- as.mids(mice.long)
-  saveRDS(mice_set.full, "data/transitions/MICE_set2.rds")
-}
+  if (n_imputations == 1) {
+    mice_set <- mice(data = mice.data[, mice_columns],
+                     m = n_imputations, maxit = iterations_per_imputation,
+                     remove.collinear=T)
+    final.mice.data <- complete(mice_set, 1)
+  }
+  else {
+    mice_set <- futuremice(data = mice.data[,mice_columns],
+                           m = n_imputations, maxit = iterations_per_imputation,
+                           remove.collinear=T)
+    final.mice.data <- complete(mice_set, 1)
+  }
+  
+  end.time <- Sys.time()
+  log_print("")
+  log_print("Time Elapsed: ")
+  log_print(end.time-start.time)
+  log_print("")
+  log_print("Adding other data back in")
+  final.mice.data <- cbind(final.mice.data, other.data)   
+  
+  # adding other necessary components back in.
+  save.path <- here::here("data", "mice_US/")
+  # saving output data. 
+  log_print("")
+  log_print("MICE set saved to: ")
+  log_print(save.path)
+  save_raw_data_in(final.mice.data, save.path)
+  log_print("MICE data saved to data/mice_US")
+  log_close()
+}#
 
-main()
+
+
+
+parser <- ArgumentParser(description="MICE Imputation Script for MINOS.")
+parser$add_argument('-n', '--n_imputed_populations', 
+                    help='Number of MICE imputation experiments to run.')
+parser$add_argument('-i', '--itererations_per_population',
+                    help='How many iterations per imputed population?')
+
+args <- parser$parse_args()
+n_imputed_populations <- as.numeric(args$n_imputed_populations)
+itererations_per_population <- as.numeric(args$itererations_per_population)
+
+main(n_imputed_populations, itererations_per_population)
