@@ -14,11 +14,11 @@
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
-require(argparse)
-require(tidyverse)
-require(stringr)
-require(texreg)
-require(dplyr)
+library(argparse)
+library(tidyverse)
+library(stringr)
+library(texreg)
+library(dplyr)
 
 ###################################
 # Main loop for longitudinal models 
