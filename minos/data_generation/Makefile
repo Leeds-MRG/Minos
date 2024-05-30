@@ -90,7 +90,7 @@ $(COMPOSITEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
 $(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
-	$(RSCRIPT) $(DATAGEN)/MICE_imputation.R
+	$(RSCRIPT) $(DATAGEN)/MICE_imputation.R -n 1 -i 10
 
 $(COMPLETEDATA)/2020_US_cohort.csv: $(RAWDATA)/2020_US_cohort.csv $(CORRECTDATA)/2020_US_cohort.csv $(COMPOSITEDATA)/2020_US_cohort.csv $(MICEDATA)/2020_US_cohort.csv $(RAWDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json  # $(MICEDATA)/2020_US_cohort.csv
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
