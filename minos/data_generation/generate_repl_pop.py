@@ -218,7 +218,8 @@ def predict_education(repl, transition_dir):
 def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
 
     output_dir = 'data/replenishing'
-    data_source = 'final_US'
+    #data_source = 'final_US'
+    data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
     source_year = 2021  # the year from which we draw our 16 year old cohort
 

@@ -70,6 +70,10 @@ start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
+# Need to remove extra data from raw data after start year
+raw.dat <- raw.dat %>%
+  filter(time <= start.year)
+
 shall.we.save <- FALSE
 ```
 
@@ -144,7 +148,7 @@ combined <- rbind(raw.countOldAge, base.countOldAge)
 
 ggplot(combined, aes(x = time, y = age_group_counts, group = age_group, colour = age_group)) +
   geom_line() +
-  geom_vline(xintercept = 2021, linetype = 'dashed') +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
   labs(title = 'Counts by older age group', subtitle = '75 to 110 by 5 year groups') +
   xlab('Year') +
   ylab('Count')
@@ -257,6 +261,7 @@ combined <- rbind(raw.hhs, base.hhs)
 ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
   geom_point() +
   geom_line() +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
   labs(title = 'Households Count')
 ```
 
