@@ -97,6 +97,7 @@ class financialSituation(Base):
         #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
+        nextWaveFinancialPerception['financial_situation'] = nextWaveFinancialPerception['financial_situation'].astype(int)
         self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
