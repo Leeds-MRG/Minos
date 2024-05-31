@@ -117,13 +117,16 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
-    print(f"Number of children is {sum(merged_data.groupby["hidp"]['nkids'].max())}")
+
 
 
     # scramble new hidp and pidp.
     merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
     merged_data['pidp'] = merged_data.index  # creating new pidps.
+
+    print(f"Number of children is {int(sum(merged_data.groupby(by=['hidp'])['nkids'].max()))}")
+    print(f"Number of adults is {merged_data.shape[0]}")
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
