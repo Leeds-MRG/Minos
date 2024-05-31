@@ -20,6 +20,7 @@ from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sa
 import numpy as np
 import US_utils
 import argparse
+from minos.data_generation.align_household_spatial_data import main as align_main
 
 def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """ Merge US data on synthetic pop individual data.
@@ -116,6 +117,9 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
+    print(f"Number of children is {sum(merged_data.groupby["hidp"]['nkids'].max())}")
+
+
     # scramble new hidp and pidp.
     merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
@@ -131,6 +135,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
+
+    sampled_data =align_main(sampled_data, region)
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
     US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
