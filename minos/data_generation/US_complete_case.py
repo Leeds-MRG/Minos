@@ -119,7 +119,7 @@ def input_main():
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2022, 1)))
 
-    data = cut_outliers(data, 0.1, 99.9, "hh_income")
+    #data = cut_outliers(data, 0.1, 99.9, "hh_income")
     US_utils.save_multiple_files(data, years, "data/imputed_complete_US/", "")
 
 
@@ -181,7 +181,7 @@ def transition_main():
     # remove them here or as late as needed.
 
     data = data.drop(labels=drop_columns, axis=1)
-    data = cut_outliers(data, 0.1, 99.9, "hh_income")
+    #data = cut_outliers(data, 0.1, 99.9, "hh_income")
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")
 
