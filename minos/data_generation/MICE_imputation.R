@@ -17,10 +17,10 @@ main <- function(n_imputations, iterations_per_imputation){
   # get composite/complete case this data instead. I.E. slot into current pipeline and makes. 
   start.data <- read_all_UKHLS_waves(here::here("data/"), "composite_US") 
   start.data <- start.data[which(start.data$time>=2018),]
-  
+    
   mice_columns <- c("age", 
                     "region", 
-                    #"heating", 
+                    "heating", 
                     "job_sec", 
                     "ncigs",
                     "education_state",            
@@ -57,7 +57,7 @@ main <- function(n_imputations, iterations_per_imputation){
                     'hourly_wage'
                     #"hh_comp", 
   )
-  
+
   start.data$clinical_depression <- as.factor(start.data$clinical_depression)  
   start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)  
   start.data$marital_status <- as.factor(start.data$marital_status)  
@@ -65,7 +65,7 @@ main <- function(n_imputations, iterations_per_imputation){
   other.data <- start.data[, !names(start.data) %in% mice_columns]
   mice.data <- start.data[, c(mice_columns)]
   mice.data <- replace.missing(mice.data)
-  
+
   #cached <- TRUE
   #  print("Loading Cached MICE data.")
   #if (cached == TRUE) {
@@ -92,8 +92,8 @@ main <- function(n_imputations, iterations_per_imputation){
   }
   else {
     mice_set <- futuremice(data = mice.data[,mice_columns],
-                           m = n_imputations, maxit = iterations_per_imputation,
-                           remove.collinear=T)
+                     m = n_imputations, maxit = iterations_per_imputation,
+                     remove.collinear=T)
     final.mice.data <- complete(mice_set, 1)
   }
   
