@@ -98,6 +98,9 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
         print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
         raise
 
+    test_raw = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").shape[0]
+    test_final = pd.read_csv("data/raw_US/2020_US_cohort.csv").shape[0]
+    print(f"There are {test_raw-test_final} observations lost in preprocessing.")
 
     data_zones = get_data_zones(region)
     #US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
