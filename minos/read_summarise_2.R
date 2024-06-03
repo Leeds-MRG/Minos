@@ -596,6 +596,7 @@ priority_summarise_num <- function(data) {
       ungroup() %>%
       mutate(num_priority_groups = (rowSums(select(., starts_with("priority_"))))) %>%
       mutate(num_priority_groups = case_when(
+        num_priority_groups == 0 ~ 0,
         num_priority_groups == 1 ~ 1,
         num_priority_groups == 2 ~ 2,
         num_priority_groups >= 3 ~ 3)) %>%

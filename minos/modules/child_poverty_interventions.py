@@ -331,7 +331,9 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # set parameters
         end_year = 2030
         target_pov_prop = 0.1
-        relative_poverty_threshold = 1247.71
+        #relative_poverty_threshold = 1247.71
+        relative_poverty_threshold = 1101.32
+
 
         # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
