@@ -20,6 +20,7 @@ from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sa
 import numpy as np
 import US_utils
 import argparse
+from minos.data_generation.align_household_spatial_data import main as align_main
 
 def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """ Merge US data on synthetic pop individual data.
@@ -97,6 +98,9 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
         print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
         raise
 
+    test_raw = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").shape[0]
+    test_final = pd.read_csv("data/raw_US/2020_US_cohort.csv").shape[0]
+    print(f"There are {test_raw-test_final} observations lost in preprocessing.")
 
     data_zones = get_data_zones(region)
     #US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
@@ -116,10 +120,16 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
+
+
+
     # scramble new hidp and pidp.
     merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
     merged_data['pidp'] = merged_data.index  # creating new pidps.
+
+    print(f"Number of children is {int(sum(merged_data.groupby(by=['hidp'])['nkids'].max()))}")
+    print(f"Number of adults is {merged_data.shape[0]}")
 
     # take subset of sample if desired. defaults to 100% for now.
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
@@ -131,6 +141,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
+
+    sampled_data =align_main(sampled_data, region)
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
     US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
