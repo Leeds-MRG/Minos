@@ -347,7 +347,7 @@ sipher7 <- args$SIPHER7
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
-dataDir <- 'data/final_US/'
+dataDir <- 'dataimputed_/final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
