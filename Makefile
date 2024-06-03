@@ -119,13 +119,13 @@ cv_S7_setup: install cv_data cv_S7_transitions cv_replenishing
 
 setup_glasgow_scaled: install synthetic_glasgow_data transitions_default synthetic_glasgow_repl
 
-setup_glasgow_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_glasgow_repl
+setup_glasgow_scaled_S7: install data synthetic_glasgow_data transitions_SIPHER7 synthetic_glasgow_repl
 
-setup_scotland_scaled: install scotland_scaled_data transitions_default synthetic_scotland_repl
+setup_scotland_scaled: install data scotland_scaled_data transitions_default synthetic_scotland_repl
 
 setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_scotland_repl
 
-setup_uk_scaled: install synthetic_uk_data transitions_default synthetic_uk_repl
+setup_uk_scaled: install data synthetic_uk_data transitions_default synthetic_uk_repl
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
