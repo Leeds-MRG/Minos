@@ -177,7 +177,7 @@ families_income_quint_summarise <- function(data) {
 }
 
 treated_summarise <- function(data) {
-  if (('boost_amount' %in% names(data)) & (mean(data$time) != 2021)) {
+  if (('boost_amount' %in% names(data)) & (mean(data$time) != start.year)) {
     data <- data %>%
       filter(weight > 0) %>%
       filter(income_boosted == 'True') %>%
@@ -596,6 +596,7 @@ priority_summarise_num <- function(data) {
       ungroup() %>%
       mutate(num_priority_groups = (rowSums(select(., starts_with("priority_"))))) %>%
       mutate(num_priority_groups = case_when(
+        num_priority_groups == 0 ~ 0,
         num_priority_groups == 1 ~ 1,
         num_priority_groups == 2 ~ 2,
         num_priority_groups >= 3 ~ 3)) %>%
@@ -673,7 +674,7 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
   for (summary_name in names(summary_funcs)) {
     print(sprintf('About to combine summaries for %s', summary_name))
     combined_summary <- NULL
-    for (year in 2020:2035) {
+    for (year in start.year:end.year) {
       summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
       year_summary <- read.csv(summary_filename)
       year_summary$year <- year
@@ -689,6 +690,10 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
 
 args <- commandArgs(trailingOnly=TRUE)
 #args <- list('default_config', 'cpr_summary_out', 'baseline')
+
+# constants
+start.year <- 2020
+end.year <- 2035
 
 out.path <- here::here('output', args[1])
 #out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
@@ -723,7 +728,7 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
 
 
 # Step 5: Script Execution
-for (year in 2020:2035) {
+for (year in start.year:end.year) {
   print(sprintf('Starting for year %s', year))
   data_list <- load_data_for_year(scen.path, year)
   generate_summary_csv(data_list, year, summary_funcs, save.path2)

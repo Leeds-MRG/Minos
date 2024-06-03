@@ -221,7 +221,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     #data_source = 'final_US'
     data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
-    source_year = 2021  # the year from which we draw our 16 year old cohort
+    source_year = 2020  # the year from which we draw our 16 year old cohort
 
     if scotland_mode:
         data_source = 'scotland_US'

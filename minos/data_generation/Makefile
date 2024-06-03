@@ -6,9 +6,6 @@ data: ### Run all four levels of data generation from raw Understanding Society 
 ###	format with composite variables generated
 #data: raw_data corrected_data composite_data complete_data final_data
 data: raw_data corrected_data composite_data mice_data complete_data final_data
-#data_simulation: mice_data imputed_complete_data imputed_final_data
-
-data: data_transitions data_simulation
 #  adj_raw_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
@@ -71,7 +68,7 @@ glasgow_scaled_data: $(GLASGOWSCALEDDATA)/2020_US_cohort.csv
 
 synthetic_glasgow_repl: $(DATADIR)/replenishing/glasgow_scaled/replenishing_pop_2015-2070.csv
 
-scotland_scaled_data : $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv
+scotland_scaled_data: $(SCOTLANDSCALEDDATA)/2020_US_cohort.csv
 
 synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2015-2070.csv
 

@@ -90,6 +90,15 @@ intervention_childPovertyReductionAbsolute: setup
 
 child_pov_runs: baseline intervention_childPovertyReductionRelative_2 intervention_childPovertyReductionAbsolute
 
+############### CHILD POVERTY REDUCTION RUNS - SCOTLAND ###############
+
+intervention_childPovertyReductionRelative_2_SCOTLAND: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'ChildPovertyReductionRELATIVE_2'
+
+intervention_childPovertyReductionAbsolute_SCOTLAND: setup_scotland_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'ChildPovertyReductionABSOLUTE'
+
+child_pov_runs_SCOTLAND: baseline_scotland intervention_childPovertyReductionRelative_2_SCOTLAND intervention_childPovertyReductionAbsolute_SCOTLAND
 
 ######### NO REPLENISH TESTING #########
 

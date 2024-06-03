@@ -331,7 +331,9 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # set parameters
         end_year = 2030
         target_pov_prop = 0.1
-        relative_poverty_threshold = 1247.71
+        #relative_poverty_threshold = 1247.71
+        relative_poverty_threshold = 1101.32
+
 
         # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
@@ -341,6 +343,7 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # DO NOT reset the previous income_boosted for testing
         # We need to track people who have been intervened so we can continue the intervention indefinitely
         # full_pop['income_boosted'] = False
+        # However we do want to reset boost amount so we can recalculate (and not uplift if not necessary)
         full_pop['boost_amount'] = 0.0
         #self.population_view.update(full_pop[['boost_amount']])
 
@@ -364,9 +367,13 @@ class ChildPovertyReductionRELATIVE_2(Base):
 
         # 3a. This is the SUSTAIN intervention, so we want to find the households that have previously received the
         # intervention (if any) and uplift them again. This is to simulate ongoing support for a set of families
-        target_pop['boost_amount'][(target_pop['income_boosted'] is True) &  # previously uplifted
-                                   (target_pop['hh_income'] < relative_poverty_threshold)] = (  # in relative poverty
-                relative_poverty_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
+        #target_pop['boost_amount'][(target_pop['income_boosted'] is True) &  # previously uplifted
+        #                           (target_pop['hh_income'] < relative_poverty_threshold)] = (  # in relative poverty
+        #        relative_poverty_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
+
+        target_pop.loc[(target_pop['income_boosted'] is True) & (
+                    target_pop['hh_income'] < relative_poverty_threshold), 'boost_amount'] = (
+                    relative_poverty_threshold - target_pop['hh_income'] + 1)
 
         target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
 
