@@ -47,7 +47,7 @@ def main(input_raw_data, year):
     chained_ages = pd.DataFrame(chained_ages)
     chained_ages.columns = ['child_ages']
     chained_ages['hidp'] = chained_ages.index
-    chained_ages = chained_ages.reset_index()
+    chained_ages = chained_ages.reset_index(drop=True)
 
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
     print(chained_ages, final_US_with_children)
