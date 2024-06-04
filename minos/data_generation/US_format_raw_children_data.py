@@ -51,16 +51,16 @@ def main(input_raw_data, year):
 
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
     print(chained_ages, final_US_with_children)
-    collaped_children_US = pd.merge(final_US_with_children, chained_ages, how='left', on='hidp')
-    collaped_children_US['child_ages'] = collaped_children_US['age_y'] # sort out two age columns from the merge.
-    collaped_children_US['age'] = collaped_children_US['age_x']
-    collaped_children_US.reset_index(inplace=True, drop=True)
-    collaped_children_US = collaped_children_US.loc[collaped_children_US['is_adult'] == 1, ]
-    collaped_children_US = collaped_children_US.drop(['age_x', 'age_y', 'is_adult', 'is_child'], axis=1)
+    collapsed_children_US = pd.merge(final_US_with_children, chained_ages, how='left', on='hidp')
+    #collapsed_children_US['child_ages'] = collapsed_children_US['age_y'] # sort out two age columns from the merge.
+    #collapsed_children_US['age'] = collapsed_children_US['age_x']
+    #collapsed_children_US.reset_index(inplace=True, drop=True)
+    collapsed_children_US = collapsed_children_US.loc[collapsed_children_US['is_adult'] == 1, ]
+    #collapsed_children_US = collapsed_children_US.drop(['age_x', 'age_y', 'is_adult', 'is_child'], axis=1)
 
     # save data
     #US_utils.save_file(collaped_children_US, "children_ages_US/", "", year)
-    return collaped_children_US
+    return collapsed_children_US
 
 if __name__ == '__main__':
 
