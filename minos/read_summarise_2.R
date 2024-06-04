@@ -721,15 +721,15 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
 
 ###################### RUN THIS STUFF! ######################
 
-#args <- commandArgs(trailingOnly=TRUE)
-args <- list('default_config', 'cpr_summary_out_test', 'ChildPovertyReductionRELATIVE_2_batch')
+args <- commandArgs(trailingOnly=TRUE)
+#args <- list('default_config', 'cpr_summary_out_test', 'ChildPovertyReductionRELATIVE_2_batch')
 
 # constants
 start.year <- 2020
 end.year <- 2035
 
-#out.path <- here::here('output', args[1])
-out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
+out.path <- here::here('output', args[1])
+#out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
 save.path.base <- here::here(out.path, args[2])
 save.path1 <- here::here(save.path.base, args[3])
 save.path2 <- here::here(save.path1, 'intermediates')
