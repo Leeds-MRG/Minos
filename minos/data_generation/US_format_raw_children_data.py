@@ -44,7 +44,8 @@ def main(input_raw_data, year):
     final_US_with_children = collaped_children_US_with_children.sort_values(by=['hidp', 'age'], ascending =True)
     final_US_with_children['age'] = final_US_with_children['age'].astype(str)
     chained_ages = final_US_with_children.loc[final_US_with_children['is_child'] == True, ].groupby('hidp', as_index=True)['age'].apply('_'.join)
-    chained_ages = pd.DataFrame(chained_ages, columns=['child_ages'])
+    chained_ages = pd.DataFrame(chained_ages)
+    chained_ages.columns = ['child_ages']
     chained_ages['hidp'] = chained_ages.index
 
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
