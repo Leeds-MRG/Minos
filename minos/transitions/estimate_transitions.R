@@ -111,7 +111,7 @@ run_yearly_models <- function(transitionDir_path,
     if(mode == 'cross_validation') {
       year.range <- seq(max(data$time) - 3, (max(data$time)-1))
     } else {
-      year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
+      year.range <- seq(max(data$time) - 5, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
     }
 
@@ -223,7 +223,6 @@ run_yearly_models <- function(transitionDir_path,
                                      depend = next.dependent)
 
       } else if(tolower(mod.type) == 'clm') {
-
         # set ordinal dependent to factor
         model <- estimate_yearly_clm(data = merged,
                                      formula = form,
@@ -347,7 +346,7 @@ sipher7 <- args$SIPHER7
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
-dataDir <- 'dataimputed_/final_US/'
+dataDir <- 'data/imputed_final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
