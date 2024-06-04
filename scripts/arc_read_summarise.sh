@@ -11,9 +11,9 @@
 ## Email if a run aborts
 #$ -m ae
 ## Select memory
-#$ -l h_vmem=19G # was 15 for big runs
+#$ -l h_vmem=35G # was 15 for big runs
 ## Choose cores. See arc website for more details.
-#$ -pe smp 10
+#$ -pe smp 5
 ## Set logs directories
 #$ -o ./logs/sum/log
 #$ -e ./logs/sum/errors
