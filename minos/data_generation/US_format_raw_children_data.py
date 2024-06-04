@@ -27,7 +27,7 @@ def main(input_raw_data, year):
     # group children by hidp to determine missing age data.
 
     #collaped_children_US_with_children = collaped_children_US.merge(child_data, 'inner', on='hidp')
-    collaped_children_US_with_children = pd.concat([input_raw_data, child_data])
+    collaped_children_US_with_children = pd.concat([input_raw_data, child_data], sort=True)
 
     # removing orphans.
     collaped_children_US_with_children['is_adult'] = 1-collaped_children_US_with_children['is_child']
