@@ -643,7 +643,9 @@ load_data_for_year <- function(scen.path, year) {
   file_list <- list.files(path = scen.path,
                           pattern = file_pattern,
                           full.names = TRUE)
-  data_list <- lapply(file_list, read.csv)
+  #data_list <- lapply(file_list, read.csv)
+  data_list <- lapply(file_list, fread)
+  data_list <- lapply(data_list, as.data.frame)
   
   # Now drop dead and zero weight
   data_list <- lapply(data_list, drop_dead)
@@ -688,15 +690,15 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
 
 ###################### RUN THIS STUFF! ######################
 
-args <- commandArgs(trailingOnly=TRUE)
-#args <- list('default_config', 'cpr_summary_out', 'baseline')
+#args <- commandArgs(trailingOnly=TRUE)
+args <- list('default_config', 'cpr_summary_out_test', 'baseline_batch')
 
 # constants
 start.year <- 2020
 end.year <- 2035
 
-out.path <- here::here('output', args[1])
-#out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
+#out.path <- here::here('output', args[1])
+out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
 save.path.base <- here::here(out.path, args[2])
 save.path1 <- here::here(save.path.base, args[3])
 save.path2 <- here::here(save.path1, 'intermediates')
