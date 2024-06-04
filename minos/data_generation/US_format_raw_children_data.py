@@ -45,6 +45,9 @@ def main(input_raw_data, year):
     final_US_with_children['age'] = final_US_with_children['age'].astype(str)
     chained_ages = final_US_with_children.loc[final_US_with_children['is_child'] == True, ].groupby('hidp', as_index=False)['age'].apply('_'.join)
 
+    chained_ages = pd.DataFrame(chained_ages, columns=['child_ages'])
+    chained_ages['hidp'] = final_US_with_children['hidp']
+    
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
     print(chained_ages, final_US_with_children)
     collaped_children_US = pd.merge(final_US_with_children, chained_ages, how='left', on='hidp')
