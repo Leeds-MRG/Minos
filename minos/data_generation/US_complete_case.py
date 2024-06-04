@@ -131,7 +131,7 @@ def input_main():
     # isn't really necessary to complete case imputed data but makes sure there aren't any stragglers.
     maxyr = US_utils.get_data_maxyr()
 
-    years = np.arange(2015, maxyr)
+    years = np.arange(2014, maxyr)
     file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
