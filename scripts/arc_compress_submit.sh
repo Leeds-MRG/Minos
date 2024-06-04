@@ -18,4 +18,4 @@
 #$ -o ./logs/compress/log
 #$ -e ./logs/compress/errors
 
-tar cvf - baseline | pigz -9 > baseline.tar.gz
+tar cvf - ./output/default_cpr/baseline | pigz -9 > ./output/default_cpr/baseline.tar.gz
