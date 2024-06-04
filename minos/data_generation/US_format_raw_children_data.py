@@ -50,7 +50,7 @@ def main(input_raw_data, year):
     chained_ages = chained_ages.reset_index(drop=True)
 
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
-    print(chained_ages, final_US_with_children)
+    #print(chained_ages, final_US_with_children)
     collapsed_children_US = pd.merge(final_US_with_children, chained_ages, how='left', on='hidp')
     #collapsed_children_US['child_ages'] = collapsed_children_US['age_y'] # sort out two age columns from the merge.
     #collapsed_children_US['age'] = collapsed_children_US['age_x']

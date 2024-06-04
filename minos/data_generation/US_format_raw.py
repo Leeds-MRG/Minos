@@ -622,7 +622,7 @@ if __name__ == "__main__":
 
     years = np.arange(1991, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
     #years = np.arange(2009, 2020)
-    years = np.arange(2014, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
+    #years = np.arange(2014, maxyr)  # need bhps for locf imputation. only keep years 2009-2021.
 
     # Take source from command line args (or most likely from Makefile variable)
     parser = argparse.ArgumentParser(description="Raw Data formatting from Understanding Society")
