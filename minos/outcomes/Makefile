@@ -38,7 +38,24 @@ CPR_all_sum:
 
 CPR_baseline_local_test:
 	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2020
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2021
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2022
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2023
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2024
 	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2025
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2026
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2027
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2028
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2029
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2030
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2031
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2032
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2033
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2034
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out baseline_batch 2035
+
+CPR_baseline_allyears_test:
+	Rscript minos/combine_summaries_all_years.R default_config cpr_summary_out baseline_batch
 
 CPR_baseline_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2020
@@ -58,6 +75,9 @@ CPR_baseline_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2034
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2035
 
+CPR_baseline_allyears:
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out baseline
+
 CPR_relative_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2021
@@ -75,6 +95,9 @@ CPR_relative_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2033
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2034
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2035
+
+CPR_relative_allyears:
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
 
 CPR_absolute_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020
@@ -94,6 +117,8 @@ CPR_absolute_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2034
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2035
 
+CPR_absolute_allyears:
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
 
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
