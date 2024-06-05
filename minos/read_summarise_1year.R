@@ -279,7 +279,7 @@ families_income_quint_summarise <- function(data) {
   return(data)
 }
 
-families_income_quint_summarise <- function(data) {
+families_income_quint_confint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       filter(weight > 0) %>%
