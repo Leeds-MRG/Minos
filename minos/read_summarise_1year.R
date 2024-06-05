@@ -2,6 +2,9 @@
 library(here)
 library(tidyverse)
 library(data.table)
+require(parallelly)
+require(future)
+require(future.apply)
 
 # Suppress summarise info
 options(dplyr.summarise.inform = FALSE)
@@ -334,6 +337,28 @@ treated_summarise <- function(data) {
   }
   return(data)
 }
+
+men_illness_risk_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk) %>%
+    summarise(count = n(),
+              prop = count / sum(count))
+}
+
+men_illness_risk_families_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0) %>%
+    filter(nkids > 0) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk) %>%
+    summarise(count = n(),
+              prop = count / sum(count))
+}
+
+#mutate(kids = (nkids > 0)) %>%
+#group_by(kids)
 
 group_summarise <- function(data, group.var) {
   if ('boost_amount' %in% names(data)) {
@@ -832,8 +857,15 @@ load_data_for_year <- function(scen.path, year, scen) {
   file_list <- list.files(path = scen.path,
                           pattern = file_pattern,
                           full.names = TRUE)
+  
+  no_cores <- availableCores(omit=1)
+  plan(multisession, workers = no_cores)  # Set up parallel plan
+  
+  # Use future_lapply with file_paths and fread
+  data_list <- future_lapply(file_list, fread, stringsAsFactors = TRUE)
+  
   #data_list <- lapply(file_list, read.csv)
-  data_list <- lapply(file_list, fread)
+  #data_list <- lapply(file_list, fread)
   data_list <- lapply(data_list, as.data.frame)
   
   # Keep only certain columns (check function above for list)
@@ -908,7 +940,9 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    priority_any = priority_any_summarise,
                    priority_any_confint = priority_any_confint_summarise,
                    priority_num = priority_num_summarise,
-                   priority_num_confint = priority_num_confint_summarise
+                   priority_num_confint = priority_num_confint_summarise,
+                   men_illness_risk = men_illness_risk_summarise,
+                   men_illness_risk_families = men_illness_risk_families_summarise
 )
 # UC = UC_summarise,
 # UC_rel_pov = UC_rel_pov_summarise,
