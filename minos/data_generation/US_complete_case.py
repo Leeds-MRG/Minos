@@ -81,7 +81,22 @@ def input_main():
         'newest_education_state',
         'health_limits_social',
         'future_financial_situation',
-        'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
+        'hourly_rate',
+        'job_hours_se',
+        'ndrinks',
+        'gross_paypm',
+        'depression',
+        'hh_int_m',
+        'nobs',
+        'job_industry',
+        'gross_pay_se',
+        'job_duration_m',
+        'job_inc',
+        'job_duration_y',
+        'academic_year',
+        'alcohol_spending',
+        'jb_inc_per'
+    ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.
     data = data.drop(labels=drop_mice_columns, axis=1)
@@ -175,7 +190,21 @@ def transition_main():
         'newest_education_state',
         'health_limits_social',
         'future_financial_situation',
-        'hourly_rate'
+        'hourly_rate',
+        'job_hours_se',
+        'ndrinks',
+        'gross_paypm',
+        'depression',
+        'hh_int_m',
+        'nobs',
+        'job_industry',
+        'gross_pay_se',
+        'job_duration_m',
+        'job_inc',
+        'job_duration_y',
+        'academic_year',
+        'alcohol_spending',
+        'jb_inc_per'
     ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.
