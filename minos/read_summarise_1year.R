@@ -121,6 +121,30 @@ whole_pop_summarise <- function(data) {
   return(data)
 }
 
+whole_pop_confint_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
 whole_pop_income_quintile_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
@@ -139,6 +163,34 @@ whole_pop_income_quintile_summarise <- function(data) {
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
       group_by(run_id, income_quintile) %>%
       summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+whole_pop_income_quintile_confint_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(income_quintile) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(income_quintile) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
       mutate(total_cost = 0,
@@ -173,6 +225,32 @@ families_summarise <- function(data) {
   return(data)
 }
 
+families_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
 families_income_quint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
@@ -193,6 +271,36 @@ families_income_quint_summarise <- function(data) {
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
       group_by(run_id, income_quintile) %>%
       summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+families_income_quint_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(income_quintile) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      group_by(income_quintile) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
       mutate(total_cost = 0,
@@ -520,7 +628,7 @@ priority_summarise_disabled <- function(data) {
   return(data)
 }
 
-priority_summarise_any <- function(data) {
+priority_any_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       group_by(run_id, hidp) %>%
@@ -567,7 +675,7 @@ priority_summarise_any <- function(data) {
   return(data)
 }
 
-priority_summarise_any2 <- function(data) {
+priority_any_confint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       group_by(run_id, hidp) %>%
@@ -576,12 +684,15 @@ priority_summarise_any2 <- function(data) {
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
              priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
+             num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+                                         priority_three_plus_children, priority_mother_under_25,
+                                         priority_disabled)),
              priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
       ungroup() %>%
-      group_by(run_id, priority_any) %>%
+      filter(priority_any == TRUE) %>%
       summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
                 total_cost = sum(boost_amount),
@@ -594,12 +705,15 @@ priority_summarise_any2 <- function(data) {
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
              priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()), # divide rowSum by n individuals in hh
+             num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+                                         priority_three_plus_children, priority_mother_under_25,
+                                         priority_disabled)),
              priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
       ) %>%
       ungroup() %>%
-      group_by(run_id, priority_any) %>%
+      filter(priority_any == TRUE) %>%
       summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
       mutate(total_cost = 0,
@@ -608,7 +722,7 @@ priority_summarise_any2 <- function(data) {
   return(data)
 }
 
-priority_summarise_num <- function(data) {
+priority_num_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       group_by(run_id, hidp) %>%
@@ -648,8 +762,58 @@ priority_summarise_num <- function(data) {
         num_priority_groups == 2 ~ 2,
         num_priority_groups >= 3 ~ 3)) %>%
       group_by(num_priority_groups, run_id) %>%
-      group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+priority_num_confint_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      group_by(run_id, hidp) %>%
+      mutate(priority_ethnic = ifelse(any(ethnicity != 'WBI'), TRUE, FALSE),
+             priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
+             priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
+             priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
+      ) %>%
+      ungroup() %>%
+      mutate(num_priority_groups = (rowSums(select(., starts_with("priority_"))))) %>%
+      mutate(num_priority_groups = case_when(
+        num_priority_groups == 0 ~ 0,
+        num_priority_groups == 1 ~ 1,
+        num_priority_groups == 2 ~ 2,
+        num_priority_groups >= 3 ~ 3)) %>%
+      group_by(num_priority_groups) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    
+  } else {
+    data <- data %>%
+      group_by(run_id, hidp) %>%
+      mutate(priority_ethnic = ifelse(any(ethnicity != 'WBI'), TRUE, FALSE),
+             priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
+             priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
+             priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
+      ) %>%
+      ungroup() %>%
+      mutate(num_priority_groups = (rowSums(select(., starts_with("priority_"))))) %>%
+      mutate(num_priority_groups = case_when(
+        num_priority_groups == 1 ~ 1,
+        num_priority_groups == 2 ~ 2,
+        num_priority_groups >= 3 ~ 3)) %>%
+      group_by(num_priority_groups) %>%
+      summarise(count = n(),
+                SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
                 SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
       mutate(total_cost = 0,
@@ -733,12 +897,18 @@ scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
 summary_funcs <- c(whole_pop = whole_pop_summarise,
+                   whole_pop_confint = whole_pop_confint_summarise,
                    whole_pop_income_quint = whole_pop_income_quintile_summarise,
+                   whole_pop_income_quint_confint = whole_pop_income_quintile_confint_summarise,
                    families = families_summarise,
+                   families_confint = families_confint_summarise,
                    families_income_quint = families_income_quint_summarise,
+                   families_income_quint_confint = families_income_quint_confint_summarise,
                    treated = treated_summarise,
-                   priority_any = priority_summarise_any,
-                   priority_num = priority_summarise_num
+                   priority_any = priority_any_summarise,
+                   priority_any_confint = priority_any_confint_summarise,
+                   priority_num = priority_num_summarise,
+                   priority_num_confint = priority_num_confint_summarise
 )
 # UC = UC_summarise,
 # UC_rel_pov = UC_rel_pov_summarise,
