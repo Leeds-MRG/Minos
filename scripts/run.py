@@ -51,6 +51,9 @@ def run(args):
     # start year
     year_start = config['time']['start']['year']
 
+    if (args.runID) and ("scaled" in args.config):
+        config['input_data_dir'] += ("_" + str(args.runID // 10))
+
     # start_population_size (use size of prepared input population in start year)
     start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
     print(f'Start Population Size: {start_population_size}')
