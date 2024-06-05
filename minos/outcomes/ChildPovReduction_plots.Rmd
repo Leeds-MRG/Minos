@@ -419,7 +419,7 @@ SF12_change_percentage_num_priority_groups <- function(scen.list) {
               upper = mean_SF12_change + margin)
   
   
-  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12, group = num_priority_groups, colour = num_priority_groups, fill = num_priority_groups)) +
+  p1 <- ggplot(plot_data, aes(x = year, y = percent_change_SF_12, group = num_priority_groups, colour = num_priority_groups, fill = num_priority_groups)) +
     geom_hline(yintercept = 0, linetype = 'dashed') +
     geom_vline(xintercept = 2030, linetype = 'dotted') +
     geom_smooth() +
@@ -454,8 +454,8 @@ SF12_change_percentage_num_priority_groups <- function(scen.list) {
 
 
 ```{r}
-#scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
-scen.list.test <- c('baseline', 'ChildPovertyReductionABSOLUTE')
+scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+#scen.list.test <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 whole_pop_data <- do.call(rbind, generate_df_list('whole_pop', scen.list.test))
 ```
 
@@ -546,7 +546,8 @@ SF12_change_percentage(summary_group = 'priority_any',
 ## Number of Priority Subgroups
 
 ```{r}
-
+SF12_change_num_priority_groups(scen.list.test)
+SF12_change_percentage_num_priority_groups(scen.list.test)
 ```
 
 # TESTING
