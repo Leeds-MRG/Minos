@@ -225,7 +225,7 @@ families_summarise <- function(data) {
   return(data)
 }
 
-families_summarise <- function(data) {
+families_confint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       filter(weight > 0) %>%
