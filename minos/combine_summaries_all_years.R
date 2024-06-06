@@ -218,11 +218,11 @@ families_income_quint_summarise <- function(data) {
   return(data)
 }
 
-treated_summarise <- function(data) {
+treated_relative_summarise <- function(data) {
   if (('boost_amount' %in% names(data)) & (mean(data$time) != 2020)) {
     data <- data %>%
       filter(weight > 0) %>%
-      filter(income_boosted == 'TRUE') %>%
+      filter((init_relative_poverty == 1) & (nkids > 0)) %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -234,6 +234,32 @@ treated_summarise <- function(data) {
     data <- data %>%
       filter(weight > 0) %>%
       filter((init_relative_poverty == 1) & (nkids > 0)) %>%
+      group_by(run_id) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+treated_absolute_summarise <- function(data) {
+  if (('boost_amount' %in% names(data)) & (mean(data$time) != 2020)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter((init_absolute_poverty == 1) & (nkids > 0)) %>%
+      group_by(run_id) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter((init_absolute_poverty == 1) & (nkids > 0)) %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -793,7 +819,8 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    families_confint = families_confint_summarise,
                    families_income_quint = families_income_quint_summarise,
                    families_income_quint_confint = families_income_quint_confint_summarise,
-                   treated = treated_summarise,
+                   treated_relative = treated_relative_summarise,
+                   treated_absolute = treated_absolute_summarise,
                    priority_any = priority_any_summarise,
                    priority_any_confint = priority_any_confint_summarise,
                    priority_num = priority_num_summarise,
