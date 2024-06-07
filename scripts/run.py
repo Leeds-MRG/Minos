@@ -53,7 +53,7 @@ def run(args):
 
     if (args.runID) and ("scaled" in args.config):
         new_input_dir = config['base_input_data_dir'] + (
-                    "_" + str((args.runID // 10) + 1))  # every 10 runs uses same pop.
+                "_" + str(((args.runID - 1) // 10) + 1))  # every 10 runs uses same pop.
         config.update({'input_data_dir': new_input_dir})
     else:
         config.update({'input_data_dir': config['base_input_data_dir']})

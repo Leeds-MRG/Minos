@@ -202,7 +202,8 @@ class Replenishment(Base):
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
             if 'run_id' in self.config.keys():
-                new_wave = pd.read_csv(f"{self.replenishing_dir}/{(self.config['run_ID']//10) + 1}_replenishing_pop_2015-2070.csv")
+                #new_wave = pd.read_csv(f"{self.replenishing_dir}/{(self.config['run_ID']//10) + 1}_replenishing_pop_2015-2070.csv")
+                new_wave = pd.read_csv(f"{self.replenishing_dir}/{((self.config['run_ID']-1)//10) + 1}_replenishing_pop_2015-2070.csv")
             else:
                 new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
 
