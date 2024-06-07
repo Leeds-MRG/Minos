@@ -97,7 +97,7 @@ class BehindOnBills(Base):
         nextWaveBills = self.calculate_behind_on_bills(pop)
         nextWaveBills["behind_on_bills"] = self.random.choice(nextWaveBills.index,
                                                               list(nextWaveBills.columns+1),
-                                                              nextWaveBills).astype(float)
+                                                              nextWaveBills)
         nextWaveBills.index = pop.index
         #nextWaveBills["financial_situation"] = nextWaveBills["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.

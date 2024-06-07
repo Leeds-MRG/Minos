@@ -28,7 +28,8 @@ require(ggplot2)
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/cpr_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
-workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old7_scot/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old7_scot/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old6/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -52,6 +53,7 @@ SF12_change_simple <- function(summary_group, scen.list) {
   tit <- ' '
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
+  if (summary_group == 'treated') { tit <- 'Treated' }
   if (summary_group == 'priority_any') { tit <- 'Any Priority Subgroup' }
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
@@ -637,6 +639,17 @@ inequality_plots(summary_group = 'families',
                  scen.list = scen.list.test)
 ```
 
+# Treated
+
+```{r}
+SF12_change_simple(summary_group = 'treated',
+                   scen.list = scen.list.test)
+
+SF12_change_percentage(summary_group = 'treated',
+                       scen.list = scen.list.test)
+```
+
+
 ```{r}
 SF12_change_income_quint(summary_group = 'families',
                          scen.list = scen.list.test)
@@ -696,7 +709,7 @@ tit <- ' '
 # if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
 # if (summary_group == 'families') { tit <- 'Families' }
 
-summary_group <- 'whole_pop_income_quint'
+summary_group <- 'treated'
 scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
 
 data <- do.call(rbind, generate_df_list(summary_group, scen.list.test))
@@ -706,87 +719,7 @@ data$income_quintile <- factor(data$income_quintile)
 base.test <- filter(data, scen == 'baseline')
 pov.test <- filter(data, scen == 'ChildPovertyReductionRELATIVE_2')
 
-# ggplot(base.test, aes(x = year, y = SF_12, group = income_quintile, color = income_quintile)) +
-#   geom_smooth(alpha = 0.7) +
-#   geom_smooth(data = pov.test, aes(x = year, y = SF_12, group = income_quintile, color = income_quintile), linetype = 'dotted')
 
-
-
-# Combine the data
-data_combined <- data %>%
-  mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention'))
-
-ggplot(data_combined, aes(x = year, y = SF_12, group = interaction(income_quintile, scenario), color = income_quintile, linetype = scenario)) +
-  geom_smooth(alpha = 0.7) +
-  scale_color_manual(name = "Income Quintile", 
-                     values = c("red", "blue", "green", "orange", "purple")) +
-  scale_linetype_manual(name = "Scenario", 
-                        values = c("Baseline" = "solid", "Intervention" = "dotted")) +
-  labs(title = "SF_12 Scores by Income Quintile",
-       subtitle = "Comparison of Baseline and Intervention",
-       x = "Year",
-       y = "Mean SF_12 MCS") +
-  theme_minimal() +
-  theme(legend.position = "right",
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10))
-
-ggplot(data_combined, aes(x = year, y = SF_12, group = scenario, color = scenario)) +
-  geom_smooth(alpha = 0.7, aes(linetype = scenario)) +
-  facet_wrap(~ income_quintile) +
-  scale_color_manual(name = "Scenario", 
-                     values = c("Baseline" = "black", "Intervention" = "red")) +
-  scale_linetype_manual(name = "Scenario", 
-                        values = c("Baseline" = "solid", "Intervention" = "dotted")) +
-  labs(title = "SF_12 Scores by Income Quintile",
-       subtitle = "Comparison of Baseline and Intervention Scenarios",
-       x = "Year",
-       y = "SF_12 Score") +
-  theme_minimal() +
-  theme(legend.position = "bottom",
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10))
-
-
-# Calculate the differences
-diff_data <- data %>%
-  pivot_wider(names_from = scen, values_from = SF_12) %>%
-  mutate(difference = `ChildPovertyReductionRELATIVE_2` - baseline) %>%
-  gather(scen, SF_12, baseline, ChildPovertyReductionRELATIVE_2)
-
-ggplot(diff_data, aes(x = year, y = difference, group = income_quintile, color = income_quintile)) +
-  geom_line() +
-  scale_color_manual(name = "Income Quintile", 
-                     values = c("red", "blue", "green", "orange", "purple")) +
-  labs(title = "Difference in SF_12 Scores by Income Quintile",
-       subtitle = "Intervention Scenario Minus Baseline Scenario",
-       x = "Year",
-       y = "Difference in SF_12 Score") +
-  theme_minimal() +
-  theme(legend.position = "right",
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10))
-
-
-# Aggregate data
-agg_data <- data %>%
-  group_by(year, income_quintile, scen) %>%
-  summarize(mean_SF_12 = mean(SF_12, na.rm = TRUE)) %>%
-  spread(scen, mean_SF_12) %>%
-  mutate(difference = `ChildPovertyReductionRELATIVE_2` - baseline)
-
-ggplot(agg_data, aes(x = year, y = difference, fill = income_quintile)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_manual(name = "Income Quintile", 
-                    values = c("red", "blue", "green", "orange", "purple")) +
-  labs(title = "Average Difference in SF_12 Scores by Income Quintile",
-       subtitle = "Intervention Minus Baseline",
-       x = "Year",
-       y = "Difference in SF_12 Score") +
-  theme_minimal() +
-  theme(legend.position = "right",
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10))
 
 
 
@@ -794,72 +727,8 @@ ggplot(agg_data, aes(x = year, y = difference, fill = income_quintile)) +
 ```
 
 ```{r}
-inequality_plots <- function(summary_group, scen.list) {
-  
-  tit <- ' '
-  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
-  if (summary_group == 'families') { tit <- 'Families' }
-  
-  #summary_group <- 'whole_pop_income_quint'
-  #scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
-  
-  summary_group <- paste0(summary_group, '_income_quint')
-  
-  data <- do.call(rbind, generate_df_list(summary_group, scen.list.test))
-  
-  data$income_quintile <- factor(data$income_quintile)
-  
-  # Combine the data
-  data_combined <- data %>%
-    mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention'))
-  
-  p1 <- ggplot(data_combined, aes(x = year, y = SF_12, group = interaction(income_quintile, scenario), color = income_quintile, linetype = scenario)) +
-    geom_smooth(alpha = 0.7) +
-    scale_color_manual(name = "Income Quintile", 
-                       values = c("red", "blue", "green", "orange", "purple")) +
-    scale_linetype_manual(name = "Scenario", 
-                          values = c("Baseline" = "solid", "Intervention" = "dotted")) +
-    labs(title = "SF_12 Scores by Income Quintile",
-         subtitle = "Comparison of Baseline and Intervention",
-         x = "Year",
-         y = "Mean SF_12 MCS") +
-    theme_minimal() +
-    theme(legend.position = "right",
-          legend.title = element_text(size = 12),
-          legend.text = element_text(size = 10))
-  
-  # Aggregate data
-  agg_data <- data %>%
-    group_by(year, income_quintile, scen) %>%
-    summarize(mean_SF_12 = mean(SF_12, na.rm = TRUE)) %>%
-    spread(scen, mean_SF_12) %>%
-    mutate(difference = `ChildPovertyReductionRELATIVE_2` - baseline)
-  
-  p2 <- ggplot(agg_data, aes(x = year, y = difference, fill = income_quintile)) +
-    geom_bar(stat = "identity", position = "dodge") +
-    scale_fill_manual(name = "Income Quintile", 
-                      values = c("red", "blue", "green", "orange", "purple")) +
-    labs(title = "Average Difference in SF_12 Scores by Income Quintile",
-         subtitle = "Intervention Minus Baseline",
-         x = "Year",
-         y = "Difference in SF_12 Score") +
-    theme_minimal() +
-    theme(legend.position = "right",
-          legend.title = element_text(size = 12),
-          legend.text = element_text(size = 10))
-  
-  print(p1)
-  print(p2)
-}
+
 ```
 
-```{r}
-scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
 
-inequality_plots(summary_group = 'whole_pop',
-                 scen.list = scen.list.test)
-
-inequality_plots(summary_group = 'families',
-                 scen.list = scen.list.test)
-```
 

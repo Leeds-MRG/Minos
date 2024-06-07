@@ -79,6 +79,9 @@ all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift interve
 
 ############### CHILD POVERTY REDUCTION RUNS ###############
 
+intervention_childPovertyReduction: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReduction'
+
 intervention_childPovertyReductionRelative: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRELATIVE'
 
