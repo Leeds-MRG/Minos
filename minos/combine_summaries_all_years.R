@@ -134,7 +134,7 @@ families_summarise <- function(data) {
   return(data)
 }
 
-families_summarise <- function(data) {
+families_confint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       filter(weight > 0) %>%
@@ -188,7 +188,7 @@ families_income_quint_summarise <- function(data) {
   return(data)
 }
 
-families_income_quint_summarise <- function(data) {
+families_income_quint_confint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       filter(weight > 0) %>%
@@ -288,6 +288,9 @@ men_illness_risk_families_summarise <- function(data) {
     summarise(count = n(),
               prop = count / sum(count))
 }
+
+#mutate(kids = (nkids > 0)) %>%
+#group_by(kids)
 
 group_summarise <- function(data, group.var) {
   if ('boost_amount' %in% names(data)) {
