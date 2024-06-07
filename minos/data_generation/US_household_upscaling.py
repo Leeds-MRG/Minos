@@ -120,7 +120,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
-
+    merged_data['financial_situation'] = merged_data['financial_situation'].astype(int)
 
 
     # scramble new hidp and pidp.
@@ -145,6 +145,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
         sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
         # but still updating weights helps with weighted aggregates later.
+
+        sampled_data = align_main(sampled_data, region)
 
         US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
         US_utils.save_file(sampled_data, f"data/scaled_{region}_US_{i+1}/", '', 2020)
