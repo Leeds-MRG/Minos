@@ -272,6 +272,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+    #final_repl['S7_neighbourhood_safety'] = final_repl['S7_neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)
     final_repl['financial_situation'] = final_repl['financial_situation'].astype(int)
@@ -281,6 +282,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
     print('Replenishing population generated for 2015 - 2070')
     #
+
     if region != "":
         for i in range(10):
             file_name = f"data/{data_source}_{i + 1}/{source_year}_US_cohort.csv"
@@ -302,8 +304,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
             final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
             final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
             final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+            #final_repl['S7_neighbourhood_safety'] = final_repl['S7_neighbourhood_safety'].astype(int)
             final_repl['job_sec'] = final_repl['job_sec'].astype(int)
             final_repl['nkids'] = final_repl['nkids'].astype(float)
+            final_repl['financial_situation'] = final_repl['financial_situation'].astype(int)
 
             US_utils.check_output_dir(output_dir)
             final_repl.to_csv(f'{output_dir}/{i + 1}_replenishing_pop_2015-2070.csv', index=False)
@@ -318,10 +322,6 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     #                 range(1, 11),
     #                 repeat(region),
     #                 repeat(projections)))
-
-
-#def multithread_repl_pops(data_source, source_year, transition_dir, output_dir, i, region, projections):
-    # first collect and load the datafile for 2018
 
 
 def main():
