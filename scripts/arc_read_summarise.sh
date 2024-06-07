@@ -7,13 +7,13 @@
 ## Use current environment variables and modules
 #$ -V
 ## Request hours of runtime
-#$ -l h_rt=6:00:00
+#$ -l h_rt=24:00:00
 ## Email if a run aborts
 #$ -m ae
 ## Select memory
-#$ -l h_vmem=15G # was 15 for big runs
+#$ -l h_vmem=30G # was 15 for big runs
 ## Choose cores. See arc website for more details.
-#$ -pe smp 8
+#$ -pe smp 2
 ## Set logs directories
 #$ -o ./logs/sum/log
 #$ -e ./logs/sum/errors

@@ -68,7 +68,7 @@ def input_main():
     # isn't really necessary to complete case imputed data but makes sure there aren't any stragglers.
     maxyr = US_utils.get_data_maxyr()
 
-    years = np.arange(2018, maxyr)
+    years = np.arange(maxyr-3, maxyr)
     file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
@@ -81,7 +81,21 @@ def input_main():
         'newest_education_state',
         'health_limits_social',
         'future_financial_situation',
-        'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
+        'hourly_rate',
+        'job_hours_se',
+        'ndrinks',
+        'gross_paypm',
+        'depression',
+        'nobs',
+        'job_industry',
+        'gross_pay_se',
+        'job_duration_m',
+        'job_inc',
+        'job_duration_y',
+        'academic_year',
+        'alcohol_spending',
+        'jb_inc_per'
+    ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.
     data = data.drop(labels=drop_mice_columns, axis=1)
@@ -119,7 +133,7 @@ def input_main():
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2022, 1)))
 
-    data = cut_outliers(data, 0.1, 99.9, "hh_income")
+    #data = cut_outliers(data, 0.1, 99.9, "hh_income")
     US_utils.save_multiple_files(data, years, "data/imputed_complete_US/", "")
 
 
@@ -175,13 +189,26 @@ def transition_main():
         'newest_education_state',
         'health_limits_social',
         'future_financial_situation',
-        'hourly_rate'
+        'hourly_rate',
+        'job_hours_se',
+        'ndrinks',
+        'gross_paypm',
+        'depression',
+        'nobs',
+        'job_industry',
+        'gross_pay_se',
+        'job_duration_m',
+        'job_inc',
+        'job_duration_y',
+        'academic_year',
+        'alcohol_spending',
+        'jb_inc_per'
     ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.
 
     data = data.drop(labels=drop_columns, axis=1)
-    data = cut_outliers(data, 0.1, 99.9, "hh_income")
+    #data = cut_outliers(data, 0.1, 99.9, "hh_income")
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")
 

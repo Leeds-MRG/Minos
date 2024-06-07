@@ -62,7 +62,7 @@ def reweight_stock(data, projections):
     # now reweight new population file
     reweighted_data['weight'] = (reweighted_data['weight'] * reweighted_data['count']) / reweighted_data['sum_weight']
     # drop extra columns
-    reweighted_data.drop(labels=['count', 'sum_weight'],
+    reweighted_data.drop(labels=['count', 'sum_weight', 'age_orig'],
                          inplace=True,
                          axis=1)
 

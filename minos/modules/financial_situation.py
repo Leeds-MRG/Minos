@@ -63,7 +63,8 @@ class FinancialSituation(Base):
                         'hh_income',
                         'marital_status',
                         'housing_tenure',
-                        'financial_situation'
+                        'financial_situation',
+                        'urban'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -100,12 +101,12 @@ class FinancialSituation(Base):
         nextWaveFinancialPerception = self.calculate_financial_situation(pop)
         nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
                                                                 list(nextWaveFinancialPerception.columns+1),
-                                                                nextWaveFinancialPerception).astype(float)
+                                                                nextWaveFinancialPerception)
         nextWaveFinancialPerception.index = pop.index
         #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
-        self.population_view.update(nextWaveFinancialPerception['financial_situation'].astype(int))
+        self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
         # year = 2020

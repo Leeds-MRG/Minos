@@ -224,7 +224,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     #data_source = 'final_US'
     data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
-    source_year = 2021  # the year from which we draw our 16 year old cohort
+    source_year = 2020  # the year from which we draw our 16 year old cohort
 
     if scotland_mode:
         data_source = 'scotland_US'
@@ -274,6 +274,8 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)
+    final_repl['financial_situation'] = final_repl['financial_situation'].astype(int)
+    final_repl['behind_on_bills'] = final_repl['behind_on_bills'].astype(int)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
