@@ -205,6 +205,7 @@ class Replenishment(Base):
                 new_wave = pd.read_csv(f"{self.replenishing_dir}/{(self.config['run_ID']//10) + 1}_replenishing_pop_2015-2070.csv")
             else:
                 new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
+
             # Now select the population for the current year
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds

@@ -224,7 +224,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     #data_source = 'final_US'
     data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
-    source_year = 2021  # the year from which we draw our 16 year old cohort
+    source_year = 2020  # the year from which we draw our 16 year old cohort
 
     if scotland_mode:
         data_source = 'scotland_US'
@@ -272,6 +272,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
     final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+    #final_repl['S7_neighbourhood_safety'] = final_repl['S7_neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)
 
@@ -279,6 +280,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
     print('Replenishing population generated for 2015 - 2070')
     #
+
     if region != "":
         for i in range(10):
             file_name = f"data/{data_source}_{i + 1}/{source_year}_US_cohort.csv"
@@ -300,6 +302,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
             final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
             final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
             final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+            #final_repl['S7_neighbourhood_safety'] = final_repl['S7_neighbourhood_safety'].astype(int)
             final_repl['job_sec'] = final_repl['job_sec'].astype(int)
             final_repl['nkids'] = final_repl['nkids'].astype(float)
 
