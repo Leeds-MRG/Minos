@@ -103,7 +103,7 @@ class FinancialSituation(Base):
                                                                 list(nextWaveFinancialPerception.columns+1),
                                                                 nextWaveFinancialPerception)
         nextWaveFinancialPerception.index = pop.index
-        #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
+        nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
         #nextWaveFinancialPerception['financial_situation'] = nextWaveFinancialPerception['financial_situation'].astype(float)
