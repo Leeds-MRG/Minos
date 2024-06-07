@@ -1039,6 +1039,20 @@ def generate_poverty_cohort_vars(data):
     return data
 
 
+def assign_quintiles(group):
+    #TODO: docstring
+    group['income_quintile'] = pd.qcut(group['hh_income'], 5, labels=False) + 1
+    return group
+
+
+def generate_initial_income_quintile(data):
+    #TODO: docstring
+    print('Generating income quintiles...')
+
+    data = data.groupby('time').apply(assign_quintiles)
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1065,6 +1079,7 @@ def main():
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
     data = generate_poverty_cohort_vars(data)  # initial relative poverty variable
+    data = generate_initial_income_quintile(data)  # generate initial income quintiles
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

@@ -47,6 +47,7 @@ from minos.modules.child_poverty_interventions import childUplift
 from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE
 from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE_2
 from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE
+from minos.modules.child_poverty_interventions import ChildPovertyReduction
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
@@ -122,6 +123,7 @@ intervention_components_map = {        #Interventions
     "ChildPovertyReductionRELATIVE": ChildPovertyReductionRELATIVE(),
     "ChildPovertyReductionRELATIVE_2": ChildPovertyReductionRELATIVE_2(),
     "ChildPovertyReductionABSOLUTE": ChildPovertyReductionABSOLUTE(),
+    "ChildPovertyReduction": ChildPovertyReduction(),
   
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
@@ -284,6 +286,8 @@ def type_check(data):
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
+    data['financial_situation'] = data['financial_situation'].astype(int)
+    data['behind_on_bills'] = data['behind_on_bills'].astype(int)
 
     return data
 

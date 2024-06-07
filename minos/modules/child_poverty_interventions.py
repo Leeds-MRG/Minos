@@ -331,7 +331,9 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # set parameters
         end_year = 2030
         target_pov_prop = 0.1
-        relative_poverty_threshold = 1247.71
+        #relative_poverty_threshold = 1247.71
+        relative_poverty_threshold = 1100.69
+
 
         # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
@@ -341,6 +343,7 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # DO NOT reset the previous income_boosted for testing
         # We need to track people who have been intervened so we can continue the intervention indefinitely
         # full_pop['income_boosted'] = False
+        # However we do want to reset boost amount so we can recalculate (and not uplift if not necessary)
         full_pop['boost_amount'] = 0.0
         #self.population_view.update(full_pop[['boost_amount']])
 
@@ -364,9 +367,13 @@ class ChildPovertyReductionRELATIVE_2(Base):
 
         # 3a. This is the SUSTAIN intervention, so we want to find the households that have previously received the
         # intervention (if any) and uplift them again. This is to simulate ongoing support for a set of families
-        target_pop['boost_amount'][(target_pop['income_boosted'] is True) &  # previously uplifted
-                                   (target_pop['hh_income'] < relative_poverty_threshold)] = (  # in relative poverty
-                relative_poverty_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
+        #target_pop['boost_amount'][(target_pop['income_boosted'] is True) &  # previously uplifted
+        #                           (target_pop['hh_income'] < relative_poverty_threshold)] = (  # in relative poverty
+        #        relative_poverty_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
+
+        target_pop.loc[(target_pop['income_boosted'] is True) & (
+                    target_pop['hh_income'] < relative_poverty_threshold), 'boost_amount'] = (
+                    relative_poverty_threshold - target_pop['hh_income'] + 1)
 
         target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
 
@@ -549,7 +556,8 @@ class ChildPovertyReductionABSOLUTE(Base):
         # set parameters
         end_year = 2030
         target_pov_prop = 0.05
-        absolute_pov_threshold = 955.54
+        #absolute_pov_threshold = 955.54
+        absolute_pov_threshold = 963.17
 
         # 1. Calculate median hh_income over all households
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
@@ -686,6 +694,101 @@ class ChildPovertyReductionABSOLUTE(Base):
         logging.info(f"\tTotal boost amount: {uplift_pop['boost_amount'].sum()}")
         logging.info(f"\tMean boost amount across households in poverty: "
                      f"{uplift_pop['boost_amount'][uplift_pop['income_boosted']].mean()}")
+
+
+class ChildPovertyReduction(Base):
+
+    @property
+    def name(self):
+        return "child_poverty_reduction"
+
+    def __repr__(self):
+        return "ChildPovertyReduction"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
+        columns_created = ["income_boosted", "boost_amount"]
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        # builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        super().setup(builder)
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(
+            f"\tApplying effects of the child absolute poverty reduction intervention in year {event.time.year}...")
+
+        # This is a (perhaps ambitious) attempt to combine both the relative and absolute poverty reduction interventions
+        # into one big intervention. Balancing these 2 interventions might be complicated hence the ambition.
+
+        # set parameters
+        end_year = 2030
+        target_rel_prop = 0.1
+        target_abs_prop = 0.05
+        relative_poverty_threshold = 1247.71  # US data
+        # relative_poverty_threshold = 1100.69  # scottish synthpop
+        absolute_poverty_threshold = 963.17
+
+        # Load population and filter out some important populations
+        full_pop = self.population_view.get(event.index, query="alive =='alive'")
+        # Reset boost amount to 0 for this wave
+        full_pop['boost_amount'] = 0.0
+
+        # Generate a few important populations to use for reporting / further work
+        full_pop_hh_rep = full_pop.groupby('hidp').first().reset_index()  # single representative of each household
+        pov_pop_hh_rep = full_pop_hh_rep[full_pop_hh_rep['hh_income'] < relative_poverty_threshold]
+        pov_pop_children_hh_rep = pov_pop_hh_rep[pov_pop_hh_rep['nkids'] > 0]
+
+        # Number of children
+        num_kids = full_pop_hh_rep['nkids'].sum()
+        num_kids_in_pov = pov_pop_children_hh_rep['nkids'].sum()
+
+
+        print(f"Number of children in the model: {num_kids}")
+
+        print(f"There are {len(pov_pop_hh_rep)}/{len(full_pop_hh_rep)} households in relative poverty, with {len(pov_pop_children_hh_rep)} containing children.")
+        print(f"This amounts to {num_kids_in_pov} children in poverty, which is {(num_kids_in_pov / num_kids) * 100}% of the total.")
+
+        print(f"Number of people already boosted: {full_pop['income_boosted'].sum()}")
+
+
+
 
 
 class childUplift(Base):
