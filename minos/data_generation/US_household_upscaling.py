@@ -128,10 +128,27 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
     merged_data['pidp'] = merged_data.index  # creating new pidps.
 
+
+    n_samples = 10
+
     print(f"Number of children is {int(sum(merged_data.groupby(by=['hidp'])['nkids'].max()))}")
     print(f"Number of adults is {merged_data.shape[0]}")
 
     # take subset of sample if desired. defaults to 100% for now.
+    for i in range(n_samples):
+        sampled_data = take_synthpop_sample(merged_data, percentage/100)
+        print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
+
+        # merge with spatial_attributes
+        # get simd_deciles
+        sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(), "ZoneID")
+
+        sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
+        # but still updating weights helps with weighted aggregates later.
+
+        US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
+        US_utils.save_file(sampled_data, f"data/scaled_{region}_US_{i+1}/", '', 2020)
+
     sampled_data = take_synthpop_sample(merged_data, percentage/100)
     print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
 
@@ -145,8 +162,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     sampled_data =align_main(sampled_data, region)
 
     US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
-
+    US_utils.save_file(sampled_data, f"data/scaled_{region}_US_{i+1}/", '', 2020)
 
 if __name__ == '__main__':
 

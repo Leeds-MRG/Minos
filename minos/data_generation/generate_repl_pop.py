@@ -12,6 +12,7 @@ Currently we take the 16 year olds from the final data file for 2018 (start date
 copies of this population for every year of the simulation to 2070, then adjust the analysis weights (`weight` var) by
 sex and ethnicity to ensure representative populations into the future.
 """
+import multiprocessing
 
 import pandas as pd
 import numpy as np
@@ -23,7 +24,8 @@ from rpy2.robjects.packages import importr
 
 import US_utils
 from minos.modules import r_utils
-
+from multiprocessing import Pool
+from itertools import repeat
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -217,6 +219,7 @@ def predict_education(repl, transition_dir):
 
 def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
 
+
     output_dir = 'data/replenishing'
     #data_source = 'final_US'
     data_source = 'imputed_final_US'
@@ -277,6 +280,48 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
     print('Replenishing population generated for 2015 - 2070')
+    #
+    if region != "":
+        for i in range(10):
+            file_name = f"data/{data_source}_{i + 1}/{source_year}_US_cohort.csv"
+            data = pd.read_csv(file_name)
+
+            # expand and reweight the population
+            expanded_repl = expand_repl(data, region)
+
+            reweighted_repl = reweight_repl(expanded_repl, projections)
+
+            # finally, predict the highest level of educ
+            final_repl = predict_education(reweighted_repl, transition_dir)
+
+            # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
+            final_repl['ncigs'] = final_repl['ncigs'].astype(int)
+            final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
+            final_repl['loneliness'] = final_repl['loneliness'].astype(int)
+            final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
+            final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
+            final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
+            final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
+            final_repl['job_sec'] = final_repl['job_sec'].astype(int)
+            final_repl['nkids'] = final_repl['nkids'].astype(float)
+
+            US_utils.check_output_dir(output_dir)
+            final_repl.to_csv(f'{output_dir}/{i + 1}_replenishing_pop_2015-2070.csv', index=False)
+            print(f'Replenishing population generated for 2015 - 2070 iteration {i + 1}')
+
+    #     with Pool() as p:
+    #         p.starmap(multithread_repl_pops,
+    #             zip(repeat(data_source),
+    #                 repeat(source_year),
+    #                 repeat(transition_dir),
+    #                 repeat(output_dir),
+    #                 range(1, 11),
+    #                 repeat(region),
+    #                 repeat(projections)))
+
+
+def multithread_repl_pops(data_source, source_year, transition_dir, output_dir, i, region, projections):
+    # first collect and load the datafile for 2018
 
 
 def main():
