@@ -148,11 +148,13 @@ whole_pop_confint_summarise <- function(data) {
   return(data)
 }
 
-whole_pop_income_quintile_summarise <- function(data) {
+whole_pop_income_quint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       filter(weight > 0) %>%
+      group_by(run_id, year) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      ungroup() %>%
       group_by(run_id, income_quintile) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -163,7 +165,33 @@ whole_pop_income_quintile_summarise <- function(data) {
   } else {
     data <- data %>%
       filter(weight > 0) %>%
+      group_by(run_id, year) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      ungroup() %>%
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+whole_pop_income_quint2_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
       group_by(run_id, income_quintile) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -259,7 +287,9 @@ families_income_quint_summarise <- function(data) {
     data <- data %>%
       filter(weight > 0) %>%
       filter(nkids > 0) %>%
+      group_by(run_id, year) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      ungroup() %>%
       group_by(run_id, income_quintile) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -271,7 +301,35 @@ families_income_quint_summarise <- function(data) {
     data <- data %>%
       filter(weight > 0) %>%
       filter(nkids > 0) %>%
+      group_by(run_id, year) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+      ungroup() %>%
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE)) %>%
+      mutate(total_cost = 0,
+             mean_cost = 0)
+  }
+  return(data)
+}
+
+families_income_quint2_summarise <- function(data) {
+  if ('boost_amount' %in% names(data)) {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
+      group_by(run_id, income_quintile) %>%
+      summarise(count = n(),
+                hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+                SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+                total_cost = sum(boost_amount),
+                mean_cost = mean(boost_amount))
+    #TODO: Add number households affected by interventions and other stats
+  } else {
+    data <- data %>%
+      filter(weight > 0) %>%
+      filter(nkids > 0) %>%
       group_by(run_id, income_quintile) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -955,22 +1013,29 @@ scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
 summary_funcs <- c(whole_pop = whole_pop_summarise,
-                   whole_pop_confint = whole_pop_confint_summarise,
-                   whole_pop_income_quint = whole_pop_income_quintile_summarise,
-                   whole_pop_income_quint_confint = whole_pop_income_quintile_confint_summarise,
+                   whole_pop_income_quint = whole_pop_income_quint_summarise,
+                   whole_pop_income_quint2 = whole_pop_income_quint2_summarise,
                    families = families_summarise,
-                   families_confint = families_confint_summarise,
                    families_income_quint = families_income_quint_summarise,
-                   families_income_quint_confint = families_income_quint_confint_summarise,
+                   families_income_quint2 = families_income_quint2_summarise,
                    treated_relative = treated_relative_summarise,
                    treated_absolute = treated_absolute_summarise,
                    priority_any = priority_any_summarise,
-                   priority_any_confint = priority_any_confint_summarise,
                    priority_num = priority_num_summarise,
-                   priority_num_confint = priority_num_confint_summarise,
                    men_illness_risk = men_illness_risk_summarise,
                    men_illness_risk_families = men_illness_risk_families_summarise
 )
+
+# whole_pop_confint = whole_pop_confint_summarise,
+# whole_pop_income_quint_confint = whole_pop_income_quintile_confint_summarise,
+# families_confint = families_confint_summarise,
+# families_income_quint_confint = families_income_quint_confint_summarise,
+# priority_any_confint = priority_any_confint_summarise,
+# priority_num_confint = priority_num_confint_summarise,
+
+
+
+
 # UC = UC_summarise,
 # UC_rel_pov = UC_rel_pov_summarise,
 # UC_kids_rel_pov = UC_kids_rel_pov_summarise,
