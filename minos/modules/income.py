@@ -681,14 +681,14 @@ class lmmYJIncome(Base):
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
-        # calculate household income mean
-        income_mean = np.mean(newWaveIncome["hh_income"])
-        # calculate change in standard deviation between waves.
-        std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
-        # rescale income to have new mean but keep old standard deviation.
-        newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
-        #newWaveIncome["hh_income"] -= 75
+        # # calculate household income mean
+        # income_mean = np.mean(newWaveIncome["hh_income"])
+        # # calculate change in standard deviation between waves.
+        # std_ratio = (np.std(pop['hh_income'])/np.std(newWaveIncome["hh_income"]))
+        # # rescale income to have new mean but keep old standard deviation.
+        # newWaveIncome["hh_income"] *= std_ratio
+        # newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+        # #newWaveIncome["hh_income"] -= 75
 
         # difference in hh income
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
