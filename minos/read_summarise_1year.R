@@ -74,7 +74,7 @@ drop_unnecessary_cols <- function(data, scen) {
   keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity', 
                  'child_ages', 'S7_labour_state', 'hh_income', 'SF_12', 'nkids',
                  'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty', 
-                 'universal_credit')
+                 'universal_credit', 'income_quintile')
   
   # cols only needed in intervention summaries
   int.cols <- c('boost_amount', 'income_boosted')
