@@ -152,7 +152,7 @@ whole_pop_income_quint_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
       filter(weight > 0) %>%
-      group_by(run_id, year) %>%
+      group_by(run_id, time) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
       ungroup() %>%
       group_by(run_id, income_quintile) %>%
@@ -165,7 +165,7 @@ whole_pop_income_quint_summarise <- function(data) {
   } else {
     data <- data %>%
       filter(weight > 0) %>%
-      group_by(run_id, year) %>%
+      group_by(run_id, time) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
       ungroup() %>%
       group_by(run_id, income_quintile) %>%
@@ -287,7 +287,7 @@ families_income_quint_summarise <- function(data) {
     data <- data %>%
       filter(weight > 0) %>%
       filter(nkids > 0) %>%
-      group_by(run_id, year) %>%
+      group_by(run_id, time) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
       ungroup() %>%
       group_by(run_id, income_quintile) %>%
@@ -301,7 +301,7 @@ families_income_quint_summarise <- function(data) {
     data <- data %>%
       filter(weight > 0) %>%
       filter(nkids > 0) %>%
-      group_by(run_id, year) %>%
+      group_by(run_id, time) %>%
       mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
       ungroup() %>%
       group_by(run_id, income_quintile) %>%
