@@ -427,9 +427,10 @@ men_illness_risk_summarise <- function(data) {
     filter(weight > 0) %>%
     mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
     group_by(run_id, mental_health_risk) %>%
-    summarise(count = sum(mental_health_risk),
-              total_count = n(),
-              prop = count / total_count)
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
 }
 
 men_illness_risk_families_summarise <- function(data) {
@@ -438,9 +439,10 @@ men_illness_risk_families_summarise <- function(data) {
     filter(nkids > 0) %>%
     mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
     group_by(run_id, mental_health_risk) %>%
-    summarise(count = sum(mental_health_risk),
-              total_count = n(),
-              prop = count / total_count)
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
 }
 
 #mutate(kids = (nkids > 0)) %>%

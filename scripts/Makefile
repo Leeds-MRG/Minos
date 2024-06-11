@@ -82,6 +82,9 @@ all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift interve
 intervention_childPovertyReduction: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReduction'
 
+intervention_childPovertyReductionSUSTAIN: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionSUSTAIN'
+
 intervention_childPovertyReductionRelative: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRELATIVE'
 
@@ -234,6 +237,9 @@ arc4_baseline_cpr:
 arc4_intervention_childPovertyReductionRELATIVE:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
 
+arc4_intervention_childPovertyReductionSUSTAIN:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionSUSTAIN'
+
 arc4_intervention_childPovertyReductionRELATIVE_2:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
 
@@ -241,22 +247,25 @@ arc4_intervention_ChildPovertyReductionABSOLUTE:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
 
 arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReductionRELATIVE_2
-arc4_child_pov_interventions:  arc4_intervention_ChildPovertyReductionABSOLUTE
+arc4_child_pov_interventions: arc4_intervention_childPovertyReductionSUSTAIN arc4_intervention_ChildPovertyReductionABSOLUTE
 
 arc4_baseline_cpr_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o default_cpr
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr
 
 arc4_intervention_childPovertyReductionRELATIVE_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionRELATIVE'
+
+arc4_intervention_childPovertyReductionSUSTAIN_scotland:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o default_cpr -i 'ChildPovertyReductionSUSTAIN'
 
 arc4_intervention_childPovertyReductionRELATIVE_2_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionRELATIVE_2'
 
 arc4_intervention_ChildPovertyReductionABSOLUTE_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionABSOLUTE'
 
 arc4_child_pov_scotland: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReductionRELATIVE_2_scotland
-arc4_child_pov_scotland:  arc4_intervention_ChildPovertyReductionABSOLUTE_scotland
+arc4_child_pov_scotland: arc4_intervention_childPovertyReductionSUSTAIN_scotland arc4_intervention_ChildPovertyReductionABSOLUTE_scotland
 
 ## All default scenarios
 arc4_all_scenarios_default: setup
