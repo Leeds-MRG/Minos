@@ -670,31 +670,58 @@ class lmmYJIncome(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
+        # # Get living people to update their income
+        # pop = self.population_view.get(event.index, query="alive =='alive'")
+        # #pop = pop.sort_values('pidp')
+        # self.year = event.time.year
+        #
+        # # dummy column to load new prediction into.
+        # pop['hh_income_last'] = pop['hh_income']
+        #
+        #
+        # ## Predict next income values
+        # newWaveIncome = pd.DataFrame(columns=['hh_income'])
+        # newWaveIncome['hh_income'] = self.calculate_income(pop)
+        # newWaveIncome.index = pop.index
+        #
+        # # # calculate household income mean
+        # # income_mean = np.mean(newWaveIncome["hh_income"])
+        # # # calculate change in standard deviation between waves.
+        # # std_ratio = (np.std(pop['hh_income_last'])/np.std(newWaveIncome["hh_income"]))
+        # # # rescale income to have new mean but keep old standard deviation.
+        # # newWaveIncome["hh_income"] *= std_ratio
+        # # newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
+        # # #newWaveIncome["hh_income"] -= 75
+        #
+        # # difference in hh income
+        # newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']
+        #
+        # self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
+
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        #pop = pop.sort_values('pidp')
+        # pop = pop.sort_values('pidp')
         self.year = event.time.year
 
         # dummy column to load new prediction into.
-        pop['hh_income_last'] = pop['hh_income']
-
+        pop['hh_income_new'] = pop['hh_income']
 
         ## Predict next income values
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
-        # # calculate household income mean
-        # income_mean = np.mean(newWaveIncome["hh_income"])
-        # # calculate change in standard deviation between waves.
-        # std_ratio = (np.std(pop['hh_income_last'])/np.std(newWaveIncome["hh_income"]))
-        # # rescale income to have new mean but keep old standard deviation.
-        # newWaveIncome["hh_income"] *= std_ratio
-        # newWaveIncome["hh_income"] -= ((std_ratio-1)*income_mean)
-        # #newWaveIncome["hh_income"] -= 75
+        # calculate household income mean
+        income_mean = np.mean(newWaveIncome["hh_income"])
+        # calculate change in standard deviation between waves.
+        std_ratio = (np.std(pop['hh_income']) / np.std(newWaveIncome["hh_income"]))
+        # rescale income to have new mean but keep old standard deviation.
+        newWaveIncome["hh_income"] *= std_ratio
+        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        # newWaveIncome["hh_income"] -= 75
 
         # difference in hh income
-        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']
+        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income']
 
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
@@ -711,20 +738,20 @@ class lmmYJIncome(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        # nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+        nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+                                                                     self.rpy2Modules,
+                                                                     pop,
+                                                                     dependent='hh_income_new',
+                                                                     yeo_johnson=True,
+                                                                     reflect=False,
+                                                                     noise_std=0.175)  #0.45 for yj. 100? for non yj.
+
+        # nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
         #                                                                self.rpy2Modules,
         #                                                                pop,
-        #                                                                dependent='hh_income_new',
-        #                                                                yeo_johnson=True,
-        #                                                                reflect=False,
-        #                                                                noise_std=0.175)  #0.45 for yj. 100? for non yj.
-
-        nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='hh_income',
-                                                                       log_transform=False,
-                                                                       noise_std=800)
+        #                                                                dependent='hh_income',
+        #                                                                log_transform=False,
+        #                                                                noise_std=800)
 
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
