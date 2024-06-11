@@ -452,6 +452,10 @@ spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
                save = shall.we.save,
                save.path = save.path)
 
+spaghetti_plot(base.inc, 'hh_income',
+               save = shall.we.save,
+               save.path = save.path)
+
 rm(raw.inc, base.inc, income.spag)
 ```
 

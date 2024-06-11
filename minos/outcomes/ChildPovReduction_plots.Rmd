@@ -27,9 +27,9 @@ require(ggplot2)
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/scp_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/cpr_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
-#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old7_scot/"
-workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old6/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old6/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -53,7 +53,8 @@ SF12_change_simple <- function(summary_group, scen.list) {
   tit <- ' '
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
-  if (summary_group == 'treated') { tit <- 'Treated' }
+  if (summary_group == 'treated_relative') { tit <- 'Treated' }
+  if (summary_group == 'treated_absolute') { tit <- 'Treated' }
   if (summary_group == 'priority_any') { tit <- 'Any Priority Subgroup' }
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
@@ -223,7 +224,7 @@ SF12_change_income_quint <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint')
+  summary_group <- paste0(summary_group, '_income_quint2')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -297,7 +298,7 @@ SF12_change_percentage_income_quint <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint')
+  summary_group <- paste0(summary_group, '_income_quint2')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -642,10 +643,10 @@ inequality_plots(summary_group = 'families',
 # Treated
 
 ```{r}
-SF12_change_simple(summary_group = 'treated',
+SF12_change_simple(summary_group = 'treated_relative',
                    scen.list = scen.list.test)
 
-SF12_change_percentage(summary_group = 'treated',
+SF12_change_percentage(summary_group = 'treated_relative',
                        scen.list = scen.list.test)
 ```
 
@@ -703,31 +704,112 @@ What are the impacts on mental health of meeting the targets?
 # TESTING
 
 ```{r}
-#SF12_change_simple <- function(summary_group, scen.list) {
+SF12_change_simple <- function(summary_group, scen.list) {
   
-tit <- ' '
-# if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
-# if (summary_group == 'families') { tit <- 'Families' }
-
-summary_group <- 'treated'
-scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
-
-data <- do.call(rbind, generate_df_list(summary_group, scen.list.test))
-
-data$income_quintile <- factor(data$income_quintile)
-
-base.test <- filter(data, scen == 'baseline')
-pov.test <- filter(data, scen == 'ChildPovertyReductionRELATIVE_2')
-
-
-
-
-
-
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  if (summary_group == 'treated_relative') { tit <- 'Treated' }
+  if (summary_group == 'treated_absolute') { tit <- 'Treated' }
+  if (summary_group == 'priority_any') { tit <- 'Any Priority Subgroup' }
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  plot_data_confint2 <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+    
+  
+  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted') +
+    geom_smooth() +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  print(p1)
+  print(p2)
+  #print(p3)
+}
 ```
+
+## MENTAL HEALTH THRESHOLD
 
 ```{r}
 
+scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+summary_group <- 'men_illness_risk'
+
+data <- do.call(rbind, generate_df_list(summary_group, scen.list.test))
+
+plot_data <- data %>%
+  group_by(scen, year, mental_health_risk) %>%
+  summarise(count = mean(count)) %>%
+  filter(mental_health_risk == 'TRUE')
+
+ggplot(plot_data, aes(x = year, y = count, group = scen, color = scen)) +
+  geom_point() +
+  geom_line()
+
+plot_data_2 <- data %>%
+  filter(mental_health_risk == 'TRUE') %>%
+  select(-prop, -mental_health_risk) %>%
+  pivot_wider(names_from = scen,
+              values_from = count) %>%
+  mutate(MHR_diff = ChildPovertyReductionRELATIVE_2 - baseline) %>%
+  select(run_id, year, MHR_diff) %>%
+  group_by(year) %>%
+  summarise(MHR_diff = mean(MHR_diff))
+
+ggplot(data = plot_data_2, aes(x = year, y = MHR_diff)) +
+  geom_point() +
+  geom_line()
+  
 ```
 
 
