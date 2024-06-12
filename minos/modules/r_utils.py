@@ -383,6 +383,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12"]:
         # Final step is to clip the values to min and max seen in input data
         prediction = np.clip(prediction, min_value, max_value)
+        #prediction = np.clip(prediction, 0, 100)
 
     return pd.DataFrame(prediction, columns=[dependent])
 
