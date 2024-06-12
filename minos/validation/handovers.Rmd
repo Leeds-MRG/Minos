@@ -51,7 +51,8 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+#raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'imputed_final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 raw.dat <- raw.dat %>%
   filter(weight > 0)
@@ -488,15 +489,15 @@ ggplot(data = rel.threshold, aes(x = time, y = poverty_threshold)) +
 
 #### Absolute
 ```{r}
-raw.2010 <- raw.dat %>%
-  filter(time == 2010)
-
-abs.threshold <- weighted.median(x = raw.2010$hh_income, 
-                                 w = raw.2010$weight, 
-                                 na.rm = TRUE)
-abs.threshold <- abs.threshold * 0.6
-
-print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
+# raw.2010 <- raw.dat %>%
+#   filter(time == 2010)
+# 
+# abs.threshold <- weighted.median(x = raw.2010$hh_income, 
+#                                  w = raw.2010$weight, 
+#                                  na.rm = TRUE)
+# abs.threshold <- abs.threshold * 0.6
+# 
+# print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
 ```
 
 

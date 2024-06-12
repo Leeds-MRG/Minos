@@ -224,7 +224,7 @@ SF12_change_income_quint <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint2')
+  summary_group <- paste0(summary_group, '_income_quint')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -298,7 +298,7 @@ SF12_change_percentage_income_quint <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint2')
+  summary_group <- paste0(summary_group, '_income_quint')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -562,8 +562,9 @@ inequality_plots <- function(summary_group, scen.list) {
 
 
 ```{r}
-scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+#scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
 #scen.list.test <- c('baseline', 'ChildPovertyReductionABSOLUTE')
+scen.list.test <- c('baseline', 'ChildPovertyReductionSUSTAIN')
 whole_pop_data <- do.call(rbind, generate_df_list('whole_pop', scen.list.test))
 ```
 
