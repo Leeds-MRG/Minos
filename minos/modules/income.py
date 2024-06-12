@@ -635,12 +635,12 @@ class lmmYJIncome(Base):
         #                                             path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"hh_income/gee_diff/hh_income_GEE_DIFF", self.rpy2Modules,
         #                                                     path=self.transition_dir)
-        # self.transition_model = r_utils.load_transitions(f"hh_income/glmm/hh_income_GLMM", self.rpy2Modules,
-        #                                                     path=self.transition_dir)
-        # self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
-        self.transition_model = r_utils.load_transitions(f"hh_income/lmm/hh_income_LMM", self.rpy2Modules,
-                                                         path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "lmm")
+        self.transition_model = r_utils.load_transitions(f"hh_income/glmm/hh_income_GLMM", self.rpy2Modules,
+                                                            path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
+        # self.transition_model = r_utils.load_transitions(f"hh_income/lmm/hh_income_LMM", self.rpy2Modules,
+        #                                                  path=self.transition_dir)
+        # self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "lmm")
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
 
@@ -738,20 +738,20 @@ class lmmYJIncome(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        # nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
-        #                                                              self.rpy2Modules,
-        #                                                              pop,
-        #                                                              dependent='hh_income',
-        #                                                              yeo_johnson=True,
-        #                                                              reflect=False,
-        #                                                              noise_std=0.175)  #0.45 for yj. 100? for non yj.
+        nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+                                                                     self.rpy2Modules,
+                                                                     pop,
+                                                                     dependent='hh_income',
+                                                                     yeo_johnson=True,
+                                                                     reflect=False,
+                                                                     noise_std=0.175)  #0.45 for yj. 100? for non yj.
 
-        nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
-                                                                       self.rpy2Modules,
-                                                                       pop,
-                                                                       dependent='hh_income',
-                                                                       log_transform=False,
-                                                                       noise_std=0)
+        # nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
+        #                                                                self.rpy2Modules,
+        #                                                                pop,
+        #                                                                dependent='hh_income',
+        #                                                                log_transform=False,
+        #                                                                noise_std=100)
 
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
