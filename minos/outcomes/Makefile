@@ -3,6 +3,17 @@
 #TODO make bash script for maps.
 #TODO add bash script with 4 interventions (no poverty line).
 
+##########
+#OLD
+###########
+
+aggregate_minos_output_child_poverty_reductionRELATIVE:
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_alive,who_boosted "child_poverty_reduction_RELATIVE_2_who_alive"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_kids,who_boosted "child_poverty_reduction_RELATIVE_2_who_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_RELATIVE_2_who_pov_kids"
+	bash minos/outcomes/make_lineplot.sh default_config baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_alive,who_alive "child_poverty_reduction_RELATIVE_2_who_pov_kids"
+
+
 ##############################################################
 # SCP & CPR output summary generation in R #
 ##############################################################
