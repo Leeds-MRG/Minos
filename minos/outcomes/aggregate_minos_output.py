@@ -9,6 +9,7 @@ from multiprocessing import Pool
 from itertools import repeat
 from aggregate_subset_functions import dynamic_subset_function
 
+pd.options.mode.chained_assignment = None  # default='warn'
 
 def aggregate_csv(filename, v, agg_method, subset_func_string, mode):
     'converts a filename to a pandas dataframe'
