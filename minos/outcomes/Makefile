@@ -8,10 +8,10 @@
 ###########
 
 aggregate_minos_output_child_poverty_reductionRELATIVE:
-	bash minos/outcomes/make_lineplot.sh default_cpr baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_alive,who_boosted "child_poverty_reduction_RELATIVE_2_who_alive" "SF_12"
+	bash minos/outcomes/make_lineplot.sh default_cpr baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_alive,who_boosted "child_poverty_reduction_RELATIVE_2_who_alive_who_boosted" "SF_12"
 	bash minos/outcomes/make_lineplot.sh default_cpr baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_kids,who_boosted "child_poverty_reduction_RELATIVE_2_who_kids" "SF_12"
 	bash minos/outcomes/make_lineplot.sh default_cpr baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_below_poverty_line_and_kids,who_boosted "child_poverty_reduction_RELATIVE_2_who_pov_kids" "SF_12"
-	bash minos/outcomes/make_lineplot.sh default_cpr baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_alive,who_alive "child_poverty_reduction_RELATIVE_2_who_pov_kids" "SF_12"
+	bash minos/outcomes/make_lineplot.sh default_cpr baseline,ChildPovertyReductionRELATIVE_2 "Baseline,Child Poverty Reduction RELATIVE" who_alive,who_alive "child_poverty_reduction_RELATIVE_2_who_alive_who_alive" "SF_12"
 
 
 ##############################################################
