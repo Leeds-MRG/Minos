@@ -6,17 +6,17 @@ mkdir -p logs/sum
 mkdir -p logs/sum/log
 mkdir -p logs/sum/errors
 
-## Check that 3 arguments have been provided
-if [[ "$#" -ne 4 ]]; then
-  echo "You have not submitted the correct number of command line arguments (3). The required arguments in order are:"
+## Check that 5 arguments have been provided
+if [[ "$#" -ne 5 ]]; then
+  echo "You have not submitted the correct number of command line arguments (5). The required arguments in order are:"
   echo "1. Output subdirectory i.e. default_config"
   echo "2. Save directory. This will be created if it does not exist already. i.e. summary_out"
   echo "3. Scenario name i.e. baseline"
-  echo "4. Year to summarise i.e. 2030"
+  echo "4. First year to summarise"
+  echo "5. Final year to summarise"
   echo
-  echo "Usage: $0 <output_subdirectory> <save_directory> <scenario_name> <year>"
-  echo "E.g.: $0 default_config summary_out baseline 2030"
-  echo "This will summarise datafiles found in default_config/baseline, and save the files to default_config/summary_out/"
+  echo "Usage: $0 <output_subdirectory> <save_directory> <scenario_name> <startyear> <stopyear>"
+  echo "E.g.: $0 default_config summary_out baseline 2020 2035"
   echo
   exit 1
 fi
