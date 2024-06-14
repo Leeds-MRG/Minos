@@ -58,67 +58,67 @@ CPR_baseline_allyears_test:
 	Rscript minos/combine_summaries_all_years.R default_config cpr_summary_out baseline_batch
 
 CPR_baseline_yearly:
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2020
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2021
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2022
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2023
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2024
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2025
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2026
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2027
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2028
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2029
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2030
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2031
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2032
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2033
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2034
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2035
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2020
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2021
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2022
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2023
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2024
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2025
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2026
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2027
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2028
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2029
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2030
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2031
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2032
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2033
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2034
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2035
 
 CPR_baseline_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out baseline
 
 CPR_relative_yearly:
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2021
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2022
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2023
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2024
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2025
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2026
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2027
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2028
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2029
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2030
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2031
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2032
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2033
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2034
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2035
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2021
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2022
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2023
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2024
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2025
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2026
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2027
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2028
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2029
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2030
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2031
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2032
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2033
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2034
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2035
 
 CPR_relative_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
 
 CPR_absolute_yearly:
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2021
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2022
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2023
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2024
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2025
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2026
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2027
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2028
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2029
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2030
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2031
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2032
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2033
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2034
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2035
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2021
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2022
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2023
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2024
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2025
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2026
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2027
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2028
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2029
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2030
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2031
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2032
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2033
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2034
+	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2035
 
 CPR_absolute_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
 
 CPR_sustain_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionSUSTAIN 2020
