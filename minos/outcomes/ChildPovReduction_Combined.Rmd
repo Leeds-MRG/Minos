@@ -29,8 +29,8 @@ require(ggplot2)
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/scp_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/cpr_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
-#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
-workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old8_scot/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old8_scot/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -121,6 +121,50 @@ SF12_change_simple <- function(summary_group, scen.list) {
   print(p2)
   #print(p3)
 }
+
+SF12_change_ind_trajectories <- function(summary_group, scen.list) {
+  
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  if (summary_group == 'priority_any') { tit <- 'Any Priority Subgroup' }
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  p1 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_line(data = plot_data, aes(x = year, y = diff_SF_12, group = run_id), alpha = 0.2) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  print(p1)
+}
+
 ```
 
 ```{r "SF12_change_income_quint", include=FALSE}
@@ -335,6 +379,7 @@ inequality_plots <- function(summary_group, scen.list) {
 
 ```{r "mental_illness_risk_plots", include=FALSE}
 mental_illness_risk_counts <- function(summary_group, scen.list) {
+  
   tit <- ' '
   if (summary_group == 'men_illness_risk') { tit <- 'Whole Population' }
   if (summary_group == 'men_illness_risk_families') { tit <- 'Families' }
@@ -344,41 +389,46 @@ mental_illness_risk_counts <- function(summary_group, scen.list) {
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
-  # plot_data <- data %>%
-  #   group_by(scen, year, mental_health_risk) %>%
-  #   summarise(count = mean(count)) %>%
-  #   filter(mental_health_risk == 'TRUE')
-  # 
-  # ggplot(plot_data, aes(x = year, y = count, group = scen, color = scen)) +
-  #   geom_point() +
-  #   geom_line()
-  mutate(num_priority_groups = case_when(
-        num_priority_groups == 0 ~ 0,
-        num_priority_groups == 1 ~ 1,
-        num_priority_groups == 2 ~ 2,
-        num_priority_groups >= 3 ~ 3)) %>%
-  
-  plot_data_2 <- data %>%
+  plot_data <- data %>%
     filter(mental_health_risk == 'TRUE') %>%
     select(-prop, -mental_health_risk) %>%
     pivot_wider(names_from = scen,
                 values_from = count) %>%
-    rename(intervention = contains(scen.list[[1]]))
-    mutate(MHR_diff = ChildPovertyReductionRELATIVE_2 - baseline) %>%
+    rename(intervention = contains(scen.list[[2]])) %>%
+    mutate(MHR_diff = intervention - baseline) %>%
     select(run_id, year, MHR_diff) %>%
     group_by(year) %>%
     summarise(MHR_diff = mean(MHR_diff))
   
-  p1 <- ggplot(data = plot_data_2, aes(x = year, y = MHR_diff)) +
+  p1 <- ggplot(data = plot_data, aes(x = year, y = MHR_diff)) +
     geom_point() +
     geom_line() +
-    labs(title = "Count of individuals at risk of mental health issues",
-         subtitle = 'Intervention - Baseline') +
+    labs(title = "Difference in count of individuals at risk of mental health issues",
+         subtitle = tit) +
     xlab('Year') +
     ylab('Count')
   
+  plot_data_2 <- data %>%
+    filter(mental_health_risk == 'TRUE') %>%
+    select(-mental_health_risk, -count) %>%
+    pivot_wider(names_from = scen,
+                values_from = prop) %>%
+    rename(intervention = contains(scen.list[[2]])) %>%
+    mutate(MHR_prop_diff = intervention - baseline) %>%
+    select(run_id, year, MHR_prop_diff) %>%
+    group_by(year) %>%
+    summarise(MHR_prop_diff = mean(MHR_prop_diff) * 100)
+  
+  p2 <- ggplot(data = plot_data_2, aes(x = year, y = MHR_prop_diff)) +
+    geom_point() +
+    geom_line() +
+    labs(title = "Difference in proportion of individuals at risk of mental health issues",
+         subtitle = tit) +
+    xlab('Year') +
+    ylab('Percentage')
   
   print(p1)
+  print(p2)
 }
 ```
 
@@ -403,8 +453,11 @@ What are the impacts on mental health of meeting the targets:
 SF12_change_simple(summary_group = 'whole_pop',
                    scen.list = scen.list.rel)
 
-# mental_illness_risk_counts(summary_group = 'men_illness_risk',
-#                            scen.list = scen.list.rel)
+SF12_change_ind_trajectories(summary_group = 'whole_pop',
+                             scen.list <- scen.list.rel)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk',
+                           scen.list = scen.list.rel)
 ```
 
 ### Income Quintiles
@@ -432,8 +485,11 @@ What are the impacts on mental health of meeting the targets:
 SF12_change_simple(summary_group = 'families',
                        scen.list = scen.list.rel)
 
-# mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
-#                            scen.list = scen.list.rel)
+SF12_change_ind_trajectories(summary_group = 'families',
+                             scen.list <- scen.list.rel)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
+                           scen.list = scen.list.rel)
 ```
 
 ### Income Quintile
@@ -500,8 +556,11 @@ What are the impacts on mental health of meeting the targets:
 SF12_change_simple(summary_group = 'whole_pop',
                        scen.list = scen.list.abs)
 
-# mental_illness_risk_counts(summary_group = 'men_illness_risk',
-#                            scen.list = scen.list.abs)
+SF12_change_ind_trajectories(summary_group = 'whole_pop',
+                             scen.list <- scen.list.abs)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk',
+                           scen.list = scen.list.abs)
 ```
 
 ### Income Quintile
@@ -528,8 +587,11 @@ What are the impacts on mental health of meeting the targets:
 SF12_change_simple(summary_group = 'families',
                        scen.list = scen.list.abs)
 
-# mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
-#                            scen.list = scen.list.abs)
+SF12_change_ind_trajectories(summary_group = 'families',
+                             scen.list <- scen.list.abs)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
+                           scen.list = scen.list.abs)
 ```
 
 ### Income Quintile
