@@ -78,19 +78,19 @@ CPR_together_local_test:
 ## ARC SUBMISSION SUMMARIES
 
 CPR_baseline_yearly:
-	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out baseline 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2020 2035
 
 CPR_together_relative_yearly:
-	bash scripts/arc_together_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
 
 CPR_relative_yearly:
-	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
 
 CPR_absolute_yearly:
-	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
 
 CPR_together_absolute_yearly:
-	bash scripts/arc_together_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
 
 CPR_sustain_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionSUSTAIN 2020 2035
@@ -98,20 +98,26 @@ CPR_sustain_yearly:
 ## COMBINE SUMMARIES
 
 CPR_baseline_allyears:
-	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out baseline
 
 CPR_relative_allyears:
-	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+
+CPR_together_relative_allyears:
+	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
 
 CPR_absolute_allyears:
-	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+
+CPR_together_absolute_allyears:
+	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
 
 CPR_sustain_allyears:
 	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionSUSTAIN
 
-CPR_all_yearly: CPR_baseline_yearly CPR_relative_yearly CPR_absolute_yearly
+CPR_all_yearly: CPR_baseline_yearly CPR_together_relative_yearly CPR_relative_yearly CPR_together_absolute_yearly CPR_absolute_yearly
 
-CPR_all_allyears: CPR_baseline_allyears CPR_relative_allyears CPR_absolute_allyears
+CPR_all_allyears: CPR_baseline_allyears CPR_together_relative_allyears CPR_relative_allyears CPR_together_absolute_allyears CPR_absolute_allyears
 
 ##############################################################
 # SCP & CPR Visualisation Notebooks #

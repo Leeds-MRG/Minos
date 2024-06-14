@@ -195,22 +195,6 @@ generate_summary_csv <- function(combined_list, year, summary_funcs, save.path) 
   }
 }
 
-# Step 3: Combine Summaries Across Years
-combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2) {
-  for (summary_name in names(summary_funcs)) {
-    print(sprintf('About to combine summaries for %s', summary_name))
-    combined_summary <- NULL
-    for (year in start.year:end.year) {
-      summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
-      year_summary <- read.csv(summary_filename)
-      year_summary$year <- year
-      combined_summary <- rbind(combined_summary, year_summary)
-    }
-    combined_summary_filename <- sprintf("%s/combined_summary_%s.csv", save.path1, summary_name)
-    write.csv(combined_summary, file = combined_summary_filename, row.names = FALSE)
-  }
-}
-
 ###################### SUMMARY FUNCTIONS ####################
 
 treated_summary <- function(data) {
