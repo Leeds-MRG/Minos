@@ -148,6 +148,8 @@ class ChildPovertyReductionRELATIVE(Base):
                                    (target_pop['hh_income'] < relative_poverty_threshold)] = (  # in relative poverty
                 relative_poverty_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
 
+        target_pop[target_pop['boost_amount'] < 0]['boost_amount'] = 0
+
         target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
 
         # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
