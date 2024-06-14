@@ -246,8 +246,8 @@ arc4_intervention_childPovertyReductionRELATIVE_2:
 arc4_intervention_ChildPovertyReductionABSOLUTE:
 	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
 
-arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReductionRELATIVE_2
-arc4_child_pov_interventions: arc4_intervention_childPovertyReductionSUSTAIN arc4_intervention_ChildPovertyReductionABSOLUTE
+arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReductionRELATIVE arc4_intervention_childPovertyReductionRELATIVE_2
+arc4_child_pov_interventions: arc4_intervention_ChildPovertyReductionABSOLUTE
 
 arc4_baseline_cpr_scotland:
 	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr
