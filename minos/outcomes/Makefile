@@ -75,6 +75,9 @@ CPR_together_local_test:
 	Rscript minos/read_sum_together_1year.R default_batch cpr_summary_out_test ChildPovertyReductionRELATIVE_2 2034
 	Rscript minos/read_sum_together_1year.R default_batch cpr_summary_out_test ChildPovertyReductionRELATIVE_2 2035
 
+CPR_together_relative_allyears_test:
+	Rscript minos/combine_together_all_years.R default_batch cpr_summary_out_test ChildPovertyReductionRELATIVE_2
+
 ## ARC SUBMISSION SUMMARIES
 
 CPR_baseline_yearly:
