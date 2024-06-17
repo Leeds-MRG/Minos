@@ -35,6 +35,10 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
     print(sprintf('About to combine summaries for %s', summary_name))
     combined_summary <- NULL
     for (year in start.year:end.year) {
+      if((summary_name == 'treated') & (year == 2020)) {
+        # no treated pops in first year
+        next
+      }
       summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
       year_summary <- read.csv(summary_filename)
       year_summary$year <- year
@@ -57,7 +61,7 @@ end.year <- 2035
 out.path <- here::here('output', args[1])
 #out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
 save.path.base <- here::here(out.path, args[2])
-save.path1 <- here::here(save.path.base, args[3])
+save.path1 <- here::here(save.path.base, paste0(args[3], '_together'))
 save.path2 <- here::here(save.path1, 'intermediates')
 scen <- args[[3]]
 

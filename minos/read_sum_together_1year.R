@@ -228,7 +228,7 @@ args <- commandArgs(trailingOnly=TRUE)
 out.path <- here::here('output', args[1])
 #out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
 save.path.base <- here::here(out.path, args[2])
-save.path1 <- here::here(save.path.base, args[3])
+save.path1 <- here::here(save.path.base, paste0(args[3], '_together'))
 save.path2 <- here::here(save.path1, 'intermediates')
 scen <- args[[3]]
 year <- as.numeric(args[[4]])
