@@ -83,7 +83,8 @@ class ChildPovertyReductionRELATIVE(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.},
+                                   'boost_amount': 0.,
+                                   'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -308,7 +309,8 @@ class ChildPovertyReductionRELATIVE_2(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.},
+                                   'boost_amount': 0.,
+                                   'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -536,7 +538,8 @@ class ChildPovertyReductionABSOLUTE(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.},
+                                   'boost_amount': 0.,
+                                   'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 

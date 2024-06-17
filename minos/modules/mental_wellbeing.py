@@ -564,7 +564,7 @@ class lmmYJMWB(Base):
                                                                     dependent='SF_12',
                                                                     log_transform=True,
                                                                     noise_std=3,
-                                                                    seed=self.generate_run_crn_key())  #
+                                                                    seed=self.run_seed)  #
 
         return nextWaveMWB
 

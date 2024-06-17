@@ -124,6 +124,6 @@ class FinancialSituation(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.fs_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  seed=self.generate_run_crn_key())
+                                                  seed=self.run_seed)
 
         return prob_df

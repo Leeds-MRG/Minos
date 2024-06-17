@@ -152,7 +152,7 @@ class HousingTenure(Base):
                                        self.rpy2Modules,
                                        pop,
                                        cols,
-                                       seed=self.generate_run_crn_key())
+                                       seed=self.run_seed)
         return prob_df
 
     def plot(self, pop, config):

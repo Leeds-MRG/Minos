@@ -745,7 +745,7 @@ class lmmYJIncome(Base):
                                                                      yeo_johnson=True,
                                                                      reflect=False,
                                                                      noise_std=0.175,
-                                                                     seed=self.generate_run_crn_key())  #0.45 for yj. 100? for non yj.
+                                                                     seed=self.run_seed)  #0.45 for yj. 100? for non yj.
 
         # nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
         #                                                                self.rpy2Modules,
