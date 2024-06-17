@@ -176,7 +176,7 @@ class Housing(Base):
         newWaveHousingQuality = r_utils.predict_next_rf_ordinal(self.hq_transition_model,
                                                                 self.rpy2Modules,
                                                                 pop,
-                                                                dependent='housing_quality')
+                                                                seed=self.generate_run_crn_key())
 
         return newWaveHousingQuality
         #return prob_df

@@ -112,6 +112,6 @@ class BehindOnBills(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.bb_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='behind_on_bills')
+                                                  seed=self.generate_run_crn_key())
 
         return prob_df

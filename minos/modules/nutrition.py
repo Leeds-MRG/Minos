@@ -240,7 +240,8 @@ class lmmYJNutrition(Base):
                                                                           pop,
                                                                           dependent='nutrition_quality_new',
                                                                           log_transform=False,
-                                                                          noise_std=1)
+                                                                          noise_std=1,
+                                                                          seed=self.generate_run_crn_key())
 
         return nextWaveNutrition
 

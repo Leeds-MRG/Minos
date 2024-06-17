@@ -129,7 +129,11 @@ class S7Labour(Base):
             #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "nnet")
 
         # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(self.transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_nnet(self.transition_model,
+                                       self.rpy2Modules,
+                                       pop,
+                                       cols,
+                                       seed=self.generate_run_crn_key())
         return prob_df
 
     def plot(self, pop, config):

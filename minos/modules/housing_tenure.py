@@ -151,7 +151,8 @@ class HousingTenure(Base):
         prob_df = r_utils.predict_nnet(self.transition_model,
                                        self.rpy2Modules,
                                        pop,
-                                       cols)
+                                       cols,
+                                       seed=self.generate_run_crn_key())
         return prob_df
 
     def plot(self, pop, config):

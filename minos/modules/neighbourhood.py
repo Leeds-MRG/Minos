@@ -147,7 +147,7 @@ class Neighbourhood(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.nhs_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='neighbourhood_safety')
+                                                  seed=self.generate_run_crn_key())
 
         return prob_df
 

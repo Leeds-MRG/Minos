@@ -136,7 +136,7 @@ class JobSec(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.jbs_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='job_sec')
+                                                  seed=self.generate_run_crn_key())
 
         return prob_df
 
