@@ -119,6 +119,8 @@ class ChildPovertyReductionRELATIVE(Base):
         # We need to track people who have been intervened so we can continue the intervention indefinitely
         # full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
+        # We do however want to reset the boosted this wave tag
+        full_pop['income_boosted_this_wave'] = False
         #self.population_view.update(full_pop[['boost_amount']])
 
         # LA 22/1/24 median income now calculated by household instead of individual
@@ -222,6 +224,7 @@ class ChildPovertyReductionRELATIVE(Base):
         uplift_pop['boost_amount'] = relative_poverty_threshold - uplift_pop['hh_income'] + 1
         # assign income_boosted == True if previously True or uplifted in current wave
         uplift_pop['income_boosted'] = True
+        uplift_pop['income_boosted_this_wave'] = True
         uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
         # 9. Update original population with uplifted values
@@ -349,6 +352,8 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # full_pop['income_boosted'] = False
         # However we do want to reset boost amount so we can recalculate (and not uplift if not necessary)
         full_pop['boost_amount'] = 0.0
+        # We do however want to reset the boosted this wave tag
+        full_pop['income_boosted_this_wave'] = False
         #self.population_view.update(full_pop[['boost_amount']])
 
         # LA 22/1/24 median income now calculated by household instead of individual
@@ -453,6 +458,7 @@ class ChildPovertyReductionRELATIVE_2(Base):
         uplift_pop['boost_amount'] = relative_poverty_threshold - uplift_pop['hh_income'] + 1
         # assign income_boosted == True if previously True or uplifted in current wave
         uplift_pop['income_boosted'] = True
+        uplift_pop['income_boosted_this_wave'] = True
         uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
         # 9. Update original population with uplifted values
@@ -576,6 +582,8 @@ class ChildPovertyReductionABSOLUTE(Base):
         # We need to track people who have been intervened so we can continue the intervention indefinitely
         # full_pop['income_boosted'] = False
         full_pop['boost_amount'] = 0.0
+        # We do however want to reset the boosted this wave tag
+        full_pop['income_boosted_this_wave'] = False
         #self.population_view.update(full_pop[['boost_amount']])
 
 
@@ -670,6 +678,7 @@ class ChildPovertyReductionABSOLUTE(Base):
         uplift_pop['boost_amount'] = absolute_pov_threshold - uplift_pop['hh_income'] + 1
         # assign income_boosted == True if previously True or uplifted in current wave
         uplift_pop['income_boosted'] = True
+        uplift_pop['income_boosted_this_wave'] = True
         uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
         # 9. Update original population with uplifted values
