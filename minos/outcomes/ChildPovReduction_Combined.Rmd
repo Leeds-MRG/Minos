@@ -174,7 +174,7 @@ SF12_change_income_quint <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint')
+  summary_group <- paste0(summary_group, '_income_quint2')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -326,7 +326,7 @@ inequality_plots <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint')
+  summary_group <- paste0(summary_group, '_income_quint2')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -432,11 +432,100 @@ mental_illness_risk_counts <- function(summary_group, scen.list) {
 }
 ```
 
+```{r "treated_population", include=FALSE}
+SF12_change_treated <- function(scen) {
+  
+  summary_group <- 'treated'
+  scen <- paste0(scen, '_together')
+  #scen <- c('ChildPovertyReductionRELATIVE_2_together')
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, hh_income, year, scenario) %>%
+    pivot_wider(names_from = scenario,
+                values_from = c(SF_12, hh_income),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline),
+           across(starts_with("hh_income"), ~ . - hh_income.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    rename_with(~ paste0("diff_", .), starts_with("hh_income")) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_to = c(".value", "scenario"),
+                 names_sep = "\\.") %>%
+    filter(scenario != 'baseline')
+  
+  plot_data_confint <- plot_data %>%
+      group_by(year) %>%
+      summarise(n = n(),
+                mean_SF12_change = mean(diff_SF_12),
+                margin_SF12 = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+                lower_SF12 = mean_SF12_change - margin_SF12,
+                upper_SF12 = mean_SF12_change + margin_SF12,
+                mean_hh_income_change = mean(diff_hh_income),
+                margin_hh_income = qt(0.975, df = n - 1) * (sd(diff_hh_income) / sqrt(n)),
+                lower_hh_income = mean_hh_income_change - margin_hh_income,
+                upper_hh_income = mean_hh_income_change + margin_hh_income,)
+  
+  # p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+  #     geom_hline(yintercept = 0, linetype = 'dashed') +
+  #     geom_vline(xintercept = 2030, linetype = 'dotted') +
+  #     geom_smooth() +
+  #     labs(title = 'Treatment on the Treated',
+  #          subtitle = 'SF_12') +
+  #     xlab('Year') +
+  #     ylab('Change in mean SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+      geom_ribbon(aes(ymin = lower_SF12, ymax = upper_SF12), linetype = 'dotted', alpha = 0.3) +
+      geom_line(linetype = 'dashed') +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = 'dashed') +
+      geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+      labs(title = 'Treatment on the Treated',
+           subtitle = 'SF_12') +
+      xlab('Year') +
+      ylab('Change in mean SF-12')
+  
+  # p3 <- ggplot(plot_data, aes(x = year, y = diff_hh_income)) +
+  #     geom_hline(yintercept = 0, linetype = 'dashed') +
+  #     geom_vline(xintercept = 2030, linetype = 'dotted') +
+  #     geom_smooth() +
+  #     labs(title = 'Treatment on the Treated',
+  #          subtitle = 'Household Income') +
+  #     xlab('Year') +
+  #     ylab('Change in mean hh_income')
+  
+  p4 <- ggplot(plot_data_confint, aes(x = year, y = mean_hh_income_change)) +
+      geom_ribbon(aes(ymin = lower_hh_income, ymax = upper_hh_income), linetype = 'dotted', alpha = 0.3) +
+      geom_line(linetype = 'dashed') +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = 'dashed') +
+      geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+      labs(title = 'Treatment on the Treated',
+           subtitle = 'Household Income') +
+      xlab('Year') +
+      ylab('Change in mean hh_income')
+  
+  #print(p1)
+  print(p2)
+  #print(p3)
+  print(p4)
+}
+```
+
+
 
 ```{r "Data", include=FALSE}
 scen.list.rel <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
 scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 ```
+
+# MCS Change to QALY Example
+
+We use an equation derived from [this paper by Lawrence and Fleishman]() to calculate QALYs from SF-12 MCS and PCS.
+
+
 
 # RELATIVE POVERTY INTERVENTION
 
@@ -530,6 +619,8 @@ SF12_change_num_priority_groups(scen.list.rel)
 ```{r}
 SF12_change_simple(summary_group = 'treated_relative',
                    scen.list = scen.list.rel)
+
+SF12_change_treated(scen = 'ChildPovertyReductionRELATIVE_2')
 ```
 
 
@@ -632,6 +723,8 @@ SF12_change_num_priority_groups(scen.list.abs)
 ```{r}
 SF12_change_simple(summary_group = 'treated_absolute',
                    scen.list = scen.list.abs)
+
+SF12_change_treated(scen = 'ChildPovertyReductionABSOLUTE')
 ```
 
 ## Differential Impacts of UK vs SG
