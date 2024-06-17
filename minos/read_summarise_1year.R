@@ -135,7 +135,7 @@ whole_pop_confint_summarise <- function(data) {
 whole_pop_income_quint_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0) %>%
-    group_by(run_id, time) %>%
+    group_by(run_id) %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     ungroup() %>%
     group_by(run_id, income_quintile) %>%
@@ -208,7 +208,7 @@ families_income_quint_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0) %>%
     filter(nkids > 0) %>%
-    group_by(run_id, time) %>%
+    group_by(run_id) %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     ungroup() %>%
     group_by(run_id, income_quintile) %>%
