@@ -20,4 +20,4 @@
 
 
 #Rscript -e "require(rmarkdown); render('minos/utils_datain_test.Rmd')"
-Rscript minos/read_summarise_1year.R $1 $2 $3 $4 $5
+Rscript minos/read_sum_together_1year.R $1 $2 $3 $4 $5
