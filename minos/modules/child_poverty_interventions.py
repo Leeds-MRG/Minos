@@ -1412,3 +1412,177 @@ class hhIncomePovertyLineChildUplift(Base):
 # island households fund. spatial policy should be easy to cut by island super outputs but need a list of them from somewhere (spatial policy...).
 
 
+
+
+class fullScottishPackage(Base):
+
+    @property
+    def name(self):
+        return "child_uplift"
+
+    def __repr__(self):
+        return "childUplift()"
+
+    def pre_setup(self, config, simulation):
+        self.uplift_condition = config['intervention_parameters']['uplift_condition']
+        self.uplift_amount = config['intervention_parameters']['uplift_amount']
+        print(f"Running child uplift with condition {self.uplift_condition} and uplift amount {self.uplift_amount}.")
+        return simulation
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income",
+                        'nkids',
+                        'alive',
+                        'universal_credit',
+                        'hidp',
+                        "S7_labour_state",
+                        "marital_status",
+                        'age',
+                        'ethnicity']
+        columns_created = ["income_boosted", "boost_amount"]
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        #builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        super().setup(builder)
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the hh_income child uplift intervention in year {event.time.year}...")
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        # print(np.mean(pop['hh_income'])) # for debugging purposes.
+        # TODO probably a faster way to do this than resetting the whole column.
+        # if self.uplift_condition == "who_below_poverty_line_and_kids":
+        #     pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
+        # else:
+        #     pop['income_boosted'] = False
+
+        # Reset boost vars in preparation for the new wave intervention
+        pop['income_boosted'] = False
+        pop['boost_amount'] = 0
+
+        # Find households to uplift from the uplift condition supplied
+        #TODO hard code this for universal credit uplift
+        uplifted_households = np.unique(dynamic_subset_function(pop, self.uplift_condition)['hidp'])
+        # Households on universal credit and legacy benefits are already receiving £10 SCP in our input population
+        # (2020) start. Therefore we need to reduce the intervention by £10 for these people
+        #uc_households = np.unique(dynamic_subset_function(pop, 'who_universal_credit_and_kids')['hidp'])
+
+        pop.loc[pop['hidp'].isin(uplifted_households), 'income_boosted'] = True  # set everyone who satisfies uplift condition to true.
+        pop['boost_amount'] = pop['income_boosted'] * get_monthly_boost_amount(pop, self.uplift_amount)  # £25 per week * 30.463/7 weeks per average month * nkids.
+
+
+        ###### LA 18/4/24 WE HAVE DECIDED AGAINST DOING THIS #####
+        # We cannot know who has and has not already received the SCP intervention in our data, so we cannot be sure if
+        # we are taking money away from someone who never received it in the first place. Also only Scottish
+        # recipients would be receiving the SCP in the first place, which make up only a fraction of the population,
+        # so we would be removing money from more people than received it in the first place.
+        #
+        # # Universal Credit recipients were receiving a £10 SCP in 2020, which increased to £25 in 2021
+        # # Therefore we need to reduce the intervention received by these amounts in these years to make it fully accurate
+        # if event.time.year == 2020:
+        #     pop.loc[pop['hidp'].isin(
+        #         uc_households), 'boost_amount'] = pop['boost_amount'] - 10
+        # if event.time.year == 2021:
+        #     pop.loc[pop['hidp'].isin(
+        #         uc_households), 'boost_amount'] = pop['boost_amount'] - 25
+
+        # pop['income_boosted'] = (pop['boost_amount'] != 0)
+        pop['hh_income'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
+        # TODO some kind of heterogeneity for people in the same household..? general inclusion of houshold compositon.
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+
+        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
+
+        """
+        As per Emma's feedback we have another intervention that roughly implements all of the child poverty action plan on top of the 
+        SCP. this intervention is going here. 
+    
+        going to reuse the generalised child uplift interventoin function. with different subset and uplift requirements. 
+    
+        - “Best Start Grant Pregnancy and Baby Payment – one off payment of up to £754.65 from 24 weeks in pregnancy up until a 
+        baby turns 6 months for families who get certain benefits. 
+        we don't have gestation in this model currently. simplified version gives 754.65 if a child is born. 
+    
+        · Best Start Grant Early Learning Payment – one off payment of £314.45 when a child is between two and three years and 
+        six months for families who get certain benefits. 
+        # give household 314.45 per newborn in a given year. 
+        
+        · Best Start Grant School Age Payment – one off payment of £314.45 when a child would normally start primary one for 
+        families who get certain benefits.
+        # when child is 4 years old give one off bump of 314.45
+    
+        · Best Start Foods – a pre-paid card from pregnancy up to when a child turns three for families on certain benefits 
+         to help buy healthy food 
+         does a household have children less than 3? if yes, given them the equivalent money for this card.
+          or bump nutrition quality?
+        """
+
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        # best start pregnancy grant.
+        # get households with newborns. given them 754.65. cant retroactively give them payment here. is this a provlem?
+        #households_with_newborn = np.uniquepop.loc[pop['has_newborn']['hidp'])
+        # people_in_newborn_households = pop.loc[pop['hidp'].isin(households_with_newborn)].index
+        # pop.loc[people_in_newborn_households, 'hh_income'] += 754.65
+
+        # best start foods payment.
+        # households with children three and under get money to spend on 'more nutritious' food.
+        # More difficult to implement the effects of this. It is not an income boost per se, but it would substantially
+        # improve nutrition quality.
+        # TODO function to identify households with children of the required ages. im hating the child ages string more with each day.
+        #households_with_children_under_4= np.uniquepop.loc[pop['has_newborn']['hidp'])
+        # people_in_newborn_households = pop.loc[pop['hidp'].isin(households_with_newborn)].index
+        # pop.loc[people_in_newborn_households, 'hh_income'] += 754.65
+
+
+
+        # best start early learning payment and  best start grant school age payment.
+        # children aged 2,3,4 years old get one off payments of 314.45 for early learning developnment
+        # NOTE This is two seperate grants for 2,3 years old and 4 years old but they're virtually identical
+        # implementation so combining.
+        #households_with_2_3_year_olds = np.uniquepop.loc[pop['has_newborn']['hidp'])
+        # people_in_2_3_year_olds_households = pop.loc[pop['hidp'].isin(households_with_2_3_year_olds )].index
+        # pop.loc[people_in_2_3_year_olds_households , 'hh_income'] += 314.45
+
+
