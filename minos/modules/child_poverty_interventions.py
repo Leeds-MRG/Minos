@@ -67,7 +67,7 @@ class ChildPovertyReductionRELATIVE(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', 'weight']
-        columns_created = ["income_boosted", "boost_amount"]
+        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -296,7 +296,7 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount"]
+        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -528,7 +528,7 @@ class ChildPovertyReductionABSOLUTE(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount"]
+        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
