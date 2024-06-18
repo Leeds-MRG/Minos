@@ -768,8 +768,16 @@ class ChildPovertyReduction(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount", "income_boosted_this_wave"]
+        view_columns = ["hh_income",
+                        'nkids',
+                        'pidp',
+                        'hidp']
+        columns_created = ["income_boosted",
+                           "boost_amount",
+                           "income_boosted_this_wave",
+                           "relative_boosted",
+                           "absolute_boosted"]
+
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -786,7 +794,9 @@ class ChildPovertyReduction(Base):
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,
                                    'boost_amount': 0.,
-                                   'income_boosted_this_wave': False},
+                                   'income_boosted_this_wave': False,
+                                   "relative_boosted": False,
+                                   "absolute_boosted": False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -809,6 +819,8 @@ class ChildPovertyReduction(Base):
 
         # Load population and filter out some important populations
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        print("STARTING FOR RELATIVE POVERTY...")
 
         # DO NOT reset the previous income_boosted for testing
         # We need to track people who have been intervened so we can continue the intervention indefinitely
@@ -871,6 +883,10 @@ class ChildPovertyReduction(Base):
             proportion_to_uplift = prop_above_target
         elif years_remaining < 0:  # after 2030, fix to target level
             proportion_to_uplift = prop_above_target
+
+        # UPLIFT EVERYONE UNDER POVERTY THRESHOLD, WHAT DOES IT DO?
+        proportion_to_uplift = prop_in_poverty
+
         print(f"Proportion to uplift by {end_year}: {prop_above_target}")
         print(f"Proportion to uplift this year: {proportion_to_uplift}")
 
@@ -928,6 +944,11 @@ class ChildPovertyReduction(Base):
 
         print(
             f"Proportion of children in poverty AFTER intervention: {num_kids_in_pov / num_kids}")
+
+        # NOW DO ABSOLUTE POVERTY
+        print("STARTING FOR ABSOLUTE POVERTY...")
+
+
 
         # 10. Logging
         # TODO: Change these to household calculations
