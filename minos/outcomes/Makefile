@@ -104,29 +104,29 @@ CPR_sustain_yearly:
 ## COMBINE SUMMARIES
 
 CPR_baseline_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out baseline
 
 CPR_relative_variable_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE
 
 CPR_relative_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
 
 CPR_together_relative_allyears:
-	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_together_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
 
 CPR_absolute_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
 
 CPR_together_absolute_allyears:
-	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+	Rscript minos/combine_together_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
 
 CPR_sustain_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionSUSTAIN
+	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionSUSTAIN
 
 CPR_all_yearly: CPR_baseline_yearly CPR_relative_variable_yearly CPR_together_relative_yearly CPR_relative_yearly CPR_together_absolute_yearly CPR_absolute_yearly
 
-CPR_all_allyears: CPR_baseline_allyears CPR_relative_variable_allyears CPR_together_relative_allyears CPR_relative_allyears CPR_together_absolute_allyears CPR_absolute_allyears
+CPR_all_allyears: CPR_baseline_allyears CPR_together_relative_allyears CPR_relative_allyears CPR_together_absolute_allyears CPR_absolute_allyears
 
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
