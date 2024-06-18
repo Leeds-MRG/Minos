@@ -41,5 +41,5 @@ echo "Files will be saved in $2"
 
 for ((i = $4; i <= $5; i++))
 do
-  qsub scripts/arc_yearly_sum.sh $1 $2 $3 $i
+  qsub scripts/arc_together_yearly_sum.sh $1 $2 $3 $i
 done

@@ -49,7 +49,7 @@ base.dat <- read_singular_local_out(out.path, 'baseline',
 # int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE_2',
 #                                    drop.dead = TRUE,
 #                                    drop.zero.weight = TRUE)
-int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReductionSUSTAIN',
+int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReduction',
                                    drop.dead = TRUE,
                                    drop.zero.weight = TRUE)
 # int3.abs <- read_singular_local_out(out.path, 'ChildPovertyReductionABSOLUTE',
@@ -62,7 +62,7 @@ int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReductionSUSTAI
 int2.rel_fixed <- int2.rel_fixed #%>%
   #filter(age < 91)
 
-int3.abs <- int3.abs #%>%
+#int3.abs <- int3.abs #%>%
   #filter(age < 91)
 ```
 

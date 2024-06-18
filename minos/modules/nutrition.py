@@ -153,7 +153,7 @@ class lmmYJNutrition(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -240,7 +240,8 @@ class lmmYJNutrition(Base):
                                                                           pop,
                                                                           dependent='nutrition_quality_new',
                                                                           log_transform=False,
-                                                                          noise_std=1)
+                                                                          noise_std=1,
+                                                                          seed=self.run_seed)
 
         return nextWaveNutrition
 

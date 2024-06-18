@@ -40,7 +40,7 @@ class BehindOnBills(Base):
         # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -112,6 +112,6 @@ class BehindOnBills(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.bb_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='behind_on_bills')
+                                                  seed=self.run_seed)
 
         return prob_df

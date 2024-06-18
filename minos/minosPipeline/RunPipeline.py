@@ -88,8 +88,6 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
-    "FinancialSituation()": FinancialSituation(),
-    "BehindOnBills()": BehindOnBills(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -98,10 +96,12 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "Ageing()": Ageing(),
+    "FinancialSituation()": FinancialSituation(),
+    "BehindOnBills()": BehindOnBills(),
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
-    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -237,6 +237,13 @@ def get_priorities():
                                                   'lmmYJIncome()']})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
 
+    # Some module better running before pathways
+    component_priorities.update({el: 7 for el in ["FinancialSituation()",
+                                                  "BehindOnBills()",
+                                                  "JobHours()",
+                                                  "JobSec()",
+                                                  "HourlyWage()"]})
+
     and_finally = ['MWB()',
                    'geeMWB()',
                    "geeYJMWB()",
@@ -250,7 +257,7 @@ def get_priorities():
 
     # print("Everything else:\n", everything_else)
 
-    component_priorities.update({el: 7 for el in everything_else})
+    component_priorities.update({el: 8 for el in everything_else})
     component_priorities.update({el: 9 for el in and_finally})
     # component_priorities.update({el: 8 for el in metrics_map})
 

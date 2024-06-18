@@ -40,7 +40,7 @@ def load_transitions(component, rpy2_modules, path='data/transitions/'):
     return model
 
 
-def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
+def predict_next_timestep_ols(model, rpy2_modules, current, dependent, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -61,6 +61,10 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -80,7 +84,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year):
+def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -102,6 +106,10 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -126,7 +134,7 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     return newPandasPopDF[['new_dependent', 'predicted']]
 
 
-def predict_next_timestep_clm(model, rpy2modules, current, dependent):
+def predict_next_timestep_clm(model, rpy2modules, current, dependent, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -146,6 +154,10 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     base = rpy2modules['base']
     stats = rpy2modules['stats']
     ordinal = rpy2modules['ordinal']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -173,7 +185,7 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     return predictionDF
 
 
-def predict_nnet(model, rpy2Modules, current, columns):
+def predict_nnet(model, rpy2Modules, current, columns, seed):
     """
     Function for predicting next state using nnet models.
 
@@ -194,6 +206,11 @@ def predict_nnet(model, rpy2Modules, current, columns):
     base = rpy2Modules['base']
     stats = rpy2Modules['stats']
     nnet = rpy2Modules['nnet']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -206,7 +223,7 @@ def predict_nnet(model, rpy2Modules, current, columns):
     return pd.DataFrame(newPandasPopDF, columns=columns)
 
 
-def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
+def predict_next_timestep_zip(model, rpy2Modules, current, seed):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -229,6 +246,10 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     stats = rpy2Modules['stats']
     zeroinfl = rpy2Modules['zeroinfl']
 
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
     # grab transition model
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -250,7 +271,7 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     return np.ceil(preds)
 
 
-def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std):
+def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -270,6 +291,10 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     base = rpy2_modules['base']
     geepack = rpy2_modules['geepack']
     stats = rpy2_modules['stats']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     current["pidp"] = -current["pidp"]
 
@@ -296,7 +321,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, log_transform, noise_std = 0):
+def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, log_transform, seed, noise_std = 0):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -318,6 +343,10 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     stats = rpy2_modules['stats']
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     #current = current.drop([dependent, 'time'], axis=1)
     #current["pidp"] = -current["pidp"]
@@ -388,7 +417,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     return pd.DataFrame(prediction, columns=[dependent])
 
 
-def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, seed, noise_std = 1):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -410,6 +439,10 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     stats = rpy2_modules['stats']
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -464,12 +497,16 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def predict_next_rf(model, rpy2_modules, current, dependent):
+def predict_next_rf(model, rpy2_modules, current, dependent, seed):
 
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
     rf = rpy2_modules['randomForest']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -489,12 +526,16 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_rf_ordinal(model, rpy2_modules, current, dependent):
+def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
 
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
     ranger = rpy2_modules['ranger']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):

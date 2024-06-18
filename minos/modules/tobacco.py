@@ -47,7 +47,7 @@ class Tobacco(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("tobacco")
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -132,9 +132,9 @@ class Tobacco(Base):
 
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=self.transition_model,
-                                                            rpy2Modules= self.rpy2Modules,
+                                                            rpy2Modules=self.rpy2Modules,
                                                             current=pop,
-                                                            dependent='ncigs')
+                                                            seed=self.run_seed)
         return nextWaveTobacco
 
     def plot(self, pop, config):
