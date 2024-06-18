@@ -555,7 +555,44 @@ scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 
 # MCS Change to QALY Example
 
-We use an equation derived from [this paper by Lawrence and Fleishman]() to calculate QALYs from SF-12 MCS and PCS.
+We use an equation derived from table 4 (below) in [this paper by Lawrence and Fleishman](https://pubmed.ncbi.nlm.nih.gov/15090102/) to calculate QALYs from SF-12 MCS and PCS. 
+
+#![L&F Table 4](L&F_table4.png)
+
+```{r}
+# formula to find the utility score from mean MCS and PCS scores of a population
+utility_score <- function(pcs, mcs) {
+  utility_score <- 
+    1.6984 + 
+    (pcs * 0.07927) +
+    (mcs * 0.02859) +
+    ((pcs * mcs) * -0.000126) +
+    ((pcs * pcs) * -0.00141) +
+    ((mcs * mcs) * -0.00014) +
+    ((pcs * pcs * pcs) * 0.0000107)
+  return(utility_score)
+}
+
+# Calculate utility score for hypothetical baseline (MCS & PCS == 45.0)
+initial_conditions <- utility_score(pcs = 45.0,
+                                    mcs = 45.0)
+# Calculate utility score for 0.1 improvement in MCS (MCS now == 45.1)
+intervention <- utility_score(pcs = 45.0,
+                              mcs = 45.1)
+
+print("Utility score for hypothetical baseline (assuming mean MCS and PCS both equal 45.0):")
+print(initial_conditions)
+print("Utility score for population given a 0.1 mean improvement in MCS:")
+print(intervention)
+
+print("Gain in utility score per person:")
+gain <- intervention - initial_conditions
+print(gain)
+
+print("Gain in utiliy for the total Scotland population (assuming 5.5m). This is equivalent to QALYs gained:")
+print(gain * 5500000)
+```
+
 
 # SAMPLE UNCERTAINTY
 
