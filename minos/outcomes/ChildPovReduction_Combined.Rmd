@@ -174,7 +174,7 @@ SF12_change_income_quint <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint2')
+  summary_group <- paste0(summary_group, '_income_quint')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -326,7 +326,7 @@ inequality_plots <- function(summary_group, scen.list) {
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint2')
+  summary_group <- paste0(summary_group, '_income_quint')
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
@@ -514,6 +514,38 @@ SF12_change_treated <- function(scen) {
 }
 ```
 
+```{r "synthpop_uncertainty_plot", include=FALSE}
+synthpop_uncertainty <- function(summary_group, scen, var) {
+  # summary_group <- 'whole_pop'
+  # scen.list <- 'baseline'  # , 'ChildPovertyReductionRELATIVE_2'
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  #data$pop_sample <- mutate(data, pop_sample = ceiling(run_id / 10))
+  
+  data <- data %>%
+    select(run_id, .data[[var]], mean_cost, year, scen) %>%
+    mutate(pop_sample = ceiling(run_id / 10))
+  
+  plot_data_local <- data %>%
+    group_by(pop_sample, year) %>%
+    summarise(var_mean = mean(.data[[var]]))
+  
+  plot_data_global <- data %>%
+    group_by(year) %>%
+    summarise(global_var_mean = mean(.data[[var]]))
+  
+  p1 <- ggplot(plot_data_local, aes(x = year, y = var_mean)) +
+    geom_line(aes(group = pop_sample), alpha = 0.4) +
+    geom_line(data = plot_data_global, aes(x = year, y = global_var_mean), color = 'red') +
+    labs(title = paste0(var, ' uncertainty in Synthetic Population Sample'),
+         subtitle = 'Global mean (red) vs local means (grey)') +
+    xlab('Year') +
+    ylab(paste0('Mean ', var))
+  
+  print(p1)
+}
+```
 
 
 ```{r "Data", include=FALSE}
@@ -525,6 +557,26 @@ scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 
 We use an equation derived from [this paper by Lawrence and Fleishman]() to calculate QALYs from SF-12 MCS and PCS.
 
+# SAMPLE UNCERTAINTY
+
+When running MINOS with a synthetic population, due to the size of the synthetic populations and the demands of the model, we have to take a reduced sample as our starting population. For the Scotland synthetic runs we take a 10% sample, which reduces the population size from roughly 5.5m to 550,000. 
+
+We therefore have to also account for the uncertainty in model outputs that comes from this reduced sample. As a somewhat temporary fix for this, we have done the following:
+
+- Generate 10 different 10% samples from our synthetic population
+  - Generate a replenishing population from each of these samples
+- Use each distinct 10% sample for 10 runs each, totalling 100 runs
+- Plot the local mean from each 10 run block, and the global mean from all 100 runs
+
+```{r}
+synthpop_uncertainty(summary_group = 'whole_pop',
+                     scen = 'baseline',
+                     var = 'hh_income')
+
+synthpop_uncertainty(summary_group = 'whole_pop',
+                     scen = 'baseline',
+                     var = 'SF_12')
+```
 
 
 # RELATIVE POVERTY INTERVENTION
