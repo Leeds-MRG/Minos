@@ -103,8 +103,8 @@ scen <- args[[3]]
 
 # Create named list of summary functions to go through
 summary_funcs <- c(treated = treated_summary,
-                   whole_pop_income_quint = whole_pop_income_quint_summary,
-                   families_income_quint = families_income_quint_summary)
+                   whole_pop_income_quint_together = whole_pop_income_quint_summary,
+                   families_income_quint_together = families_income_quint_summary)
 
 
 
