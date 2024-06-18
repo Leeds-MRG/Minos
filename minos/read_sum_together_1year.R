@@ -73,7 +73,7 @@ drop_unnecessary_cols <- function(data, scen, year) {
   keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity', 
                  'child_ages', 'S7_labour_state', 'hh_income', 'SF_12', 'nkids',
                  'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty', 
-                 'universal_credit', 'income_quintile')
+                 'universal_credit')  # , 'income_quintile'
   
   # cols only needed in intervention summaries
   int.cols <- c('boost_amount', 'income_boosted')
@@ -215,6 +215,43 @@ treated_summary <- function(data) {
   return(output)
 }
 
+whole_pop_income_quint_summary <- function(data) {
+  income_quints <- data %>%
+    filter(scenario == 'baseline') %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    select(pidp, income_quintile)
+  
+  output <- data %>%
+    inner_join(income_quints, by = 'pidp') %>%
+    group_by(run_id, scenario, income_quintile) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
+
+families_income_quint_summary <- function(data) {
+  income_quints <- data %>%
+    filter(scenario == 'baseline') %>%
+    filter(nkids > 0) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    select(pidp, income_quintile)
+  
+  output <- data %>%
+    inner_join(income_quints, by = 'pidp') %>%
+    group_by(run_id, scenario, income_quintile) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
+
 
 ###################### RUN THIS STUFF! ######################
 
@@ -226,7 +263,7 @@ args <- commandArgs(trailingOnly=TRUE)
 # end.year <- 2035
 
 out.path <- here::here('output', args[1])
-#out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
+#out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/'
 save.path.base <- here::here(out.path, args[2])
 save.path1 <- here::here(save.path.base, paste0(args[3], '_together'))
 save.path2 <- here::here(save.path1, 'intermediates')
@@ -246,16 +283,16 @@ base.path <- get_latest_runtime_subdirectory(base.path)
 scen.path <- here::here(out.path, scen)
 scen.path <- get_latest_runtime_subdirectory(scen.path)
 
-
 # Create named list of summary functions to go through
-summary_funcs <- c(treated = treated_summary)
+summary_funcs <- c(treated = treated_summary,
+                   whole_pop_income_quint = whole_pop_income_quint_summary,
+                   families_income_quint = families_income_quint_summary)
 
 
 # Load the datafiles for each of baseline and intervention for a single year
 print(sprintf('Starting for year %s', year))
 base_list <- load_data_for_year(base.path, year, 'baseline')
 scen_list <- load_data_for_year(scen.path, year, scen)
-print(sprintf('Finished for year %s', year))
 
 # add a scenario column for downstream processing
 base_list <- lapply(base_list, add_scenario, 'baseline')
@@ -271,3 +308,5 @@ rm(base_list, scen_list)
 
 # generate the summary csv using the list of summary funcs created above
 generate_summary_csv(combined_list, year, summary_funcs, save.path2)
+
+print(sprintf('Finished for year %s', year))

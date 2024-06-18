@@ -23,7 +23,42 @@ treated_summary <- function(data) {
   return(output)
 }
 
+whole_pop_income_quint_summary <- function(data) {
+  income_quints <- data %>%
+    filter(scenario == 'baseline') %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    select(pidp, income_quintile)
+  
+  output <- data %>%
+    inner_join(income_quints, by = 'pidp') %>%
+    group_by(run_id, scenario, income_quintile) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
 
+families_income_quint_summary <- function(data) {
+  income_quints <- data %>%
+    filter(scenario == 'baseline') %>%
+    filter(nkids > 0) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    select(pidp, income_quintile)
+  
+  output <- data %>%
+    inner_join(income_quints, by = 'pidp') %>%
+    group_by(run_id, scenario, income_quintile) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
 
 
 
@@ -67,7 +102,9 @@ scen <- args[[3]]
 
 
 # Create named list of summary functions to go through
-summary_funcs <- c(treated = treated_summary)
+summary_funcs <- c(treated = treated_summary,
+                   whole_pop_income_quint = whole_pop_income_quint_summary,
+                   families_income_quint = families_income_quint_summary)
 
 
 

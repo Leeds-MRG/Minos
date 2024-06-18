@@ -151,6 +151,9 @@ whole_pop_income_quint_summarise <- function(data) {
 whole_pop_income_quint2_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0) %>%
+    group_by(run_id) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    ungroup() %>%
     group_by(run_id, income_quintile) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -684,10 +687,8 @@ scen.path <- get_latest_runtime_subdirectory(scen.path)
 # Create named list of summary functions to go through
 summary_funcs <- c(whole_pop = whole_pop_summarise,
                    whole_pop_income_quint = whole_pop_income_quint_summarise,
-                   whole_pop_income_quint2 = whole_pop_income_quint2_summarise,
                    families = families_summarise,
                    families_income_quint = families_income_quint_summarise,
-                   families_income_quint2 = families_income_quint2_summarise,
                    treated_relative = treated_relative_summarise,
                    treated_absolute = treated_absolute_summarise,
                    priority_any = priority_any_summarise,
@@ -696,6 +697,8 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    men_illness_risk_families = men_illness_risk_families_summarise
 )
 
+# whole_pop_income_quint2 = whole_pop_income_quint2_summarise,
+# families_income_quint2 = families_income_quint2_summarise,
 # whole_pop_confint = whole_pop_confint_summarise,
 # whole_pop_income_quint_confint = whole_pop_income_quintile_confint_summarise,
 # families_confint = families_confint_summarise,
