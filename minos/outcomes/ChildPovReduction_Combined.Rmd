@@ -1,6 +1,8 @@
 ---
 title: "Scottish Child Poverty Briefing Plots"
 output:
+  pdf_document:
+    toc: true
   html_document:
     toc: true
     toc_float: true
@@ -8,8 +10,6 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
-  pdf_document:
-    toc: true
 ---
 
 
@@ -241,6 +241,59 @@ SF12_change_income_quint <- function(summary_group, scen.list) {
   print(p1)
   print(p2)
 }
+
+SF12_change_income_quint2 <- function(summary_group, scen) {
+  
+  summary_group <- paste0(summary_group, '_income_quint_together')
+  scen <- paste0(scen, '_together')
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, income_quintile, year, scenario) %>%
+    pivot_wider(names_from = scenario,
+                values_from = SF_12,
+                names_sep = '.',
+                values_fn = list(SF_12 = function(x) x[1])) %>%
+    mutate(diff_SF12 = intervention - baseline) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_to = c(".value", "scenario"),
+                 names_sep = "\\.") %>%
+    select(run_id, income_quintile, year, diff_SF12)
+  
+  plot_data_confint <- plot_data %>%
+      group_by(year, income_quintile) %>%
+      summarise(n = n(),
+                mean_SF12_change = mean(diff_SF12),
+                margin_SF12 = qt(0.975, df = n - 1) * (sd(diff_SF12) / sqrt(n)),
+                lower_SF12 = mean_SF12_change - margin_SF12,
+                upper_SF12 = mean_SF12_change + margin_SF12)
+  
+  plot_data_confint$income_quintile <- factor(plot_data_confint$income_quintile)
+  
+  # p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+  #     geom_hline(yintercept = 0, linetype = 'dashed') +
+  #     geom_vline(xintercept = 2030, linetype = 'dotted') +
+  #     geom_smooth() +
+  #     labs(title = 'Treatment on the Treated',
+  #          subtitle = 'SF_12') +
+  #     xlab('Year') +
+  #     ylab('Change in mean SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change, group = income_quintile, color = income_quintile, fill = income_quintile)) +
+      geom_ribbon(aes(ymin = lower_SF12, ymax = upper_SF12), linetype = 'dotted', alpha = 0.3) +
+      geom_line(linetype = 'dashed') +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = 'dashed') +
+      geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+      labs(title = 'Treatment on the Treated',
+           subtitle = 'SF_12') +
+      xlab('Year') +
+      ylab('Change in mean SF-12')
+  
+  #print(p1)
+  print(p2)
+}
 ```
 
 ```{r "SF12_change_num_priority_groups", include=FALSE}
@@ -446,6 +499,7 @@ SF12_change_treated <- function(scen) {
     pivot_wider(names_from = scenario,
                 values_from = c(SF_12, hh_income),
                 names_sep = '.') %>%
+    unnest(cols = c(starts_with("SF_12"), starts_with("hh_income"))) %>%
     mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline),
            across(starts_with("hh_income"), ~ . - hh_income.baseline)) %>%
     rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
@@ -519,7 +573,7 @@ synthpop_uncertainty <- function(summary_group, scen, var) {
   # summary_group <- 'whole_pop'
   # scen.list <- 'baseline'  # , 'ChildPovertyReductionRELATIVE_2'
   
-  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
   
   #data$pop_sample <- mutate(data, pop_sample = ceiling(run_id / 10))
   
@@ -555,7 +609,7 @@ scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 
 # MCS Change to QALY Example
 
-We use an equation derived from table 4 (below) in [this paper by Lawrence and Fleishman](https://pubmed.ncbi.nlm.nih.gov/15090102/) to calculate QALYs from SF-12 MCS and PCS. 
+We use an equation derived from table 4 (below) in [this paper by Lawrence and Fleishman](https://pubmed.ncbi.nlm.nih.gov/15090102/) to calculate QALYs from SF-12 Mental Component Score (MCS) and Physical Component Score (PCS). 
 
 #![L&F Table 4](L&F_table4.png)
 
@@ -593,6 +647,9 @@ print("Gain in utiliy for the total Scotland population (assuming 5.5m). This is
 print(gain * 5500000)
 ```
 
+This rough calculation shows that a 0.1 absolute change in mean SF_12 across the Scottish population would equal over 5000 additional QALYs in a single year. These improvements can also accumulate over time. If we were able to achieve a 0.1 improvement in mean MCS for Scotland in year 1, and maintain this 0.1 improvement for 10 years, the resulting improvement in QALYs would be 56,000+.
+
+NOTE: This calculation assumes that PCS is unchanged when MCS can vary. This is not realistic, but the calculation is still useful to provide context for the results to follow.
 
 # SAMPLE UNCERTAINTY
 
@@ -641,8 +698,10 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk',
 ### Income Quintiles
 
 ```{r}
-SF12_change_income_quint(summary_group = 'whole_pop',
-                                    scen.list = scen.list.rel)
+# SF12_change_income_quint(summary_group = 'whole_pop',
+#                                     scen.list = scen.list.rel)
+SF12_change_income_quint2(summary_group = 'whole_pop',
+                                    scen = 'ChildPovertyReductionRELATIVE_2')
 ```
 
 ### SF_12 Inequality
@@ -673,8 +732,10 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
 ### Income Quintile
 
 ```{r}
-SF12_change_income_quint(summary_group = 'families',
-                                    scen.list = scen.list.rel)
+# SF12_change_income_quint(summary_group = 'families',
+#                                     scen.list = scen.list.rel)
+SF12_change_income_quint2(summary_group = 'families',
+                                    scen = 'ChildPovertyReductionRELATIVE_2')
 ```
 
 ### SF_12 Inequality
@@ -706,8 +767,8 @@ SF12_change_num_priority_groups(scen.list.rel)
 ## Treated Population
 
 ```{r}
-SF12_change_simple(summary_group = 'treated_relative',
-                   scen.list = scen.list.rel)
+# SF12_change_simple(summary_group = 'treated_relative',
+#                    scen.list = scen.list.rel)
 
 SF12_change_treated(scen = 'ChildPovertyReductionRELATIVE_2')
 ```
@@ -746,8 +807,10 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk',
 ### Income Quintile
 
 ```{r}
-SF12_change_income_quint(summary_group = 'whole_pop',
-                                    scen.list = scen.list.abs)
+# SF12_change_income_quint(summary_group = 'whole_pop',
+#                                     scen.list = scen.list.abs)
+SF12_change_income_quint2(summary_group = 'whole_pop',
+                                    scen = 'ChildPovertyReductionABSOLUTE')
 ```
 
 ### SF_12 Inequality
@@ -777,8 +840,10 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
 ### Income Quintile
 
 ```{r}
-SF12_change_income_quint(summary_group = 'families',
-                                    scen.list = scen.list.abs)
+# SF12_change_income_quint(summary_group = 'families',
+#                                     scen.list = scen.list.abs)
+SF12_change_income_quint2(summary_group = 'families',
+                                    scen = 'ChildPovertyReductionABSOLUTE')
 ```
 
 ### SF_12 Inequality
@@ -810,8 +875,8 @@ SF12_change_num_priority_groups(scen.list.abs)
 ## Treated Population
 
 ```{r}
-SF12_change_simple(summary_group = 'treated_absolute',
-                   scen.list = scen.list.abs)
+# SF12_change_simple(summary_group = 'treated_absolute',
+#                    scen.list = scen.list.abs)
 
 SF12_change_treated(scen = 'ChildPovertyReductionABSOLUTE')
 ```
