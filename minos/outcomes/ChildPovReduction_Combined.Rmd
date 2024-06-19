@@ -305,7 +305,7 @@ SF12_change_num_priority_groups <- function(scen.list) {
   
   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
   
-  data <- replace_na(data, list(num_priority_groups=0))
+  #data <- replace_na(data, list(num_priority_groups=0))
   
   plot_data <- data %>%
     select(run_id, num_priority_groups, SF_12, mean_cost, year, scen) %>%
@@ -373,21 +373,78 @@ SF12_change_num_priority_groups <- function(scen.list) {
 ```
 
 ```{r "inequality_plots", include=FALSE}
-inequality_plots <- function(summary_group, scen.list) {
+# inequality_plots <- function(summary_group, scen.list) {
+#   
+#   tit <- ' '
+#   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+#   if (summary_group == 'families') { tit <- 'Families' }
+#   
+#   summary_group <- paste0(summary_group, '_income_quint')
+#   
+#   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+#   
+#   data$income_quintile <- factor(data$income_quintile)
+#   
+#   # Combine the data
+#   data_combined <- data %>%
+#     mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention'))
+#   
+#   p1 <- ggplot(data_combined, aes(x = year, y = SF_12, group = interaction(income_quintile, scenario), color = income_quintile, linetype = scenario)) +
+#     geom_smooth(alpha = 0.7) +
+#     scale_color_manual(name = "Income Quintile", 
+#                        values = c("red", "blue", "green", "orange", "purple")) +
+#     scale_linetype_manual(name = "Scenario", 
+#                           values = c("Baseline" = "solid", "Intervention" = "dotted")) +
+#     labs(title = "SF_12 Scores by Income Quintile",
+#          subtitle = tit,
+#          x = "Year",
+#          y = "Mean SF_12 MCS") +
+#     theme_minimal() +
+#     theme(legend.position = "right",
+#           legend.title = element_text(size = 12),
+#           legend.text = element_text(size = 10))
+#   
+#   # Aggregate data
+#   agg_data <- data %>%
+#     mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention')) %>%
+#     group_by(year, income_quintile, scenario) %>%
+#     summarize(mean_SF_12 = mean(SF_12, na.rm = TRUE)) %>%
+#     spread(scenario, mean_SF_12) %>%
+#     mutate(difference = Intervention - Baseline)
+#   
+#   p2 <- ggplot(agg_data, aes(x = year, y = difference, fill = income_quintile)) +
+#     geom_bar(stat = "identity", position = "dodge") +
+#     scale_fill_manual(name = "Income Quintile", 
+#                       values = c("red", "blue", "green", "orange", "purple")) +
+#     labs(title = "Average Difference in SF_12 Scores by Income Quintile",
+#          subtitle = tit,
+#          x = "Year",
+#          y = "Difference in SF_12 Score") +
+#     theme_minimal() +
+#     theme(legend.position = "right",
+#           legend.title = element_text(size = 12),
+#           legend.text = element_text(size = 10))
+#   
+#   print(p1)
+#   print(p2)
+# }
+
+inequality_plots <- function(summary_group, scen) {
   
   tit <- ' '
   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
   if (summary_group == 'families') { tit <- 'Families' }
   
-  summary_group <- paste0(summary_group, '_income_quint')
+  summary_group <- paste0(summary_group, '_income_quint_together')
+  scen <- paste0(scen, '_together')
   
-  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
   
   data$income_quintile <- factor(data$income_quintile)
   
   # Combine the data
   data_combined <- data %>%
-    mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention'))
+    mutate(scenario = ifelse(scenario == 'baseline', 'Baseline', 'Intervention'))
   
   p1 <- ggplot(data_combined, aes(x = year, y = SF_12, group = interaction(income_quintile, scenario), color = income_quintile, linetype = scenario)) +
     geom_smooth(alpha = 0.7) +
@@ -406,7 +463,7 @@ inequality_plots <- function(summary_group, scen.list) {
   
   # Aggregate data
   agg_data <- data %>%
-    mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention')) %>%
+    mutate(scenario = ifelse(scenario == 'baseline', 'Baseline', 'Intervention')) %>%
     group_by(year, income_quintile, scenario) %>%
     summarize(mean_SF_12 = mean(SF_12, na.rm = TRUE)) %>%
     spread(scenario, mean_SF_12) %>%
@@ -708,7 +765,7 @@ SF12_change_income_quint2(summary_group = 'whole_pop',
 
 ```{r}
 inequality_plots(summary_group = 'whole_pop',
-                 scen.list = scen.list.rel)
+                 scen = 'ChildPovertyReductionRELATIVE_2')
 ```
 
 
@@ -742,7 +799,7 @@ SF12_change_income_quint2(summary_group = 'families',
 
 ```{r}
 inequality_plots(summary_group = 'families',
-                 scen.list = scen.list.rel)
+                 scen = 'ChildPovertyReductionRELATIVE_2')
 ```
 
 ## Priority Subgroups
@@ -817,7 +874,7 @@ SF12_change_income_quint2(summary_group = 'whole_pop',
 
 ```{r}
 inequality_plots(summary_group = 'whole_pop',
-                 scen.list = scen.list.abs)
+                 scen = 'ChildPovertyReductionABSOLUTE')
 ```
 
 ## Families
@@ -850,7 +907,7 @@ SF12_change_income_quint2(summary_group = 'families',
 
 ```{r}
 inequality_plots(summary_group = 'families',
-                 scen.list = scen.list.abs)
+                 scen = 'ChildPovertyReductionABSOLUTE')
 ```
 
 ## Priority Subgroups
