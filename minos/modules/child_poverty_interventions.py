@@ -202,7 +202,7 @@ class ChildPovertyReductionRELATIVE(Base):
         target_pop_hh_representative = target_pop.groupby('hidp').first().reset_index()
         target_hidps = []
         kids = 0
-        for i in target_pop_hh_representative.sample(frac=1).iterrows():
+        for i in target_pop_hh_representative.sample(frac=1, random_state=self.run_seed).iterrows():
             if (kids + i[1]['nkids']) <= nkids_to_uplift:
                 kids += i[1]['nkids']
                 target_hidps.append(i[1]['hidp'])
@@ -436,7 +436,7 @@ class ChildPovertyReductionRELATIVE_2(Base):
         target_pop_hh_representative = target_pop.groupby('hidp').first().reset_index()
         target_hidps = []
         kids = 0
-        for i in target_pop_hh_representative.sample(frac=1).iterrows():
+        for i in target_pop_hh_representative.sample(frac=1, random_state=self.run_seed).iterrows():
             if (kids + i[1]['nkids']) <= nkids_to_uplift:
                 kids += i[1]['nkids']
                 target_hidps.append(i[1]['hidp'])
@@ -667,7 +667,7 @@ class ChildPovertyReductionABSOLUTE(Base):
         target_pop_hh_representative = target_pop.groupby('hidp').first().reset_index()
         target_hidps = []
         kids = 0
-        for i in target_pop_hh_representative.sample(frac=1).iterrows():
+        for i in target_pop_hh_representative.sample(frac=1, random_state=self.run_seed).iterrows():
             if (kids + i[1]['nkids']) <= nkids_to_uplift:
                 kids += i[1]['nkids']
                 target_hidps.append(i[1]['hidp'])
@@ -898,7 +898,7 @@ class ChildPovertyReduction(Base):
         #target_pop_hh_representative = target_pop.groupby('hidp').first().reset_index()
         target_hidps = []
         kids = 0
-        for i in pov_pop_children_hh_rep.sample(frac=1).iterrows():
+        for i in pov_pop_children_hh_rep.sample(frac=1, random_state=self.run_seed).iterrows():
             if (kids + i[1]['nkids']) <= nkids_to_uplift:
                 kids += i[1]['nkids']
                 target_hidps.append(i[1]['hidp'])
