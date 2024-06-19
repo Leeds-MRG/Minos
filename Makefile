@@ -31,6 +31,7 @@ TESTING = $(SOURCEDIR)/testing
 MICEDATA = $(DATADIR)/mice_US
 IMPUTEDCOMPLETEDATA = $(DATADIR)/imputed_complete_US
 IMPUTEDFINALDATA = $(DATADIR)/imputed_final_US
+PSUBDATA = $(DATADIR)/scot_priority_sub
 
 # These paths point to the Python/R site-packages directory in the conda environment
 SITEPACKAGES = $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
