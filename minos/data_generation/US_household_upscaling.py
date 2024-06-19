@@ -196,7 +196,9 @@ if __name__ == '__main__':
                         help="Create a synthetic population of only the people in a priority subgroup. For ScotGov "
                              "work.")
     parser.add_argument('-m', '--multisample', required=False, action='store_true',
-                        help='Generate 10 distinct samples to evaluate sample uncertainty.')
+                        help='Generate 10 distinct samples to evaluate sample uncertainty. Should only be used if the'
+                             'percentage of the sample is less than 100% (otherwise you would just duplicate that '
+                             'sample.')
 
     args = vars(parser.parse_args())
     print(args)
