@@ -1082,12 +1082,12 @@ def generate_priority_subgroups(data):
     # mother under 25 slightly more complicated
     mothers_under_25 = data[(data['sex'] == 'Female') & (data['nkids_ind'] > 0) & (data['age'] < 25)]
     mothers_under_25_hh = mothers_under_25['hidp'].unique()
-    data['priority_mother_under_25'] = data[data['hidp'].isin(mothers_under_25_hh)]
+    data['priority_mother_under_25'] = data['hidp'].isin(mothers_under_25_hh)
 
     # disabled
     disabled = data[data['S7_labour_state'] == 'disabled']
     disabled_hhs = disabled['hidp'].unique()
-    data['priority_disabled'] = data[data['hidp'].isin(disabled_hhs)]
+    data['priority_disabled'] = data['hidp'].isin(disabled_hhs)
 
     return data
 
