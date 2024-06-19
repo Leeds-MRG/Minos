@@ -115,13 +115,24 @@ handover_ordinal(empty.dat, base.dat_fam, var = 'age_bucket', save = shall.we.sa
 ```{r}
 raw.maxAge <- raw.dat %>%
   group_by(time) %>%
-  summarise(max_age = max(age))
+  summarise(max_age = max(age)) %>%
+  mutate(scen = 'final_US')
 
 base.maxAge <- base.dat %>%
   group_by(time) %>%
-  summarise(max_age = max(age))
+  summarise(max_age = max(age)) %>%
+  mutate(scen = 'baseline')
 
-handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+
+combined <- rbind(raw.maxAge, base.maxAge)
+
+#handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+ggplot(combined, aes(x = time, y = max_age, group = scen, colour = scen)) +
+  geom_line() +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
+  labs(title = 'Max year of age') +
+  xlab('Year') +
+  ylab('Age')
 
 ## Check counts in very old age groups
 brks = c(75, 80, 85, 90, 95, 100, 105, 110)
@@ -228,14 +239,25 @@ var.norm <- merged %>%
 ```{r}
 raw.alive <- raw.dat %>%
   group_by(time) %>%
-  summarise(n = n())
+  summarise(n = n()) %>%
+  mutate(scen = 'final_US')
 
 base.alive <- base.dat %>%
   group_by(time) %>%
-  summarise(n = n())
+  summarise(n = n()) %>%
+  mutate(scen = 'baseline')
 
 #handover_boxplots(raw.alive, base.alive, 'n')
-handover_lineplots(raw.alive, base.alive, "n")
+#handover_lineplots(raw.alive, base.alive, "n")
+
+combined <- rbind(raw.alive, base.alive)
+
+ggplot(combined, aes(x = time, y = n, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
+  labs(title = 'Total Count in Sample') +
+  xlab('Year') +
+  ylab('Count')
 
 rm(raw.alive, base.alive)
 ```
@@ -1183,15 +1205,18 @@ rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.n
 
 ```{r}
 raw.hh_unique <- raw.dat %>%
-  select(hidp, time, nkids) %>%
-  distinct()
+  select(hidp, time, nkids, weight) %>%
+  distinct(hidp, time, nkids, .keep_all = TRUE) %>%
+  mutate(scen = 'final_US')
 
 base.hh_unique <- base.dat %>%
-  select(hidp, time, nkids) %>%
-  distinct()
+  select(hidp, time, nkids, weight) %>%
+  distinct(hidp, time, nkids, .keep_all = TRUE) %>%
+  mutate(scen = 'baseline')
 
 #handover_boxplots(raw.hh_unique, base.hh_unique, 'nkids')
 handover_lineplots(raw.hh_unique, base.hh_unique, 'nkids')
+
 ```
 
 ```{r}
