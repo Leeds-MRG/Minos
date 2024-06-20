@@ -170,14 +170,19 @@ def main(region, priority_sub, multisamp, percentage = 100, bootstrapping=False,
     if multisamp:
         # Set number of samples if generating multiple samples
         n_samples = 10
-
         # take subset of sample if desired. defaults to 100% for now.
         for i in range(n_samples):
             sampled_data = take_sample(merged_data, percentage)
             US_utils.save_file(sampled_data, f"data/scaled_{region}_US_{i+1}/", '', 2020)
 
+    # Get percentage sample of merged data
     sampled_data = take_sample(merged_data, percentage)
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
+
+    if priority_sub:
+        file_dest = "data/scot_priority_sub/"
+    else:
+        file_dest = f"data/scaled_{region}_US/"
+    US_utils.save_file(sampled_data, file_dest, '', 2020)
 
 
 if __name__ == '__main__':

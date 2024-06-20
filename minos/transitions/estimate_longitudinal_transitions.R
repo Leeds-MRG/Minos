@@ -40,19 +40,19 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  orig_data$housing_quality <- factor(orig_data$housing_quality, 
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
+  orig_data$S7_housing_quality <- factor(orig_data$S7_housing_quality, 
                                     levels = c('No to all', 
                                                'Yes to some', 
                                                'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
+  orig_data$S7_neighbourhood_safety <- factor(orig_data$S7_neighbourhood_safety,
                                          levels = c('Often', 
                                                     'Some of the time', 
                                                     'Hardly ever'))
-  data$S7_labour_state <- factor(data$S7_labour_state,
+  orig_data$S7_labour_state <- factor(orig_data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
                                             'Job Seeking',
