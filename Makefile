@@ -130,6 +130,8 @@ setup_uk_scaled: install data synthetic_uk_data transitions_default synthetic_uk
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
+setup_scot_priority_sub: install data scot_priority_sub_data transitions_default scot_priority_sub_repl
+
 
 ## Arc setup as a submitted job
 setup_arc:
