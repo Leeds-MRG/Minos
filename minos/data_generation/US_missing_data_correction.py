@@ -75,9 +75,9 @@ def main(save):
     data = data.drop(data.loc[data["labour_state"]=="Other"].index)
 
     # Restrict ages.
-    data = US_utils.restrict_variable(data, 0, 100)
+    # data = US_utils.restrict_variable(data, 0, 100)  # HR 444
     # Restrict to complete chains.
-    data = US_utils.restrict_chains(data, k)
+    # data = US_utils.restrict_chains(data, k)  # HR 444
     data = fix_leading_entries(data)
     if save:
         US_utils.save_multiple_files(data, wave_numbers, "data/corrected_US/", "")
