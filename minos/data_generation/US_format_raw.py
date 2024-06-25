@@ -511,7 +511,8 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
 
     # merge the data on the hidp variable and return combined dataframe.
     # Code here prevents duplicate columns that occur in both datasets. 44444
-    combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
+    # combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
+    combined = indresp.merge(right=hhresp, how='outer', on=merge_key, suffixes=('', '_delme'))  # HR 444
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
 
