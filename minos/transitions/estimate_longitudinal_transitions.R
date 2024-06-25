@@ -213,7 +213,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       # update model formula with _diff variable.
       dependent <-  paste0(dependent, "_diff")
     }
-    
 
     formula.string <- paste0(dependent, " ~ ", independents)
     form <- as.formula(formula.string)
