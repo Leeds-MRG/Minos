@@ -124,8 +124,8 @@ class Housing(Base):
 
         # convert numeric prediction into string factors (low, medium, high)
         # NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model
-        housing_factor_dict = {1: 'Medium',
-                               2: 'Low',
+        housing_factor_dict = {1: 'Low',
+                               2: 'Medium',
                                3: 'High'}
         housing_prob_df.replace({'housing_quality': housing_factor_dict},
                                 inplace=True)

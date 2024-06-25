@@ -98,7 +98,7 @@ $(CORRECTDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/US_m
 $(COMPOSITEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_composite_vars.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
-$(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
+$(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_MICE_imputation.R $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
 	$(RSCRIPT) $(DATAGEN)/US_MICE_imputation.R -n 1 -i 10
 
 $(COMPLETEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(MICEDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json
@@ -165,7 +165,7 @@ $(PSUBDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_ut
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -pr -r 'scotland' -p 100
 
 $(DATADIR)/replenishing/scot_priority_sub/replenishing_pop_2015-2070.csv: $(PSUBDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
-	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -pr --region 'scotland' -p 100
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -pr --region 'scotland'
 
 
 

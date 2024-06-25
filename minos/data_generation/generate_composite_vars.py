@@ -1052,6 +1052,7 @@ def generate_initial_income_quintile(data):
     data = data.groupby('time').apply(assign_quintiles)
     return data
 
+
 def generate_priority_subgroups(data):
     """
 

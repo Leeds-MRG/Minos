@@ -497,7 +497,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def predict_next_rf(model, rpy2_modules, current, dependent, seed):
+def predict_next_rf(model, rpy2_modules, current, dependent, seed, noise=0):
 
     # import R packages
     base = rpy2_modules['base']
@@ -514,6 +514,12 @@ def predict_next_rf(model, rpy2_modules, current, dependent, seed):
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     prediction = stats.predict(model, newdata=currentRDF)
+
+    # Add some noise if noise > 0
+    if noise != 0:
+        VGAM = rpy2_modules["VGAM"]
+        prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise)  # add gaussian noise.
+
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):

@@ -1,0 +1,1 @@
+NNET : education_state ~ factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region)

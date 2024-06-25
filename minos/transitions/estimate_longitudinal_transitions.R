@@ -60,7 +60,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                             'Family Care',
                                             'Not Working'))
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO", "RF_DIFF")
 
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
 
@@ -173,19 +173,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #     filter(hourly_wage < 300)
     # }
 
-
-    # differencing data for difference models using dplyr lag.
-    # NOTE NEED TO UPDATE MODEL DEFINITIONS TO HAVE _DIFF IN RESPONSE VARIABLE NAME.
-    if (tolower(mod.type) == "lmm_diff")  {
-      data <- data %>%
-        group_by(pidp) %>%
-        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-        mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
-        rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
-      # update model formula with _diff variable.
-      dependent <-  paste0(dependent, "_diff")
-    }
-
     # if using glmms need to be careful which time the outcome variable is from.
     # for nutrition quality and SF12 using previous wave information to predict next
     # state so create response income_new that is the lead value.
@@ -214,6 +201,19 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
         mutate(last = lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
     }
+    
+    # differencing data for difference models using dplyr lag.
+    # NOTE NEED TO UPDATE MODEL DEFINITIONS TO HAVE _DIFF IN RESPONSE VARIABLE NAME.
+    if (tolower(mod.type) %in% c("lmm_diff", "rf_diff"))  {
+      # data <- data %>%
+      #   group_by(pidp) %>%
+      #   #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+      #   mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
+      #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
+      # update model formula with _diff variable.
+      dependent <-  paste0(dependent, "_diff")
+    }
+    
 
     formula.string <- paste0(dependent, " ~ ", independents)
     form <- as.formula(formula.string)
@@ -224,10 +224,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
-    
-    
-    
-    print(sprintf("Model is being fit on %d individual records...", nrow(sorted_df)))
 
     # function call and parameters based on model type.
     if(tolower(mod.type) == 'glmm') {
@@ -271,7 +267,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                           formula = form,
                                           depend = dependent)
 
-    } else if (tolower(mod.type) == "rf") {
+    } else if (tolower(mod.type) %in% c("rf", "rf_diff")) {
 
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,

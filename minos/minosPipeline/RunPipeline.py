@@ -17,8 +17,8 @@ from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
-from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -76,6 +76,7 @@ components_map = {
     "lmmYJMWB()": lmmYJMWB(),
     "lmmDiffMWB()": lmmDiffMWB(),
     "MWB()": MWB(),
+    "RFDiffMWB()": RFDiffMWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
@@ -88,6 +89,7 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
+    "RFDiffIncome()": RFDiffIncome(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -234,7 +236,8 @@ def get_priorities():
                                                   'geeIncome()',
                                                   'geeYJIncome()',
                                                   'lmmDiffIncome()',
-                                                  'lmmYJIncome()']})  # Any new income-based components to be added here
+                                                  'lmmYJIncome()',
+                                                  'RFDiffIncome()']})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
 
     # Some module better running before pathways
@@ -250,7 +253,8 @@ def get_priorities():
                    "lmmYJMWB()",
                    "lmmDiffMWB()",
                    'S7EquivalentIncome()',
-                   "lmmYJPCS()"]
+                   "lmmYJPCS()",
+                   "RFDiffMWB()"]
 
     everything_else = [el for el in list(components_map)
                        + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]

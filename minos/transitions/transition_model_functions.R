@@ -49,6 +49,9 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   data <- data[, append(all.vars(formula), c("time", 'pidp', 'weight'))]
   data <- replace.missing(data)
   data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+  
   # replace missing ncigs values (if still missing)
   #data[which(data$ncigs==-8), 'ncigs'] <- 0
   if(include_weights) {
@@ -83,6 +86,8 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
   data[[depend]] <- as.factor(data[[depend]])
 
   data = replace.missing(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   if(include_weights) {
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)
@@ -101,6 +106,9 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
 
   data = replace.missing(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+  
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
 
@@ -122,6 +130,8 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -160,6 +170,8 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
 
   data <- replace.missing(data)
   #data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   # If min == 0, then add small amount before log_transform
   # if (min(data[[depend]] == 0) && (log_transform)) {
@@ -226,6 +238,9 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
 
   data <- replace.missing(data)
   data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+  
   if (yeo_johnson){
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
@@ -257,6 +272,9 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+  
   if (reflect) {
     max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)]
@@ -394,11 +412,14 @@ estimate_RandomForest <- function(data, formula, depend) {
 
   data <- replace.missing(data)
   data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
+  set.seed(123)
+  
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
-  set.seed(123)
 
   # Adjusting the model parameters to use fewer trees and limit depth
   rfModel <- train(formula, 
@@ -427,6 +448,8 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
   
   data <- replace.missing(data)
   data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
   
   set.seed(123)
   

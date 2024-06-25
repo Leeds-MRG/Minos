@@ -812,10 +812,8 @@ class ChildPovertyReduction(Base):
         # set parameters
         end_year = 2030
         target_rel_prop = 0.1
-        target_abs_prop = 0.05
         relative_poverty_threshold = 1247.71  # US data
         # relative_poverty_threshold = 1100.69  # scottish synthpop
-        absolute_poverty_threshold = 963.17
 
         # Load population and filter out some important populations
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
@@ -947,6 +945,12 @@ class ChildPovertyReduction(Base):
 
         # NOW DO ABSOLUTE POVERTY
         print("STARTING FOR ABSOLUTE POVERTY...")
+
+        # set up intervention parameters
+        target_abs_prop = 0.05
+        absolute_poverty_threshold = 963.17
+
+
 
 
 

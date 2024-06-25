@@ -1,8 +1,6 @@
 ---
 title: "Scottish Child Poverty Briefing Plots"
 output:
-  pdf_document:
-    toc: true
   html_document:
     toc: true
     toc_float: true
@@ -10,6 +8,8 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
+  pdf_document:
+    toc: true
 ---
 
 
@@ -244,6 +244,10 @@ SF12_change_income_quint <- function(summary_group, scen.list) {
 
 SF12_change_income_quint2 <- function(summary_group, scen) {
   
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  
   summary_group <- paste0(summary_group, '_income_quint_together')
   scen <- paste0(scen, '_together')
   
@@ -286,8 +290,8 @@ SF12_change_income_quint2 <- function(summary_group, scen) {
       geom_point() +
       geom_hline(yintercept = 0, linetype = 'dashed') +
       geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
-      labs(title = 'Treatment on the Treated',
-           subtitle = 'SF_12') +
+      labs(title = tit, 
+           subtitle = 'Income Quintile') +
       xlab('Year') +
       ylab('Change in mean SF-12')
   
