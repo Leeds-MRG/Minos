@@ -62,11 +62,11 @@ class BaseHandler:
         # get the unique values observed on the rate data
         if unique_sex is None:
             unique_sex = [1, 2]
-        unique_locations = np.unique(df['REGION.name'])
-        unique_ethnicity = np.unique(df['ETH.group'])
+        unique_locations = df['REGION.name'].unique()
+        unique_ethnicity = df['ETH.group'].unique()
 
         # HR 20/04/23 Get all years from year_start and year_end
-        unique_years = np.unique(df['year'])
+        unique_years = df['year'].unique()
         print("\n## Running transform_rate_table, checking years... ##")
         years = list(range(year_start, year_end))
         print("\n## years before checking:", years)
@@ -78,13 +78,13 @@ class BaseHandler:
 
         # loop over the observed values to fill the new dataframe
         list_dic = []
-        for loc in unique_locations:
+        for location in unique_locations:
 
-            sub_loc_df = df[df['REGION.name'] == loc]
+            sub_loc_df = df.loc[df['REGION.name'] == location]
 
             for eth in unique_ethnicity:
 
-                sub_loc_eth_df = sub_loc_df[sub_loc_df['ETH.group'] == eth]
+                sub_loc_eth_df = sub_loc_df.loc[sub_loc_df['ETH.group'] == eth]
 
                 for sex in unique_sex:
 
@@ -116,7 +116,7 @@ class BaseHandler:
                         #     print('Problem, more or less than one value in this category')
                         #
                         # # create the rate row.
-                        # dict = {'region': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                        # dict = {'region': location, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
                         #         'year_start': year_start, 'year_end': year_end, 'mean_value': value}
                         # list_dic.append(dict)
 
@@ -124,7 +124,7 @@ class BaseHandler:
                         for year in years:
 
                             # Get sub-dataframe for year
-                            sub_loc_eth_year_df = sub_loc_eth_df[sub_loc_eth_df['year'] == year]
+                            sub_loc_eth_year_df = sub_loc_eth_df.loc[sub_loc_eth_df['year'] == year]
 
                             if sub_loc_eth_year_df[column].shape[0] == 1:
                                 value = sub_loc_eth_year_df[column].values[0]
@@ -133,9 +133,9 @@ class BaseHandler:
                                 print('Problem, more or less than one value in this category')
 
                             # create the rate row.
-                            dict = {'region': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
-                                    'year_start': year, 'year_end': year + 1, 'mean_value': value}
-                            list_dic.append(dict)
+                            _dict = {'region': location, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                                     'year_start': year, 'year_end': year + 1, 'mean_value': value}
+                            list_dic.append(_dict)
 
         return pd.DataFrame(list_dic)
 
@@ -162,20 +162,20 @@ class BaseHandler:
           """
 
         # get the unique values observed on the rate data
-        unique_locations = np.unique(df_migration_numbers['LAD.code'])
-        unique_ethnicity = np.unique(df_migration_numbers['ETH.group'])
+        unique_locations = df_migration_numbers['LAD.code'].unique()
+        unique_ethnicity = df_migration_numbers['ETH.group'].unique()
 
         # loop over the observed values to fill the ne dataframe
         list_dic = []
-        for loc in unique_locations:
+        for location in unique_locations:
 
-            sub_loc_df = df_migration_numbers[df_migration_numbers['LAD.code'] == loc]
-            sub_loc_df_total = df_population_total[df_population_total['LAD'] == loc]
+            sub_loc_df = df_migration_numbers.loc[df_migration_numbers['LAD.code'] == location]
+            sub_loc_df_total = df_population_total.loc[df_population_total['LAD'] == location]
 
             for eth in unique_ethnicity:
 
-                sub_loc_eth_df = sub_loc_df[sub_loc_df['ETH.group'] == eth]
-                sub_loc_eth_df_total = sub_loc_df_total[
+                sub_loc_eth_df = sub_loc_df.loc[sub_loc_df['ETH.group'] == eth]
+                sub_loc_eth_df_total = sub_loc_df_total.loc[
                     (sub_loc_df_total['ETH'] == eth + "_UK") | (sub_loc_df_total['ETH'] == eth + "_NonUK")]
 
                 for sex in unique_sex:
@@ -208,7 +208,7 @@ class BaseHandler:
                             value = 0
 
                         # create the rate row.
-                        dict = {'location': loc, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                        dict = {'location': location, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
                                 'year_start': year_start, 'year_end': year_end, 'mean_value': value}
                         list_dic.append(dict)
 
