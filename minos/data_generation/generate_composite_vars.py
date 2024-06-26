@@ -90,14 +90,14 @@ def generate_composite_housing_quality(data):
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
     # Set to -9 if missing (currently when housing_quality == 0)
-    data['housing_quality'][data['housing_quality'] == 0] = -9
+    data.loc[data['housing_quality'] == 0, 'housing_quality'] = -9
 
     print('Generating composite for SIPHER 7 housing_quality...')
     ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)
     data['S7_housing_quality'] = -9
-    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 6] = 'Yes to all'
-    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6))] = 'Yes to some'
-    data['S7_housing_quality'][(data['housing_core_sum'] + data['housing_bonus_sum']) == 0] = 'No to all'
+    data.loc[(data['housing_core_sum'] + data['housing_bonus_sum']) == 6, 'S7_housing_quality'] = 'Yes to all'
+    data.loc[(data['housing_core_sum'] + data['housing_bonus_sum']).isin(range(1, 6)), 'S7_housing_quality'] = 'Yes to some'
+    data.loc[(data['housing_core_sum'] + data['housing_bonus_sum']) == 0, 'S7_housing_quality'] = 'No to all'
 
     # drop cols we don't need
     data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
@@ -125,7 +125,7 @@ def calculate_hourly_wage(data):
     data["hourly_wage"] = data["hourly_rate"][data["hourly_rate"] >= 0]
     # Now calculate for salaried employees (monthly wage applied to weekly hours worked, so multiply hours by 4.2)
     # (4.2 because thats the average number of weeks in a month)
-    data["hourly_wage"][(data["gross_paypm"] > 0) & (data["job_hours"] > 0)] = data["gross_paypm"] / (
+    data.loc[(data["gross_paypm"] > 0) & (data["job_hours"] > 0), "hourly_wage"] = data["gross_paypm"] / (
                 data["job_hours"] * 4.2)
     # Now calculate for self-employed (make sure s/emp pay not missing and hours worked over 0)
     # data["hourly_wage"][(~data["gross_pay_se"].isin([-8, -7])) & (data["job_hours_se"] > 0)] = data["gross_pay_se"] / (data["job_hours_se"] * 4)
@@ -165,29 +165,29 @@ def calculate_hourly_wage(data):
 
     # add in missing codes for known missings
     # CHANGE 03/10/23 - replacing all these with 0 instead of missing codes
-    data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = 0
-    data["hourly_wage"][data["labour_state_raw"] == "Retired"] = 0
-    data["hourly_wage"][data["labour_state_raw"] == "Sick/Disabled"] = 0
-    data["hourly_wage"][data["labour_state_raw"] == "Student"] = 0
-    data["hourly_wage"][data["labour_state_raw"].isin(["Government Training",
-                                                       "Maternity Leave",
-                                                       "Family Care",
-                                                       "Other"])] = 0
+    data.loc[data["labour_state_raw"] == "Unemployed", "hourly_wage"] = 0
+    data.loc[data["labour_state_raw"] == "Retired", "hourly_wage"] = 0
+    data.loc[data["labour_state_raw"] == "Sick/Disabled", "hourly_wage"] = 0
+    data.loc[data["labour_state_raw"] == "Student", "hourly_wage"] = 0
+    data.loc[data["labour_state_raw"].isin(["Government Training",
+                                            "Maternity Leave",
+                                            "Family Care",
+                                            "Other"]), "hourly_wage"] = 0
 
     # handle minimum wage values
     # all values from here: https://www.gov.uk/national-minimum-wage-rates
     # less than 18
-    data['hourly_wage'][
-        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 5.28) & (data['age'] < 18)] = 5.28
+    data.loc[
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 5.28) & (data['age'] < 18), "hourly_wage"] = 5.28
     # 18 - 20
-    data['hourly_wage'][
-        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 7.49) & (data['age'] >= 18) & (data['age'] <= 20)] = 7.49
+    data.loc[
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 7.49) & (data['age'] >= 18) & (data['age'] <= 20), "hourly_wage"] = 7.49
     # 21 - 22
-    data['hourly_wage'][
-        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 21) & (data['age'] <= 22)] = 10.18
+    data.loc[
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 21) & (data['age'] <= 22), "hourly_wage"] = 10.18
     # 23 & over
-    data['hourly_wage'][
-        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 23)] = 10.42
+    data.loc[
+        (data['hourly_wage'] > 0) & (data['hourly_wage'] < 10.18) & (data['age'] >= 23), "hourly_wage"] = 10.42
 
     # now replace all still nan with -9
     data["hourly_wage"].fillna(-9, inplace=True)
@@ -213,12 +213,12 @@ def generate_hh_income(data):
     print('Generating household income...')
 
     # first calculate outgoings (set to 0 if missing (i.e. if negative))
-    data["hh_rent"][data["hh_rent"] < 0] = 0
-    data["hh_mortgage"][data["hh_mortgage"] < 0] = 0
+    data.loc[data["hh_rent"] < 0, "hh_rent"] = 0
+    data.loc[data["hh_mortgage"] < 0, "hh_mortgage"] = 0
 
     data = fake_council_tax.main(data)
     data['council_tax'] = data.groupby(['hidp'])['council_tax'].transform('max')
-    data["council_tax"][data["council_tax"] < 0] = 0
+    data.loc[data["council_tax"] < 0, "council_tax"] = 0
 
     data["outgoings"] = -9
     data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
@@ -467,7 +467,7 @@ def generate_SIPHER_7_employment(data):
 
     data['S7_labour_state'] = np.select(conditions, values)
     # Set to -9 if missing (currently when labour_state == 0)
-    data['S7_labour_state'][data['S7_labour_state'] == '0'] = -9
+    data.loc[data['S7_labour_state'] == '0', 'S7_labour_state'] = -9
 
     data.drop(labels=['labour_state_raw', 'emp_type'],
               axis=1,
@@ -477,7 +477,7 @@ def generate_SIPHER_7_employment(data):
     # THIS IS BAD BUT NECESSARY, REPLACE WHEN POSSIBLE!!!!!!
     # Need to copy the wave 12 PT employment information as we are missing this info in wave 13
     PT_pidps_2020 = data['pidp'][(data['time'] == 2020) & (data['S7_labour_state'] == 'PT Employed')]
-    data['S7_labour_state'][(data['pidp'].isin(PT_pidps_2020)) & (data['time'] == 2021)] = 'PT Employed'
+    data.loc[(data['pidp'].isin(PT_pidps_2020)) & (data['time'] == 2021), 'S7_labour_state'] = 'PT Employed'
 
     return data
 
@@ -619,10 +619,10 @@ def generate_nutrition_composite(data):
     data['nutrition_quality'] = data['fruit_comp'] + data['veg_comp']
 
     # if any of the intermediates have missing codes (less than 0) then nutrition_quality should also have that code
-    data['nutrition_quality'][data['fruit_days'] < 0] = data['fruit_days']
-    data['nutrition_quality'][data['fruit_per_day'] < 0] = data['fruit_per_day']
-    data['nutrition_quality'][data['veg_days'] < 0] = data['veg_days']
-    data['nutrition_quality'][data['veg_per_day'] < 0] = data['veg_per_day']
+    data.loc[data['fruit_days'] < 0, 'nutrition_quality'] = data['fruit_days']
+    data.loc[data['fruit_per_day'] < 0, 'nutrition_quality'] = data['fruit_per_day']
+    data.loc[data['veg_days'] < 0, 'nutrition_quality'] = data['veg_days']
+    data.loc[data['veg_per_day'] < 0, 'nutrition_quality'] = data['veg_per_day']
 
     data.drop(labels=['fruit_comp', 'fruit_days', 'fruit_per_day',
                       'veg_comp', 'veg_days', 'veg_per_day'],
@@ -634,7 +634,7 @@ def generate_nutrition_composite(data):
 
 def generate_hh_structure(data):
     """
-    Generate a variable for houshold composition by refactoring an existing US variable.
+    Generate a variable for household composition by refactoring an existing US variable.
 
     We want to create 4 groups:
     1. Single adult no kids
@@ -660,16 +660,16 @@ def generate_hh_structure(data):
 
     ## Single adult no kids
     # 1, 2, 3
-    data['hh_comp'][data['hh_composition'].isin([1, 2, 3])] = 1
+    data.loc[data['hh_composition'].isin([1, 2, 3]), 'hh_comp'] = 1
     ## Single adult 1+ kids
     # 4, 5
-    data['hh_comp'][data['hh_composition'].isin([4, 5])] = 2
+    data.loc[data['hh_composition'].isin([4, 5]), 'hh_comp'] = 2
     ## Multiple adults no kids
     # 6, 8, 16, 17, 19, 22
-    data['hh_comp'][data['hh_composition'].isin([6, 8, 16, 17, 19, 22])] = 3
+    data.loc[data['hh_composition'].isin([6, 8, 16, 17, 19, 22]), 'hh_comp'] = 3
     ## Multiple adults 1+ kids
     # 10, 11, 12, 18, 20, 21, 23
-    data['hh_comp'][data['hh_composition'].isin([10, 11, 12, 18, 20, 21, 23])] = 4
+    data.loc[data['hh_composition'].isin([10, 11, 12, 18, 20, 21, 23]), 'hh_comp'] = 4
 
     data.drop(labels=['hh_composition'],
               axis=1,
@@ -705,16 +705,16 @@ def generate_marital_status(data):
 
     ## Single never partnered
     # 1
-    data['marital_status'][data['marstat'] == 1] = 'Single'
+    data.loc[data['marstat'] == 1, 'marital_status'] = 'Single'
     ## Partnered
     # 2, 3, 10
-    data['marital_status'][data['marstat'].isin([2, 3, 10])] = 'Partnered'
+    data.loc[data['marstat'].isin([2, 3, 10]), 'marital_status'] = 'Partnered'
     ## Separated
     # 4, 5, 7, 8
-    data['marital_status'][data['marstat'].isin([4, 5, 7, 8])] = 'Separated'
+    data.loc[data['marstat'].isin([4, 5, 7, 8]), 'marital_status'] = 'Separated'
     ## Widowed
     # 6, 9
-    data['marital_status'][data['marstat'].isin([6, 9])] = 'Widowed'
+    data.loc[data['marstat'].isin([6, 9]), 'marital_status'] = 'Widowed'
 
     data.drop(labels=['marstat'],
               axis=1,
@@ -746,26 +746,26 @@ def generate_physical_health_score(data):
 
     # now create summary var and add to it
     data['phealth'] = 0
-    data['phealth'][data['phealth_limits_modact'] > 0] += data['phealth_limits_modact']
-    data['phealth'][data['phealth_limits_stairs'] > 0] += data['phealth_limits_stairs']
-    data['phealth'][data['S7_physical_health'] > 0] += data['S7_physical_health']  # formerly phealth_limits_work
-    data['phealth'][data['phealth_limits_work_type'] > 0] += data['phealth_limits_work_type']
-    data['phealth'][data['pain_interfere_work'] > 0] += data['pain_interfere_work']
+    data.loc[data['phealth_limits_modact'] > 0, 'phealth'] += data['phealth_limits_modact']
+    data.loc[data['phealth_limits_stairs'] > 0, 'phealth'] += data['phealth_limits_stairs']
+    data.loc[data['S7_physical_health'] > 0, 'phealth'] += data['S7_physical_health']  # formerly phealth_limits_work
+    data.loc[data['phealth_limits_work_type'] > 0, 'phealth'] += data['phealth_limits_work_type']
+    data.loc[data['pain_interfere_work'] > 0, 'phealth'] += data['pain_interfere_work']
 
     # now a counter for how many of these variable are not missing
     data['counter'] = 0
-    data['counter'][data['phealth_limits_modact'] > 0] += 1
-    data['counter'][data['phealth_limits_stairs'] > 0] += 1
-    data['counter'][data['S7_physical_health'] > 0] += 1  # formerly phealth_limits_work
-    data['counter'][data['phealth_limits_work_type'] > 0] += 1
-    data['counter'][data['pain_interfere_work'] > 0] += 1
+    data.loc[data['phealth_limits_modact'] > 0, 'counter'] += 1
+    data.loc[data['phealth_limits_stairs'] > 0, 'counter'] += 1
+    data.loc[data['S7_physical_health'] > 0, 'counter'] += 1  # formerly phealth_limits_work
+    data.loc[data['phealth_limits_work_type'] > 0, 'counter'] += 1
+    data.loc[data['pain_interfere_work'] > 0, 'counter'] += 1
 
     # finally, get the average of phealth for a mean summary score (then it doesn't matter if any are missing)
     # only do this where counter does not equal 0. These cases we will record as missing
-    data['phealth'][data['counter'] != 0] = data['phealth'] / data['counter']
+    data.loc[data['counter'] != 0, 'phealth'] = data['phealth'] / data['counter']
 
     # now set those missing all to missing
-    data['phealth'][data['counter'] == 0] = -9
+    data.loc[data['counter'] == 0, 'phealth'] = -9
 
     data.drop(labels=['phealth_limits_modact', 'phealth_limits_stairs',
                       'phealth_limits_work_type', 'pain_interfere_work',
@@ -921,8 +921,8 @@ def calculate_equivalent_income(data):
     var_list_str = ['S7_labour_state',
                     'S7_housing_quality',
                     'S7_neighbourhood_safety']
-    data['equivalent_income'][(data[var_list_num] < 0).any(axis=1)] = -9
-    data['equivalent_income'][(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1)] = -9
+    data.loc[(data[var_list_num] < 0).any(axis=1), 'equivalent_income'] = -9
+    data.loc[(data[var_list_str].isin(['-1', '-2', '-7', '-8', '-9', '-10'])).any(axis=1), 'equivalent_income'] = -9
 
     data.drop(labels=['EI_exp_term'],
               axis=1,
@@ -949,7 +949,7 @@ def calculate_children(data,
 
     # data.to_csv("datadump.csv")
     pidps_all = data['pidp'].unique()
-    pidps = data[data['sex'] == 'Female']['pidp'].unique()
+    pidps = data.loc[data['sex'] == 'Female']['pidp'].unique()
     print("No. of pidps (all):", len(pidps_all))
     print("No. of pidps (females only):", len(pidps))
 
