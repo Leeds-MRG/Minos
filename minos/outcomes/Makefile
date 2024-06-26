@@ -126,7 +126,7 @@ CPR_sustain_allyears:
 
 CPR_all_yearly: CPR_baseline_yearly CPR_relative_variable_yearly CPR_together_relative_yearly CPR_relative_yearly CPR_together_absolute_yearly CPR_absolute_yearly
 
-CPR_all_allyears: CPR_baseline_allyears CPR_together_relative_allyears CPR_relative_allyears CPR_together_absolute_allyears CPR_absolute_allyears
+CPR_all_allyears: CPR_baseline_allyears CPR_relative_variable_allyears CPR_together_relative_allyears CPR_relative_allyears CPR_together_absolute_allyears CPR_absolute_allyears
 
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
