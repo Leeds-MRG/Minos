@@ -204,14 +204,23 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     # differencing data for difference models using dplyr lag.
     # NOTE NEED TO UPDATE MODEL DEFINITIONS TO HAVE _DIFF IN RESPONSE VARIABLE NAME.
-    if (tolower(mod.type) %in% c("lmm_diff", "rf_diff"))  {
+    if (tolower(mod.type) %in% c("lmm_diff", "rf_diff") & (dependent %in% c('hh_income', 'SF_12')))  {
       # data <- data %>%
       #   group_by(pidp) %>%
       #   #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
       #   mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
       #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
       # update model formula with _diff variable.
+      
+      # set the dependent as diff variable
       dependent <-  paste0(dependent, "_diff")
+      
+      # calculate last diff
+      data <- data %>%
+        group_by(pidp) %>%
+        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        mutate(last = lag(.data[[dependent]], order_by = time)) %>%
+        rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)
     }
 
     formula.string <- paste0(dependent, " ~ ", independents)

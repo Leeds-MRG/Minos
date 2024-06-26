@@ -665,7 +665,9 @@ synthpop_uncertainty <- function(summary_group, scen, var) {
 
 ```{r "Data", include=FALSE}
 scen.list.rel <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+scen.rel <- 'ChildPovertyReductionRELATIVE_2'
 scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
+scen.abs <- 'ChildPovertyReductionABSOLUTE'
 ```
 
 # MCS Change to QALY Example
@@ -762,14 +764,14 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk',
 # SF12_change_income_quint(summary_group = 'whole_pop',
 #                                     scen.list = scen.list.rel)
 SF12_change_income_quint2(summary_group = 'whole_pop',
-                                    scen = 'ChildPovertyReductionRELATIVE_2')
+                                    scen = scen.rel)
 ```
 
 ### SF_12 Inequality
 
 ```{r}
 inequality_plots(summary_group = 'whole_pop',
-                 scen = 'ChildPovertyReductionRELATIVE_2')
+                 scen = scen.rel)
 ```
 
 
@@ -796,14 +798,14 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
 # SF12_change_income_quint(summary_group = 'families',
 #                                     scen.list = scen.list.rel)
 SF12_change_income_quint2(summary_group = 'families',
-                                    scen = 'ChildPovertyReductionRELATIVE_2')
+                                    scen = scen.rel)
 ```
 
 ### SF_12 Inequality
 
 ```{r}
 inequality_plots(summary_group = 'families',
-                 scen = 'ChildPovertyReductionRELATIVE_2')
+                 scen = scen.rel)
 ```
 
 ## Priority Subgroups
@@ -831,7 +833,7 @@ SF12_change_num_priority_groups(scen.list.rel)
 # SF12_change_simple(summary_group = 'treated_relative',
 #                    scen.list = scen.list.rel)
 
-SF12_change_treated(scen = 'ChildPovertyReductionRELATIVE_2')
+SF12_change_treated(scen = scen.rel)
 ```
 
 
@@ -871,14 +873,14 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk',
 # SF12_change_income_quint(summary_group = 'whole_pop',
 #                                     scen.list = scen.list.abs)
 SF12_change_income_quint2(summary_group = 'whole_pop',
-                                    scen = 'ChildPovertyReductionABSOLUTE')
+                                    scen = scen.abs)
 ```
 
 ### SF_12 Inequality
 
 ```{r}
 inequality_plots(summary_group = 'whole_pop',
-                 scen = 'ChildPovertyReductionABSOLUTE')
+                 scen = scen.abs)
 ```
 
 ## Families
@@ -904,14 +906,14 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
 # SF12_change_income_quint(summary_group = 'families',
 #                                     scen.list = scen.list.abs)
 SF12_change_income_quint2(summary_group = 'families',
-                                    scen = 'ChildPovertyReductionABSOLUTE')
+                                    scen = scen.abs)
 ```
 
 ### SF_12 Inequality
 
 ```{r}
 inequality_plots(summary_group = 'families',
-                 scen = 'ChildPovertyReductionABSOLUTE')
+                 scen = scen.abs)
 ```
 
 ## Priority Subgroups
@@ -939,7 +941,7 @@ SF12_change_num_priority_groups(scen.list.abs)
 # SF12_change_simple(summary_group = 'treated_absolute',
 #                    scen.list = scen.list.abs)
 
-SF12_change_treated(scen = 'ChildPovertyReductionABSOLUTE')
+SF12_change_treated(scen = scen.abs)
 ```
 
 ## Differential Impacts of UK vs SG

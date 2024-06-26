@@ -885,6 +885,7 @@ class RFDiffIncome(Base):
         self.year = event.time.year
 
         pop['hh_income_last'] = pop['hh_income']
+        pop['hh_income_diff_last'] = pop['hh_income_diff']
 
         #pop['hh_income_diff_last'] = pop['hh_income_diff']
         ## Predict next income value

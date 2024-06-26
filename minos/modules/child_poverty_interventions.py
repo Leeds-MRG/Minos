@@ -589,6 +589,22 @@ class ChildPovertyReductionABSOLUTE(Base):
 
         print(f"Number of people already boosted: {full_pop['income_boosted'].sum()}")
 
+        # Generate a few important populations to use for reporting / further work
+        full_pop_hh_rep = full_pop.groupby('hidp').first().reset_index()  # single representative of each household
+        pov_pop_hh_rep = full_pop_hh_rep[full_pop_hh_rep['hh_income'] < absolute_pov_threshold]
+        pov_pop_children_hh_rep = pov_pop_hh_rep[pov_pop_hh_rep['nkids'] > 0]
+
+        # Number of children
+        num_kids = full_pop_hh_rep['nkids'].sum()
+        num_kids_in_pov = pov_pop_children_hh_rep['nkids'].sum()
+
+        print(f"Number of children in the model: {num_kids}")
+
+        print(
+            f"There are {len(pov_pop_hh_rep)}/{len(full_pop_hh_rep)} households in relative poverty, with {len(pov_pop_children_hh_rep)} containing children.")
+        print(
+            f"This amounts to {num_kids_in_pov} children in poverty, which is {(num_kids_in_pov / num_kids) * 100}% of the total.")
+
         # DO NOT reset the previous income_boosted for testing
         # We need to track people who have been intervened so we can continue the intervention indefinitely
         # full_pop['income_boosted'] = False
@@ -718,7 +734,7 @@ class ChildPovertyReductionABSOLUTE(Base):
         print(f"Number of children in the model: {num_kids}")
 
         print(
-            f"There are {len(pov_pop_hh_rep)}/{len(full_pop_hh_rep)} households still in relative poverty, with {len(pov_pop_children_hh_rep)} containing children.")
+            f"There are {len(pov_pop_hh_rep)}/{len(full_pop_hh_rep)} households still in absolute poverty, with {len(pov_pop_children_hh_rep)} containing children.")
         print(
             f"This amounts to {num_kids_in_pov} children still in poverty, which is {(num_kids_in_pov / num_kids) * 100}% of the total.")
 

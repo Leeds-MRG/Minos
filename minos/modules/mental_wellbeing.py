@@ -499,18 +499,18 @@ class lmmYJMWB(Base):
         super().setup(builder)
 
         # only need to load this once for now.
-        # self.lmm_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM",
-        #                                                      self.rpy2Modules,
-        #                                                      path=self.transition_dir)
-        # self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model,
-        #                                                             self.rpy2Modules,
-        #                                                             "lmm")
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    "lmm")
         # self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/glmm/SF_12_MCS_GLMM", self.rpy2_modules, path=self.transition_dir)
 
         # LA 24/6/24
-        self.rf_transition_model = r_utils.load_transitions(f"SF_12/rf/SF_12_RF",
-                                                            self.rpy2Modules,
-                                                            path=self.transition_dir)
+        # self.rf_transition_model = r_utils.load_transitions(f"SF_12/rf/SF_12_RF",
+        #                                                     self.rpy2Modules,
+        #                                                     path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -532,16 +532,16 @@ class lmmYJMWB(Base):
         newWaveMWB.index = pop.index
         # newWaveMWB["SF_12"] -= 1
 
-        # sf12_mean_old = np.mean(pop['SF_12_last'])
-        # sf12_mean_new = np.mean(newWaveMWB["SF_12"])
-        # std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
-        # newWaveMWB["SF_12"] *= std_ratio
-        # newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean_new)
-        #
-        # # newWaveMWB["SF_12"] -= 1.5
-        # #newWaveMWB["SF_12"] += (47.6 - np.mean(newWaveMWB["SF_12"]))
-        # newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))
-        # newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
+        sf12_mean_old = np.mean(pop['SF_12_last'])
+        sf12_mean_new = np.mean(newWaveMWB["SF_12"])
+        std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] *= std_ratio
+        newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean_new)
+
+        # newWaveMWB["SF_12"] -= 1.5
+        #newWaveMWB["SF_12"] += (47.6 - np.mean(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
 
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
 
@@ -564,19 +564,19 @@ class lmmYJMWB(Base):
         #                                                        yeo_johnson= True,
         #                                                        noise_std= 0.1)# 5 for non yj, 0.35 for yj
 
-        # nextWaveMWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
-        #                                                             self.rpy2Modules,
-        #                                                             pop,
-        #                                                             dependent='SF_12',
-        #                                                             log_transform=True,
-        #                                                             noise_std=3,
-        #                                                             seed=self.run_seed)  #
+        nextWaveMWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    pop,
+                                                                    dependent='SF_12',
+                                                                    log_transform=True,
+                                                                    noise_std=3,
+                                                                    seed=self.run_seed)  #
 
-        nextWaveMWB = r_utils.predict_next_rf(self.rf_transition_model,
-                                              self.rpy2Modules,
-                                              pop,
-                                              dependent='SF_12',
-                                              seed=self.run_seed)
+        # nextWaveMWB = r_utils.predict_next_rf(self.rf_transition_model,
+        #                                       self.rpy2Modules,
+        #                                       pop,
+        #                                       dependent='SF_12',
+        #                                       seed=self.run_seed)
 
         return nextWaveMWB
 
@@ -652,24 +652,6 @@ class RFDiffMWB(Base):
         # only need to load this once for now.
         self.rf_transition_model = r_utils.load_transitions(f"SF_12/rf_diff/SF_12_diff_RF_DIFF", self.rpy2Modules, path=self.transition_dir)
 
-    # def on_initialize_simulants(self, pop_data):
-    #     """  Initiate columns for hh_income when new simulants are added.
-    #     Only column needed is the diff column for rate of change model predictions.
-    #
-    #     Parameters
-    #     ----------
-    #         pop_data: vivarium.framework.population.SimulantData
-    #         Custom vivarium class for interacting with the population data frame.
-    #         It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,
-    #         creation_window, and current simulation state (setup/running/etc.).
-    #     """
-    #     # Create frame with new 3 columns and add it to the main population frame.
-    #     # This is the same for both new cohorts and newborn babies.
-    #     # Neither should be dead yet.
-    #     pop_update = pd.DataFrame({'SF_12_diff': 0.},
-    #                               index=pop_data.index)
-    #     self.population_view.update(pop_update)
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
         Parameters
@@ -684,6 +666,7 @@ class RFDiffMWB(Base):
         pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
 
         pop['SF_12_last'] = pop['SF_12']
+        pop['SF_12_diff_last'] = pop['SF_12_diff']
 
         # Predict next mwb value
         newWaveMWB = pd.DataFrame(columns=['SF_12', 'SF_12_diff'])
@@ -699,7 +682,6 @@ class RFDiffMWB(Base):
         # Update population with new SF12
         print(np.mean(newWaveMWB["SF_12"]))
         self.population_view.update(newWaveMWB[['SF_12', 'SF_12_diff']])
-
 
     def calculate_mwb(self, pop):
         """Calculate SF_12 transition distribution based on provided people/indices

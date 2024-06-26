@@ -94,11 +94,11 @@ intervention_childPovertyReductionRelative_2: setup
 intervention_childPovertyReductionAbsolute: setup
 	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionABSOLUTE'
 
-child_pov_runs: baseline intervention_childPovertyReductionRelative_2 intervention_childPovertyReductionAbsolute
+child_pov_runs: baseline intervention_childPovertyReductionRelative intervention_childPovertyReductionRelative_2 intervention_childPovertyReductionAbsolute
 
 ############### CHILD POVERTY REDUCTION RUNS - SCOTLAND ###############
 
-intervention_childPovertyReduction_SCOTLAND: setup
+intervention_childPovertyReduction_SCOTLAND: setup_scotland_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'ChildPovertyReduction'
 
 intervention_childPovertyReductionRelative_2_SCOTLAND: setup_scotland_scaled
