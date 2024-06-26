@@ -16,12 +16,7 @@ sex and ethnicity to ensure representative populations into the future.
 import pandas as pd
 import numpy as np
 import argparse
-
 import US_utils
-
-
-# suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
 
 
 def reweight_stock(data, projections):
@@ -47,8 +42,13 @@ def reweight_stock(data, projections):
     summed_weights = summed_weights.rename(columns={'weight': 'sum_weight', 'year': 'time'})
 
     # merge the projection data and summed weights for reweighting
-    data = data.merge(projections, on=['time', 'sex', 'age', 'ethnicity'])
-    data = data.merge(summed_weights, on=['time', 'sex', 'age', 'ethnicity'])
+    data = data.merge(projections,
+                      how='left',
+                      on=['time', 'sex', 'age', 'ethnicity'])
+
+    data = data.merge(summed_weights,
+                      how='left',
+                      on=['time', 'sex', 'age', 'ethnicity'])
 
     reweighted_data = data
 
@@ -96,12 +96,12 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
 
     # get temporary dataframe of pidp, time, and nutrition_quality from 2019
-    tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
+    tmp = data.loc[data['time'] == copy_year][['pidp', 'time', var]]
     # change time to 2018 for tmp
     tmp['time'] = paste_year
 
     # replace -9 values in paste_year with Nonetype
-    data[var][data['time'] == paste_year] = None
+    data.loc[data['time'] == paste_year, var] = None
 
     # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
     data_merged = data.merge(right=tmp,
@@ -113,8 +113,8 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     var_y = var + '_y'
 
     data_merged[var] = -9
-    data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
-    data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
+    data_merged.loc[data_merged['time'] != paste_year, var] = data_merged[var_x]
+    data_merged.loc[data_merged['time'] == paste_year, var] = data_merged[var_y]
     # drop intermediate columns
     data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
 
@@ -123,11 +123,11 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     # missing, but I don't know what else to do
     # data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
     if var_type == 'continuous':
-        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
-            data_merged[var][data_merged['time'] == paste_year].median()
+        data_merged.loc[(data_merged['time'] == paste_year) & (data_merged[var].isna()), var] = \
+            data_merged.loc[data_merged['time'] == paste_year, var].median()
     elif var_type == 'ordinal':
-        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
-            data_merged[var][data_merged['time'] == paste_year].value_counts().index[0]
+        data_merged.loc[(data_merged['time'] == paste_year) & (data_merged[var].isna()), var] = \
+            data_merged.loc[data_merged['time'] == paste_year, var].value_counts().index[0]
 
     return data_merged
 
@@ -187,10 +187,12 @@ def generate_stock(projections, cross_validation):
                           var_type='ordinal')
 
     # Set loneliness and ncigs as int
-    data['loneliness'] = data['loneliness'].astype('int64')
-    data['ncigs'] = data['ncigs'].astype('int64')
-    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
-    data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
+    ## HR 444
+    # data['loneliness'] = data['loneliness'].astype('int64')
+    # data['ncigs'] = data['ncigs'].astype('int64')
+    # data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
+    # data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
+    ##
     #data['housing_quality'] = data['housing_quality'].astype('int64')
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")
