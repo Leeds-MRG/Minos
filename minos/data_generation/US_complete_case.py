@@ -19,7 +19,7 @@ def complete_case(data):
         Corrected data.
     """
     data = data.replace(US_utils.missing_types, np.nan)
-    data = data.dropna(axis=0)
+    # data = data.dropna(axis=0)  # HR 444
     return data
 
 
@@ -38,7 +38,7 @@ def complete_case_varlist(data, varlist):
     """
     for var in varlist:
         data[var] = data[var].replace(US_utils.missing_types, np.nan)
-        data = data.dropna(axis=0, subset=[var])
+        # data = data.dropna(axis=0, subset=[var])  # HR 444
 
     data = data.reset_index(drop=True)
     return data
@@ -50,7 +50,7 @@ def complete_case_custom_years(data, var, years):
     # Replace all missing values in years (below 0) with NA, and drop the NAs
     # data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
     data.loc[data['time'].isin(years), var] = data.loc[data['time'].isin(years), var].replace(US_utils.missing_types, np.nan)  # Avoids Pandas SettingWithCopyWarning
-    data = data[~(data['time'].isin(years) & data[var].isna())]
+    # data = data[~(data['time'].isin(years) & data[var].isna())]  # HR 444
 
     return data
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
-    data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
+    # data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.  # HR 444
 
     # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
@@ -101,9 +101,9 @@ if __name__ == "__main__":
 
     # SIPHER 7 complete case stuff
     data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2022, 1)))
-    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    # data['S7_physical_health'] = data['S7_physical_health'].astype(int)  # HR 444
     data = complete_case_custom_years(data, 'S7_mental_health', years=list(range(2010, 2022, 1)))
-    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
+    # data['S7_mental_health'] = data['S7_mental_health'].astype(int)  # HR 444
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2022, 1)))
 
 
@@ -122,6 +122,6 @@ if __name__ == "__main__":
                                         # remove them here or as late as needed.
                                         
     data = data.drop(labels=drop_columns, axis=1)
-    data = cut_outliers(data, 0.1, 99.9, "hh_income")
+    # data = cut_outliers(data, 0.1, 99.9, "hh_income")  # HR 444
 
     US_utils.save_multiple_files(data, years, "data/complete_US/", "")
