@@ -9,10 +9,8 @@ population:
     age_start: 0
     age_end: 100
 
-#mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
-#fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-mortality_file: 'regional_mortality_2011_2061.csv'
-fertility_file: 'regional_fertility_2011_2061.csv'
+mortality_file: 'regional_mortality_newethpop.csv'
+fertility_file: 'regional_fertility_newethpop.csv'
 parity: False
 
 input_data_dir: "data/final_US"
