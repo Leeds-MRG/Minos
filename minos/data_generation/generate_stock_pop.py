@@ -41,7 +41,7 @@ def reweight_stock(data, projections):
     # data in projections has age top-coded at 90. To avoid issues with these groups we need to create a new var
     # with a top-coded age also, then set these ages back later
     data['age_orig'] = data['age']
-    data['age'][data['age'] > 90] = 90
+    data.loc[data['age'] > 90, 'age'] = 90
 
     # first group_by sex and year and sum weight for totals, then rename before merge
     summed_weights = data.groupby(['sex', 'time', 'age', 'ethnicity'])['weight'].sum().reset_index()
