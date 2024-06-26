@@ -272,7 +272,7 @@ arc4_baseline_cpr_scotland:
 	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr
 
 arc4_intervention_childPovertyReduction_scotland:
-	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReduction'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReduction'
 
 arc4_intervention_childPovertyReductionRELATIVE_scotland:
 	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionRELATIVE'
