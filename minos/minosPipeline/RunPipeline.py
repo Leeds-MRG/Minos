@@ -37,12 +37,16 @@ from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
-from minos.modules.financial_situation import financialSituation
+from minos.modules.financial_situation import FinancialSituation
+from minos.modules.behind_on_bills import BehindOnBills
 
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
 from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUplift
 from minos.modules.child_poverty_interventions import childUplift
+from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE
+from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE_2
+from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
@@ -82,7 +86,8 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
-    "financialSituation()": financialSituation(),
+    "FinancialSituation()": FinancialSituation(),
+    "BehindOnBills()": BehindOnBills(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -113,6 +118,10 @@ intervention_components_map = {        #Interventions
     "livingWageIntervention": livingWageIntervention(),
     "energyDownlift": energyDownlift(),
     "energyDownliftNoSupport": energyDownliftNoSupport(),
+
+    "ChildPovertyReductionRELATIVE": ChildPovertyReductionRELATIVE(),
+    "ChildPovertyReductionRELATIVE_2": ChildPovertyReductionRELATIVE_2(),
+    "ChildPovertyReductionABSOLUTE": ChildPovertyReductionABSOLUTE(),
   
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
@@ -337,7 +346,8 @@ def RunPipeline(config, intervention=None):
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
-                    "MASS": importr("MASS")
+                    "MASS": importr("MASS"),
+                    "ranger": importr("ranger")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

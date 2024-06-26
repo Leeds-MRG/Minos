@@ -69,7 +69,10 @@ class Housing(Base):
                         'hh_income',
                         'hh_income_diff',
                         'housing_tenure',
-                        'SF_12']
+                        'SF_12',
+                        'behind_on_bills',
+                        'financial_situation']
+
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -81,6 +84,12 @@ class Housing(Base):
         # individual graduate in an education module.
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
+
+
+        self.hq_transition_model = r_utils.load_transitions(f"housing_quality/rfo/housing_quality_RFO",
+                                                            self.rpy2Modules,
+                                                            path=self.transition_dir)
+        #self.hq_transition_model = r_utils.randomise_fixed_effects(self.hq_transition_model, self.rpy2Modules, "rf")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -100,21 +109,42 @@ class Housing(Base):
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
 
+        pop['housing_quality_last'] = pop['housing_quality']
+
         housing_prob_df = self.calculate_housing(pop)
 
         housing_prob_df["housing_quality"] = self.random.choice(housing_prob_df.index,
                                                                 list(housing_prob_df.columns),
                                                                 housing_prob_df) + 1
 
+        # Use argmax to pick the class with the highest probability
+        #housing_prob_df['housing_quality_numeric'] = housing_prob_df.values.argmax(axis=1) + 1
+
         housing_prob_df.index = pop.index
 
         # convert numeric prediction into string factors (low, medium, high)
-        housing_factor_dict = {1: 'Low',
-                               2: 'Medium',
+        # NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model
+        housing_factor_dict = {1: 'Medium',
+                               2: 'Low',
                                3: 'High'}
         housing_prob_df.replace({'housing_quality': housing_factor_dict},
                                 inplace=True)
 
+        # Map numeric predictions to string labels
+        #housing_prob_df['housing_quality'] = housing_prob_df['housing_quality_numeric'].map(housing_factor_dict)
+
+        #print(housing_prob_df.head())
+
+        # pop = self.population_view.get(event.index, query="alive=='alive'")
+        # self.year = event.time.year
+        #
+        # pop['housing_quality_last'] = pop['housing_quality']
+        # ## Predict next job_hours value
+        # newWaveHousingQuality = pd.DataFrame(columns=['housing_quality'])
+        # newWaveHousingQuality['housing_quality'] = self.calculate_housing(pop)
+        # newWaveHousingQuality.index = pop.index
+
+        #self.population_view.update(newWaveHousingQuality["housing_quality"])
         self.population_view.update(housing_prob_df["housing_quality"])
 
     def calculate_housing(self, pop):
@@ -128,21 +158,28 @@ class Housing(Base):
         -------
         """
         # load transition model based on year.
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2019
-        else:
-            year = min(self.year, 2019)
+        # if self.cross_validation:
+        #     # if cross-val, fix year to final year model
+        #     year = 2019
+        # else:
+        #     year = min(self.year, 2019)
+        #
+        # # if simulation goes beyond real data in 2020 dont load the transition model again.
+        # if not self.transition_model or year <= 2019:
+        #     self.transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        #     self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        #
+        # #transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
+        # # returns probability matrix (3xn) of next ordinal state.
+        # prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'housing_quality')
 
-        # if simulation goes beyond real data in 2020 dont load the transition model again.
-        if not self.transition_model or year <= 2019:
-            self.transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        newWaveHousingQuality = r_utils.predict_next_rf_ordinal(self.hq_transition_model,
+                                                                self.rpy2Modules,
+                                                                pop,
+                                                                dependent='housing_quality')
 
-        #transition_model = r_utils.load_transitions(f"housing_quality/clm/housing_quality_{year}_{year+1}", self.rpy2Modules, path=self.transition_dir)
-        # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'housing_quality')
-        return prob_df
+        return newWaveHousingQuality
+        #return prob_df
 
     def plot(self, pop, config):
 

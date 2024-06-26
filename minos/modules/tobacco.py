@@ -66,6 +66,8 @@ class Tobacco(Base):
                         'job_sec',
                         'hh_income',
                         'SF_12',
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)

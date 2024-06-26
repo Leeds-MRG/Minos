@@ -62,7 +62,9 @@ class Loneliness(Base):
                         'hh_income',
                         'marital_status',
                         "SF_12",
-                        'hh_comp'
+                        'hh_comp',
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -75,6 +77,11 @@ class Loneliness(Base):
         # individual graduate in an education module.
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
+
+        self.lon_transition_model = r_utils.load_transitions(f"loneliness/rfo/loneliness_RFO",
+                                                            self.rpy2Modules,
+                                                            path=self.transition_dir)
+        # self.hq_transition_model = r_utils.randomise_fixed_effects(self.hq_transition_model, self.rpy2Modules, "rf")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -90,6 +97,8 @@ class Loneliness(Base):
 
         pop = self.population_view.get(event.index, query="alive=='alive'")
         self.year = event.time.year
+
+        pop['loneliness_last'] = pop['loneliness']
 
         loneliness_prob_df = self.calculate_loneliness(pop)
 
@@ -113,26 +122,32 @@ class Loneliness(Base):
 
         logging.info("LONELINESS")
 
-        # load transition model based on year.
-        if self.year < 2018:
-            year = 2018
-        else:
-            year = self.year
+        # # load transition model based on year.
+        # if self.year < 2018:
+        #     year = 2018
+        # else:
+        #     year = self.year
+        #
+        # if self.cross_validation:
+        #     # if cross-val, fix year to final year model
+        #     year = 2020
+        # else:
+        #     year = min(year, 2020)
+        #
+        # if not self.transition_model or year <= 2020:
+        #     self.transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        #     self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        #
+        #
+        # #transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+        # # returns probability matrix (3xn) of next ordinal state.
+        # prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'loneliness')
 
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2020
-        else:
-            year = min(year, 2020)
+        prob_df = r_utils.predict_next_rf_ordinal(self.lon_transition_model,
+                                                  self.rpy2Modules,
+                                                  pop,
+                                                  dependent='loneliness')
 
-        if not self.transition_model or year <= 2020:
-            self.transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
-
-
-        #transition_model = r_utils.load_transitions(f"loneliness/clm/loneliness_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
-        # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'loneliness')
         return prob_df
 
     def plot(self, pop, config):

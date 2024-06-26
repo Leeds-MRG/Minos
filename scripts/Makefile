@@ -82,6 +82,33 @@ all_scot_scenarios: MODE=scotland_mode
 all_scot_scenarios: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 all_scot_scenarios: scot_setup baseline intervention_hhIncomeChildUplift intervention_PovertyLineChildUplift intervention_livingWage intervention_energyDownLift
 
+############### CHILD POVERTY REDUCTION RUNS ###############
+
+intervention_childPovertyReductionRelative: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRELATIVE'
+
+intervention_childPovertyReductionRelative_2: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionRELATIVE_2'
+
+intervention_childPovertyReductionAbsolute: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default.yaml -o default_config -i 'ChildPovertyReductionABSOLUTE'
+
+child_pov_runs: baseline intervention_childPovertyReductionRelative_2 intervention_childPovertyReductionAbsolute
+
+
+######### NO REPLENISH TESTING #########
+
+baseline_no_replenish:
+	$(PYTHON) scripts/run.py -c config/default_noReplenish.yaml -o default_config
+
+intervention_childPovertyReductionRelative_2_no_replenish: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default_noReplenish.yaml -o default_config -i 'ChildPovertyReductionRELATIVE_2'
+
+intervention_childPovertyReductionAbsolute_no_replenish: setup
+	$(PYTHON) scripts/run.py -c $(CONFIG)/default_noReplenish.yaml -o default_config -i 'ChildPovertyReductionABSOLUTE'
+
+child_pov_no_replenish: baseline_no_replenish intervention_childPovertyReductionRelative_2_no_replenish
+child_pov_no_replenish: intervention_childPovertyReductionAbsolute_no_replenish
 
 ############################################
 ## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
@@ -193,6 +220,21 @@ arc4_intervention_energyDownLiftNoSupport:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
+
+arc4_baseline_cpr:
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr
+
+arc4_intervention_childPovertyReductionRELATIVE:
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
+
+arc4_intervention_childPovertyReductionRELATIVE_2:
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
+
+arc4_intervention_ChildPovertyReductionABSOLUTE:
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
+
+arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReductionRELATIVE_2
+arc4_child_pov_interventions:  arc4_intervention_ChildPovertyReductionABSOLUTE
 
 ## All default scenarios
 arc4_all_scenarios_default: setup

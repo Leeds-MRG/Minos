@@ -18,15 +18,16 @@ Handover plots are not strictly statistical validation, but more a type of 'sani
 
 ```{r "setup", include=FALSE}
 
-require(tidyverse)
-require(ggplot2)
-require(ggridges) # for densities over time plots. 
-require(knitr)
-require(here)
-require(dplyr)
-require(tidyr)
-require(purrr)
-require(gghighlight)
+library(tidyverse)
+library(ggplot2)
+library(ggridges) # for densities over time plots. 
+library(knitr)
+library(here)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(gghighlight)
+library(spatstat)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -51,22 +52,363 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r}
 # Read raw datafiles in
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
-raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
 
 out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
 #base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
 ```
 
 ## Constants
 
 ```{r}
-start.year <- 2021
+start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
 
 shall.we.save <- FALSE
 ```
+
+# DEMOGRAPHICS
+
+## Age Structure
+
+```{r}
+# assign to age_bucket in raw data
+cut_bins <- c(-1, 15, 19, 24, 29, 44, 59, 74, 200)
+cut_labels <- c("0to15", "16to19", "20to24", "25to29", "30to44", "45to59", "60to74", "75plus")
+
+raw.dat$age_bucket <- cut(raw.dat$age, 
+                          breaks = cut_bins, 
+                          labels = cut_labels)
+
+handover_ordinal(raw.dat, base.dat, var = 'age_bucket', save = shall.we.save)
+```
+
+## Age Structure (Households with Children)
+
+```{r}
+raw.dat_fam <- raw.dat %>%
+  filter(nkids > 0)
+
+base.dat_fam <- base.dat %>%
+  filter(nkids > 0)
+
+empty.dat <- raw.dat %>%
+  filter(age > 150)
+
+handover_ordinal(raw.dat_fam, base.dat_fam, var = 'age_bucket', save = shall.we.save)
+handover_ordinal(empty.dat, base.dat_fam, var = 'age_bucket', save = shall.we.save)
+```
+
+## Max Age
+
+```{r}
+raw.maxAge <- raw.dat %>%
+  group_by(time) %>%
+  summarise(max_age = max(age))
+
+base.maxAge <- base.dat %>%
+  group_by(time) %>%
+  summarise(max_age = max(age))
+
+handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+
+## Check counts in very old age groups
+brks = c(75, 80, 85, 90, 95, 100, 105, 110)
+lbls = c("75to80", "80to85", "85to90", "90to95", "95to100", "100to105", "105to110")
+
+raw.countOldAge <- raw.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  group_by(time, age_group) %>%
+  summarise(age_group_counts = n()) %>%
+  mutate(source = 'observed')
+
+base.countOldAge <- base.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  group_by(time, age_group) %>%
+  summarise(age_group_counts = n()) %>%
+  mutate(source = 'predicted')
+
+combined <- rbind(raw.countOldAge, base.countOldAge)
+
+ggplot(combined, aes(x = time, y = age_group_counts, group = age_group, colour = age_group)) +
+  geom_line() +
+  geom_vline(xintercept = 2021, linetype = 'dashed') +
+  labs(title = 'Counts by older age group', subtitle = '75 to 110 by 5 year groups') +
+  xlab('Year') +
+  ylab('Count')
+
+
+
+
+
+raw.countOldAge <- raw.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls))
+
+base.countOldAge <- base.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls))
+
+handover_ordinal(raw.countOldAge, base.countOldAge, var = 'age_group', save = shall.we.save)
+  
+```
+
+```{r}
+# Having a go at an age pyramid, hopefully animated
+
+brks = c(75, 80, 85, 90, 95, 100, 105, 110)
+lbls = c("75to80", "80to85", "85to90", "90to95", "95to100", "100to105", "105to110")
+
+var <- 'age_group'
+
+# start with calculating percentages
+#raw.oldAgePct
+#base.oldAgePct
+
+raw.oldAgePct <- raw.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  dplyr::select(time, age_group) %>%
+  group_by(time, age_group) %>%
+  count() %>%
+  mutate(source = 'predicted')
+
+base.oldAgePct <- base.dat %>%
+  filter(age > 75) %>%
+  mutate(age_group = cut(age,
+                         breaks = brks,
+                         labels = lbls)) %>%
+  dplyr::select(time, all_of(var)) %>%
+  #filter(!.data[[var]] %in% miss.values) %>%
+  group_by(time, .data[[var]]) %>%
+  count() %>%
+  mutate(source = 'observed')
+
+raw.oldAgePct[[var]] <- as.factor(raw.oldAgePct[[var]])
+base.oldAgePct[[var]] <- as.factor(base.oldAgePct[[var]])
+
+merged <- rbind(raw.oldAgePct, base.oldAgePct)
+merged[[var]] <- as.factor(merged[[var]])
+
+
+var.norm <- merged %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total) * 100)
+```
+
+
+## Population Counts
+
+### Total Pop
+
+```{r}
+raw.alive <- raw.dat %>%
+  group_by(time) %>%
+  summarise(n = n())
+
+base.alive <- base.dat %>%
+  group_by(time) %>%
+  summarise(n = n())
+
+#handover_boxplots(raw.alive, base.alive, 'n')
+handover_lineplots(raw.alive, base.alive, "n")
+
+rm(raw.alive, base.alive)
+```
+
+### Households
+
+```{r}
+raw.hhs <- raw.dat %>%
+  select(hidp, time) %>%
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'final_US')
+
+base.hhs <- base.dat %>%
+  select(hidp, time) %>%
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.hhs, base.hhs)
+
+ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
+  geom_point() +
+  geom_line() +
+  labs(title = 'Households Count')
+```
+
+
+### Households With Children
+
+```{r}
+raw.household_count_by_year <- raw.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'final_US')
+
+base.household_count_by_year <- base.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  group_by(time) %>%
+  summarise(n = n()) %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.household_count_by_year, base.household_count_by_year)
+
+ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
+  geom_point() +
+  geom_line() +
+  labs(title = 'Households with Children Count')
+```
+
+### Households With Children (Income Quintile)
+
+```{r}
+raw.hhs_kids.income_quint <- raw.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  mutate(income_group = case_when(
+    hh_income <= 1000 ~ "<= 1000",
+    hh_income <= 1500 ~ "1001 - 1500",
+    hh_income <= 2000 ~ "1501 - 2000",
+    hh_income <= 2500 ~ "2001 - 2500",
+    hh_income > 2500  ~ "> 2500"
+  )) %>%
+  group_by(time, income_group) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'final_US')
+
+base.hhs_kids.income_quint <- base.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  mutate(income_group = case_when(
+    hh_income <= 1000 ~ "<= 1000",
+    hh_income <= 1500 ~ "1001 - 1500",
+    hh_income <= 2000 ~ "1501 - 2000",
+    hh_income <= 2500 ~ "2001 - 2500",
+    hh_income > 2500  ~ "> 2500"
+  )) %>%
+  group_by(time, income_group) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'baseline')
+
+combined <- rbind(raw.hhs_kids.income_quint, base.hhs_kids.income_quint)
+combined$income_group <- factor(combined$income_group)
+
+ggplot(combined, aes(x = time, y = n, group = income_group, color = income_group, fill = income_group)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
+```
+
+#### Proportions
+
+```{r}
+calculate_hh_proportions <- function(data) {
+  # Step 1: Filter for households with children
+  households_with_kids <- data %>%
+    filter(nkids > 0) %>%
+    select(hidp, time, hh_income) %>%
+    distinct()
+  
+  # Step 2: Create income group based on thresholds
+  households_with_kids <- households_with_kids %>%
+    mutate(income_group = case_when(
+      hh_income <= 1000 ~ "<= 1000",
+      hh_income <= 1500 ~ "1001 - 1500",
+      hh_income <= 2000 ~ "1501 - 2000",
+      hh_income <= 2500 ~ "2001 - 2500",
+      hh_income > 2500  ~ "> 2500"
+    ))
+  
+  # Step 3: Count households within each income group per year
+  household_counts <- households_with_kids %>%
+    group_by(time, income_group) %>%
+    summarise(count = n(), .groups = 'drop')
+  
+  # Step 4: Calculate total households with children per year
+  total_households_per_year <- households_with_kids %>%
+    group_by(time) %>%
+    summarise(total_count = n(), .groups = 'drop')
+  
+  # Step 5: Calculate proportion of households in each group per year
+  household_proportions <- household_counts %>%
+    left_join(total_households_per_year, by = "time") %>%
+    mutate(proportion = count / total_count) %>%
+    select(time, income_group, proportion)
+  
+  return(household_proportions)
+}
+
+raw.hh_kids_prop <- calculate_hh_proportions(raw.dat)
+base.hh_kids_prop <- calculate_hh_proportions(base.dat)
+
+raw.hh_kids_prop$source <- 'final_US'
+raw.hh_kids_prop <- filter(raw.hh_kids_prop, time != start.year)
+base.hh_kids_prop$source <- 'baseline'
+
+combined <- rbind(raw.hh_kids_prop, base.hh_kids_prop)
+combined$income_group <- factor(combined$income_group)
+
+ggplot(combined, aes(x = time, y = proportion, group = income_group, color = income_group, fill = income_group)) +
+  geom_col() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
+```
+
+
+```{r}
+# Step 1: Filter for households with children
+households_with_kids <- raw.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income) %>%
+  distinct() %>%
+  select(-hidp)
+
+# Step 2: Calculate income quintiles
+households_with_kids <- households_with_kids %>%
+  group_by(time) %>%
+  mutate(income_quintile = ntile(hh_income, 5)) %>%
+  ungroup()
+
+# Step 3: Count households within each income quintile per year
+household_count_by_income_quintile <- households_with_kids %>%
+  group_by(time, income_quintile) %>%
+  summarise(n = n())
+
+household_count_by_income_quintile
+```
+
 
 # PATHWAYS
 
@@ -106,6 +448,46 @@ spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
                save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
+```
+
+### Poverty Thresholds
+
+#### Relative
+```{r}
+rel.threshold.raw <- raw.dat %>%
+  select(time, weight, hh_income) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6))
+
+rel.threshold.base <- base.dat %>%
+  select(time, weight, hh_income) %>%
+  group_by(time) %>%
+  summarise(poverty_threshold = (weighted.mean(hh_income, w = weight) * 0.6)) %>%
+  filter(time != 2021)
+
+rel.threshold <- rbind(rel.threshold.raw, rel.threshold.base)
+
+ggplot(data = rel.threshold, aes(x = time, y = poverty_threshold)) +
+  geom_col() +
+  geom_hline(yintercept = rel.threshold$poverty_threshold[rel.threshold$time == 2020], linetype='dotted') +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
+  labs(title = 'Relative poverty threshold over time') +
+  xlab('Year') +
+  ylab('Threshold')
+#rm(rel.threshold)
+```
+
+#### Absolute
+```{r}
+raw.2010 <- raw.dat %>%
+  filter(time == 2010)
+
+abs.threshold <- weighted.median(x = raw.2010$hh_income, 
+                                 w = raw.2010$weight, 
+                                 na.rm = TRUE)
+abs.threshold <- abs.threshold * 0.6
+
+print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
 ```
 
 
@@ -200,57 +582,6 @@ density_ridges(sf12.spag, "SF_12",
                save.path = save.path)
 
 rm(raw.sf12, base.sf12, sf12.spag)
-```
-
-
-## Financial Situation
-
-```{r}
-raw.financial_situation <- raw.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.financial_situation <- base.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-
-
-# merge before plot
-financial_situation <- rbind(raw.financial_situation, base.financial_situation)
-financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
-
-# Now plot
-ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-financial_situation.norm <- financial_situation %>%
-  group_by(time) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial situation') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'financial_situation.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
 ## Housing Quality
@@ -620,6 +951,56 @@ rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, p
 # rm(raw.s, base.s, spag)
 ```
 
+## S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
+
+lab.state <- prepped.list$var
+lab.state.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Labour State') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_labour_state.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+
+```{r}
+pivoted <- combine_and_pivot_long(df1 = base.dat, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw.dat, 
+                                       df2.name = 'raw', 
+                                       var = 'S7_labour_state')
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = 'S7_labour_state',
+                 save = shall.we.save,
+                 save.path = save.path)
+```
+
+# ADDITIONAL VARIABLES
+
 ## Education
 
 ```{r}
@@ -687,11 +1068,120 @@ cv_ordinal_plots(pivoted.df = pivoted,
 # rm(raw.s, base.s, spag)
 ```
 
+## Financial Situation
+
+```{r}
+raw.financial_situation <- raw.dat %>%
+  dplyr::select(pidp, time, financial_situation) %>%
+  group_by(time, financial_situation) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.financial_situation <- base.dat %>%
+  dplyr::select(pidp, time, financial_situation) %>%
+  group_by(time, financial_situation) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+financial_situation <- rbind(raw.financial_situation, base.financial_situation)
+financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
+
+# Now plot
+ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+financial_situation.norm <- financial_situation %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Financial situation') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'financial_situation.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
+```
+
+## Behind On Bills
+
+```{r}
+raw.behind_on_bills <- raw.dat %>%
+  dplyr::select(pidp, time, behind_on_bills) %>%
+  group_by(time, behind_on_bills) %>%
+  count() %>%
+  mutate(source = 'final_US')
+
+base.behind_on_bills <- base.dat %>%
+  dplyr::select(pidp, time, behind_on_bills) %>%
+  group_by(time, behind_on_bills) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+
+
+# merge before plot
+behind_on_bills <- rbind(raw.behind_on_bills, base.behind_on_bills)
+behind_on_bills$behind_on_bills <- as.factor(behind_on_bills$behind_on_bills)
+
+# Now plot
+ggplot(data = behind_on_bills, mapping = aes(x = time, y = n, group = behind_on_bills, colour = behind_on_bills)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Behind On Bills', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+behind_on_bills.norm <- behind_on_bills %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+ggplot(data = behind_on_bills.norm, mapping = aes(x = time, y = prct, fill=behind_on_bills)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Behind On Bills') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'behind_on_bills.png',
+       plot = last_plot(),
+       path = save.path)
+}
+
+rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.norm)
+```
+
+
 ## nkids Household
 
 ```{r}
-handover_boxplots(raw.dat, base.dat, 'nkids')
-handover_lineplots(raw.dat, base.dat, 'nkids')
+raw.hh_unique <- raw.dat %>%
+  select(hidp, time, nkids) %>%
+  distinct()
+
+base.hh_unique <- base.dat %>%
+  select(hidp, time, nkids) %>%
+  distinct()
+
+#handover_boxplots(raw.hh_unique, base.hh_unique, 'nkids')
+handover_lineplots(raw.hh_unique, base.hh_unique, 'nkids')
 ```
 
 ```{r}
@@ -838,87 +1328,6 @@ spaghetti_plot(spag, 'hourly_wage',
 rm(raw.s, base.s, spag)
 ```
 
-```{r}
-# some basic statistics about hourly_wage variable
-print("Some basic statistics on hourly_wage. These are all for 2020.")
-raw.2020 <- raw.dat %>% filter(time == 2020)
-print('All living people in 2020')
-print(paste0("Number of people alive in 2020: ", nrow(raw.2020)))
-# number individuals with an hourly_wage > 0
-print('People not in work')
-print(paste0("Number of individuals not in paid work: ", sum(!raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage == 0: ", sum(raw.2020$hourly_wage == 0)))
-
-# Number in work
-print('People in work')
-print(paste0("Number of individuals in paid work: ", sum(raw.2020$S7_labour_state %in% c('FT Employed', 'PT Employed'))))
-print(paste0("Number of individuals with hourly_wage > 0: ", sum(raw.2020$hourly_wage > 0)))
-
-# Extreme hourly_wage values
-print('Extreme hourly wage values: HIGH')
-print(paste0("Number of individuals with hourly_wage > 30: ", sum(raw.2020$hourly_wage > 30)))
-print(paste0("Number of individuals with hourly_wage > 50: ", sum(raw.2020$hourly_wage > 50)))
-print(paste0("Number of individuals with hourly_wage > 100: ", sum(raw.2020$hourly_wage > 100)))
-print(paste0("Number of individuals with hourly_wage > 500: ", sum(raw.2020$hourly_wage > 500)))
-print(paste0("Number of individuals with hourly_wage > 1000: ", sum(raw.2020$hourly_wage > 1000)))
-print(paste0("Number of individuals with hourly_wage > 2000: ", sum(raw.2020$hourly_wage > 2000)))
-
-raw.2020.work <- raw.2020 %>% filter(hourly_wage > 0)
-print('Extreme hourly wage values: LOW (non-zero)')
-print(paste0("Number of individuals with hourly_wage < 20: ", sum(raw.2020.work$hourly_wage < 20)))
-print(paste0("Number of individuals with hourly_wage < 10: ", sum(raw.2020.work$hourly_wage < 10)))
-print(paste0("Number of individuals with hourly_wage < 5: ", sum(raw.2020.work$hourly_wage < 5)))
-print(paste0("Number of individuals with hourly_wage < 1: ", sum(raw.2020.work$hourly_wage < 1)))
-```
-
-## S7 Labour State
-
-```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_labour_state')
-
-lab.state <- prepped.list$var
-lab.state.norm <- prepped.list$norm
-
-# Now plot
-ggplot(data = lab.state, mapping = aes(x = time, y = n, group = S7_labour_state, colour = S7_labour_state)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = lab.state.norm, mapping = aes(x = time, y = prct, fill=S7_labour_state)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'S7 Labour State') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'S7_labour_state.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, lab.state, lab.state.norm)
-```
-
-
-
-```{r}
-pivoted <- combine_and_pivot_long(df1 = base.dat, 
-                                       df1.name = 'simulated', 
-                                       df2 = raw.dat, 
-                                       df2.name = 'raw', 
-                                       var = 'S7_labour_state')
-
-cv_ordinal_plots(pivoted.df = pivoted, 
-                 var = 'S7_labour_state',
-                 save = shall.we.save,
-                 save.path = save.path)
-```
-
 ## Child Ages
 
 ```{r}
@@ -952,6 +1361,12 @@ base.child.ages.expanded <- base.child.ages.expanded %>%
   mutate(source = 'baseline')
 
 combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
+
+combined$expanded_child_ages <- factor(combined$expanded_child_ages,
+                                       levels = c('0', '1', '2', '3', '4', '5', 
+                                                  '6', '7', '8', '9', '10', 
+                                                  '11', '12', '13', '14', '15', 
+                                                  '16', 'childless'))
   
 ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
   geom_line() +
@@ -961,12 +1376,12 @@ ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded
   xlab('Year') +
   ylab('Count')
 
-ggplot(data = combined, mapping = aes(x = factor(as.numeric(expanded_child_ages)), y = age_counts, group = factor(time), colour = factor(time))) +
+ggplot(data = combined, mapping = aes(x = expanded_child_ages, y = age_counts, group = factor(time), colour = factor(time))) +
   geom_line() +
   geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
   scale_colour_viridis_d() +
-  xlab('Year') +
+  xlab('Age') +
   ylab('Count')
 
 base.child.ages.nkids <- base.dat %>%
@@ -992,6 +1407,7 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
   ylab('Count')
 
 ```
+
 
 ```{r}
 

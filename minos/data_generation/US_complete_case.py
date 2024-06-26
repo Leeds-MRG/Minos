@@ -72,10 +72,9 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
-                          "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
-    # REMOVED:  'job_sector', 'labour_state'
+                          "education_state", 'region', "age", 'financial_situation', #'SF_12',
+                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
+    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)
     # data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.  # HR 444
@@ -99,6 +98,9 @@ if __name__ == "__main__":
     #data = complete_case_custom_years(data, 'job_sector', years=[2014])
     data = complete_case_custom_years(data, 'hh_income', years=[2015])
 
+    # Universal Credit var (only doing it for start years for now)
+    data = complete_case_custom_years(data, 'universal_credit', years=[2020, 2021])
+
     # SIPHER 7 complete case stuff
     data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2022, 1)))
     # data['S7_physical_health'] = data['S7_physical_health'].astype(int)  # HR 444
@@ -116,7 +118,6 @@ if __name__ == "__main__":
                     'newest_education_state',
                     'health_limits_social',
                     'future_financial_situation',
-                    'behind_on_bills',
                     'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
                                         # featured in the final model.
                                         # remove them here or as late as needed.

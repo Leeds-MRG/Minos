@@ -8,10 +8,10 @@
 #$ -V
 ## Request hours of runtime
 #$ -l h_rt=48:00:00
-## Email if a run aborts
-#$ -m a
+## Email if a run aborts or finishes
+#$ -m ae
 ## Select memory
-#$ -l h_vmem=2G # was 15 for big runs
+#$ -l h_vmem=15G # was 15 for big runs
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
 #$ -pe smp 1
 ## Set logs directories
@@ -20,7 +20,7 @@
 
 ############## SET NUMBER OF RUNS HERE ##############
 ## Tell computer this is an array job with tasks from 1 to N
-#$ -t 1-2
+#$ -t 1-100
 
 # create these if they dont exist. Will crash arc4 if you dont do this.
 mkdir -p logs

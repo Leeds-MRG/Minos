@@ -469,7 +469,8 @@ class lmmYJMWB(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
+        view_columns = ["time",
+                        "age",
                         "sex",
                         "ethnicity",
                         "region",
@@ -497,10 +498,14 @@ class lmmYJMWB(Base):
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
 
-        #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
+        # only need to load this once for now.
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    "lmm")
+        # self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/glmm/SF_12_MCS_GLMM", self.rpy2_modules, path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -513,26 +518,26 @@ class lmmYJMWB(Base):
         self.year = event.time.year
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
-        pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
+        pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
         pop["SF_12_last"] = pop["SF_12"]
 
         # Predict next mwb value
         newWaveMWB = pd.DataFrame(columns=['SF_12'])
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
-        #newWaveMWB["SF_12"] -= 1
+        # newWaveMWB["SF_12"] -= 1
 
         sf12_mean = np.mean(newWaveMWB["SF_12"])
-        std_ratio = (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] *= (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
-        newWaveMWB["SF_12"] -= 1.5
-        #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
+        std_ratio = (11 / np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] *= (11 / np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean)
+        # newWaveMWB["SF_12_MCS"] -= 1.5
+        # newWaveMWB["SF_12_MCS"] += (50 - np.mean(newWaveMWB["SF_12_MCS"]))
+        # newWaveMWB["SF_12_MCS"] = np.clip(newWaveMWB["SF_12_MCS"], 0, 100) # keep within [0, 100] bounds of SF12.
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
-        # Update population with new SF12
-        #print(np.mean(newWaveMWB["SF_12"]))
-        #print(np.std(newWaveMWB["SF_12"]))
+        # Update population with new SF12_MCS
+        # print(np.mean(newWaveMWB["SF_12"]))
+        # print(np.std(newWaveMWB["SF_12"]))
         self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
 
@@ -545,14 +550,22 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
-                                                               self.rpy2Modules,
-                                                               current= pop,
-                                                               dependent='SF_12',
-                                                               reflect=True,
-                                                               yeo_johnson= True,
-                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
-        return out_data
+        # out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+        #                                                        self.rpy2Modules,
+        #                                                        current= pop,
+        #                                                        dependent='SF_12',
+        #                                                        reflect=True,
+        #                                                        yeo_johnson= True,
+        #                                                        noise_std= 0.1)# 5 for non yj, 0.35 for yj
+
+        nextWaveMWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    pop,
+                                                                    dependent='SF_12',
+                                                                    log_transform=True,
+                                                                    noise_std=3)  #
+
+        return nextWaveMWB
 
 
 class lmmDiffMWB(Base):
