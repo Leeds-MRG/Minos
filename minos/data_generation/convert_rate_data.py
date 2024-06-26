@@ -34,7 +34,7 @@ MORT_STUBS = ["Mortality", "_LEEDS1_2.csv"]
 YEAR_RANGE_DEFAULT = None
 VARS_TO_GROUP_DEFAULT = ["REGION.name", "ETH.group"]
 CACHE_DEFAULT = True
-BY_REGION_DEFAULT = True # If false, do not collapse into regions, and leave by local authority (LA)
+BY_REGION_DEFAULT = True  # If false, do not collapse into regions, and leave by local authority (LA)
 
 
 def collapse_location(data, file_name):
@@ -131,37 +131,36 @@ def compile_years(stubs,
 
     # Get dict of all years present and corresponding input files
     year_dict = {int(file.removeprefix(stubs[0]).removesuffix(stubs[1])): os.path.join(input_dir, file) for file in input_files}
-    years_present = year_dict.keys()
+    years_present = sorted(list(year_dict.keys()))
+
+    bad_value = 2061
+    if bad_value in years_present:
+        years_present = [y for y in years_present if y != bad_value]
     # print("Years present:", list(years_present))
 
     if not year_range:
         # If year range to grab not specified, just get all present in folder
         year_range = [min(years_present), max(years_present)]
-    elif year_range[0] > year_range[1]:
-        # Flip if passed in wrong order
-        year_range[0], year_range[1] = year_range[1], year_range[0]
+    # elif year_range[0] > year_range[1]:
+    #     # Flip if passed in wrong order
+    #     year_range[0], year_range[1] = year_range[1], year_range[0]
 
     # Get nearest range of available years
     year_range[0] = get_nearest(years_present, year_range[0])
     year_range[1] = get_nearest(years_present, year_range[1])
     print("Year range:", year_range)
-    years = list(range(year_range[0], year_range[1]+1)) # Must add one b/c of range indexing
+    years = list(range(year_range[0], year_range[1] + 1))
     print("Years:", years)
 
     df_dict = {year: pd.DataFrame(pd.read_csv(file, index_col=0)).set_index('LAD.name') for year, file in year_dict.items() if year in years}
-    # df_dict = {year: pd.DataFrame(pd.read_csv(file, index_col=0)) for year, file in year_dict.items() if year in years}
 
     # df_final = pd.concat(df_dict.values(), keys=df_dict.keys())
     df_final = pd.concat(df_dict.values(), keys=df_dict.keys(), names=['year']).reset_index()
 
-    # df_final.index.set_names(['year', 'LAD.name'], inplace=True)
-    # df_final.index.set_names(['year', 'index'], inplace=True)
-    # df_final = df_final.reset_index('year')
-
     # Collapse per-LA data to per_region
     if by_region:
         vars_to_group = VARS_TO_GROUP_DEFAULT
-        vars_to_group.append('year') # Add year to variables to retain (i.e. not take mean)
+        vars_to_group.append('year')  # Add year to variables to retain (i.e. not take mean)
         df_final = collapse_LAD_to_region(df_final, file_output=None, vars_to_group=vars_to_group, cache=False)
 
     return df_final, year_range
@@ -191,7 +190,8 @@ def cache_fertility_by_region(stubs=FERT_STUBS,
         return None
 
     # Cache to CSV
-    out_filename = output_prefix + str(year_range_out[0]) + "_" + str(year_range_out[1]) + ".csv"
+    # out_filename = output_prefix + str(year_range_out[0]) + "_" + str(year_range_out[1]) + ".csv"
+    out_filename = output_prefix + 'newethpop.csv'
     out_fullpath = os.path.join(output_folder, out_filename)
     print("Caching intermediate fertility data for year range", year_range_out, "to:", out_fullpath, "...")
     print("Year range may differ from those specified according to the degree of overlap with NewEthPop data")
@@ -228,7 +228,8 @@ def cache_mortality_by_region(stubs=MORT_STUBS,
         return None
 
     # Cache to CSV
-    out_filename = output_prefix + str(year_range_out[0]) + "_" + str(year_range_out[1]) + ".csv"
+    # out_filename = output_prefix + str(year_range_out[0]) + "_" + str(year_range_out[1]) + ".csv"
+    out_filename = output_prefix + 'newethpop.csv'
     out_fullpath = os.path.join(output_folder, out_filename)
     print("Caching intermediate mortality data for year range", year_range_out, "to:", out_fullpath, "...")
     print("Year range may differ from those specified according to the degree of overlap with NewEthPop data")
