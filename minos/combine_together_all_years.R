@@ -10,7 +10,7 @@ treated_summary <- function(data) {
     filter(scenario == 'intervention') %>%
     filter(income_boosted == 'TRUE') %>%
     select(pidp)
-  
+
   output <- data %>%
     inner_join(boosted.pidps, by = 'pidp') %>%
     group_by(run_id, scenario) %>%
@@ -19,7 +19,7 @@ treated_summary <- function(data) {
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-  
+
   return(output)
 }
 
@@ -28,7 +28,7 @@ whole_pop_income_quint_summary <- function(data) {
     filter(scenario == 'baseline') %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     select(pidp, income_quintile)
-  
+
   output <- data %>%
     inner_join(income_quints, by = 'pidp') %>%
     group_by(run_id, scenario, income_quintile) %>%
@@ -37,7 +37,7 @@ whole_pop_income_quint_summary <- function(data) {
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-  
+
   return(output)
 }
 
@@ -47,7 +47,7 @@ families_income_quint_summary <- function(data) {
     filter(nkids > 0) %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     select(pidp, income_quintile)
-  
+
   output <- data %>%
     inner_join(income_quints, by = 'pidp') %>%
     group_by(run_id, scenario, income_quintile) %>%
@@ -56,7 +56,7 @@ families_income_quint_summary <- function(data) {
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-  
+
   return(output)
 }
 
@@ -139,7 +139,7 @@ priority_any_summarise <- function(data) {
            priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
            priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
            priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one,
                                        priority_three_plus_children, priority_mother_under_25,
                                        priority_disabled)),
            priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
@@ -163,7 +163,7 @@ priority_any_confint_summarise <- function(data) {
            priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
            priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
            priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one,
                                        priority_three_plus_children, priority_mother_under_25,
                                        priority_disabled)),
            priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
@@ -288,4 +288,4 @@ summary_funcs <- c(treated = treated_summary,
 combine_summaries_across_years(summary_funcs, save.path1, save.path2)
 
 # Remove intermediates folder and its contents
-#unlink(save.path2, recursive = TRUE)
+unlink(save.path2, recursive = TRUE)

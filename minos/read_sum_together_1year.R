@@ -13,16 +13,16 @@ options(dplyr.summarise.inform = FALSE)
 get_latest_runtime_subdirectory <- function(path) {
   # first select only the path (not filenames)
   out.folders <- list.files(path)
-  
+
   # if more than 1, take the most recent
   if(length(out.folders) == 1) {
     path = paste0(path, '/', out.folders[1], '/')
   }
   else if(length(out.folders) > 1) {
     out.folders.date <- as.POSIXlt(out.folders, format='%Y_%m_%d_%H_%M_%S')
-    
+
     max.date <- max(out.folders.date)
-    
+
     # Collecting these objects here as they have to be formatted
     yr <- max.date$year + 1900 # year is years since 1900
     month <- formatC(max.date$mon + 1, width=2, flag='0') # months are zero indexed (WHY??)
@@ -30,14 +30,14 @@ get_latest_runtime_subdirectory <- function(path) {
     hour <- formatC(max.date$hour, width=2, flag='0')
     min <- formatC(max.date$min, width=2, flag='0')
     sec <- formatC(max.date$sec, width=2, flag='0')
-    
+
     str.date <- paste0(yr, '_',
                        month, '_',
                        day, '_',
                        hour, '_',
                        min, '_',
                        sec)
-    
+
     path <- paste0(path, '/', str.date, '/')
   }
   return(path)
@@ -68,67 +68,67 @@ drop_zero_weight <- function(data) {
 
 drop_unnecessary_cols <- function(data, scen, year) {
   # Only keep specific columns to reduce memory requirements
-  
+
   # cols we always need
-  keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity', 
+  keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity',
                  'child_ages', 'S7_labour_state', 'hh_income', 'SF_12', 'nkids',
-                 'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty', 
+                 'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty',
                  'universal_credit')  # , 'income_quintile'
-  
+
   # cols only needed in intervention summaries
   int.cols <- c('boost_amount', 'income_boosted')
-  
+
   # if not baseline, we need intervention cols
   if (stringr::str_detect(scen, 'baseline', negate = TRUE)) {
     if (year != 2020) {
       keep.cols <- c(keep.cols, int.cols)
     }
   }
-  
+
   # , 'simd_quintile'
-  
+
   data <- data %>%
     select(all_of(keep.cols))
-  
+
   # if baseline, create intervention cols
   if (stringr::str_detect(scen, 'baseline') | year == 2020) {
     data$income_boosted <- 'FALSE'
     data$boost_amount <- 0.0
   }
-  
+
   return(data)
 }
 
 select_keep_cols <- function(scen, year) {
   # Only keep specific columns to reduce memory requirements
-  
+
   # cols we always need
-  keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity', 
+  keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity',
                  'child_ages', 'S7_labour_state', 'hh_income', 'SF_12', 'nkids',
-                 'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty', 
+                 'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty',
                  'universal_credit', 'income_quintile')
-  
+
   # cols only needed in intervention summaries
   int.cols <- c('boost_amount', 'income_boosted')
-  
+
   # if not baseline, we need intervention cols
   if (stringr::str_detect(scen, 'baseline', negate = TRUE)) {
     if (year != 2020) {
       keep.cols <- c(keep.cols, int.cols)
     }
   }
-  
+
   # , 'simd_quintile'
-  
+
   data <- data %>%
     select(all_of(keep.cols))
-  
+
   # if baseline, create intervention cols
   if (stringr::str_detect(scen, 'baseline') | year == 2020) {
     data$income_boosted <- 'FALSE'
     data$boost_amount <- 0.0
   }
-  
+
   return(data)
 }
 
@@ -148,36 +148,36 @@ add_scenario <- function(data, scenario) {
 
 # Step 1: Load Data for One Year
 load_data_for_year <- function(scen.path, year, scen) {
-  
+
   # Create file strings using year from args
   file_pattern <- sprintf("*_run_id_%d.csv", year)
   file_list <- list.files(path = scen.path,
                           pattern = file_pattern,
                           full.names = TRUE)
-  
+
   # no_cores <- availableCores(omit=1)
   # plan(multisession, workers = no_cores)  # Set up parallel plan
-  
+
   # Use future_lapply with file_paths and fread
   #data_list <- future_lapply(file_list, fread, stringsAsFactors = TRUE)
-  
+
   #data_list <- lapply(file_list, read.csv)
   data_list <- lapply(file_list, fread)
   data_list <- lapply(data_list, as.data.frame)
-  
+
   # Keep only certain columns (check function above for list)
   data_list <- lapply(data_list, drop_unnecessary_cols, scen, year)
-  
+
   # Now drop dead and zero weight
   data_list <- lapply(data_list, drop_dead)
   data_list <- lapply(data_list, drop_zero_weight)
-  
+
   # Add run_id to each dataframe
   for (i in seq_along(data_list)) {
     run_id <- extract_run_id(file_list[i])
     data_list[[i]]$run_id <- as.numeric(str_remove(run_id, "^0+"))
   }
-  
+
   return(data_list)
 }
 
@@ -202,7 +202,7 @@ treated_summary <- function(data) {
     filter(scenario == 'intervention') %>%
     filter(income_boosted == 'TRUE') %>%
     select(pidp)
-  
+
   output <- data %>%
     inner_join(boosted.pidps, by = 'pidp') %>%
     group_by(run_id, scenario) %>%
@@ -211,7 +211,7 @@ treated_summary <- function(data) {
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-  
+
   return(output)
 }
 
@@ -220,7 +220,7 @@ whole_pop_income_quint_summary <- function(data) {
     filter(scenario == 'baseline') %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     select(pidp, income_quintile)
-  
+
   output <- data %>%
     inner_join(income_quints, by = 'pidp') %>%
     group_by(run_id, scenario, income_quintile) %>%
@@ -229,7 +229,7 @@ whole_pop_income_quint_summary <- function(data) {
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-  
+
   return(output)
 }
 
@@ -239,7 +239,7 @@ families_income_quint_summary <- function(data) {
     filter(nkids > 0) %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     select(pidp, income_quintile)
-  
+
   output <- data %>%
     inner_join(income_quints, by = 'pidp') %>%
     group_by(run_id, scenario, income_quintile) %>%
@@ -248,7 +248,7 @@ families_income_quint_summary <- function(data) {
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-  
+
   return(output)
 }
 
@@ -331,7 +331,7 @@ priority_any_summarise <- function(data) {
            priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
            priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
            priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one,
                                        priority_three_plus_children, priority_mother_under_25,
                                        priority_disabled)),
            priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
@@ -355,7 +355,7 @@ priority_any_confint_summarise <- function(data) {
            priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
            priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
            priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one, 
+           num_priority_groups = sum(c(priority_ethnic, priority_child_under_one,
                                        priority_three_plus_children, priority_mother_under_25,
                                        priority_disabled)),
            priority_any = ifelse(num_priority_groups > 0, TRUE, FALSE)
@@ -474,7 +474,7 @@ scen_list <- load_data_for_year(scen.path, year, scen)
 base_list <- lapply(base_list, add_scenario, 'baseline')
 scen_list <- lapply(scen_list, add_scenario, 'intervention')
 
-# combine the lists such that baseline run_id 1 and intervention run_id 1 are 
+# combine the lists such that baseline run_id 1 and intervention run_id 1 are
 # row bound into a single dataframe, resulting in a single list
 combined_list <- mapply(function(base_df, int_df) {
   combined <- rbind(base_df, int_df)
