@@ -418,25 +418,98 @@ ggplot(combined, aes(x = time, y = proportion, group = income_group, color = inc
 
 
 ```{r}
-# Step 1: Filter for households with children
-households_with_kids <- raw.dat %>%
+# # Step 1: Filter for households with children
+# households_with_kids <- raw.dat %>%
+#   filter(nkids > 0) %>%
+#   select(hidp, time, hh_income) %>%
+#   distinct() %>%
+#   select(-hidp)
+# 
+# # Step 2: Calculate income quintiles
+# households_with_kids <- households_with_kids %>%
+#   group_by(time) %>%
+#   mutate(income_quintile = ntile(hh_income, 5)) %>%
+#   ungroup()
+# 
+# # Step 3: Count households within each income quintile per year
+# household_count_by_income_quintile <- households_with_kids %>%
+#   group_by(time, income_quintile) %>%
+#   summarise(n = n())
+# 
+# household_count_by_income_quintile
+```
+
+### Households With Children (Ethnic Group)
+
+```{r}
+raw.hhs_kids.ethnicity <- raw.dat %>%
   filter(nkids > 0) %>%
-  select(hidp, time, hh_income) %>%
+  select(hidp, time, hh_income, ethnicity) %>%  # Select relevant columns to reduce data size
   distinct() %>%
-  select(-hidp)
+  group_by(time, ethnicity) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'final_US')
 
-# Step 2: Calculate income quintiles
-households_with_kids <- households_with_kids %>%
-  group_by(time) %>%
-  mutate(income_quintile = ntile(hh_income, 5)) %>%
-  ungroup()
+base.hhs_kids.ethnicity <- base.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income, ethnicity) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  group_by(time, ethnicity) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'baseline')
 
-# Step 3: Count households within each income quintile per year
-household_count_by_income_quintile <- households_with_kids %>%
-  group_by(time, income_quintile) %>%
-  summarise(n = n())
+combined <- rbind(raw.hhs_kids.ethnicity, base.hhs_kids.ethnicity)
+combined$ethnicity <- factor(combined$ethnicity)
 
-household_count_by_income_quintile
+ggplot(combined, aes(x = time, y = n, group = ethnicity, color = ethnicity, fill = ethnicity)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
+```
+
+
+```{r}
+calculate_hh_proportions <- function(data, group.var) {
+  # Step 1: Filter for households with children
+  households_with_kids <- data %>%
+    filter(nkids > 0) %>%
+    select(hidp, time, hh_income, .data[[group.var]]) %>%
+    distinct()
+  
+  # Step 3: Count households within each income group per year
+  household_counts <- households_with_kids %>%
+    group_by(time, .data[[group.var]]) %>%
+    summarise(count = n(), .groups = 'drop')
+  
+  # Step 4: Calculate total households with children per year
+  total_households_per_year <- households_with_kids %>%
+    group_by(time) %>%
+    summarise(total_count = n(), .groups = 'drop')
+  
+  # Step 5: Calculate proportion of households in each group per year
+  household_proportions <- household_counts %>%
+    left_join(total_households_per_year, by = "time") %>%
+    mutate(proportion = count / total_count) %>%
+    select(time, .data[[group.var]], proportion)
+  
+  return(household_proportions)
+}
+
+raw.hh_kids_prop <- calculate_hh_proportions(raw.dat, group.var = 'ethnicity')
+base.hh_kids_prop <- calculate_hh_proportions(base.dat, group.var = 'ethnicity')
+
+raw.hh_kids_prop$source <- 'final_US'
+raw.hh_kids_prop <- filter(raw.hh_kids_prop, time != start.year)
+base.hh_kids_prop$source <- 'baseline'
+
+combined <- rbind(raw.hh_kids_prop, base.hh_kids_prop)
+combined$ethnicity <- factor(combined$ethnicity)
+
+ggplot(combined, aes(x = time, y = proportion, group = ethnicity, color = ethnicity, fill = ethnicity)) +
+  geom_col() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
 ```
 
 
