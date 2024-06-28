@@ -561,7 +561,7 @@ def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
     return predictionDF
 
 
-def randomise_fixed_effects(model, rpy2_modules, type):
+def randomise_fixed_effects(model, rpy2_modules, type, seed):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
     Parameters
     ----------
@@ -577,6 +577,10 @@ def randomise_fixed_effects(model, rpy2_modules, type):
     model rpy2.RO
         Same model class with adjusted fixed effects.
     """
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     if type == "glmm":
         beta = model.do_slot("beta")

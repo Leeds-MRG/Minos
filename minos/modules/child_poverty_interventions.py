@@ -339,7 +339,26 @@ class ChildPovertyReductionRELATIVE_2(Base):
         end_year = 2030
         target_pov_prop = 0.1
         #relative_poverty_threshold = 1247.71
-        relative_poverty_threshold = 1100.69
+        #relative_poverty_threshold = 1100.69
+
+        relative_poverty_dict_scot = {2020: 1099.828,
+                                      2021: 1150.213,
+                                      2022: 1194.458,
+                                      2023: 1233.024,
+                                      2024: 1266.388,
+                                      2025: 1296.189,
+                                      2026: 1322.225,
+                                      2027: 1346.128,
+                                      2028: 1366.740,
+                                      2029: 1386.232,
+                                      2030: 1402.559,
+                                      2031: 1418.178,
+                                      2032: 1431.654,
+                                      2033: 1444.763,
+                                      2034: 1455.863,
+                                      2035: 1466.089}
+
+        relative_poverty_threshold = relative_poverty_dict_scot.get(event.time.year)
 
 
         # 1. Calculate median hh_income over all households

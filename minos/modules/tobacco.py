@@ -128,7 +128,10 @@ class Tobacco(Base):
         # if simulation goes beyond real data in 2020 dont load the transition model again.
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "zip")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model,
+                                                                    self.rpy2Modules,
+                                                                    "zip",
+                                                                    seed=self.run_seed)
 
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=self.transition_model,

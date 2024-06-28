@@ -504,7 +504,8 @@ class lmmYJMWB(Base):
                                                              path=self.transition_dir)
         self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model,
                                                                     self.rpy2Modules,
-                                                                    "lmm")
+                                                                    "lmm",
+                                                                    seed=self.run_seed)
         # self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/glmm/SF_12_MCS_GLMM", self.rpy2_modules, path=self.transition_dir)
 
         # LA 24/6/24

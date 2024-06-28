@@ -106,6 +106,8 @@ create.if.not.exists <- function(path) {
 
 ###################### SUMMARISE FUNCTIONS  ######################
 
+#### WHOLE POP ####
+
 whole_pop_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0) %>%
@@ -162,6 +164,8 @@ whole_pop_income_quintile_confint_summarise <- function(data) {
   #TODO: Add number households affected by interventions and other stats
   return(data)
 }
+
+#### FAMILIES ####
 
 families_summarise <- function(data) {
   data <- data %>%
@@ -224,6 +228,8 @@ families_income_quint_confint_summarise <- function(data) {
   return(data)
 }
 
+#### TREATED ####
+
 treated_relative_summarise <- function(data) {
   if (('boost_amount' %in% names(data)) & (mean(data$time) != 2020)) {
     data <- data %>%
@@ -275,6 +281,8 @@ treated_absolute_summarise <- function(data) {
   }
   return(data)
 }
+
+#### MENTAL ILLNESS RISK ####
 
 men_illness_risk_summarise <- function(data) {
   data <- data %>%
@@ -330,6 +338,8 @@ simd_generate_quintiles <- function(data) {
   data[['simd_quintile']] <- round(data[['simd_decile']] / 2)
   return(data)
 }
+
+#### UC SUMMARIES ####
 
 UC_summarise <- function(data) {
   data <- data %>%

@@ -638,16 +638,19 @@ class lmmYJIncome(Base):
         # self.transition_model = r_utils.load_transitions(f"hh_income/glmm/hh_income_GLMM", self.rpy2Modules,
         #                                                     path=self.transition_dir)
         # self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
-        # self.transition_model = r_utils.load_transitions(f"hh_income/lmm/hh_income_LMM", self.rpy2Modules,
-        #                                                  path=self.transition_dir)
-        # self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "lmm")
+        self.transition_model = r_utils.load_transitions(f"hh_income/lmm/hh_income_LMM", self.rpy2Modules,
+                                                         path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model,
+                                                                self.rpy2Modules,
+                                                                "lmm",
+                                                                seed=self.run_seed)
         #self.history_data = self.generate_history_dataframe("final_US", [2018, 2019], view_columns)
         #self.history_data["hh_income_diff"] = self.history_data['hh_income'] - self.history_data.groupby(['pidp'])['hh_income'].shift(1)
 
         # LA 24/6/24
-        self.rf_transition_model = r_utils.load_transitions(f"hh_income/rf/hh_income_RF",
-                                                            self.rpy2Modules,
-                                                            path=self.transition_dir)
+        # self.rf_transition_model = r_utils.load_transitions(f"hh_income/rf/hh_income_RF",
+        #                                                     self.rpy2Modules,
+        #                                                     path=self.transition_dir)
 
     def on_initialize_simulants(self, pop_data):
         """  Initiate columns for hh_income when new simulants are added.
