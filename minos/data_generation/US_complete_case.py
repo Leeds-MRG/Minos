@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
     # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
     # data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
-    data.loc[(data['time'] == 2013) & (data['ncigs'] == -8), 'ncigs'] = 0  # Avoids Pandas SettingWithCopyWarning
+    # data.loc[(data['time'] == 2013) & (data['ncigs'] == -8), 'ncigs'] = 0  # Avoids Pandas SettingWithCopyWarning
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2022, 1)))
     # Nutrition only present in 2014
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019, 2021])
