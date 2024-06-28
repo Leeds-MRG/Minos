@@ -213,7 +213,8 @@ run_yearly_models <- function(transitionDir_path,
       # Now make string into formula
       form <- as.formula(formula.string)
 
-
+      ## Get only required variables
+      merged <- merged[, append(all.vars(form), c("time", 'pidp', 'weight'))]
 
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
