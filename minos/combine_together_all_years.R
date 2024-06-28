@@ -60,6 +60,58 @@ families_income_quint_summary <- function(data) {
   return(output)
 }
 
+#### INDICES OF INEQUALITY ####
+
+calculate_indices <- function(sub_data) {
+  
+  # Calculate income quintiles from baseline run
+  income_quints <- data %>%
+    filter(scenario == 'baseline') %>%
+    filter(nkids > 0) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    select(pidp, income_quintile)
+  
+  # Calculate SF12 mid-point of each quintiles cumulative proportion
+  income_dist <- data %>%
+    inner_join(income_quints, by = 'pidp') %>%
+    group_by(income_quintile) %>%
+    summarise(mean_SF12 = weighted.mean(SF_12, w = weight), .groups = 'drop') %>%
+    mutate(
+      population_proportion = n() / nrow(data),
+      cumulative_proportion = cumsum(population_proportion) - (population_proportion / 2)
+    )
+  
+  # Fit linear regression model
+  model <- lm(mean_SF12 ~ cumulative_proportion, data = income_distribution)
+  
+  # Calculate SII
+  SII <- coef(model)[2]
+  # Calulate RII
+  predicted_lowest <- predict(model, newdata = data.frame(cumulative_population = min(income_distribution$cumulative_population)))
+  predicted_highest <- predict(model, newdata = data.frame(cumulative_population = max(income_distribution$cumulative_population)))
+  RII <- predicted_highest / predicted_lowest
+  
+  return(c(SII = SII, RII = RII))
+}
+
+indices_of_inequality <- function(data) {
+  results <- data %>%
+    group_by(run_id, scenario) %>%
+    do(as.data.frame(t(calculate_indices(.)))) %>%
+    ungroup()
+  
+  summary_results <- results %>%
+    group_by(scenario) %>%
+    summarise(
+      mean_SII = mean(SII),
+      sd_SII = sd(SII),
+      mean_RII = mean(RII),
+      sd_RII = sd(RII)
+    )
+  
+  return(summary_results)
+}
+
 
 ##################### PRIORITY SUBGROUPS ###################
 
@@ -280,7 +332,9 @@ summary_funcs <- c(treated = treated_summary,
                    priority_disabled = priority_summarise_disabled,
                    priority_child_under_one = priority_summarise_child_under_one,
                    priority_mother_under_25 = priority_summarise_mother_under_25,
-                   priority_three_plus_children = priority_summarise_three_plus_children)
+                   priority_three_plus_children = priority_summarise_three_plus_children,
+                   indices_of_inequality = indices_of_inequality
+                   )
 
 
 
