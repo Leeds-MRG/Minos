@@ -746,14 +746,14 @@ class lmmYJIncome(Base):
             Vector of new household incomes from OLS prediction.
         """
         # load transition model based on year.
-        # nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
-        #                                                              self.rpy2Modules,
-        #                                                              pop,
-        #                                                              dependent='hh_income',
-        #                                                              yeo_johnson=True,
-        #                                                              reflect=False,
-        #                                                              noise_std=0.175,
-        #                                                              seed=self.run_seed)  #0.45 for yj. 100? for non yj.
+        nextWaveIncome = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+                                                                     self.rpy2Modules,
+                                                                     pop,
+                                                                     dependent='hh_income',
+                                                                     yeo_johnson=True,
+                                                                     reflect=False,
+                                                                     noise_std=0.175,
+                                                                     seed=self.run_seed)  #0.45 for yj. 100? for non yj.
 
         # nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_lmm(self.transition_model,
         #                                                                self.rpy2Modules,
@@ -762,11 +762,11 @@ class lmmYJIncome(Base):
         #                                                                log_transform=False,
         #                                                                noise_std=100)
 
-        nextWaveIncome = r_utils.predict_next_rf(self.rf_transition_model,
-                                                 self.rpy2Modules,
-                                                 pop,
-                                                 dependent='hh_income',
-                                                 seed=self.run_seed)
+        # nextWaveIncome = r_utils.predict_next_rf(self.rf_transition_model,
+        #                                          self.rpy2Modules,
+        #                                          pop,
+        #                                          dependent='hh_income',
+        #                                          seed=self.run_seed)
 
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
