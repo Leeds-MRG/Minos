@@ -130,6 +130,22 @@ CPR_sustain_allyears:
 
 CPR_all_allyears: CPR_baseline_allyears CPR_relative_new_allyears CPR_relative_allyears CPR_absolute_allyears
 
+## PRIORITY SUBGROUP
+
+CPR_psub_yearly:
+	bash scripts/arc_yearly_sum_submit.sh priority_subgroup cpr_sum_out baseline 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh priority_subgroup cpr_sum_out ChildPovertyReductionRELATIVE_psub 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh priority_subgroup cpr_sum_out ChildPovertyReductionRELATIVE_psub 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh priority_subgroup cpr_sum_out ChildPovertyReductionABSOLUTE_psub 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh priority_subgroup cpr_sum_out ChildPovertyReductionABSOLUTE_psub 2020 2035
+
+CPR_psub_allyears:
+	Rscript minos/combine_summaries_all_years.R priority_subgroup cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R priority_subgroup cpr_sum_out ChildPovertyReductionRELATIVE_psub
+	Rscript minos/combine_together_all_years.R priority_subgroup cpr_sum_out ChildPovertyReductionRELATIVE_psub
+	Rscript minos/combine_summaries_all_years.R priority_subgroup cpr_sum_out ChildPovertyReductionABSOLUTE_psub
+	Rscript minos/combine_together_all_years.R priority_subgroup cpr_sum_out ChildPovertyReductionABSOLUTE_psub
+
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
 ##############################################################
