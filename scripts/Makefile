@@ -292,13 +292,13 @@ arc4_child_pov_scotland: arc4_intervention_childPovertyReductionRELATIVE_2_scotl
 ############### PRIORITY SUBGROUP ONLY RUNS RUNS ###############
 
 arc4_baseline_psub:
-	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup
+	bash scripts/arc_submit.sh -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup
 
 arc4_intervention_childPovertyReductionRelative_psub:
-	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE_psub'
+	bash scripts/arc_submit.sh -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE_psub'
 
 arc4_intervention_childPovertyReductionAbsolute_psub:
-	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionABSOLUTE_psub'
+	bash scripts/arc_submit.sh -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionABSOLUTE_psub'
 
 arc4_child_pov_psub: arc4_baseline_psub arc4_intervention_childPovertyReductionRelative_psub arc4_intervention_childPovertyReductionAbsolute_psub
 
