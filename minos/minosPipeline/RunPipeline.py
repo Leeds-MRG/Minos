@@ -46,7 +46,9 @@ from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUp
 from minos.modules.child_poverty_interventions import childUplift
 from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE
 from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE_2
+from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE_psub
 from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE
+from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE_psub
 from minos.modules.child_poverty_interventions import ChildPovertyReduction
 from minos.modules.child_poverty_interventions import ChildPovertyReductionSUSTAIN
 from minos.modules.living_wage_interventions import livingWageIntervention
@@ -125,7 +127,9 @@ intervention_components_map = {        #Interventions
 
     "ChildPovertyReductionRELATIVE": ChildPovertyReductionRELATIVE(),
     "ChildPovertyReductionRELATIVE_2": ChildPovertyReductionRELATIVE_2(),
+    "ChildPovertyReductionRELATIVE_psub": ChildPovertyReductionRELATIVE_psub(),
     "ChildPovertyReductionABSOLUTE": ChildPovertyReductionABSOLUTE(),
+    "ChildPovertyReductionABSOLUTE_psub": ChildPovertyReductionABSOLUTE_psub(),
     "ChildPovertyReduction": ChildPovertyReduction(),
     "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
   

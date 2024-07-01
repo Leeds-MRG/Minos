@@ -128,13 +128,13 @@ child_pov_no_replenish: intervention_childPovertyReductionAbsolute_no_replenish
 baseline_psub: setup_scot_priority_sub
 	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup
 
-intervention_psub_childPovertyReductionRELATIVE: setup_scot_priority_sub
-	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE'
+intervention_childPovertyReductionRelative_psub: setup_scot_priority_sub
+	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE_psub'
 
-intervention_psub_childPovertyReductionRELATIVE_2: setup_scot_priority_sub
-	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE_2'
+intervention_childPovertyReductionAbsolute_psub: setup_scot_priority_sub
+	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionABSOLUTE_psub'
 
-child_pov_psub: baseline_psub intervention_psub_childPovertyReductionRELATIVE_2
+child_pov_psub: baseline_psub intervention_psub_childPovertyReductionRELATIVE_psub intervention_childPovertyReductionABSOLUTE_psub
 
 ############################################
 ## Local single runs of MINOS SF12 experiments using the glasgow synthetic population.
@@ -288,6 +288,19 @@ arc4_intervention_ChildPovertyReductionABSOLUTE_scotland:
 
 arc4_child_pov_scotland: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReductionRELATIVE_scotland
 arc4_child_pov_scotland: arc4_intervention_childPovertyReductionRELATIVE_2_scotland arc4_intervention_ChildPovertyReductionABSOLUTE_scotland
+
+############### PRIORITY SUBGROUP ONLY RUNS RUNS ###############
+
+arc4_baseline_psub:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup
+
+arc4_intervention_childPovertyReductionRelative_psub:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE_psub'
+
+arc4_intervention_childPovertyReductionAbsolute_psub:
+	$(PYTHON) scripts/run.py -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionABSOLUTE_psub'
+
+arc4_child_pov_psub: arc4_baseline_psub arc4_intervention_childPovertyReductionRelative_psub arc4_intervention_childPovertyReductionAbsolute_psub
 
 ## All default scenarios
 arc4_all_scenarios_default: setup

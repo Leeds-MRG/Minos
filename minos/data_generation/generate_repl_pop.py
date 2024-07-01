@@ -341,11 +341,11 @@ def main():
                         help="Select inflated mode to produce inflated cross-validation populations from inflated"
                              "data.")
     parser.add_argument('-pr', '--priority_subgroup', action='store_true',
-                        help='Select priority subgroup mode to generate a replenishing pop from the priority subgroup '
-                             'only population.')
+                        help="Select priority subgroup mode to generate a replenishing pop from the priority subgroup "
+                             "only population.")
     parser.add_argument('-m', '--multisample', action='store_true',
-                        help='Multisample mode, generate 10 different replenishing populations from the 10 samples'
-                             'generated from the synthpop.')
+                        help="Multisample mode, generate 10 different replenishing populations from the 10 samples"
+                             "generated from the synthpop.")
 
     args = parser.parse_args()
     scotland_mode = args.scotland
