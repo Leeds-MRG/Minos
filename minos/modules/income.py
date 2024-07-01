@@ -693,6 +693,10 @@ class lmmYJIncome(Base):
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
+        # Ensure whole household has equal hh_income by taking mean after prediction
+        newWaveIncome['hidp'] = pop['hidp']
+        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform("mean")
+
         # calculate household income mean
         income_mean = np.mean(newWaveIncome["hh_income"])
         # calculate change in standard deviation between waves.
