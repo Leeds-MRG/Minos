@@ -260,9 +260,9 @@ def main(data, save=False):
     #             "job_industry", "job_sec", "heating"]  # add more variables here.
     # define columns to be forward filled, back filled, and linearly interpolated.
     # note columns can be forward and back filled for immutables like ethnicity.
-    f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
+    f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
-                 'nkids_ind_raw', "nresp"]  # 'ncigs', 'ndrinks']
+                 'nkids_ind_raw', "nresp", 'region']  # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw']
     li_columns = ["age"]
