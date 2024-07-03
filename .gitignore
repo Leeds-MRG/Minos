@@ -111,3 +111,7 @@ minos/testing/*_files/
 # python notebooks for testing
 notebooks/equivalent_income_test.ipynb
 notebooks/testing_scottish_sample.ipynb
+
+# contains credentials to access the database
+database.ini
+
