@@ -479,7 +479,7 @@ priority_num_confint_summarise <- function(data) {
 ###################### RUN THIS STUFF! ######################
 
 args <- commandArgs(trailingOnly=TRUE)
-args <- list('default_batch', 'cpr_summary_out_test', 'ChildPovertyReductionRELATIVE_2', 2020)
+#args <- list('default_batch', 'cpr_summary_out_test', 'ChildPovertyReductionRELATIVE_2', 2020)
 
 # constants
 # start.year <- 2020
@@ -515,7 +515,8 @@ summary_funcs <- c(treated = treated_summary,
                    priority_ethnicity = priority_summarise_ethnicity,
                    priority_child_under_one = priority_summarise_child_under_one,
                    priority_mother_under_25 = priority_summarise_mother_under_25,
-                   priority_three_plus_children = priority_summarise_three_plus_children
+                   priority_three_plus_children = priority_summarise_three_plus_children,
+                   indices_of_inequality = indices_of_inequality
                    )
 
 # indices_of_inequality = indices_of_inequality
