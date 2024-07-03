@@ -515,8 +515,7 @@ summary_funcs <- c(treated = treated_summary,
                    priority_ethnicity = priority_summarise_ethnicity,
                    priority_child_under_one = priority_summarise_child_under_one,
                    priority_mother_under_25 = priority_summarise_mother_under_25,
-                   priority_three_plus_children = priority_summarise_three_plus_children,
-                   indices_of_inequality = indices_of_inequality
+                   priority_three_plus_children = priority_summarise_three_plus_children
                    )
 
 # indices_of_inequality = indices_of_inequality
