@@ -1294,6 +1294,7 @@ class ChildPovertyReduction(Base):
                         'pidp',
                         'hidp']
         columns_created = ["income_boosted",
+                           "boost_amount",
                            "boost_amount_rel",
                            "boost_amount_abs",
                            "income_boosted_this_wave",
