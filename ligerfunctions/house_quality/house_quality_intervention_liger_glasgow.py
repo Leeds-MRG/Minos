@@ -71,22 +71,28 @@ if __name__ == "__main__":
 
     n_locations_for_intervention = 136
     # input_data = [bool(random.getrandbits(1)) for _ in range(n_locations_for_intervention)]
+    x = [False] * n_locations_for_intervention
+    start = time.time()
+    y = house_quality_intervention_liger_glasgow(x=x)
+    end = time.time()
+    print(end - start)
+    print(y)
 
     # build a DOE
-    number_of_solutions = 50
-    sampling_plan = [generate_boolean_list(n_locations_for_intervention, i) for i in range(number_of_solutions)]
-    import csv
-    with open('sampling_plan.csv', 'w', newline='') as f:
-        writer = csv.writer(f)
-        splan = [[int(b) for b in x] for x in sampling_plan]
-        writer.writerows(splan)
-
-    for i in range(number_of_solutions):
-        input_data = sampling_plan[i]
-        # print(input_data)
-        start = time.time()
-        y = house_quality_intervention_liger_glasgow(x=input_data)
-        y.append(time.time() - start)
-        with open(r'responses.csv', 'a') as f1:
-            writer = csv.writer(f1)
-            writer.writerow(y)
+    # number_of_solutions = 50
+    # sampling_plan = [generate_boolean_list(n_locations_for_intervention, i) for i in range(number_of_solutions)]
+    # import csv
+    # with open('sampling_plan.csv', 'w', newline='') as f:
+    #     writer = csv.writer(f)
+    #     splan = [[int(b) for b in x] for x in sampling_plan]
+    #     writer.writerows(splan)
+    #
+    # for i in range(number_of_solutions):
+    #     input_data = sampling_plan[i]
+    #     # print(input_data)
+    #     start = time.time()
+    #     y = house_quality_intervention_liger_glasgow(x=input_data)
+    #     y.append(time.time() - start)
+    #     with open(r'responses.csv', 'a') as f1:
+    #         writer = csv.writer(f1)
+    #         writer.writerow(y)
