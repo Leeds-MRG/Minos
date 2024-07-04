@@ -848,7 +848,8 @@ class RFDiffIncome(Base):
                         'hh_income',
                         'hh_income_diff',
                         'S7_labour_state',
-                        'time'
+                        'time',
+                        'hidp'
                         ]
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
