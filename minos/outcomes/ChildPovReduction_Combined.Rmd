@@ -1,6 +1,8 @@
 ---
 title: "Scottish Child Poverty Briefing Plots"
 output:
+  pdf_document:
+    toc: true
   html_document:
     toc: true
     toc_float: true
@@ -8,8 +10,6 @@ output:
     number_sections: true
     df_print: paged
     code_folding: hide
-  pdf_document:
-    toc: true
 ---
 
 
@@ -29,7 +29,9 @@ require(ggplot2)
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/scp_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/cpr_summary_out/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
-workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/psub/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/default_US/"
 #workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old8_scot/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
@@ -377,62 +379,6 @@ SF12_change_num_priority_groups <- function(scen.list) {
 ```
 
 ```{r "inequality_plots", include=FALSE}
-# inequality_plots <- function(summary_group, scen.list) {
-#   
-#   tit <- ' '
-#   if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
-#   if (summary_group == 'families') { tit <- 'Families' }
-#   
-#   summary_group <- paste0(summary_group, '_income_quint')
-#   
-#   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
-#   
-#   data$income_quintile <- factor(data$income_quintile)
-#   
-#   # Combine the data
-#   data_combined <- data %>%
-#     mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention'))
-#   
-#   p1 <- ggplot(data_combined, aes(x = year, y = SF_12, group = interaction(income_quintile, scenario), color = income_quintile, linetype = scenario)) +
-#     geom_smooth(alpha = 0.7) +
-#     scale_color_manual(name = "Income Quintile", 
-#                        values = c("red", "blue", "green", "orange", "purple")) +
-#     scale_linetype_manual(name = "Scenario", 
-#                           values = c("Baseline" = "solid", "Intervention" = "dotted")) +
-#     labs(title = "SF_12 Scores by Income Quintile",
-#          subtitle = tit,
-#          x = "Year",
-#          y = "Mean SF_12 MCS") +
-#     theme_minimal() +
-#     theme(legend.position = "right",
-#           legend.title = element_text(size = 12),
-#           legend.text = element_text(size = 10))
-#   
-#   # Aggregate data
-#   agg_data <- data %>%
-#     mutate(scenario = ifelse(scen == 'baseline', 'Baseline', 'Intervention')) %>%
-#     group_by(year, income_quintile, scenario) %>%
-#     summarize(mean_SF_12 = mean(SF_12, na.rm = TRUE)) %>%
-#     spread(scenario, mean_SF_12) %>%
-#     mutate(difference = Intervention - Baseline)
-#   
-#   p2 <- ggplot(agg_data, aes(x = year, y = difference, fill = income_quintile)) +
-#     geom_bar(stat = "identity", position = "dodge") +
-#     scale_fill_manual(name = "Income Quintile", 
-#                       values = c("red", "blue", "green", "orange", "purple")) +
-#     labs(title = "Average Difference in SF_12 Scores by Income Quintile",
-#          subtitle = tit,
-#          x = "Year",
-#          y = "Difference in SF_12 Score") +
-#     theme_minimal() +
-#     theme(legend.position = "right",
-#           legend.title = element_text(size = 12),
-#           legend.text = element_text(size = 10))
-#   
-#   print(p1)
-#   print(p2)
-# }
-
 inequality_plots <- function(summary_group, scen) {
   
   tit <- ' '
@@ -668,6 +614,10 @@ scen.list.rel <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
 scen.rel <- 'ChildPovertyReductionRELATIVE_2'
 scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
 scen.abs <- 'ChildPovertyReductionABSOLUTE'
+# scen.list.rel <- c('baseline', 'ChildPovertyReductionRELATIVE_psub')
+# scen.rel <- 'ChildPovertyReductionRELATIVE_psub'
+# scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE_psub')
+# scen.abs <- 'ChildPovertyReductionABSOLUTE_psub'
 ```
 
 # MCS Change to QALY Example
