@@ -146,6 +146,30 @@ CPR_psub_allyears:
 	Rscript minos/combine_summaries_all_years.R priority_subgroup cpr_sum_out ChildPovertyReductionABSOLUTE_psub
 	Rscript minos/combine_together_all_years.R priority_subgroup cpr_sum_out ChildPovertyReductionABSOLUTE_psub
 
+## DEFAULT US POPULATION
+
+CPR_default_yearly:
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReduction 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReduction 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+
+CPR_default_allyears:
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReduction
+	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReduction
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE
+	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
 ##############################################################
