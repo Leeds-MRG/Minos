@@ -546,6 +546,11 @@ class geeYJIncome(Base):
         plt.close()
 
 
+def select_random_income(group):
+    random_income = np.random.choice(group['hh_income'])
+    return group.assign(hh_income=random_income)
+
+
 class lmmYJIncome(Base):
 
     # Special methods used by vivarium.
@@ -687,7 +692,6 @@ class lmmYJIncome(Base):
         # dummy column to load new prediction into.
         pop['hh_income_last'] = pop['hh_income']
 
-
         ## Predict next income values
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
@@ -695,7 +699,7 @@ class lmmYJIncome(Base):
 
         # Ensure whole household has equal hh_income by taking mean after prediction
         newWaveIncome['hidp'] = pop['hidp']
-        newWaveIncome['hh_income'] = newWaveIncome.groupby('hidp')['hh_income'].transform("mean")
+        newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income).reset_index(drop=True)
 
         # calculate household income mean
         income_mean = np.mean(newWaveIncome["hh_income"])
@@ -906,10 +910,14 @@ class RFDiffIncome(Base):
         newWaveIncome.index = pop.index
         newWaveIncome['hh_income'] = pop['hh_income'] + newWaveIncome['hh_income_diff']
 
+        # Ensure whole household has equal hh_income by taking mean after prediction
+        newWaveIncome['hidp'] = pop['hidp']
+        newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income).reset_index(drop=True)
+
         #newWaveIncome['hh_income'] += self.generate_gaussian_noise(pop.index, 0, 1000)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
-        print(f"Mean Income: {np.mean(newWaveIncome['hh_income'])}")
+        #print(f"Mean Income: {np.mean(newWaveIncome['hh_income'])}")
         self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
