@@ -66,8 +66,8 @@ class ChildPovertyReductionRELATIVE(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', 'weight']
-        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', 'weight', "income_boosted", "boost_amount"]
+        columns_created = ['income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -76,15 +76,16 @@ class ChildPovertyReductionRELATIVE(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
+        self.reset_intervention = True
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         #builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.,
-                                   'income_boosted_this_wave': False},
+        pop_update = pd.DataFrame({'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -295,8 +296,8 @@ class ChildPovertyReductionRELATIVE_2(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', "income_boosted", "boost_amount"]
+        columns_created = ['income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -305,15 +306,16 @@ class ChildPovertyReductionRELATIVE_2(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
+        self.reset_intervention = True
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         #builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.,
-                                   'income_boosted_this_wave': False},
+        pop_update = pd.DataFrame({'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -534,8 +536,8 @@ class ChildPovertyReductionRELATIVE_psub(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', "income_boosted", "boost_amount"]
+        columns_created = ['income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -544,15 +546,16 @@ class ChildPovertyReductionRELATIVE_psub(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
+        self.reset_intervention = True
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         #builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.,
-                                   'income_boosted_this_wave': False},
+        pop_update = pd.DataFrame({'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -796,8 +799,8 @@ class ChildPovertyReductionABSOLUTE(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', "income_boosted", "boost_amount"]
+        columns_created = ['income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -806,15 +809,16 @@ class ChildPovertyReductionABSOLUTE(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
+        self.reset_intervention = True
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         #builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.,
-                                   'income_boosted_this_wave': False},
+        pop_update = pd.DataFrame({'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -1043,8 +1047,8 @@ class ChildPovertyReductionABSOLUTE_psub(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp']
-        columns_created = ["income_boosted", "boost_amount", 'income_boosted_this_wave']
+        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', "income_boosted", "boost_amount"]
+        columns_created = ['income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -1053,15 +1057,16 @@ class ChildPovertyReductionABSOLUTE_psub(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
+        self.reset_intervention = True
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         #builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.,
-                                   'income_boosted_this_wave': False},
+        pop_update = pd.DataFrame({'income_boosted_this_wave': False},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -1292,10 +1297,10 @@ class ChildPovertyReduction(Base):
         view_columns = ["hh_income",
                         'nkids',
                         'pidp',
-                        'hidp']
-        columns_created = ["income_boosted",
-                           "boost_amount",
-                           "boost_amount_rel",
+                        'hidp',
+                        "boost_amount",
+                        "income_boosted"]
+        columns_created = ["boost_amount_rel",
                            "boost_amount_abs",
                            "income_boosted_this_wave",
                            "relative_boosted",
@@ -1309,15 +1314,16 @@ class ChildPovertyReduction(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
+        self.reset_intervention = True
+
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         # builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.,
-                                   'boost_amount_rel': 0.,
+        pop_update = pd.DataFrame({'boost_amount_rel': 0.,
                                    'boost_amount_abs': 0.,
                                    'income_boosted_this_wave': False,
                                    "relative_boosted": False,

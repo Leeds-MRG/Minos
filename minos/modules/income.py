@@ -618,7 +618,8 @@ class lmmYJIncome(Base):
                         'hh_income_diff',
                         'S7_labour_state',
                         'time',
-                        'hidp'
+                        'hidp',
+                        'boost_amount'
                         ]
 
 
@@ -672,9 +673,9 @@ class lmmYJIncome(Base):
         # Create frame with new 3 columns and add it to the main population frame.
         # This is the same for both new cohorts and newborn babies.
         # Neither should be dead yet.
-        pop_update = pd.DataFrame({'hh_income_diff': 0.},
-                                  index=pop_data.index)
-        self.population_view.update(pop_update)
+        #pop_update = pd.DataFrame({'hh_income_diff': 0.},
+        #                          index=pop_data.index)
+        #self.population_view.update(pop_update)
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -688,6 +689,11 @@ class lmmYJIncome(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         #pop = pop.sort_values('pidp')
         self.year = event.time.year
+
+        # LA 5/7/24
+        # If intervention is a reset intervention, remove boost amount from hh_income before predicting next
+        if self.reset_intervention:
+            pop['hh_income'] = pop['hh_income'] - pop['boost_amount']
 
         # dummy column to load new prediction into.
         pop['hh_income_last'] = pop['hh_income']

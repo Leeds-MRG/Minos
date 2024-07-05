@@ -1093,6 +1093,24 @@ def generate_priority_subgroups(data):
     return data
 
 
+def generate_intervention_vars(data):
+    """
+    Need to create intervention variables before we start as they are *sometimes* needed in income calculations.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    data['boost_amount'] = 0.
+    data['income_boosted'] = False
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1120,7 +1138,8 @@ def main():
     data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
     data = generate_poverty_cohort_vars(data)  # initial relative poverty variable
     data = generate_initial_income_quintile(data)  # generate initial income quintiles
-    data = generate_priority_subgroups(data)
+    data = generate_priority_subgroups(data)  # priority subgroups from Scottish government
+    data = generate_intervention_vars(data)  # Intervention variables
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
