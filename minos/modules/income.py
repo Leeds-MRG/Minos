@@ -692,7 +692,7 @@ class lmmYJIncome(Base):
 
         # LA 5/7/24
         # If intervention is a reset intervention, remove boost amount from hh_income before predicting next
-        if self.reset_intervention:
+        if self.reset_income_intervention:
             pop['hh_income'] = pop['hh_income'] - pop['boost_amount']
 
         # dummy column to load new prediction into.

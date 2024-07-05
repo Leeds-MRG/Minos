@@ -1314,9 +1314,6 @@ class ChildPovertyReduction(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
-        # Some interventions require us to remove the boost amount from hh_income before calculating the next hh_income
-        self.reset_intervention = True
-
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         # builder.event.register_listener("time_step", self.on_time_step, priority=4)

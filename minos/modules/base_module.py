@@ -50,6 +50,9 @@ class Base:
         # mode
         self.cross_validation = config.cross_validation
 
+        # Do we need to reset income (remove boost_amount) before predicting next income
+        self.reset_income_intervention = config.reset_income_intervention
+
         # # Grab module priority
         # self.priority = simulation.component_priority_map.get(self.__repr__(), PRIORITY_DEFAULT)
         # print("Priority for {} set to {}".format(self.__repr__(), self.priority))

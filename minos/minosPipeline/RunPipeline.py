@@ -330,6 +330,20 @@ def RunPipeline(config, intervention=None):
         intervention_kwargs = get_intervention_kwargs(intervention)
         config.update({'intervention_parameters': intervention_kwargs})  # add dict of intervention kwargs to config.
 
+    # Create a list of interventions that require the income to be reset before predicting next (ChildPovertyReduction)
+    reset_income_intervention_list = ['ChildPovertyReduction',
+                                      'ChildPovertyReductionSUSTAIN',
+                                      'ChildPovertyReductionRELATIVE',
+                                      'ChildPovertyReductionRELATIVE_2',
+                                      'ChildPovertyReductionRELATIVE_psub',
+                                      'ChildPovertyReductionABSOLUTE',
+                                      'ChildPovertyReductionABSOLUTE_psub']
+    # Add the config flag for resetting income before prediction
+    if intervention in reset_income_intervention_list:
+        config.update({'reset_income_intervention': True})
+    else:
+        config.update({'reset_income_intervention': False})
+
     component_priority_map, component_name_map = get_priorities()
     components = [component_name_map[c] for c in components_raw if c in component_name_map]
     components_invalid = [component_name_map[c] for c in components_raw if c not in component_name_map]
