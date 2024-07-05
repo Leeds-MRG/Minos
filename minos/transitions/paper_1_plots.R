@@ -62,6 +62,19 @@ gamma_forest_plot <- function(model, file_name){
   dev.off()
 }
 
+log_forest_plot <- function(model, file_name){
+  pdf(file_name)
+  p <- plot_model(model, transform=NULL, 
+                  title = "") + aes(shape=p.stars)
+  p$data$p.stars[p$data$p.stars == ""] <- "n.s." # force empty shape strings to n.s. so they show up in legend.
+  p <- p +  scale_shape_manual(name='Significance Level',
+                               breaks=c('n.s.', "*", "**", "***"),
+                               values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
+  p <- p + ylim(c(-0.125, 0.125))
+  plot(p)
+  dev.off()
+}
+
 residual_density_plot <- function(res, file_name, guide=NULL){
   # res - residuals of plotted model
   # guide - expected residual distribution. usually standard normal. 
@@ -123,8 +136,7 @@ handover_boxplots <- function(raw, baseline, var, save.path, filename.prefix) {
   
   ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
     geom_boxplot(notch=TRUE) +
-    labs(title = paste0(var, ': Yearly box plots'))
-  ggsave(paste0(save.path, '/', filename.prefix, ".pdf"))
+    labs(title = paste0(var, ': Yearly box plots')) + ggsave(paste0(save.path, '/', filename.prefix, ".pdf"))
 }
 
 
@@ -183,6 +195,7 @@ handover_boxplots <- function(raw, baseline, var, save.path, filename.prefix) {
   ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
     geom_boxplot(notch=TRUE) +
     labs(title = paste0(var, ': Yearly box plots'))
+    ggsave(filename = paste0(save.path, filename.prefix, ".pdf"))
 }
 
 
@@ -211,8 +224,8 @@ handover_lineplots <- function(raw, base, var) {
     geom_vline(xintercept=start.year, linetype='dotted') +
     labs(title = var, subtitle = 'Full Sample') +
     xlab('Year') +
-    ylab(var) +
-    ggsave(filename = paste0(save.path, "/", filename.prefix))
+    ylab(var)
+    ggsave(filename = paste0(save.path, "/", filename.prefix, ".pdf"))
 }
 
 
