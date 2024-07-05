@@ -250,21 +250,21 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     reweighted_repl = reweight_repl(expanded_repl, projections)
 
     # finally, predict the highest level of educ
-    final_repl = predict_education(reweighted_repl, transition_dir)
+    #final_repl = predict_education(reweighted_repl, transition_dir)
 
     # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
-    final_repl['ncigs'] = final_repl['ncigs'].astype(int)
-    final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
-    final_repl['loneliness'] = final_repl['loneliness'].astype(int)
-    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
-    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
-    final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
-    final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
-    final_repl['job_sec'] = final_repl['job_sec'].astype(int)
-    final_repl['nkids'] = final_repl['nkids'].astype(float)
+    reweighted_repl['ncigs'] = reweighted_repl['ncigs'].astype(int)
+    reweighted_repl['nutrition_quality'] = reweighted_repl['nutrition_quality'].astype(int)
+    reweighted_repl['loneliness'] = reweighted_repl['loneliness'].astype(int)
+    reweighted_repl['S7_mental_health'] = reweighted_repl['S7_mental_health'].astype(int)
+    reweighted_repl['S7_physical_health'] = reweighted_repl['S7_physical_health'].astype(int)
+    reweighted_repl['nutrition_quality_diff'] = reweighted_repl['nutrition_quality_diff'].astype(int)
+    reweighted_repl['neighbourhood_safety'] = reweighted_repl['neighbourhood_safety'].astype(int)
+    reweighted_repl['job_sec'] = reweighted_repl['job_sec'].astype(int)
+    reweighted_repl['nkids'] = reweighted_repl['nkids'].astype(float)
 
     US_utils.check_output_dir(output_dir)
-    final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
+    reweighted_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
     print('Replenishing population generated for 2015 - 2070')
 
 

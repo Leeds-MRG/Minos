@@ -2,7 +2,7 @@
 
 import pandas as pd
 import logging
-import r_utils
+from minos.modules import r_utils
 from minos.modules.base_module import Base
 
 # suppressing a warning that isn't a problem
@@ -114,7 +114,6 @@ class Education(Base):
     def name(self):
         return "education"
 
-
     def __repr__(self):
         return "Education()"
 
@@ -159,10 +158,10 @@ class Education(Base):
         self.start_transition_model = r_utils.load_transitions(f"education_state/mcmcglmm/education_state_MCMCGLMM",
                                                                self.rpy2Modules,
                                                                path=self.transition_dir)
-        self.stop_transition_model = r_utils.load_transitions(f"start_educ/logit/start_educ_",
+        self.stop_transition_model = r_utils.load_transitions(f"start_educ/logit/start_educ_2020_2021",
                                                               self.rpy2Modules,
                                                               path=self.transition_dir)
-        self.educ_transition_model = r_utils.load_transitions(f"stop_educ/logit/stop_educ_",
+        self.educ_transition_model = r_utils.load_transitions(f"stop_educ/logit/stop_educ_2020_2021",
                                                               self.rpy2Modules,
                                                               path=self.transition_dir)
 
@@ -184,48 +183,30 @@ class Education(Base):
 
         self.year = event.time.year
 
-        # Level 2 is equivalent to GCSE level, which everyone should have achieved by the age of 17
-        # No need to test max_educ for this one, everyone stays in education to 16 now minimum
-        level2 = self.population_view.get(event.index, query="alive=='alive' and age == 17 and S7_labour_state=='FT Education'")
-        # Update education state and apply back to population view
-        level2['education_state'][level2['education_state'] < 2] = 2
-        self.population_view.update(level2['education_state'])
+        pop = self.population_view.get(event.index, query="alive=='alive'")
 
-        # Level 3 is equivalent to A-level, so make this change by age 19 if max_educ is 3 or larger
-        level3 = self.population_view.get(event.index, query="alive=='alive' and age == 19 and S7_labour_state=='FT Education' and max_educ >= 3")
-        level3['education_state'][level3['education_state'] < 3] = 3
-        self.population_view.update(level3['education_state'])
-
-        # Level 5 is nursing/medical and HE diploma, so make this change by age 22 if max_educ is 5
-        level5 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 22 and S7_labour_state=='FT Education' and max_educ == 5")
-        level5['education_state'][level5['education_state'] < 5] = 5
-        self.population_view.update(level5['education_state'])
-
-        # Level 6 is 1st degree or teaching qual (not PGCE), so make this change by age 22 if max_educ is 6 or larger
-        level6 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 22 and S7_labour_state=='FT Education' and max_educ >= 6")
-        level6['education_state'][level6['education_state'] < 6] = 6
-        self.population_view.update(level6['education_state'])
-
-        # Level 7 is higher degree (masters/PhD), so make this change by age 25 if max_educ is 7
-        level7 = self.population_view.get(event.index,
-                                          query="alive=='alive' and age == 26 and S7_labour_state=='FT Education' and max_educ == 7")
-        level7['education_state'][level7['education_state'] < 7] = 7
-        self.population_view.update(level7['education_state'])
+        start_educ_prob_df = self.predict_educ_start(pop)
+        start_educ_prob_df[0.] = 1 - start_educ_prob_df[1.0]
+        start_educ_prob_df.index = pop.index
+        start_educ_prob_df["start_educ"] = self.random.choice(start_educ_prob_df.index,
+                                                              list(start_educ_prob_df.columns),
+                                                              start_educ_prob_df)
+        start_educ_prob_df.index = pop.index
+        start_educ_prob_df['start_educ'] = start_educ_prob_df['start_educ'].astype(int)
+        self.population_view.update(start_educ_prob_df["start_educ"])
 
     def predict_educ_start(self, pop):
 
         next_wave_start_educ = r_utils.predict_next_timestep_logit(model=self.start_transition_model,
-                                                                   rpy2_modules=self.rpy2_modules,
+                                                                   rpy2_modules=self.rpy2Modules,
                                                                    current=pop,
-                                                                   dependent='education_state')
+                                                                   dependent='start_educ')
         return next_wave_start_educ
 
     def predict_educ_stop(self, pop):
 
         next_wave_stop_educ = r_utils.predict_next_timestep_logit(model=self.stop_transition_model,
-                                                                  rpy2_modules=self.rpy2_modules,
+                                                                  rpy2_modules=self.rpy2Modules,
                                                                   current=pop,
-                                                                  dependent='education_state')
+                                                                  dependent='stop_educ')
         return next_wave_stop_educ
