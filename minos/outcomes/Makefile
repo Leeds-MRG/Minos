@@ -102,7 +102,7 @@ CPR_absolute_yearly:
 CPR_sustain_yearly:
 	bash scripts/arc_yearly_sum_submit.sh scotland_cpr cpr_sum_out ChildPovertyReductionSUSTAIN 2020 2035
 
-CPR_all_yearly: CPR_baseline_yearly CPR_relative_new_yearly CPR_relative_yearly CPR_absolute_yearly
+CPR_all_yearly: CPR_baseline_yearly CPR_relative_new_yearly CPR_relative_variable_yearly CPR_relative_yearly CPR_absolute_yearly
 
 ## COMBINE SUMMARIES
 
@@ -128,7 +128,7 @@ CPR_absolute_allyears:
 CPR_sustain_allyears:
 	Rscript minos/combine_summaries_all_years.R scotland_cpr cpr_sum_out ChildPovertyReductionSUSTAIN
 
-CPR_all_allyears: CPR_baseline_allyears CPR_relative_new_allyears CPR_relative_allyears CPR_absolute_allyears
+CPR_all_allyears: CPR_baseline_allyears CPR_relative_new_allyears CPR_relative_variable_allyears CPR_relative_allyears CPR_absolute_allyears
 
 ## PRIORITY SUBGROUP
 
