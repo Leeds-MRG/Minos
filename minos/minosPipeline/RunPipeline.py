@@ -305,6 +305,7 @@ def type_check(data):
     data['nkids'] = data['nkids'].astype(float)
     data['financial_situation'] = data['financial_situation'].astype(int)
     data['behind_on_bills'] = data['behind_on_bills'].astype(int)
+    data['boost_amount'] = data['boost_amount'].astype(float)
 
     return data
 
