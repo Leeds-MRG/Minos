@@ -267,7 +267,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/batch1'
+        data_source = 'imputed_final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
         source_year = 2015
