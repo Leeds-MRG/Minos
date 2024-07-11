@@ -9,6 +9,7 @@ library(caret)
 library(doParallel)
 library(parallelly)
 library(ranger)
+library(earth)
 
 ################ Model Specific Functions ################
 
@@ -49,9 +50,9 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
   data <- data[, append(all.vars(formula), c("time", 'pidp', 'weight'))]
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
-  
+
   # replace missing ncigs values (if still missing)
   #data[which(data$ncigs==-8), 'ncigs'] <- 0
   if(include_weights) {
@@ -86,7 +87,7 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
   data[[depend]] <- as.factor(data[[depend]])
 
   data = replace.missing(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   if(include_weights) {
@@ -106,9 +107,9 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
 
   data = replace.missing(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
-  
+
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
 
@@ -130,7 +131,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   if(include_weights) {
@@ -170,7 +171,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
 
   data <- replace.missing(data)
   #data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   # If min == 0, then add small amount before log_transform
@@ -238,9 +239,9 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
 
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
-  
+
   if (yeo_johnson){
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
@@ -272,9 +273,9 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   # Sort out dependent type (factor)
   data <- replace.missing(data)
   #data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
-  
+
   if (reflect) {
     max_value <- nanmax(data[[depend]])
     data[, c(depend)] <- max_value - data[, c(depend)]
@@ -412,17 +413,17 @@ estimate_RandomForest <- function(data, formula, depend) {
 
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   set.seed(123)
-  
+
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
 
   # Adjusting the model parameters to use fewer trees and limit depth
-  rfModel <- train(formula, 
+  rfModel <- train(formula,
                    data = data,
                    method = "rf",
                    trControl = fitControl,
@@ -439,22 +440,22 @@ estimate_RandomForest <- function(data, formula, depend) {
 }
 
 estimate_RandomForestOrdinal <- function(data, formula, depend) {
-  
+
   print('Beginning estimation of the Ordinal RandomForest model...')
-  
+
   numCores <- availableCores() - 1
-  
+
   registerDoParallel(cores = numCores)
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   data[[depend]] <- factor(data[[depend]])
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
-  
+
   set.seed(123)
-  
+
   # Train the ranger model
   ranger_model <- ranger(
     formula = formula,
@@ -463,6 +464,19 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
     probability = TRUE,
     verbose = TRUE
   )
-  
+
   return(ranger_model)
+}
+
+estimate_MARS <- function(data, formula) {
+
+  print('Beginning estimation of the MARS model...')
+
+  data <- replace.missing(data)
+  data <- drop_na(data)
+
+  model <- earth(formula = formula,
+                 data = data)
+
+  return(model)
 }

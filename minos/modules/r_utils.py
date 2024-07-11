@@ -569,6 +569,36 @@ def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
     return predictionDF
 
 
+def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_std=0):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    earth = rpy2_modules['earth']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    # prediction = stats.predict(model, newdata=currentRDF)
+    prediction = ro.r.predict(model, data=currentRDF)
+    #predictions = prediction.rx2('predictions')
+
+    prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std)  # add gaussian noise.
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        prediction_output = ro.conversion.rpy2py(prediction)
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
+
+
 def randomise_fixed_effects(model, rpy2_modules, type, seed):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
     Parameters

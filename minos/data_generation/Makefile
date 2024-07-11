@@ -116,7 +116,7 @@ $(IMPUTEDFINALDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTD
 $(INFLATEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/weight_inflate_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/weight_inflate_pop.py
 
-$(DATADIR)/replenishing/replenishing_pop_2015-2070.csv: $(FINALDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+$(DATADIR)/replenishing/replenishing_pop_2015-2070.csv: $(FINALDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json  # $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py
 
 $(DATADIR)/replenishing/inflated/replenishing_pop_2015-2070.csv: $(INFLATEDDATA)/2021_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py

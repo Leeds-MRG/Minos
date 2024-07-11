@@ -60,7 +60,8 @@ def expand_repl(US_wave, region):
     # LA 10/7/24
     # Set up a list for the ages to take as replenishing pop
     # for synthpop (just scotland for now to test) we don't need the 17 year olds also
-    repl_ages = [16, 17]
+    #repl_ages = [16, 17]
+    repl_ages = [16]
     if region == 'scotland':
         repl_ages = [16]
 

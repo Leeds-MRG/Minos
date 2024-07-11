@@ -13,11 +13,11 @@ from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.replenishment import NoReplenishment
-from minos.modules.replenishment_nowcast import ReplenishmentNowcast
+#from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, marsIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
@@ -92,6 +92,7 @@ components_map = {
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
     "RFDiffIncome()": RFDiffIncome(),
+    "marsIncome()": marsIncome(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -206,7 +207,7 @@ intervention_kwargs_dict = {
 replenishment_components_map = {
     "Replenishment()": Replenishment(),
     "NoReplenishment()": NoReplenishment(),
-    "ReplenishmentNowcast()": ReplenishmentNowcast(),
+    #"ReplenishmentNowcast()": ReplenishmentNowcast(),
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
 
@@ -241,7 +242,8 @@ def get_priorities():
                                                   'geeYJIncome()',
                                                   'lmmDiffIncome()',
                                                   'lmmYJIncome()',
-                                                  'RFDiffIncome()']})  # Any new income-based components to be added here
+                                                  'RFDiffIncome()',
+                                                  "marsIncome()"]})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
 
     # Some module better running before pathways
@@ -383,7 +385,8 @@ def RunPipeline(config, intervention=None):
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
                     "MASS": importr("MASS"),
-                    "ranger": importr("ranger")
+                    "ranger": importr("ranger"),
+                    "earth": importr("earth")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)
