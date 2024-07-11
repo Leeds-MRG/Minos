@@ -1254,7 +1254,7 @@ class marsIncome(Base):
                                                    current=pop,
                                                    dependent='hh_income',
                                                    seed=self.run_seed,
-                                                   noise_std=500)
+                                                   noise_gauss=500)
 
         return nextWaveIncome
 

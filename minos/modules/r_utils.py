@@ -569,7 +569,7 @@ def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
     return predictionDF
 
 
-def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_std=0):
+def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss=0):
 
     # import R packages
     base = rpy2_modules['base']
@@ -590,7 +590,15 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_std=0
     prediction = stats.predict(model, newdata=currentRDF)
     #predictions = prediction.rx2('predictions')
 
-    prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std)  # add gaussian noise.
+    # First add Gaussian noise
+    prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_gauss)  # add gaussian noise.
+
+    # Next add cauchy noise
+    cauchy_std = noise_gauss / 10
+    cauchy_noise = np.clip(stats.rcauchy(current.shape[0], 0, cauchy_std), -5000, 5000)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
+    with localconverter(ro.default_converter + numpy2ri.converter):
+        Rnoise = ro.conversion.py2rpy(cauchy_noise)
+    prediction = prediction.ro + Rnoise  # add gaussian noise.
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
