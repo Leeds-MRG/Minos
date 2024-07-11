@@ -107,7 +107,6 @@ class Neighbourhood(Base):
         # Update population with new neighbourhood
         self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'])
 
-
     def calculate_neighbourhood(self, pop):
         """Calculate neighbourhood transition distribution based on provided people/indices
 

@@ -57,11 +57,20 @@ def expand_repl(US_wave, region):
     # get max hidp value so we can add new households with unique hidp
     max_hidp = US_wave['hidp'].max()
 
+    # LA 10/7/24
+    # Set up a list for the ages to take as replenishing pop
+    # for synthpop (just scotland for now to test) we don't need the 17 year olds also
+    repl_ages = [16, 17]
+    if region == 'scotland':
+        repl_ages = [16]
+
     # Find households with a 16 or 17 year old to add as replenishing
-    repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
+    repl_wave_hidps = US_wave[(US_wave['age'].isin(repl_ages))]['hidp']
     repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
-    # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
+
+    # Change age of 17 year olds to 16 year olds (in the case where we take both ages to maintain age structure)
     repl_hhs['age'][repl_hhs['age'] == 17] = 16
+
     # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
     repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
 

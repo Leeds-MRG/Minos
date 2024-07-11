@@ -239,6 +239,7 @@ class lmmYJNutrition(Base):
                                                                           self.rpy2Modules,
                                                                           pop,
                                                                           dependent='nutrition_quality_new',
+                                                                          reflect=False,
                                                                           log_transform=False,
                                                                           noise_std=1,
                                                                           seed=self.run_seed)

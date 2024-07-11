@@ -321,7 +321,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, log_transform, seed, noise_std = 0):
+def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, log_transform, seed, noise_std = 0):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -368,6 +368,11 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         # log transformation currently only for PCS (also testing MCS)
         currentRDF[currentRDF.names.index(dependent)] = base.log(currentRDF.rx2(dependent))
 
+    # flip left skewed data to right skewed about its maximum.
+    if reflect:
+        max_value = model.do_slot("max_value")
+        currentRDF[currentRDF.names.index(dependent)] = max_value.ro - currentRDF.rx2(dependent)
+
     # explicitly convert to matrix to overcome error in predict_merMod below
     #currentRDF_matrix = matrix.as_matrix(currentRDF)
 
@@ -391,6 +396,9 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     if log_transform:
         prediction = base.exp(prediction)
+
+    if reflect:
+        prediction = max_value.ro - prediction
 
 
     valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality',

@@ -117,13 +117,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       use.weights <- TRUE
     }
 
-    # if (dependent %in% c()) {  # 'SF_12_PCS', "SF_12_MCS"
-    #   do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
-    # }
-    # else {
-    #   do.reflect=FALSE
-    # }
-    do.reflect=FALSE
+    if (dependent %in% c('SF_12', 'SF_12_PCS')) {  # 'SF_12_PCS', "SF_12_MCS"
+      do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
+    }
+    else {
+      do.reflect=FALSE
+    }
 
     if (dependent %in% c("hh_income")) {  # "SF_12"
       do.yeo.johnson = T #
@@ -137,10 +136,10 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       do.log.transform <- F
     }
     
-    if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety',
-                         'job_sec', 'financial_situation', 'behind_on_bills')) {
-      data[[dependent]] <- factor(data[[dependent]])
-    }
+    # if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety',
+    #                      'job_sec', 'financial_situation', 'behind_on_bills')) {
+    #   data[[dependent]] <- factor(data[[dependent]])
+    # }
 
     # experimental ordinal long models. ignore.
     # if (mod.type == "ORDGEE") {

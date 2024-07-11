@@ -569,6 +569,7 @@ class lmmYJMWB(Base):
                                                                     self.rpy2Modules,
                                                                     pop,
                                                                     dependent='SF_12',
+                                                                    reflect=True,
                                                                     log_transform=True,
                                                                     noise_std=3,
                                                                     seed=self.run_seed)  #

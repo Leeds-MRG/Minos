@@ -449,6 +449,8 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
   data <- replace.missing(data)
   data <- drop_na(data)
   
+  data[[depend]] <- factor(data[[depend]])
+  
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
   
   set.seed(123)
