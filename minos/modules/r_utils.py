@@ -586,7 +586,8 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_std=0
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # prediction = stats.predict(model, newdata=currentRDF)
-    prediction = ro.r.predict(model, data=currentRDF)
+    #prediction = ro.r.predict(model, data=currentRDF)
+    prediction = stats.predict(model, newdata=currentRDF)
     #predictions = prediction.rx2('predictions')
 
     prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std)  # add gaussian noise.
