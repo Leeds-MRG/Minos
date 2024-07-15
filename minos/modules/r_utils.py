@@ -505,7 +505,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def predict_next_rf(model, rpy2_modules, current, dependent, seed, noise=0):
+def predict_next_rf(model, rpy2_modules, current, dependent, seed, noise_gauss=0):
 
     # import R packages
     base = rpy2_modules['base']
@@ -524,9 +524,9 @@ def predict_next_rf(model, rpy2_modules, current, dependent, seed, noise=0):
     prediction = stats.predict(model, newdata=currentRDF)
 
     # Add some noise if noise > 0
-    if noise != 0:
+    if noise_gauss != 0:
         VGAM = rpy2_modules["VGAM"]
-        prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise)  # add gaussian noise.
+        prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_gauss)  # add gaussian noise.
 
     newRPopDF = base.cbind(currentRDF, predicted=prediction)
     # Convert back to pandas
@@ -569,7 +569,7 @@ def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
     return predictionDF
 
 
-def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss=0):
+def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss=0, noise_cauchy=0):
 
     # import R packages
     base = rpy2_modules['base']
@@ -585,25 +585,39 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss
         currentRDF = ro.conversion.py2rpy(current)
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
-    # prediction = stats.predict(model, newdata=currentRDF)
-    #prediction = ro.r.predict(model, data=currentRDF)
     prediction = stats.predict(model, newdata=currentRDF)
-    #predictions = prediction.rx2('predictions')
 
-    # First add Gaussian noise
-    prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_gauss)  # add gaussian noise.
-
-    # Next add cauchy noise
-    cauchy_std = noise_gauss / 10
-    cauchy_noise = np.clip(stats.rcauchy(current.shape[0], 0, cauchy_std), -5000, 5000)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
-    with localconverter(ro.default_converter + numpy2ri.converter):
-        Rnoise = ro.conversion.py2rpy(cauchy_noise)
-    prediction = prediction.ro + Rnoise  # add gaussian noise.
+    # Add Gaussian noise
+    gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)
+    prediction_with_gaussian = prediction.ro + gaussian_noise
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
-        prediction_output = ro.conversion.rpy2py(prediction)
+        prediction_with_gaussian = ro.conversion.rpy2py(prediction_with_gaussian)
+
+    prediction_with_gaussian = prediction_with_gaussian.ravel()
+
+    # Add Cauchy noise
+    cauchy_noise = stats.rcauchy(current.shape[0], 0, noise_cauchy)
+    cauchy_noise_limit = noise_cauchy * 10
+    cauchy_noise = np.clip(cauchy_noise, -cauchy_noise_limit, cauchy_noise_limit)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
+
+    prediction_output = prediction_with_gaussian + cauchy_noise
+
+    # with localconverter(ro.default_converter + numpy2ri.converter):
+    #     R_cauchy_noise = ro.conversion.py2rpy(cauchy_noise)
+
+    # Ensure the shapes are conformable
+    # if len(prediction_with_gaussian) != len(R_cauchy_noise):
+    #     raise ValueError("The shapes of prediction_with_gaussian and R_cauchy_noise do not match.")
+
+    # prediction_with_noise = prediction_with_gaussian.ro + R_cauchy_noise
+
+    # # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    # # Convert back to pandas
+    # with localconverter(ro.default_converter + pandas2ri.converter):
+    #     prediction_output = ro.conversion.rpy2py(prediction_with_noise)
 
     return pd.DataFrame(prediction_output, columns=[dependent])
 

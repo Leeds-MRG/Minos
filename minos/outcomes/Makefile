@@ -148,27 +148,29 @@ CPR_psub_allyears:
 
 ## DEFAULT US POPULATION
 
-CPR_default_yearly:
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out baseline 2020 2035
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReduction 2020 2035
-	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReduction 2020 2035
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE 2020 2035
-	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE 2020 2035
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
-	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
-	bash scripts/arc_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
-	bash scripts/arc_together_yearly_sum_submit.sh default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+CPR_yearly: SUBDIR=scotland_cpr_MARS
+CPR_yearly:
+	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out baseline 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReduction 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReduction 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE_2 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+	bash scripts/arc_together_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReductionABSOLUTE 2020 2035
+	# bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE 2020 2035
+	# bash scripts/arc_together_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE 2020 2035
 
-CPR_default_allyears:
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out baseline
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReduction
-	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReduction
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE
-	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
-	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionRELATIVE_2
-	Rscript minos/combine_summaries_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
-	Rscript minos/combine_together_all_years.R default_cpr cpr_sum_out ChildPovertyReductionABSOLUTE
+CPR_allyears: SUBDIR=scotland_cpr_MARS
+CPR_allyears:
+	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReduction
+	Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReduction
+	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE_2
+	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionABSOLUTE
+	Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionABSOLUTE
+	# Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE
+	# Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE
 
 ##############################################################
 # SCP & CPR Visualisation Notebooks #

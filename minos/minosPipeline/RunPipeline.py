@@ -17,8 +17,8 @@ from minos.modules.replenishment import NoReplenishment
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, marsIncome
-from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB, MarsMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -79,6 +79,7 @@ components_map = {
     "lmmDiffMWB()": lmmDiffMWB(),
     "MWB()": MWB(),
     "RFDiffMWB()": RFDiffMWB(),
+    "MarsMWB()": MarsMWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
@@ -92,7 +93,7 @@ components_map = {
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
     "RFDiffIncome()": RFDiffIncome(),
-    "marsIncome()": marsIncome(),
+    "marsIncome()": MarsIncome(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -243,7 +244,7 @@ def get_priorities():
                                                   'lmmDiffIncome()',
                                                   'lmmYJIncome()',
                                                   'RFDiffIncome()',
-                                                  "marsIncome()"]})  # Any new income-based components to be added here
+                                                  "MarsIncome()"]})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
 
     # Some module better running before pathways
@@ -260,7 +261,8 @@ def get_priorities():
                    "lmmDiffMWB()",
                    'S7EquivalentIncome()',
                    "lmmYJPCS()",
-                   "RFDiffMWB()"]
+                   "RFDiffMWB()",
+                   "MarsMWB()"]
 
     everything_else = [el for el in list(components_map)
                        + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]

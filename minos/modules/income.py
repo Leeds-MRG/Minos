@@ -1129,15 +1129,15 @@ class lmmDiffIncome(Base):
         plt.close()
 
 
-class marsIncome(Base):
+class MarsIncome(Base):
 
     # Special methods used by vivarium.
     @property
     def name(self):
-        return 'marsIncome'
+        return 'mars_income'
 
     def __repr__(self):
-        return "marsIncome()"
+        return "MarsIncome()"
 
     def setup(self, builder):
         """ Initialise the module during simulation.setup().
@@ -1254,7 +1254,8 @@ class marsIncome(Base):
                                                    current=pop,
                                                    dependent='hh_income',
                                                    seed=self.run_seed,
-                                                   noise_gauss=500)
+                                                   noise_gauss=350,
+                                                   noise_cauchy=35)
 
         return nextWaveIncome
 

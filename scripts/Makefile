@@ -248,46 +248,49 @@ arc4_intervention_energyDownLiftNoSupport:
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
 arc4_baseline_cpr:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR)
 
 arc4_intervention_childPovertyReduction:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReduction'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
 
 arc4_intervention_childPovertyReductionRELATIVE:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE'
 
 arc4_intervention_childPovertyReductionSUSTAIN:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionSUSTAIN'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionSUSTAIN'
 
 arc4_intervention_childPovertyReductionRELATIVE_2:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE_2'
 
 arc4_intervention_ChildPovertyReductionABSOLUTE:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionABSOLUTE'
 
+arc4_child_pov_interventions: SUBDIR=default_cpr
 arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReduction arc4_intervention_childPovertyReductionRELATIVE
 arc4_child_pov_interventions: arc4_intervention_childPovertyReductionRELATIVE_2 arc4_intervention_ChildPovertyReductionABSOLUTE
 
 arc4_baseline_cpr_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR)
 
 arc4_intervention_childPovertyReduction_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReduction'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
 
 arc4_intervention_childPovertyReductionRELATIVE_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionRELATIVE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE'
 
 arc4_intervention_childPovertyReductionSUSTAIN_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionSUSTAIN'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionSUSTAIN'
 
 arc4_intervention_childPovertyReductionRELATIVE_2_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionRELATIVE_2'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE_2'
 
 arc4_intervention_ChildPovertyReductionABSOLUTE_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr -i 'ChildPovertyReductionABSOLUTE'
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionABSOLUTE'
 
-arc4_child_pov_scotland: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReduction_scotland arc4_intervention_childPovertyReductionRELATIVE_scotland
+arc4_child_pov_scotland: SUBDIR=scotland_cpr_MARS
+arc4_child_pov_scotland: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReduction_scotland
 arc4_child_pov_scotland: arc4_intervention_childPovertyReductionRELATIVE_2_scotland arc4_intervention_ChildPovertyReductionABSOLUTE_scotland
+# arc4_intervention_childPovertyReductionRELATIVE_scotland
 
 ############### PRIORITY SUBGROUP ONLY RUNS RUNS ###############
 
