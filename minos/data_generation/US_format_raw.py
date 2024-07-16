@@ -15,6 +15,9 @@ from itertools import repeat
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
+from warnings import simplefilter
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
+
 # TODO there is an issue with the connection between the BHPS and ukhls waves. (see format_time)
 """ There seems to be a gap between 2007-2008 where people who were in the old 
 study do not transfer to the new one until next year. Need to find out why this is.
@@ -241,7 +244,7 @@ def format_ukhls_columns(year):
                       # sclonely only available in waves 9-11. scsf7 may be a good substitute.
                       'sex': 'sex',  # biological sex.
                       'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                      'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
+                      'sf12pcs_dv': 'SF_12_PCS',  # SF12 physical component summary
                       'smoker': 'smoker',  # Currently smokes.
                       # TODO waves present roughly matches ncigs. no data for waves 1-5.
                       # for waves 2 and 5 similar variable 'smnow' could be used.
@@ -324,6 +327,54 @@ def format_ukhls_columns(year):
                       "hsroom": "number_of_rooms", # number of rooms.
                       "hsbeds": "number_of_bedrooms", # number of bedrooms
                       #"hstype": "household_type", # household type #BHPS only
+                      ###### PCS VARS #####
+                      # Alcohol Use Disorder Variables (auditc)
+                      'auditc1': 'auditc1',  # Past 12 months alcohol drink?
+                      'auditc2': 'auditc2',  # Always been non-drinker
+                      'auditc3': 'auditc3',  # Alcohol frequency past 12 months
+                      'auditc4': 'auditc4',  # Drinks on typical day
+                      'auditc5': 'auditc5',  # Six or more drinks frequency
+                      # Exercise/activity variables
+                      'mday': 'mday',  # 7 days moderate activites
+                      'mdhrs': 'mdhrs',  # usual hours moderate activities
+                      'mdmin': 'mdmin',  # usual minute moderate activities
+                      'mwhrs': 'mwhrs',  # weekly hours moderate activities
+                      'mwmin': 'mwmin',  # weekly minutes moderate activities
+                      'vday': 'vday',  # 7 days vigorous activites
+                      'vdhrs': 'vdhrs',  # usual hours vigorous activities
+                      'vdmin': 'vdmin',  # usual minute vigorous activities
+                      'vwhrs': 'vwhrs',  # weekly hours vigorous activities
+                      'vwmin': 'vwmin',  # weekly minutes vigorous activities
+                      # Material Deprivation vars
+                      'matdepa': 'matdepa',  # Material Deprivation: Holiday
+                      'matdepd': 'matdepd',  # Material Deprivation: House
+                      'matdepe': 'matdepe',  # Material Deprivation: Contents Insurance
+                      'matdepf': 'matdepf',  # Material Deprivation: Regular Savings
+                      'matdepg': 'matdepg',  # Material Deprivation: Replace worn out furniture
+                      'matdeph': 'matdeph',  # Material Deprivation: Replace or repair major electrical goods
+                      'matdepi': 'matdepi',  # Material Deprivation: Money for self
+                      'matdepj': 'matdepj',  # Material Deprivation: Keep up with bills
+                      # Chronic Disease Vars
+                      'hcond1': 'hcond1',  # Health Condition 1: Asthma
+                      'hcond2': 'hcond2',  # Health Condition 2: Arthritis
+                      'hcond3': 'hcond3',  # Health Condition 3: Congestive Heart Failure
+                      'hcond4': 'hcond4',  # Health Condition 4: Coronary Heart Failure
+                      'hcond5': 'hcond5',  # Health Condition 5: Angina
+                      'hcond6': 'hcond6',  # Health Condition 6: Heart attack or myocardial infarction
+                      'hcond7': 'hcond7',  # Health Condition 7: Stroke
+                      'hcond8': 'hcond8',  # Health Condition 8: Emphysema
+                      'hcond10': 'hcond10',  # Health Condition 10: Hypothyroidism
+                      'hcond11': 'hcond11',  # Health Condition 11: Chronic Bronchitis
+                      'hcond12': 'hcond12',  # Health Condition 12: Any kind of liver condition
+                      'hcond13': 'hcond13',  # Health Condition 13: Cancer or malignancy
+                      'hcond14': 'hcond14',  # Health Condition 14: Diabetes
+                      'hcond15': 'hcond15',  # Health Condition 15: Epilepsy
+                      'hcond16': 'hcond16',  # Health Condition 16: High blood pressure
+                      'hcond18': 'hcond18',  # Health Condition 18: Other long standing/chronic condition
+                      'hcond19': 'hcond19',  # Health Condition 19: Multiple Sclerosis
+                      'hcond20': 'hcond20',  # Health Condition 20: H.I.V
+                      'hcond21': 'hcond21',  # Health Condition 21: COPD
+                      'hcond96': 'hcond96',  # Health Condition 96: None of these
                       }
 
     # Some variables change names halfway through UKHLS.

@@ -300,6 +300,7 @@ def generate_transition_stock(projections, cross_validation):
     data['ncigs'] = data['ncigs'].astype('int64')
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
+    data.drop('S7_neighbourhood_safety', axis=1, inplace=True)
     #data['housing_quality'] = data['housing_quality'].astype('int64')
 
     data = generate_difference_variables(data)
@@ -374,6 +375,7 @@ def generate_input_stock(projections, cross_validation):
     data['ncigs'] = data['ncigs'].astype('int64')
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['nutrition_quality'] = data['nutrition_quality'].astype(int)
+    data.drop('S7_neighbourhood_safety', axis=1, inplace=True)
     #data['housing_quality'] = data['housing_quality'].astype(int)
 
     data = generate_difference_variables(data)
