@@ -157,12 +157,12 @@ class lmmYJNetIncome(Base):
 
         income_mean = np.median(newWavenetIncome["net_hh_income"])
         std_ratio = (np.std(pop['net_hh_income']) / np.std(newWavenetIncome["net_hh_income"]))
-        newWavenetIncome["net_hh_income"] *= std_ratio
+        newWavenetIncome["net_hh_income"] *= std_ratio * (0.95)
         newWavenetIncome["net_hh_income"] -= ((std_ratio - 1) * income_mean)
 
         #newWavenetIncome['net_hh_income'] -= 175
 
-        newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-5000, 30000)
+        #newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-5000, 30000)
 
         newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
 

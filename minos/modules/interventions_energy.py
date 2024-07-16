@@ -74,15 +74,10 @@ class EPCG(Base):
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
         energy_mean = np.mean(pop.groupby(by='hidp')['yearly_energy'].mean())
-        if energy_mean > 3500:
-            pop['boost_amount'] = (3500 - energy_mean)
-            pop['yearly_energy'] += pop['boost_amount']
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
-
-        logging.info(f"\tNumber of people downlifted: {sum(pop['income_boosted'])}")
-        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
-        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
-        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
+        if energy_mean > 3000: # energy cap only active when the mean consumption is over 3500.
+            pop['boost_amount'] = (energy_mean-3000)
+            pop['yearly_energy'] -= pop['boost_amount']
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount', 'yearly_energy']])
 
 
 class energyBaseline(Base):
@@ -466,7 +461,7 @@ class goodHeatingDummy(Base):
                         'housing_quality',
                         'hidp']
 
-        columns_created = ['income_boosted']
+        columns_created = ['income_boosted', "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -480,7 +475,8 @@ class goodHeatingDummy(Base):
         builder.event.register_listener("time_step", self.on_time_step)
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   "boost_amount": 0 # who boosted?,
                                    },  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)

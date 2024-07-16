@@ -262,8 +262,8 @@ class lmmYJOutgoings(Base):
                                                                         self.rpy2Modules,
                                                                         pop,
                                                                         dependent='hh_mortgage_new',
-                                                                        yeo_johnson=False,
                                                                         reflect=False,
+                                                                        log_transform=False,
                                                                         noise_std=200.0)  # 0.15 too low. 2 too low?
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
@@ -423,6 +423,7 @@ class energyBills(Base):
         """
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        old_pop = pop.copy(deep=True)
 
         # get new wholesale energy pricing for three categories. gas coal and solid/liquid aggregated.
         # calculate price increase relative to 2020 pricing.
@@ -447,6 +448,7 @@ class energyBills(Base):
 
         # fixed tariffs according to gaspay variables. These prices don't change with market forces.
         fixed_tariffs = [1, 5, 8]
+        not_fixed_tariffs = [2,3,4, 6,7, 9]
 
         # gas and electric mean charges from https://www.ofgem.gov.uk/energy-price-cap
         gas_standing_charges = (~split_energy_bills_pop['gas_payment'].isin(fixed_tariffs)*pop['yearly_gas']>(365*0.3143))*365*0.3143
@@ -457,10 +459,10 @@ class energyBills(Base):
         split_energy_bills_pop['yearly_gas'] += gas_standing_charges
 
         # adjust electric pricing if not on a fixed tariff.
-        electric_standing_charges = (~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs)*pop['yearly_electric']>(365*0.6010))*365*0.6010
+        electric_standing_charges = (split_energy_bills_pop['electric_payment'].isin(not_fixed_tariffs)*pop['yearly_electric']>(365*0.6010))*365*0.6010
         split_energy_bills_pop['yearly_electric'] -= electric_standing_charges
         split_energy_bills_pop.loc[
-            ~split_energy_bills_pop['electric_payment'].isin(fixed_tariffs)*pop['yearly_electric']>0, "yearly_electric"] *= electric_price_ratio
+            split_energy_bills_pop['electric_payment'].isin(not_fixed_tariffs)*pop['yearly_electric']>0, "yearly_electric"] *= electric_price_ratio
         split_energy_bills_pop['yearly_electric'] += electric_standing_charges
 
         # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
@@ -502,17 +504,18 @@ class energyBills(Base):
 
         joint_energy_bills_pop = pop.loc[pop['gas_electric_combined'] == 2,]
 
+        # working out rough standing charge for gas/electric bill.
         electric_gas_standing_charges = (joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs)*pop['yearly_gas_electric']>(365*(0.6010+0.3143)))*365*(0.6010+0.3143)
         joint_energy_bills_pop['yearly_gas_electric'] -= electric_gas_standing_charges
-        electric_gas_current_spend = joint_energy_bills_pop.loc[~joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs)*pop['yearly_gas_electric']>0, 'yearly_gas_electric']
+        electric_gas_current_spend = joint_energy_bills_pop.loc[joint_energy_bills_pop['duel_payment'].isin(not_fixed_tariffs)*pop['yearly_gas_electric']>0, 'yearly_gas_electric']
         electric_gas_current_spend = (((2700*electric_price_ratio*electric_gas_current_spend)/(2700+11500)) +
                                       ((11500*gas_price_ratio*electric_gas_current_spend)/(2700+11500)))
-        joint_energy_bills_pop['yearly_gas_electric'] += electric_gas_standing_charges
-        joint_energy_bills_pop.loc[~joint_energy_bills_pop['duel_payment'].isin(fixed_tariffs), 'yearly_gas_electric'] = electric_gas_current_spend
+        electric_gas_current_spend += electric_gas_standing_charges
+        joint_energy_bills_pop.loc[joint_energy_bills_pop['duel_payment'].isin(not_fixed_tariffs), 'yearly_gas_electric'] = electric_gas_current_spend
 
         # no fixed tariffs for oil and solid fuel as far as I can tell. adjust unconditionallty
         joint_energy_bills_pop["yearly_oil"] *= liquid_price_ratio
-        #TODO a lot of -8s here.
+        #TODO a lot of -8s here.NEED TO DEAL WITH THESE
         joint_energy_bills_pop['yearly_other_fuel'] *= solid_price_ratio
 
         joint_energy_bills_pop['yearly_energy'] = joint_energy_bills_pop['yearly_gas_electric'] + joint_energy_bills_pop['yearly_oil'] + joint_energy_bills_pop['yearly_other_fuel']
@@ -524,11 +527,13 @@ class energyBills(Base):
         newWaveYearlyEnergy.index = pop.index
         pop['yearly_energy'] = newWaveYearlyEnergy['yearly_energy']
         #pop['yearly_energy'] = pop['yearly_energy'].clip(-1000, 25000)
-        pop['yearly_energy'] = pop['yearly_energy'].clip(0, 25000)
         pop['yearly_energy'] = pop.groupby(by=['hidp'])['yearly_energy'].transform("mean")
+        pop['yearly_energy'] = pop['yearly_energy'].clip(0, 25000)
         # update yearly energy bill for application in gross hh income. literally just sum the gas, electic, duel and other together.
-        self.population_view.update(pop['yearly_energy'])
         print(f"Yearly energy: {np.mean(pop['yearly_energy'])}")
+        print(sum(pop['yearly_energy']))
+
+        self.population_view.update(pop['yearly_energy'])
 
     def calculate_yearly_energy(self, pop):
         # load transition model based on year.

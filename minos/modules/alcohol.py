@@ -1,7 +1,5 @@
 """
 Module for alcohol in Minos.
-Calculation of monthly household alcohol
-Possible extension to interaction with employment/education and any spatial/interaction effects.
 """
 
 import pandas as pd
@@ -9,6 +7,8 @@ import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
 from seaborn import histplot
+import numpy as np
+
 
 class Alcohol(Base):
 
@@ -38,6 +38,7 @@ class Alcohol(Base):
         """
 
         # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
 
         # Build vivarium objects for calculating transition probabilities.
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
@@ -56,11 +57,10 @@ class Alcohol(Base):
                         'region',
                         'hh_income',
                         'SF_12',
+                        'SF_12_PCS',
                         'education_state',
-                        'labour_state',
-                        'job_sec',
-                        'hh_income',
-                        'alcohol_spending']
+                        'financial_situation',
+                        'auditc']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -87,15 +87,31 @@ class Alcohol(Base):
         self.year = event.time.year
 
         ## Predict next alcohol value
-        newWaveAlcohol = self.calculate_alcohol(pop)
-        newWaveAlcohol = pd.DataFrame(newWaveAlcohol, columns=["alcohol_spending"])
+        alcohol_prob_df = self.calculate_alcohol(pop)
+
+        #print(np.sum(pop.isna()))
+        alcohol_prob_df["auditc"] = self.random.choice(alcohol_prob_df.index,
+                                                       list(alcohol_prob_df.columns),
+                                                       alcohol_prob_df)
+
+        # alcohol_prob_df["auditc"] = self.random.choice(alcohol_prob_df.index,
+        #                                                list(alcohol_prob_df.columns),
+        #                                                alcohol_prob_df) + 1
+
         # Set index type to int (instead of object as previous)
-        newWaveAlcohol.index = pop.index
+        alcohol_prob_df.index = pop.index
+
+        # # convert numeric prediction into string factors (low, medium, high)
+        # alcohol_factor_dict = {1: 'Non-drinker',
+        #                        2: 'Low Risk',
+        #                        3: 'Increased Risk',
+        #                        4: 'High Risk'}
+        # alcohol_prob_df.replace({'auditc': alcohol_factor_dict},
+        #                         inplace=True)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new alcohol
-        self.population_view.update(newWaveAlcohol['alcohol_spending'].astype(int))
-
+        self.population_view.update(alcohol_prob_df["auditc"])
 
     def calculate_alcohol(self, pop):
         """Calculate alcohol transition distribution based on provided people/indices
@@ -107,15 +123,31 @@ class Alcohol(Base):
         Returns
         -------
         """
-        # load transition model based on year.
-        year = min(self.year, 2018)
-        transition_model = r_utils.load_transitions(f"alcohol/zip/alcohol_zip_{year}_{year + 1}", path=self.transition_dir)
-        # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveAlcohol = r_utils.predict_next_timestep_zip(model = transition_model,
-                                                                    current = pop,
-                                                                    dependent = 'alcohol_spending',
-                                                                    rescale_factor = 50)
-        return nextWaveAlcohol
+        # load transition model based on year
+        # For alcohol, selecting the 2018 model as the 2019 model sample has lots more missing for some reason
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2018
+        else:
+            year = min(self.year, 2018)
+
+        cols = ['Non-drinker', 'Low Risk', 'Increased Risk', 'High Risk']
+
+        transition_model = r_utils.load_transitions(f"auditc/nnet/auditc_{year}_{year + 1}",
+                                                   self.rpy2Modules,
+                                                   path=self.transition_dir)
+        # transition_model = r_utils.load_transitions(f"auditc/clm/auditc_{year}_{year + 1}",
+        #                                             self.rpy2Modules,
+        #                                             path=self.transition_dir)
+        # returns probability matrix (3xn) of next ordinal state.
+        prob_df = r_utils.predict_nnet(transition_model,
+                                       self.rpy2Modules,
+                                       pop,
+                                       cols)
+
+        # prob_df = r_utils.predict_next_timestep_clm(transition_model, self.rpy2Modules, pop, 'auditc')
+
+        return prob_df
 
     def plot(self, pop, config):
 

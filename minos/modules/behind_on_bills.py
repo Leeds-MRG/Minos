@@ -91,11 +91,9 @@ class behindOnBills(Base):
         nextWaveBills = self.calculate_behind_on_bills(pop)
         nextWaveBills["behind_on_bills"] = self.random.choice(nextWaveBills.index,
                                                                   list(nextWaveBills.columns+1),
-                                                                  nextWaveBills).astype(float)
+                                                                  nextWaveBills)#.astype(float)
         nextWaveBills.index = pop.index
-        #nextWaveBills["financial_situation"] = nextWaveBills["financial_situation"].astype(int)
-        # Draw individuals next states randomly from this distribution.
-        # Update population with new income.
+        # Update population with new BOB values.
         self.population_view.update(nextWaveBills['behind_on_bills'])
 
     def calculate_behind_on_bills(self, pop):

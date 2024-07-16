@@ -117,9 +117,8 @@ class nCars(Base):
         newWaveNCars['hidp'] = pop['hidp']
         newWaveNCars['ncars'] = newWaveNCars.groupby(by=['hidp'])['ncars'].transform('max')
         newWaveNCars['ncars'] = np.round(newWaveNCars['ncars']).astype(int) # switch back to ints. viv column takes float though..
-        newWaveNCars['ncars'] = newWaveNCars['ncars'].astype(float)
+        #newWaveNCars['ncars'] = newWaveNCars['ncars'].astype(float)
 
-        #newWaveNCars["ncars"] = newWaveNCars["ncars"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
         print(f"ncars: {np.mean(newWaveNCars['ncars'])}")

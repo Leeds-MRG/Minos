@@ -200,7 +200,13 @@ class Replenishment(Base):
 
         # Register simulants entrance time and age to CRN. I.E keep them seeded.
         # Add new simulants to the overall population frame.
+        #new_population['S7_neighbourhood_safety'] = new_population['S7_neighbourhood_safety'].astype(int)
         self.register(new_population[["entrance_time", "age"]])
+        new_population['yearly_energy'] = new_population['yearly_energy'].astype(float)
+        new_population['behind_on_bills'] = new_population['behind_on_bills'].astype(int)
+        new_population['active'] = new_population['active'].astype(int)
+        new_population['ncars'] = new_population['ncars'].astype(int)
+        new_population['financial_situation'] = new_population['financial_situation'].astype(int)
         self.population_view.update(new_population)
 
     def on_time_step(self, event):
