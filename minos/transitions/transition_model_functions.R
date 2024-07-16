@@ -161,7 +161,7 @@ estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) 
 nanmax <- function(x) { ifelse( !all(is.na(x)), max(x, na.rm=T), NA) }
 nanmin <- function(x) { ifelse( !all(is.na(x)), min(x, na.rm=T), NA) }
 
-estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, reflect) {
+estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, depend, yeo_johnson, log_transform, reflect) {
   
   data <- replace.missing(data)
   #data <- drop_na(data)
@@ -179,6 +179,9 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
     data[, c(depend)] <- predict(yj)
   }
   
+  if (log_transform) {
+    data[[depend]] <- log(data[[depend]])
+  }
   #browser()
   if(include_weights) {
     model <- lmer(formula,  
@@ -211,14 +214,14 @@ estimate_longitudinal_lmm_diff <- function(data, formula, include_weights = FALS
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-
+  
   if(include_weights) {
     model <- lmer(formula,  
-                   weights=weight, 
-                   data = data)
+                  weights=weight, 
+                  data = data)
   } else {
     model <- lmer(formula, 
-                   data = data)
+                  data = data)
   }
   if (yeo_johnson){
     attr(model,"transform") <- yj
@@ -247,7 +250,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
-
+  
   min_value <- nanmin(data[[depend]])
   data[[depend]] <- data[[depend]] - min_value + 0.001
   
@@ -274,9 +277,9 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   attr(model, "min_value") <- min_value
   attr(model, "cov_matrix") <- vcov(model)
   
-
+  
   #attr(model, "frame") <- list(terms=colnames(model@frame))
-
+  
   
   #resp <- attr(model, "resp")
   #resp2 <- list(eta=resp$eta)
@@ -294,7 +297,7 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   
   if (yeo_johnson){
     attr(model,"transform") <- yj # This is an unstable hack to add attributes to S4 class R objects.
-      }
+  }
   if (reflect) {
     attr(model,"max_value") <- max_value # Works though.
   }
@@ -328,15 +331,15 @@ estimate_longitudinal_glmm_gauss <- function(data, formula, include_weights = FA
   
   if(include_weights) {
     model <- lmer(formula,  
-                   nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
-                   family=gaussian(link='identity'), # Gaussian family with identity link
-                   weights=weight, 
-                   data = data)
+                  nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
+                  family=gaussian(link='identity'), # Gaussian family with identity link
+                  weights=weight, 
+                  data = data)
   } else {
     model <- lmer(formula, 
-                   nAGQ=0, 
-                   family=gaussian(link='identity'),
-                   data = data)
+                  nAGQ=0, 
+                  family=gaussian(link='identity'),
+                  data = data)
   }
   attr(model,"min_value") <- min_value
   
@@ -356,19 +359,19 @@ estimate_longitudinal_mlogit_gee <- function(data, formula, include_weights=FALS
   data <- drop_na(data)
   if(include_weights) {
     model <- ordgee(formula,
-                   id = pidp,
-                   waves = time,
-                   mean.link = 'logit', # gaussian GEE uses canonical identity link.
-                   data = data,
-                   weights = weight,
-                   corstr="exchangeable") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+                    id = pidp,
+                    waves = time,
+                    mean.link = 'logit', # gaussian GEE uses canonical identity link.
+                    data = data,
+                    weights = weight,
+                    corstr="exchangeable") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
   } else {
     model <- ordgee(formula,
-                      id = pidp,
-                      waves = time,
-                      mean.link = 'logit', # logistic link function (can use probit or cloglog as well.)
-                      data = head(data, 100),
-                      corstr="independence") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
+                    id = pidp,
+                    waves = time,
+                    mean.link = 'logit', # logistic link function (can use probit or cloglog as well.)
+                    data = head(data, 100),
+                    corstr="independence") # autogression 1 structure. Depends on previous values of SF12 with exponential decay.
   }
   #browser()
   return (model)
@@ -380,12 +383,12 @@ estimate_longitudinal_clmm <- function(data, formula, depend)
   data <- drop_na(data)
   data[, c(depend)] <- factor(data[, c(depend)])
   model <- clmm2(fixed = formula,
-                random=factor(pidp),
-                link='probit', # logistic link function (can use probit or cloglog as well.)
-                data = data, # get seg fault if using too many rows :(. clip to most recent data. 
-                threshold="flexible",
-                nAGQ=-1,
-                Hess=TRUE) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
+                 random=factor(pidp),
+                 link='probit', # logistic link function (can use probit or cloglog as well.)
+                 data = data, # get seg fault if using too many rows :(. clip to most recent data. 
+                 threshold="flexible",
+                 nAGQ=-1,
+                 Hess=TRUE) # negative int values for nAGQ gives fast but sloppy prediction. (see ?clmm2)
   return (model)
 }
 
@@ -403,7 +406,7 @@ estimate_RandomForest <- function(data, formula, depend) {
   
   data <- replace.missing(data)
   data <- drop_na(data)
-
+  
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
   fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
@@ -430,7 +433,7 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   
   data <- replace.missing(data)
   data <- drop_na(data)
-
+  
   string_formulae <- strsplit(as.character(fixed_formula[3]), split=' | ', fixed=T)
   counts_formula <- paste0(as.character(fixed_formula[2]), as.character(fixed_formula[1]), string_formulae[[1]][1])
   zero_formula <- paste0("~ ", string_formulae[[1]][2])
@@ -452,14 +455,14 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
     #family = zi.negative.binomial(), 
     family = hurdle.lognormal(), 
     max_coef_value=50)
-    #family = zi.negative.binomial(), max_phis_value=40000)
+  #family = zi.negative.binomial(), max_phis_value=40000)
   #browser()
   
   # test model with hard coded formulae.
   #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
   #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12),
   #  random = ~ 1|pidp,MZIP : ncars ~ scale(ncars) + scale(age) + I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
-
+  
   #  #weights=weight,
   #  data = data,
   #  family = zi.poisson(), 

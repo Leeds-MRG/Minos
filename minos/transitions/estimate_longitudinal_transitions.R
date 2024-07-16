@@ -171,7 +171,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string) 
        }
-    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage'))  {
+    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage', "SF_12_PCS"))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -192,6 +192,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
     
+    if (dependent == "SF_12_PCS" & mod.type=="LMM"){
+      do_log_transform <- T
+    } else {
+      do_log_transform <- F   
+    }
+    
     # function call and parameters based on model type. 
     if(tolower(mod.type) == 'glmm') {
       #
@@ -209,12 +215,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                           yeo_johnson = do.yeo.johnson)
       
     } else if(tolower(mod.type) == 'lmm') {
-      
       model <- estimate_longitudinal_lmm(data = sorted_df,
                                         formula = form, 
                                         include_weights = use.weights, 
                                         reflect = do.reflect,
                                         yeo_johnson = F,
+                                        log_transform= do_log_transform,
                                         depend = dependent)
       
     } else if(tolower(mod.type) == 'lmm_diff') {

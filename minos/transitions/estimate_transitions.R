@@ -65,10 +65,10 @@ run_yearly_models <- function(transitionDir_path,
                                  levels = c('No to all', 
                                             'Yes to some', 
                                             'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                    levels = c('Often', 
-                                               'Some of the time', 
-                                               'Hardly ever'))
+  #data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
+  #                                  levels = c('Often', 
+  #                                             'Some of the time', 
+  #                                             'Hardly ever'))
   data$S7_labour_state <- factor(data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
@@ -76,7 +76,12 @@ run_yearly_models <- function(transitionDir_path,
                                             'FT Education',
                                             'Family Care',
                                             'Not Working'))
-
+  data$auditc <- factor(data$auditc,
+                             levels = c('Non-drinker',
+                                        'Low Risk',
+                                        'Increased Risk',
+                                        'High Risk'))
+  
   # read file
   repeat{
     def = readLines(modDefs, n = 1) # Read one line from the connection.
@@ -162,9 +167,15 @@ run_yearly_models <- function(transitionDir_path,
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
       if(dependent == 'SF_12' & year == 2009) { next }
+      if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
-
+      if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) { next }
+      if(dependent %in% c('chron_disease') & year < 2011) { next }
+      # active only in specific years
+      if(dependent == 'active' & !year %in% c(2014, 2016, 2018, 2019)) { next }
+      if(dependent == 'auditc' & !year %in% c(2014, 2016, 2018, 2019)) { next }
+      
       print(paste0('Starting estimation for ', dependent, ' in ', year))
 
       # set up new dependent var name
@@ -196,6 +207,9 @@ run_yearly_models <- function(transitionDir_path,
       ## For the SF_12 model alone, we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
+      if(!year %in% c(2015, 2017, 2019, 2020)) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(auditc\\)")
+      }
       if(!year %in% c(2011, 2014, 2017, 2020)) {
         formula.string <- str_remove_all(formula.string, " \\+ factor\\(neighbourhood_safety\\)")
       }
@@ -208,11 +222,21 @@ run_yearly_models <- function(transitionDir_path,
       if(year < 2013) {
         formula.string <- str_remove_all(formula.string, " \\+ scale\\(ncigs\\)")
       }
+      if(!year %in% c(2015, 2017, 2019, 2020)) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(active\\)")
+      }
+      if(!year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(matdep\\)")
+      }
+      if(year < 2011) {
+        formula.string <- str_remove_all(formula.string, " \\+ factor\\(chron_disease\\)")
+      }
       #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
-
-
+      
+      model_vars <- append(all.vars(form),  c("weight", "pidp","time"))
+      merged <- merged[, model_vars]
 
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
