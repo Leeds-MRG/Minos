@@ -13,12 +13,12 @@ from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
 from minos.modules.replenishment import Replenishment
 from minos.modules.replenishment import NoReplenishment
-from minos.modules.replenishment_nowcast import ReplenishmentNowcast
+#from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome
-from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome, RFIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB, MarsMWB, RFMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -37,7 +37,8 @@ from minos.modules.S7MentalHealth import S7MentalHealth
 from minos.modules.S7PhysicalHealth import S7PhysicalHealth
 from minos.modules.S7EquivalentIncome import S7EquivalentIncome
 from minos.modules.heating import Heating
-from minos.modules.financial_situation import financialSituation
+from minos.modules.financial_situation import FinancialSituation
+from minos.modules.behind_on_bills import BehindOnBills
 
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
@@ -45,7 +46,11 @@ from minos.modules.child_poverty_interventions import hhIncomePovertyLineChildUp
 from minos.modules.child_poverty_interventions import childUplift
 from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE
 from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE_2
+from minos.modules.child_poverty_interventions import ChildPovertyReductionRELATIVE_psub
 from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE
+from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE_psub
+from minos.modules.child_poverty_interventions import ChildPovertyReduction
+from minos.modules.child_poverty_interventions import ChildPovertyReductionSUSTAIN
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
@@ -73,6 +78,9 @@ components_map = {
     "lmmYJMWB()": lmmYJMWB(),
     "lmmDiffMWB()": lmmDiffMWB(),
     "MWB()": MWB(),
+    "RFDiffMWB()": RFDiffMWB(),
+    "MarsMWB()": MarsMWB(),
+    "RFMWB()": RFMWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
@@ -85,7 +93,9 @@ components_map = {
     "lmmDiffIncome()": lmmDiffIncome(),
     "lmmYJIncome()": lmmYJIncome(),
     "Income()": Income(),
-    "financialSituation()": financialSituation(),
+    "RFDiffIncome()": RFDiffIncome(),
+    "MarsIncome()": MarsIncome(),
+    "RFIncome()": RFIncome(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -94,10 +104,12 @@ components_map = {
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
     "Education()": Education(),
+    "Ageing()": Ageing(),
+    "FinancialSituation()": FinancialSituation(),
+    "BehindOnBills()": BehindOnBills(),
     "JobHours()": JobHours(),
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
-    "Ageing()": Ageing(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -119,7 +131,11 @@ intervention_components_map = {        #Interventions
 
     "ChildPovertyReductionRELATIVE": ChildPovertyReductionRELATIVE(),
     "ChildPovertyReductionRELATIVE_2": ChildPovertyReductionRELATIVE_2(),
+    "ChildPovertyReductionRELATIVE_psub": ChildPovertyReductionRELATIVE_psub(),
     "ChildPovertyReductionABSOLUTE": ChildPovertyReductionABSOLUTE(),
+    "ChildPovertyReductionABSOLUTE_psub": ChildPovertyReductionABSOLUTE_psub(),
+    "ChildPovertyReduction": ChildPovertyReduction(),
+    "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
   
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
@@ -194,7 +210,7 @@ intervention_kwargs_dict = {
 replenishment_components_map = {
     "Replenishment()": Replenishment(),
     "NoReplenishment()": NoReplenishment(),
-    "ReplenishmentNowcast()": ReplenishmentNowcast(),
+    #"ReplenishmentNowcast()": ReplenishmentNowcast(),
     "ReplenishmentScotland()": ReplenishmentScotland(),
 }
 
@@ -228,8 +244,18 @@ def get_priorities():
                                                   'geeIncome()',
                                                   'geeYJIncome()',
                                                   'lmmDiffIncome()',
-                                                  'lmmYJIncome()']})  # Any new income-based components to be added here
+                                                  'lmmYJIncome()',
+                                                  'RFDiffIncome()',
+                                                  "MarsIncome()",
+                                                  "RFIncome()"]})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
+
+    # Some module better running before pathways
+    component_priorities.update({el: 7 for el in ["FinancialSituation()",
+                                                  "BehindOnBills()",
+                                                  "JobHours()",
+                                                  "JobSec()",
+                                                  "HourlyWage()"]})
 
     and_finally = ['MWB()',
                    'geeMWB()',
@@ -237,14 +263,17 @@ def get_priorities():
                    "lmmYJMWB()",
                    "lmmDiffMWB()",
                    'S7EquivalentIncome()',
-                   "lmmYJPCS()"]
+                   "lmmYJPCS()",
+                   "RFDiffMWB()",
+                   "MarsMWB()",
+                   "RFMWB()"]
 
     everything_else = [el for el in list(components_map)
                        + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]
 
     # print("Everything else:\n", everything_else)
 
-    component_priorities.update({el: 7 for el in everything_else})
+    component_priorities.update({el: 8 for el in everything_else})
     component_priorities.update({el: 9 for el in and_finally})
     # component_priorities.update({el: 8 for el in metrics_map})
 
@@ -282,6 +311,9 @@ def type_check(data):
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
+    data['financial_situation'] = data['financial_situation'].astype(int)
+    data['behind_on_bills'] = data['behind_on_bills'].astype(int)
+    data['boost_amount'] = data['boost_amount'].astype(float)
 
     return data
 
@@ -306,6 +338,20 @@ def RunPipeline(config, intervention=None):
         components_raw.append(intervention)
         intervention_kwargs = get_intervention_kwargs(intervention)
         config.update({'intervention_parameters': intervention_kwargs})  # add dict of intervention kwargs to config.
+
+    # Create a list of interventions that require the income to be reset before predicting next (ChildPovertyReduction)
+    reset_income_intervention_list = ['ChildPovertyReduction',
+                                      'ChildPovertyReductionSUSTAIN',
+                                      'ChildPovertyReductionRELATIVE',
+                                      'ChildPovertyReductionRELATIVE_2',
+                                      'ChildPovertyReductionRELATIVE_psub',
+                                      'ChildPovertyReductionABSOLUTE',
+                                      'ChildPovertyReductionABSOLUTE_psub']
+    # Add the config flag for resetting income before prediction
+    if intervention in reset_income_intervention_list:
+        config.update({'reset_income_intervention': True})
+    else:
+        config.update({'reset_income_intervention': False})
 
     component_priority_map, component_name_map = get_priorities()
     components = [component_name_map[c] for c in components_raw if c in component_name_map]
@@ -344,7 +390,9 @@ def RunPipeline(config, intervention=None):
                     "VGAM": importr("VGAM"),
                     "lme4": importr("lme4"),
                     "randomForest": importr("randomForest"),
-                    "MASS": importr("MASS")
+                    "MASS": importr("MASS"),
+                    "ranger": importr("ranger"),
+                    "earth": importr("earth")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

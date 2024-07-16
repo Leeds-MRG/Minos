@@ -40,7 +40,7 @@ def load_transitions(component, rpy2_modules, path='data/transitions/'):
     return model
 
 
-def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
+def predict_next_timestep_ols(model, rpy2_modules, current, dependent, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -61,6 +61,10 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -80,7 +84,7 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent):
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year):
+def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -102,6 +106,10 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -126,7 +134,7 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     return newPandasPopDF[['new_dependent', 'predicted']]
 
 
-def predict_next_timestep_clm(model, rpy2modules, current, dependent):
+def predict_next_timestep_clm(model, rpy2modules, current, dependent, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -146,6 +154,10 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     base = rpy2modules['base']
     stats = rpy2modules['stats']
     ordinal = rpy2modules['ordinal']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -173,7 +185,7 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     return predictionDF
 
 
-def predict_nnet(model, rpy2Modules, current, columns):
+def predict_nnet(model, rpy2Modules, current, columns, seed):
     """
     Function for predicting next state using nnet models.
 
@@ -194,6 +206,11 @@ def predict_nnet(model, rpy2Modules, current, columns):
     base = rpy2Modules['base']
     stats = rpy2Modules['stats']
     nnet = rpy2Modules['nnet']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -206,7 +223,7 @@ def predict_nnet(model, rpy2Modules, current, columns):
     return pd.DataFrame(newPandasPopDF, columns=columns)
 
 
-def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
+def predict_next_timestep_zip(model, rpy2Modules, current, seed):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -229,6 +246,10 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     stats = rpy2Modules['stats']
     zeroinfl = rpy2Modules['zeroinfl']
 
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
     # grab transition model
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
@@ -250,7 +271,7 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     return np.ceil(preds)
 
 
-def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std):
+def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std, seed):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -270,6 +291,10 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     base = rpy2_modules['base']
     geepack = rpy2_modules['geepack']
     stats = rpy2_modules['stats']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     current["pidp"] = -current["pidp"]
 
@@ -296,7 +321,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 0):
+def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, reflect, log_transform, seed, noise_std = 0):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -319,32 +344,39 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
 
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
     #current = current.drop([dependent, 'time'], axis=1)
     #current["pidp"] = -current["pidp"]
+
+    # need to add tiny value to the 0 MCS values as this causes problems in log transform
+    if dependent == "SF_12":
+        current.loc[current[dependent] <= 0.0, dependent] = 0.01
+
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
+    if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12"]:
+        max_value = model.do_slot("max_value")
+        min_value = model.do_slot("min_value")
 
-    # Inverse yeojohnson transform.
-    # Stored in estimate_transitions.R.
-    # Note inverse=True arg is needed to get back to actual gross income.
+    if log_transform:
+        # log transformation currently only for PCS (also testing MCS)
+        currentRDF[currentRDF.names.index(dependent)] = base.log(currentRDF.rx2(dependent))
+
+    # flip left skewed data to right skewed about its maximum.
     if reflect:
         max_value = model.do_slot("max_value")
-
         currentRDF[currentRDF.names.index(dependent)] = max_value.ro - currentRDF.rx2(dependent)
-
-    if yeo_johnson:
-        # stupid workaround to get attributes from R S4 type objects. Replaces rx2.
-        yj = model.do_slot("transform")
-        #yj = model.rx2('transform') # use yj from fitted model for latest year.
-        currentRDF[currentRDF.names.index(dependent)] = stats.predict(yj, newdata=currentRDF.rx2(dependent))  # apply yj transform
 
     # explicitly convert to matrix to overcome error in predict_merMod below
     #currentRDF_matrix = matrix.as_matrix(currentRDF)
 
-    ols_data = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)  # estimate next income using OLS.
+    prediction = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)  # estimate next income using OLS.
 
     # if dependent == "SF_12":
     #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
@@ -356,31 +388,44 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     #     #ols_data = ols_data.ro + stats.rcauchy(n, 0, noise_std)
     #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
 
-    valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality', 'nutrition_quality_diff']
-    if dependent == "SF_12" and noise_std:
-        prediction = ols_data.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif (dependent in valid_dependents) and noise_std:
-        VGAM = rpy2_modules["VGAM"]
-        prediction = ols_data.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
-    else:
-        prediction = ols_data # no noise is added.
+    # if dependent == "SF_12_PCS":
+    #     dependent_list = list(prediction.rx2(dependent))
+    #     print("After noise added:")
+    #     print(min(dependent_list))
+    #     print(max(dependent_list))
 
-    if yeo_johnson:
-        prediction = stats.predict(yj, newdata=prediction, inverse=True)  # invert yj transform.
+    if log_transform:
+        prediction = base.exp(prediction)
 
     if reflect:
         prediction = max_value.ro - prediction
+
+
+    valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality',
+                        'nutrition_quality_diff', 'SF_12_PCS', 'SF_12_MCS', 'SF_12']
+    # if dependent == "SF_12" and noise_std:
+    #     prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
+    if (dependent in valid_dependents) and noise_std:
+        VGAM = rpy2_modules["VGAM"]
+        prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std)  # add gaussian noise.
+    else:
+        prediction = prediction # no noise is added.
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
         #ols_data = ro.conversion.rpy2py(ols_data)
-        prediction_output = ro.conversion.rpy2py(prediction)
+        prediction = ro.conversion.rpy2py(prediction)
 
-    return pd.DataFrame(prediction_output, columns=[dependent])
+    if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12"]:
+        # Final step is to clip the values to min and max seen in input data
+        prediction = np.clip(prediction, min_value, max_value)
+        #prediction = np.clip(prediction, 0, 100)
+
+    return pd.DataFrame(prediction, columns=[dependent])
 
 
-def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, noise_std = 1):
+def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent, reflect, yeo_johnson, seed, noise_std = 1):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -402,6 +447,10 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     stats = rpy2_modules['stats']
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -456,12 +505,93 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def predict_next_rf(model, rpy2_modules, current, dependent):
+def predict_next_rf(model, rpy2_modules, current, dependent, seed, noise_gauss=0, noise_cauchy=0):
 
     # import R packages
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
     rf = rpy2_modules['randomForest']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    #prediction = stats.predict(model, newdata=currentRDF)
+
+    # Add some noise if noise > 0
+    # if noise_gauss != 0:
+    #     VGAM = rpy2_modules["VGAM"]
+    #     prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_gauss)  # add gaussian noise.
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    prediction = stats.predict(model, newdata=currentRDF)
+
+    # Add Gaussian noise
+    gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)
+    prediction_with_gaussian = prediction.ro + gaussian_noise
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    # Convert back to pandas
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        prediction_with_gaussian = ro.conversion.rpy2py(prediction_with_gaussian)
+
+    prediction_with_gaussian = prediction_with_gaussian.ravel()
+
+    # Add Cauchy noise
+    cauchy_noise = stats.rcauchy(current.shape[0], 0, noise_cauchy)
+    cauchy_noise_limit = noise_cauchy * 10
+    cauchy_noise = np.clip(cauchy_noise, -cauchy_noise_limit,
+                           cauchy_noise_limit)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
+
+    prediction_output = prediction_with_gaussian + cauchy_noise
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
+
+
+def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    ranger = rpy2_modules['ranger']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
+    #prediction = stats.predict(model, newdata=currentRDF)
+    prediction = ro.r.predict(model, data=currentRDF)
+    predictions = prediction.rx2('predictions')
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        prediction_matrix_list = ro.conversion.rpy2py(predictions)
+
+    #prediction_matrix_list = ro.conversion.rpy2py(predictions[0])
+    predictionDF = pd.DataFrame(prediction_matrix_list)
+
+    return predictionDF
+
+
+def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss=0, noise_cauchy=0):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    earth = rpy2_modules['earth']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -469,20 +599,29 @@ def predict_next_rf(model, rpy2_modules, current, dependent):
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     prediction = stats.predict(model, newdata=currentRDF)
-    newRPopDF = base.cbind(currentRDF, predicted=prediction)
+
+    # Add Gaussian noise
+    gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)
+    prediction_with_gaussian = prediction.ro + gaussian_noise
+
+    # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
     with localconverter(ro.default_converter + pandas2ri.converter):
-        newPandasPopDF = ro.conversion.rpy2py(newRPopDF)
+        prediction_with_gaussian = ro.conversion.rpy2py(prediction_with_gaussian)
 
-    # Now rename the predicted var (have to drop original column first)
-    newPandasPopDF[[dependent]] = newPandasPopDF[['predicted']]
-    newPandasPopDF.drop(labels=['predicted'], axis='columns', inplace=True)
+    prediction_with_gaussian = prediction_with_gaussian.ravel()
 
-    return newPandasPopDF[[dependent]]
+    # Add Cauchy noise
+    cauchy_noise = stats.rcauchy(current.shape[0], 0, noise_cauchy)
+    cauchy_noise_limit = noise_cauchy * 10
+    cauchy_noise = np.clip(cauchy_noise, -cauchy_noise_limit, cauchy_noise_limit)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
+
+    prediction_output = prediction_with_gaussian + cauchy_noise
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-
-def randomise_fixed_effects(model, rpy2_modules, type):
+def randomise_fixed_effects(model, rpy2_modules, type, seed):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
     Parameters
     ----------
@@ -498,6 +637,10 @@ def randomise_fixed_effects(model, rpy2_modules, type):
     model rpy2.RO
         Same model class with adjusted fixed effects.
     """
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
 
     if type == "glmm":
         beta = model.do_slot("beta")

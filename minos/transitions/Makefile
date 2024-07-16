@@ -19,12 +19,12 @@ $(TRANSITION_DATA):
 ############# Default #############
 
 transitions_default: | $(TRANSITION_DATA)
-transitions_default: final_data $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds
+transitions_default: final_data $(TRANSITION_DATA)/nutrition_quality/lmm/nutrition_quality_new_LMM.rds $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds
 
-$(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default
 
-$(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/nutrition_quality/lmm/nutrition_quality_new_LMM.rds: $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --default
 
 ############# SIPHER7 #############
@@ -32,20 +32,20 @@ $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/2020_US_cohort.csv $(
 transitions_SIPHER7: | $(TRANSITION_DATA)
 transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds
 
-$(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds: $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --sipher7
 
-$(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds: $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --sipher7
 
 ############# Default - Cross Validation #############
 
-cv_transitions: $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds $(TRANSITION_DATA)/cross_validation/version5/SF_12/glmm/SF_12_GLMM.rds
+cv_transitions: $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds $(TRANSITION_DATA)/cross_validation/version5/nutrition_quality/lmm/nutrition_quality_new_LMM.rds
 
 $(TRANSITION_DATA)/cross_validation/version5/ncigs/zip/ncigs_2018_2019.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --cross_validation
 
-$(TRANSITION_DATA)/cross_validation/version5/SF_12/glmm/SF_12_GLMM.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/cross_validation/version5/nutrition_quality/lmm/nutrition_quality_new_LMM.rds: $(FINALDATA)/cross_validation/batch5/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --cross_validation
 
 ############# SIPHER7 - Cross Validation #############

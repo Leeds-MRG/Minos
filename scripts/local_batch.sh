@@ -1,6 +1,6 @@
 
-NUMRUNS=10
-declare -a intlist=(hhIncomeChildUplift livingWageIntervention)
+NUMRUNS=2
+declare -a intlist=(ChildPovertyReductionRELATIVE_2)
 
 TIME=$(date +%Y_%m_%d_%H_%M_%S)
 

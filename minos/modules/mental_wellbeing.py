@@ -463,13 +463,14 @@ class lmmYJMWB(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module.
         # In this case, view_columns are taken straight from the transition model
-        view_columns = ["age",
+        view_columns = ["time",
+                        "age",
                         "sex",
                         "ethnicity",
                         "region",
@@ -497,10 +498,161 @@ class lmmYJMWB(Base):
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
 
-        #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.load_transitions(f"SF_12/glmm/SF_12_GLMM", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "glmm")
+        # only need to load this once for now.
+        self.lmm_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        self.lmm_transition_model = r_utils.randomise_fixed_effects(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    "lmm",
+                                                                    seed=self.run_seed)
+        # self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/glmm/SF_12_MCS_GLMM", self.rpy2_modules, path=self.transition_dir)
+
+        # LA 24/6/24
+        # self.rf_transition_model = r_utils.load_transitions(f"SF_12/rf/SF_12_RF",
+        #                                                     self.rpy2Modules,
+        #                                                     path=self.transition_dir)
+
+    def on_time_step(self, event):
+        """Produces new children and updates parent status on time steps.
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+
+        self.year = event.time.year
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
+        pop["SF_12_last"] = pop["SF_12"]
+
+        # Predict next mwb value
+        newWaveMWB = pd.DataFrame(columns=['SF_12'])
+        newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+        newWaveMWB.index = pop.index
+        # newWaveMWB["SF_12"] -= 1
+
+        sf12_mean_old = np.mean(pop['SF_12_last'])
+        sf12_mean_new = np.mean(newWaveMWB["SF_12"])
+        std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] *= std_ratio
+        newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean_new)
+
+        # newWaveMWB["SF_12"] -= 1.5
+        #newWaveMWB["SF_12"] += (47.6 - np.mean(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
+
+        newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
+
+        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
+
+    def calculate_mwb(self, pop):
+        """Calculate SF_12 transition distribution based on provided people/indices
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        # out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
+        #                                                        self.rpy2Modules,
+        #                                                        current= pop,
+        #                                                        dependent='SF_12',
+        #                                                        reflect=True,
+        #                                                        yeo_johnson= True,
+        #                                                        noise_std= 0.1)# 5 for non yj, 0.35 for yj
+
+        nextWaveMWB = r_utils.predict_next_timestep_yj_gaussian_lmm(self.lmm_transition_model,
+                                                                    self.rpy2Modules,
+                                                                    pop,
+                                                                    dependent='SF_12',
+                                                                    reflect=True,
+                                                                    log_transform=True,
+                                                                    noise_std=3,
+                                                                    seed=self.run_seed)  #
+
+        # nextWaveMWB = r_utils.predict_next_rf(self.rf_transition_model,
+        #                                       self.rpy2Modules,
+        #                                       pop,
+        #                                       dependent='SF_12',
+        #                                       seed=self.run_seed)
+
+        return nextWaveMWB
+
+
+class RFDiffMWB(Base):
+    """Mental Well-Being Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'rf_diff_mwb'
+
+    def __repr__(self):
+        return "RFDiffMWB()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for income
+        - Add required columns to population data frame
+        - Update other required items such as randomness stream.
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
+
+        # Build vivarium objects for calculating transition probabilities.
+        # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
+
+        # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ["time",
+                        "age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'SF_12',
+                        'SF_12_diff',
+                        'pidp',
+                        'hh_income'
+                        ]
+
+        #columns_created = ["SF_12_diff"]
+        self.population_view = builder.population.get_view(columns=view_columns)  # columns_created
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        #builder.population.initializes_simulants(self.on_initialize_simulants)  # , creates_columns=columns_created
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
+
+        # only need to load this once for now.
+        self.rf_transition_model = r_utils.load_transitions(f"SF_12/rf_diff/SF_12_diff_RF_DIFF", self.rpy2Modules, path=self.transition_dir)
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -514,27 +666,24 @@ class lmmYJMWB(Base):
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
         pop = pop.sort_values('pidp') #sorting aligns index to make sure individual gets their correct prediction.
-        pop["SF_12_last"] = pop["SF_12"]
+
+        pop['SF_12_last'] = pop['SF_12']
+        pop['SF_12_diff_last'] = pop['SF_12_diff']
 
         # Predict next mwb value
-        newWaveMWB = pd.DataFrame(columns=['SF_12'])
-        newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+        newWaveMWB = pd.DataFrame(columns=['SF_12', 'SF_12_diff'])
+        newWaveMWB['SF_12_diff'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
-        #newWaveMWB["SF_12"] -= 1
+        newWaveMWB['SF_12'] = pop['SF_12'] + newWaveMWB['SF_12_diff']
 
-        sf12_mean = np.mean(newWaveMWB["SF_12"])
-        std_ratio = (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] *= (11/np.std(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] -= ((std_ratio-1)*sf12_mean)
-        newWaveMWB["SF_12"] -= 1.5
-        #newWaveMWB["SF_12"] += (50 - np.mean(newWaveMWB["SF_12"]))
-        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100) # keep within [0, 100] bounds of SF12.
+        # clip to reasonable bounds
+        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 80)  # keep within [0, 100] bounds of SF12.
+        # Recalculate SF_12_diff after clipping
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
-        # Update population with new SF12
-        #print(np.mean(newWaveMWB["SF_12"]))
-        #print(np.std(newWaveMWB["SF_12"]))
-        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
 
+        # Update population with new SF12
+        print(np.mean(newWaveMWB["SF_12"]))
+        self.population_view.update(newWaveMWB[['SF_12', 'SF_12_diff']])
 
     def calculate_mwb(self, pop):
         """Calculate SF_12 transition distribution based on provided people/indices
@@ -545,13 +694,23 @@ class lmmYJMWB(Base):
         Returns
         -------
         """
-        out_data = r_utils.predict_next_timestep_yj_gamma_glmm(self.transition_model,
-                                                               self.rpy2Modules,
-                                                               current= pop,
-                                                               dependent='SF_12',
-                                                               reflect=True,
-                                                               yeo_johnson= True,
-                                                               noise_std= 0.1)# 5 for non yj, 0.35 for yj
+        #self.update_history_dataframe(pop, self.year, lag=10)
+        # out_data = r_utils.predict_next_timestep_yj_gaussian_lmm(self.gee_transition_model,
+        #                                                          self.rpy2Modules,
+        #                                                          current= pop,
+        #                                                          dependent='SF_12_diff',
+        #                                                          reflect=False,
+        #                                                          yeo_johnson=True,
+        #                                                          noise_std= 0.35)#1
+
+        out_data = r_utils.predict_next_rf(self.rf_transition_model,
+                                           self.rpy2Modules,
+                                           pop,
+                                           dependent='SF_12_diff',
+                                           seed=self.run_seed,
+                                           noise=5)
+
+        #return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
         return out_data
 
 
@@ -695,3 +854,237 @@ class lmmDiffMWB(Base):
                                                                  noise_std= 0.35)#1
         #return out_data.iloc[self.history_data.loc[self.history_data['time'] == self.year].index]
         return out_data
+
+
+class MarsMWB(Base):
+    """Mental Well-Being Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'mars_mwb'
+
+    def __repr__(self):
+        return "MarsMWB()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for income
+        - Add required columns to population data frame
+        - Update other required items such as randomness stream.
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
+
+        # Build vivarium objects for calculating transition probabilities.
+        # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
+
+        # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ["time",
+                        "age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'SF_12',
+                        'SF_12_diff',
+                        'pidp',
+                        'hh_income'
+                        ]
+
+        self.population_view = builder.population.get_view(columns=view_columns)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        #builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
+
+        # only need to load this once for now.
+        self.transition_model = r_utils.load_transitions(f"SF_12/mars/SF_12_MARS",
+                                                         self.rpy2Modules,
+                                                         path=self.transition_dir)
+
+    def on_time_step(self, event):
+        """Produces new children and updates parent status on time steps.
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+
+        self.year = event.time.year
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
+        pop["SF_12_last"] = pop["SF_12"]
+
+        # Predict next mwb value
+        newWaveMWB = pd.DataFrame(columns=['SF_12'])
+        newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+        newWaveMWB.index = pop.index
+
+        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
+
+        newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
+
+        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
+
+    def calculate_mwb(self, pop):
+        """Calculate SF_12 transition distribution based on provided people/indices
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        nextWaveMWB = r_utils.predict_next_MARS(model=self.transition_model,
+                                                rpy2_modules=self.rpy2Modules,
+                                                current=pop,
+                                                dependent='SF_12',
+                                                seed=self.run_seed,
+                                                noise_gauss=3,
+                                                noise_cauchy=0.3)
+
+        return nextWaveMWB
+
+
+class RFMWB(Base):
+    """Mental Well-Being Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'rf_mwb'
+
+    def __repr__(self):
+        return "RFMWB()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for income
+        - Add required columns to population data frame
+        - Update other required items such as randomness stream.
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
+
+        # Build vivarium objects for calculating transition probabilities.
+        # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
+
+        # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ["time",
+                        "age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'SF_12',
+                        'SF_12_diff',
+                        'pidp',
+                        'hh_income'
+                        ]
+
+        self.population_view = builder.population.get_view(columns=view_columns)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        #builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
+
+        # only need to load this once for now.
+        self.transition_model = r_utils.load_transitions(f"SF_12/rf/SF_12_RF",
+                                                         self.rpy2Modules,
+                                                         path=self.transition_dir)
+
+    def on_time_step(self, event):
+        """
+        Produces new children and updates parent status on time steps.
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+
+        self.year = event.time.year
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
+        pop["SF_12_last"] = pop["SF_12"]
+
+        # Predict next mwb value
+        newWaveMWB = pd.DataFrame(columns=['SF_12'])
+        newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+        newWaveMWB.index = pop.index
+
+        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
+
+        newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
+
+        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
+
+    def calculate_mwb(self, pop):
+        """Calculate SF_12 transition distribution based on provided people/indices
+        Parameters
+        ----------
+            pop :
+        Returns
+        -------
+        """
+        nextWaveMWB = r_utils.predict_next_rf(self.transition_model,
+                                                 self.rpy2Modules,
+                                                 pop,
+                                                 dependent='SF_12',
+                                                 seed=self.run_seed,
+                                                 noise_gauss=0,
+                                                 noise_cauchy=0)
+
+        return nextWaveMWB

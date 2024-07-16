@@ -1039,6 +1039,78 @@ def generate_poverty_cohort_vars(data):
     return data
 
 
+def assign_quintiles(group):
+    #TODO: docstring
+    group['income_quintile'] = pd.qcut(group['hh_income'], 5, labels=False) + 1
+    return group
+
+
+def generate_initial_income_quintile(data):
+    #TODO: docstring
+    print('Generating income quintiles...')
+
+    data = data.groupby('time').apply(assign_quintiles)
+    return data
+
+
+def generate_priority_subgroups(data):
+    """
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    print('Generating priority subgroups...')
+
+    # List of priority subgroups:
+    # - Minority ethnicity
+    # - Child under one
+    # - Three plus children
+    # - Mother under 25
+    # - Disabled member in household
+
+    # Ethnicity
+    data['priority_ethnicity'] = data['ethnicity'] != 'WBI'
+    # Child under one
+    data['priority_child_under_one'] = data['child_ages'].str[0] == '0'
+    # Three plus children
+    data['priority_three_plus_children'] = data['nkids'] >= 3
+
+    # mother under 25 slightly more complicated
+    mothers_under_25 = data[(data['sex'] == 'Female') & (data['nkids_ind'] > 0) & (data['age'] < 25)]
+    mothers_under_25_hh = mothers_under_25['hidp'].unique()
+    data['priority_mother_under_25'] = data['hidp'].isin(mothers_under_25_hh)
+
+    # disabled
+    disabled = data[data['S7_labour_state'] == 'disabled']
+    disabled_hhs = disabled['hidp'].unique()
+    data['priority_disabled'] = data['hidp'].isin(disabled_hhs)
+
+    return data
+
+
+def generate_intervention_vars(data):
+    """
+    Need to create intervention variables before we start as they are *sometimes* needed in income calculations.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    data['boost_amount'] = 0.
+    data['income_boosted'] = False
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1065,6 +1137,9 @@ def main():
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
     data = generate_poverty_cohort_vars(data)  # initial relative poverty variable
+    data = generate_initial_income_quintile(data)  # generate initial income quintiles
+    data = generate_priority_subgroups(data)  # priority subgroups from Scottish government
+    data = generate_intervention_vars(data)  # Intervention variables
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")

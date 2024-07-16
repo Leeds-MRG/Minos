@@ -93,7 +93,7 @@ def take_synthpop_sample(merged_data, percent, seed=8):
         A percent sample of merged_data chosen with random seed.
     """
     n = int(merged_data.shape[0] * percent)
-    sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
+    sample_data = merged_data.sample(n=n, replace=False)#, random_state=seed)
     return sample_data
 
 def main():

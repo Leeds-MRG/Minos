@@ -38,7 +38,7 @@ class Neighbourhood(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -55,7 +55,9 @@ class Neighbourhood(Base):
                         "nutrition_quality",
                         "ncigs",
                         'hh_income',
-                        'job_sec'
+                        'job_sec',
+                        'behind_on_bills',
+                        'financial_situation'
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -69,6 +71,11 @@ class Neighbourhood(Base):
         # individual graduate in an education module.
         # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
         super().setup(builder)
+
+        self.nhs_transition_model = r_utils.load_transitions(f"neighbourhood_safety/rfo/neighbourhood_safety_RFO",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+        # self.hq_transition_model = r_utils.randomise_fixed_effects(self.hq_transition_model, self.rpy2Modules, "rf")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -85,6 +92,8 @@ class Neighbourhood(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
 
+        pop['neighbourhood_safety_last'] = pop['neighbourhood_safety']
+
         # Predict next neighbourhood value
         neighbourhood_prob_df = self.calculate_neighbourhood(pop)
 
@@ -98,7 +107,6 @@ class Neighbourhood(Base):
         # Update population with new neighbourhood
         self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'])
 
-
     def calculate_neighbourhood(self, pop):
         """Calculate neighbourhood transition distribution based on provided people/indices
 
@@ -111,30 +119,36 @@ class Neighbourhood(Base):
         """
         # load transition model based on year.
         # get the nearest multiple of 3+1 year. Data occur every 2011,2014,2017 ...
-        if self.cross_validation:
-            # if cross-val, fix year to final year model
-            year = 2017
-        else:
-            year = max(self.year, 2011)
-            mod = year % 3
-            if mod == 0:
-                year -= 2  # e.g. 2013 moves back two years to 2011.
-            elif mod == 1:
-                pass  # e.g. 2011 is correct
-            elif mod == 2:
-                year -= 1  # e.g. 2012 moves back one year to 2011.
-            year = min(year, 2017)  # transitions only go up to 2017.
+        # if self.cross_validation:
+        #     # if cross-val, fix year to final year model
+        #     year = 2017
+        # else:
+        #     year = max(self.year, 2011)
+        #     mod = year % 3
+        #     if mod == 0:
+        #         year -= 2  # e.g. 2013 moves back two years to 2011.
+        #     elif mod == 1:
+        #         pass  # e.g. 2011 is correct
+        #     elif mod == 2:
+        #         year -= 1  # e.g. 2012 moves back one year to 2011.
+        #     year = min(year, 2017)  # transitions only go up to 2017.
+        #
+        # # if simulation goes beyond real data in 2020 dont load the transition model again.
+        # if not self.transition_model or year <= 2017:
+        #     self.transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
+        #     self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        #
+        #
+        # #transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
+        # # The calculation relies on the R predict method and the model that has already been specified
+        # nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
 
-        # if simulation goes beyond real data in 2020 dont load the transition model again.
-        if not self.transition_model or year <= 2017:
-            self.transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+        prob_df = r_utils.predict_next_rf_ordinal(self.nhs_transition_model,
+                                                  self.rpy2Modules,
+                                                  pop,
+                                                  seed=self.run_seed)
 
-
-        #transition_model = r_utils.load_transitions(f"neighbourhood_safety/clm/neighbourhood_safety_{year}_{year + 3}", self.rpy2Modules, path=self.transition_dir)
-        # The calculation relies on the R predict method and the model that has already been specified
-        nextWaveNeighbourhood = r_utils.predict_next_timestep_clm(self.transition_model, self.rpy2Modules, pop, 'neighbourhood_safety')
-        return nextWaveNeighbourhood
+        return prob_df
 
     # Special methods used by vivarium.
     @property

@@ -198,8 +198,6 @@ class FertilityAgeSpecificRates(Base):
         return "FertilityAgeSpecificRates()"
 
 
-
-
 class nkidsFertilityAgeSpecificRates(Base):
     """
     A simulant-specific model for fertility and pregnancies.
@@ -260,12 +258,20 @@ class nkidsFertilityAgeSpecificRates(Base):
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity', 'nkids_ind'])
+                                                                   requires_columns=['sex', 'region', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
+        view_columns = ['sex',
+                        'ethnicity',
+                        'age',
+                        'nkids',
+                        'nkids_ind',
+                        'hidp',
+                        'pidp',
+                        "child_ages",
+                        'region']
 
         columns_created = ['has_newborn']
 
@@ -294,8 +300,6 @@ class nkidsFertilityAgeSpecificRates(Base):
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
-
-
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
 
@@ -316,7 +320,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         #eligible_women = population[can_have_children]
         # calculate rates of having children and randomly draw births
         # filter_for_rate simply takes the subset of women who have given birth generated via the CRN stream.
-        who_women = population.loc[population['sex']=='Female',].index
+        who_women = population.loc[population['sex'] == 'Female',].index
         rate_series = self.fertility_rate(who_women)
 
         # get women who had children.
@@ -351,11 +355,9 @@ class nkidsFertilityAgeSpecificRates(Base):
         asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
         return asfr_data
 
-
     @property
     def name(self):
         return 'nkids_age_specific_fertility'
-
 
     def __repr__(self):
         return "nkidsFertilityAgeSpecificRates()"

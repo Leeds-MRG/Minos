@@ -9,9 +9,12 @@ population:
   age_start: 0
   age_end: 100
 
-mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
-fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
-input_data_dir: "data/scaled_scotland_US"
+#mortality_file: 'regional_Mortality2011_LEEDS1_2.csv'
+#fertility_file: 'regional_Fertility2011_LEEDS1_2.csv'
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+
+base_input_data_dir: "data/scaled_scotland_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
@@ -30,9 +33,9 @@ synthetic: TRUE
 # Finally everything else can go in any order (priority 2).
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
-components : [lmmYJMWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(),
-              nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(),
-              Replenishment()]
+#components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), JobSec(), FinancialSituation(), BehindOnBills(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+components : [RFMWB(), Loneliness(), Tobacco(), S7Labour(), JobSec(), FinancialSituation(), BehindOnBills(), Neighbourhood(), Housing(), lmmYJNutrition(), RFIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+
 scale_rates:
   method: "constant"
   constant:

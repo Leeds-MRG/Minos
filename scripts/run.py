@@ -51,10 +51,16 @@ def run(args):
     # start year
     year_start = config['time']['start']['year']
 
+    if (args.runID) and ("scaled" in args.config):
+        new_input_dir = config['base_input_data_dir'] + (
+                "_" + str(((args.runID - 1) // 10) + 1))  # every 10 runs uses same pop.
+        config.update({'input_data_dir': new_input_dir})
+    else:
+        config.update({'input_data_dir': config['base_input_data_dir']})
+
     # start_population_size (use size of prepared input population in start year)
     start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
     print(f'Start Population Size: {start_population_size}')
-
 
     ############## DIRECTORIES ##############
     # Output directory structure
@@ -84,7 +90,6 @@ def run(args):
             print("Creating log directory for batch runs...")
             os.makedirs(log_dir, exist_ok=True)
 
-
     ############## CONFIG ##############
     # Add some more important things to the config file (mostly derived from command line args)
     add_to_config = {}
@@ -93,7 +98,7 @@ def run(args):
     add_to_config.update({
         'run_output_dir': run_output_dir,
         'run_output_plots_dir': run_output_plots_dir,
-        'population': {'population_size': start_population_size,},
+        'population': {'population_size': start_population_size, },
         'scenario': scenario
     })
 
@@ -121,12 +126,10 @@ def run(args):
             yaml.dump(config.to_dict(), config_file)
             print("Write config file successful")
 
-
     # TODO: Remove this from the config and turn it into a completely separate make command to run AFTER simulation
     # Leaving the default in to do nothing for now.
-    #if 'do_plots' not in config.keys():
+    # if 'do_plots' not in config.keys():
     #    config['do_plots'] = False
-
 
     ############## LOGGING ##############
     # Start logging. Really helpful in arc4 with limited traceback available.
@@ -148,9 +151,10 @@ def run(args):
     logging.info(f"Beginning a {scenario} simulation.")
     if args.runID:
         logging.info(f"This is run {args.runID} of a batch run.")
-    logging.info(f"Beginning simulation in {config.time.start.year}, running for {config.time.num_years} years until {config.time.end.year}")
+    logging.info(
+        f"Beginning simulation in {config.time.start.year}, running for {config.time.num_years} years until {config.time.end.year}")
     logging.info("Pipeline start...")
-    #TODO: Add more here.
+    # TODO: Add more here.
 
     ############## RUN PIPELINE ##############
     # Different call for intervention or cross_validation
@@ -167,12 +171,13 @@ if __name__ == "__main__":
 
     ## CHANGING HOW THIS SCRIPT WORKS
     # Now only taking config and output directory as command line arguments, the rest can come from config.
-    #logging.basicConfig(filename="test.log", level=logging.INFO)
-    #logging.info("Collecting command line arguments...")
+    # logging.basicConfig(filename="test.log", level=logging.INFO)
+    # logging.info("Collecting command line arguments...")
     parser = argparse.ArgumentParser(description="Dynamic Microsimulation",
-                                        usage = 'use "%(prog)s --help" for more information',
-                                        formatter_class = argparse.RawTextHelpFormatter # For multi-line formatting in help text
-    )
+                                     usage='use "%(prog)s --help" for more information',
+                                     formatter_class=argparse.RawTextHelpFormatter
+                                     # For multi-line formatting in help text
+                                     )
 
     parser.add_argument("-c", "--config", required=True, type=str, dest='config',
                         help="Model config file (YAML)")
@@ -184,7 +189,7 @@ if __name__ == "__main__":
                         help="(Optional) Runtime variable supplied by batch run scripts, so all batch outputs are kept in the same folder.")
     parser.add_argument("-i", "--intervention", type=str, dest="intervention", default=None,
                         help=
-                                """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
+                        """(Optional) Specify the intervention you want to run. Currently implemented interventions are:
                                    - hhIncomeIntervention
                                    - hhIncomeChildUplift
                                    - hhIncomePovertyLineChildUplift

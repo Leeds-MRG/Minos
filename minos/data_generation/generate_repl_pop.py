@@ -12,6 +12,7 @@ Currently we take the 16 year olds from the final data file for 2018 (start date
 copies of this population for every year of the simulation to 2070, then adjust the analysis weights (`weight` var) by
 sex and ethnicity to ensure representative populations into the future.
 """
+import multiprocessing
 
 import pandas as pd
 import numpy as np
@@ -23,7 +24,8 @@ from rpy2.robjects.packages import importr
 
 import US_utils
 from minos.modules import r_utils
-
+from multiprocessing import Pool
+from itertools import repeat
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -55,11 +57,21 @@ def expand_repl(US_wave, region):
     # get max hidp value so we can add new households with unique hidp
     max_hidp = US_wave['hidp'].max()
 
+    # LA 10/7/24
+    # Set up a list for the ages to take as replenishing pop
+    # for synthpop (just scotland for now to test) we don't need the 17 year olds also
+    #repl_ages = [16, 17]
+    repl_ages = [16]
+    if region == 'scotland':
+        repl_ages = [16]
+
     # Find households with a 16 or 17 year old to add as replenishing
-    repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
+    repl_wave_hidps = US_wave[(US_wave['age'].isin(repl_ages))]['hidp']
     repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
-    # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
+
+    # Change age of 17 year olds to 16 year olds (in the case where we take both ages to maintain age structure)
     repl_hhs['age'][repl_hhs['age'] == 17] = 16
+
     # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
     repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
 
@@ -206,7 +218,7 @@ def predict_education(repl, transition_dir):
                     "zeroinfl": importr("pscl"),
                     }
     transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
-    prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
+    prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols, seed=1234)
 
     repl['max_educ'] = np.nan
     for i, distribution in enumerate(prob_df.iterrows()):
@@ -215,19 +227,57 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
+def type_check(data):
+    # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
+    data['ncigs'] = data['ncigs'].astype(int)
+    data['nutrition_quality'] = data['nutrition_quality'].astype(int)
+    data['loneliness'] = data['loneliness'].astype(int)
+    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
+    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
+    # final_repl['S7_neighbourhood_safety'] = final_repl['S7_neighbourhood_safety'].astype(int)
+    data['job_sec'] = data['job_sec'].astype(int)
+    data['nkids'] = data['nkids'].astype(float)
+    data['financial_situation'] = data['financial_situation'].astype(int)
+    data['behind_on_bills'] = data['behind_on_bills'].astype(int)
+    data['boost_amount'] = data['boost_amount'].astype(float)
+
+    return data
+
+
+def generate_repl_pop(file_name, region, projections, transition_dir):
+    data = pd.read_csv(file_name)
+
+    # expand and reweight the population
+    expanded_repl = expand_repl(data, region)
+
+    reweighted_repl = reweight_repl(expanded_repl, projections)
+
+    # finally, predict the highest level of educ
+    final_repl = predict_education(reweighted_repl, transition_dir)
+
+    # Correct some bad types before saving
+    final_repl = type_check(final_repl)
+
+    return final_repl
+
+
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region, priority_sub, multisample):
+
 
     output_dir = 'data/replenishing'
-    data_source = 'final_US'
+    #data_source = 'final_US'
+    data_source = 'imputed_final_US'
     transition_dir = 'data/transitions'
-    source_year = 2021  # the year from which we draw our 16 year old cohort
+    source_year = 2020  # the year from which we draw our 16 year old cohort
 
     if scotland_mode:
         data_source = 'scotland_US'
         output_dir = 'data/replenishing/scotland'
         transition_dir = 'data/transitions/scotland'
     if cross_validation:
-        data_source = 'final_US/cross_validation/batch1'
+        data_source = 'imputed_final_US/cross_validation/batch1'
         output_dir = 'data/replenishing/cross_validation'
         transition_dir = 'data/transitions/cross_validation/version1'
         source_year = 2015
@@ -248,32 +298,42 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
 
+    if priority_sub:
+        data_source = 'scot_priority_sub'
+        output_dir = 'data/replenishing/scot_priority_sub'
+        source_year = 2020
+
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
-    data = pd.read_csv(file_name)
 
-    # expand and reweight the population
-    expanded_repl = expand_repl(data, region)
-
-    reweighted_repl = reweight_repl(expanded_repl, projections)
-
-    # finally, predict the highest level of educ
-    final_repl = predict_education(reweighted_repl, transition_dir)
-
-    # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
-    final_repl['ncigs'] = final_repl['ncigs'].astype(int)
-    final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
-    final_repl['loneliness'] = final_repl['loneliness'].astype(int)
-    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
-    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
-    final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
-    final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
-    final_repl['job_sec'] = final_repl['job_sec'].astype(int)
-    final_repl['nkids'] = final_repl['nkids'].astype(float)
+    # Generate the repl pop dataframe
+    final_repl = generate_repl_pop(file_name, region, projections, transition_dir)
 
     US_utils.check_output_dir(output_dir)
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
     print('Replenishing population generated for 2015 - 2070')
+    #
+
+    if multisample:
+        for i in range(10):
+            file_name = f"data/{data_source}_{i + 1}/{source_year}_US_cohort.csv"
+
+            # Generate 10 repl files from the 10 distinct synthpop samples
+            final_repl = generate_repl_pop(file_name, region, projections, transition_dir)
+
+            US_utils.check_output_dir(output_dir)
+            final_repl.to_csv(f'{output_dir}/{i + 1}_replenishing_pop_2015-2070.csv', index=False)
+            print(f'Replenishing population generated for 2015 - 2070 iteration {i + 1}')
+
+    #     with Pool() as p:
+    #         p.starmap(multithread_repl_pops,
+    #             zip(repeat(data_source),
+    #                 repeat(source_year),
+    #                 repeat(transition_dir),
+    #                 repeat(output_dir),
+    #                 range(1, 11),
+    #                 repeat(region),
+    #                 repeat(projections)))
 
 
 def main():
@@ -291,12 +351,20 @@ def main():
     parser.add_argument("-i", "--inflated", dest='inflated', action='store_true', default=False,
                         help="Select inflated mode to produce inflated cross-validation populations from inflated"
                              "data.")
+    parser.add_argument('-pr', '--priority_subgroup', action='store_true',
+                        help="Select priority subgroup mode to generate a replenishing pop from the priority subgroup "
+                             "only population.")
+    parser.add_argument('-m', '--multisample', action='store_true',
+                        help="Multisample mode, generate 10 different replenishing populations from the 10 samples"
+                             "generated from the synthpop.")
 
     args = parser.parse_args()
     scotland_mode = args.scotland
     cross_validation = args.crossval
     inflated = args.inflated
     region = args.region
+    priority_subgroup = args.priority_subgroup
+    multisample = args.multisample
 
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
@@ -305,7 +373,13 @@ def main():
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})
 
-    generate_replenishing(projections, scotland_mode, cross_validation, inflated, region)
+    generate_replenishing(projections,
+                          scotland_mode,
+                          cross_validation,
+                          inflated,
+                          region,
+                          priority_subgroup,
+                          multisample)
 
 
 if __name__ == "__main__":

@@ -64,6 +64,31 @@ drop_zero_weight <- function(data) {
   return(data)
 }
 
+drop_unnecessary_cols <- function(data, scen) {
+  # Only keep specific columns to reduce memory requirements
+  
+  # cols we always need
+  keep.cols <- c('pidp', 'hidp', 'time', 'alive', 'weight', 'sex', 'age', 'ethnicity', 
+                 'child_ages', 'S7_labour_state', 'hh_income', 'SF_12', 'nkids',
+                 'nkids_ind', 'init_relative_poverty', 'init_absolute_poverty', 
+                 'universal_credit')
+  
+  # cols only needed in intervention summaries
+  int.cols <- c('boost_amount', 'income_boosted')
+  
+  # if not baseline, we need intervention cols
+  if (stringr::str_detect(scen, 'baseline', negate = TRUE)) {
+    keep.cols <- c(keep.cols, int.cols)
+  }
+  
+  # , 'simd_quintile'
+  
+  data <- data %>%
+    select(all_of(keep.cols))
+  
+  return(data)
+}
+
 create.if.not.exists <- function(path) {
   if(!file.exists(path)) {
     dir.create(path = path)
@@ -177,10 +202,10 @@ families_income_quint_summarise <- function(data) {
 }
 
 treated_summarise <- function(data) {
-  if (('boost_amount' %in% names(data)) & (mean(data$time) != 2021)) {
+  if (('boost_amount' %in% names(data)) & (mean(data$time) != start.year)) {
     data <- data %>%
       filter(weight > 0) %>%
-      filter(income_boosted == 'True') %>%
+      filter(income_boosted == 'TRUE') %>%
       group_by(run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -591,10 +616,15 @@ priority_summarise_num <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()) # divide rowSum by n individuals in hh
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
       ) %>%
       ungroup() %>%
+      mutate(num_priority_groups = (rowSums(select(., starts_with("priority_"))))) %>%
+      mutate(num_priority_groups = case_when(
+        num_priority_groups == 0 ~ 0,
+        num_priority_groups == 1 ~ 1,
+        num_priority_groups == 2 ~ 2,
+        num_priority_groups >= 3 ~ 3)) %>%
       group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -609,10 +639,15 @@ priority_summarise_num <- function(data) {
              priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),
              priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),
              priority_mother_under_25 = ifelse(any((age < 25) & (nkids_ind > 0)), TRUE, FALSE),
-             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE),
-             num_priority_groups = (rowSums(select(., starts_with("priority_"))) / n()) # divide rowSum by n individuals in hh
+             priority_disabled = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)
       ) %>%
       ungroup() %>%
+      mutate(num_priority_groups = (rowSums(select(., starts_with("priority_"))))) %>%
+      mutate(num_priority_groups = case_when(
+        num_priority_groups == 1 ~ 1,
+        num_priority_groups == 2 ~ 2,
+        num_priority_groups >= 3 ~ 3)) %>%
+          group_by(num_priority_groups, run_id) %>%
       group_by(num_priority_groups, run_id) %>%
       summarise(count = n(),
                 hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -626,14 +661,19 @@ priority_summarise_num <- function(data) {
 ###################### READ FUNCTIONS  ######################
 
 # Step 1: Load Data for One Year
-load_data_for_year <- function(scen.path, year) {
+load_data_for_year <- function(scen.path, year, scen) {
   
   # Create file strings using year from args
   file_pattern <- sprintf("*_run_id_%d.csv", year)
   file_list <- list.files(path = scen.path,
                           pattern = file_pattern,
                           full.names = TRUE)
-  data_list <- lapply(file_list, read.csv)
+  #data_list <- lapply(file_list, read.csv)
+  data_list <- lapply(file_list, fread)
+  data_list <- lapply(data_list, as.data.frame)
+  
+  # Keep only certain columns (check function above for list)
+  data_list <- lapply(data_list, drop_unnecessary_cols, scen)
   
   # Now drop dead and zero weight
   data_list <- lapply(data_list, drop_dead)
@@ -654,8 +694,11 @@ generate_summary_csv <- function(data_list, year, summary_funcs, save.path) {
     summary_func <- summary_funcs[[summary_name]]
     summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path, summary_name, year)
     summary_data <- lapply(data_list, summary_func)
+    #rm(data_list)
     combined_summary <- do.call(rbind, summary_data)
+    rm(summary_data)
     write.csv(combined_summary, file = summary_filename, row.names = FALSE)
+    rm(combined_summary)
   }
 }
 
@@ -664,7 +707,7 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
   for (summary_name in names(summary_funcs)) {
     print(sprintf('About to combine summaries for %s', summary_name))
     combined_summary <- NULL
-    for (year in 2021:2036) {
+    for (year in start.year:end.year) {
       summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
       year_summary <- read.csv(summary_filename)
       year_summary$year <- year
@@ -679,13 +722,20 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
 ###################### RUN THIS STUFF! ######################
 
 args <- commandArgs(trailingOnly=TRUE)
-#args <- list('default_config', 'scp_summary_out', '50UniversalCredit')
+#args <- list('default_config', 'cpr_summary_out_test', 'ChildPovertyReductionRELATIVE_2_batch')
+
+# constants
+start.year <- 2020
+end.year <- 2035
 
 out.path <- here::here('output', args[1])
+#out.path <- '/home/luke/Documents/WORK/MINOS/Minos/output/default_config/'
 save.path.base <- here::here(out.path, args[2])
 save.path1 <- here::here(save.path.base, args[3])
 save.path2 <- here::here(save.path1, 'intermediates')
-scen <- args[3]
+scen <- args[[3]]
+
+
 
 create.if.not.exists(save.path.base)
 create.if.not.exists(save.path1)
@@ -712,11 +762,13 @@ summary_funcs <- c(UC_rel_pov = UC_rel_pov_summarise,
 #                   priority_num = priority_summarise_num
 #)
 
+
 # Step 5: Script Execution
-for (year in 2021:2036) {
+for (year in start.year:end.year) {
   print(sprintf('Starting for year %s', year))
-  data_list <- load_data_for_year(scen.path, year)
+  data_list <- load_data_for_year(scen.path, year, scen)
   generate_summary_csv(data_list, year, summary_funcs, save.path2)
+  rm(data_list)
   print(sprintf('Finished for year %s', year))
 }
 
