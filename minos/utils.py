@@ -15,11 +15,11 @@ from math import sqrt, log, ceil, floor
 from random import random
 from numpy.random import choice
 
-
 import sys
 import importlib
 from vivarium.config_tree import ConfigTree
 
+strptime = datetime.datetime.strptime
 
 # All of this is borrowed from VPS.
 DAYS_PER_YEAR = 365.25
@@ -824,4 +824,36 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
     else:
         return series_out
 
-ews = get_lsoa_la_map()
+def get_latest_subdirectory(runtime_list):
+    """
+    This function will return the latest runtime subdirectory when runtime_list is a list with len > 1. In the case that
+    runtime_list is a list with only a single element, then that single element will be returned (as this indicates
+    that there is only a single subdirectory to choose from.
+
+    This function is required for generating outcomes based on the latest run of data, and can be modified if specific
+    runs are required that are not the latest (although this will probably never be necessary).
+
+    Parameters
+    ----------
+    runtime_list : list
+        List of runtime subdirectories, which are all datetime values that were allocated the exact time when a run
+        began.
+
+    Returns
+    -------
+    runtime : string
+        The latest (or only) runtime string for creating the directory when loading data from a Minos run.
+    """
+
+    if len(runtime_list) > 1:
+        # if more than 1, select most recent datetime
+        runtime = max(runtime_list, key=lambda d: strptime(d, "%Y_%m_%d_%H_%M_%S"))
+    elif len(runtime_list) == 1:
+        runtime = runtime_list[0]  # os.listdir returns a list, we only have 1 element
+    else:
+        raise RuntimeError("The output directory supplied contains no subdirectories, and therefore no data to "
+                           "aggregate. Please check the output directory.")
+
+    return runtime
+
+#ews = get_lsoa_la_map()

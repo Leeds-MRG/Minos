@@ -1,0 +1,77 @@
+
+\begin{center}
+\begin{tiny}
+\begin{longtable}{l D{)}{)}{5)0} D{)}{)}{5)0}}
+\toprule
+ & \multicolumn{1}{c}{Minimum Error} & \multicolumn{1}{c}{First Standard Error} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{Minimum Error} & \multicolumn{1}{c}{First Standard Error} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{3}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model lasso coefficients for estimation of variable: SF\_12.}
+\label{table: sf12_lasso_coefficients}
+\endlastfoot \\
+(Intercept) (1)                                                 & 50.61  & 51.46  \\
+(Intercept) (2)                                                 & 0.00   & 0.00   \\
+factor(sex)Male                                                 & 1.49   & 1.36   \\
+relevel(factor(ethnicity), ref = "WBI")BAN                      & -0.13  & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")BLA                      & 1.89   & 0.62   \\
+relevel(factor(ethnicity), ref = "WBI")BLC                      & 0.60   & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")CHI                      & 0.95   & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")IND                      & 0.65   & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")MIX                      & -0.03  & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")OAS                      & 0.67   & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")OBL                      & 2.20   & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")OTH                      & 0.17   & 0.00   \\
+relevel(factor(ethnicity), ref = "WBI")PAK                      & -0.63  & -0.21  \\
+relevel(factor(ethnicity), ref = "WBI")WHO                      & 0.53   & 0.00   \\
+scale(age)                                                      & 1.34   & 0.98   \\
+factor(education\_state)1                                       & 0.44   & 0.00   \\
+factor(education\_state)2                                       & 0.30   & 0.05   \\
+factor(education\_state)3                                       & -0.09  & 0.00   \\
+factor(education\_state)5                                       & -0.01  & 0.00   \\
+factor(education\_state)6                                       & -0.06  & 0.00   \\
+factor(education\_state)7                                       & -0.08  & 0.00   \\
+factor(labour\_state)FT Education                               & 1.94   & 0.78   \\
+factor(labour\_state)FT Employed                                & 0.26   & 0.00   \\
+factor(labour\_state)Job Seeking                                & -0.55  & -0.81  \\
+factor(labour\_state)Not Working                                & -0.36  & -0.16  \\
+factor(labour\_state)PT Employed                                & 0.52   & 0.16   \\
+relevel(factor(NSSEC), ref = 1)1                                & 0.10   & 0.00   \\
+relevel(factor(NSSEC), ref = 1)2                                & 0.20   & 0.00   \\
+relevel(factor(NSSEC), ref = 1)3                                & 0.11   & 0.00   \\
+relevel(factor(NSSEC), ref = 1)4                                & 0.24   & 0.00   \\
+relevel(factor(NSSEC), ref = 1)5                                & 0.84   & 0.34   \\
+relevel(factor(NSSEC), ref = 1)6                                & 1.11   & 0.42   \\
+relevel(factor(NSSEC), ref = 1)7                                & 0.64   & 0.08   \\
+relevel(factor(NSSEC), ref = 1)8                                & 1.18   & 0.54   \\
+relevel(factor(region), ref = "London")East Midlands            & 0.35   & 0.00   \\
+relevel(factor(region), ref = "London")East of England          & 0.40   & 0.00   \\
+relevel(factor(region), ref = "London")North East               & -0.11  & 0.00   \\
+relevel(factor(region), ref = "London")North West               & -0.02  & 0.00   \\
+relevel(factor(region), ref = "London")Northern Ireland         & 0.20   & 0.00   \\
+relevel(factor(region), ref = "London")Scotland                 & 0.45   & 0.00   \\
+relevel(factor(region), ref = "London")South East               & 0.22   & 0.00   \\
+relevel(factor(region), ref = "London")South West               & 0.38   & 0.00   \\
+relevel(factor(region), ref = "London")Wales                    & 0.00   & 0.00   \\
+relevel(factor(region), ref = "London")West Midlands            & -0.08  & 0.00   \\
+relevel(factor(region), ref = "London")Yorkshire and The Humber & 0.20   & 0.00   \\
+scale(hh\_income)                                               & 0.33   & 0.11   \\
+scale(hh\_income$^2$)                                           & -0.22  & -0.01  \\
+factor(housing\_quality)Low                                     & -1.30  & -0.96  \\
+factor(housing\_quality)Medium                                  & -0.28  & -0.03  \\
+factor(neighbourhood\_safety)2                                  & 0.74   & 0.50   \\
+factor(neighbourhood\_safety)3                                  & 1.05   & 0.73   \\
+factor(loneliness)2                                             & -6.74  & -6.56  \\
+factor(loneliness)3                                             & -15.49 & -15.32 \\
+ncigs                                                           & -0.09  & -0.08  \\
+nutrition\_quality                                              & 0.02   & 0.01   \\
+\end{longtable}
+\end{tiny}
+\end{center}

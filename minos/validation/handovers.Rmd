@@ -56,10 +56,12 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r}
 
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+#raw.files <- list.files(here::here('data', 'imputed_final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'scaled_manchester_aligned_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'default_config/')
+out.path <- here::here('output', 'energy_default_config/')
+out.path <- here::here('output', 'energy_manchester_scaled/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```
 
@@ -68,7 +70,7 @@ base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 ```{r}
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
-start.year <- 2021
+start.year <- 2020
 # make sure we only overlap on one year for now or else tomfoolery happens. (the plots look bad).
 # we may want this overlap in the future? probably not.
 raw.dat <- raw.dat[which(raw.dat$time <= start.year), ]
@@ -78,6 +80,62 @@ shall.we.save <- FALSE
 ```
 
 # PATHWAYS
+
+
+## SF_12_PCS
+
+```{r}
+handover_boxplots(raw.dat, base.dat, 'SF_12_PCS')
+handover_lineplots(raw.dat, base.dat, "SF_12_PCS")
+```
+
+### Spaghetti
+
+```{r}
+raw.sf12.p <- raw.dat %>%
+  select(pidp, age, time, SF_12_PCS)
+base.sf12.p <- base.dat %>%
+  select(pidp, age, time, SF_12_PCS)
+
+sf12.p.spag <- rbind(raw.sf12.p, base.sf12.p)
+
+spaghetti_plot(sf12.p.spag, 'SF_12_PCS',
+               save = shall.we.save,
+               save.path = save.path)
+
+density_ridges(sf12.p.spag, "SF_12_PCS", 
+               save = shall.we.save, 
+               save.path = save.path)
+
+rm(raw.sf12.p, base.sf12.p, sf12.p.spag)
+```
+
+## Physical Activity
+
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'active', save = shall.we.save)
+
+raw.2020.phys <- raw.dat %>% 
+  filter(time == 2020) %>%
+  group_by(active) %>%
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n))
+```
+
+
+## Alcohol (AUDITC)
+
+```{r}
+handover_ordinal(raw.dat, base.dat, var = 'auditc', save = shall.we.save)
+
+raw.2020.alc <- raw.dat %>% 
+  filter(time == 2020) %>%
+  group_by(auditc) %>%
+  summarise(n = n()) %>%
+  mutate(prop = n / sum(n))
+
+```
+
 
 ## Income
 
@@ -1165,6 +1223,7 @@ base.ncars <- base.ncars %>%
 
 
 # merge before plot
+base.ncars$ncars <- as.character(base.ncars$ncars) # cast from int to str. 
 ncars <- rbind(raw.ncars, base.ncars)
 ncars$ncars <- as.factor(ncars$ncars)
 

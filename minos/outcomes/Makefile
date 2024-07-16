@@ -505,11 +505,19 @@ aggregate_minos_manchester_FFRS:
 aggregate_minos_manchester_good_housing_dummy_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy_quintiles"
 
+aggregate_minos_manchester_EPCG:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "EPCG"
 
+aggregate_minos_manchester_combined:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12"
 
+# MCS QUINTILES
 
 aggregate_minos_manchester_EPCG_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_quintiles" "SF_12"
+
+aggregate_minos_manchester_good_heating_dummy_quintiles:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GHD_quintiles" "SF_12"
 
 aggregate_minos_manchester_GBIS_quintiles:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_quintiles" "SF_12"
@@ -517,8 +525,112 @@ aggregate_minos_manchester_GBIS_quintiles:
 aggregate_minos_manchester_EPCG_GBIS_SF_12:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_SF_12" "SF_12"
 
+# BOOST AMOUNT
+
 aggregate_minos_manchester_EPCG_GBIS_intervention_cost:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_intervention_cost" "boost_amount"
 
 aggregate_minos_manchester_EPCG_GBIS_yearly_energy:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_yearly_energy" "yearly_energy"
+
+aggregate_minos_manchester_EPCG_GBIS_heating:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "heating"
+
+aggregate_minos_manchester_EPCG_GBIS_combined_yearly_energy:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "yearly_energy"
+
+
+#############################
+# Housing Interventions PCS #
+#############################
+
+# seperately and one together.
+aggregate_minos_manchester_EPCG_PCS:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "EPCG" "SF_12_PCS"
+
+aggregate_minos_manchester_GBIS_PCS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS" "SF_12_PCS"
+
+aggregate_minos_manchester_good_housing_dummy_PCS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy" "SF_12_PCS"
+
+aggregate_minos_manchester_combined_PCS:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
+
+#################
+# PCS Quintiles #
+#################
+
+#####################
+# Intervention Cost #
+#####################
+
+
+# seperately and one together.
+aggregate_minos_manchester_EPCG_cost:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "EPCG" "boost_amount"
+
+aggregate_minos_manchester_GBIS_cost:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS" "boost_amount"
+
+aggregate_minos_manchester_good_housing_dummy_cost:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy" "boost_amount"
+
+aggregate_minos_manchester_combined_cost:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS" "boost_amount"
+
+#################
+# PCS Quintiles #
+#################
+
+################
+# QALY #########
+################
+
+
+QALY_baseline: MODE=$(EXPERIMENT)
+QALY_baseline: INTERVENTION=baseline
+QALY_baseline:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_GHD: MODE=$(EXPERIMENT)
+QALY_GHD: INTERVENTION=goodHeatingDummy
+QALY_GHD:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_EPCG: MODE=$(EXPERIMENT)
+QALY_EPCG: INTERVENTION=EPCG
+QALY_EPCG:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_GBIS: MODE=$(EXPERIMENT)
+QALY_GBIS: INTERVENTION=GBIS
+QALY_GBIS:
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+all_energy_QALY: EXPERIMENT=energy_manchester_scaled
+all_energy_QALY: QALY_baseline QALY_GHD QALY_EPCG QALY_GBIS
+
+
+
+
+QALYs_GHB: EXPERIMENT=scotland_scaled
+QALYs_: STARTYEAR=2020
+QALY_vis_GHB: QALY_baseline
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='good_heating_dummy', start.year='$(STARTYEAR)'), output_file = 'QALY_GHD.html')"
+
+QALY_vis_EPCG: QALY_baseline
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='EPCG', start.year='$(STARTYEAR)'), output_file = 'QALY_EPCG.html')"
+
+QALY_vis_GBIS: QALY_baseline
+	$(RSCRIPT) -e "require(rmarkdown); render('$(OUTCOMES)/QALY_comparison2.Rmd', params = list(experiment='$(EXPERIMENT)/', base='baseline', intervention='GBIS', start.year='$(STARTYEAR)'), output_file = 'QALY_GBIS.html')"
+
+
+QALYs_UC_scotland: EXPERIMENT=scotland_scaled
+QALYs_UC_scotland: STARTYEAR=2020
+QALYs_UC_scotland: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY_vis_SCP_100_UC
+
+# running everything needed for paper 3.
+BIG_DADDY_PAPER_3:
+BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS aggregate_minos_manchester_combined_cost aggregate_minos_manchester_EPCG_GBIS_combined_yearly_energy
+BIG_DADDY_PAPER_3: QALY_ICER_ENERGY_COMBINED aggregate_minos_manchester_GBIS_quintiles GBIS_GMCA_map

@@ -1,0 +1,81 @@
+
+\begin{center}
+\begin{tiny}
+\begin{longtable}{l D{)}{)}{13)3} D{)}{)}{13)3}}
+\toprule
+ & \multicolumn{1}{c}{SF\_12 2018 With 2013 Extrapolated Weights} & \multicolumn{1}{c}{SF\_12 2018 With Weights} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{SF\_12 2018 With 2013 Extrapolated Weights} & \multicolumn{1}{c}{SF\_12 2018 With Weights} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{3}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model projectied\_ols coefficients for estimation of variable: SF\_12.}
+\label{table: sf12_projected_weights_coefficients}
+\endlastfoot \\
+(Intercept)                                                     & 4.0944 \; (0.0041)^{***}  & 4.0616 \; (0.0048)^{***}  \\
+factor(sex)Male                                                 & 0.0272 \; (0.0012)^{***}  & 0.0246 \; (0.0013)^{***}  \\
+relevel(factor(ethnicity), ref = "WBI")BAN                      & -0.0055 \; (0.0069)       & 0.0159 \; (0.0087)        \\
+relevel(factor(ethnicity), ref = "WBI")BLA                      & 0.0296 \; (0.0045)^{***}  & 0.0342 \; (0.0062)^{***}  \\
+relevel(factor(ethnicity), ref = "WBI")BLC                      & 0.0186 \; (0.0058)^{**}   & 0.0174 \; (0.0071)^{*}    \\
+relevel(factor(ethnicity), ref = "WBI")CHI                      & 0.0242 \; (0.0076)^{**}   & 0.0017 \; (0.0117)        \\
+relevel(factor(ethnicity), ref = "WBI")IND                      & 0.0138 \; (0.0036)^{***}  & 0.0261 \; (0.0045)^{***}  \\
+relevel(factor(ethnicity), ref = "WBI")MIX                      & -0.0039 \; (0.0048)       & -0.0062 \; (0.0058)       \\
+relevel(factor(ethnicity), ref = "WBI")OAS                      & 0.0142 \; (0.0054)^{**}   & 0.0304 \; (0.0066)^{***}  \\
+relevel(factor(ethnicity), ref = "WBI")OBL                      & 0.0367 \; (0.0147)^{*}    & 0.0188 \; (0.0227)        \\
+relevel(factor(ethnicity), ref = "WBI")OTH                      & -0.0109 \; (0.0082)       & 0.0273 \; (0.0111)^{*}    \\
+relevel(factor(ethnicity), ref = "WBI")PAK                      & -0.0179 \; (0.0046)^{***} & 0.0272 \; (0.0057)^{***}  \\
+relevel(factor(ethnicity), ref = "WBI")WHO                      & 0.0108 \; (0.0029)^{***}  & 0.0154 \; (0.0033)^{***}  \\
+scale(age)                                                      & 0.0250 \; (0.0009)^{***}  & 0.0399 \; (0.0010)^{***}  \\
+factor(education\_state)1                                       & 0.0063 \; (0.0041)        & 0.0125 \; (0.0047)^{**}   \\
+factor(education\_state)2                                       & 0.0043 \; (0.0017)^{*}    & 0.0040 \; (0.0019)^{*}    \\
+factor(education\_state)3                                       & -0.0030 \; (0.0024)       & -0.0006 \; (0.0026)       \\
+factor(education\_state)5                                       & -0.0013 \; (0.0024)       & -0.0024 \; (0.0026)       \\
+factor(education\_state)6                                       & -0.0004 \; (0.0021)       & 0.0037 \; (0.0022)        \\
+factor(education\_state)7                                       & 0.0003 \; (0.0025)        & -0.0026 \; (0.0026)       \\
+factor(labour\_state)FT Education                               & 0.0375 \; (0.0037)^{***}  & 0.0499 \; (0.0045)^{***}  \\
+factor(labour\_state)FT Employed                                & 0.0061 \; (0.0031)        & 0.0177 \; (0.0036)^{***}  \\
+factor(labour\_state)Job Seeking                                & -0.0141 \; (0.0037)^{***} & -0.0213 \; (0.0048)^{***} \\
+factor(labour\_state)Not Working                                & -0.0132 \; (0.0032)^{***} & -0.0111 \; (0.0038)^{**}  \\
+factor(labour\_state)PT Employed                                & 0.0102 \; (0.0034)^{**}   & 0.0178 \; (0.0039)^{***}  \\
+relevel(factor(NSSEC), ref = 1)1                                & 0.0045 \; (0.0038)        & 0.0092 \; (0.0039)^{*}    \\
+relevel(factor(NSSEC), ref = 1)2                                & 0.0062 \; (0.0031)        & 0.0133 \; (0.0031)^{***}  \\
+relevel(factor(NSSEC), ref = 1)3                                & 0.0049 \; (0.0024)^{*}    & 0.0115 \; (0.0023)^{***}  \\
+relevel(factor(NSSEC), ref = 1)4                                & 0.0086 \; (0.0026)^{**}   & 0.0156 \; (0.0026)^{***}  \\
+relevel(factor(NSSEC), ref = 1)5                                & 0.0165 \; (0.0029)^{***}  & 0.0204 \; (0.0028)^{***}  \\
+relevel(factor(NSSEC), ref = 1)6                                & 0.0219 \; (0.0031)^{***}  & 0.0203 \; (0.0033)^{***}  \\
+relevel(factor(NSSEC), ref = 1)7                                & 0.0146 \; (0.0023)^{***}  & 0.0193 \; (0.0024)^{***}  \\
+relevel(factor(NSSEC), ref = 1)8                                & 0.0234 \; (0.0027)^{***}  & 0.0237 \; (0.0028)^{***}  \\
+relevel(factor(region), ref = "London")East Midlands            & 0.0062 \; (0.0032)        & 0.0028 \; (0.0031)        \\
+relevel(factor(region), ref = "London")East of England          & 0.0070 \; (0.0026)^{**}   & 0.0053 \; (0.0029)        \\
+relevel(factor(region), ref = "London")North East               & 0.0002 \; (0.0035)        & 0.0007 \; (0.0037)        \\
+relevel(factor(region), ref = "London")North West               & -0.0031 \; (0.0027)       & -0.0044 \; (0.0027)       \\
+relevel(factor(region), ref = "London")Northern Ireland         & 0.0026 \; (0.0036)        & 0.0098 \; (0.0041)^{*}    \\
+relevel(factor(region), ref = "London")Scotland                 & 0.0056 \; (0.0028)^{*}    & -0.0067 \; (0.0030)^{*}   \\
+relevel(factor(region), ref = "London")South East               & 0.0033 \; (0.0024)        & 0.0005 \; (0.0026)        \\
+relevel(factor(region), ref = "London")South West               & 0.0067 \; (0.0028)^{*}    & -0.0036 \; (0.0029)       \\
+relevel(factor(region), ref = "London")Wales                    & -0.0022 \; (0.0033)       & -0.0112 \; (0.0034)^{**}  \\
+relevel(factor(region), ref = "London")West Midlands            & -0.0042 \; (0.0028)       & -0.0060 \; (0.0029)^{*}   \\
+relevel(factor(region), ref = "London")Yorkshire and The Humber & 0.0021 \; (0.0029)        & -0.0007 \; (0.0028)       \\
+scale(hh\_income)                                               & 0.0058 \; (0.0008)^{***}  & 0.0036 \; (0.0006)^{***}  \\
+scale(hh\_income$^2$)                                           & -0.0041 \; (0.0006)^{***} & 0.0004 \; (0.0006)        \\
+factor(housing\_quality)Low                                     & -0.0263 \; (0.0019)^{***} & -0.0435 \; (0.0023)^{***} \\
+factor(housing\_quality)Medium                                  & -0.0053 \; (0.0013)^{***} & -0.0050 \; (0.0013)^{***} \\
+factor(neighbourhood\_safety)2                                  & 0.0145 \; (0.0013)^{***}  & 0.0211 \; (0.0015)^{***}  \\
+factor(neighbourhood\_safety)3                                  & 0.0188 \; (0.0017)^{***}  & 0.0265 \; (0.0018)^{***}  \\
+factor(loneliness)2                                             & -0.1277 \; (0.0015)^{***} & -0.1340 \; (0.0016)^{***} \\
+factor(loneliness)3                                             & -0.3130 \; (0.0043)^{***} & -0.3279 \; (0.0031)^{***} \\
+ncigs                                                           & -0.0016 \; (0.0001)^{***} & -0.0014 \; (0.0001)^{***} \\
+nutrition\_quality                                              & 0.0003 \; (0.0001)^{***}  & 0.0005 \; (0.0001)^{***}  \\
+\midrule
+nimp                                                            & 30                        & 30                        \\
+nobs                                                            & 115852                    & 98605                     \\
+R$^2$                                                           & 0.2905                    & 0.3018                    \\
+Adj. R$^2$                                                      & 0.2902                    & 0.3014                    \\
+\end{longtable}
+\end{tiny}
+\end{center}

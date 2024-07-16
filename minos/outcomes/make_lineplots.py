@@ -68,7 +68,6 @@ def aggregate_cumulative_score(df, v):
     # count the overall sum of a quantity. e.g. sf-12 mcs absolute score.
     return sum(df[v])
 
-
 def aggregate_boosted_counts_and_cumulative_score(df, v):
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
@@ -112,6 +111,10 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                        engine='c')  # low_memory could be buggy but is faster.
     population_size = data.shape[0]
+
+    if 'boost_amount' not in data.columns:
+        data['boost_amount'] = 0.
+
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
     if region:
@@ -123,6 +126,10 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
 
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
+
+    if outcome_variable == "boost_amount":
+        data = data.groupby(by=('hidp'), as_index=False).agg({'weight': 'mean', 'boost_amount':'max'})  # get boost amount per household.
+
     agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
         agg_value["population_size"] = population_size + np.sum(data.groupby("hidp")['nkids'].max())
@@ -167,7 +174,8 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # Therefore we are just going to get everyone alive for now
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
 
-        if (year > 2020 or tag == ref) or method == aggregate_boosted_counts_and_cumulative_score:
+        #NB if we want to cut the first obs off just change this to > instead of >=.
+        if (year >= 2020 or tag == ref) or method == aggregate_boosted_counts_and_cumulative_score:
             with Pool() as pool:
                 aggregated_means = pool.starmap(aggregate_csv,
                                                     zip(files, repeat(subset_func_string), repeat(v), repeat(method),
@@ -334,8 +342,10 @@ def aggregate_lineplot(df, destination, prefix, v, method):
 
     # Sort out axis labels
     y_label = v
-    if v == 'SF_12':
-        y_label = 'SF12 MCS Percentage Change'
+    #if v == 'SF_12':
+    #   y_label = 'SF12 MCS Percentage Change'
+
+    y_label = f"{v} {method.__name__}"
 
     if method == weighted_nanmean:
         y_label += " Weighted Mean"
@@ -446,7 +456,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                                                          method=method, region=region)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    if v in ["SF_12"] and method == weighted_nanmean:
+    if v in ["SF_12", "SF_12_PCS"] and method == weighted_nanmean:
         if not do_simd_quintiles:
             scaled_data = relative_scaling(aggregate_long_stack, v, ref)
             print("relative scaling done. plotting.. ")
@@ -462,13 +472,13 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                     aggregate_long_stack_subsection['tag'] != "Baseline", ]
                 scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
             aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-    elif v in ["yearly_energy", 'intervention_cost'] and method == weighted_nanmean:
+    elif v in ["yearly_energy", 'intervention_cost','heating'] and method == weighted_nanmean:
         if not do_simd_quintiles:
             #scaled_data = relative_scaling(aggregate_long_stack, v, ref)
             #print("relative scaling done. plotting.. ")
             aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
 
-    elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
+    elif v in ["SF_12", "SF_12_PCS"] and method == aggregate_boosted_counts_and_cumulative_score:
         # groupby intervention and cumsum over time.
         aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()
         #scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
@@ -523,7 +533,9 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
     elif v == "boost_amount":
         aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
-    elif method == aggregate_percentage_counts:
+
+    # percentages bars.
+    if method == aggregate_percentage_counts:
         print(f"Data compiled for variable {v} using method {method.__name__}.")
         file_path = latest_file_path + f"/{v}_aggregation_using_{method.__name__}.csv"
         aggregate_long_stack.to_csv(file_path)

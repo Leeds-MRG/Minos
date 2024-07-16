@@ -375,7 +375,7 @@ def generic_single_lineplot(config_mode, v, source, tag, subset_function):
     directories = f"baseline,{source}"
     tags = f"Baseline,{tag}"
     subset_function_strings = f"{subset_function},who_boosted"
-    prefix = f"{tag}_uplift"
+    prefix = f"{tag}_{v}_uplift"
     ref = "Baseline"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
@@ -386,8 +386,18 @@ def generic_multiple_lineplot(config_mode, v, sources, tags, subset_functions):
     ref = tags[0]
     tags = ','.join(tags)
     subset_function_strings = ','.join(subset_functions)
-    prefix = '_'.join(tags.split(','))
+    prefix = '_'.join(tags.split(',')) + f"_{v}"
     method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+def generic_multiple_percentages_lineplot(config_mode, v, sources, tags, subset_functions):
+    "The same intervention in increments from £25 to £100"
+    directories = ','.join(sources)
+    ref = tags[0]
+    tags = ','.join(tags)
+    subset_function_strings = ','.join(subset_functions)
+    prefix = '_'.join(tags.split(',')) + f"_{v}"
+    method = "percentages"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
@@ -504,9 +514,13 @@ string_to_lineplot_function = {
 
     "good_heating_dummy": generic_single_lineplot,
     "GBIS": generic_single_lineplot,
+    "EPCG": generic_single_lineplot,
     "fossilFuelReplacementScheme": generic_single_lineplot,
+    "GHD_EPCG_GBIS_combined": generic_multiple_lineplot,
+    "GHD_EPCG_GBIS_combined_heating": generic_multiple_lineplot,
 
     "good_heating_dummy_quintiles": generic_simd_quintiles_lineplot,
+    "GHD_quintiles": generic_simd_quintiles_lineplot,
     "EPCG_quintiles": generic_simd_quintiles_lineplot,
     "GBIS_quintiles": generic_simd_quintiles_lineplot,
 
@@ -610,10 +624,18 @@ string_to_lineplot_function_args = {
 
     "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"],
     "GBIS": ["GBIS", "GBIS", "who_poor_heating"],
+    "EPCG": ["EPCG", "EPCG", "who_alive"],
     #"GBIS": ["GBIS", "GBIS", "who_relative_poverty"],
     "fossilFuelReplacementScheme": ["fossilFuelReplacementScheme", "FFRS", "who_kids"],
+    "GHD_EPCG_GBIS_combined": [["baseline","goodHeatingDummy","EPCG","GBIS"],
+                               ["Baseline","Good Heating Dummy","EPCG","GBIS"],
+                               ["who_alive","who_alive","who_alive","who_alive"]],
+    "GHD_EPCG_GBIS_combined_heating": [["baseline", "goodHeatingDummy", "EPCG", "GBIS"],
+                               ["Baseline", "Good Heating Dummy", "EPCG", "GBIS"],
+                               ["who_alive", "who_alive", "who_alive", "who_alive"]],
 
     "good_heating_dummy_quintiles": ["goodHeatingDummy", "Good Heating Dummy Quintiles"],
+    "GHD_quintiles": ["GHD", "GHD Quintiles"],
     "EPCG_quintiles": ["EPCG", "EPCG Quintiles"],
     "GBIS_quintiles": ["GBIS", "GBIS Quintiles"],
 
@@ -632,9 +654,10 @@ if __name__ == '__main__':
 
     config_mode = sys.argv[1]
     plot_choice = sys.argv[2]
-    if len(sys.argv) >= 3:
+    try:
         plot_var = sys.argv[3]
-    else:
+    except:
+        print("No specified plot variable. Defaulting to SF_12.")
         plot_var = "SF_12"
     plot_function = string_to_lineplot_function[plot_choice]
     if plot_choice in string_to_lineplot_function_args.keys():

@@ -529,3 +529,54 @@ zip_density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag
   }
   return(output_plot)
 }
+
+
+handover_ordinal <- function(raw.dat, base.dat, var, save=FALSE) {
+  raw.var <- raw.dat %>%
+    dplyr::select(time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'final_US')
+  
+  base.var <- base.dat %>%
+    dplyr::select(time, all_of(var)) %>%
+    filter(!.data[[var]] %in% miss.values) %>%
+    group_by(time, .data[[var]]) %>%
+    count() %>%
+    mutate(source = 'baseline_output')
+  
+  raw.var[[var]] <- as.factor(raw.var[[var]])
+  base.var[[var]] <- as.factor(base.var[[var]])
+  
+  merged <- rbind(raw.var, base.var)
+  merged[[var]] <- as.factor(merged[[var]])
+  
+  p1 <- ggplot(data = merged, mapping = aes(x = time, y = n, group = .data[[var]], colour = .data[[var]])) +
+    geom_line() +
+    geom_point() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Counts by Level') +
+    xlab('Year') +
+    ylab('Count')
+  
+  var.norm <- merged %>%
+    group_by(time) %>%
+    mutate(total = sum(n)) %>%
+    mutate(prct = (n / total))
+  
+  p2 <- ggplot(data = var.norm, mapping = aes(x = time, y = prct, fill=.data[[var]])) +
+    geom_bar(stat = 'identity') +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var) +
+    xlab('Year') +
+    ylab('Proportion')
+  
+  if (save) {
+    ggsave(filename = paste0(var, '.png',),
+           plot = last_plot(),
+           path = save.path)
+  }
+  print(p1)
+  print(p2)
+}
