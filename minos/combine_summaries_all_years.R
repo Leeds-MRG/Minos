@@ -873,17 +873,26 @@ scen <- args[[3]]
 
 
 # Create named list of summary functions to go through
-summary_funcs <- c(whole_pop = whole_pop_summarise,
-                   whole_pop_income_quint = whole_pop_income_quint_summarise,
-                   families = families_summarise,
-                   families_income_quint = families_income_quint_summarise,
-                   treated_relative = treated_relative_summarise,
-                   treated_absolute = treated_absolute_summarise,
-                   priority_any = priority_any_summarise,
-                   priority_num = priority_num_summarise,
-                   men_illness_risk = men_illness_risk_summarise,
-                   men_illness_risk_families = men_illness_risk_families_summarise
+summary_funcs <- c(UC = UC_summarise,
+                   UC_rel_pov = UC_rel_pov_summarise,
+                   UC_kids_rel_pov = UC_kids_rel_pov_summarise,
+                   UC_abs_pov = UC_abs_pov_summarise,
+                   UC_kids_abs_pov = UC_kids_abs_pov_summarise,
+                   UC_gender = UC_gender_summarise,
+                   priority_any = priority_summarise_any
 )
+
+# summary_funcs <- c(whole_pop = whole_pop_summarise,
+#                    whole_pop_income_quint = whole_pop_income_quint_summarise,
+#                    families = families_summarise,
+#                    families_income_quint = families_income_quint_summarise,
+#                    treated_relative = treated_relative_summarise,
+#                    treated_absolute = treated_absolute_summarise,
+#                    priority_any = priority_any_summarise,
+#                    priority_num = priority_num_summarise,
+#                    men_illness_risk = men_illness_risk_summarise,
+#                    men_illness_risk_families = men_illness_risk_families_summarise
+# )
 
 # families_income_quint2 = families_income_quint2_summarise,
 # whole_pop_income_quint2 = whole_pop_income_quint2_summarise,

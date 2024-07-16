@@ -10,21 +10,37 @@ scp_local_test_sum:
 	Rscript minos/read_summarise_2.R default_config scp_summary_out baseline
 	Rscript minos/read_summarise_2.R default_config scp_summary_out 50UniversalCredit
 
-scp_summary_out:
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out baseline
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 10UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 20UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 25UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 30UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 35UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 40UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 45UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 50UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 60UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 70UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 80UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 90UniversalCredit
-	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 100UniversalCredit
+scp_summary_yearly:
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out baseline 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 10UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 20UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 25UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 30UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 35UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 40UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 45UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 50UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 60UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 70UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 80UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 90UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out 100UniversalCredit 2020 2035
+
+scp_summary_allyears:
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out baseline
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 10UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 20UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 25UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 30UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 35UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 40UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 45UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 50UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 60UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 70UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 80UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 90UniversalCredit
+	Rscript minos/combine_summaries_all_years.R default_config scp_summary_out 100UniversalCredit
 
 CPR_local_test_sum:
 	Rscript minos/read_summarise_2.R default_config cpr_summary_out baseline

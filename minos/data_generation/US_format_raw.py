@@ -529,7 +529,7 @@ def remove_scottish_sample(data):
     """
 
     print(warning_string)
-    time.sleep(1)
+    #time.sleep(1)
 
     data = data[data['region'] != 'Scotland']
     return data
