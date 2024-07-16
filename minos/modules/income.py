@@ -1381,6 +1381,7 @@ class RFIncome(Base):
                                                  pop,
                                                  dependent='hh_income',
                                                  seed=self.run_seed,
-                                                 noise=0)
+                                                 noise_gauss=500,
+                                                 noise_cauchy=0)
 
         return nextWaveIncome
