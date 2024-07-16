@@ -89,7 +89,7 @@ manchester_intervention_fossilFuelReplacementScheme:
 # ARC Manchester Housing Interventions #
 ########################################
 
-arc4_manchester_housing_baseline: MODE=energy_default_config
+arc4_manchester_housing_baseline: MODE=energy_manchester_scaled
 arc4_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 arc4_manchester_housing_baseline:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
@@ -98,6 +98,11 @@ arc4_manchester_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.
 arc4_manchester_goodHeatingDummy: MODE=energy_manchester_scaled
 arc4_manchester_goodHeatingDummy:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
+
+arc4_manchester_housing_baseline: MODE=energy_default_config
+arc4_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_housing_baseline:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 arc4_manchester_EPCG: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 arc4_manchester_EPCG: MODE=energy_manchester_scaled
@@ -113,3 +118,5 @@ arc4_manchester_FFRS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 arc4_manchester_FFRS: MODE=energy_manchester_scaled
 arc4_manchester_FFRS:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
+
+arc4_all_manchester: arc4_manchester_housing_baseline arc4_manchester_goodHeatingDummy arc4_manchester_EPCG arc4_manchester_GBIS

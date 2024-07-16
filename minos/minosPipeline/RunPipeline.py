@@ -53,6 +53,10 @@ from minos.modules.interventions_living_wage import livingWageIntervention
 from minos.modules.interventions_energy import energyDownlift, energyDownliftNoSupport
 from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme, EPCG
 
+from minos.modules.physical_wellbeing import lmmYJPCS
+from minos.modules.physical_activity import PhysicalActivity
+
+
 # from minos.modules.metrics import ChildPovertyMetrics
 
 # for viz.
@@ -107,6 +111,8 @@ components_map = {
     "HourlyWage()": HourlyWage(),
     "energyBills()": energyBills(),
     "Ageing()": Ageing(),
+    "lmmYJPCS()": lmmYJPCS(),
+    "PhysicalActivity()": PhysicalActivity(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
