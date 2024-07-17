@@ -155,12 +155,12 @@ def run(args):
     ############## RUN PIPELINE ##############
     # Different call for intervention or cross_validation
     if args.intervention:
-        RunPipeline(config, intervention=args.intervention)
+        output_file_path = RunPipeline(config, intervention=args.intervention)
     else:
-        RunPipeline(config)
+        output_file_path = RunPipeline(config)
 
     print('Finished running the full simulation')
-
+    return output_file_path
 
 # This __main__ function is used to run this script in a console. See daedalus github for examples.
 if __name__ == "__main__":

@@ -57,6 +57,8 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
       - uuid
       - geopandas
       - topojson
+      - psycopg2
+      - sipherdb==0.1.7
       #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
 
 prefix:

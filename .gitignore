@@ -117,3 +117,6 @@ notebooks/hh_composition_composite.ipynb
 notebooks/new_housing_composite.ipynb
 notebooks/testing_new_transition_vars.ipynb
 notebooks/equivalent_income.ipynb
+
+# contains credentials to access the database
+database.ini

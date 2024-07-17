@@ -21,7 +21,10 @@ import os
 from uuid import uuid4
 from rpy2.robjects.packages import importr
 
-import US_utils
+# import US_utils
+from minos.data_generation.US_utils import generate_interview_date_var
+from minos.data_generation.US_utils import check_output_dir
+
 from minos.modules import r_utils
 
 
@@ -29,7 +32,7 @@ from minos.modules import r_utils
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
-def expand_repl(US_wave, region):
+def expand_repl(US_wave, region, final_year=2070):
     """ 
     Expand and reweight replenishing populations (16-year-olds) from 2019 - 2070
     
@@ -40,6 +43,8 @@ def expand_repl(US_wave, region):
     projections : pandas.DataFrame
         Datafile containing counts by age and sex from 2008 to 2070 (2008-2020 from midyear estimates, 2021 - 2070 from
         principal population projections).
+    final_year : integer
+        The final year to generate a replenished population
     Returns
     -------
     expanded_repl : pandas.DataFrame
@@ -73,7 +78,7 @@ def expand_repl(US_wave, region):
 
     expanded_repl = pd.DataFrame()
     # first copy original dataset for every year from 2018 (current) - 2070
-    for year in range(2014, 2071, 1):
+    for year in range(2014, final_year + 1, 1):
         # first get copy of 2018 16 (and 17) -year-olds
         new_repl = repl_hhs.copy()
         # change time (for entry year)
@@ -83,7 +88,7 @@ def expand_repl(US_wave, region):
         # change interview year
         new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
         # now update Date variable (just use US_utils function
-        new_repl = US_utils.generate_interview_date_var(new_repl)
+        new_repl = generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
         # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
 
@@ -215,7 +220,7 @@ def predict_education(repl, transition_dir):
     return repl
 
 
-def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region):
+def generate_replenishing(projections, scotland_mode, cross_validation, inflated, region, final_year=2070):
 
     output_dir = 'data/replenishing'
     data_source = 'final_US'
@@ -248,12 +253,12 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
 
-    # first collect and load the datafile for 2018
+    # first collect and load the datafile for 2010
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
     data = pd.read_csv(file_name)
 
     # expand and reweight the population
-    expanded_repl = expand_repl(data, region)
+    expanded_repl = expand_repl(data, region, final_year=final_year)
 
     reweighted_repl = reweight_repl(expanded_repl, projections)
 
@@ -271,9 +276,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)
 
-    US_utils.check_output_dir(output_dir)
-    final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-2070.csv', index=False)
-    print('Replenishing population generated for 2015 - 2070')
+    check_output_dir(output_dir)
+    final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-{final_year}.csv', index=False)
+    print('Replenishing population generated for 2015 - ' + str(final_year))
 
 
 def main():
