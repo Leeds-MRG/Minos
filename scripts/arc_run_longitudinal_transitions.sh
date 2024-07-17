@@ -12,11 +12,12 @@
 ## Select memory
 #$ -l h_vmem=10G # was 15 for big runs
 ## Choose cores. See arc website for more details. 5 high memory cores chosen here.
-#$ -pe smp 8
+#$ -pe smp 5
 ## Set logs directories
 #$ -o ./logs/transitions/
 #$ -e ./logs/transitions/
 
 mkdir -p ./logs/transitions #
 Rscript minos/transitions/estimate_longitudinal_transitions.R
+# not strictly transitions but I keep running transitions and forgetting to do this afterwards so the scripts won't run  >:(
 python3 minos/data_generation/generate_stock_pop.py

@@ -17,9 +17,6 @@
 #$ -o ./logs/data_gen/
 #$ -e ./logs/data_gen/
 
-mkdir -p ./logs/data_gen # make dir if not exists
-python3 minos/data_generation/US_format_raw.py --source_dir ../UKDA-6614-stata/stata/stata13_se/ # raw data.
-python3 minos/data_generation/US_missing_main.py # LOCF and other deterministic correction.
 python3 minos/data_generation/generate_composite_vars.py # composite and derived variabes.
 Rscript minos/data_generation/US_MICE_imputation.R -n 1 -i 10 # MICE.
 python3 minos/data_generation/US_complete_case.py # complete case.
