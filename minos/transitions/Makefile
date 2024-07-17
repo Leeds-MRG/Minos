@@ -64,3 +64,7 @@ scot_transitions: final_data $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income
 
 $(TRANSITION_DATA)/scotland/hh_income/ols/hh_income_2018_2019.rds: $(SCOTDATA)/2021_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_SCOTLAND.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --scotland
+
+arc4_transitions:
+	qsub scripts/arc_run_transitions.sh
+	qsub scripts/arc_run_longitudinal_transitions.sh
