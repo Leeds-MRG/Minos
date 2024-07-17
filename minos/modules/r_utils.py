@@ -621,6 +621,45 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
+def predict_next_xgb(model, rpy2_modules, current, dependent, seed, noise_gauss=0, noise_cauchy=0):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    xgboost = rpy2_modules['xgboost']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
+    # activate pandas2ri to allow conversion from R to Python objects
+    pandas2ri.activate()
+
+    # current should be a matrix with factor columns converted to numeric using one-hot encoding (done in module)
+    r_encoded_data = pandas2ri.py2rpy(current)
+
+    ro.globalenv['r_encoded_data'] = r_encoded_data
+    ro.globalenv['model'] = model
+
+    predictions = ro.r('predict(model, as.matrix(r_encoded_data))')
+
+    predictions = pandas2ri.rpy2py(predictions)
+    predicted_values = pd.Series(predictions)
+
+    # Add Gaussian noise
+    gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)
+    prediction_with_gaussian = predicted_values + gaussian_noise
+
+    # Add Cauchy noise
+    cauchy_noise = stats.rcauchy(current.shape[0], 0, noise_cauchy)
+    cauchy_noise_limit = noise_cauchy * 10
+    cauchy_noise = np.clip(cauchy_noise, -cauchy_noise_limit, cauchy_noise_limit)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
+
+    prediction_output = prediction_with_gaussian + cauchy_noise
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
+
+
 def randomise_fixed_effects(model, rpy2_modules, type, seed):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
     Parameters

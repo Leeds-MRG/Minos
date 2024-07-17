@@ -17,7 +17,7 @@ from minos.modules.replenishment import NoReplenishment
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome, RFIncome
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome, RFIncome, XGBIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB, MarsMWB, RFMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
@@ -96,6 +96,7 @@ components_map = {
     "RFDiffIncome()": RFDiffIncome(),
     "MarsIncome()": MarsIncome(),
     "RFIncome()": RFIncome(),
+    "XGBIncome()": XGBIncome(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -247,7 +248,8 @@ def get_priorities():
                                                   'lmmYJIncome()',
                                                   'RFDiffIncome()',
                                                   "MarsIncome()",
-                                                  "RFIncome()"]})  # Any new income-based components to be added here
+                                                  "RFIncome()",
+                                                  "XGBIncome()"]})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
 
     # Some module better running before pathways
