@@ -148,7 +148,7 @@ CPR_psub_allyears:
 
 ## DEFAULT US POPULATION
 
-CPR_yearly: SUBDIR=scotland_cpr_MARS
+CPR_yearly: SUBDIR=scotland_cpr_RF
 CPR_yearly:
 	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out baseline 2020 2035
 	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReduction 2020 2035
