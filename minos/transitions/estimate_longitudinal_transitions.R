@@ -281,7 +281,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     } else if (tolower(mod.type) == "xgb") {
       
       model <- estimate_XGB(data = sorted_df,
-                            formula = form)
+                            formula = form,
+                            depend = dependent,
+                            log.transform = do.log.transform)
     }
 
     write_coefs <- F
@@ -358,7 +360,7 @@ sipher7 <- args$SIPHER7
 
 ###################################################################
 # DELETE ME
-#default <- TRUE
+default <- TRUE
 #cross_validation <- TRUE
 # DELETE ME
 ###################################################################

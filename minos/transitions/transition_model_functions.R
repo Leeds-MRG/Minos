@@ -486,7 +486,7 @@ estimate_MARS <- function(data, formula) {
   return(model)
 }
 
-estimate_XGB <- function(data, formula) {
+estimate_XGB <- function(data, formula, depend, log.transform) {
   
   print('Beginning estimation of the XGB model...')
   
@@ -495,21 +495,29 @@ estimate_XGB <- function(data, formula) {
   
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
   
-  # One-hot encode categorical variables
-  #model_matrix <- model.matrix(formula, data = data)[, -1] # remove the intercept
-  
-  # # factor columns
-  # factor_cols <- c("sex", "ethnicity", "region", "education_state", "job_sec", "S7_labour_state")
-  # 
-  # # Create dummy variables for all factors
-  # data_with_dummies <- dummy_cols(data, select_columns = factor_cols, remove_first_dummy = FALSE)
-  # # Remove original factor columns
-  # data_with_dummies <- data_with_dummies[, !(names(data_with_dummies) %in% factor_cols)]
-  # model_matrix <- model.matrix(formula, data = data)[, -1]
+  # set some vars to factor (important for numeric factors only, nominal handled easier)
+  numeric_as_factor <- c('education_state', 'neighbourhood_safety', 'loneliness', 'job_sec')
+  # Filter the list to include only columns that exist in the data
+  numeric_as_factor <- numeric_as_factor[numeric_as_factor %in% colnames(data)]
+  # convert variables to factor
+  data[numeric_as_factor] <- lapply(data[numeric_as_factor], as.factor)
   
   # Define the recipe
   rec <- recipe(formula, data = data) %>%
     step_dummy(all_nominal_predictors())
+  
+  # Conditionally add the log transformation step
+  if (log.transform) {
+    data[[depend]] <- data[[depend]] + 0.001
+    rec <- rec %>%
+      step_scale(all_numeric_predictors(), -c('time', 'age', 'SF_12')) %>%
+      step_log(all_of(depend))
+  } else {
+    rec <- rec %>%
+      step_scale(all_numeric_predictors(), -c('time', 'age'))
+  }
+  
+  browser()
   
   # Prepare the recipe
   prep_rec <- prep(rec, training = data)
@@ -520,7 +528,7 @@ estimate_XGB <- function(data, formula) {
   # Create the model matrix
   train_matrix <- as.matrix(train_data)
   
-  #browser()
+  browser()
   
   # prepare label and function
   label <- data$hh_income
@@ -531,10 +539,10 @@ estimate_XGB <- function(data, formula) {
     objective = "reg:squarederror",
     eta = 0.3,
     max_depth = 6,
-    subsample = 0.8,
-    colsample_bytree = 0.8
+    subsample = 1,
+    colsample_bytree = 1
   )
-  model <- xgb.train(params, dtrain, nround = 100)
+  model <- xgb.train(params, dtrain, nround = 100)  # , verbose = 1
   
   #attr(model,"formula_string") <- formula.string
   attr(model, "recipe") <- prep_rec

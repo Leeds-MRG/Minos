@@ -353,7 +353,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # need to add tiny value to the 0 MCS values as this causes problems in log transform
     if dependent == "SF_12":
-        current.loc[current[dependent] <= 0.0, dependent] = 0.01
+        current.loc[current[dependent] <= 0.0, dependent] = 0.001
 
 
     # Convert from pandas to R using package converter
@@ -621,7 +621,7 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
-def predict_next_xgb(model, rpy2_modules, current, dependent, seed, noise_gauss=0, noise_cauchy=0):
+def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transform, noise_gauss=0, noise_cauchy=0):
 
     # import R packages
     base = rpy2_modules['base']
@@ -632,6 +632,10 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, noise_gauss=
     # Set the seed in R
     seed_command = f'set.seed({seed})'
     r(seed_command)
+
+    # need to add tiny value to the 0 MCS values as this causes problems in log transform
+    if dependent == "SF_12":
+        current.loc[current[dependent] <= 0.0, dependent] = 0.001
 
     # activate pandas2ri to allow conversion from R to Python objects
     #pandas2ri.activate()
@@ -663,6 +667,9 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, noise_gauss=
     with localconverter(ro.default_converter + pandas2ri.converter):
         predictions = ro.conversion.rpy2py(predictions)
 
+    if log_transform:
+        predictions = np.exp(predictions)
+
     # Add Gaussian noise
     gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)
     prediction_with_gaussian = predictions + gaussian_noise
@@ -676,27 +683,6 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, noise_gauss=
 
     return pd.DataFrame(prediction_output, columns=[dependent])
 
-
-# # Set the formula and data in the R global environment
-    # ro.globalenv['formula'] = ro.r(formula)
-    # ro.globalenv['current'] = r_current
-    # ro.globalenv['model'] = model
-    #
-    # model_matrix = ro.r('model.matrix(as.formula(formula), current)[, -1]')
-    # ro.globalenv['model_matrix'] = model_matrix
-    #
-    # data_feature_names = list(ro.r('colnames(model_matrix)'))
-    #
-    # mod_dict = dict(zip(model.names, list(model)))
-    # model_feature_names = list(mod_dict['feature_names'])
-    #
-    # missing_features_indata = set(model_feature_names) - set(data_feature_names)
-    # missing_features_inmodel = set(data_feature_names) - set(model_feature_names)
-    #
-    # predictions = ro.r('predict(model, as.matrix(model_matrix))')
-    #
-    # # predictions = pandas2ri.rpy2py(predictions)
-    # # predicted_values = pd.Series(predictions)
 
 def randomise_fixed_effects(model, rpy2_modules, type, seed):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
