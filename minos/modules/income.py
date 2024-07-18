@@ -1458,9 +1458,12 @@ class XGBIncome(Base):
         super().setup(builder)
 
         # just load this once.
-        self.rf_transition_model = r_utils.load_transitions(f"hh_income/xgb/hh_income_XGB",
+        self.transition_model = r_utils.load_transitions(f"hh_income/xgb/hh_income_XGB",
                                                             self.rpy2Modules,
                                                             path=self.transition_dir)
+        # self.preprocessing_recipe = r_utils.load_transitions(f"hh_income/xgb/hh_income_recipe",
+        #                                                      self.rpy2Modules,
+        #                                                      path=self.transition_dir)
 
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
@@ -1478,16 +1481,16 @@ class XGBIncome(Base):
 
         # prepare pop for xgboost model
         # xgboost requires a numeric matrix, so we can use one-hot encoding for this
-        encoded_pop = pd.get_dummies(pop, columns=['sex',
-                                                   'ethnicity',
-                                                   'region',
-                                                   'education_state',
-                                                   'job_sec',
-                                                   'S7_labour_state'])
+        # encoded_pop = pd.get_dummies(pop, columns=['sex',
+        #                                            'ethnicity',
+        #                                            'region',
+        #                                            'education_state',
+        #                                            'job_sec',
+        #                                            'S7_labour_state'])
 
         ## Predict next income value
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
-        newWaveIncome['hh_income'] = self.calculate_income(encoded_pop)
+        newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
         # Ensure whole household has equal hh_income by taking mean after prediction
@@ -1511,12 +1514,12 @@ class XGBIncome(Base):
         nextWaveIncome: pd.Series
             Vector of new household incomes from OLS prediction.
         """
-        nextWaveIncome = r_utils.predict_next_xgb(self.rf_transition_model,
+        nextWaveIncome = r_utils.predict_next_xgb(self.transition_model,
                                                   self.rpy2Modules,
                                                   pop,
                                                   dependent='hh_income',
                                                   seed=self.run_seed,
-                                                  noise_gauss=0,
+                                                  noise_gauss=50,
                                                   noise_cauchy=0)
 
         return nextWaveIncome

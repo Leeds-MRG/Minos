@@ -60,7 +60,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                             'Family Care',
                                             'Not Working'))
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO", "RF_DIFF", "MARS")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF",
+                                      "ORDGEE", "CLMM", "RF", "RFO", "RF_DIFF", 
+                                      "MARS", "XGB")
 
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
 
@@ -275,6 +277,11 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
       model <- estimate_MARS(data = sorted_df,
                              formula = form)
+      
+    } else if (tolower(mod.type) == "xgb") {
+      
+      model <- estimate_XGB(data = sorted_df,
+                            formula = form)
     }
 
     write_coefs <- F

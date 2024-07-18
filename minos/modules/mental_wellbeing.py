@@ -1088,3 +1088,120 @@ class RFMWB(Base):
                                                  noise_cauchy=0)
 
         return nextWaveMWB
+
+
+class XGBMWB(Base):
+    """Mental Well-Being Module"""
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'xgb_mwb'
+
+    def __repr__(self):
+        return "XGBMWB()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for income
+        - Add required columns to population data frame
+        - Update other required items such as randomness stream.
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+        """
+
+        # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
+
+        # Build vivarium objects for calculating transition probabilities.
+        # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
+
+        # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ["time",
+                        "age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'SF_12',
+                        'SF_12_diff',
+                        'pidp',
+                        'hh_income'
+                        ]
+
+        self.population_view = builder.population.get_view(columns=view_columns)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        #builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
+
+        # only need to load this once for now.
+        self.transition_model = r_utils.load_transitions(f"SF_12/xgb/SF_12_XGB",
+                                                         self.rpy2Modules,
+                                                         path=self.transition_dir)
+
+    def on_time_step(self, event):
+        """
+        Produces new children and updates parent status on time steps.
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+
+        self.year = event.time.year
+        # Get living people to update their income
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
+        pop["SF_12_last"] = pop["SF_12"]
+
+        # Predict next mwb value
+        newWaveMWB = pd.DataFrame(columns=['SF_12'])
+        newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+        newWaveMWB.index = pop.index
+
+        newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
+
+        newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
+
+        self.population_view.update(newWaveMWB[['SF_12', "SF_12_diff"]])
+
+    def calculate_mwb(self, pop):
+        """Calculate SF_12 transition distribution based on provided people/indices
+        Parameters
+        ----------
+            pop :
+        Returns
+        -------
+        """
+        nextWaveMWB = r_utils.predict_next_xgb(self.transition_model,
+                                               self.rpy2Modules,
+                                               pop,
+                                               dependent='SF_12',
+                                               seed=self.run_seed,
+                                               noise_gauss=0,
+                                               noise_cauchy=0)
+
+        return nextWaveMWB

@@ -10,6 +10,8 @@ library(doParallel)
 library(parallelly)
 library(ranger)
 library(earth)
+library(xgboost)
+library(recipes)
 
 ################ Model Specific Functions ################
 
@@ -474,9 +476,68 @@ estimate_MARS <- function(data, formula) {
 
   data <- replace.missing(data)
   data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   model <- earth(formula = formula,
-                 data = data)
+                 data = data,
+                 weights = weight)
 
+  return(model)
+}
+
+estimate_XGB <- function(data, formula) {
+  
+  print('Beginning estimation of the XGB model...')
+  
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+  
+  # One-hot encode categorical variables
+  #model_matrix <- model.matrix(formula, data = data)[, -1] # remove the intercept
+  
+  # # factor columns
+  # factor_cols <- c("sex", "ethnicity", "region", "education_state", "job_sec", "S7_labour_state")
+  # 
+  # # Create dummy variables for all factors
+  # data_with_dummies <- dummy_cols(data, select_columns = factor_cols, remove_first_dummy = FALSE)
+  # # Remove original factor columns
+  # data_with_dummies <- data_with_dummies[, !(names(data_with_dummies) %in% factor_cols)]
+  # model_matrix <- model.matrix(formula, data = data)[, -1]
+  
+  # Define the recipe
+  rec <- recipe(formula, data = data) %>%
+    step_dummy(all_nominal_predictors())
+  
+  # Prepare the recipe
+  prep_rec <- prep(rec, training = data)
+  
+  # Apply the recipe to the training data
+  train_data <- bake(prep_rec, new_data = data)
+  
+  # Create the model matrix
+  train_matrix <- as.matrix(train_data)
+  
+  #browser()
+  
+  # prepare label and function
+  label <- data$hh_income
+  dtrain <- xgb.DMatrix(data = train_matrix, label = label)
+  
+  # train the model
+  params <- list(
+    objective = "reg:squarederror",
+    eta = 0.3,
+    max_depth = 6,
+    subsample = 0.8,
+    colsample_bytree = 0.8
+  )
+  model <- xgb.train(params, dtrain, nround = 100)
+  
+  #attr(model,"formula_string") <- formula.string
+  attr(model, "recipe") <- prep_rec
+  
   return(model)
 }
