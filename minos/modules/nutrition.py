@@ -213,9 +213,16 @@ class lmmYJNutrition(Base):
 
         # Set index type to int (instead of object as previous)
         newWaveNutrition.index = pop.index
+
+        nutrition_mean = np.mean(newWaveNutrition["nutrition_quality"])
+        std_ratio = (np.std(pop['nutrition_quality'])/np.std(newWaveNutrition['nutrition_quality']))
+        newWaveNutrition["nutrition_quality"] *= std_ratio
+        newWaveNutrition["nutrition_quality"] -= ((std_ratio-1)*nutrition_mean)
+
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
         newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 110) # clipping because of idiot that eats 150 vegetables per week.
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
+        newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(int)
         newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income

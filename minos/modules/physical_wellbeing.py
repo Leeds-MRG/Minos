@@ -196,7 +196,10 @@ class lmmYJPCS(Base):
                         'active',
                         'auditc',
                         'region',
-                        'education_state', 'yearly_energy', 'heating']
+                        'education_state',
+                        "behind_on_bills",
+                        'yearly_energy',
+                        'heating']
 
         self.population_view = builder.population.get_view(columns=view_columns)
 

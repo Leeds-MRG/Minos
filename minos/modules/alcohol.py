@@ -60,7 +60,9 @@ class Alcohol(Base):
                         'SF_12_PCS',
                         'education_state',
                         'financial_situation',
-                        'auditc']
+                        'auditc',
+                        'behind_on_bills',
+                        'yearly_energy','heating']
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

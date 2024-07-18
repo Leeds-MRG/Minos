@@ -110,7 +110,7 @@ class nCars(Base):
         std_ratio = (np.std(pop.loc[pop['ncars']>0, 'ncars'])/np.std(non_zero_ncars['ncars']))
         #non_zero_ncars["ncars"] *= std_ratio
         #non_zero_ncars["ncars"] -= ((std_ratio-1)*ncars_mean)
-        #non_zero_ncars['ncars'] += 0.175 #0.175
+        non_zero_ncars['ncars'] += 0.105 #0.175
         newWaveNCars.loc[newWaveNCars['ncars']>0, 'ncars'] = non_zero_ncars['ncars']
 
         newWaveNCars['ncars'] = newWaveNCars['ncars'].clip(0, 10)

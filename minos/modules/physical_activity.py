@@ -56,7 +56,10 @@ class PhysicalActivity(Base):
                         "age",
                         "education_state",
                         "hh_income",
-                        "active"]
+                        "active",
+                        'financial_situation',
+                        'behind_on_bills',
+                        'yearly_energy','heating']
         self.population_view = builder.population.get_view(columns=view_columns)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
