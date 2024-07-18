@@ -856,4 +856,4 @@ def get_latest_subdirectory(runtime_list):
 
     return runtime
 
-#ews = get_lsoa_la_map()
+ews = get_lsoa_la_map()
