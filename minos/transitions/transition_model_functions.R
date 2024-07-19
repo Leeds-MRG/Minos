@@ -12,7 +12,6 @@ library(ranger)
 library(earth)
 library(xgboost)
 library(recipes)
-library(LaplacesDemon)
 
 ################ Model Specific Functions ################
 
@@ -477,7 +476,7 @@ estimate_MARS <- function(data, formula) {
 
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   model <- earth(formula = formula,
@@ -488,38 +487,38 @@ estimate_MARS <- function(data, formula) {
 }
 
 estimate_XGB <- function(data, formula, depend) {
-  
+
   print('Beginning estimation of the XGB model...')
-  
+
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
-  
+
   # set some vars to factor (important for numeric factors only, nominal handled easier)
   numeric_as_factor <- c('education_state', 'neighbourhood_safety', 'loneliness', 'job_sec')
   # Filter the list to include only columns that exist in the data
   numeric_as_factor <- numeric_as_factor[numeric_as_factor %in% colnames(data)]
   # convert variables to factor
   data[numeric_as_factor] <- lapply(data[numeric_as_factor], as.factor)
-  
+
   # Logit transform the dependent variable if it's SF_12 MCS
   # if (depend == "SF_12") {
   #   epsilon <- 1e-6  # Small value to avoid logit issues
   #   data[[depend]] <- data[[depend]] + epsilon
   #   #data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
   # }
-  
+
   # Define the recipe
   rec <- recipe(formula, data = data) %>%
     step_dummy(all_nominal_predictors())
-  
+
   # Prepare the recipe
   prep_rec <- prep(rec, training = data)
-  
+
   # Apply the recipe to the training data
   train_data <- bake(prep_rec, new_data = data)
-  
+
   # prepare label and function
   if (depend == 'hh_income') {
     label <- train_data$hh_income
@@ -528,12 +527,12 @@ estimate_XGB <- function(data, formula, depend) {
     label <- train_data$SF_12
     train_data <- train_data %>% select(-SF_12)
   }
-  
+
   # Create the model matrix
   train_matrix <- as.matrix(train_data)
-  
+
   dtrain <- xgb.DMatrix(data = train_matrix, label = label)
-  
+
   # train the model
   params <- list(
     objective = "reg:squarederror",
@@ -543,9 +542,9 @@ estimate_XGB <- function(data, formula, depend) {
     colsample_bytree = 1
   )
   model <- xgb.train(params, dtrain, nround = 100)  # , verbose = 1
-  
+
   #attr(model,"formula_string") <- formula.string
   attr(model, "recipe") <- prep_rec
-  
+
   return(model)
 }

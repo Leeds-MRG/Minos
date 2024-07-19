@@ -7,10 +7,10 @@ RFO : job_sec ~ job_sec_last + age + sex + ethnicity + region + education_state
 RFO : behind_on_bills ~ behind_on_bills_last + age + sex + ethnicity + region + education_state + hh_income + job_sec
 RFO : financial_situation ~ financial_situation_last + age + sex + ethnicity + region + education_state + housing_quality + neighbourhood_safety + loneliness + nutrition_quality + ncigs + job_sec + hh_income + marital_status + housing_tenure
 # NOTE: Any changes to the formula for an XGB model will require changes to the estimate_longitudinal_transitions script as the process for generating the input data is a bit involved, particularly for factor variables
-XGB : hh_income ~ hh_income_last + hh_income_diff + age + sex + ethnicity + region + education_state + job_sec + SF_12 + S7_labour_state + time
+XGB : hh_income ~ hh_income_diff + age + sex + ethnicity + region + education_state + job_sec + SF_12 + S7_labour_state + time
 LMM : nutrition_quality ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "2") + scale(hh_income) + factor(behind_on_bills) + factor(financial_situation) + (1|pidp) + (1|hidp) + time
 # NOTE: Any changes to the formula for an XGB model will require changes to the estimate_longitudinal_transitions script as the process for generating the input data is a bit involved, particularly for factor variables
-XGB : SF_12 ~ SF_12_last + SF_12_diff + age + sex + ethnicity + region + education_state + hh_income + housing_quality + neighbourhood_safety + loneliness + nutrition_quality + ncigs + time
+XGB : SF_12 ~ SF_12_diff + age + sex + ethnicity + region + education_state + hh_income + housing_quality + neighbourhood_safety + loneliness + nutrition_quality + ncigs + time
 ZIP : ncigs ~ scale(age) + factor(sex) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "2") + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + scale(hh_income) + scale(SF_12) + factor(behind_on_bills) + factor(financial_situation) | I(factor(ncigs>0)) + relevel(factor(ethnicity), ref = 'WBI') + factor(housing_quality) + factor(neighbourhood_safety) + factor(loneliness) + scale(nutrition_quality) + scale(ncigs) + relevel(factor(job_sec), ref = '3') + scale(hh_income) + scale(SF_12) + factor(behind_on_bills) + factor(financial_situation)
 
 # hh_income_last + hh_income_diff +
