@@ -648,9 +648,15 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transfor
     ro.globalenv['current'] = r_current
     preprocessed_data = ro.r('bake(recipe, new_data = current)')
 
-    # Convert preprocessed data to matrix
+    # Remove the dependent variable column
     ro.globalenv['preprocessed_data'] = preprocessed_data
-    data_matrix = ro.r('as.matrix(preprocessed_data)')
+    ro.globalenv['dependent'] = dependent
+    preprocessed_data_no_dependent = ro.r('preprocessed_data %>% select(-all_of(dependent))')
+
+    # Convert preprocessed data to matrix
+    ro.globalenv['preprocessed_data_no_dependent'] = preprocessed_data_no_dependent
+    data_matrix = ro.r('as.matrix(preprocessed_data_no_dependent)')
+    #data_matrix = ro.r('as.matrix(preprocessed_data)')
 
     # Predict using the xgboost model
     ro.globalenv['model'] = model

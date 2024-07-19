@@ -504,12 +504,11 @@ estimate_XGB <- function(data, formula, depend) {
   data[numeric_as_factor] <- lapply(data[numeric_as_factor], as.factor)
   
   # Logit transform the dependent variable if it's SF_12 MCS
-  if (depend == "SF_12") {
-    browser()
-    epsilon <- 1e-6  # Small value to avoid logit issues
-    data[[depend]] <- data[[depend]] + epsilon
-    #data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
-  }
+  # if (depend == "SF_12") {
+  #   epsilon <- 1e-6  # Small value to avoid logit issues
+  #   data[[depend]] <- data[[depend]] + epsilon
+  #   #data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
+  # }
   
   # Define the recipe
   rec <- recipe(formula, data = data) %>%
@@ -521,24 +520,23 @@ estimate_XGB <- function(data, formula, depend) {
   # Apply the recipe to the training data
   train_data <- bake(prep_rec, new_data = data)
   
-  # Create the model matrix
-  train_matrix <- as.matrix(train_data)
-  
   # prepare label and function
   if (depend == 'hh_income') {
-    label <- data$hh_income
-    obj <- "reg:squarederror"
+    label <- train_data$hh_income
+    train_data <- train_data %>% select(-hh_income)
   } else if (depend == 'SF_12') {
-    label <- data$SF_12
-    obj <- "reg:squarederror"
-    #obj <- "reg:squaredlogerror"
+    label <- train_data$SF_12
+    train_data <- train_data %>% select(-SF_12)
   }
+  
+  # Create the model matrix
+  train_matrix <- as.matrix(train_data)
   
   dtrain <- xgb.DMatrix(data = train_matrix, label = label)
   
   # train the model
   params <- list(
-    objective = obj,
+    objective = "reg:squarederror",
     eta = 0.3,
     max_depth = 6,
     subsample = 1,
