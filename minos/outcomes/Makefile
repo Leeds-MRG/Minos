@@ -577,7 +577,7 @@ aggregate_minos_manchester_good_housing_dummy_cost:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy" "boost_amount"
 
 aggregate_minos_manchester_combined_cost:
-	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS" "boost_amount"
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_intervention_cost" "intervention_cost"
 
 #################
 # PCS Quintiles #
@@ -610,7 +610,8 @@ QALY_GBIS:
 
 all_energy_QALY: EXPERIMENT=energy_manchester_scaled
 all_energy_QALY: QALY_baseline QALY_GHD QALY_EPCG QALY_GBIS
-
+all_energy_QALY:
+	python3 minos/outcomes/QALY_plot.py
 
 
 
@@ -632,5 +633,7 @@ QALYs_UC_scotland: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY
 
 # running everything needed for paper 3.
 BIG_DADDY_PAPER_3:
-BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS aggregate_minos_manchester_combined_cost aggregate_minos_manchester_EPCG_GBIS_combined_yearly_energy
-BIG_DADDY_PAPER_3: QALY_ICER_ENERGY_COMBINED aggregate_minos_manchester_GBIS_quintiles GBIS_GMCA_map
+BIG_DADDY_PAPER_3: aggregate_minos_manchester_GBIS_quintiles GBIS_GMCA_map
+BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS
+BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined_cost aggregate_minos_manchester_EPCG_GBIS_combined_yearly_energy
+BIG_DADDY_PAPER_3: QALY_ICER_ENERGY_COMBINED

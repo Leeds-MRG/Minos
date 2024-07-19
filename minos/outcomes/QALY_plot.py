@@ -33,6 +33,7 @@ def QALY_lineplot(data, prefix, destination="plots/"):
     file_name = os.path.join(destination, file_name)
     plt.tight_layout()
     plt.savefig(file_name)
+    print("QALY plot done.")
 
 def ICER_lineplot(data, prefix, destination="plots/"):
 
@@ -55,6 +56,7 @@ def ICER_lineplot(data, prefix, destination="plots/"):
     file_name = os.path.join(destination, file_name)
     plt.tight_layout()
     plt.savefig(file_name)
+    print("ICER plot done.")
 
 def main(mode, interventions):
     # downlaod three qaly datasets

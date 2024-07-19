@@ -38,7 +38,7 @@ class EPCG(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["hh_income", 'yearly_energy', 'hidp']
-        columns_created = ["income_boosted", 'boost_amount']
+        columns_created = ["income_boosted", 'intervention_cost']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -53,7 +53,7 @@ class EPCG(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
-                                   'boost_amount': 0.},  # hh income boosted by how much?
+                                   'intervention_cost': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -63,21 +63,25 @@ class EPCG(Base):
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
         # TODO probably a faster way to do this than resetting the whole column.
-        # pop['hh_income'] -= pop['boost_amount']
+        # pop['hh_income'] -= pop['intervention_cost']
         # reset boost amount to 0 before calculating next uplift
-        pop['yearly_energy'] += pop['boost_amount']
-        pop['boost_amount'] = 0.
-
-        pop['income_boosted'] = True
+        pop['yearly_energy'] += pop['intervention_cost']
+        pop['intervention_cost'] = 0.
 
         # TODO some fine tuning around kwh and non-elec/gas use.
+        # TODO check uniform household energy bills and intervention applied.
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
         energy_mean = np.mean(pop.groupby(by='hidp')['yearly_energy'].mean())
         if energy_mean > 3000: # energy cap only active when the mean consumption is over 3500.
-            pop['boost_amount'] = (energy_mean-3000)
-            pop['yearly_energy'] -= pop['boost_amount']
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount', 'yearly_energy']])
+            # scale energy spending such that the mean yearly bill is 3000 pounds.
+            # multiplicative scaling was used via capping of energy pricing per kWh.
+            pop['intervention_cost'] = pop['yearly_energy'] * (1- (3000/energy_mean))
+            pop['income_boosted'] = pop.loc[pop['intervention_cost']>0, ]
+            #pop['intervention_cost'] = (energy_mean-3000)
+            pop['yearly_energy'] -= pop['intervention_cost']
+        print(f"Boost amount mean{np.mean(pop['intervention_cost'])}")
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'intervention_cost', 'yearly_energy']])
 
 
 class energyBaseline(Base):
@@ -567,8 +571,11 @@ class GBIS(Base):
         # get the population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
+        # get intervened households in right CT bands.
+        # bands A-E not in england.
         non_england_band_E = pop.loc[
             (pop['council_tax_band'] == 5.) * (pop['region'].isin(['Scotland', "Wales"])), 'hidp']
+        #bands A-D in england.
         bands_A_D = pop.loc[pop['council_tax_band'].isin([1., 2., 3., 4.]), 'hidp']
         not_intervened = pop.loc[pop['income_boosted'] == False, 'hidp']
         eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
@@ -635,7 +642,7 @@ class GBIS(Base):
         # TODO two waves for cavity/solid insulation.
 
         # update population
-        self.population_view.update(pop[['intervention_cost', 'income_boosted',
+        self.population_view.update(pop[['intervention_cost', 'income_boosted', "boost_amount",
                                          'heating', 'yearly_energy', 'housing_quality']])
 
 

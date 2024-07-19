@@ -401,6 +401,17 @@ def generic_multiple_percentages_lineplot(config_mode, v, sources, tags, subset_
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
+def generic_cumulative_lineplot(config_mode, v, sources, tags, subset_functions):
+    "The same intervention in increments from £25 to £100"
+    directories = ','.join(sources)
+    ref = tags[0]
+    tags = ','.join(tags)
+    subset_function_strings = ','.join(subset_functions)
+    prefix = '_'.join(tags.split(',')) + f"_{v}"
+    method = "cumulate_by_households"
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
+
 #################
 # main function #
 #################
@@ -518,6 +529,8 @@ string_to_lineplot_function = {
     "fossilFuelReplacementScheme": generic_single_lineplot,
     "GHD_EPCG_GBIS_combined": generic_multiple_lineplot,
     "GHD_EPCG_GBIS_combined_heating": generic_multiple_lineplot,
+    "GHD_EPCG_GBIS_combined_intervention_cost": generic_cumulative_lineplot,
+    "GHD_EPCG_GBIS_combined_yearly_energy": generic_cumulative_lineplot,
 
     "good_heating_dummy_quintiles": generic_simd_quintiles_lineplot,
     "GHD_quintiles": generic_simd_quintiles_lineplot,
@@ -631,6 +644,12 @@ string_to_lineplot_function_args = {
                                ["Baseline","Good Heating Dummy","EPCG","GBIS"],
                                ["who_alive","who_alive","who_alive","who_alive"]],
     "GHD_EPCG_GBIS_combined_heating": [["baseline", "goodHeatingDummy", "EPCG", "GBIS"],
+                               ["Baseline", "Good Heating Dummy", "EPCG", "GBIS"],
+                               ["who_alive", "who_alive", "who_alive", "who_alive"]],
+    "GHD_EPCG_GBIS_combined_intervention_cost": [["baseline", "goodHeatingDummy", "EPCG", "GBIS"],
+                               ["Baseline", "Good Heating Dummy", "EPCG", "GBIS"],
+                               ["who_alive", "who_alive", "who_alive", "who_alive"]],
+    "GHD_EPCG_GBIS_combined_yearly_energy": [["baseline", "goodHeatingDummy", "EPCG", "GBIS"],
                                ["Baseline", "Good Heating Dummy", "EPCG", "GBIS"],
                                ["who_alive", "who_alive", "who_alive", "who_alive"]],
 

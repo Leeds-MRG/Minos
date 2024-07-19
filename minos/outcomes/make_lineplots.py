@@ -68,6 +68,12 @@ def aggregate_cumulative_score(df, v):
     # count the overall sum of a quantity. e.g. sf-12 mcs absolute score.
     return sum(df[v])
 
+def aggregate_cumulative_score_by_household(df, v):
+    # count the overall sum of a quantity. e.g. sf-12 mcs absolute score.
+    df = df.groupby(by='hidp')[v].max()
+    return sum(df)
+
+
 def aggregate_boosted_counts_and_cumulative_score(df, v):
     # get number of individuals boosted and the size of the overall population.
     new_df = pd.DataFrame(columns = ["number_boosted", f"summed_{v}"])
@@ -108,12 +114,22 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     required_columns = get_required_intervention_variables(subset_function_string)
     if region:
         required_columns.append("ZoneID")
-    data = pd.read_csv(file, usecols=required_columns, low_memory=True,
-                       engine='c')  # low_memory could be buggy but is faster.
+
+    if outcome_variable != "boost_amount":
+        data = pd.read_csv(file, usecols=required_columns, low_memory=True,
+                           engine='c')  # low_memory could be buggy but is faster.
+    else:
+        try:
+            data = pd.read_csv(file, usecols=required_columns + ['boost_amount'], low_memory=True,
+                               engine='c')  # low_memory could be buggy but is faster.
+        except:
+            data = pd.read_csv(file, usecols=required_columns, low_memory=True,
+                               engine='c')  # low_memory could be buggy but is faster.
+            data['boost_amount']=0
     population_size = data.shape[0]
 
-    if 'boost_amount' not in data.columns:
-        data['boost_amount'] = 0.
+    #if 'boost_amount' not in data.columns:
+    #    data['boost_amount'] = 0.
 
     if subset_function_string:
         data = subset_minos_data(data, subset_function_string, mode)
@@ -127,8 +143,8 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
         data = data.loc[data["ZoneID"].isin(region_lsoas), ]
         #print(data.shape)
 
-    if outcome_variable == "boost_amount":
-        data = data.groupby(by=('hidp'), as_index=False).agg({'weight': 'mean', 'boost_amount':'max'})  # get boost amount per household.
+    #if outcome_variable == "boost_amount":
+    #    data = data.groupby(by=('hidp'), as_index=False).agg({'weight': 'mean', 'boost_amount':'max'})  # get boost amount per household.
 
     agg_value = aggregate_method(data, outcome_variable)
     if aggregate_method == aggregate_boosted_counts_and_cumulative_score:
@@ -188,7 +204,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                     f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
                 aggregated_means = [None]
 
-            if method in [weighted_nanmean, child_uplift_cost_sum]:
+            if method in [weighted_nanmean, child_uplift_cost_sum, aggregate_cumulative_score_by_household]:
                 single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
                 single_year_aggregates['year'] = year
                 single_year_aggregates['tag'] = tag
@@ -315,7 +331,10 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     None
     """
 
-    df[v] *= 100
+    if v in ["SF_12", "SF_12_PCS"]:
+        df[v] *= 100
+    if v in ['boost_amount']:
+        df[v] = np.log(df[v]+1)
 
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
     if method == weighted_nanmean:
@@ -436,6 +455,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         method = child_uplift_cost_sum
     elif method == "SF12_AUC":
         method = aggregate_boosted_counts_and_cumulative_score
+    elif method == "cumulate_by_households":
+        method = aggregate_cumulative_score_by_household
     else:
         raise ValueError(
             "Unknown aggregate function specified. Please add specifc function required at 'aggregate_minos_output.py")
@@ -472,7 +493,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                     aggregate_long_stack_subsection['tag'] != "Baseline", ]
                 scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
             aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-    elif v in ["yearly_energy", 'intervention_cost','heating'] and method == weighted_nanmean:
+    elif v in ["yearly_energy", 'intervention_cost','heating', 'boost_amount'] and method == aggregate_cumulative_score_by_household:
         if not do_simd_quintiles:
             #scaled_data = relative_scaling(aggregate_long_stack, v, ref)
             #print("relative scaling done. plotting.. ")
@@ -531,8 +552,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack3[f"{v}_AUC"] = aggregate_long_stack3[f"{v}_AUC"].fillna(0)
         aggregate_lineplot(aggregate_long_stack3, "plots", "SF12_AUC_scaled_" + prefix, f"{v}_AUC", method)
 
-    elif v == "boost_amount":
-        aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
+    #elif v == "boost_amount":
+    #    aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
 
     # percentages bars.
     if method == aggregate_percentage_counts:

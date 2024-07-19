@@ -246,22 +246,23 @@ class lmmTobacco(Base):
         # Update population with new tobacco
         newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 50)
 
-        non_zero_ncigs = newWaveTobacco.loc[newWaveTobacco['ncigs']>0, ]
+        non_zero_ncigs = newWaveTobacco.loc[newWaveTobacco['ncigs']!=0, ]
+        non_zero_ncigs['ncigs'] *= 1.05
         non_zero_ncigs['ncigs'] = 5 * (np.ceil((non_zero_ncigs['ncigs'] / 5))) # change from np.round
 
         tobacco_mean = np.mean(non_zero_ncigs["ncigs"])
-        std_ratio = (np.std(pop.loc[pop['ncigs']>0, 'ncigs'])/np.std(non_zero_ncigs['ncigs']))*0.75
-        non_zero_ncigs["ncigs"] *= std_ratio
-        non_zero_ncigs["ncigs"] -= ((std_ratio-1)*tobacco_mean)
+        #std_ratio = (np.std(pop.loc[pop['ncigs']>0, 'ncigs'])/np.std(non_zero_ncigs['ncigs']))*0.85
+        #non_zero_ncigs["ncigs"] *= std_ratio
+        #non_zero_ncigs["ncigs"] -= ((std_ratio-1)*tobacco_mean)
+        #non_zero_ncigs['ncigs'] -= np.min(non_zero_ncigs['ncigs'])
+        #non_zero_ncigs['ncigs'] = non_zero_ncigs['ncigs'].clip(lower=0)
 
         #non_zero_ncigs["ncigs"] += 0.2
-        #non_zero_ncigs['ncigs'] *= 1.05
 
         # UNHASH THIS IF SCALING FAILS.
         #non_zero_ncigs.loc[non_zero_ncigs['ncigs'] == 0, 'ncigs'] += 5
 
         newWaveTobacco.loc[newWaveTobacco['ncigs']>0, 'ncigs'] = non_zero_ncigs['ncigs']
-        newWaveTobacco['ncigs'] = newWaveTobacco['ncigs'].clip(lower=0)
 
         #newWaveTobacco['ncigs'] *= 1.1
         newWaveTobacco["ncigs"] = np.round(newWaveTobacco["ncigs"]).astype(int)
