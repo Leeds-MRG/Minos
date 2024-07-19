@@ -621,6 +621,10 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
+def invlogit(x):
+    return 1 / (1 + np.exp(-x))
+
+
 def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transform, noise_gauss=0, noise_cauchy=0):
 
     # import R packages
@@ -633,16 +637,6 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transfor
     seed_command = f'set.seed({seed})'
     r(seed_command)
 
-    # need to add tiny value to the 0 MCS values as this causes problems in log transform
-    if dependent == "SF_12":
-        current.loc[current[dependent] <= 0.0, dependent] = 0.001
-
-    # activate pandas2ri to allow conversion from R to Python objects
-    #pandas2ri.activate()
-
-    # Load the formula from the model object and convert to Python string
-    #formula = model.do_slot("formula_string")
-    #formula = str(formula[0])
     recipe = model.do_slot("recipe")
 
     # Convert the pandas dataframe to R dataframe
@@ -668,7 +662,7 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transfor
         predictions = ro.conversion.rpy2py(predictions)
 
     if log_transform:
-        predictions = np.exp(predictions)
+        predictions = invlogit(predictions) * 100
 
     # Add Gaussian noise
     gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)

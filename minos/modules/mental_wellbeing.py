@@ -1201,7 +1201,7 @@ class XGBMWB(Base):
                                                pop,
                                                dependent='SF_12',
                                                seed=self.run_seed,
-                                               log_transform=True,
+                                               log_transform=False,
                                                noise_gauss=0,
                                                noise_cauchy=0)
 

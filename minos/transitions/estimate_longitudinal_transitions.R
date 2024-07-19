@@ -282,8 +282,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       
       model <- estimate_XGB(data = sorted_df,
                             formula = form,
-                            depend = dependent,
-                            log.transform = do.log.transform)
+                            depend = dependent)
     }
 
     write_coefs <- F
@@ -360,7 +359,7 @@ sipher7 <- args$SIPHER7
 
 ###################################################################
 # DELETE ME
-default <- TRUE
+#default <- TRUE
 #cross_validation <- TRUE
 # DELETE ME
 ###################################################################

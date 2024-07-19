@@ -12,6 +12,7 @@ library(ranger)
 library(earth)
 library(xgboost)
 library(recipes)
+library(LaplacesDemon)
 
 ################ Model Specific Functions ################
 
@@ -486,7 +487,7 @@ estimate_MARS <- function(data, formula) {
   return(model)
 }
 
-estimate_XGB <- function(data, formula, depend, log.transform) {
+estimate_XGB <- function(data, formula, depend) {
   
   print('Beginning estimation of the XGB model...')
   
@@ -502,21 +503,16 @@ estimate_XGB <- function(data, formula, depend, log.transform) {
   # convert variables to factor
   data[numeric_as_factor] <- lapply(data[numeric_as_factor], as.factor)
   
+  # Logit transform the dependent variable if it's SF_12 MCS
+  if (depend == "SF_12") {
+    browser()
+    epsilon <- 1e-6  # Small value to avoid logit issues
+    data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
+  }
+  
   # Define the recipe
   rec <- recipe(formula, data = data) %>%
     step_dummy(all_nominal_predictors())
-  
-  # Conditionally add the log transformation step
-  if (log.transform) {
-    data[[depend]] <- data[[depend]] + 0.001
-    rec <- rec %>%
-      step_log(all_of(depend))
-  }
-    #step_scale(all_numeric_predictors(), -c('time', 'age', 'SF_12')) %>%
-  # } else {
-  #   rec <- rec %>%
-  #     step_scale(all_numeric_predictors(), -c('time', 'age'))
-  # }
   
   # Prepare the recipe
   prep_rec <- prep(rec, training = data)
@@ -527,15 +523,18 @@ estimate_XGB <- function(data, formula, depend, log.transform) {
   # Create the model matrix
   train_matrix <- as.matrix(train_data)
   
-  browser()
-  
   # prepare label and function
-  label <- data$hh_income
+  if (depend == 'hh_income') {
+    label <- data$hh_income
+  } else if (depend == 'SF_12') {
+    label <- data$SF_12
+  }
+  
   dtrain <- xgb.DMatrix(data = train_matrix, label = label)
   
   # train the model
   params <- list(
-    objective = "reg:squarederror",
+    objective = "reg:squaredlogerror",
     eta = 0.3,
     max_depth = 6,
     subsample = 1,
