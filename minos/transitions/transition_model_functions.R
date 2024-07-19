@@ -507,7 +507,8 @@ estimate_XGB <- function(data, formula, depend) {
   if (depend == "SF_12") {
     browser()
     epsilon <- 1e-6  # Small value to avoid logit issues
-    data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
+    data[[depend]] <- data[[depend]] + epsilon
+    #data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
   }
   
   # Define the recipe
@@ -526,15 +527,18 @@ estimate_XGB <- function(data, formula, depend) {
   # prepare label and function
   if (depend == 'hh_income') {
     label <- data$hh_income
+    obj <- "reg:squarederror"
   } else if (depend == 'SF_12') {
     label <- data$SF_12
+    obj <- "reg:squarederror"
+    #obj <- "reg:squaredlogerror"
   }
   
   dtrain <- xgb.DMatrix(data = train_matrix, label = label)
   
   # train the model
   params <- list(
-    objective = "reg:squaredlogerror",
+    objective = obj,
     eta = 0.3,
     max_depth = 6,
     subsample = 1,
