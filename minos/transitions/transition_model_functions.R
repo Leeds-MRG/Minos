@@ -510,14 +510,13 @@ estimate_XGB <- function(data, formula, depend, log.transform) {
   if (log.transform) {
     data[[depend]] <- data[[depend]] + 0.001
     rec <- rec %>%
-      step_scale(all_numeric_predictors(), -c('time', 'age', 'SF_12')) %>%
       step_log(all_of(depend))
-  } else {
-    rec <- rec %>%
-      step_scale(all_numeric_predictors(), -c('time', 'age'))
   }
-  
-  browser()
+    #step_scale(all_numeric_predictors(), -c('time', 'age', 'SF_12')) %>%
+  # } else {
+  #   rec <- rec %>%
+  #     step_scale(all_numeric_predictors(), -c('time', 'age'))
+  # }
   
   # Prepare the recipe
   prep_rec <- prep(rec, training = data)
