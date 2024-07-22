@@ -625,7 +625,7 @@ def invlogit(x):
     return 1 / (1 + np.exp(-x))
 
 
-def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transform, noise_gauss=0, noise_cauchy=0):
+def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transform, reflect, noise_gauss=0, noise_cauchy=0):
 
     # import R packages
     base = rpy2_modules['base']
@@ -642,6 +642,11 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transfor
     # Convert the pandas dataframe to R dataframe
     with localconverter(ro.default_converter + pandas2ri.converter):
         r_current = ro.conversion.py2rpy(current)
+
+    # flip left skewed data to right skewed about its maximum.
+    if reflect:
+        max_value = model.do_slot("max_value")
+        r_current[r_current.names.index(dependent)] = max_value.ro - r_current.rx2(dependent)
 
     # Apply the recipe to the current data
     ro.globalenv['recipe'] = recipe
@@ -669,6 +674,9 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transfor
 
     if log_transform:
         predictions = invlogit(predictions) * 100
+
+    if reflect:
+        predictions = max_value.ro - predictions
 
     # Add Gaussian noise
     gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)

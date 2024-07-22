@@ -1520,7 +1520,8 @@ class XGBIncome(Base):
                                                   dependent='hh_income',
                                                   seed=self.run_seed,
                                                   log_transform=False,
-                                                  noise_gauss=50,
-                                                  noise_cauchy=0)
+                                                  reflect=False,
+                                                  noise_gauss=300,
+                                                  noise_cauchy=20)
 
         return nextWaveIncome

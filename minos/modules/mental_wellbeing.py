@@ -1202,7 +1202,8 @@ class XGBMWB(Base):
                                                dependent='SF_12',
                                                seed=self.run_seed,
                                                log_transform=False,
-                                               noise_gauss=0,
+                                               reflect=False,
+                                               noise_gauss=7,
                                                noise_cauchy=0)
 
         return nextWaveMWB

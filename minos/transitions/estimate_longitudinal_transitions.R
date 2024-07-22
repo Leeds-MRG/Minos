@@ -282,7 +282,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       
       model <- estimate_XGB(data = sorted_df,
                             formula = form,
-                            depend = dependent)
+                            depend = dependent,
+                            reflect = do.reflect)
     }
 
     write_coefs <- F
