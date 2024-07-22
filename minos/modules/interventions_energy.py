@@ -38,7 +38,7 @@ class EPCG(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["hh_income", 'yearly_energy', 'hidp']
-        columns_created = ["income_boosted", 'intervention_cost']
+        columns_created = ["income_boosted", 'intervention_cost', 'boost_amount']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -53,7 +53,8 @@ class EPCG(Base):
 
     def on_initialize_simulants(self, pop_data):
         pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?
-                                   'intervention_cost': 0.},  # hh income boosted by how much?
+                                   'intervention_cost': 0.,
+                                   'boost_amount': 0.},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -72,16 +73,18 @@ class EPCG(Base):
         # TODO check uniform household energy bills and intervention applied.
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
+        pop['yearly_energy'] += pop['intervention_cost']
         energy_mean = np.mean(pop.groupby(by='hidp')['yearly_energy'].mean())
         if energy_mean > 3000: # energy cap only active when the mean consumption is over 3500.
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
             pop['intervention_cost'] = pop['yearly_energy'] * (1- (3000/energy_mean))
-            pop['income_boosted'] = pop.loc[pop['intervention_cost']>0, ]
+            pop['income_boosted'] = pop['intervention_cost'] != 0
+            pop['boost_amount'] = pop['intervention_cost']
             #pop['intervention_cost'] = (energy_mean-3000)
             pop['yearly_energy'] -= pop['intervention_cost']
         print(f"Boost amount mean{np.mean(pop['intervention_cost'])}")
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'intervention_cost', 'yearly_energy']])
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
 
 
 class energyBaseline(Base):
@@ -543,6 +546,7 @@ class GBIS(Base):
                         'housing_quality',
                         'dwelling_type',
                         'number_of_rooms',
+                        'number_of_bedrooms',
                         'council_tax_band',
                         'yearly_oil'
                         ]
@@ -568,31 +572,42 @@ class GBIS(Base):
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
+        """
+        1.
+        2.
+        3.
+        4.
+        5.
+
+        Parameters
+        ----------
+        event
+
+        Returns
+        -------
+
+        """
+
         # get the population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
+        # who gets the intervention?
         # get intervened households in right CT bands.
         # bands A-E not in england.
         non_england_band_E = pop.loc[
             (pop['council_tax_band'] == 5.) * (pop['region'].isin(['Scotland', "Wales"])), 'hidp']
         #bands A-D in england.
         bands_A_D = pop.loc[pop['council_tax_band'].isin([1., 2., 3., 4.]), 'hidp']
+        # only intervene on households that have not already received intervention.
         not_intervened = pop.loc[pop['income_boosted'] == False, 'hidp']
-        eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
-        pop.loc[pop['hidp'].isin(eligible_hidps), 'income_boosted'] = True
-
-        # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
-        pop.loc[pop['hidp'].isin(eligible_hidps), 'yearly_energy'] += pop.loc[
-            pop['hidp'].isin(eligible_hidps), 'boost_amount']
-        # who gets the intervention?
-        # for now, choosing households below the poverty line.
-        # TODO look at those with high FP10 or low council tax bands instead?
-        # pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
-
-        # get non-english council tax band E
-        # get national coumcil tax bands A-D
-        # get FP10 positive.
+        # get FP10 positive?
         # get low heatng?
+        eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
+
+        pop['new_income_boosted'] = False
+        pop.loc[pop['hidp'].isin(eligible_hidps), 'new_income_boosted'] = True
+
+
 
         # what does the intervention do?  what do houses get?
         # assume all houses here gain cavity wall insulation.
@@ -603,10 +618,11 @@ class GBIS(Base):
         # use solid wall insulation instead? more expensive but larger savings. households before 1990.
 
         # TODO check households on housing quality as well.
-        pop.loc[pop["income_boosted"] == True, "heating"] = 1
+        pop.loc[pop["new_income_boosted"] == True, "heating"] = 1
+
 
         # TODO heterogeneity/validation in the boost amount.
-        pop['boost_amount'] = pop['income_boosted'] * 125.
+        pop['boost_amount'] = pop['new_income_boosted'] * 125.
 
         # adjust by dwelling type. more savings with more rooms.
         pop.loc[pop['dwelling_type'] == 1, 'boost_amount'] *= 200 / 125  # adjust to 200 for houses.
@@ -614,8 +630,14 @@ class GBIS(Base):
         # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
         pop.loc[pop['dwelling_type'] == 3, 'boost_amount'] *= 200 / 125  # bungalows
 
-        pop['boost_amount'] *= pop['number_of_rooms'] * 1.2  # adjust by number of rooms.
+        pop['boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
         # best we can do in lieu of square footage.
+
+        # subtract insulation savings from energy bills.
+        # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
+        pop['yearly_energy'] -= pop['boost_amount']
+        # pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
+
 
         # adjust by rural/urban?
 
@@ -623,16 +645,17 @@ class GBIS(Base):
         # pop['yearly_energy'] -= pop['boost_amount']
 
         # how much does it cost?
-        pop['intervention_cost'] = 7500.  # get cost. adjust by household etc. as abiove.
+        pop['intervention_cost'] = pop['new_income_boosted'] * 7500.  # get cost. adjust by household etc. as abiove.
         # adjust cost by dwelling type.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type'] == 1, 'intervention_cost'] *= 2  # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'intervention_cost'] *= 1.5  # adjust to 200 for houses.
         # cant differentiate between house types for now.
         # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type'] == 3, 'intervention_cost'] *= 2  # bungalows
+        pop.loc[pop['dwelling_type'] == 3, 'intervention_cost'] *= 1.5  # bungalows
 
-        pop['intervention_cost'] *= pop['number_of_rooms'] * 1.2  # adjust by number of rooms.
+        #pop.loc[pop['number_of_rooms'] < 0, 'number_of_bedrooms'] = 2
+        pop['intervention_cost'] *= pop['number_of_bedrooms'] * 1.1  # adjust by number of rooms.
         # best we can do in lieu of square footage.
 
         # adjust costs further by number of rooms in lieu of terraced/detached housing type.
@@ -640,6 +663,9 @@ class GBIS(Base):
         # adjust based on government region? rural/urban?
 
         # TODO two waves for cavity/solid insulation.
+
+        # adding people boosted on this wave to overall population of previously boosted households.
+        pop['income_boosted'] += pop['new_income_boosted']
 
         # update population
         self.population_view.update(pop[['intervention_cost', 'income_boosted', "boost_amount",

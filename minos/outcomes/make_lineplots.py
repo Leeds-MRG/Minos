@@ -115,17 +115,17 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     if region:
         required_columns.append("ZoneID")
 
-    if outcome_variable != "boost_amount":
+    if outcome_variable != "intervention_cost":
         data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                            engine='c')  # low_memory could be buggy but is faster.
     else:
         try:
-            data = pd.read_csv(file, usecols=required_columns + ['boost_amount'], low_memory=True,
+            data = pd.read_csv(file, usecols=required_columns + ['intervention_cost'], low_memory=True,
                                engine='c')  # low_memory could be buggy but is faster.
         except:
             data = pd.read_csv(file, usecols=required_columns, low_memory=True,
                                engine='c')  # low_memory could be buggy but is faster.
-            data['boost_amount']=0
+            data['intervention_cost']=0
     population_size = data.shape[0]
 
     #if 'boost_amount' not in data.columns:
@@ -333,7 +333,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
 
     if v in ["SF_12", "SF_12_PCS"]:
         df[v] *= 100
-    if v in ['boost_amount']:
+    if v in ['boost_amount','intervention_cost']:
         df[v] = np.log(df[v]+1)
 
     # seaborn line plot does this easily. change colours, line styles, and marker styles for easier readibility.
@@ -493,7 +493,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                     aggregate_long_stack_subsection['tag'] != "Baseline", ]
                 scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
             aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-    elif v in ["yearly_energy", 'intervention_cost','heating', 'boost_amount'] and method == aggregate_cumulative_score_by_household:
+    elif v in ["yearly_energy", 'intervention_cost','heating', 'boost_amount', "intervention_cost"] and method == aggregate_cumulative_score_by_household:
         if not do_simd_quintiles:
             #scaled_data = relative_scaling(aggregate_long_stack, v, ref)
             #print("relative scaling done. plotting.. ")
