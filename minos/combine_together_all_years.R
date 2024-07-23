@@ -295,8 +295,16 @@ combine_summaries_across_years <- function(summary_funcs, save.path1, save.path2
         # no treated pops in first year
         next
       }
+      
       summary_filename <- sprintf("%s/summary_%s_%d.csv", save.path2, summary_name, year)
       year_summary <- read.csv(summary_filename)
+      
+      # Check if the file is empty (only header or no data)
+      if (nrow(year_summary) == 0) {
+        message(sprintf("Skipping empty file: %s", summary_filename))
+        next  # Skip to the next iteration
+      }
+      
       year_summary$year <- year
       combined_summary <- rbind(combined_summary, year_summary)
     }
