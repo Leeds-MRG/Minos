@@ -1495,7 +1495,7 @@ class XGBIncome(Base):
 
         # Ensure whole household has equal hh_income by taking mean after prediction
         newWaveIncome['hidp'] = pop['hidp']
-        newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income).reset_index(drop=True)
+        newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income)#.reset_index(drop=True)
 
         # calculate household income mean
         income_mean = np.mean(newWaveIncome["hh_income"])
