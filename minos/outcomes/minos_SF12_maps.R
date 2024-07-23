@@ -197,6 +197,48 @@ geojson_to_tibble <- function(data) {
   return (data_tibble)
 }
 
+LSOA_TO_LAD_DATA <- function(data){
+  
+  #load LAD file.
+  LAD_data <- st_read("persistent_data/spatial_data/UK_LADs.geojson")
+  LAD_data <- geojson_to_tibble(LAD_data)
+  LAD_data <- LAD_data[, c("LAD21CD", "geometry")]
+  colnames(LAD_data) <- c("LA_code", "geometry")
+  
+  # group change by LAD code.
+  data1 <- aggregate(data$diff, list(data$LA_Code.x), mean)
+  colnames(data1) <- c("LA_code", "diff")
+  #merge new LAD geometries onto this grouped data.
+
+  data1 <- merge(data1, LAD_data, by="LA_code")
+  # return.
+  
+  return(data1)
+  
+}
+
+rural_urban_t_test <- function(data){
+  
+  # load in OAC rural_urban classifier.
+  rural_urban_data <- read.csv("persistent_data/spatial_data/rural_urban_by_lsoa.csv")
+  rural_urban_data <- rural_urban_data[, c("Lower.Super.Output.Area.2011.Code", "Rural.Urban.Classification.2011..10.fold.")]
+  colnames(rural_urban_data) <- c("ZoneID", "urban_rural_code")
+  # merge onto lsoa.
+  
+  data1 <- merge(data, rural_urban_data, by="ZoneID")
+  # split groups and t-test.
+  
+  
+  data1 <- data1[, c("diff", "urban_rural_code")]
+  #data1$urban_rural_code <- factor(data1$urban_rural_code,levels = c("Rural town and fringe ","Rural village and dispersed","Urban city and town  ","Urban major conurbation "))
+  
+  browser()
+  #x <- data1[which(data1$urban_rural_code=="Urban"), "diff"]
+  #y <- data1[which(data1$urban_rural_code=="Rural"), "diff"]
+  #t.test(x, y)
+  print(summary(lm(diff~factor(urban_rural_code), data=data1)))
+}
+
 main.single <- function(geojson_file_name, destination_file_name, v){
   # Not doing subsetting anymore. just generate geojsons at desired spatial level beforehand.
   # load data. subset it. plot as map.
@@ -230,7 +272,12 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)
   
-  data1 <- data1[data1$diff < 10, ]
+  #data1 <- data1[data1$diff < 10, ]
+  
+  rural_urban_t_test(data1)
+  
+  data1 <- LSOA_TO_LAD_DATA(data1)
+  
   minos_diff_map(data1, destination_file_name, v)
 
   # deprecated code to plot simd maps and calculate correlation between simd and sf12 improvement.
