@@ -1497,6 +1497,14 @@ class XGBIncome(Base):
         newWaveIncome['hidp'] = pop['hidp']
         newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income).reset_index(drop=True)
 
+        # calculate household income mean
+        income_mean = np.mean(newWaveIncome["hh_income"])
+        # calculate change in standard deviation between waves.
+        std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
+        # rescale income to have new mean but keep old standard deviation.
+        newWaveIncome["hh_income"] *= std_ratio
+        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+
         # difference in hh income
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']
 
@@ -1521,7 +1529,7 @@ class XGBIncome(Base):
                                                   seed=self.run_seed,
                                                   log_transform=False,
                                                   reflect=False,
-                                                  noise_gauss=300,
-                                                  noise_cauchy=20)
+                                                  noise_gauss=0,
+                                                  noise_cauchy=0)
 
         return nextWaveIncome

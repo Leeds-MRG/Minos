@@ -1182,6 +1182,14 @@ class XGBMWB(Base):
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
 
+        # scaling
+        sf12_mean_old = np.mean(pop['SF_12_last'])
+        sf12_mean_new = np.mean(newWaveMWB["SF_12"])
+        std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
+        newWaveMWB["SF_12"] *= std_ratio
+        newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean_new)
+        newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))
+
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
 
         newWaveMWB["SF_12_diff"] = newWaveMWB["SF_12"] - pop["SF_12"]
@@ -1203,7 +1211,7 @@ class XGBMWB(Base):
                                                seed=self.run_seed,
                                                log_transform=False,
                                                reflect=False,
-                                               noise_gauss=7,
+                                               noise_gauss=0,
                                                noise_cauchy=0)
 
         return nextWaveMWB
