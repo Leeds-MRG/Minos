@@ -353,7 +353,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # need to add tiny value to the 0 MCS values as this causes problems in log transform
     if dependent == "SF_12":
-        current.loc[current[dependent] <= 0.0, dependent] = 0.01
+        current.loc[current[dependent] <= 0.0, dependent] = 0.001
 
 
     # Convert from pandas to R using package converter
@@ -621,6 +621,77 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss
     return pd.DataFrame(prediction_output, columns=[dependent])
 
 
+def invlogit(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transform, reflect, noise_gauss=0, noise_cauchy=0):
+
+    # import R packages
+    base = rpy2_modules['base']
+    stats = rpy2_modules['stats']
+    xgboost = rpy2_modules['xgboost']
+    recipes = rpy2_modules['recipes']
+
+    # Set the seed in R
+    seed_command = f'set.seed({seed})'
+    r(seed_command)
+
+    recipe = model.do_slot("recipe")
+
+    # Convert the pandas dataframe to R dataframe
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        r_current = ro.conversion.py2rpy(current)
+
+    # flip left skewed data to right skewed about its maximum.
+    if reflect:
+        max_value = model.do_slot("max_value")
+        r_current[r_current.names.index(dependent)] = max_value.ro - r_current.rx2(dependent)
+
+    # Apply the recipe to the current data
+    ro.globalenv['recipe'] = recipe
+    ro.globalenv['current'] = r_current
+    preprocessed_data = ro.r('bake(recipe, new_data = current)')
+
+    # Remove the dependent variable column
+    ro.globalenv['preprocessed_data'] = preprocessed_data
+    ro.globalenv['dependent'] = dependent
+    preprocessed_data_no_dependent = ro.r('preprocessed_data %>% select(-all_of(dependent))')
+
+    # Convert preprocessed data to matrix
+    ro.globalenv['preprocessed_data_no_dependent'] = preprocessed_data_no_dependent
+    data_matrix = ro.r('as.matrix(preprocessed_data_no_dependent)')
+    #data_matrix = ro.r('as.matrix(preprocessed_data)')
+
+    # Predict using the xgboost model
+    ro.globalenv['model'] = model
+    ro.globalenv['data_matrix'] = data_matrix
+    predictions = ro.r('predict(model, data_matrix)')
+
+    # Convert the predictions back to a numpy array or pandas series
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        predictions = ro.conversion.rpy2py(predictions)
+
+    if log_transform:
+        predictions = invlogit(predictions) * 100
+
+    if reflect:
+        predictions = max_value.ro - predictions
+
+    # Add Gaussian noise
+    gaussian_noise = stats.rnorm(current.shape[0], 0, noise_gauss)
+    prediction_with_gaussian = predictions + gaussian_noise
+
+    # Add Cauchy noise
+    cauchy_noise = stats.rcauchy(current.shape[0], 0, noise_cauchy)
+    cauchy_noise_limit = noise_cauchy * 10
+    cauchy_noise = np.clip(cauchy_noise, -cauchy_noise_limit, cauchy_noise_limit)  # hard limit [-5000,5000] for cauchy noise as distribution is infinite
+
+    prediction_output = prediction_with_gaussian + cauchy_noise
+
+    return pd.DataFrame(prediction_output, columns=[dependent])
+
+
 def randomise_fixed_effects(model, rpy2_modules, type, seed):
     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
     Parameters
@@ -674,6 +745,16 @@ def randomise_fixed_effects(model, rpy2_modules, type, seed):
         count_Sigma = model.rx2["count_cov_matrix"]
         zero_Sigma = model.rx2["zero_cov_matrix"]
 
+        # Check dimensions of count_betas and count_Sigma
+        mu = np.array(count_betas)
+        Sigma = np.array(count_Sigma)
+
+        if len(mu.shape) != 1 or len(Sigma.shape) != 2 or Sigma.shape[0] != Sigma.shape[1]:
+            raise ValueError("count_betas should be a 1D array and count_Sigma should be a 2D square matrix")
+
+        if mu.shape[0] != Sigma.shape[0]:
+            raise ValueError("Dimensions of count_betas and count_Sigma do not match")
+
         MASS = rpy2_modules["MASS"]
         new_count_beta = MASS.mvrnorm(1, count_betas, count_Sigma)
         new_zero_beta = MASS.mvrnorm(1, zero_betas, zero_Sigma)
@@ -684,3 +765,78 @@ def randomise_fixed_effects(model, rpy2_modules, type, seed):
         model.rx2["coefficients"] = new_coefficients
 
     return model
+
+
+# def randomise_fixed_effects(model, rpy2_modules, type, seed):
+#     """ Randomise fixed effects according to multi-variate normal distribution common for transition models used in MINOS
+#     Parameters
+#     ----------
+#     model: rpy2.RO
+#         The model whose fixed effects are being adjusted.
+#     rpy2_modules: dict[rpy2.RO]
+#         Dictionary of R modules used to estimate transition probabilities.
+#     type: string
+#         Type of model having fixed effects adjusted. Required variables can have different names (e.g. beta or coefs).
+#         For now this is going to be 'glmm', 'lmm', 'clm', 'logit', and 'zip'.
+#     Returns
+#     -------
+#     model: rpy2.RO
+#         The same model class with adjusted fixed effects.
+#     """
+#
+#     # Set the seed in R
+#     ro.r(f'set.seed({seed})')
+#
+#     MASS = rpy2_modules["MASS"]
+#
+#     def validate_dims(beta, Sigma):
+#         """ Validate that beta and Sigma have compatible dimensions """
+#         beta = np.array(beta)
+#         Sigma = np.array(Sigma)
+#
+#         if len(beta.shape) != 1 or len(Sigma.shape) != 2 or Sigma.shape[0] != Sigma.shape[1]:
+#             raise ValueError("beta should be a 1D array and Sigma should be a 2D square matrix")
+#
+#         if beta.shape[0] != Sigma.shape[0]:
+#             raise ValueError("Dimensions of beta and Sigma do not match")
+#
+#         return beta, Sigma
+#
+#     if type in ["glmm", "lmm"]:
+#         beta = model.do_slot("beta")
+#         Sigma = model.do_slot("cov_matrix")
+#         #beta, Sigma = validate_dims(beta, Sigma)
+#         new_beta = MASS.mvrnorm(1, beta, Sigma)
+#         model.slots['beta'] = new_beta
+#
+#     elif type in ["clm", "logit"]:
+#         beta = model.rx2['beta']
+#         Sigma = model.rx2["cov_matrix"]
+#         #beta, Sigma = validate_dims(beta, Sigma)
+#         new_beta = MASS.mvrnorm(1, beta, Sigma)
+#         model.rx2['beta'] = new_beta
+#
+#     elif type == "zip":
+#         coefficients = model.rx2["coefficients"]
+#         count_betas = coefficients.rx2["count"]
+#         zero_betas = coefficients.rx2["zero"]
+#
+#         count_Sigma = model.rx2["count_cov_matrix"]
+#         zero_Sigma = model.rx2["zero_cov_matrix"]
+#
+#         # Validate dimensions for count
+#         count_betas, count_Sigma = validate_dims(count_betas, count_Sigma)
+#         new_count_beta = MASS.mvrnorm(1, count_betas, count_Sigma)
+#
+#         # Validate dimensions for zero
+#         zero_betas, zero_Sigma = validate_dims(zero_betas, zero_Sigma)
+#         new_zero_beta = MASS.mvrnorm(1, zero_betas, zero_Sigma)
+#
+#         # Update coefficients
+#         new_coefficients = coefficients
+#         new_coefficients.rx2['count'] = new_count_beta
+#         new_coefficients.rx2['zero'] = new_zero_beta
+#
+#         model.rx2["coefficients"] = new_coefficients
+#
+#     return model

@@ -17,8 +17,8 @@ from minos.modules.replenishment import NoReplenishment
 from minos.modules.replenishment_scotland import ReplenishmentScotland
 from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
 from minos.modules.housing import Housing
-from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome, RFIncome
-from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB, MarsMWB, RFMWB
+from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome, RFIncome, XGBIncome
+from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB, MarsMWB, RFMWB, XGBMWB
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
@@ -81,6 +81,7 @@ components_map = {
     "RFDiffMWB()": RFDiffMWB(),
     "MarsMWB()": MarsMWB(),
     "RFMWB()": RFMWB(),
+    "XGBMWB()": XGBMWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
     "Alcohol()": Alcohol(),
@@ -96,6 +97,7 @@ components_map = {
     "RFDiffIncome()": RFDiffIncome(),
     "MarsIncome()": MarsIncome(),
     "RFIncome()": RFIncome(),
+    "XGBIncome()": XGBIncome(),
     "Loneliness()": Loneliness(),
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
@@ -247,7 +249,8 @@ def get_priorities():
                                                   'lmmYJIncome()',
                                                   'RFDiffIncome()',
                                                   "MarsIncome()",
-                                                  "RFIncome()"]})  # Any new income-based components to be added here
+                                                  "RFIncome()",
+                                                  "XGBIncome()"]})  # Any new income-based components to be added here
     component_priorities.update({el: 6 for el in intervention_components_map})
 
     # Some module better running before pathways
@@ -266,7 +269,8 @@ def get_priorities():
                    "lmmYJPCS()",
                    "RFDiffMWB()",
                    "MarsMWB()",
-                   "RFMWB()"]
+                   "RFMWB()",
+                   "XGBMWB()"]
 
     everything_else = [el for el in list(components_map)
                        + list(SIPHER7_components_map) if el not in list(component_priorities) + and_finally]
@@ -392,7 +396,9 @@ def RunPipeline(config, intervention=None):
                     "randomForest": importr("randomForest"),
                     "MASS": importr("MASS"),
                     "ranger": importr("ranger"),
-                    "earth": importr("earth")
+                    "earth": importr("earth"),
+                    "xgboost": importr("xgboost"),
+                    "recipes": importr("recipes")
                     }
     simulation._data.write("rpy2_modules",
                            rpy2_modules)

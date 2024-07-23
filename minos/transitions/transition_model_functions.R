@@ -10,6 +10,8 @@ library(doParallel)
 library(parallelly)
 library(ranger)
 library(earth)
+library(xgboost)
+library(recipes)
 
 ################ Model Specific Functions ################
 
@@ -475,8 +477,114 @@ estimate_MARS <- function(data, formula) {
   data <- replace.missing(data)
   data <- drop_na(data)
 
-  model <- earth(formula = formula,
-                 data = data)
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
+  model <- earth(formula = formula,
+                 data = data,
+                 weights = weight)
+
+  return(model)
+}
+
+estimate_XGB <- function(data, formula, depend, reflect) {
+
+  print('Beginning estimation of the XGB model...')
+
+  data <- replace.missing(data)
+  data <- drop_na(data)
+  # Try only dropping NA values in the response variable
+  #data <- drop_na(data, any_of(depend))
+  
+  print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+
+  # set some vars to factor (important for numeric factors only, nominal handled easier)
+  numeric_as_factor <- c('education_state', 'neighbourhood_safety', 'loneliness', 'job_sec')
+  # Filter the list to include only columns that exist in the data
+  numeric_as_factor <- numeric_as_factor[numeric_as_factor %in% colnames(data)]
+  # convert variables to factor
+  data[numeric_as_factor] <- lapply(data[numeric_as_factor], as.factor)
+
+  # Logit transform the dependent variable if it's SF_12 MCS
+  # if (depend == "SF_12") {
+  #   epsilon <- 1e-6  # Small value to avoid logit issues
+  #   data[[depend]] <- data[[depend]] + epsilon
+  #   #data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
+  # }
+  
+  # if (reflect) {
+  #   browser()
+  #   #epsilon <- 1e-6  # Small value to avoid logit issues
+  #   small_value <- 1
+  #   data[[depend]] <- data[[depend]] + small_value
+  #   max_value <- nanmax(data[[depend]])
+  #   data[, c(depend)] <- max_value - data[, c(depend)]
+  # }
+
+  # Define the recipe
+  rec <- recipe(formula, data = data) %>%
+    step_dummy(all_nominal_predictors())
+
+  # Prepare the recipe
+  prep_rec <- prep(rec, training = data)
+
+  # Apply the recipe to the training data
+  train_data <- bake(prep_rec, new_data = data)
+
+  # prepare label and function
+  if (depend == 'hh_income') {
+    label <- train_data$hh_income
+    train_data <- train_data %>% select(-hh_income)
+    
+    # objective
+    obj <- "reg:squarederror"
+    #obj <- "reg:pseudohubererror"
+    
+    # booster type
+    boost <- "gbtree"
+    #boost <- "gblinear"
+    
+  } else if (depend == 'SF_12') {
+    label <- train_data$SF_12
+    train_data <- train_data %>% select(-SF_12)
+    
+    # objective
+    obj <- "reg:squarederror"
+    #obj <- "reg:tweedie"
+    #obj <- "reg:gamma"
+    
+    # booster type
+    boost <- "gbtree"
+    #boost <- "gblinear"
+    browser()
+  }
+  
+  # define weights to use for weighted version
+  weights <- train_data$weight
+  
+  # Create the model matrix
+  train_matrix <- as.matrix(train_data)
+  
+  dtrain <- xgb.DMatrix(data = train_matrix, 
+                        label = label, 
+                        weight = weights)
+  
+  # train the model
+  params <- list(
+    booster = boost,
+    objective = obj,
+    eta = 0.3,
+    max_depth = 6,
+    subsample = 1,
+    colsample_bytree = 1
+  )
+
+  model <- xgb.train(params, dtrain, nround = 500)  # , verbose = 1
+  
+  attr(model, "recipe") <- prep_rec
+  
+  # if (reflect) {
+  #   attr(model,"max_value") <- max_value 
+  # }
+  
   return(model)
 }
