@@ -10,6 +10,7 @@ from seaborn import histplot
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
+from scipy.stats import skew
 
 
 class MWB(Base):
@@ -1090,6 +1091,87 @@ class RFMWB(Base):
         return nextWaveMWB
 
 
+# Define the function to adjust skewness
+def adjust_skewness(new_wave_data, target_skew):
+    current_skew = skew(new_wave_data)
+    std_dev = np.std(new_wave_data)
+    mean_income = np.mean(new_wave_data)
+
+    # Calculate beta for cubic transformation
+    beta = (target_skew - current_skew) / (3 * (std_dev ** 3))
+
+    # Apply cubic transformation
+    adjusted_income = new_wave_data + beta * (new_wave_data - mean_income) ** 3
+
+    return adjusted_income
+
+
+# Function to scale variance by quintile
+# def scale_variance_by_quintile(new_data, old_data, column_name):
+#     # Create a column for quintile labels
+#     new_data['quintile'] = pd.qcut(new_data[column_name], q=5, labels=False)
+#
+#     old_var_name = column_name + '_last'
+#
+#     # Process each quintile separately
+#     for quintile in range(5):
+#         # Get current quintile's data
+#         current_quintile_data = new_data[new_data['quintile'] == quintile]
+#         old_quintile_data = old_data[old_data[old_var_name].between(
+#             old_data[old_var_name].quantile(quintile * 0.2),
+#             old_data[old_var_name].quantile((quintile + 1) * 0.2),
+#             inclusive='left'  # 'left' to match the behavior of qcut
+#         )]
+#
+#         # If there's no data in this quintile in the old data, skip
+#         if old_quintile_data.empty:
+#             continue
+#
+#         # Calculate income mean for the current quintile
+#         income_mean = np.mean(current_quintile_data[column_name])
+#
+#         # Calculate change in standard deviation between waves for the current quintile
+#         std_ratio = np.std(old_quintile_data[old_var_name]) / np.std(current_quintile_data[column_name])
+#
+#         # Rescale income to have the new mean but keep the old standard deviation
+#         new_data.loc[new_data['quintile'] == quintile, column_name] *= std_ratio
+#         new_data.loc[new_data['quintile'] == quintile, column_name] -= ((std_ratio - 1) * income_mean)
+#
+#     # Drop the quintile column
+#     new_data.drop(columns=['quintile'], inplace=True)
+#
+#     return new_data
+
+
+# Function to scale variance by quintile
+def scale_variance_by_quintile(new_data, old_data, column_name, old_column_name):
+    # Create quintile labels for both new and old datasets
+    new_data['quintile'] = pd.qcut(new_data[column_name], q=5, labels=False)
+    old_data['quintile'] = pd.qcut(old_data[old_column_name], q=5, labels=False)
+
+    # Process each quintile separately
+    for quintile in range(5):
+        # Get current quintile's data for both new and old datasets
+        current_quintile_data = new_data[new_data['quintile'] == quintile][column_name]
+        old_quintile_data = old_data[old_data['quintile'] == quintile][old_column_name]
+
+        # Calculate income mean for the current quintile
+        income_mean = np.mean(current_quintile_data)
+
+        # Calculate change in standard deviation between waves for the current quintile
+        std_ratio = np.std(old_quintile_data) / np.std(current_quintile_data)
+
+        # Rescale income to have the new mean but keep the old standard deviation
+        new_data.loc[new_data['quintile'] == quintile, column_name] *= std_ratio
+        new_data.loc[new_data['quintile'] == quintile, column_name] -= ((std_ratio - 1) * income_mean)
+
+    # Drop the quintile column
+    new_data.drop(columns=['quintile'], inplace=True)
+    old_data.drop(columns=['quintile'], inplace=True)
+
+    return new_data
+
+
 class XGBMWB(Base):
     """Mental Well-Being Module"""
     # Special methods used by vivarium.
@@ -1182,14 +1264,22 @@ class XGBMWB(Base):
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
         newWaveMWB.index = pop.index
 
+        ## SCALING FIX FOR CHILD POV INTERVENTIONS??
+        # Instead of scaling the whole pop at once, lets scale by quintile to maintain the variance of higher quintiles
+        # This is especially important in interventions that target small groups, and especially especially so in
+        # interventions that have fixed thresholds (like child pov reduction)
+
+        # Apply the scaling function
+        #newWaveMWB = scale_variance_by_quintile(newWaveMWB, pop, 'SF_12')
+
         # scaling
         #sf12_mean_old = np.mean(pop['SF_12_last'])
         sf12_mean_new = np.mean(newWaveMWB["SF_12"])
-        #std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
-        std_ratio = (11 / np.std(newWaveMWB["SF_12"]))
+        std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
+        #std_ratio = (11 / np.std(newWaveMWB["SF_12"]))
         newWaveMWB["SF_12"] *= std_ratio
         newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean_new)
-        #newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))
+        # newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))
 
         newWaveMWB["SF_12"] = np.clip(newWaveMWB["SF_12"], 0, 100)  # keep within [0, 100] bounds of SF12.
 
