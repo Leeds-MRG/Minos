@@ -63,7 +63,7 @@ main <- function(n_imputations, iterations_per_imputation){
                     'yearly_gas_electric',
                     'yearly_oil', 
                     'yearly_other_fuel',
-                    'smoker'#,
+                    'smoker',#,
                     "number_of_bedrooms",
                     "number_of_rooms"
                     #'has_gas', 
