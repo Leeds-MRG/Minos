@@ -25,7 +25,7 @@ from minos.modules.alcohol import Alcohol
 from minos.modules.tobacco import Tobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
-from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
+from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition, XGBNutrition
 from minos.modules.job_hours import JobHours
 from minos.modules.job_sec import JobSec
 from minos.modules.hourly_wage import HourlyWage
@@ -102,6 +102,7 @@ components_map = {
     "Nutrition()": Nutrition(),
     "lmmYJNutrition()": lmmYJNutrition(),
     "lmmDiffNutrition()": lmmDiffNutrition(),
+    "XGBNutrition()": XGBNutrition(),
     "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
     "Mortality()": Mortality(),
@@ -310,6 +311,7 @@ def type_check(data):
 
     data['S7_mental_health'] = data['S7_mental_health'].astype(int)
     data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    data['nutrition_quality'] = data['nutrition_quality'].astype(int)
     data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['job_sec'] = data['job_sec'].astype(int)

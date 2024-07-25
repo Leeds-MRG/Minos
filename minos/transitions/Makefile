@@ -24,7 +24,7 @@ transitions_default: final_data $(TRANSITION_DATA)/nutrition_quality/lmm/nutriti
 $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default
 
-$(TRANSITION_DATA)/nutrition_quality/lmm/nutrition_quality_new_LMM.rds: $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
+$(TRANSITION_DATA)/nutrition_quality/xgb/nutrition_quality_XGB.rds: $(TRANSITION_SOURCE)/estimate_longitudinal_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt $(TRANSITION_SOURCE)/transition_model_functions.R
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_longitudinal_transitions.R --default
 
 ############# SIPHER7 #############

@@ -494,7 +494,7 @@ estimate_XGB <- function(data, formula, depend, reflect) {
   data <- drop_na(data)
   # Try only dropping NA values in the response variable
   #data <- drop_na(data, any_of(depend))
-  
+
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
   # set some vars to factor (important for numeric factors only, nominal handled easier)
@@ -510,7 +510,7 @@ estimate_XGB <- function(data, formula, depend, reflect) {
   #   data[[depend]] <- data[[depend]] + epsilon
   #   #data[[depend]] <- logit((data[[depend]] / 100) + epsilon)
   # }
-  
+
   # if (reflect) {
   #   browser()
   #   #epsilon <- 1e-6  # Small value to avoid logit issues
@@ -534,40 +534,52 @@ estimate_XGB <- function(data, formula, depend, reflect) {
   if (depend == 'hh_income') {
     label <- train_data$hh_income
     train_data <- train_data %>% select(-hh_income)
-    
+
     # objective
     obj <- "reg:squarederror"
     #obj <- "reg:pseudohubererror"
-    
+
     # booster type
     boost <- "gbtree"
     #boost <- "gblinear"
-    
+
   } else if (depend == 'SF_12') {
     label <- train_data$SF_12
     train_data <- train_data %>% select(-SF_12)
-    
+
     # objective
     obj <- "reg:squarederror"
     #obj <- "reg:tweedie"
     #obj <- "reg:gamma"
-    
+
     # booster type
     boost <- "gbtree"
     #boost <- "gblinear"
-    browser()
+
+  } else if (depend == 'nutrition_quality') {
+    label <- train_data$nutrition_quality
+    train_data <- train_data %>% select(-nutrition_quality)
+
+    # objective
+    obj <- "reg:squarederror"
+    #obj <- "reg:tweedie"
+    #obj <- "reg:gamma"
+
+    # booster type
+    boost <- "gbtree"
+
   }
-  
+
   # define weights to use for weighted version
   weights <- train_data$weight
-  
+
   # Create the model matrix
   train_matrix <- as.matrix(train_data)
-  
-  dtrain <- xgb.DMatrix(data = train_matrix, 
-                        label = label, 
+
+  dtrain <- xgb.DMatrix(data = train_matrix,
+                        label = label,
                         weight = weights)
-  
+
   # train the model
   params <- list(
     booster = boost,
@@ -579,12 +591,12 @@ estimate_XGB <- function(data, formula, depend, reflect) {
   )
 
   model <- xgb.train(params, dtrain, nround = 500)  # , verbose = 1
-  
+
   attr(model, "recipe") <- prep_rec
-  
+
   # if (reflect) {
-  #   attr(model,"max_value") <- max_value 
+  #   attr(model,"max_value") <- max_value
   # }
-  
+
   return(model)
 }
