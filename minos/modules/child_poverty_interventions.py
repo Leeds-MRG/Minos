@@ -1951,9 +1951,11 @@ class childUplift(Base):
                         "S7_labour_state",
                         "marital_status",
                         'age',
-                        'ethnicity']
+                        'ethnicity',
+                        'boost_amount',
+                        'income_boosted']
         #columns_created = ["income_boosted", "boost_amount"]
-        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+        self.population_view = builder.population.get_view(columns=view_columns) #  + columns_created
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
@@ -2026,7 +2028,7 @@ class childUplift(Base):
         logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
 
 
-class hhIncomeIntervention():
+class hhIncomeIntervention(Base):
 
     @property
     def name(self):
