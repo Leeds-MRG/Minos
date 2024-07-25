@@ -1952,25 +1952,25 @@ class childUplift(Base):
                         "marital_status",
                         'age',
                         'ethnicity']
-        columns_created = ["income_boosted", "boost_amount"]
+        #columns_created = ["income_boosted", "boost_amount"]
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
         # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
-        builder.population.initializes_simulants(self.on_initialize_simulants,
-                                                 creates_columns=columns_created)
+        #builder.population.initializes_simulants(self.on_initialize_simulants,
+        #                                         creates_columns=columns_created)
 
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         #builder.event.register_listener("time_step", self.on_time_step, priority=4)
         super().setup(builder)
 
-    def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,
-                                   'boost_amount': 0.},
-                                  index=pop_data.index)
-        self.population_view.update(pop_update)
+    #def on_initialize_simulants(self, pop_data):
+    #    pop_update = pd.DataFrame({'income_boosted': False,
+    #                               'boost_amount': 0.},
+    #                              index=pop_data.index)
+    #    self.population_view.update(pop_update)
 
     def on_time_step(self, event):
 
