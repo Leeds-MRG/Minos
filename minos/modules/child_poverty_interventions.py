@@ -1343,29 +1343,33 @@ class ChildPovertyReduction(Base):
         #relative_poverty_threshold = 1247.71  # US data
         # relative_poverty_threshold = 1100.69  # scottish synthpop
 
-        relative_poverty_dict_scot = {2020: 1099.828,
-                                      2021: 1150.213,
-                                      2022: 1194.458,
-                                      2023: 1233.024,
-                                      2024: 1266.388,
-                                      2025: 1296.189,
-                                      2026: 1322.225,
-                                      2027: 1346.128,
-                                      2028: 1366.740,
-                                      2029: 1386.232,
-                                      2030: 1402.559,
-                                      2031: 1418.178,
-                                      2032: 1431.654,
-                                      2033: 1444.763,
-                                      2034: 1455.863,
-                                      2035: 1466.089}
-
-        relative_poverty_threshold = relative_poverty_dict_scot.get(event.time.year)
+        # relative_poverty_dict_scot = {2020: 1099.828,
+        #                               2021: 1150.213,
+        #                               2022: 1194.458,
+        #                               2023: 1233.024,
+        #                               2024: 1266.388,
+        #                               2025: 1296.189,
+        #                               2026: 1322.225,
+        #                               2027: 1346.128,
+        #                               2028: 1366.740,
+        #                               2029: 1386.232,
+        #                               2030: 1402.559,
+        #                               2031: 1418.178,
+        #                               2032: 1431.654,
+        #                               2033: 1444.763,
+        #                               2034: 1455.863,
+        #                               2035: 1466.089}
+        #
+        # relative_poverty_threshold = relative_poverty_dict_scot.get(event.time.year)
 
         # Load population and filter out some important populations
         full_pop = self.population_view.get(event.index, query="alive =='alive'")
 
         print("\nSTARTING FOR RELATIVE POVERTY...\n")
+
+        # First calculate threshold for this year
+        median_income = full_pop.groupby('hidp').first()['hh_income'].median()
+        relative_poverty_threshold = median_income * 0.6
 
         # DO NOT reset the previous income_boosted for testing
         # We need to track people who have been intervened so we can continue the intervention indefinitely

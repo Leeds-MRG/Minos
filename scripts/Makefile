@@ -275,6 +275,9 @@ arc4_baseline_cpr_scotland:
 arc4_intervention_childPovertyReduction_scotland:
 	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
 
+arc4_intervention_childPovertyReduction_scotland_variable:
+	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o scotland_cpr_XGB_nut_variable -i 'ChildPovertyReduction'
+
 arc4_intervention_childPovertyReductionRELATIVE_scotland:
 	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE'
 
