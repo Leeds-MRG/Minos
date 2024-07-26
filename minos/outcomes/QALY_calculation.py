@@ -76,11 +76,14 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
     if intervention == 'baseline':
         pop_boosted = 0
         total_boost = 0
+    elif intervention == "goodHeatingDummy":
+        pop_boosted = df['income_boosted'].sum()
+        total_boost = None
     else:
         # also adjust boost_amount
         #df['boost_amount'] = (df['boost_amount'] * ((1 / df['weight']) / df['weight'].sum()))
         pop_boosted = df['income_boosted'].sum()
-        total_boost = df['boost_amount'].sum()
+        total_boost = df.groupby(by=['hidp'])['intervention_cost'].max().sum() # TODO group by households, take max and sum.
 
     return [run_id, alive_pop, dead_pop, total_pop_size, pop_boosted, total_boost, alive_ratio, np.nanmean(df['SF_12']), np.nanmean(df['SF_12_PCS'])]
 
