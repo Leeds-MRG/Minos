@@ -671,7 +671,7 @@ summary_funcs <- c(UC = UC_summarise,
                    UC_abs_pov = UC_abs_pov_summarise,
                    UC_kids_abs_pov = UC_kids_abs_pov_summarise,
                    UC_gender = UC_gender_summarise,
-                   priority_any = priority_summarise_any
+                   priority_any = priority_any_summarise
 )
 
 
