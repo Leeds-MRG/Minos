@@ -98,9 +98,14 @@ def take_synthpop_sample(merged_data, percent, seed=8):
     sample_data : pd.DataFrame
         A percent sample of merged_data chosen with random seed.
     """
-    n = int(merged_data.shape[0] * percent)
-    sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
-    return sample_data
+
+    #n = int(merged_data.shape[0] * percent)
+    #sample_data = merged_data.sample(n=n, replace=False, random_state=seed)
+    #return sample_data
+
+    hidps = np.unique(merged_data['hidp'])
+    hidps_sample = np.random.choice(merged_data['hidp'], size = int(np.ceil(len(hidps)*percent)), replace=False)
+    return merged_data.loc[merged_data['hidp'].isin(hidps_sample), ]
 
 def take_exhaustive_synthpop_sample(merged_data, percent, seed=8):
     """ Take smaller subset of full scale synthetic population. ensure all z
