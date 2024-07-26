@@ -21,4 +21,4 @@ mkdir -p ./logs/transitions
 Rscript minos/transitions/estimate_transitions.R
 python3 minos/data_generation/generate_repl_pop.py
 python3 minos/data_generation/US_household_upscaling.py -r 'manchester' -p 5
-python3/generate_repl_pop.py --region 'manchester'
+python3 minos/data_generation/generate_repl_pop.py --region 'manchester'

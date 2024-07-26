@@ -129,7 +129,7 @@ minos_diff_map <- function(data, destination_file_name, v, do_save=T){
   # similar to minos map above but compares results from two interventions.
   # uses a different purple-orange colour scale centered about 0 to better
   # show off positive/negative values.
-  browser()
+  #browser()
   c.min <- min(data$diff) # calculate range of data for colour maps and scale.
   c.max <- max(data$diff)
   scale_limit <- max(abs(c.min), abs(c.max))
@@ -232,7 +232,7 @@ rural_urban_t_test <- function(data){
   data1 <- data1[, c("diff", "urban_rural_code")]
   #data1$urban_rural_code <- factor(data1$urban_rural_code,levels = c("Rural town and fringe ","Rural village and dispersed","Urban city and town  ","Urban major conurbation "))
   
-  browser()
+  #browser()
   #x <- data1[which(data1$urban_rural_code=="Urban"), "diff"]
   #y <- data1[which(data1$urban_rural_code=="Rural"), "diff"]
   #t.test(x, y)
@@ -268,7 +268,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
 
-  browser()
+  #browser()
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)
   
