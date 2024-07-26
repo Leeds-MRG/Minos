@@ -1275,8 +1275,8 @@ class XGBMWB(Base):
         # scaling
         #sf12_mean_old = np.mean(pop['SF_12_last'])
         sf12_mean_new = np.mean(newWaveMWB["SF_12"])
-        std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
-        #std_ratio = (11 / np.std(newWaveMWB["SF_12"]))
+        #std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
+        std_ratio = (10.9 / np.std(newWaveMWB["SF_12"]))
         newWaveMWB["SF_12"] *= std_ratio
         newWaveMWB["SF_12"] -= ((std_ratio - 1) * sf12_mean_new)
         # newWaveMWB["SF_12"] += (sf12_mean_old - np.mean(newWaveMWB["SF_12"]))

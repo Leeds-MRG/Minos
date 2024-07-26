@@ -172,7 +172,7 @@ CPR_allyears:
 	# Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE
 	# Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReductionRELATIVE
 
-CPR_yearly_reduced: SUBDIR=scotland_cpr_XGB_nut
+CPR_yearly_reduced: SUBDIR=scotland_cpr
 CPR_yearly_reduced:
 	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out baseline 2020 2035
 	bash scripts/arc_yearly_sum_submit.sh $(SUBDIR) cpr_sum_out ChildPovertyReduction 2020 2035

@@ -287,12 +287,12 @@ arc4_intervention_childPovertyReductionRELATIVE_2_scotland:
 arc4_intervention_ChildPovertyReductionABSOLUTE_scotland:
 	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionABSOLUTE'
 
-arc4_child_pov_scotland: SUBDIR=scotland_cpr_XGB_scaled
+arc4_child_pov_scotland: SUBDIR=scotland_cpr
 arc4_child_pov_scotland: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReduction_scotland
 arc4_child_pov_scotland: arc4_intervention_childPovertyReductionRELATIVE_2_scotland arc4_intervention_ChildPovertyReductionABSOLUTE_scotland
 # arc4_intervention_childPovertyReductionRELATIVE_scotland
 
-arc4_cp_scot_reduced: SUBDIR=scotland_cpr_XGB_nut_var
+arc4_cp_scot_reduced: SUBDIR=scotland_cpr
 arc4_cp_scot_reduced: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReduction_scotland
 
 ############### PRIORITY SUBGROUP ONLY RUNS RUNS ###############
