@@ -559,6 +559,7 @@ class GBIS(Base):
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
+        self.start_year = True
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step)
@@ -587,6 +588,10 @@ class GBIS(Base):
         -------
 
         """
+
+        if self.start_year:
+            self.start_year = False
+            return
 
         # get the population
         pop = self.population_view.get(event.index, query="alive =='alive'")
@@ -655,14 +660,11 @@ class GBIS(Base):
         pop.loc[pop['dwelling_type'] == 3, 'intervention_cost'] *= 1.5  # bungalows
 
         #pop.loc[pop['number_of_rooms'] < 0, 'number_of_bedrooms'] = 2
+        # adjust costs further by number of rooms.
         pop['intervention_cost'] *= pop['number_of_bedrooms'] * 1.1  # adjust by number of rooms.
-        # best we can do in lieu of square footage.
-
-        # adjust costs further by number of rooms in lieu of terraced/detached housing type.
 
         # adjust based on government region? rural/urban?
-
-        # TODO two waves for cavity/solid insulation.
+        # two waves for cavity/solid insulation?
 
         # adding people boosted on this wave to overall population of previously boosted households.
         pop['income_boosted'] += pop['new_income_boosted']
