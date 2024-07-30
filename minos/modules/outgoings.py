@@ -414,6 +414,8 @@ class energyBills(Base):
         self.transition_model = r_utils.load_transitions(f"yearly_energy/glmm/yearly_energy_new_GLMM", self.rpy2Modules,
                                                              path=self.transition_dir)
 
+        self.raise_energy_prices = builder.configuration['raise_energy_prices']
+
     def on_time_step(self, event):
         """ Predicts the hh_income for the next timestep.
         Parameters
@@ -429,9 +431,11 @@ class energyBills(Base):
         # calculate price increase relative to 2020 pricing.
         # adjust expenditure based on 2020 consumption.
 
-        electric_price_ratio, gas_price_ratio, liquid_price_ratio, solid_price_ratio = self.energy_pricing_forecasts(
-            event.time.year)
-
+        if self.raise_energy_prices: # adjust energy pricing according to forecasts or keep it flat.
+            electric_price_artio, gas_price_ratio, liquid_price_ratio, solid_price_ratio = self.energy_pricing_forecasts(
+                event.time.year)
+        else:
+            electric_price_ratio, gas_price_ratio, liquid_price_ratio, solid_price_ratio = 1, 1, 1, 1
         # TODO individuals on fixed tariffs won't experience these changes in bills. how many of them can we account for. probably good info on distribution of tariffs over time.
         # TODO they were pretty much annhilated at the start of the crisis.
         # for people who pay bills for the three types seperately this is easy.

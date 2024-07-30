@@ -88,6 +88,12 @@ arc4_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.
 arc4_manchester_housing_baseline:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
+arc4_manchester_noEnergyPriceIncrease: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+arc4_manchester_noEnergyPriceIncrease: MODE=energy_manchester_scaled
+arc4_manchester_noEnergyPriceIncrease:
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'noEnergyPriceIncrease'
+
+
 arc4_manchester_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 arc4_manchester_goodHeatingDummy: MODE=energy_manchester_scaled
 arc4_manchester_goodHeatingDummy:

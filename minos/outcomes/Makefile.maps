@@ -194,15 +194,17 @@ good_heating_dummy_GMCA_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "goodHeatingDummy" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "goodHeatingDummy" -r "manchester" -y 2025 -v "SF_12" -s true
 
+
+#NB change in subsets here are important.
 EPCG_GMCA_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2024 -m "energy_manchester_scaled" -s who_poor_heating -p true -r "manchester" -v "SF_12"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2024 -m "energy_manchester_scaled" -s who_boosted -p true -r "manchester"  -v "SF_12"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2024 -v "SF_12" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2026 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2026 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2026 -v "SF_12" -s true
 
 GBIS_GMCA_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2024 -m "energy_manchester_scaled" -s who_poor_heating -p true -r "manchester" -v "SF_12"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "GBIS" -y 2024 -m "energy_manchester_scaled" -s who_boosted -p true -r "manchester"  -v "SF_12"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2024 -v "SF_12" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2026 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "GBIS" -y 2026 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2026 -v "SF_12" -s true
 
 FFRS_GMCA_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2024 -m "energy_manchester_scaled" -s who_poor_heating -p true -r "manchester" -v "SF_12"

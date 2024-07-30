@@ -53,7 +53,14 @@ def get_latest_minos_files(source):
 
 
 def get_minos_files(source):
-    return glob.glob(source + f"/*{year}.csv")
+    start_year = 2020
+    out_files = []
+
+    while start_year  < int(year):
+        out_files.append(glob.glob(source + f"/*{start_year}.csv"))
+        start_year += 1
+
+    return out_files
 
 
 def get_spatial_data():
@@ -102,12 +109,27 @@ def group_by_and_aggregate(data, group_column, v, method):
     data : pd.DataFrame
         Data gruoped by group_column and aggregated over variable v using function method.
     """
+    if "intervention_cost" in data.columns:
+        intervention_cost = data.groupby([group_column, 'hidp'], as_index=False)['intervention_cost'].max()
+        intervention_cost = intervention_cost.groupby([group_column])['intervention_cost'].sum()
+    else:
+        intervention_cost = 0
+
+    current_time = data['time'].max()
+
     data = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x[v])))
     data.columns = [v]
+    data['intervention_cost'] = intervention_cost
+    data['time'] = current_time - 1
     data[group_column] = data.index
     data.reset_index(drop=True, inplace=True)
     return data
 
+def group_by_and_aggregate_longitudinal(data, group_column, v, method):
+    grouped_sf12 = data.groupby(by=[group_column, 'time'], as_index=False)["SF_12"].mean()["SF_12"]
+    data = data.groupby(by=[group_column, 'time'], as_index=False).agg({'intervention_cost': np.cumsum})
+    data['SF_12'] = grouped_sf12
+    return data
 
 def subset_lsoas_by_region(spatial_data, region_data):
     """ Find lsoas within a certain region e.g. scotland, manchester.
@@ -127,7 +149,7 @@ def subset_lsoas_by_region(spatial_data, region_data):
     return spatial_data[spatial_data['ZoneID'].isin(region_data["lsoa11cd"])]
 
 
-def edit_geojson(geojson_data, new_variable_dict, v):
+def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, v):
     """ Add new property to some geojson multipolygon data such as mean SF12 value
 
     Multipolygon is essentially a list of dictionaries. Each polygon has a 'features' subdictionary that is being appended.
@@ -153,12 +175,15 @@ def edit_geojson(geojson_data, new_variable_dict, v):
         # Get the LSOA code for this polygon.
         LSOA_code = item["properties"]["ZoneID"]
         variable_code = new_variable_dict[LSOA_code]
+        intervention_cost_code = intervention_cost_dict[LSOA_code]
+
         if variable_code == 0:  # TODO needs improving with a more general catch all.
             variable_code = None
         # assign the new mean of v to the geojson feature.
         # assign the updated feature back into the geoJSON.
         # TODO should be an easier way to just append this list of features..
         item['properties'][v] = variable_code
+        item['properties']['intervention_cost'] = intervention_cost_code
         geojson_data['features'][i] = item
     return geojson_data
 
@@ -223,8 +248,14 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
 
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
-    minos_data = minos_data[['pidp', "ZoneID", v]]
-    minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
+
+    # if dataset empty (e.g. no boosted in start year). do nothing.
+    if minos_data.shape[0]:
+        subset_columns = ['pidp', "ZoneID", v, 'time', 'hidp']
+        if "intervention_cost" in minos_data.columns:
+            subset_columns += ["intervention_cost"]
+        minos_data = minos_data[subset_columns]
+        minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
     return minos_data
 
 
@@ -232,7 +263,7 @@ def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_func
     minos_data = pd.read_csv(minos_file)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
-    minos_data = minos_data[['pidp', v]]
+    minos_data = minos_data[['pidp', v, 'time']]
     minos_data = attach_spatial_component(minos_data, spatial_data, v)
     minos_data = group_by_and_aggregate(minos_data, "ZoneID", v, method)
     return minos_data
@@ -262,7 +293,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='g
     return total_minos_data
 
 
-def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.nanmean):
+def main(intervention, year, region, subset_function, is_synthetic_pop, v, method=np.nanmean):
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
     - Merge minos data onto spatially weighted LSOAs.
@@ -285,16 +316,26 @@ def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.n
     -------
     None
     """
+
+    # get subset function from specified subset function string.
+    source = get_latest_minos_files(os.path.join("output", mode, intervention))
+
+
     print(f"Aggregating MINOS data at {source} for {year} and {region} region.")
     minos_files = get_minos_files(source)
-    total_minos_data = load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region)
+    total_minos_data = pd.DataFrame()
+    for yearly_files in minos_files:
+        subset_minos_data = load_minos_data(yearly_files, subset_function, is_synthetic_pop, v, region)
+        total_minos_data = pd.concat([total_minos_data, subset_minos_data])
 
     # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
-    total_minos_data = group_by_and_aggregate(total_minos_data, "ZoneID", v, method)
+    total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
+    total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year)-1, ]
 
     print('Done. Saving..')
     # convert
     spatial_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data[v]))
+    cost_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["intervention_cost"]))
     # Load in national LSOA geojson map data from ONS.
     # https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
     json_source = "persistent_data/spatial_data/UK_super_outputs.geojson"
@@ -316,7 +357,7 @@ def main(source, year, region, subset_function, is_synthetic_pop, v, method=np.n
         json_data = subset_geojson(json_data, region_data["ZoneID"])
     else:
         json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
-    json_data = edit_geojson(json_data, spatial_dict, v)
+    json_data = edit_geojson(json_data, spatial_dict, cost_dict, v)
 
     # save updated geojson for use in map plots.
     print(f"GeoJSON {v} attribute added.")
@@ -360,7 +401,4 @@ if __name__ == "__main__":
     else:
         is_synthetic_pop = False
 
-    # get subset function from specified subset function string.
-    source = get_latest_minos_files(os.path.join("output", mode, intervention))
-
-    main(source, year, region, subset_function, is_synthetic_pop, v)
+    main(intervention, year, region, subset_function, is_synthetic_pop, v)

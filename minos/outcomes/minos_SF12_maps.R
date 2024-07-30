@@ -83,10 +83,26 @@ calculate_relative_diff <-function(data1, data2, v){
   data1 <- merge(data1, data2, by="ZoneID")
   data1$geometry <- data1$geometry.x
   #data1$diff <- ((data2[[v]] - data1[[v]]) / data1[[v]])
-  data1$diff <- ((data1$v2 - data1$v1) / data1$v1)
+  data1$diff <- ((data1$v2 - data1$v1) / data1$v1) * 100
   return(data1)
 }
 
+
+cost_vs_gain_imd_plot <- function(data) {
+  
+  # take cost, variable, and imd.
+  
+  data <- data[, c("diff", "intervention_cost.y", "ZoneID")]
+  
+  imd_data <- read.csv("persistent_data/spatial_data/UK_lsoa_imd.csv")
+  colnames(imd_data) <- c("ZoneID", "IMD_Rank", "IMD_decile")
+  data <- merge(data, imd_data, by="ZoneID")
+  browser() 
+  # lineplot cost and variable. colour by imd. 
+  plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+  # other parametres and save.
+
+}
 
 minos_map <- function(data, destination_file, v, do_save=T){
   # plot map of minos results from a geojson data.
@@ -228,7 +244,6 @@ rural_urban_t_test <- function(data){
   data1 <- merge(data, rural_urban_data, by="ZoneID")
   # split groups and t-test.
   
-  
   data1 <- data1[, c("diff", "urban_rural_code")]
   #data1$urban_rural_code <- factor(data1$urban_rural_code,levels = c("Rural town and fringe ","Rural village and dispersed","Urban city and town  ","Urban major conurbation "))
   
@@ -275,7 +290,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   #data1 <- data1[data1$diff < 10, ]
   
   rural_urban_t_test(data1)
-  
+  cost_vs_gain_imd_plot(data1)
   data1 <- LSOA_TO_LAD_DATA(data1)
   
   minos_diff_map(data1, destination_file_name, v)

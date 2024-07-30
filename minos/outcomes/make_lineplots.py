@@ -554,7 +554,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
 
     #elif v == "boost_amount":
     #    aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
-
+    if method == weighted_nanmean and v in ['yearly_energy']:
+        aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
     # percentages bars.
     if method == aggregate_percentage_counts:
         print(f"Data compiled for variable {v} using method {method.__name__}.")

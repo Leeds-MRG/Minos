@@ -51,7 +51,7 @@ from minos.modules.interventions_child_poverty import hhIncomePovertyLineChildUp
 from minos.modules.interventions_child_poverty import childUplift
 from minos.modules.interventions_living_wage import livingWageIntervention
 from minos.modules.interventions_energy import energyDownlift, energyDownliftNoSupport
-from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme, EPCG
+from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme, EPCG, noEnergyPriceIncrease
 
 from minos.modules.physical_wellbeing import lmmYJPCS
 from minos.modules.physical_activity import PhysicalActivity
@@ -136,6 +136,7 @@ intervention_components_map = {        #Interventions
     "goodHeatingDummy": goodHeatingDummy(),
     "fossilFuelReplacementScheme": fossilFuelReplacementScheme(),
     "EPCG": EPCG(),
+    "noEnergyPriceIncrease": noEnergyPriceIncrease(),
 
     "childUplift()": childUplift(),
 
@@ -306,6 +307,10 @@ def RunPipeline(config, intervention=None):
         components_raw.append(intervention)
         intervention_kwargs = get_intervention_kwargs(intervention)
         config.update({'intervention_parameters': intervention_kwargs})  # add dict of intervention kwargs to config.
+
+
+    raiseEnergyPrices =  (intervention != "noEnergyPriceIncrease")
+    config.update({'raise_energy_prices': raiseEnergyPrices})
 
     component_priority_map, component_name_map = get_priorities()
     components = [component_name_map[c] for c in components_raw if c in component_name_map]

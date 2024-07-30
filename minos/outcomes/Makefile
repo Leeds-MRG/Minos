@@ -511,6 +511,12 @@ aggregate_minos_manchester_EPCG:
 aggregate_minos_manchester_combined:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12"
 
+aggregate_minos_manchester_noEnergyPriceIncrease:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "SF_12"
+
+aggregate_minos_manchester_noEnergyPriceIncrease_yearly_energy:
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "yearly_energy"
+
 # MCS QUINTILES
 
 aggregate_minos_manchester_EPCG_quintiles:

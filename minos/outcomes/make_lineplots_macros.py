@@ -412,6 +412,16 @@ def generic_cumulative_lineplot(config_mode, v, sources, tags, subset_functions)
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
+def two_baselines_lineplot(config_mode, v, source, tag, subset_function):
+    "The same intervention in increments from £25 to £100"
+    directories = f"baseline,{source}"
+    tags = f"Baseline,{tag}"
+    subset_function_strings = f"{subset_function},{subset_function}"
+    prefix = f"{tag}_{v}_uplift"
+    ref = "Baseline"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
+
 #################
 # main function #
 #################
@@ -523,6 +533,7 @@ string_to_lineplot_function = {
     "edinburgh_45_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
 
+    "noEnergyPriceIncrease": two_baselines_lineplot,
     "good_heating_dummy": generic_single_lineplot,
     "GBIS": generic_single_lineplot,
     "EPCG": generic_single_lineplot,
@@ -635,6 +646,7 @@ string_to_lineplot_function_args = {
     "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit', "edinburgh"],
     "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
 
+    "noEnergyPriceIncrease": ["noEnergyPriceIncrease", "No Energy Price Increase", "who_alive"],
     "good_heating_dummy": ["goodHeatingDummy", "Good Heating Dummy", "who_poor_heating"],
     "GBIS": ["GBIS", "GBIS", "who_poor_heating"],
     "EPCG": ["EPCG", "EPCG", "who_alive"],
