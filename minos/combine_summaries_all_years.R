@@ -880,7 +880,11 @@ scen <- args[[3]]
 
 
 # Create named list of summary functions to go through
-summary_funcs <- c(UC = UC_summarise,
+summary_funcs <- c(whole_pop = whole_pop_summarise,
+                   whole_pop_income_quint = whole_pop_income_quint_summarise,
+                   families = families_summarise,
+                   families_income_quint = families_income_quint_summarise,
+                   UC = UC_summarise,
                    UC_rel_pov = UC_rel_pov_summarise,
                    UC_kids_rel_pov = UC_kids_rel_pov_summarise,
                    UC_abs_pov = UC_abs_pov_summarise,
