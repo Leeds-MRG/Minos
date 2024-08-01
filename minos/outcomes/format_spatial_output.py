@@ -58,7 +58,7 @@ def get_minos_files(source):
     start_year = 2020
     out_files = []
 
-    while start_year  < int(year):
+    while start_year < int(year):
         out_files.append(glob.glob(source + f"/*{start_year}.csv"))
         start_year += 1
 
@@ -128,7 +128,7 @@ def group_by_and_aggregate(data, group_column, v, method):
     return data
 
 def group_by_and_aggregate_longitudinal(data, group_column, v, method):
-    grouped_sf12 = data.groupby(by=[group_column, 'time'], as_index=False)["SF_12"].mean()["SF_12"]
+    grouped_sf12 = data.groupby(by=[group_column, 'run_id' , 'time'], as_index=False)["SF_12"].mean()["SF_12"]
     data = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'intervention_cost': np.cumsum})
     data['SF_12'] = grouped_sf12
     return data
