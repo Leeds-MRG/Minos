@@ -127,7 +127,7 @@ def group_by_and_aggregate(data, group_column, v, method):
 
 def group_by_and_aggregate_longitudinal(data, group_column, v, method):
     grouped_sf12 = data.groupby(by=[group_column, 'time'], as_index=False)["SF_12"].mean()["SF_12"]
-    data = data.groupby(by=[group_column, 'time'], as_index=False).agg({'intervention_cost': np.cumsum})
+    data = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'intervention_cost': np.cumsum})
     data['SF_12'] = grouped_sf12
     return data
 

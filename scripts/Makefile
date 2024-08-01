@@ -225,7 +225,7 @@ arc4_all_scenarios_scot: MODE=scotland_mode
 arc4_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
 arc4_all_scenarios_scot: arc4_all_scenarios
 
-## All SIPHER7 Equivalent Income scenarios
+## All SIPHEFR7 Equivalent Income scenarios
 arc4_all_scenarios_S7: setup_S7
 arc4_all_scenarios_S7: MODE=SIPHER7
 arc4_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
