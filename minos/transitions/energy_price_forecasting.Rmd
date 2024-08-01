@@ -67,6 +67,10 @@ plot(residuals(m1))
 autoplot(forecast(m1, 40))
 checkresiduals(m1)
 print(m1$aic)
+
+pdf(here::here("plots", "electric_forecast.pdf"))
+autoplot(forecast(m1, 15))
+dev.off()
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
@@ -84,6 +88,10 @@ plot(residuals(m2))
 autoplot(forecast(m2, 15))
 checkresiduals(m2)
 print(m2$aic)
+
+pdf(here::here("plots", "gas_forecast.pdf"))
+autoplot(forecast(m2, 15))
+dev.off()
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
@@ -101,6 +109,10 @@ autoplot(forecast(m3, 15))
 checkresiduals(m3)
 print(m3$aic)
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
+
+pdf(here::here("plots", "solid_forecast.pdf"))
+autoplot(forecast(m3, 15))
+dev.off()
 ```
 
 
@@ -118,6 +130,10 @@ plot(residuals(m4))
 autoplot(forecast(m4,15))
 checkresiduals(m4)
 print(m4$aic)
+
+pdf(here::here("plots", "oil_forecast.pdf"))
+autoplot(forecast(m4, 15))
+dev.off()
 # residuals appear to be in nominal range. large LB p-value also support no autocorrelation between residuals. 
 ```
 
@@ -125,13 +141,13 @@ print(m4$aic)
 
 ```{r}
 # saving data to R objects for use in MINOS
-create.if.not.exists(here::here("data", "transitions", "energy_prices")
-write.csv(electric.series, "data/transitions/energy_prices/solid_historic.csv")
-write.csv(gas.series, "data/transitions/energy_prices/gas_historic.csv")
-write.csv(solid.series, "data/transitions/energy_prices/solid_historic.csv")
-write.csv(liquid.series, "data/transitions/energy_prices/liquid_historic.csv")
-write.csv(forecast(m1, 15), "data/transitions/energy_prices/electric_arima.csv")
-write.csv(forecast(m2, 15), "data/transitions/energy_prices/gas_arima.csv")
-write.csv(forecast(m3, 15), "data/transitions/energy_prices/solid_arima.csv")
-write.csv(forecast(m4, 15), "data/transitions/energy_prices/liquid_arima.csv")
+create.if.not.exists(here::here("data", "transitions", "energy_prices"))
+write.csv(electric.series, here::here("data", "transitions", "energy_prices", "solid_historic.csv"))
+write.csv(gas.series, here::here("data", "transitions", "energy_prices", "gas_historic.csv"))
+write.csv(solid.series, here::here("data", "transitions", "energy_prices", "solid_historic.csv"))
+write.csv(liquid.series, here::here("data", "transitions", "energy_prices", "liquid_historic.csv"))
+write.csv(forecast(m1, 15), here::here("data", "transitions", "energy_prices", "electric_arima.csv"))
+write.csv(forecast(m2, 15), here::here("data", "transitions", "energy_prices", "gas_arima.csv"))
+write.csv(forecast(m3, 15), here::here("data", "transitions", "energy_prices", "solid_arima.csv"))
+write.csv(forecast(m4, 15), here::here("data", "transitions", "energy_prices", "liquid_arima.csv"))
 ```

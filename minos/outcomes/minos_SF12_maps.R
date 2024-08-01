@@ -88,7 +88,7 @@ calculate_relative_diff <-function(data1, data2, v){
 }
 
 
-cost_vs_gain_imd_plot <- function(data) {
+cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   
   # take cost, variable, and imd.
   
@@ -97,10 +97,24 @@ cost_vs_gain_imd_plot <- function(data) {
   imd_data <- read.csv("persistent_data/spatial_data/UK_lsoa_imd.csv")
   colnames(imd_data) <- c("ZoneID", "IMD_Rank", "IMD_decile")
   data <- merge(data, imd_data, by="ZoneID")
-  browser() 
   # lineplot cost and variable. colour by imd. 
-  plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+  
   # other parametres and save.
+  
+  if(do_save == T){
+    destination = strsplit(destination_file_name, "/")[[1]][1]
+    file_name = strsplit(destination_file_name, "/")[[1]][2]
+    extension <- "cost_vs_gain_by_lsoa_"
+    destination_file_name <- paste0(destination, "/", extension, file_name)
+    pdf(destination_file_name)
+    plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+    dev.off()
+    print("saved cost gain scatterplot to: ")
+    print(destination_file_name)
+  }
+  else {
+    plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+  }
 
 }
 
@@ -290,7 +304,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   #data1 <- data1[data1$diff < 10, ]
   
   rural_urban_t_test(data1)
-  cost_vs_gain_imd_plot(data1)
+  cost_vs_gain_imd_plot(data1, destination_file_name, v)
   data1 <- LSOA_TO_LAD_DATA(data1)
   
   minos_diff_map(data1, destination_file_name, v)
