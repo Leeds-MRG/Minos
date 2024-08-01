@@ -389,6 +389,71 @@ def aggregate_lineplot(df, destination, prefix, v, method):
               inplace=True)
 
 
+def quintiles_lineplot(df, destination, prefix, v, method):
+    """ Plot lineplot over sources and years for aggregated v.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe with mean SF12 values over time by intervention.
+    destination : str
+        Where is the plot being saved to.
+    Returns
+    -------
+    None
+    """
+
+    df[v] -= 1
+    df[v] *= 100
+
+    # set year to int for formatting purposes
+    df['year'] = pd.to_datetime(df['year'], format='%Y')
+
+    # now rename some vars for plot labelling and formatting
+    # Capital letter for 'year'
+    # 'tag' renamed to 'Legend'
+    df.rename(columns={"year": "Year",
+                       "tag": "Legend"},
+              inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    f = plt.figure()
+    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    if prefix:
+        file_name = f"{prefix}_{v}_aggs_by_year.pdf"
+    else:
+        file_name = f"{v}_aggs_by_year.pdf"
+    file_name = os.path.join(destination, file_name)
+
+    # Sort out axis labels
+    y_label = v
+    #if v == 'SF_12':
+    #   y_label = 'SF12 MCS Percentage Change'
+
+    y_label = f"{v} {method.__name__}"
+
+    if method == weighted_nanmean:
+        y_label += " Weighted Mean"
+    elif v == "SF_12_AUC":
+        y_label += " AUC"
+    elif v == "SF_12_ICER":
+        y_label += " ICER"
+
+    plt.ylabel(y_label)
+    plt.tight_layout()
+
+    dir_name = os.path.dirname(file_name)
+    if not os.path.isdir(dir_name):
+        print("Plots folder not found; creating...")
+        os.mkdir(dir_name)
+    plt.savefig(file_name)
+    print(f"Lineplot saved to {file_name}")
+
+    # this is dumb but these changes are global for some reason.
+    df.rename(columns={"Year": "year",
+                       "Legend": "tag"},
+              inplace=True)
+
 def find_MINOS_years_range(file_path):
     """ Calculate the number of years in MINOS output data.
 
@@ -427,7 +492,7 @@ def child_uplift_cost_sum(df, v, weights='weight'):
 
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
-         method='nanmean', region=None, do_simd_quintiles = False):
+         method='nanmean', region=None, do_simd_quintiles = False, do_income_quintiles=False):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
 
@@ -478,11 +543,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
     if v in ["SF_12", "SF_12_PCS"] and method == weighted_nanmean:
-        if not do_simd_quintiles:
-            scaled_data = relative_scaling(aggregate_long_stack, v, ref)
-            print("relative scaling done. plotting.. ")
-            aggregate_lineplot(scaled_data, "plots", prefix, v, method)
-        else:
+        if do_simd_quintiles:
             print("start relative scaling..")
             scaled_data = pd.DataFrame()
             for subset_function_string in np.unique(aggregate_long_stack['subset_function']):
@@ -492,7 +553,27 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                 aggregate_long_stack_subsection = aggregate_long_stack_subsection.loc[
                     aggregate_long_stack_subsection['tag'] != "Baseline", ]
                 scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
+            scaled_data['tag'] = scaled_data['tag'].replace( {"First": 1, "Second": 2, "Third": 3, "Fourth": 4, "Fifth": 5})
             aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+
+        elif do_income_quintiles:
+            print("start relative scaling..")
+            scaled_data = pd.DataFrame()
+            for subset_function_string in np.unique(aggregate_long_stack['subset_function']):
+                aggregate_long_stack_subsection = aggregate_long_stack.loc[
+                    aggregate_long_stack['subset_function'] == subset_function_string,]
+                aggregate_long_stack_subsection = relative_scaling(aggregate_long_stack_subsection, v, ref)
+                aggregate_long_stack_subsection = aggregate_long_stack_subsection.loc[
+                    aggregate_long_stack_subsection['tag'] != "Baseline", ]
+                scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
+            scaled_data['tag'] = scaled_data['tag'].replace({"First": 1, "Second": 2, "Third": 3, "Fourth": 4, "Fifth": 5})
+
+            quintiles_lineplot(scaled_data, "plots", prefix, v, method)
+        else:
+            scaled_data = relative_scaling(aggregate_long_stack, v, ref)
+            print("relative scaling done. plotting.. ")
+            aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+
     elif v in ["yearly_energy", 'intervention_cost','heating', 'boost_amount', "intervention_cost"] and method == aggregate_cumulative_score_by_household:
         if not do_simd_quintiles:
             #scaled_data = relative_scaling(aggregate_long_stack, v, ref)

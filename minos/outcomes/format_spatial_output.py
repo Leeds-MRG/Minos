@@ -337,7 +337,7 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
 
     # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
     total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
-    total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year)-1, ]
+    total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year), ]
 
     print('Done. Saving..')
     # convert

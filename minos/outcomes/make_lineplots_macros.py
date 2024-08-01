@@ -204,6 +204,23 @@ def generic_simd_quintiles_lineplot(config_mode, v, source, tag):
                   method=method, region=region, do_simd_quintiles=True)
 
 
+def generic_income_quintiles_lineplot(config_mode, v, source, tag):
+    directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 6 times and cut off last comma.
+    tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
+    subset_function_strings = """who_first_income_quintile,who_second_income_quintile,who_third_income_quintile,who_fourth_income_quintile,who_fifth_income_quintile,who_first_income_quintile,who_second_income_quintile,who_third_income_quintile,who_fourth_income_quintile,who_fifth_income_quintile"""
+
+    # directories = "baseline,"*2 + (f"{source}," * 2)[:-1]  # repeat 6 times and cut off last comma.
+    # tags = "Baseline,Baseline,First,Second"
+    # subset_function_strings = """who_first_simd_quintile,who_second_simd_quintile,who_first_simd_quintile,who_second_simd_quintile"""
+
+    prefix = f"{source}_income_quintiles"
+    ref = "Baseline"
+    method = 'nanmean'
+    region=None
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
+                  method=method, region=region, do_simd_quintiles=False, do_income_quintiles=True)
+
+
 
 ######################################################
 # Space for child uplifts split by amount and subset #
@@ -551,6 +568,10 @@ string_to_lineplot_function = {
     "EPCG_GBIS_SF_12": generic_multiple_lineplot,
     "EPCG_GBIS_yearly_energy": generic_multiple_lineplot,
     "EPCG_GBIS_intervention_cost": generic_multiple_lineplot,
+
+    "EPCG_income_quintiles": generic_income_quintiles_lineplot,
+    "GBIS_income_quintiles": generic_income_quintiles_lineplot,
+
 }
 
 string_to_lineplot_function_args = {
@@ -679,6 +700,9 @@ string_to_lineplot_function_args = {
     "EPCG_GBIS_intervention_cost": [["EPCG", "GBIS"],
                                 ["EPCG", "GBIS"],
                                 ["who_boosted", "who_boosted"]],
+
+    "EPCG_income_quintiles":  ["EPCG", "EPCG Quintiles"],
+    "GBIS_income_quintiles":  ["GBIS", "GBIS Quintiles"],
 }
 
 if __name__ == '__main__':

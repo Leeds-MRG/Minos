@@ -531,6 +531,13 @@ aggregate_minos_manchester_GBIS_quintiles:
 aggregate_minos_manchester_EPCG_GBIS_SF_12:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_SF_12" "SF_12"
 
+aggregate_minos_manchester_GBIS_quintiles_income:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_income_quintiles" "SF_12"
+
+aggregate_minos_manchester_EPCG_quintiles_income:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_income_quintiles" "SF_12"
+
+
 # BOOST AMOUNT
 
 aggregate_minos_manchester_EPCG_GBIS_intervention_cost:
@@ -639,6 +646,7 @@ QALYs_UC_scotland: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY
 
 # running everything needed for paper 3.
 BIG_DADDY_PAPER_3:
+BIG_DADDY_PAPER_3: aggregate_minos_manchester_EPCG_quintiles_income aggregate_minos_manchester_GBIS_quintiles_income
 BIG_DADDY_PAPER_3: GBIS_GMCA_map EPCG_GMCA_map aggregate_minos_manchester_noEnergyPriceIncrease
 BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS
 BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined_cost aggregate_minos_manchester_EPCG_GBIS_combined_yearly_energy
