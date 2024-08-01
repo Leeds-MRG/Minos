@@ -62,6 +62,7 @@ def main(output_dir):
     # TODO MICE goes here to deal with remaining missing obs. current just using complete case. from US_complete_case.py
     # TODO a further deterministic stage may be needed to better handle missing values in composites.
 
+    data = data.loc[data['region'] != "Northern Ireland", ]
     US_utils.save_multiple_files(data, save_years, output_dir, "")
 
 

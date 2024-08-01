@@ -222,32 +222,82 @@ def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns
     # sort values by pidp and time. Need chronological order for carrying to make sense.
     # Also allows for easy replacing of filled data later.
     data = data.sort_values(by=["pidp", "time"])
+    data = data.replace(US_utils.missing_types, None)
+
 
     # Group data into individuals to fill in separately.
     # Acts as a for loop to fill items by each individual. If you dont this it will try and fill the whole dataframe
     # at once.
-    pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
+    #pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
 
-    print("groupby done. interpolating..")
+    #print("groupby done. interpolating..")
     # Fill missing data by individual for given carrying type. Forwards, backwards, or forward then backwards.
     # See pandas ffill and bfill functions for more details.
-    if f_columns:
-        # Forward fill.
-        fill = applyParallelLOCF(pid_groupby[f_columns], ffill_groupby)
-        data[f_columns] = fill[f_columns]
+
+    # reverse sort to back fill first.
+    data = data.sort_values(by=["pidp", "time"], ascending=[True, False])
+    data2 = data.copy()
+
     if b_columns:
         # backward fill. only use this on IMMUTABLE attributes.
-        fill = applyParallelLOCF(pid_groupby[b_columns], bfill_groupby)
-        data[b_columns] = fill[b_columns]
-    if fb_columns:
-        # forwards and backwards fill. again immutables only.
-        fill = applyParallelLOCF(pid_groupby[fb_columns], fbfill_groupby)
-        data[fb_columns] = fill[fb_columns]
+        #fill = applyParallelLOCF(pid_groupby[b_columns], bfill_groupby)
+        #data[b_columns] = fill[b_columns]
+        #data[b_columns] = (data[b_columns].replace(US_utils.missing_types, None).bfill() *
+        #                   (1 - data[b_columns].isnull().astype(int)).groupby('pidp').cumsum().map(lambda x: 1 if x else 0))
+        #data['pidp'] = pidps
+        nofill = pd.notnull(data[b_columns]).groupby(data['pidp']).cumsum()
+        data[b_columns] = data[b_columns].ffill()
+        #data[nofill==0] = np.nan
+        data[b_columns] = data[b_columns].where(nofill==0, data2)
+
+        # columns for forwards anc backwards fill.
+        nofill = pd.notnull(data[fb_columns]).groupby(data['pidp']).cumsum()
+        data[fb_columns] = data[fb_columns].ffill() # wasn't casting for some reason..
+        #data[nofill==0] = np.nan
+        data[fb_columns] = data[fb_columns].where(nofill==0, data2)
+
+
+    # now sort in time ascending order to forward fill.
+    data = data.sort_values(by=["pidp", "time"], ascending=[True, True])
+    data2 = data.copy()
+
+    if f_columns:
+        f_columns
+        # Forward fill.
+        #fill = applyParallelLOCF(pid_groupby[f_columns], ffill_groupby)
+        #data[f_columns] = fill[f_columns]
+        #data[f_columns] = data[f_columns].ffill() *
+        #                   (1 - data[f_columns].isnull().astype(int)).groupby('pidp').cumsum().applymap(
+        #                       lambda x: None if x == 0 else 1)
+        nofill = pd.notnull(data[f_columns]).groupby(data['pidp']).cumsum()
+        data[f_columns] = data[f_columns].ffill() # wasn't casting for some reason..
+        #data[nofill==0] = np.nan
+        data[f_columns] = data[f_columns].where(nofill==0, data2)
+
+        # columns for forwards anc backwards fill.
+        nofill = pd.notnull(data[fb_columns]).groupby(data['pidp']).cumsum()
+        data[fb_columns] = data[fb_columns].ffill() # wasn't casting for some reason..
+        #data[nofill==0] = np.nan
+        data[fb_columns] = data[fb_columns].where(nofill==0, data2)
+
+
     if mf_columns:
         # Forward fill monotonic
-        fill = applyParallelLOCF(pid_groupby[mf_columns], mffill_groupby)
-        data[mf_columns] = fill[mf_columns]
+        #fill = applyParallelLOCF(pid_groupby[mf_columns], mffill_groupby)
+        #data[mf_columns] = fill[mf_columns]
+        #data[mf_columns] = (data[mf_columns].cummax() *
+        #                   (1 - data[mf_columns].isnull().astype(int)).groupby('pidp').cumsum().map(lambda x: 1 if x else 0))
+        nofill = pd.notnull(data[mf_columns]).groupby(data['pidp']).cumsum()
+        data[mf_columns] = data[mf_columns].cummax()
+        #data[nofill==0] = np.nan
+        data[mf_columns] = data[mf_columns].where(nofill==0, data2)
+
+
+
+
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
+    #data[data.isnull()] = data2 # this works for python < 3.11 but not 3.7. AAAAAAAAA
+    data = data.where(-data.isnull(), data2) # this is the more complex version.
     return data
 
 
@@ -262,9 +312,9 @@ def main(data, save=False):
     # note columns can be forward and back filled for immutables like ethnicity.
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
-                 'nkids_ind_raw', "nresp", 'region']  # 'ncigs', 'ndrinks']
-    fb_columns = ["sex", "ethnicity", "birth_year"]  # or here if they're immutable.
-    mf_columns = ['education_state', 'nkids_ind_raw']
+                 'nkids_ind_raw', 'nresp', 'region']  # 'ncigs', 'ndrinks']
+    fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw']  # or here if they're immutable.
+    mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
     li_columns = ["age"]
     data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
@@ -284,6 +334,6 @@ if __name__ == "__main__":
     years = np.arange(2009, maxyr)
     # Process data by year and pidp.
     # perform LOCF using lambda forward fill functions.
-    file_names = [f"data/deterministic_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = main(data)
