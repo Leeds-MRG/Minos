@@ -31,6 +31,8 @@ This reformat has a number of advantages
 """
 
 
+pd.options.mode.chained_assignment = None  # default='warn'
+
 # def eightyTwenty(income):
 #
 #     split = pd.qcut(income, q=5, labels=[1, 2, 3, 4, 5])
@@ -73,7 +75,7 @@ def get_spatial_data():
     """
     try:
         # chris spatially weighted data.
-        spatial_data = pd.read_csv("persistent_data/spatial_data/ADULT_population_GB_2018.csv")
+        spatial_data = pd.read_csv("persistent_data/spatial_data/ADULT_population_GB_2018.csv", low_memory=False)
     except FileNotFoundError as e:
         print(e)
         print("\nREADME::\n"
@@ -244,7 +246,7 @@ def attach_spatial_component(minos_data, spatial_data, v, method=np.nanmean):
 
 
 def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file)
+    minos_data = pd.read_csv(minos_file, low_memory=False)
 
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
@@ -260,7 +262,7 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
 
 
 def load_data_and_attach_spatial_component(minos_file, spatial_data, subset_function, v, method=np.nanmean):
-    minos_data = pd.read_csv(minos_file)
+    minos_data = pd.read_csv(minos_file, low_memory=False)
     if subset_function:
         minos_data = dynamic_subset_function(minos_data, subset_function)
     minos_data = minos_data[['pidp', v, 'time']]
@@ -285,6 +287,10 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='g
             # Are these hard copies or just refs?
             aggregated_spatial_data = pool.starmap(load_data_and_attach_spatial_component,
                                                    zip(minos_files, repeat(spatial_data), repeat(subset_function), repeat(v)))
+
+
+    for i, item in enumerate(aggregated_spatial_data):
+        item['run_id'] = i
 
     # loop over minos files for given year. merge with spatial data and aggregate by LSOA.
     total_minos_data = pd.concat(aggregated_spatial_data)
@@ -327,6 +333,7 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
     for yearly_files in minos_files:
         subset_minos_data = load_minos_data(yearly_files, subset_function, is_synthetic_pop, v, region)
         total_minos_data = pd.concat([total_minos_data, subset_minos_data])
+
 
     # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
     total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)

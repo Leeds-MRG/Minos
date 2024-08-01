@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-
+pd.options.mode.chained_assignment = None  # default='warn'
 def dynamic_subset_function(data, subset_chain_string=None, mode='default_config', drop_dead=True):
 
     if subset_chain_string is None:
