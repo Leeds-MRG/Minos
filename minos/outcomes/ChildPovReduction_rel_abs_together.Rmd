@@ -765,10 +765,10 @@ mental_illness_risk_counts(summary_group = 'men_illness_risk',
 ### Income Quintiles
 
 ```{r}
-# SF12_change_income_quint(summary_group = 'whole_pop',
-#                                     scen.list = scen.list.rel)
-SF12_change_income_quint2(summary_group = 'whole_pop',
-                                    scen = scen)
+SF12_change_income_quint(summary_group = 'whole_pop',
+                                    scen.list = scen.list)
+# SF12_change_income_quint2(summary_group = 'whole_pop',
+#                                     scen = scen)
 ```
 
 ### SF_12 Inequality
