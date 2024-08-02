@@ -38,23 +38,23 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 ```{r, include=FALSE}
-out.path <- here::here('output', 'default_config/')
-#out.path <- here::here('output', 'scotland_scaled/')
+#out.path <- here::here('output', 'default_config/')
+out.path <- here::here('output', 'scotland_scaled/')
 base.dat <- read_singular_local_out(out.path, 'baseline', 
                                     drop.dead = TRUE,
                                     drop.zero.weight = TRUE)
-int1.rel <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE',
+int1.rel <- read_singular_local_out(out.path, 'ChildPovertyReduction',
                                    drop.dead = TRUE,
                                    drop.zero.weight = TRUE)
-int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE_2',
-                                   drop.dead = TRUE,
-                                   drop.zero.weight = TRUE)
+# int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReductionRELATIVE_2',
+#                                    drop.dead = TRUE,
+#                                    drop.zero.weight = TRUE)
 # int2.rel_fixed <- read_singular_local_out(out.path, 'ChildPovertyReduction',
 #                                    drop.dead = TRUE,
 #                                    drop.zero.weight = TRUE)
-int3.abs <- read_singular_local_out(out.path, 'ChildPovertyReductionABSOLUTE',
-                                   drop.dead = TRUE,
-                                   drop.zero.weight = TRUE)
+# int3.abs <- read_singular_local_out(out.path, 'ChildPovertyReductionABSOLUTE',
+#                                    drop.dead = TRUE,
+#                                    drop.zero.weight = TRUE)
 
 #base.dat <- read_agg_subset_batch_out(out.path, 'baseline', drop.dead = TRUE)
 #int1.dat <- read_agg_subset_batch_out(out.path, 'ChildPovertyReduction', drop.dead = TRUE)
