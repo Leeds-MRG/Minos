@@ -277,11 +277,11 @@ def type_check(data):
 
     """
 
-    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
-    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
-    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
-    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
-    data['job_sec'] = data['job_sec'].astype(int)
+    data['S7_mental_health'] = data['S7_mental_health'].astype('Int64')
+    data['S7_physical_health'] = data['S7_physical_health'].astype('Int64')
+    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype('Int64')
+    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('Int64')
+    data['job_sec'] = data['job_sec'].astype('Int64')
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
 
