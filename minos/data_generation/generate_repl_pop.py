@@ -251,6 +251,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     # first collect and load the datafile for 2018
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
     data = pd.read_csv(file_name)
+    # data = data.loc[~data.isna().any(axis=1)]  # HR 444
 
     # expand and reweight the population
     expanded_repl = expand_repl(data, region)
@@ -261,14 +262,14 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl = predict_education(reweighted_repl, transition_dir)
 
     # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
-    final_repl['ncigs'] = final_repl['ncigs'].astype(int)
-    final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
-    final_repl['loneliness'] = final_repl['loneliness'].astype(int)
-    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
-    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
-    final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
-    final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
-    final_repl['job_sec'] = final_repl['job_sec'].astype(int)
+    final_repl['ncigs'] = final_repl['ncigs'].astype("Int64")
+    final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype("Int64")
+    final_repl['loneliness'] = final_repl['loneliness'].astype("Int64")
+    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype("Int64")
+    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype("Int64")
+    final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype("Int64")
+    final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype("Int64")
+    final_repl['job_sec'] = final_repl['job_sec'].astype("Int64")
     final_repl['nkids'] = final_repl['nkids'].astype(float)
 
     US_utils.check_output_dir(output_dir)
