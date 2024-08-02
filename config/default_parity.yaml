@@ -11,7 +11,7 @@ population:
 
 mortality_file: 'regional_mortality_newethpop.csv'
 fertility_file: 'regional_fertility_newethpop.csv'
-parity: False
+parity: True
 
 input_data_dir: "data/final_US"
 persistent_data_dir: "persistent_data"

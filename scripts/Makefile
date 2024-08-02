@@ -53,6 +53,11 @@ NOPARITY_MODE=default_config_noparity
 baseline_noparity: setup
 	$(PYTHON) scripts/run.py -c $(NOPARITY_CONFIG) -o $(NOPARITY_MODE)
 
+PARITY_CONFIG=$(CONFIG)/default_parity.yaml
+PARITY_MODE=default_config_parity
+baseline_parity: setup
+	$(PYTHON) scripts/run.py -c $(PARITY_CONFIG) -o $(PARITY_MODE)
+
 baseline_inflated: setup_inflated
 	$(PYTHON) scripts/run.py -c $(CONFIG)/inflated_default.yaml -o inflated_default
 
