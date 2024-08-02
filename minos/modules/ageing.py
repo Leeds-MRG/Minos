@@ -63,6 +63,7 @@ class Ageing(Base):
         #population['child_ages'][population['child_ages'].isna()] = None
 
         population['nkids'] = population['nkids'].astype(float)
+        population['age'] = population['age'].astype('Int64')
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
@@ -99,7 +100,7 @@ class Ageing(Base):
             List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
         """
 
-        if age_chain is None:
+        if age_chain is None or age_chain == 'None':
             age_chain = "childless"
         new_nkids = 0 #  default if no age chain found. assume no children.
 
