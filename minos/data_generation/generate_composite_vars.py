@@ -901,14 +901,15 @@ def calculate_equivalent_income(data):
     }
 
     # Now we add together weights for each factor level to generate the exponent term
+    DEFAULT = np.nan
     data['EI_exp_term'] = 0
-    #pop['EI_exp_term'] = pop['EI_exp_term'] + phys_health_dict.get(pop['S7_physical_health'])
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: phys_health_dict[x['S7_physical_health']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: men_health_dict[x['S7_mental_health']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: loneliness_dict[x['loneliness']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: employment_dict[x['S7_labour_state']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: housing_dict[x['S7_housing_quality']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: nh_safety_dict[x['S7_neighbourhood_safety']], axis=1)
+    #pop['EI_exp_term'] += phys_health_dict.get(pop['S7_physical_health'])
+    data['EI_exp_term'] += data.apply(lambda x: phys_health_dict.get(x['S7_physical_health'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: men_health_dict.get(x['S7_mental_health'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: loneliness_dict.get(x['loneliness'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: employment_dict.get(x['S7_labour_state'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: housing_dict.get(x['S7_housing_quality'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: nh_safety_dict.get(x['S7_neighbourhood_safety'], DEFAULT), axis=1)
 
     # finally do the calculation for equivalent income (EI = income^EI_exp_term)
     data['equivalent_income'] = data['hh_income'] * np.exp(data['EI_exp_term'])
