@@ -3,6 +3,7 @@ File for adding new cohorts from Understanding Society data to the population
 """
 
 import pandas as pd
+import numpy as np
 import logging
 from minos.modules.base_module import Base
 
@@ -151,14 +152,14 @@ class Replenishment(Base):
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
             new_population = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
-            new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            new_population.loc[new_population.index, "age"] = new_population["age"].astype('Int64')
             logging.info(f"Starting cohort loaded for {self.current_year}.")
 
         elif pop_data.user_data["cohort_type"] == "replenishment":
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
-            new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            new_population.loc[new_population.index, "age"] = new_population["age"].astype("Int64")
             logging.info(f"Replenishing cohort added for {self.current_year}.")
 
         elif pop_data.user_data["cohort_type"] == "births":
@@ -178,6 +179,7 @@ class Replenishment(Base):
         # Register simulants entrance time and age to CRN. I.E keep them seeded.
         # Add new simulants to the overall population frame.
         self.register(new_population[["entrance_time", "age"]])
+        np.seterr(invalid='ignore')
         self.population_view.update(new_population)
 
     def on_time_step(self, event):
