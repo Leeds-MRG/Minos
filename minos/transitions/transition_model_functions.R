@@ -123,9 +123,28 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
 
+  # if(depend == 'next_ncigs') {
+  #   print("Inspecting ncigs transition model (before NA removal)...")
+  #   print(paste0('Data length:', nrow(data)))
+  #   browser()
+  # }
+  #
   data <- replace.missing(data)
+  
+  # if(depend == 'next_ncigs') {
+  #   print("Inspecting ncigs transition model (between NA removal)...")
+  #   print(paste0('Data length:', nrow(data)))
+  #   browser()
+  # }
+  #
   data <- drop_na(data)
 
+  # if(depend == 'next_ncigs') {
+  #   print("Inspecting ncigs transition model (after NA removal)...")
+  #   print(paste0('Data length:', nrow(data)))
+  #   browser()
+  # }
+  #
   if(include_weights) {
     model <- zeroinfl(formula = formula,
                       data = data,
