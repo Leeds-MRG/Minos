@@ -159,7 +159,7 @@ run_yearly_models <- function(transitionDir_path,
       if(grepl('neighbourhood_safety', dependent) & !year %in% c(2011, 2014, 2017)) { next }
       if(grepl('neighbourhood_safety', dependent)){ depend.year <- year + 3 } # set up 3 year horizon
       # tobacco model only estimated for 2013 onwards
-      if(dependent == 'ncigs' & year < 2013) { next }
+      if(dependent == 'ncigs' & year < 2016) { next }
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
       # SF_12 predictor (physical health score) not available in wave 1
       if(dependent == 'SF_12' & year == 2009) { next }

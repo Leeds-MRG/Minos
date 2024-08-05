@@ -45,7 +45,7 @@ def ffill_groupby(pid_groupby, f_columns):
     pid_groupby : Object with forward filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
-    return pid_groupby[f_columns].infer_objects(copy=False).ffill()
+    return pid_groupby[f_columns].infer_objects().ffill()
 
 def bfill_groupby(pid_groupby, b_columns):
     """ back fill groupby object
@@ -60,7 +60,7 @@ def bfill_groupby(pid_groupby, b_columns):
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby[b_columns].infer_objects(copy=False).bfill()
+    return pid_groupby[b_columns].infer_objects().bfill()
 
 def fbfill_groupby(pid_groupby, fb_columns):
     """ forward and back fill groupby object
@@ -73,7 +73,7 @@ def fbfill_groupby(pid_groupby, fb_columns):
     pid_groupby : Object with forward-back filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby[fb_columns].infer_objects(copy=False).ffill().bfill()
+    return pid_groupby[fb_columns].infer_objects().ffill().bfill()
 
 def mffill_groupby(pid_groupby, mf_columns):
     """
