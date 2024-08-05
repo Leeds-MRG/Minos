@@ -49,7 +49,8 @@ def main(output_dir):
     print("Raw data before correction")
 
     # Last observation carried forwards (LOCF) interpolation of variables only recorded when changed.
-    data = US_missing_LOCF.main(data)
+    data_locf = US_missing_LOCF.main(data)
+    data = data_locf.where(-data_locf.isnull(), data) # this is the more complex version.
 
     # Correct deterministically missing data due to unemployment. see US_missing_deterministic.py
     data = USmd.main(data)
