@@ -1,0 +1,658 @@
+---
+title: "MHF SCP Experiment Visualisations"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+
+
+
+
+
+
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+
+
+```{r "data", include=FALSE}
+# whole pop to start
+# base.whole <- read.csv(file = sprintf('%s/combined_summary_whole_pop.csv', 'baseline'))
+# base.UC <- read.csv(file = sprintf('%s/combined_summary_UC.csv', 'baseline'))
+```
+
+```{r}
+scen.list.full <- c('baseline', '10UniversalCredit', '20UniversalCredit',
+               '25UniversalCredit', '30UniversalCredit',
+               '35UniversalCredit', '40UniversalCredit', '45UniversalCredit',
+               '50UniversalCredit', '60UniversalCredit', '70UniversalCredit',
+               '80UniversalCredit', '90UniversalCredit', '100UniversalCredit')
+
+scen.list.50l <- c('baseline', '10UniversalCredit',
+               '20UniversalCredit', '25UniversalCredit', '30UniversalCredit',
+               '35UniversalCredit', '40UniversalCredit', '45UniversalCredit',
+               '50UniversalCredit')
+
+scen.list.10_50 <- c('baseline', '10UniversalCredit',
+               '20UniversalCredit', '30UniversalCredit',
+               '40UniversalCredit', '50UniversalCredit')
+
+scen.list.60_100 <- c('baseline', '60UniversalCredit', '70UniversalCredit',
+               '80UniversalCredit', '90UniversalCredit', '100UniversalCredit')
+
+scen.list.25_50 <- c('baseline', '25UniversalCredit', '30UniversalCredit',
+                    '35UniversalCredit', '40UniversalCredit', '45UniversalCredit',
+                    '50UniversalCredit')
+
+scen.list.10_100 <- c('baseline', '10UniversalCredit', '20UniversalCredit',
+                      '30UniversalCredit', '40UniversalCredit', '50UniversalCredit', 
+                      '60UniversalCredit', '70UniversalCredit', '80UniversalCredit', 
+                      '90UniversalCredit', '100UniversalCredit')
+
+scen.list.20_100 <- c('baseline', '20UniversalCredit', '40UniversalCredit',
+                      '60UniversalCredit', '80UniversalCredit', '100UniversalCredit')
+```
+
+# Functions
+
+```{r "datain", include=False}
+generate_df_list <- function(summary, scen.list) {
+  df.list <- lapply(scen.list, function(scen) {
+    df <- read.csv(file = sprintf('%s/combined_summary_%s.csv', scen, summary))
+    df$scen <- scen
+    return(df)
+  })
+  return(df.list)
+}
+
+```
+
+
+
+```{r "cost_ratio_functions", include = FALSE}
+
+SF_12_cost_ratio <- function(summary_type, scen_list) {
+  
+  data <- do.call(rbind, generate_df_list(summary_type, scen_list))
+  
+  if (summary_type == "UC") {
+    data <- data %>%
+      filter(universal_credit == 1)
+  }
+  
+  plot_data1 <- data %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  # Extract numeric part from 'scen' column then...
+  scen_numeric <- as.numeric(gsub("[^0-9]", "", plot_data1$scen))
+  # ...Reorder 'scen' column based on numeric values for plotting
+  plot_data1$scen <- factor(plot_data1$scen, levels = unique(plot_data1$scen[order(scen_numeric)]))
+  
+  plot_data1_confint <- plot_data1 %>%
+    group_by(year, scen) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  plot_data2 <- plot_data1 %>%
+    mutate(SF12_to_cost_ratio = diff_SF_12 / mean_cost) %>%
+    replace_na(list(SF12_to_cost_ratio = 0))
+  
+  plot_data2_confint <- plot_data2 %>%
+    group_by(year, scen) %>%
+    summarise(n = n(),
+              mean_SF12_to_cost_ratio = mean(SF12_to_cost_ratio),
+              margin = qt(0.975, df = n - 1) * (sd(SF12_to_cost_ratio) / sqrt(n)),
+              lower = mean_SF12_to_cost_ratio - margin,
+              upper = mean_SF12_to_cost_ratio + margin)
+  
+  plot_data2_logged <- plot_data2_confint %>%
+    group_by(year, scen) %>%
+    summarise(mean_SF12_to_cost_ratio = log(mean_SF12_to_cost_ratio),
+              lower = log(lower),
+              upper = log(upper))
+  
+  # p1 <- ggplot(plot_data1, aes(x = year, y = diff_SF_12, group = scen, colour = scen, fill = scen)) +
+  #   geom_smooth()
+  p1 <- ggplot(plot_data1_confint, aes(x = year, y = mean_SF12_change, group = scen, colour = scen, fill = scen)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = scen), linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+  
+  # p2 <- ggplot(plot_data2, aes(x = year, y = SF12_to_cost_ratio, group = scen, colour = scen, fill = scen)) +
+  #   geom_smooth()
+  
+  p2 <- ggplot(plot_data2_confint, aes(x = year, y = mean_SF12_to_cost_ratio, group = scen, colour = scen, fill = scen)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = scen), linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+  
+  p3 <- ggplot(plot_data2_logged, aes(x = year, y = mean_SF12_to_cost_ratio, group = scen, colour = scen, fill = scen)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = scen), linetype = 'dashed') +
+    geom_point()
+  
+  print(p1)
+  print(p2)
+  #print(p3)
+}
+
+SF_12_cost_ratio_cumul <- function(summary_type, scen_list) {
+  
+  data <- do.call(rbind, generate_df_list(summary_type, scen_list))
+  
+  if (summary_type == "UC") {
+    data <- data %>%
+      filter(universal_credit == 1)
+  }
+    
+  plot_data1 <- data %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  # Extract numeric part from 'scen' column then...
+  scen_numeric <- as.numeric(gsub("[^0-9]", "", plot_data1$scen))
+  # ...Reorder 'scen' column based on numeric values for plotting
+  plot_data1$scen <- factor(plot_data1$scen, levels = unique(plot_data1$scen[order(scen_numeric)]))
+  
+  # Now we need to calculate cumulative stuff for the ratio
+  cumulative_SF12 <- plot_data1 %>%
+    group_by(scen, run_id) %>%
+    summarise(SF_12 = sum(diff_SF_12),
+              cost = sum(mean_cost))
+  
+  cumulative_SF12_ratio <- cumulative_SF12 %>%
+    mutate(SF12_to_cost_ratio = SF_12 / cost) %>%
+    replace_na(list(SF12_to_cost_ratio = 0))
+  
+  cumulative_SF12_ratio_confint <- cumulative_SF12_ratio %>%
+    group_by(scen) %>%
+    summarise(n = n(),
+              mean_SF12_to_cost_ratio = mean(SF12_to_cost_ratio),
+              margin = qt(0.975, df = n - 1) * (sd(SF12_to_cost_ratio) / sqrt(n)),
+              lower = mean_SF12_to_cost_ratio - margin,
+              upper = mean_SF12_to_cost_ratio + margin)
+  
+  p1 <- ggplot(cumulative_SF12_ratio_confint, aes(x = scen, y = mean_SF12_to_cost_ratio, group = scen, fill = scen)) +
+    geom_col() +
+    labs(title = 'Ratio of SF12 Improvement to Cost') +
+    xlab('Intervention') +
+    ylab('Ratio') +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          legend.position = 'none')
+  
+  p2 <- ggplot(cumulative_SF12_ratio_confint, aes(x = scen, y = mean_SF12_to_cost_ratio, group = scen, fill = scen)) +
+    geom_col() +
+    geom_errorbar(aes(ymin = lower, ymax = upper), position = 'dodge', width = 0.25) +
+    labs(title = 'Ratio of SF12 Improvement to Cost') +
+    xlab('Intervention') +
+    ylab('Ratio') +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          legend.position = 'none')
+  
+  print(p1)
+  print(p2)
+}
+```
+
+
+
+```{r "rel_abs_function", include=FALSE}
+
+compare_relative_absolute <- function(comparison_scen) {
+  scen.list <- c('baseline', comparison_scen)
+  
+  UC.rel <- do.call(rbind, generate_df_list('UC_rel_pov', scen.list))
+  UC.abs <- do.call(rbind, generate_df_list('UC_abs_pov', scen.list))
+  
+  rel.change <- UC.rel %>%
+    filter(universal_credit == 1,
+           init_relative_poverty == 1) %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+                 names_to = c(".value", "scen"),
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline') %>%
+    rename(RelativePoverty = diff_SF_12) %>%
+    select(run_id, year, RelativePoverty)
+  
+  abs.change <- UC.abs %>%
+    filter(universal_credit == 1,
+           init_absolute_poverty == 1) %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+                 names_to = c(".value", "scen"),
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline') %>%
+    rename(AbsolutePoverty = diff_SF_12) %>%
+    select(run_id, year, AbsolutePoverty)
+  
+  combined <- merge(rel.change, abs.change, by = c('run_id', 'year'))
+  
+  combined_confint <- combined %>%
+    pivot_longer(cols = RelativePoverty:AbsolutePoverty,
+                 names_to = 'subpop',
+                 values_to = 'SF_12_change') %>%
+      group_by(subpop, year) %>%
+      summarise(n = n(),
+                mean_SF12_change = mean(SF_12_change),
+                margin = qt(0.975, df = n - 1) * (sd(SF_12_change) / sqrt(n)),
+                lower = mean_SF12_change - margin,
+                upper = mean_SF12_change + margin)
+  
+  p1 <- ggplot(combined_confint, aes(x = year, y = mean_SF12_change, group = subpop, colour = subpop, fill = subpop)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = subpop), linetype = 'dashed') +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+  
+  p2 <- ggplot(combined_confint, aes(x = year, y = mean_SF12_change, group = subpop, colour = subpop, fill = subpop)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Mean SF-12 Change', subtitle = comparison_scen) +
+    xlab('Year') +
+    ylab('SF-12 Change')
+  
+  print(p1)
+  print(p2)
+}
+
+```
+
+
+
+```{r "gender_function", include=FALSE}
+compare_gender <- function(comparison_scen) {
+  scen.list <- c('baseline', comparison_scen)
+  UC.gender <- do.call(rbind, generate_df_list('UC_gender', scen.list))
+  
+  gender.change <- UC.gender %>%
+    filter(universal_credit == 1) %>%
+    select(run_id, sex, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+                 names_to = c(".value", "scen"),
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline') %>%
+    select(run_id, sex, year, diff_SF_12)
+  
+  gender.confint <- gender.change %>%
+    group_by(sex, year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  p1 <- ggplot(data = gender.confint, aes(x = year, y = mean_SF12_change, group = sex, colour = sex, fill = sex)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = sex), linetype = 'dashed') +
+    geom_hline(yintercept = 0, linetype = 'dashed')
+  
+  p2 <- ggplot(data = gender.confint, aes(x = year, y = mean_SF12_change, group = sex, colour = sex, fill = sex)) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(title = 'Mean SF-12 Change', subtitle = comparison_scen) +
+    xlab('Year') +
+    ylab('SF-12 Change')
+  
+  #print(p1)
+  print(p2)
+}
+```
+
+
+
+# Whole Population
+
+```{r}
+whole.pop.list <- generate_df_list('whole_pop', scen.list.full)
+whole.pop <- do.call(rbind, whole.pop.list)
+```
+
+```{r}
+whole.pop.sum <- whole.pop %>%
+  group_by(scen, year) %>%
+  summarise(hh_income = mean(hh_income),
+            SF_12 = mean(SF_12))
+
+ggplot(whole.pop.sum, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+  geom_line()
+
+ggplot(whole.pop, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+  geom_smooth()
+
+rm(whole.pop.sum, whole.pop.list, whole.pop)
+```
+
+# Families
+
+```{r}
+fam.list <- generate_df_list('families', scen.list.full)
+families <- do.call(rbind, fam.list)
+```
+
+```{r}
+fam.sum <- families %>%
+  group_by(scen, year) %>%
+  summarise(hh_income = mean(hh_income),
+            SF_12 = mean(SF_12))
+
+ggplot(fam.sum, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+  geom_line()
+
+ggplot(families, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+  geom_smooth()
+
+rm(fam.sum, fam.list, families)
+```
+
+```{r}
+fam.2550 <- do.call(rbind, generate_df_list('families', scen.list.25_50))
+
+ggplot(fam.2550, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+  geom_smooth()
+
+rm(fam.2550)
+```
+
+
+# Improvement Ratios
+
+```{r}
+# test <- do.call(rbind, generate_df_list('families', scen.list.10_50))
+# test2 <- do.call(rbind, generate_df_list('UC', scen.list.10_50))
+# SF_12_cost_ratio(summary_type = 'families', scen_list = scen.list.10_50)
+# SF_12_cost_ratio_cumul(summary_type = 'families', scen_list = scen.list.10_50)
+```
+
+
+## Cost Ratio: £10 - £50
+
+### Whole Pop
+
+```{r}
+SF_12_cost_ratio(summary_type = 'whole_pop', scen_list = scen.list.10_50)
+SF_12_cost_ratio_cumul(summary_type = 'whole_pop', scen_list = scen.list.10_50)
+```
+
+
+### Families
+
+```{r}
+SF_12_cost_ratio(summary_type = 'families', scen_list = scen.list.10_50)
+SF_12_cost_ratio_cumul(summary_type = 'families', scen_list = scen.list.10_50)
+```
+
+### UC
+
+```{r}
+SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_50)
+SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_50)
+```
+
+## Cost Ratio: £60 - £100
+
+### Whole Pop
+
+```{r}
+SF_12_cost_ratio(summary_type = 'whole_pop', scen_list = scen.list.60_100)
+SF_12_cost_ratio_cumul(summary_type = 'whole_pop', scen_list = scen.list.60_100)
+```
+
+
+### Families
+
+```{r}
+SF_12_cost_ratio(summary_type = 'families', scen_list = scen.list.60_100)
+SF_12_cost_ratio_cumul(summary_type = 'families', scen_list = scen.list.60_100)
+```
+
+### UC
+
+```{r}
+SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.60_100)
+SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.60_100)
+```
+
+## Cost Ratio: £10 - £100
+
+### Whole Pop
+
+```{r}
+SF_12_cost_ratio(summary_type = 'whole_pop', scen_list = scen.list.10_100)
+SF_12_cost_ratio_cumul(summary_type = 'whole_pop', scen_list = scen.list.10_100)
+```
+
+
+### Families
+
+```{r}
+SF_12_cost_ratio(summary_type = 'families', scen_list = scen.list.10_100)
+SF_12_cost_ratio_cumul(summary_type = 'families', scen_list = scen.list.10_100)
+```
+
+### UC
+
+```{r}
+SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_100)
+SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_100)
+```
+
+
+# Compare Different Populations
+
+## Relative and Absolute Poverty
+
+```{r}
+compare_relative_absolute(comparison_scen = '25UniversalCredit')
+compare_relative_absolute(comparison_scen = '50UniversalCredit')
+compare_relative_absolute(comparison_scen = '70UniversalCredit')
+compare_relative_absolute(comparison_scen = '100UniversalCredit')
+```
+
+## Gender
+
+```{r}
+# scen.list.50 <- c('baseline', '50UniversalCredit')
+# UC.gender <- do.call(rbind, generate_df_list('UC_gender', scen.list.50))
+```
+
+```{r}
+compare_gender(comparison_scen = '25UniversalCredit')
+compare_gender(comparison_scen = '50UniversalCredit')
+compare_gender(comparison_scen = '70UniversalCredit')
+compare_gender(comparison_scen = '100UniversalCredit')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+scen.list <- c('baseline', '50UniversalCredit')
+  
+UC.rel <- do.call(rbind, generate_df_list('UC_rel_pov', scen.list))
+UC.abs <- do.call(rbind, generate_df_list('UC_abs_pov', scen.list))
+
+rel.change <- UC.rel %>%
+  filter(universal_credit == 1,
+         init_relative_poverty == 1) %>%
+  select(run_id, SF_12, mean_cost, year, scen) %>%
+  pivot_wider(names_from = scen,
+              values_from = c(SF_12, mean_cost),
+              names_sep = '.') %>%
+  mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+  rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+  pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+               names_to = c(".value", "scen"),
+               names_sep = "\\.") %>%
+  filter(scen != 'baseline') %>%
+  rename(RelativePoverty = diff_SF_12) %>%
+  select(run_id, year, RelativePoverty)
+
+abs.change <- UC.abs %>%
+  filter(universal_credit == 1,
+         init_absolute_poverty == 1) %>%
+  select(run_id, SF_12, mean_cost, year, scen) %>%
+  pivot_wider(names_from = scen,
+              values_from = c(SF_12, mean_cost),
+              names_sep = '.') %>%
+  mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+  rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+  pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+               names_to = c(".value", "scen"),
+               names_sep = "\\.") %>%
+  filter(scen != 'baseline') %>%
+  rename(AbsolutePoverty = diff_SF_12) %>%
+  select(run_id, year, AbsolutePoverty)
+
+combined <- merge(rel.change, abs.change, by = c('run_id', 'year'))
+
+combined_confint <- combined %>%
+  pivot_longer(cols = RelativePoverty:AbsolutePoverty,
+               names_to = 'subpop',
+               values_to = 'SF_12_change') %>%
+    group_by(subpop, year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(SF_12_change),
+              margin = qt(0.975, df = n - 1) * (sd(SF_12_change) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+
+p1 <- ggplot(combined_confint, aes(x = year, y = mean_SF12_change, group = subpop, colour = subpop, fill = subpop)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+  geom_line(aes(color = subpop), linetype = 'dashed') +
+  geom_hline(yintercept = 0, linetype = 'dashed')
+
+p2 <- ggplot(combined_confint, aes(x = year, y = mean_SF12_change, group = subpop, colour = subpop, fill = subpop)) +
+  geom_smooth() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(title = 'Mean SF-12 Change', subtitle = '50UniversalCredit') +
+  xlab('Year') +
+  ylab('SF-12 Change')
+
+print(p1)
+print(p2)
+```
+
+
+
+```{r}
+
+scen.list <- c('baseline', '50UniversalCredit')
+
+UC.rel <- do.call(rbind, generate_df_list('UC_kids_rel_pov', scen.list))
+UC.abs <- do.call(rbind, generate_df_list('UC_kids_abs_pov', scen.list))
+
+
+rel.change <- UC.rel %>%
+  filter(universal_credit == 1) %>%
+  select(run_id, init_relative_poverty, SF_12, mean_cost, year, scen) %>%
+  pivot_wider(names_from = scen,
+              values_from = c(SF_12, mean_cost),
+              names_sep = '.') %>%
+  mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+  rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+  pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+               names_to = c(".value", "scen"),
+               names_sep = "\\.") %>%
+  filter(scen != 'baseline') %>%
+  rename(RelativePoverty = diff_SF_12) %>%
+  select(run_id, year, init_relative_poverty, RelativePoverty)
+
+
+rel.change$init_relative_poverty <- factor(rel.change$init_relative_poverty)
+
+ggplot(rel.change, aes(x = year, y = RelativePoverty, group = init_relative_poverty, color = init_relative_poverty, fill = init_relative_poverty)) +
+  geom_smooth()
+
+combined_confint <- rel.change %>%
+    group_by(init_relative_poverty, year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(RelativePoverty),
+              margin = qt(0.975, df = n - 1) * (sd(RelativePoverty) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+
+
+
+ggplot(combined_confint, aes(x = year, y = mean_SF12_change, group = init_relative_poverty, colour = init_relative_poverty, fill = init_relative_poverty)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+  geom_line(aes(color = init_relative_poverty), linetype = 'dashed') +
+  geom_hline(yintercept = 0, linetype = 'dashed')
+
+# WHAT DO I WANT THIS PLOT TO SHOW??
+# Relative poverty group under intervention vs relative poverty group without intervention
+# So I should be filtering for universal credit and children and relative poverty == 1
+# then compare between intervention group and baseline
+
+
+```
+
+
+
+
+```{r}
+
+```
+
