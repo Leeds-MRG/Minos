@@ -63,7 +63,7 @@ def ICER_lineplot(data, prefix, destination="plots/"):
     f=plt.figure()
     #TODO: CHANGE TO TAG
     ax = sns.lineplot(data=data, x='year', y="ICER", hue='tag',style='tag', markers=True, palette='Set2')
-    ax.set(ylabel="ICER ((log10)+1 scale)")
+    ax.set(ylabel="ICER (log10(x+1) scale)")
 
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)

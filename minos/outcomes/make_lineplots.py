@@ -347,22 +347,22 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     # Capital letter for 'year'
     # 'tag' renamed to 'Legend'
     df.rename(columns={"year": "Year",
-                       "tag": "Legend"},
+                       "tag": "Intervention"},
               inplace=True)
     df.reset_index(drop=True, inplace=True)
 
     f = plt.figure()
-    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=v, hue='Intervention', style='Intervention', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
 
+    variable_name_map = {"SF_12": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
+
     # Sort out axis labels
-    y_label = v
-    #if v == 'SF_12':
-    #   y_label = 'SF12 MCS Percentage Change'
+    y_label = variable_name_map[v]
 
     y_label = f"{v} {method.__name__}"
 
@@ -413,24 +413,26 @@ def quintiles_lineplot(df, destination, prefix, v, method):
     # Capital letter for 'year'
     # 'tag' renamed to 'Legend'
     df.rename(columns={"year": "Year",
-                       "tag": "Legend"},
+                       "tag": "Quintiles"},
               inplace=True)
     df.reset_index(drop=True, inplace=True)
 
     f = plt.figure()
-    sns.lineplot(data=df, x='Year', y=v, hue='Legend', style='Legend', markers=True, palette='Set2')
+    sns.lineplot(data=df, x='Year', y=v, hue='Quintiles', style='Quintiles', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
 
+    variable_name_map = {"SF_12": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
+
     # Sort out axis labels
-    y_label = v
+    y_label = variable_name_map[v]
     #if v == 'SF_12':
     #   y_label = 'SF12 MCS Percentage Change'
 
-    y_label = f"{v} {method.__name__}"
+    y_label = f"{v} "
 
     if method == weighted_nanmean:
         y_label += " Weighted Mean"
@@ -439,6 +441,7 @@ def quintiles_lineplot(df, destination, prefix, v, method):
     elif v == "SF_12_ICER":
         y_label += " ICER"
 
+    plt.legend(title="Quintile")
     plt.ylabel(y_label)
     plt.tight_layout()
 
@@ -554,7 +557,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                     aggregate_long_stack_subsection['tag'] != "Baseline", ]
                 scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
             scaled_data['tag'] = scaled_data['tag'].replace( {"First": 1, "Second": 2, "Third": 3, "Fourth": 4, "Fifth": 5})
-            aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+            quintiles_lineplot(scaled_data, "plots", prefix, v, method)
 
         elif do_income_quintiles:
             print("start relative scaling..")
