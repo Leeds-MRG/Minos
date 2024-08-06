@@ -355,6 +355,31 @@ UC_summarise <- function(data) {
 }
 
 UC_rel_pov_summarise <- function(data) {
+  
+  hh_rep_income <- data %>%
+    filter(weight > 0) %>%
+    group_by(hidp) %>%
+    slice(1) %>%
+    ungroup()
+  
+  hh_median_income <- median(hh_rep_income$hh_income)
+  
+  data <- data %>%
+    filter(weight > 0) %>%
+    group_by(hidp) %>%
+    mutate(relative_poverty = hh_income < (hh_median_income * 0.6)) %>%
+    ungroup() %>%
+    group_by(universal_credit, relative_poverty, run_id) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+UC_init_rel_pov_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0) %>%
     group_by(universal_credit, init_relative_poverty, run_id) %>%
@@ -368,6 +393,32 @@ UC_rel_pov_summarise <- function(data) {
 }
 
 UC_kids_rel_pov_summarise <- function(data) {
+  
+  hh_rep_income <- data %>%
+    filter(weight > 0) %>%
+    group_by(hidp) %>%
+    slice(1) %>%
+    ungroup()
+  
+  hh_median_income <- median(hh_rep_income$hh_income)
+  
+  data <- data %>%
+    filter(weight > 0,
+           nkids > 0) %>%
+    group_by(hidp) %>%
+    mutate(relative_poverty = hh_income < (hh_median_income * 0.6)) %>%
+    ungroup() %>%
+    group_by(universal_credit, relative_poverty, run_id) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+UC_kids_init_rel_pov_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0,
            nkids > 0) %>%
@@ -384,6 +435,20 @@ UC_kids_rel_pov_summarise <- function(data) {
 UC_abs_pov_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0) %>%
+    mutate(absolute_poverty = hh_income < 955.54) %>%
+    group_by(universal_credit, absolute_poverty, run_id) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+UC_init_abs_pov_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0) %>%
     group_by(universal_credit, init_absolute_poverty, run_id) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
@@ -395,6 +460,21 @@ UC_abs_pov_summarise <- function(data) {
 }
 
 UC_kids_abs_pov_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0,
+           nkids > 0) %>%
+    mutate(absolute_poverty = hh_income < 955.54) %>%
+    group_by(universal_credit, absolute_poverty, run_id) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+UC_kids_init_abs_pov_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0,
            nkids > 0) %>%
@@ -671,9 +751,13 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    families_income_quint = families_income_quint_summarise,
                    UC = UC_summarise,
                    UC_rel_pov = UC_rel_pov_summarise,
+                   UC_init_rel_pov = UC_init_rel_pov_summarise,
                    UC_kids_rel_pov = UC_kids_rel_pov_summarise,
+                   UC_kids_init_rel_pov = UC_kids_init_rel_pov_summarise,
                    UC_abs_pov = UC_abs_pov_summarise,
+                   UC_init_abs_pov = UC_init_abs_pov_summarise,
                    UC_kids_abs_pov = UC_kids_abs_pov_summarise,
+                   UC_kids_init_abs_pov = UC_kids_init_abs_pov_summarise,
                    UC_gender = UC_gender_summarise,
                    priority_any = priority_any_summarise
 )

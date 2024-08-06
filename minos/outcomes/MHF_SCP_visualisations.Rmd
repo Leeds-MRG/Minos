@@ -234,11 +234,17 @@ SF_12_cost_ratio_cumul <- function(summary_type, scen_list) {
 
 ```{r "rel_abs_function", include=FALSE}
 
-compare_relative_absolute <- function(comparison_scen) {
+compare_relative_absolute <- function(comparison_scen, kids = FALSE) {
+  
   scen.list <- c('baseline', comparison_scen)
   
-  UC.rel <- do.call(rbind, generate_df_list('UC_rel_pov', scen.list))
-  UC.abs <- do.call(rbind, generate_df_list('UC_abs_pov', scen.list))
+  if (kids) {
+    UC.rel <- do.call(rbind, generate_df_list('UC_kids_rel_pov', scen.list))
+    UC.abs <- do.call(rbind, generate_df_list('UC_kids_abs_pov', scen.list))
+  } else {
+    UC.rel <- do.call(rbind, generate_df_list('UC_rel_pov', scen.list))
+    UC.abs <- do.call(rbind, generate_df_list('UC_abs_pov', scen.list))
+  }
   
   rel.change <- UC.rel %>%
     filter(universal_credit == 1,
@@ -492,11 +498,22 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_100)
 
 ## Relative and Absolute Poverty
 
+### Whole Pop
+
 ```{r}
 compare_relative_absolute(comparison_scen = '25UniversalCredit')
 compare_relative_absolute(comparison_scen = '50UniversalCredit')
 compare_relative_absolute(comparison_scen = '70UniversalCredit')
 compare_relative_absolute(comparison_scen = '100UniversalCredit')
+```
+
+## Families with Children
+
+```{r}
+compare_relative_absolute(comparison_scen = '25UniversalCredit', kids=TRUE)
+compare_relative_absolute(comparison_scen = '50UniversalCredit', kids=TRUE)
+compare_relative_absolute(comparison_scen = '70UniversalCredit', kids=TRUE)
+compare_relative_absolute(comparison_scen = '100UniversalCredit', kids=TRUE)
 ```
 
 ## Gender

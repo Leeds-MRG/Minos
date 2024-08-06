@@ -7,8 +7,12 @@ scp_test_sum:
 	bash scripts/arc_read_sum_submit.sh default_config scp_summary_out 50UniversalCredit
 
 scp_local_test_sum:
-	Rscript minos/read_summarise_2.R default_config scp_summary_out baseline
-	Rscript minos/read_summarise_2.R default_config scp_summary_out 50UniversalCredit
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out_test baseline 2021
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out_test baseline 2025
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out_test baseline 2030
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out_test 50UniversalCredit 2021
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out_test 50UniversalCredit 2025
+	Rscript minos/read_summarise_1year.R default_config cpr_summary_out_test 50UniversalCredit 2030
 
 scp_summary_yearly:
 	bash scripts/arc_yearly_sum_submit.sh default_config scp_summary_out baseline 2020 2035
