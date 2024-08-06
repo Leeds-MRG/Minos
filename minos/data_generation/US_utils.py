@@ -352,6 +352,8 @@ def generate_interview_date_var(data):
     data.loc[data["hh_int_y"] == -9, "Date"] = '-9'
     data.loc[data["hh_int_m"] == -9, "Date"] = '-9'
     data.loc[data["Date"] == '-8-8', "Date"] = '-8'
+    data.loc[data["hh_int_m"].isin((-9, '-9')), 'Date'] = '-9'
+    data.loc[data["hh_int_y"].isin((-11, '-11', -12, '-12')), 'Date'] = '-9'
     data["Date"] = data["Date"].astype(int)  # need it as an int as that what CPI dataset uses
 
     return data
