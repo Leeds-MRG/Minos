@@ -207,6 +207,7 @@ def predict_education(repl, transition_dir):
                     }
     transition_model = r_utils.load_transitions("education_state/nnet/education_state_2018_2019", rpy2_modules, path=transition_dir)
     prob_df = r_utils.predict_nnet(transition_model, rpy2_modules, repl, cols)
+    prob_df = prob_df.loc[~prob_df.isna().any(axis=1)]  # Filter out any nan values, as breaks Numpy choice
 
     repl['max_educ'] = np.nan
     for i, distribution in enumerate(prob_df.iterrows()):
