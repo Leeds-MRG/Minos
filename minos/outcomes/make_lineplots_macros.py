@@ -431,11 +431,11 @@ def generic_cumulative_lineplot(config_mode, v, sources, tags, subset_functions)
 
 def two_baselines_lineplot(config_mode, v, source, tag, subset_function):
     "The same intervention in increments from £25 to £100"
-    directories = f"baseline,{source}"
-    tags = f"Baseline,{tag}"
+    directories = f"{source},baseline"
+    tags = f"{tag},Baseline"
     subset_function_strings = f"{subset_function},{subset_function}"
     prefix = f"{tag}_{v}_uplift"
-    ref = "Baseline"
+    ref = tag
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 

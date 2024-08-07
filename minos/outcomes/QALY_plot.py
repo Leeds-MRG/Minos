@@ -22,7 +22,7 @@ def QALY_lineplot(data, prefix, destination="plots/"):
     data["QALYs_cumsum"] = data.groupby(by=["tag", 'run_id'])["QALYs"].transform(lambda x: cumulative_simpson(x, dx=1,initial=0))
     data["total_boost_cumsum"] = data.groupby(by=["tag", 'run_id'])["total_boost"].transform(np.cumsum)
     # cum sum qaly.
-    data.reset_index(inplace=True)
+    data.reset_index(inplace=True, drop=True)
     data = data.groupby(by=['tag','run_id', 'year'], as_index=False).agg({"QALYs_cumsum": np.mean, "total_boost_cumsum": np.mean})
     data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.tile(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
