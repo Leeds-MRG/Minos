@@ -12,6 +12,7 @@
 #$ -m a
 ## Select memory
 #$ -l node_type=40core-768G # use high mem node.
+#$ -l h_vmem=100G
 # # Choose cores. See arc website for more details. 5 high memory cores chosen here.
 
 mkdir -p ./logs/outcomes # make if not exists.
