@@ -19,6 +19,10 @@ mkdir -p ./logs/outcomes # make if not exists.
 #$ -o ./logs/outcomes
 #$ -e ./logs/outcomes
 
+############## SET NUMBER OF RUNS HERE ##############
+## Tell computer this is an array job with tasks from 1 to N
+#$ -t 1-1
+
 set -e # causes script to exit on first error.
 # create these if they dont exist. Will crash arc4 if you dont do this.
 make -f BIG_DADDY_PAPER_3 # run make command.
