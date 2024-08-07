@@ -13,6 +13,7 @@ from seaborn import catplot
 import logging
 from datetime import datetime as dt
 
+
 class Housing(Base):
 
     @property

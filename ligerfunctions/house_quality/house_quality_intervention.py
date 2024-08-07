@@ -7,7 +7,6 @@ import pandas as pd
 
 from minos.data_generation.generate_repl_pop import generate_replenishing
 from scripts.run import run
-from minos.data_generation.generate_composite_vars import calculate_equivalent_income
 
 from sipherdb.sipher_database import SipherDatabase
 from sipherdb.sipher_database import SqlDB
@@ -162,7 +161,7 @@ def house_quality_intervention(
     deciles_df['prop_pop'] = deciles_df['popsize_decile'].transform(lambda x: x / x.sum())
     deciles_df['cumsum'] = deciles_df['prop_pop'].transform(lambda x: x.cumsum() * 100)
     indicator_sf12_inequality = np.linalg.lstsq(np.vstack([deciles_df['cumsum'], np.ones(len(deciles_df['cumsum']))]).T,
-                                              deciles_df['sf12_mean_per_decile'], rcond=None)[0][0] * 100
+                                                deciles_df['sf12_mean_per_decile'], rcond=None)[0][0] * 100
 
     y = [number_of_interventions, indicator_sf12_mean, indicator_sf12_inequality, number_household_with_intervention]
     return y
