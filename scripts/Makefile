@@ -48,6 +48,11 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
+NOPARITY_CONFIG=$(CONFIG)/default_noparity.yaml
+NOPARITY_MODE=default_config_noparity
+baseline_noparity: setup
+	$(PYTHON) scripts/run.py -c $(NOPARITY_CONFIG) -o $(NOPARITY_MODE)
+
 baseline_inflated: setup_inflated
 	$(PYTHON) scripts/run.py -c $(CONFIG)/inflated_default.yaml -o inflated_default
 

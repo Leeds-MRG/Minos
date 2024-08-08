@@ -15,6 +15,7 @@ RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
 # RATETABLE_FILE_DEFAULT = "fertility_rate_table_1.csv"
 # RATETABLE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, RATETABLE_FILE_DEFAULT)
 
+PARITY_DEFAULT = True
 PARITY_PATH_DEFAULT = RATETABLE_PATH_DEFAULT
 PARITY_FILE_DEFAULT = "fertilityratesbyparity1934to2020englandandwales.xlsx"
 PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
@@ -22,8 +23,8 @@ PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
 NEWETHPOP_FOLDER_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, "Fertility")
 
 PARITY_MAX_DEFAULT = generate_composite_vars.PARITY_MAX_DEFAULT
-AGE_RANGE_DEFAULT = [10,49]
-YEAR_RANGE_DEFAULT = [2011,2021]
+AGE_RANGE_DEFAULT = [10, 49]
+YEAR_RANGE_DEFAULT = [2011, 2021]
 
 PARITY_SHEET = "Table"
 PARITY_HEADER = 6
@@ -123,7 +124,7 @@ def extend_parity_ons(df_parity,
     to_extend_by = n - len(pop_headers) + 2
     # print(to_extend_by)
 
-    for year,year_data in year_dict.items():
+    for year, year_data in year_dict.items():
 
         # 1. Extend population to lower and upper age range by taking mean of nearest values
         cols = [col for col in year_data.columns if col in pop_headers]
@@ -210,8 +211,8 @@ def extend_parity_ons(df_parity,
     births_concat = births_concat.set_index(['year', 'age'])
 
     fert_concat = births_concat.divide(pop_concat)
-    fert_concat = fert_concat.replace([np.inf, -np.inf, np.NaN], 0.0) # Reset all blow-ups to zero (as caused by zero population values)
-    fert_concat = fert_concat.mask(fert_concat > 1, 1) # Reset f > 1 to f = 1, as this is a probability so must be 0 < f < 1
+    fert_concat = fert_concat.replace([np.inf, -np.inf, np.NaN], 0.0)  # Reset all blow-ups to zero (as caused by zero population values)
+    fert_concat = fert_concat.mask(fert_concat > 1, 1)  # Reset f > 1 to f = 1, as this is a probability so must be 0 < f < 1
     fert_concat = fert_concat.mask(fert_concat < 0, 0)  # Reset f < 0 to f = 0, as this is a probability so must be 0 < f < 1
 
     # # HR 13/06/23 Add total fertility df for use later
@@ -295,7 +296,7 @@ def apply_parity_to_newethpop(births_ons,
         else:
             f_simple = [0]*len(f_trunc)
 
-        f_block = pd.concat([data]*n, axis=1).T # Duplicate and stack n rows
+        f_block = pd.concat([data]*n, axis=1).T  # Duplicate and stack n rows
         # print(f_trunc)
         f_block['nkids_ind'] = range(n)
         f_block['fertility'] = f_simple
@@ -303,7 +304,7 @@ def apply_parity_to_newethpop(births_ons,
         # TESTING: Some optional columns
         # data['f_ons'] = f_ons
         # data['factor'] = factor
-        f_block.drop("mean_value", axis=1, inplace=True) # Remove "mean_value" to ensure not being used in pipeline
+        f_block.drop("mean_value", axis=1, inplace=True)  # Remove "mean_value" to ensure not being used in pipeline
 
         fert_list.append(f_block)
 
@@ -320,8 +321,20 @@ class FertilityRateTable(BaseHandler):
     def __init__(self, configuration):
         super().__init__(configuration=configuration)
         self.scaling_method = self.configuration["scale_rates"]["method"]
-        self.filename = f'fertility_rate_table_{self.configuration["scale_rates"][self.scaling_method]["fertility"]}.csv'
+        self.filename = f'fertility_rate_table_{self.configuration["scale_rates"][self.scaling_method]["fertility"]}'
+
+        # HR 13/05/24 Adding option for excluding parity for #369
+        if 'parity' in self.configuration:
+            self.parity = self.configuration['parity']
+        else:
+            self.parity = PARITY_DEFAULT
+        if not self.parity:
+            self.filename += '_noparity'
+
+        self.filename += '.csv'
         self.rate_table_path = self.rate_table_dir + self.filename
+        print("Path to rate table: {}".format(self.rate_table_path))
+
         self.source_file = self.configuration.path_to_fertility_file
         if "parity_max" in self.configuration:
             self.parity_max = self.configuration["parity_max"]
@@ -340,7 +353,7 @@ class FertilityRateTable(BaseHandler):
         except FileNotFoundError as e:
             print("Couldn't load from source file")
             print("\n", e, "\n")
-            print("Creating source file from primary data...")
+            print("Creating source file from primary NewEthPop data...")
             dump_path = cache_fertility_by_region()
             if dump_path:
                 print("Dumped source file to:", dump_path)
@@ -360,7 +373,8 @@ class FertilityRateTable(BaseHandler):
 
         # HR 21/06/23 Expanding fertility rate table by parity
         # print("Expanding NewEthPop fertility data with parity data from ONS 1934-2020")
-        self.rate_table = self.add_parity()
+        if self.parity:
+            self.rate_table = self.add_parity()
 
         if self.configuration["scale_rates"][self.scaling_method]["fertility"] != 1:
             print(f'Scaling the fertility rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["fertility"]}')
