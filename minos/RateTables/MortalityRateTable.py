@@ -5,6 +5,7 @@ from minos.data_generation.convert_rate_data import cache_mortality_by_region
 from os.path import exists
 from os import remove
 
+MORTALITY_FILE_DEFAULT = 'regional_mortality_newethpop.csv'
 
 class MortalityRateTable(BaseHandler):
     def __init__(self, configuration):
@@ -12,7 +13,12 @@ class MortalityRateTable(BaseHandler):
         self.scaling_method = self.configuration["scale_rates"]["method"]
         self.filename = f'mortality_rate_table_{self.configuration["scale_rates"][self.scaling_method]["mortality"]}.csv'
         self.rate_table_path = self.rate_table_dir + self.filename
-        self.source_file = self.configuration.path_to_mortality_file
+
+        # HR 09/08/24 Allow for file spec to be removed from config files
+        if 'path_to_mortality_file' in self.configuration:
+            self.source_file = self.configuration.path_to_mortality_file
+        else:
+            self.source_file = MORTALITY_FILE_DEFAULT
 
     def _build(self):
         # HR 21/04/23 Try and load from source file, otherwise create from primary data

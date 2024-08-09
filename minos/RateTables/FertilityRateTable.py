@@ -12,8 +12,7 @@ from minos.data_generation import generate_composite_vars
 
 
 RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
-# RATETABLE_FILE_DEFAULT = "fertility_rate_table_1.csv"
-# RATETABLE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, RATETABLE_FILE_DEFAULT)
+FERTILITY_FILE_DEFAULT = 'regional_fertility_newethpop.csv'
 
 PARITY_DEFAULT = True
 PARITY_PATH_DEFAULT = RATETABLE_PATH_DEFAULT
@@ -37,7 +36,6 @@ APPLY_MAX_PARITY_DEFAULT = True
 pop_headers = ["p" + str(i + 1) for i in range(5)]
 births_headers = ["b" + str(i + 1) for i in range(5)]
 fert_headers = ["f" + str(i + 1) for i in range(5)]
-# common_headers = ['year', 'age', 'nkids']
 
 # Valid ages in ONS data before extension
 AGE1, AGE2 = 15, 44
@@ -335,8 +333,13 @@ class FertilityRateTable(BaseHandler):
         self.rate_table_path = self.rate_table_dir + self.filename
         print("Path to rate table: {}".format(self.rate_table_path))
 
-        self.source_file = self.configuration.path_to_fertility_file
-        if "parity_max" in self.configuration:
+        # HR 09/08/24 Allow for file spec to be removed from config files
+        if 'path_to_fertility_file' in self.configuration:
+            self.source_file = self.configuration.path_to_fertility_file
+        else:
+            self.source_file = FERTILITY_FILE_DEFAULT
+
+        if 'parity_max' in self.configuration:
             self.parity_max = self.configuration["parity_max"]
         else:
             self.parity_max = PARITY_MAX_DEFAULT

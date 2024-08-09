@@ -165,7 +165,7 @@ class BaseHandler:
         unique_locations = df_migration_numbers['LAD.code'].unique()
         unique_ethnicity = df_migration_numbers['ETH.group'].unique()
 
-        # loop over the observed values to fill the ne dataframe
+        # loop over the observed values to fill the new dataframe
         list_dic = []
         for location in unique_locations:
 

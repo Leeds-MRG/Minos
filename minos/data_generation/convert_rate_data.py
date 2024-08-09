@@ -20,8 +20,6 @@ from os.path import dirname as up
 from minos.utils import get_nearest
 
 
-# LAD_to_region_code = load_json("persistent_data/JSON/", "LAD_to_region_code.json")
-# LAD_to_region_name = load_json("persistent_data/JSON/", "LAD_to_region_name.json")
 LAD_to_region_code = load_json(os.path.join(up(up(up(__file__))), "persistent_data/JSON/"), "LAD_to_region_code.json")
 LAD_to_region_name = load_json(os.path.join(up(up(up(__file__))), "persistent_data/JSON/"), "LAD_to_region_name.json")
 
