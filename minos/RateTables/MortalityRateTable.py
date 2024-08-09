@@ -1,3 +1,5 @@
+import os
+from os.path import dirname as up
 import pandas as pd
 
 from minos.RateTables.BaseHandler import BaseHandler
@@ -5,13 +7,18 @@ from minos.data_generation.convert_rate_data import cache_mortality_by_region
 from os.path import exists
 from os import remove
 
-MORTALITY_FILE_DEFAULT = 'regional_mortality_newethpop.csv'
+RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
+MORTALITY_FILE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, 'regional_mortality_newethpop.csv')
 
 class MortalityRateTable(BaseHandler):
     def __init__(self, configuration):
         super().__init__(configuration=configuration)
         self.scaling_method = self.configuration["scale_rates"]["method"]
-        self.filename = f'mortality_rate_table_{self.configuration["scale_rates"][self.scaling_method]["mortality"]}.csv'
+        scale_rate = self.configuration["scale_rates"][self.scaling_method]["mortality"]
+        yr_start = self.configuration['time']['start']['year']
+        yr_end = self.configuration['time']['end']['year']
+        self.filename = 'mortality_rate_table_' + str(yr_start) + '_' + str(yr_end) + '_' + str(scale_rate)
+        self.filename += '.csv'
         self.rate_table_path = self.rate_table_dir + self.filename
 
         # HR 09/08/24 Allow for file spec to be removed from config files

@@ -12,7 +12,7 @@ from minos.data_generation import generate_composite_vars
 
 
 RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
-FERTILITY_FILE_DEFAULT = 'regional_fertility_newethpop.csv'
+FERTILITY_FILE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, 'regional_fertility_newethpop.csv')
 
 PARITY_DEFAULT = True
 PARITY_PATH_DEFAULT = RATETABLE_PATH_DEFAULT
@@ -319,7 +319,10 @@ class FertilityRateTable(BaseHandler):
     def __init__(self, configuration):
         super().__init__(configuration=configuration)
         self.scaling_method = self.configuration["scale_rates"]["method"]
-        self.filename = f'fertility_rate_table_{self.configuration["scale_rates"][self.scaling_method]["fertility"]}'
+        scale_rate = self.configuration["scale_rates"][self.scaling_method]["fertility"]
+        yr_start = self.configuration['time']['start']['year']
+        yr_end = self.configuration['time']['end']['year']
+        self.filename = 'fertility_rate_table_' + str(yr_start) + '_' + str(yr_end) + '_' + str(scale_rate)
 
         # HR 13/05/24 Adding option for excluding parity for #369
         if 'parity' in self.configuration:

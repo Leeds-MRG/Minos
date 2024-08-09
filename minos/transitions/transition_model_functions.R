@@ -122,7 +122,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  browser()
+  # browser()
   data <- replace.missing(data)
   if(include_weights) {
     model <- zeroinfl(formula = formula,
