@@ -16,18 +16,24 @@ FERTILITY_FILE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, 'regional_fertilit
 
 PARITY_DEFAULT = True
 PARITY_PATH_DEFAULT = RATETABLE_PATH_DEFAULT
-PARITY_FILE_DEFAULT = "fertilityratesbyparity1934to2020englandandwales.xlsx"
-PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
 
-NEWETHPOP_FOLDER_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, "Fertility")
-
-PARITY_MAX_DEFAULT = generate_composite_vars.PARITY_MAX_DEFAULT
 AGE_RANGE_DEFAULT = [10, 49]
-YEAR_RANGE_DEFAULT = [2011, 2021]
-
 PARITY_SHEET = "Table"
 PARITY_HEADER = 6
-PARITY_END = 2294
+
+# Older version to 2020
+# PARITY_FILE_DEFAULT = "fertilityratesbyparity1934to2020englandandwales.xlsx"
+# YEAR_RANGE_DEFAULT = [2011, 2020+1]
+# PARITY_END = 2294
+
+# HR 09/08/24 Updated with newer version to 2022
+PARITY_FILE_DEFAULT = 'finalfertilityratesbyparity1934to2022.xlsx'
+YEAR_RANGE_DEFAULT = [2011, 2022+1]
+PARITY_END = 2358
+
+PARITY_DEFAULT = os.path.join(PARITY_PATH_DEFAULT, PARITY_FILE_DEFAULT)
+NEWETHPOP_FOLDER_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, "Fertility")
+PARITY_MAX_DEFAULT = generate_composite_vars.PARITY_MAX_DEFAULT
 
 THRESHOLD_DEFAULT = 1000
 APPLY_MAX_PARITY_DEFAULT = True
@@ -63,7 +69,7 @@ def parse_parity_ons(parity_file=PARITY_DEFAULT,
     -------
     df_parity_raw : Pandas DataFrame
         DataFrame of births, population and fertility rate by parity,
-        age of mother and year of birth, 1934-2020
+        age of mother and year of birth
 
     """
     # Read in file and reformat
@@ -236,9 +242,9 @@ def apply_parity_to_newethpop(births_ons,
     Parameters
     ----------
     births_ons : Pandas DataFrame
-        DataFrame of number of births by age and year, from ONS 1934-2020 dataset
+        DataFrame of number of births by age and year, from ONS dataset
     pop_ons : Pandas DataFrame
-        DataFrame of female population by age and year, from ONS 1934-2020 dataset
+        DataFrame of female population by age and year, from ONS dataset
     nep : Pandas DataFrame
         DataFrame of fertility by age, year and ethnicity, from NewEthPop (nep)
 
@@ -262,7 +268,7 @@ def apply_parity_to_newethpop(births_ons,
     ons_years = sorted(list(births_ons.index.unique(0)))
     n = len(births_ons.columns)
     fert_list = []
-    for row,data in nep.iterrows():
+    for row, data in nep.iterrows():
 
         year = data['year_start']
         # print('year', year)
@@ -271,10 +277,10 @@ def apply_parity_to_newethpop(births_ons,
         # print(year, age, f_nep)
 
         # Get nearest ONS year and expand fertility value by parity
-        # print("NewEthPop year sought", year)
+        print("NewEthPop year sought", year)
         if not year in ons_years:
             year = get_nearest(ons_years, year)
-        # print("ONS year found", year)
+        print("ONS year found", year)
 
         b_ons = births.loc[(year,age)]
         p_ons = pop.loc[(year,age)]
@@ -378,7 +384,7 @@ class FertilityRateTable(BaseHandler):
                                                     10, 50, [2])
 
         # HR 21/06/23 Expanding fertility rate table by parity
-        # print("Expanding NewEthPop fertility data with parity data from ONS 1934-2020")
+        # print("Expanding NewEthPop fertility data with parity data from ONS")
         if self.parity:
             self.rate_table = self.add_parity()
 
