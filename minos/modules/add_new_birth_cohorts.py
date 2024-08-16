@@ -6,6 +6,7 @@ Fertility Models
 This module contains several different models of fertility.
 
 """
+import os
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -226,12 +227,20 @@ class nkidsFertilityAgeSpecificRates(Base):
                 The initiated vivarium simulation object with anything needed to run the module.
                 E.g. rate tables.
         """
-        # produce rate table from minos file path in config and save it to the simulation.
-        config.update({
-            'path_to_fertility_file': "{}/{}".format(config.persistent_data_dir, config.fertility_file)
-        }, source=str(Path(__file__).resolve()))
+        # Must call parent method as overridden here; ensures priority set correctly
+        super().pre_setup(config, simulation)
+
+        # # produce rate table from minos file path in config and save it to the simulation.
+        # config.update({
+        #     'path_to_fertility_file': "{}/{}".format(config.persistent_data_dir, config.fertility_file)
+        # }, source=str(Path(__file__).resolve()))
+
+        # Set up rate table and update simulation config accordingly
         asfr_fertility = FertilityRateTable(configuration=config)
         asfr_fertility.set_rate_table()
+        fertility_file = os.path.join(config.persistent_data_dir, asfr_fertility.source_file)
+        config.update({'path_to_fertility_file': fertility_file})
+
         self.parity = asfr_fertility.parity
         simulation._data.write("covariate.age_specific_fertility_rate.estimate",
                                asfr_fertility.rate_table)

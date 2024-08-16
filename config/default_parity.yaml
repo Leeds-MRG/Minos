@@ -1,16 +1,14 @@
 randomness:
     key_columns: ['entrance_time', 'age']
 time:
-    start: {year: 2021, month: 10, day: 15}
-    end:   {year: 2036, month: 10, day: 15}
+    start: {year: 2020, month: 10, day: 15}
+    end:   {year: 2035, month: 10, day: 15}
     step_size: 365.25  # Days
     num_years: 15
 population:
     age_start: 0
     age_end: 100
 
-mortality_file: 'regional_mortality_newethpop.csv'
-fertility_file: 'regional_fertility_newethpop.csv'
 parity: True
 
 input_data_dir: "data/final_US"
