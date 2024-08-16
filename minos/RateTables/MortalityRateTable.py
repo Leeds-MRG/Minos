@@ -1,11 +1,11 @@
+import pandas as pd
 import os
 from os.path import dirname as up
-import pandas as pd
 
 from minos.RateTables.BaseHandler import BaseHandler
 from minos.data_generation.convert_rate_data import cache_mortality_by_region
-from os.path import exists
-from os import remove
+from minos.data_generation.convert_rate_data import transform_rate_table
+
 
 RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
 MORTALITY_FILE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, 'regional_mortality_newethpop.csv')
@@ -32,6 +32,7 @@ class MortalityRateTable(BaseHandler):
         try:
             print("Trying to load from source file...")
             df = pd.read_csv(self.source_file)
+            print("Found rate table file at", self.source_file)
         except FileNotFoundError as e:
             print("Couldn't load from source file")
             print("\n", e, "\n")
@@ -48,16 +49,11 @@ class MortalityRateTable(BaseHandler):
         yr_end = self.configuration['time']['end']['year']
         print('Computing mortality rate table for years in range [', yr_start, ',', yr_end, ']...')
 
-        # self.rate_table = self.transform_rate_table(df,
-        #                                             2011,
-        #                                             2013,
-        #                                             self.configuration.population.age_start,
-        #                                             self.configuration.population.age_end)
-        self.rate_table = self.transform_rate_table(df,
-                                                    yr_start,
-                                                    yr_end,
-                                                    self.configuration.population.age_start,
-                                                    self.configuration.population.age_end)
+        self.rate_table = transform_rate_table(df,
+                                               yr_start,
+                                               yr_end,
+                                               self.configuration.population.age_start,
+                                               self.configuration.population.age_end)
 
         if self.configuration["scale_rates"][self.scaling_method]["mortality"] != 1:
             print(f'Scaling the mortality migration rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["mortality"]}')

@@ -240,12 +240,96 @@ def cache_mortality_by_region(stubs=MORT_STUBS,
     return out_fullpath
 
 
-if __name__ == "__main__":
-    file_source = PERSISTENT_DATA_DIR
-    d1, d2 = main(file_source)
+def transform_rate_table(df, year_start, year_end, age_start, age_end, unique_sex=None):
 
-    ## Testing...
-    # cache_fertility_by_region(year_range=[2011, 2013], by_region=False)
-    # cache_mortality_by_region(year_range=[2011, 2013], by_region=False)
-    # cache_fertility_by_region()
-    # cache_mortality_by_region()
+    """Function that transforms an input rate dataframe into a format readable for Vivarium
+        public health.
+
+        Parameters:
+        df (dataframe): Input dataframe with rates produced by LEEDS
+        year_start (int): Year for the interpolation to start
+        year_end (int): Year for the interpolation to finish
+        age_start (int): Minimum age observed in the rate table
+        age_end (int): Maximum age observed in the rate table
+        unique_sex (list of ints): Sex of individuals to be considered
+
+        Returns:
+        df (dataframe): A dataframe with the right vph format.
+        """
+
+    # get the unique values observed on the rate data
+    if unique_sex is None:
+        unique_sex = [1, 2]
+    unique_locations = df['REGION.name'].unique()
+    unique_ethnicity = df['ETH.group'].unique()
+
+    # HR 20/04/23 Get all years from year_start and year_end
+    unique_years = df['year'].unique()
+    print("\n## Running transform_rate_table, checking years... ##")
+    years = list(range(year_start, year_end))
+    print("\n## years before checking:", years)
+
+    year_start = get_nearest(list(unique_years), year_start)
+    year_end = get_nearest(list(unique_years), year_end)
+    years = list(range(year_start, year_end))
+    print("\n## years after checking:", years)
+
+    # loop over the observed values to fill the new dataframe
+    list_dic = []
+    for location in unique_locations:
+
+        sub_loc_df = df.loc[df['REGION.name'] == location]
+
+        for eth in unique_ethnicity:
+
+            sub_loc_eth_df = sub_loc_df.loc[sub_loc_df['ETH.group'] == eth]
+
+            for sex in unique_sex:
+
+                # columns are separated for male and female rates
+                if sex == 1:
+                    column_suffix = 'M'
+                    sex = "Male"  # TODO robs a moron. Either force numerics in rate tables or strings.
+
+                else:
+                    column_suffix = 'F'
+                    sex = "Female"
+
+                for age in range(age_start, age_end):
+
+                    # cater for particular cases (age less than 1 and more than 100).
+                    if age == -1:
+                        column = column_suffix + 'B.0'
+                    elif age == 100:
+                        column = column_suffix + '100.101p'
+                    else:
+                        # columns parsed to the right name (eg 'M.50.51' for a male between 50 and 51 yo)
+                        column = column_suffix + str(age) + '.' + str(age + 1)
+
+                    for year in years:
+
+                        # Get sub-dataframe for year
+                        sub_loc_eth_year_df = sub_loc_eth_df.loc[sub_loc_eth_df['year'] == year]
+
+                        if sub_loc_eth_year_df[column].shape[0] == 1:
+                            value = sub_loc_eth_year_df[column].values[0]
+                        else:
+                            value = 0
+                            print('Problem, more or less than one value in this category')
+
+                        # create the rate row.
+                        _dict = {'region': location, 'ethnicity': eth, 'age_start': age, 'age_end': age + 1, 'sex': sex,
+                                 'year_start': year, 'year_end': year + 1, 'mean_value': value}
+                        list_dic.append(_dict)
+
+    return pd.DataFrame(list_dic)
+
+
+if __name__ == "__main__":
+    # file_source = PERSISTENT_DATA_DIR
+    # d1, d2 = main(file_source)
+
+    ## HR 15/08/24 Testing to mimic rate table construction by mortality and fertility rate table classes
+    ## after moving transform_rate_table to here
+    cache_fertility_by_region()
+    cache_mortality_by_region()

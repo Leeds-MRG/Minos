@@ -1,11 +1,11 @@
 import pandas as pd
+import os
+from os.path import dirname as up
 
 from minos.RateTables.BaseHandler import BaseHandler
 from minos.data_generation.convert_rate_data import cache_fertility_by_region
-import os
-from os.path import dirname as up
-from os.path import exists
-from os import remove
+from minos.data_generation.convert_rate_data import transform_rate_table
+
 import numpy as np
 from minos.utils import extend_series, get_nearest
 from minos.data_generation import generate_composite_vars
@@ -277,10 +277,8 @@ def apply_parity_to_newethpop(births_ons,
         # print(year, age, f_nep)
 
         # Get nearest ONS year and expand fertility value by parity
-        print("NewEthPop year sought", year)
         if not year in ons_years:
             year = get_nearest(ons_years, year)
-        print("ONS year found", year)
 
         b_ons = births.loc[(year,age)]
         p_ons = pop.loc[(year,age)]
@@ -340,7 +338,7 @@ class FertilityRateTable(BaseHandler):
 
         self.filename += '.csv'
         self.rate_table_path = self.rate_table_dir + self.filename
-        print("Path to rate table: {}".format(self.rate_table_path))
+        # print("Path to rate table: {}".format(self.rate_table_path))
 
         # HR 09/08/24 Allow for file spec to be removed from config files
         if 'path_to_fertility_file' in self.configuration:
@@ -360,7 +358,6 @@ class FertilityRateTable(BaseHandler):
         try:
             print("Trying to load from source file...")
             df = pd.read_csv(self.source_file)
-            # self._parity_added = True
             print("Found rate table file at", self.source_file)
         except FileNotFoundError as e:
             print("Couldn't load from source file")
@@ -378,10 +375,10 @@ class FertilityRateTable(BaseHandler):
         yr_end = self.configuration['time']['end']['year']
         print('Computing fertility rate table for years in range [', yr_start, ',', yr_end, ']...')
 
-        self.rate_table = self.transform_rate_table(df,
-                                                    yr_start,
-                                                    yr_end,
-                                                    10, 50, [2])
+        self.rate_table = transform_rate_table(df,
+                                               yr_start,
+                                               yr_end,
+                                               10, 50, [2])
 
         # HR 21/06/23 Expanding fertility rate table by parity
         # print("Expanding NewEthPop fertility data with parity data from ONS")
