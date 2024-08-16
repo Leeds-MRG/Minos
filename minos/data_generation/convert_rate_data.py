@@ -331,5 +331,7 @@ if __name__ == "__main__":
 
     ## HR 15/08/24 Testing to mimic rate table construction by mortality and fertility rate table classes
     ## after moving transform_rate_table to here
-    cache_fertility_by_region()
-    cache_mortality_by_region()
+    # cache_fertility_by_region()
+    # cache_mortality_by_region()
+
+    pass
