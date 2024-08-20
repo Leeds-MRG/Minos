@@ -324,17 +324,17 @@ if __name__ == "__main__":
     # file_source = PERSISTENT_DATA_DIR
     # d1, d2 = main(file_source)
 
-    ## HR 20/08/24 Testing for transform_rate_data replacement for speed
-    # Interim rate table, NewEthPop data compiled (i.e. all years)
-    MORTALITY_FILE_DEFAULT = os.path.join(PERSISTENT_DATA_DIR, 'regional_mortality_newethpop.csv')
-    df = pd.read_csv(MORTALITY_FILE_DEFAULT, index_col=0)
-
-    # Final rate table, compatible with Vivarium; for validation
-    mort_correct = os.path.join(PERSISTENT_DATA_DIR, 'mortality_rate_table_2020_2035_1_.csv')
-    df_correct = pd.read_csv(mort_correct)
-
-    # Want to rewrite transform_rate_data to be simpler and use Pandas;
-    # validation is to verify it is identical to df_correct
-    # Working copy of df to be acted on
-    dfn = transform_rate_table(df, 2020, 2035, 0, 100)
+    # ## HR 20/08/24 Testing for transform_rate_data replacement for speed
+    # # Interim rate table, NewEthPop data compiled (i.e. all years)
+    # MORTALITY_FILE_DEFAULT = os.path.join(PERSISTENT_DATA_DIR, 'regional_mortality_newethpop.csv')
+    # df = pd.read_csv(MORTALITY_FILE_DEFAULT, index_col=0)
+    #
+    # # Final rate table, compatible with Vivarium; for validation
+    # mort_correct = os.path.join(PERSISTENT_DATA_DIR, 'mortality_rate_table_2020_2035_1_.csv')
+    # df_correct = pd.read_csv(mort_correct)
+    #
+    # # Want to rewrite transform_rate_data to be simpler and use Pandas;
+    # # validation is to verify it is identical to df_correct
+    # # Working copy of df to be acted on
+    # dfn = transform_rate_table(df, 2020, 2035, 0, 100)
     pass
