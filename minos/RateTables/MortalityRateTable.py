@@ -31,17 +31,16 @@ class MortalityRateTable(BaseHandler):
         # HR 21/04/23 Try and load from source file, otherwise create from primary data
         try:
             print("Trying to load from source file...")
-            df = pd.read_csv(self.source_file)
+            df = pd.read_csv(self.source_file, index_col=0)
             print("Found rate table file at", self.source_file)
         except FileNotFoundError as e:
             print("Couldn't load from source file")
             print("\n", e, "\n")
             print("Creating source file from primary data...")
-            dump_path = cache_mortality_by_region()
+            df, dump_path = cache_mortality_by_region()
             if dump_path:
                 print("Dumped source file to:", dump_path)
                 self.source_file = dump_path
-                df = pd.read_csv(self.source_file)
             else:
                 print("Couldn't dump source file")
 
@@ -56,5 +55,5 @@ class MortalityRateTable(BaseHandler):
                                                self.configuration.population.age_end)
 
         if self.configuration["scale_rates"][self.scaling_method]["mortality"] != 1:
-            print(f'Scaling the mortality migration rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["mortality"]}')
+            print(f'Scaling the mortality rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["mortality"]}')
             self.rate_table["mean_value"] *= float(self.configuration["scale_rates"][self.scaling_method]["mortality"])
