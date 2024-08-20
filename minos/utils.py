@@ -823,5 +823,3 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
         return series_out, r
     else:
         return series_out
-
-ews = get_lsoa_la_map()

@@ -46,7 +46,7 @@ def reweight_stock(data, projections):
     # data in projections has age top-coded at 90. To avoid issues with these groups we need to create a new var
     # with a top-coded age also, then set these ages back later
     data['age_orig'] = data['age']
-    data['age'][data['age'] > 90] = 90
+    data.loc[data['age'] > 90, 'age'] = 90
 
     # first group_by sex and year and sum weight for totals, then rename before merge
     summed_weights = data.groupby(['sex', 'time', 'age', 'ethnicity'])['weight'].sum().reset_index()
@@ -103,12 +103,12 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     print(f"Copying wave {copy_year} {var} onto wave {paste_year} sample...")
 
     # get temporary dataframe of pidp, time, and nutrition_quality from 2019
-    tmp = data[['pidp', 'time', var]][data['time'] == copy_year]
+    tmp = data.loc[data['time'] == copy_year][['pidp', 'time', var]]
     # change time to 2018 for tmp
     tmp['time'] = paste_year
 
     # replace -9 values in paste_year with Nonetype
-    data[var][data['time'] == paste_year] = None
+    data.loc[data['time'] == paste_year, var] = None
 
     # now merge and combine the two separate nutrition_quality columns (now with suffix') into one col
     data_merged = data.merge(right=tmp,
@@ -120,8 +120,8 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     var_y = var + '_y'
 
     data_merged[var] = -9
-    data_merged[var][data_merged['time'] != paste_year] = data_merged[var_x]
-    data_merged[var][data_merged['time'] == paste_year] = data_merged[var_y]
+    data_merged.loc[data_merged['time'] != paste_year, var] = data_merged[var_x]
+    data_merged.loc[data_merged['time'] == paste_year, var] = data_merged[var_y]
     # drop intermediate columns
     data_merged.drop(labels=[var_x, var_y], axis=1, inplace=True)
 
@@ -130,11 +130,11 @@ def wave_data_copy(data, var, copy_year, paste_year, var_type):
     # missing, but I don't know what else to do
     # data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = round(data_merged[var][data_merged['time'] == paste_year].mean())
     if var_type == 'continuous':
-        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
-            data_merged[var][data_merged['time'] == paste_year].median()
+        data_merged.loc[(data_merged['time'] == paste_year) & (data_merged[var].isna()), var] = \
+            data_merged.loc[data_merged['time'] == paste_year, var].median()
     elif var_type == 'ordinal':
-        data_merged[var][(data_merged['time'] == paste_year) & (data_merged[var].isna())] = \
-            data_merged[var][data_merged['time'] == paste_year].value_counts().index[0]
+        data_merged.loc[(data_merged['time'] == paste_year) & (data_merged[var].isna()), var] = \
+            data_merged.loc[data_merged['time'] == paste_year, var].value_counts().index[0]
 
     return data_merged
 
