@@ -17,7 +17,7 @@ FERTILITY_FILE_DEFAULT = os.path.join(RATETABLE_PATH_DEFAULT, 'regional_fertilit
 PARITY_DEFAULT = True
 PARITY_PATH_DEFAULT = RATETABLE_PATH_DEFAULT
 
-AGE_RANGE_DEFAULT = [10, 49]
+AGE_RANGE_DEFAULT = [10, 50]
 PARITY_SHEET = "Table"
 PARITY_HEADER = 6
 
@@ -201,12 +201,12 @@ def extend_parity_ons(df_parity,
 
 
     # Convert into dataframes and tidy up
-    births_concat = pd.concat(births_dict).reset_index(level=[0,1])
+    births_concat = pd.concat(births_dict).reset_index(level=[0, 1])
     births_concat.columns.values[0:2] = ['year', 'age']
     births_concat['age'] += age_range[0]
     # births_concat.columns.values[-n:] = range(n)
 
-    pop_concat = pd.concat(pop_dict).reset_index(level=[0,1])
+    pop_concat = pd.concat(pop_dict).reset_index(level=[0, 1])
     pop_concat.columns.values[0:2] = ['year', 'age']
     pop_concat['age'] += age_range[0]
     # pop_concat.columns.values[-n:] = range(n)
@@ -357,17 +357,16 @@ class FertilityRateTable(BaseHandler):
         # HR 21/04/23 Try and load from source file, otherwise create from primary data
         try:
             print("Trying to load from source file...")
-            df = pd.read_csv(self.source_file)
+            df = pd.read_csv(self.source_file, index_col=0)
             print("Found rate table file at", self.source_file)
         except FileNotFoundError as e:
             print("Couldn't load from source file")
             print("\n", e, "\n")
-            print("Creating source file from primary NewEthPop data...")
-            dump_path = cache_fertility_by_region()
+            print("Creating source file from primary data...")
+            df, dump_path = cache_fertility_by_region()
             if dump_path:
                 print("Dumped source file to:", dump_path)
                 self.source_file = dump_path
-                df = pd.read_csv(self.source_file)
             else:
                 print("Couldn't dump source file")
 
@@ -378,7 +377,9 @@ class FertilityRateTable(BaseHandler):
         self.rate_table = transform_rate_table(df,
                                                yr_start,
                                                yr_end,
-                                               10, 50, [2])
+                                               age_start=AGE_RANGE_DEFAULT[0],
+                                               age_end=AGE_RANGE_DEFAULT[1],
+                                               unique_sex=[2])
 
         # HR 21/06/23 Expanding fertility rate table by parity
         # print("Expanding NewEthPop fertility data with parity data from ONS")
@@ -387,7 +388,6 @@ class FertilityRateTable(BaseHandler):
 
         if self.configuration["scale_rates"][self.scaling_method]["fertility"] != 1:
             print(f'Scaling the fertility rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["fertility"]}')
-            # self.rate_table["mean_value"] *= float(self.configuration["scale_rates"][self.scaling_method]["fertility"])
             self.rate_table["fertility"] *= float(self.configuration["scale_rates"][self.scaling_method]["fertility"])
 
     def add_parity(self):
@@ -410,4 +410,3 @@ class FertilityRateTable(BaseHandler):
         self._parity_added = True
 
         return rt_parity
-
