@@ -245,16 +245,16 @@ arc4_universal_credit_child_uplifts: MODE=default_config
 arc4_universal_credit_child_uplifts: RUN_CONFIG=$(CONFIG)/default.yaml
 arc4_universal_credit_child_uplifts: arc4_baseline arc4_intervention_25UniversalCredit arc4_intervention_30UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_40UniversalCredit arc4_intervention_45UniversalCredit arc4_intervention_50UniversalCredit
 
-arc4_UC_10_100: MODE=scaled_UK
-arc4_UC_10_100: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
+arc4_UC_10_100: MODE=scaled_GB
+arc4_UC_10_100: RUN_CONFIG=$(CONFIG)/gb_scaled.yaml
 arc4_UC_10_100: arc4_baseline arc4_intervention_10UniversalCredit arc4_intervention_20UniversalCredit
 arc4_UC_10_100: arc4_intervention_30UniversalCredit arc4_intervention_40UniversalCredit
 arc4_UC_10_100: arc4_intervention_50UniversalCredit arc4_intervention_60UniversalCredit
 arc4_UC_10_100: arc4_intervention_70UniversalCredit arc4_intervention_80UniversalCredit
 arc4_UC_10_100: arc4_intervention_90UniversalCredit arc4_intervention_100UniversalCredit
 
-arc4_UC_5_50: MODE=scaled_UK
-arc4_UC_5_50: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
+arc4_UC_5_50: MODE=scaled_GB
+arc4_UC_5_50: RUN_CONFIG=$(CONFIG)/gb_scaled.yaml
 arc4_UC_5_50: arc4_intervention_25UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_45UniversalCredit
 
 arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config

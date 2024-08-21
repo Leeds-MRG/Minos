@@ -297,6 +297,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
+    elif region == 'gb':
+        data_source = 'scaled_gb_US'
+        output_dir = 'data/replenishing/gb_scaled'
+        source_year = 2020
 
     if priority_sub:
         data_source = 'scot_priority_sub'

@@ -40,6 +40,16 @@ def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     synthpop[merge_column] = synthpop[merge_column].astype(int)
     merged_data = synthpop.merge(msim_data, how='left', on=merge_column)
     #merged_data[f"new_{merge_column}"] = merged_data[f'new_{merge_column}']
+
+    merged_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
+    # but still updating weights helps with weighted aggregates later.
+
+    # Align some associated variables to real data
+    # urban
+    # and correct others to their new region
+    # region
+    merged_data = align_main(merged_data, region)
+
     return merged_data
 
 def get_data_zones(region):
@@ -66,6 +76,8 @@ def get_data_zones(region):
         data_zones = pd.read_csv("persistent_data/spatial_data/sheffield_lsoas.csv")["LSOA11CD"]
     elif region == "uk":
         data_zones = None
+    elif region == "gb":
+        data_zones = pd.read_csv("persistent_data/spatial_data/GreatBritain_data_zones.csv")["LSOA11CD"]
     else:
         print("Error! Invalid region defined for spatial subsetting.")
         raise ValueError
@@ -73,7 +85,7 @@ def get_data_zones(region):
     return data_zones
 
 
-def take_sample(sample_data, percent):
+def take_sample(sample_data, percent, region):
     """
 
     Parameters
@@ -91,17 +103,14 @@ def take_sample(sample_data, percent):
 
     # merge with spatial_attributes
     # get simd_deciles
-    sample_data = merge_with_spatial_attributes(sample_data, get_spatial_attribute_data(), "ZoneID")
-
-    sample_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
-    # but still updating weights helps with weighted aggregates later.
-
-    sample_data = align_main(sample_data, region)
+    # only for Scottish data (not UK wide)
+    if (region == "glasgow") | (region == "scotland"):
+        sample_data = merge_with_spatial_attributes(sample_data, get_spatial_attribute_data(), "ZoneID")
 
     return sample_data
 
 
-def main(region, priority_sub, multisamp, percentage = 100, bootstrapping=False, n=100_000):
+def main(region, priority_sub, multisamp, percentage=100, bootstrapping=False, n=100_000):
     """
     1. Grab individual synthetic spatial population for UK.
     2. Take subset of spatial population in a specific subregion.
@@ -128,13 +137,14 @@ def main(region, priority_sub, multisamp, percentage = 100, bootstrapping=False,
         print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
         raise
 
-    test_raw = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").shape[0]
-    test_final = pd.read_csv("data/raw_US/2020_US_cohort.csv").shape[0]
+    test_raw = pd.read_csv("data/imputed_final_US/2019_US_cohort.csv").shape[0]
+    test_final = pd.read_csv("data/raw_US/2019_US_cohort.csv").shape[0]
     print(f"There are {test_raw-test_final} observations lost in preprocessing.")
 
     data_zones = get_data_zones(region)
     #US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
-    US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    #US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    US_data = pd.read_csv("data/imputed_final_US/2019_US_cohort.csv")  # only expanding on one year of US data for 2021.
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
@@ -144,8 +154,21 @@ def main(region, priority_sub, multisamp, percentage = 100, bootstrapping=False,
     if bootstrapping:
         subsetted_synthpop_data = subsetted_synthpop_data.sample(n, replace=True)
 
+
+    # Get percentage sample of merged data
+    subsetted_synthpop_data = take_sample(subsetted_synthpop_data, percentage, region)
+
+
+    # filter synthpop for hidps that are present in merged_data
+    # synthpop_hidps = subsetted_synthpop_data['hidp'].unique()
+    # US_data_hidps = US_data['hidp'].unique()
+    # subsetted_synthpop_data = subsetted_synthpop_data[subsetted_synthpop_data['hidp'].isin(US_data_hidps)]
+
+    print(f"Number of rows after filtering synthpop for common hidps: {len(subsetted_synthpop_data)}")
+
+
     # merge synthetic and US data together.
-    subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
+    #subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
     merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
@@ -155,7 +178,8 @@ def main(region, priority_sub, multisamp, percentage = 100, bootstrapping=False,
 
     # scramble new hidp and pidp.
     merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
-    merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
+    #merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
+    merged_data.drop(['new_hidp'], axis=1, inplace=True)  # removing old hidp columns  # , 'hhid'
     merged_data['pidp'] = merged_data.index  # creating new pidps.
 
     if priority_sub:
@@ -173,17 +197,14 @@ def main(region, priority_sub, multisamp, percentage = 100, bootstrapping=False,
         n_samples = 10
         # take subset of sample if desired. defaults to 100% for now.
         for i in range(n_samples):
-            sampled_data = take_sample(merged_data, percentage)
-            US_utils.save_file(sampled_data, f"data/scaled_{region}_US_{i+1}/", '', 2020)
-
-    # Get percentage sample of merged data
-    sampled_data = take_sample(merged_data, percentage)
+            merged_data = take_sample(merged_data, percentage, region)
+            US_utils.save_file(merged_data, f"data/scaled_{region}_US_{i+1}/", '', 2020)
 
     if priority_sub:
         file_dest = "data/scot_priority_sub/"
     else:
         file_dest = f"data/scaled_{region}_US/"
-    US_utils.save_file(sampled_data, file_dest, '', 2020)
+    US_utils.save_file(merged_data, file_dest, '', 2020)
 
 
 if __name__ == '__main__':
