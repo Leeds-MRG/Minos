@@ -111,10 +111,11 @@ class Replenishment(Base):
         if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
                              # "new_pidp",
-                             'local_simd_deciles',
-                             'simd_decile',
                              # 'cluster'
                              ]
+            if self.config.base_input_data_dir != "data/scaled_gb_US":
+                view_columns += ['local_simd_deciles',
+                                 'simd_decile']
         columns_created = ['entrance_time']
 
         # Shorthand methods for readability.

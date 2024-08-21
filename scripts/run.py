@@ -52,8 +52,10 @@ def run(args):
     year_start = config['time']['start']['year']
 
     if (args.runID) and ("scaled" in args.config):
-        new_input_dir = config['base_input_data_dir'] + (
-                "_" + str(((args.runID - 1) // 10) + 1))  # every 10 runs uses same pop.
+        #new_input_dir = config['base_input_data_dir'] + (
+        #        "_" + str(((args.runID - 1) // 10) + 1))  # every 10 runs uses same pop.
+        # LA 21/8/24 - Changing back to 1 pop for non Scottish synthpop
+        new_input_dir = config['base_input_data_dir']
         config.update({'input_data_dir': new_input_dir})
     else:
         config.update({'input_data_dir': config['base_input_data_dir']})

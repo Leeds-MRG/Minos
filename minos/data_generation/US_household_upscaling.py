@@ -107,6 +107,15 @@ def take_sample(sample_data, percent, region):
     if (region == "glasgow") | (region == "scotland"):
         sample_data = merge_with_spatial_attributes(sample_data, get_spatial_attribute_data(), "ZoneID")
 
+    #sample_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
+    # but still updating weights helps with weighted aggregates later.
+
+    # Align some associated variables to real data
+    # urban
+    # and correct others to their new area
+    # region
+    #sample_data = align_main(sample_data, region)
+
     return sample_data
 
 

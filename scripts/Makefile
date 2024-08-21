@@ -51,6 +51,9 @@ baseline: setup
 baseline_inflated: setup_inflated
 	$(PYTHON) scripts/run.py -c $(CONFIG)/inflated_default.yaml -o inflated_default
 
+baseline_gb: setup_gb_scaled
+	$(PYTHON) scripts/run.py -c $(CONFIG)/gb_scaled.yaml -o gb_scaled
+
 intervention_hhIncome: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
