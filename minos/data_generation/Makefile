@@ -4,7 +4,8 @@
 
 data: ### Run all four levels of data generation from raw Understanding Society data to imputed data in the correct
 ###	format with composite variables generated
-data: raw_data corrected_data composite_data complete_data final_data
+#data: raw_data corrected_data composite_data complete_data final_data
+data: raw_data corrected_data composite_data mice_data complete_data final_data
 #  adj_raw_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
@@ -24,6 +25,9 @@ corrected_data: $(CORRECTDATA)/2021_US_cohort.csv
 
 composite_data: ### Generate composite variables
 composite_data: $(COMPOSITEDATA)/2021_US_cohort.csv
+
+mice_data: ### Generate MICE imputed data
+mice_data: $(MICEDATA)/2020_US_cohort.csv
 
 complete_data: ### Generate a complete version of the data, after running complete case correction
 complete_data: $(COMPLETEDATA)/2021_US_cohort.csv
@@ -84,6 +88,9 @@ $(CORRECTDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(DATAGEN)/US_m
 $(COMPOSITEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_composite_vars.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_composite_vars.py
 
+$(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(PERSISTJSON)/*.json
+	$(RSCRIPT) $(DATAGEN)/US_MICE_imputation.R -n 1 -i 10
+
 $(COMPLETEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
 
@@ -136,3 +143,17 @@ $(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/U
 
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'uk'
+
+
+
+
+# THIS RUNS ONLY UNTIL COMPOSITE DATA AND GENERATE THE MICE OUTPUT DATA USING AN ARC4 NODE IN ABOUT 20 MINUTES
+# FROM HERE THE DATA PIPELINE SPLITS IN TWO FOR TRANSISITION AND INPUT DATA RESPECTIVELY
+# FOR INPUT  DATA: MICE_US -> COMPLETE_CASE_US (IN CASE OF STRAGGLERS) -> FINAL_US -> UPSCALING (OPTIONAL)
+# FOR TRANSITION DATA: COMPOSITE_US -> COMPLETE_CASE_US -> FINAL_US
+# IN THE FUTURE BOTH WILL USE THE MICE SET I THINK. JUST NEEDS TO REWORK ESTIMATE TRANSITIONS USING with() COMMAND IN MICE. CAN CREATE SOME BIG MODELS
+# THIS MAKE COMMAND IS SUPERCEDED BY INCLUSION IN THE MAIN DATA PIPELINE ABOVE.
+# THIS CAN ONLY BE RUN ON ARC4. DONT RUN IT LOCALLY UNLESS YOU HAVE 10+ CORES IT WILL TAKE DAYS.
+full_mice_dataset: composite_data
+full_mice_dataset:
+	qsub 'scripts/arc_mice_run.sh'
