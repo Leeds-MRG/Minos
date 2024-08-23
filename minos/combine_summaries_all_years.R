@@ -743,7 +743,7 @@ priority_lone_parent_summarise <- function(data) {
   
   # Summarize data disaggregated by lone parent status
   data <- data %>%
-    group_by(lone_parent_flag) %>%
+    group_by(run_id, lone_parent_flag) %>%
     summarise(
       count = n(),
       hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
