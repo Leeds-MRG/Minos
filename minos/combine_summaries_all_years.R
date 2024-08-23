@@ -732,6 +732,29 @@ priority_summarise_disabled <- function(data) {
   return(data)
 }
 
+priority_lone_parent_summarise <- function(data) {
+  data <- data %>%
+    group_by(hidp, run_id) %>%
+    mutate(
+      num_adults = n(),  # Calculate the total number of individuals in the household
+      lone_parent_flag = ifelse(num_adults == 1 & nkids > 0, 1, 0) # Lone parent flag
+    ) %>%
+    ungroup()
+  
+  # Summarize data disaggregated by lone parent status
+  data <- data %>%
+    group_by(lone_parent_flag) %>%
+    summarise(
+      count = n(),
+      hh_income = weighted.mean(hh_income, w = weight, na.rm = TRUE),
+      SF_12 = weighted.mean(SF_12, w = weight, na.rm = TRUE),
+      total_cost = sum(boost_amount, na.rm = TRUE),
+      mean_cost = mean(boost_amount, na.rm = TRUE)
+    )
+  
+  return(data)
+}
+
 priority_any_summarise <- function(data) {
   if ('boost_amount' %in% names(data)) {
     data <- data %>%
@@ -991,7 +1014,8 @@ summary_funcs <- c(whole_pop = whole_pop_summarise,
                    UC_men_illness_risk_lower = UC_men_illness_risk_lower_summarise,
                    UC_families_men_illness_risk_lower = UC_men_illness_risk_lower_families_summarise,
                    UC_men_illness_risk_higher = UC_men_illness_risk_higher_summarise,
-                   UC_families_men_illness_risk_higher = UC_men_illness_risk_higher_families_summarise
+                   UC_families_men_illness_risk_higher = UC_men_illness_risk_higher_families_summarise,
+                   priority_lone_parent = priority_lone_parent_summarise
 )
 
 # summary_funcs <- c(whole_pop = whole_pop_summarise,
