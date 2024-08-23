@@ -140,7 +140,7 @@ def transition_main():
     # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)  # remove any household with dodgy age chains.
-    data['heating'] = data['heating'].astype(int)
+    data['heating'] = data['heating'].astype('Int64')  # HR 457
     # wierd missing data for child ages.
     # data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains  # HR 457
 
@@ -164,9 +164,9 @@ def transition_main():
 
     # SIPHER 7 complete case stuff
     data = complete_case_custom_years(data, 'S7_physical_health', years=list(range(2010, 2022, 1)))
-    data['S7_physical_health'] = data['S7_physical_health'].astype(int)
+    data['S7_physical_health'] = data['S7_physical_health'].astype("Int64")  # HR 457
     data = complete_case_custom_years(data, 'S7_mental_health', years=list(range(2010, 2022, 1)))
-    data['S7_mental_health'] = data['S7_mental_health'].astype(int)
+    data['S7_mental_health'] = data['S7_mental_health'].astype('Int64')  # HR 457
     data = complete_case_custom_years(data, 'S7_labour_state', years=list(range(2009, 2021, 1)))
 
     drop_columns = [  # these are just SF12 MICE columns for now. see US_format_raw.py
