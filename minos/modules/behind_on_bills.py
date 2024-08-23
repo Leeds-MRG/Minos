@@ -101,7 +101,7 @@ class BehindOnBills(Base):
         #nextWaveBills["financial_situation"] = nextWaveBills["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
-        self.population_view.update(nextWaveBills['behind_on_bills'])
+        self.population_view.update(nextWaveBills['behind_on_bills'].astype(int))
 
     def calculate_behind_on_bills(self, pop):
         # year = 2019

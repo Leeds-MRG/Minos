@@ -87,9 +87,8 @@ def input_main():
     data = data.drop(labels=drop_mice_columns, axis=1)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
-                          "housing_tenure",
-                          "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
+                          "education_state", 'region', "age", 'financial_situation', #'SF_12',
+                          "housing_tenure", "nkids_ind", 'S7_labour_state', 'behind_on_bills']
     # REMOVED:  'job_sector', 'labour_state'
 
     data = complete_case_varlist(data, complete_case_vars)
@@ -135,8 +134,7 @@ def transition_main():
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
-                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills",
-                          'heating']
+                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
     # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)  # remove any household with dodgy age chains.
@@ -177,7 +175,8 @@ def transition_main():
         'likely_move',
         'newest_education_state',
         'health_limits_social',
-        'future_financial_situation'
+        'future_financial_situation',
+        'hourly_rate'
     ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.

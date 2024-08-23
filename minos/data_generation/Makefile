@@ -6,6 +6,9 @@ data: ### Run all four levels of data generation from raw Understanding Society 
 ###	format with composite variables generated
 #data: raw_data corrected_data composite_data complete_data final_data
 data: raw_data corrected_data composite_data mice_data complete_data final_data
+#data_simulation: mice_data imputed_complete_data imputed_final_data
+
+data: data_transitions data_simulation
 #  adj_raw_data
 
 synthetic_glasgow_data: data glasgow_scaled_data
@@ -34,6 +37,12 @@ complete_data: $(COMPLETEDATA)/2021_US_cohort.csv
 
 final_data: ### Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
 final_data: $(FINALDATA)/2021_US_cohort.csv
+
+#imputed_complete_data: ### Generate a complete version of the data, after running complete case correction
+#imputed_complete_data: $(IMPUTEDCOMPLETEDATA)/2021_US_cohort.csv
+
+#imputed_final_data: ### Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
+#imputed_final_data: $(IMPUTEDFINALDATA)/2021_US_cohort.csv
 
 inflated_data: ### Inflate the data to account for survey weights, with records duplicated (weight * 100) times
 inflated_data: $(INFLATEDDATA)/2021_US_cohort.csv
@@ -94,7 +103,13 @@ $(MICEDATA)/2020_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/202
 $(COMPLETEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/US_complete_case.py
 
+$(IMPUTEDCOMPLETEDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_complete_case.py $(PERSISTJSON)/*.json
+	$(PYTHON) $(DATAGEN)/US_complete_case.py
+
 $(FINALDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(COMPLETEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
+	$(PYTHON) $(DATAGEN)/generate_stock_pop.py
+
+$(IMPUTEDFINALDATA)/2021_US_cohort.csv: $(RAWDATA)/2021_US_cohort.csv $(CORRECTDATA)/2021_US_cohort.csv $(COMPOSITEDATA)/2021_US_cohort.csv $(COMPLETEDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/generate_stock_pop.py $(PERSISTJSON)/*.json
 	$(PYTHON) $(DATAGEN)/generate_stock_pop.py
 
 $(INFLATEDDATA)/2021_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/weight_inflate_pop.py $(PERSISTJSON)/*.json
