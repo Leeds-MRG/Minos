@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import logging
 from minos.modules.base_module import Base
+import os
 
 
 # suppressing a warning that isn't a problem
@@ -180,6 +181,8 @@ class Replenishment(Base):
         # Add new simulants to the overall population frame.
         self.register(new_population[["entrance_time", "age"]])
         np.seterr(invalid='ignore')
+        new_population['S7_neighbourhood_safety'] = new_population['S7_neighbourhood_safety'].astype(str)  # HR 457
+
         self.population_view.update(new_population)
 
     def on_time_step(self, event):
