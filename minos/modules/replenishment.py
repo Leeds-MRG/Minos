@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import logging
 from minos.modules.base_module import Base
+import os
 
 
 # suppressing a warning that isn't a problem
@@ -106,7 +107,7 @@ class Replenishment(Base):
         #                 'child_ages',
         #                 ]
 
-        view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
+        view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
 
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
@@ -180,6 +181,8 @@ class Replenishment(Base):
         # Add new simulants to the overall population frame.
         self.register(new_population[["entrance_time", "age"]])
         np.seterr(invalid='ignore')
+        new_population['S7_neighbourhood_safety'] = new_population['S7_neighbourhood_safety'].astype(str)  # HR 457
+
         self.population_view.update(new_population)
 
     def on_time_step(self, event):
@@ -319,7 +322,7 @@ class NoReplenishment(Base):
         #                 'job_hours_diff',
         #                 ]
 
-        view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
+        view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
