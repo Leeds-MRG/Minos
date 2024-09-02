@@ -62,6 +62,11 @@ scp_summary_yearly_gb:
 	bash scripts/arc_yearly_sum_submit.sh scaled_GB scp_summary_out 90UniversalCredit 2020 2035
 	bash scripts/arc_yearly_sum_submit.sh scaled_GB scp_summary_out 100UniversalCredit 2020 2035
 
+scp_summary_yearly_gb_high:
+	bash scripts/arc_yearly_sum_submit.sh scaled_GB scp_summary_out 110UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh scaled_GB scp_summary_out 120UniversalCredit 2020 2035
+	bash scripts/arc_yearly_sum_submit.sh scaled_GB scp_summary_out 130UniversalCredit 2020 2035
+
 scp_summary_allyears_gb:
 	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out baseline
 	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 10UniversalCredit
@@ -77,6 +82,11 @@ scp_summary_allyears_gb:
 	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 80UniversalCredit
 	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 90UniversalCredit
 	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 100UniversalCredit
+
+scp_summary_allyears_gb_high:
+	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 110UniversalCredit
+	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 120UniversalCredit
+	Rscript minos/combine_summaries_all_years.R scaled_GB scp_summary_out 130UniversalCredit
 
 CPR_local_test_sum:
 	Rscript minos/read_summarise_2.R default_config cpr_summary_out baseline

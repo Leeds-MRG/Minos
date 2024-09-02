@@ -199,6 +199,15 @@ arc4_intervention_90UniversalCredit:
 arc4_intervention_100UniversalCredit: setup
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
+arc4_intervention_110UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '110UniversalCredit'
+
+arc4_intervention_120UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '120UniversalCredit'
+
+arc4_intervention_130UniversalCredit: setup
+	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '130UniversalCredit'
+
 ##########################################################################
 
 arc4_intervention_25Priority:
@@ -256,6 +265,10 @@ arc4_UC_10_100: arc4_intervention_90UniversalCredit arc4_intervention_100Univers
 arc4_UC_5_50: MODE=scaled_GB
 arc4_UC_5_50: RUN_CONFIG=$(CONFIG)/gb_scaled.yaml
 arc4_UC_5_50: arc4_intervention_25UniversalCredit arc4_intervention_35UniversalCredit arc4_intervention_45UniversalCredit
+
+arc_UC_110_130: MODE=scaled_GB
+arc_UC_110_130: RUN_CONFIG=$(CONFIG)/gb_scaled.yaml
+arc_UC_110_130: arc4_intervention_110UniversalCredit arc4_intervention_120UniversalCredit arc4_intervention_130UniversalCredit
 
 arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config
 arc4_priority_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
