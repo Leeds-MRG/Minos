@@ -204,6 +204,14 @@ SF_12_cost_ratio <- function(summary_type, scen_list, palette = my_palette) {
   
   print(p1)
   print(p2)
+  
+  ggsave(filename = paste('SF_12', summary_type, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
+  
+  ggsave(filename = paste('SF_12_cost_ratio', summary_type, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p2,
+         path = 'plots')
 }
 
 SF_12_cost_ratio_cumul <- function(summary_type, scen_list, palette = my_palette) {
@@ -273,8 +281,12 @@ SF_12_cost_ratio_cumul <- function(summary_type, scen_list, palette = my_palette
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
           legend.position = 'none')
   
-  print(p1)
+  #print(p1)
   print(p2)
+  
+  ggsave(filename = paste('SF_12_cost_ratio_cumulative', summary_type, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p2,
+         path = 'plots')
 }
 ```
 
@@ -367,7 +379,11 @@ compare_relative_absolute <- function(comparison_scen, kids = FALSE) {
     ylab('Mean SF-12 Change')
   
   print(p1)
-  print(p2)
+  #print(p2)
+  
+  ggsave(filename = paste('abs_rel_comparison', comparison_scen, '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
 }
 
 compare_init_relative_absolute <- function(comparison_scen, kids = FALSE) {
@@ -455,7 +471,11 @@ compare_init_relative_absolute <- function(comparison_scen, kids = FALSE) {
     ylab('Mean SF-12 Change')
   
   print(p1)
-  print(p2)
+  #print(p2)
+  
+  ggsave(filename = paste('abs_rel_comparison_init', comparison_scen, '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
 }
 
 ```
@@ -512,6 +532,10 @@ compare_gender <- function(comparison_scen) {
   
   print(p1)
   #print(p2)
+  
+  ggsave(filename = paste('gender_comparison', comparison_scen, '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
 }
 ```
 
@@ -575,6 +599,10 @@ compare_lone_parent <- function(comparison_scen) {
   
   print(p1)
   #print(p2)
+  
+  ggsave(filename = paste('lone_parent_comparison', comparison_scen, '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
 }
 ```
 
@@ -609,8 +637,6 @@ mental_illness_risk_plots <- function(summary_group, scen.list, palette = my_pal
                  names_sep = '_',
                  names_to = c("diff", "scen"),
                  values_to = 'Count')
-  
-  
   
   # Extract numeric part from 'scen' column then...
   scen_numeric <- as.numeric(gsub("[^0-9]", "", plot_data1$scen))
@@ -698,6 +724,14 @@ mental_illness_risk_plots <- function(summary_group, scen.list, palette = my_pal
   
   print(p1)
   print(p2)
+  
+  ggsave(filename = paste('men_illness_risk_counts', summary_group, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
+  
+  ggsave(filename = paste('men_illness_risk_prop', summary_group, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p2,
+         path = 'plots')
 }
 
 
@@ -861,6 +895,14 @@ mental_illness_risk_plots_interval <- function(summary_group, scen.list, palette
    
   print(p1)
   print(p2)
+  
+    ggsave(filename = paste('men_illness_risk_counts_sensitivity', summary_group, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p1,
+         path = 'plots')
+  
+  ggsave(filename = paste('men_illness_risk_prop_sensitivity', summary_group, deparse(substitute(scen_list)), '.png', sep = '_'),
+         plot <- p2,
+         path = 'plots')
 }
 ```
 
