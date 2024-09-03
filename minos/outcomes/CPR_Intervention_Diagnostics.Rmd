@@ -278,7 +278,11 @@ library(xgboost)
 sf12 <- readRDS('/home/luke/Documents/WORK/MINOS/Minos/data/transitions/SF_12/xgb/SF_12_XGB.rds')
 
 
-xgb.ggplot.shap.summary(sf12)
+sf12$params
+importance_matrix <- xgb.importance(model = sf12)
+print(importance_matrix)
+
+xgb.plot.importance(importance_matrix)
 ```
 
 
