@@ -190,7 +190,7 @@ class lmmYJNutrition(Base):
         super().setup(builder)
 
         # just load this once.
-        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_new_LMM", self.rpy2Modules,
+        self.gee_transition_model = r_utils.load_transitions(f"nutrition_quality/lmm/nutrition_quality_LMM", self.rpy2Modules,
                                                              path=self.transition_dir)
         #self.history_data = self.generate_history_dataframe("final_US", [2017, 2019, 2020], view_columns)
 
