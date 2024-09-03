@@ -158,15 +158,120 @@ ggplot(inc, aes(x = time, y = SF_12, group = scen, color = scen, fill = scen)) +
 ```
 
 
+```{r}
+colnames(base.dat)
+```
 
 
 # Income by Quintile
 
-```{r}
+Firstly, can't rely on the income_quintile variable as this is a variable created in start year which does not transition. Therefore we will need to calculate an income quintile variable for both dataframes.
 
+```{r}
+base.dat <- base.dat %>%
+  group_by(time) %>%
+  mutate(income_quint = ntile(hh_income, 5))
+
+int.dat <- int.dat %>%
+  group_by(time) %>%
+  mutate(income_quint = ntile(hh_income, 5))
 ```
 
 
+```{r}
+
+density_plot <- function(base, int) {
+  p <- ggplot(base, aes(x = hh_income, y = time, group = time)) +
+    geom_density_ridges(color = 'blue', alpha = 0.3) +
+    geom_density_ridges(data = int, aes(color = 'red', alpha = 0.3)) +
+    theme(legend.position = 'none') +
+    labs(title = 'Household Income Density Plots')
+  
+  return(p)
+}
+
+p <- density_plot(base.dat, int.dat)
+
+p <- p + facet_wrap(~ income_quint, ncol=1)
+
+print(p)
+
+# ggplot(base.dat, aes(x = hh_income, y = time, group = time)) +
+#   geom_density_ridges(color = 'blue', alpha = 0.3) +
+#   geom_density_ridges(data = int.dat, aes(color = 'red', alpha = 0.3)) +
+#   theme(legend.position = 'none') +
+#   labs(title = 'Household Income Density Plots') +
+#   facet_wrap(~ income_quint, ncol=1)
+```
+
+```{r}
+density_plot_quintile <- function(base, int, quintile) {
+  
+  base <- base %>%
+    filter(income_quint == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Baseline = hh_income)
+  int <- int %>%
+    filter(income_quint == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Intervention = hh_income)
+  
+  combined <- merge(base, int, by = c('pidp', 'time'))
+  combined <- combined %>%
+    pivot_longer(cols = Baseline:Intervention,
+                 names_to = 'Source',
+                 values_to = 'hh_income')
+  
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source)) +
+    geom_density_ridges() +
+    labs(title = 'Household Income Density Plots',
+         subtitle = paste0('Quintile ', quintile))
+  
+  return(p)
+}
+
+density_plot_quintile(base.dat, int.dat, quintile = 1)
+density_plot_quintile(base.dat, int.dat, quintile = 2)
+density_plot_quintile(base.dat, int.dat, quintile = 3)
+density_plot_quintile(base.dat, int.dat, quintile = 4)
+density_plot_quintile(base.dat, int.dat, quintile = 5)
+```
+```{r}
+density_plot_quintile_2 <- function(base, int, quintile) {
+  base <- base %>%
+    filter(income_quint == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Baseline = hh_income)
+  int <- int %>%
+    select(pidp, time, hh_income) %>%
+    rename(Intervention = hh_income)
+  
+  combined <- merge(base, int, by = c('pidp', 'time'))
+  combined <- combined %>%
+    pivot_longer(cols = Baseline:Intervention,
+                 names_to = 'Source',
+                 values_to = 'hh_income')
+  
+  # Calculate the 1st and 99th percentiles
+  lower_cutoff <- quantile(combined$hh_income, 0.01)
+  upper_cutoff <- quantile(combined$hh_income, 0.99)
+  
+  filtered_combined <- combined %>%
+    filter(hh_income > lower_cutoff, hh_income < upper_cutoff)
+  
+  p <- ggplot(filtered_combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source)) +
+    geom_density_ridges() +
+    labs(title = 'Household Income Density Plots',
+         subtitle = paste0('Quintile ', quintile))
+  return(p)
+}
+
+density_plot_quintile_2(base.dat, int.dat, quintile = 1)
+density_plot_quintile_2(base.dat, int.dat, quintile = 2)
+density_plot_quintile_2(base.dat, int.dat, quintile = 3)
+density_plot_quintile_2(base.dat, int.dat, quintile = 4)
+density_plot_quintile_2(base.dat, int.dat, quintile = 5)
+```
 
 
 # TESTING THE BOOSTED POP
