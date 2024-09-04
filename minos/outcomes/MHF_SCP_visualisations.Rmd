@@ -43,19 +43,19 @@ scen.colour.list <- c('baseline', '£10', '£20',
                '£25', '£30',
                '£35', '£40', '£45',
                '£50', '£60', '£70',
-               '£80', '£90', '£100', '£110', '£120', '£130')
+               '£80', '£90', '£100') #, '£110', '£120', '£130')
 
 #colours <- display.brewer.all(length(scen.list.full))
 #colours <- colorRampPalette( brewer.pal(11,"Spectral") )(14)
-colours <- colorRampPalette( brewer.pal(9,"Set1") )(17)
+colours <- colorRampPalette( brewer.pal(9,"Set1") )(14)
 my_palette <- set_names(colours, scen.colour.list)
 
 scen.list.full <- c('baseline', '10UniversalCredit', '20UniversalCredit',
                '25UniversalCredit', '30UniversalCredit',
                '35UniversalCredit', '40UniversalCredit', '45UniversalCredit',
                '50UniversalCredit', '60UniversalCredit', '70UniversalCredit',
-               '80UniversalCredit', '90UniversalCredit', '100UniversalCredit',
-               '110UniversalCredit', '120UniversalCredit', '130UniversalCredit')
+               '80UniversalCredit', '90UniversalCredit', '100UniversalCredit')#,
+               #'110UniversalCredit', '120UniversalCredit', '130UniversalCredit')
 
 scen.list.50l <- c('baseline', '10UniversalCredit',
                '20UniversalCredit', '25UniversalCredit', '30UniversalCredit',
@@ -78,11 +78,11 @@ scen.list.10_100 <- c('baseline', '10UniversalCredit', '20UniversalCredit',
                       '60UniversalCredit', '70UniversalCredit', '80UniversalCredit', 
                       '90UniversalCredit', '100UniversalCredit')
 
-scen.list.10_130 <- c('baseline', '10UniversalCredit', '20UniversalCredit',
-                      '30UniversalCredit', '40UniversalCredit', '50UniversalCredit', 
-                      '60UniversalCredit', '70UniversalCredit', '80UniversalCredit', 
-                      '90UniversalCredit', '100UniversalCredit',
-                      '110UniversalCredit', '120UniversalCredit', '130UniversalCredit')
+# scen.list.10_130 <- c('baseline', '10UniversalCredit', '20UniversalCredit',
+#                       '30UniversalCredit', '40UniversalCredit', '50UniversalCredit', 
+#                       '60UniversalCredit', '70UniversalCredit', '80UniversalCredit', 
+#                       '90UniversalCredit', '100UniversalCredit',
+#                       '110UniversalCredit', '120UniversalCredit', '130UniversalCredit')
 
 scen.list.20_100 <- c('baseline', '20UniversalCredit', '40UniversalCredit',
                       '60UniversalCredit', '80UniversalCredit', '100UniversalCredit')
@@ -549,7 +549,7 @@ compare_gender <- function(comparison_scen) {
 ```{r "lone_parent_function", include=FALSE}
 compare_lone_parent <- function(comparison_scen) {
   scen.list <- c('baseline', comparison_scen)
-  UC.lone_parent <- do.call(rbind, generate_df_list('priority_lone_parent', scen.list))
+  UC.lone_parent <- do.call(rbind, generate_df_list('priority_lone_parent_UC', scen.list))
   
   lone_parent.change <- UC.lone_parent %>%
     select(run_id, lone_parent_flag, SF_12, mean_cost, year, scen) %>%
@@ -1011,11 +1011,11 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_100)
 ```
 
 
-## Cost Ratio: £10 - £130
+## Cost Ratio: £10 - £130 (Defunkt)
 
 ```{r}
-SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_130)
-SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_130)
+#SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_130)
+#SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_130)
 ```
 
 
