@@ -222,8 +222,8 @@ density_plot_quintile <- function(base, int, quintile) {
                  names_to = 'Source',
                  values_to = 'hh_income')
   
-  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source)) +
-    geom_density_ridges() +
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source, fill = Source)) +
+    geom_density_ridges(alpha = 0.3) +
     labs(title = 'Household Income Density Plots',
          subtitle = paste0('Quintile ', quintile))
   
@@ -259,8 +259,8 @@ density_plot_quintile_2 <- function(base, int, quintile) {
   #filtered_combined <- combined %>%
   #  filter(hh_income > lower_cutoff, hh_income < upper_cutoff)
   
-  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source)) +
-    geom_density_ridges() +
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source, fill = Source)) +
+    geom_density_ridges(alpha = 0.3) +
     labs(title = 'Household Income Density Plots',
          subtitle = paste0('Quintile ', quintile))
   return(p)
