@@ -73,7 +73,7 @@ base.inc <- base.dat %>%
   summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
   mutate(scen = 'Baseline')
 
-int.inc <- int %>%
+int.inc <- int.dat %>%
   select(pidp, hidp, time, hh_income, weight) %>%
   group_by(time) %>%
   summarise(hh_income = weighted.mean(x = hh_income,w = weight, na.rm = TRUE)) %>%
@@ -104,7 +104,7 @@ base.inc <- base.dat %>%
   summarise(hh_income = weighted.mean(x = hh_income, w = weight, na.rm = TRUE)) %>%
   mutate(scen = 'Baseline')
 
-int.inc <- int %>%
+int.inc <- int.dat %>%
   select(pidp, hidp, time, hh_income, age, nkids, weight) %>%
   mutate(nkids_any = (nkids > 0)) %>%
   filter(nkids_any = TRUE) %>%
@@ -256,10 +256,10 @@ density_plot_quintile_2 <- function(base, int, quintile) {
   lower_cutoff <- quantile(combined$hh_income, 0.01)
   upper_cutoff <- quantile(combined$hh_income, 0.99)
   
-  filtered_combined <- combined %>%
-    filter(hh_income > lower_cutoff, hh_income < upper_cutoff)
+  #filtered_combined <- combined %>%
+  #  filter(hh_income > lower_cutoff, hh_income < upper_cutoff)
   
-  p <- ggplot(filtered_combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source)) +
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source)) +
     geom_density_ridges() +
     labs(title = 'Household Income Density Plots',
          subtitle = paste0('Quintile ', quintile))
