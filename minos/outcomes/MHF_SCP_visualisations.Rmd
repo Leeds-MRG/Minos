@@ -43,18 +43,19 @@ scen.colour.list <- c('baseline', '£10', '£20',
                '£25', '£30',
                '£35', '£40', '£45',
                '£50', '£60', '£70',
-               '£80', '£90', '£100')
+               '£80', '£90', '£100', '£110', '£120', '£130')
 
 #colours <- display.brewer.all(length(scen.list.full))
 #colours <- colorRampPalette( brewer.pal(11,"Spectral") )(14)
-colours <- colorRampPalette( brewer.pal(9,"Set1") )(14)
+colours <- colorRampPalette( brewer.pal(9,"Set1") )(17)
 my_palette <- set_names(colours, scen.colour.list)
 
 scen.list.full <- c('baseline', '10UniversalCredit', '20UniversalCredit',
                '25UniversalCredit', '30UniversalCredit',
                '35UniversalCredit', '40UniversalCredit', '45UniversalCredit',
                '50UniversalCredit', '60UniversalCredit', '70UniversalCredit',
-               '80UniversalCredit', '90UniversalCredit', '100UniversalCredit')
+               '80UniversalCredit', '90UniversalCredit', '100UniversalCredit',
+               '110UniversalCredit', '120UniversalCredit', '130UniversalCredit')
 
 scen.list.50l <- c('baseline', '10UniversalCredit',
                '20UniversalCredit', '25UniversalCredit', '30UniversalCredit',
@@ -76,6 +77,12 @@ scen.list.10_100 <- c('baseline', '10UniversalCredit', '20UniversalCredit',
                       '30UniversalCredit', '40UniversalCredit', '50UniversalCredit', 
                       '60UniversalCredit', '70UniversalCredit', '80UniversalCredit', 
                       '90UniversalCredit', '100UniversalCredit')
+
+scen.list.10_130 <- c('baseline', '10UniversalCredit', '20UniversalCredit',
+                      '30UniversalCredit', '40UniversalCredit', '50UniversalCredit', 
+                      '60UniversalCredit', '70UniversalCredit', '80UniversalCredit', 
+                      '90UniversalCredit', '100UniversalCredit',
+                      '110UniversalCredit', '120UniversalCredit', '130UniversalCredit')
 
 scen.list.20_100 <- c('baseline', '20UniversalCredit', '40UniversalCredit',
                       '60UniversalCredit', '80UniversalCredit', '100UniversalCredit')
@@ -973,7 +980,6 @@ rm(fam.2550)
 
 ## Cost Ratio: £25 - £50
 
-### UC
 
 ```{r}
 SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.25_50)
@@ -982,7 +988,6 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.25_50)
 
 ## Cost Ratio: £10 - £50
 
-### UC
 
 ```{r}
 SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_50)
@@ -991,7 +996,6 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_50)
 
 ## Cost Ratio: £60 - £100
 
-### UC
 
 ```{r}
 SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.60_100)
@@ -1000,11 +1004,18 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.60_100)
 
 ## Cost Ratio: £10 - £100
 
-### UC
 
 ```{r}
 SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_100)
 SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_100)
+```
+
+
+## Cost Ratio: £10 - £130
+
+```{r}
+SF_12_cost_ratio(summary_type = 'UC', scen_list = scen.list.10_130)
+SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_130)
 ```
 
 
@@ -1100,29 +1111,6 @@ mental_illness_risk_plots_interval('UC_families_men_illness_risk', scen.list = s
 ```
 
 
-
-
-
-
-```{r}
-
-```
-
-
-
-
-```{r}
-
-```
-
-
-```{r}
-summary_group <- 'UC_families_men_illness_risk'
-scen.list <- scen.list.25_100
-palette <- my_palette
-
-mental_illness_risk_plots_interval(summary_group, scen.list, palette)
-```
 
 
 
