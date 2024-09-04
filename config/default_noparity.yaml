@@ -26,11 +26,9 @@ scotland: FALSE
 #components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), HourlyWage(), JobSec(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 components : [Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 
-
 scale_rates:
     method: "constant"
     constant:
         education: 1
         mortality: 1
         fertility: 1
-

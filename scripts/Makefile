@@ -176,6 +176,16 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled
 
+NOPARITY_SCALED_CONFIG=$(CONFIG)/uk_scaled_noparity.yaml
+NOPARITY_SCALED_MODE=uk_scaled_noparity
+baseline_uk_noparity: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(NOPARITY_SCALED_CONFIG) -o $(NOPARITY_SCALED_MODE)
+
+PARITY_SCALED_CONFIG=$(CONFIG)/uk_scaled_parity.yaml
+PARITY_SCALED_MODE=uk_scaled_parity
+baseline_uk_parity: setup_uk_scaled
+	$(PYTHON) scripts/run.py -c $(PARITY_SCALED_CONFIG) -o $(PARITY_SCALED_MODE)
+
 intervention_hhIncome_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomeIntervention'
 

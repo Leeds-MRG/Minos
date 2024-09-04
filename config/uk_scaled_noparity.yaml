@@ -9,22 +9,20 @@ population:
     age_start: 0
     age_end: 100
 
-parity: True
+parity: False
 
-input_data_dir: "data/imputed_final_US"
+input_data_dir: "data/scaled_uk_US"
 persistent_data_dir: "persistent_data"
 output_data_dir: "output"
 
 transition_dir: 'data/transitions'
-replenishing_dir: 'data/replenishing'
+replenishing_dir: 'data/replenishing/uk_scaled'
 
 cross_validation: FALSE
-synthetic: FALSE
-scotland: FALSE
+synthetic: TRUE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-#components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), HourlyWage(), JobSec(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+components : [nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(), Replenishment()]
 
 scale_rates:
     method: "constant"
