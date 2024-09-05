@@ -22,6 +22,7 @@ library(ggridges) # for densities over time plots.
 library(knitr)
 library(here)
 library(gghighlight)
+library(spatstat)
 
 #workingDir <- "/home/luke/Documents/MINOS/Minos/"
 workingDir <- normalizePath('../')
@@ -167,6 +168,8 @@ colnames(base.dat)
 
 Firstly, can't rely on the income_quintile variable as this is a variable created in start year which does not transition. Therefore we will need to calculate an income quintile variable for both dataframes.
 
+## Density Ridges
+
 ```{r}
 base.dat <- base.dat %>%
   group_by(time) %>%
@@ -271,6 +274,96 @@ density_plot_quintile_2(base.dat, int.dat, quintile = 2)
 density_plot_quintile_2(base.dat, int.dat, quintile = 3)
 density_plot_quintile_2(base.dat, int.dat, quintile = 4)
 density_plot_quintile_2(base.dat, int.dat, quintile = 5)
+```
+
+
+## Mean Income
+
+```{r}
+mean_income_quintile <- function(base, int) {
+  base <- base %>%
+    select(pidp, time, hh_income, income_quint, weight) %>%
+    mutate(source = 'Baseline')
+  int <- int %>%
+    select(pidp, time, hh_income, income_quint, weight) %>%
+    mutate(source = 'Intervention')
+  
+  combined <- rbind(base, int)
+  
+  combined <- combined %>%
+    group_by(time, income_quint, source) %>%
+    summarise(mean = weighted.mean(hh_income, weight),
+              median = weighted.median(hh_income, weight))
+  
+  combined$income_quint <- factor(combined$income_quint)
+  combined$source <- factor(combined$source)
+
+  
+  p1 <- ggplot(combined, aes(x = time, y = mean, group = interaction(income_quint, source), color = income_quint, linetype = source, fill = income_quint)) +
+    geom_line() +
+    labs(title = 'Mean hh_income by quintile',
+         subtitle = 'Baseline vs Intervention')
+  
+  p2 <- ggplot(combined, aes(x = time, y = median, group = interaction(income_quint, source), color = income_quint, linetype = source, fill = income_quint)) +
+    geom_line() +
+    labs(title = 'Median hh_income by quintile',
+         subtitle = 'Baseline vs Intervention')
+  
+  print(p1)
+  print(p2)
+  #return(p)
+}
+
+mean_income_quintile(base.dat, int.dat)
+```
+
+```{r}
+mean_income_quintile_2 <- function(base, int) {
+  
+  base <- base.dat %>%
+    select(pidp, time, hh_income, income_quint, weight) %>%
+    mutate(source = 'Baseline')
+  
+  # start processing to use baseline income_quint var on intervention
+  base.tmp <- base %>% 
+    select(-weight, -hh_income, -source)
+  
+  int <- int.dat %>%
+    select(pidp, time, hh_income, weight)
+  
+  merged.int <- merge(int, base.tmp, by = c('pidp', 'time'))
+  
+  int <- merged.int %>%
+    mutate(source = 'Intervention')
+  
+  
+  combined <- rbind(base, int)
+  
+  combined <- combined %>%
+    group_by(time, income_quint, source) %>%
+    summarise(mean = weighted.mean(hh_income, weight),
+              median = weighted.median(hh_income, weight))
+  
+  combined$income_quint <- factor(combined$income_quint)
+  combined$source <- factor(combined$source)
+
+  
+  p1 <- ggplot(combined, aes(x = time, y = mean, group = interaction(income_quint, source), color = income_quint, linetype = source, fill = income_quint)) +
+    geom_line() +
+    labs(title = 'Mean hh_income by quintile',
+         subtitle = 'Baseline vs Intervention')
+  
+  p2 <- ggplot(combined, aes(x = time, y = median, group = interaction(income_quint, source), color = income_quint, linetype = source, fill = income_quint)) +
+    geom_line() +
+    labs(title = 'Median hh_income by quintile',
+         subtitle = 'Baseline vs Intervention')
+  
+  print(p1)
+  print(p2)
+  #return(p)
+}
+
+mean_income_quintile_2(base.dat, int.dat)
 ```
 
 
