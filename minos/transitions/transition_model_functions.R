@@ -472,7 +472,7 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
 
   registerDoParallel(cores = numCores)
 
-  data <- replace.missing(data)
+  # data <- replace.missing(data)
   data <- drop_na(data)
 
   data[[depend]] <- factor(data[[depend]])
