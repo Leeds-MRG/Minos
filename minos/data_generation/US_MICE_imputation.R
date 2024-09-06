@@ -131,11 +131,7 @@ main <- function(n_imputations, iterations_per_imputation){
     final.mice.data <- complete(mice_set, 1)
   }
 
-<<<<<<< HEAD
-=======
   final.mice.data$nkids_ind[final.mice.data$nkids_ind > 10] <- 10
-
->>>>>>> child_poverty_May24
   end.time <- Sys.time()
   log_print("")
   log_print("Time Elapsed: ")
