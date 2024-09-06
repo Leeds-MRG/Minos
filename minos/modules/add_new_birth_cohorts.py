@@ -280,12 +280,20 @@ class nkidsFertilityAgeSpecificRates(Base):
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity', 'nkids_ind'])
+                                                                   requires_columns=['sex', 'region', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
+        view_columns = ['sex',
+                        'ethnicity',
+                        'age',
+                        'nkids',
+                        'nkids_ind',
+                        'hidp',
+                        'pidp',
+                        "child_ages",
+                        'region']
         columns_created = ['has_newborn']
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)

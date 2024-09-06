@@ -13,7 +13,7 @@ import pandas as pd
 PRIORITY_DEFAULT = 10
 
 
-class Base():
+class Base:
 
     @property
     def name(self):
@@ -50,9 +50,18 @@ class Base():
         # mode
         self.cross_validation = config.cross_validation
 
+        # Do we need to reset income (remove boost_amount) before predicting next income
+        self.reset_income_intervention = config.reset_income_intervention
+
         # # Grab module priority
         # self.priority = simulation.component_priority_map.get(self.__repr__(), PRIORITY_DEFAULT)
         # print("Priority for {} set to {}".format(self.__repr__(), self.priority))
+
+        ## Trying out setting seed more precisely. Especially useful in comparing individual runs in outputs (i.e. for treated population)
+        if 'runID' in config.keys():
+            self.run_seed = config.runID
+        else:
+            self.run_seed = 0000
 
         self.transition_model = None
 
@@ -90,6 +99,12 @@ class Base():
         "If we want a fixed seed for each vivarium run just use the name of the module."
         "Useful if trying to reduce variance. Or for non-random models e.g. OLS."
         return f"{self.name}"
+
+    def generate_run_crn_key(self):
+        "CRN randomness streams in vivarium use hash some input string key as the seed for RNG."
+        "If we want a fixed seed for each vivarium run just use the name of the module."
+        "Useful if trying to reduce variance. Or for non-random models e.g. OLS."
+        return f"{self.run_seed}_{self.name}"
 
     def generate_random_crn_key(self):
         "Provides random hash for each minos run using date time."

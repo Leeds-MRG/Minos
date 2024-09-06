@@ -35,6 +35,9 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-ranger
   - r-mice
   - r-logr
+  - r-earth
+  - r-xgboost
+  - r-recipes
   - pandoc
   - sphinx
   - myst-parser

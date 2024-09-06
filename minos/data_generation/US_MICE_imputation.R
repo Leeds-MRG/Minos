@@ -47,7 +47,7 @@ main <- function(n_imputations, iterations_per_imputation){
   # save to individual waves.
   # get composite/complete case this data instead. I.E. slot into current pipeline and makes.
   start.data <- read_all_UKHLS_waves(here::here("data/"), "composite_US")
-  start.data <- start.data[which(start.data$time>=2018),]
+  start.data <- start.data[which(start.data$time>=2015),]
 
   mice_columns <- c("age",
                     "region",
@@ -92,9 +92,12 @@ main <- function(n_imputations, iterations_per_imputation){
   start.data$clinical_depression <- as.factor(start.data$clinical_depression)
   start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)
   start.data$marital_status <- as.factor(start.data$marital_status)
+<<<<<<< HEAD
   start.data$sex <- as.factor(start.data$sex)
   start.data$region <- as.factor(start.data$region)
   start.data$ethnicity <- as.factor(start.data$ethnicity)
+=======
+>>>>>>> child_poverty_May24
 
   other.data <- start.data[, !names(start.data) %in% mice_columns]
   mice.data <- start.data[, c(mice_columns)]
@@ -131,6 +134,11 @@ main <- function(n_imputations, iterations_per_imputation){
     final.mice.data <- complete(mice_set, 1)
   }
 
+<<<<<<< HEAD
+=======
+  final.mice.data$nkids_ind[final.mice.data$nkids_ind > 10] <- 10
+
+>>>>>>> child_poverty_May24
   end.time <- Sys.time()
   log_print("")
   log_print("Time Elapsed: ")

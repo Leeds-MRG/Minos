@@ -48,7 +48,6 @@ def complete_case_custom_years(data, var, years):
     print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
-    # data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
     data.loc[data['time'].isin(years), var] = data.loc[data['time'].isin(years), var].replace(US_utils.missing_types, np.nan)  # Avoids Pandas SettingWithCopyWarning
     # data = data[~(data['time'].isin(years) & data[var].isna())]  # HR 444
 
@@ -68,7 +67,7 @@ def input_main():
     # isn't really necessary to complete case imputed data but makes sure there aren't any stragglers.
     maxyr = US_utils.get_data_maxyr()
 
-    years = np.arange(2018, maxyr)
+    years = np.arange(2015, maxyr)
     file_names = [f"data/mice_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
@@ -81,7 +80,21 @@ def input_main():
         'newest_education_state',
         'health_limits_social',
         'future_financial_situation',
-        'hourly_rate']  # some columns are used in analyses elsewhere such as MICE and not
+        'hourly_rate',
+        'job_hours_se',
+        'ndrinks',
+        'gross_paypm',
+        'depression',
+        'nobs',
+        'job_industry',
+        'gross_pay_se',
+        'job_duration_m',
+        'job_inc',
+        'job_duration_y',
+        'academic_year',
+        'alcohol_spending',
+        'jb_inc_per'
+    ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.
     data = data.drop(labels=drop_mice_columns, axis=1)
@@ -103,7 +116,6 @@ def input_main():
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
     # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
-    # data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
     data.loc[(data['time'] == 2013) & (data['ncigs'] == -8), 'ncigs'] = 0  # Avoids Pandas SettingWithCopyWarning
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2022, 1)))
     # Nutrition only present in 2014
@@ -176,7 +188,20 @@ def transition_main():
         'newest_education_state',
         'health_limits_social',
         'future_financial_situation',
-        'hourly_rate'
+        'hourly_rate',
+        'job_hours_se',
+        'ndrinks',
+        'gross_paypm',
+        'depression',
+        'nobs',
+        'job_industry',
+        'gross_pay_se',
+        'job_duration_m',
+        'job_inc',
+        'job_duration_y',
+        'academic_year',
+        'alcohol_spending',
+        'jb_inc_per'
     ]  # some columns are used in analyses elsewhere such as MICE and not
     # featured in the final model.
     # remove them here or as late as needed.

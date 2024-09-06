@@ -119,7 +119,7 @@ def get_age_bucket(simulation_data):
     # Age buckets based on the file names
     cut_bins = [-1, 16, 20, 25, 30, 45, 60, 75, 200]
     cut_labels = ["0to15", "16to19", "20to24", "25to29", "30to44", "45to59", "60to74", "75plus"]
-    simulation_data.loc[:, "age_bucket"] = pd.cut(simulation_data['age'], bins=cut_bins, labels=cut_labels)
+    simulation_data.loc[:, "age_bucket"] = pd.cut(simulation_data['age'], bins=cut_bins, labels=cut_labels, right=False)
 
     return simulation_data
 
