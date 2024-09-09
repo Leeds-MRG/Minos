@@ -23,40 +23,70 @@ treated_summary <- function(data) {
   return(output)
 }
 
-whole_pop_income_quint_summary <- function(data) {
-  income_quints <- data %>%
-    filter(scenario == 'baseline') %>%
-    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
-    select(pidp, income_quintile)
+# whole_pop_income_quint_summary <- function(data) {
+#   income_quints <- data %>%
+#     filter(scenario == 'baseline') %>%
+#     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+#     select(pidp, income_quintile)
+# 
+#   output <- data %>%
+#     inner_join(income_quints, by = 'pidp') %>%
+#     group_by(run_id, scenario, income_quintile) %>%
+#     summarise(count = n(),
+#               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+#               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+#               total_cost = sum(boost_amount),
+#               mean_cost = mean(boost_amount))
+# 
+#   return(output)
+# }
 
+whole_pop_income_quint_summary <- function(data) {
   output <- data %>%
-    inner_join(income_quints, by = 'pidp') %>%
+    group_by(scenario) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    ungroup() %>%
     group_by(run_id, scenario, income_quintile) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-
+  
   return(output)
 }
 
-families_income_quint_summary <- function(data) {
-  income_quints <- data %>%
-    filter(scenario == 'baseline') %>%
-    filter(nkids > 0) %>%
-    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
-    select(pidp, income_quintile)
+# families_income_quint_summary <- function(data) {
+#   income_quints <- data %>%
+#     filter(scenario == 'baseline') %>%
+#     filter(nkids > 0) %>%
+#     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+#     select(pidp, income_quintile)
+# 
+#   output <- data %>%
+#     inner_join(income_quints, by = 'pidp') %>%
+#     group_by(run_id, scenario, income_quintile) %>%
+#     summarise(count = n(),
+#               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+#               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+#               total_cost = sum(boost_amount),
+#               mean_cost = mean(boost_amount))
+# 
+#   return(output)
+# }
 
+families_income_quint_summary <- function(data) {
   output <- data %>%
-    inner_join(income_quints, by = 'pidp') %>%
+    group_by(scenario) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    ungroup() %>%
     group_by(run_id, scenario, income_quintile) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
               total_cost = sum(boost_amount),
               mean_cost = mean(boost_amount))
-
+  
   return(output)
 }
 
@@ -331,16 +361,20 @@ scen <- args[[3]]
 
 
 # Create named list of summary functions to go through
-summary_funcs <- c(treated = treated_summary,
-                   whole_pop_income_quint_together = whole_pop_income_quint_summary,
+summary_funcs <- c(whole_pop_income_quint_together = whole_pop_income_quint_summary,
                    families_income_quint_together = families_income_quint_summary,
-                   priority_any = priority_any_summarise,
-                   priority_num = priority_num_summarise,
-                   priority_ethnicity = priority_summarise_ethnicity,
-                   priority_child_under_one = priority_summarise_child_under_one,
-                   priority_mother_under_25 = priority_summarise_mother_under_25,
-                   priority_three_plus_children = priority_summarise_three_plus_children
-                   )
+)
+
+# summary_funcs <- c(treated = treated_summary,
+#                    whole_pop_income_quint_together = whole_pop_income_quint_summary,
+#                    families_income_quint_together = families_income_quint_summary,
+#                    priority_any = priority_any_summarise,
+#                    priority_num = priority_num_summarise,
+#                    priority_ethnicity = priority_summarise_ethnicity,
+#                    priority_child_under_one = priority_summarise_child_under_one,
+#                    priority_mother_under_25 = priority_summarise_mother_under_25,
+#                    priority_three_plus_children = priority_summarise_three_plus_children
+# )
 
 # indices_of_inequality = indices_of_inequality
 
