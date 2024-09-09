@@ -432,7 +432,7 @@ class energyBills(Base):
         # adjust expenditure based on 2020 consumption.
 
         if self.raise_energy_prices: # adjust energy pricing according to forecasts or keep it flat.
-            electric_price_artio, gas_price_ratio, liquid_price_ratio, solid_price_ratio = self.energy_pricing_forecasts(
+            electric_price_ratio, gas_price_ratio, liquid_price_ratio, solid_price_ratio = self.energy_pricing_forecasts(
                 event.time.year)
         else:
             electric_price_ratio, gas_price_ratio, liquid_price_ratio, solid_price_ratio = 1, 1, 1, 1

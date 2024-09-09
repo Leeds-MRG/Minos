@@ -58,7 +58,7 @@ def get_minos_files(source):
     start_year = 2020
     out_files = []
 
-    while start_year < int(year):
+    while start_year <= int(year):
         out_files.append(glob.glob(source + f"/*{start_year}.csv"))
         start_year += 1
 
@@ -96,6 +96,23 @@ def get_region_lsoas(region):
     return pd.read_csv(lsoas_file_path)
 
 
+def calculate_QALYs(df):
+    alive_pop = df['alive'].value_counts()['alive']
+
+    sf_12 = np.nanmean(df['SF_12'])
+    sf_12_pcs = np.nanmean(df['SF_12_PCS'])
+    utility = -1.6984 + \
+        (sf_12_pcs * 0.07927) + \
+        (sf_12 * 0.02859) + \
+        ((sf_12_pcs * sf_12) * -0.000126) + \
+        ((sf_12_pcs * sf_12_pcs) * -0.00141) + \
+        ((sf_12 * sf_12) * -0.00014) + \
+        ((sf_12_pcs* sf_12_pcs * sf_12_pcs) * 0.0000107)
+
+    # Now calculate QALYs by multiplying utility score by pop_size
+    qaly = utility * alive_pop
+    return qaly
+
 def group_by_and_aggregate(data, group_column, v, method):
     """ Aggregate values by
 
@@ -117,20 +134,33 @@ def group_by_and_aggregate(data, group_column, v, method):
     else:
         intervention_cost = 0
 
-    current_time = data['time'].max()
+    pop_sizes = data.groupby([group_column]).size()
 
-    data = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x[v])))
+    current_time = data['time'].max()
+    if v == "QALYs":
+        method = calculate_QALYs
+        data = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x)))
+    else:
+        data = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x[v])))
+
     data.columns = [v]
     data['intervention_cost'] = intervention_cost
     data['time'] = current_time - 1
+    data['pop_size'] = pop_sizes
+
     data[group_column] = data.index
     data.reset_index(drop=True, inplace=True)
     return data
 
 def group_by_and_aggregate_longitudinal(data, group_column, v, method):
-    grouped_sf12 = data.groupby(by=[group_column, 'run_id' , 'time'], as_index=False)["SF_12"].mean()["SF_12"]
+    if v == "QALYs":
+        grouped_variable = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'QALYs': np.cumsum})["QALYs"]
+    else:
+        grouped_variable = data.groupby(by=[group_column, 'run_id' , 'time'], as_index=False)[v].mean()[v]
+    pop_sizes = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'pop_size': np.mean})['pop_size']
     data = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'intervention_cost': np.cumsum})
-    data['SF_12'] = grouped_sf12
+    data[v] = grouped_variable
+    data['pop_size'] = pop_sizes
     return data
 
 def subset_lsoas_by_region(spatial_data, region_data):
@@ -151,7 +181,7 @@ def subset_lsoas_by_region(spatial_data, region_data):
     return spatial_data[spatial_data['ZoneID'].isin(region_data["lsoa11cd"])]
 
 
-def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, v):
+def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_size_dict, v):
     """ Add new property to some geojson multipolygon data such as mean SF12 value
 
     Multipolygon is essentially a list of dictionaries. Each polygon has a 'features' subdictionary that is being appended.
@@ -178,6 +208,7 @@ def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, v):
         LSOA_code = item["properties"]["ZoneID"]
         variable_code = new_variable_dict[LSOA_code]
         intervention_cost_code = intervention_cost_dict[LSOA_code]
+        pop_size_code = pop_size_dict[LSOA_code]
 
         if variable_code == 0:  # TODO needs improving with a more general catch all.
             variable_code = None
@@ -186,6 +217,7 @@ def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, v):
         # TODO should be an easier way to just append this list of features..
         item['properties'][v] = variable_code
         item['properties']['intervention_cost'] = intervention_cost_code
+        item['properties']['pop_size'] = pop_size_code
         geojson_data['features'][i] = item
     return geojson_data
 
@@ -253,7 +285,11 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
 
     # if dataset empty (e.g. no boosted in start year). do nothing.
     if minos_data.shape[0]:
-        subset_columns = ['pidp', "ZoneID", v, 'time', 'hidp']
+        subset_columns = ['pidp', "ZoneID",'time', 'hidp']
+        if v == "QALYs":
+            subset_columns += ["SF_12_PCS", "SF_12", 'alive']
+        else:
+            subset_columns.append(v)
         if "intervention_cost" in minos_data.columns:
             subset_columns += ["intervention_cost"]
         minos_data = minos_data[subset_columns]
@@ -299,7 +335,7 @@ def load_minos_data(minos_files, subset_function, is_synthetic_pop, v, region='g
     return total_minos_data
 
 
-def main(intervention, year, region, subset_function, is_synthetic_pop, v, method=np.nanmean):
+def main(intervention, year, region, subset_function, is_synthetic_pop, v, method=np.nanmean, is_cumulative=True):
     """ Aggregate some attribute v to LSOA level and put it in a geojson map.
 
     - Merge minos data onto spatially weighted LSOAs.
@@ -330,19 +366,28 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
     print(f"Aggregating MINOS data at {source} for {year} and {region} region.")
     minos_files = get_minos_files(source)
     total_minos_data = pd.DataFrame()
-    for yearly_files in minos_files:
-        subset_minos_data = load_minos_data(yearly_files, subset_function, is_synthetic_pop, v, region)
+    if is_cumulative:
+        for yearly_files in minos_files:
+            subset_minos_data = load_minos_data(yearly_files, subset_function, is_synthetic_pop, v, region)
+            total_minos_data = pd.concat([total_minos_data, subset_minos_data])
+
+
+        # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
+        total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
+        total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year), ]
+
+    else:
+        subset_minos_data = load_minos_data(minos_files[-1], subset_function, is_synthetic_pop, v, region)
         total_minos_data = pd.concat([total_minos_data, subset_minos_data])
-
-
-    # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
-    total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
-    total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year), ]
+        total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
+        #total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year), ]
 
     print('Done. Saving..')
     # convert
     spatial_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data[v]))
     cost_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["intervention_cost"]))
+    pop_size_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["pop_size"]))
+
     # Load in national LSOA geojson map data from ONS.
     # https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
     json_source = "persistent_data/spatial_data/UK_super_outputs.geojson"
@@ -364,7 +409,7 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
         json_data = subset_geojson(json_data, region_data["ZoneID"])
     else:
         json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
-    json_data = edit_geojson(json_data, spatial_dict, cost_dict, v)
+    json_data = edit_geojson(json_data, spatial_dict, cost_dict, pop_size_dict, v)
 
     # save updated geojson for use in map plots.
     print(f"GeoJSON {v} attribute added.")

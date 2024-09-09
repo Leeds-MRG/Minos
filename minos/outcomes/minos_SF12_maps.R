@@ -78,6 +78,7 @@ calculate_diff <-function(data1, data2, v){
 calculate_relative_diff <-function(data1, data2, v){
   # for two data frames with some shared column v.
   # add data2$v - data1$v to data1 as diff.
+  #browser()
   data1$v1 <- data1[[v]]
   data2$v2 <- data2[[v]]
   data1 <- merge(data1, data2, by="ZoneID")
@@ -92,11 +93,15 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   
   # take cost, variable, and imd.
   
-  data <- data[, c("diff", "intervention_cost.y", "ZoneID")]
+  
+  data <- data[, c("diff", "intervention_cost.y", "ZoneID", "pop_size.y")]
   
   imd_data <- read.csv("persistent_data/spatial_data/UK_lsoa_imd.csv")
   colnames(imd_data) <- c("ZoneID", "IMD_Rank", "IMD_decile")
   data <- merge(data, imd_data, by="ZoneID")
+  #browser()
+  
+  data$intervention_cost_per_capita <- data$intervention_cost.y / data$pop_size.y
   # lineplot cost and variable. colour by imd. 
   
   # other parametres and save.
@@ -106,14 +111,20 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
     file_name = strsplit(destination_file_name, "/")[[1]][2]
     extension <- "cost_vs_gain_by_lsoa_"
     destination_file_name <- paste0(destination, "/", extension, file_name)
+    browser()
     pdf(destination_file_name)
-    plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+    #plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
+    #plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+    f <- ggplot(data, aes(x=intervention_cost.y, y=diff, color=factor(IMD_decile))) +
+      geom_point() + geom_abline(intercept = 0, slope = 1/30000)
+    print(f)
+    #abline(a=1/30000, b=0)
     dev.off()
     print("saved cost gain scatterplot to: ")
     print(destination_file_name)
   }
   else {
-    plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+    plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
   }
 
 }
@@ -258,14 +269,16 @@ rural_urban_t_test <- function(data){
   data1 <- merge(data, rural_urban_data, by="ZoneID")
   # split groups and t-test.
   
-  data1 <- data1[, c("diff", "urban_rural_code")]
+  #data1 <- data1[, c("diff", "urban_rural_code")]
   #data1$urban_rural_code <- factor(data1$urban_rural_code,levels = c("Rural town and fringe ","Rural village and dispersed","Urban city and town  ","Urban major conurbation "))
   
   #browser()
   #x <- data1[which(data1$urban_rural_code=="Urban"), "diff"]
   #y <- data1[which(data1$urban_rural_code=="Rural"), "diff"]
   #t.test(x, y)
-  print(summary(lm(diff~factor(urban_rural_code), data=data1)))
+  #browser()
+  m1 <- lm(scale(diff)~factor(urban_rural_code) + LAName.y + scale(intervention_cost.y)-1, data=data1)
+  print(summary(m1))
 }
 
 main.single <- function(geojson_file_name, destination_file_name, v){
@@ -297,7 +310,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
 
-  #browser()
+  browser()
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)
   
@@ -305,7 +318,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   
   rural_urban_t_test(data1)
   cost_vs_gain_imd_plot(data1, destination_file_name, v)
-  data1 <- LSOA_TO_LAD_DATA(data1)
+  #data1 <- LSOA_TO_LAD_DATA(data1)
   
   minos_diff_map(data1, destination_file_name, v)
 

@@ -27,14 +27,14 @@ main <- function(){
   year <- args$year
   synth <- args$synth
   v <- args$var
-
+  
   output_subdir <- "energy_manchester_scaled"
   run <- "baseline"
-  intervention <- "EPCG"
+  intervention <- "GBIS"
   region <- "manchester"
-  year <- 2024
+  year <- 2030
   synth <- T
-  v <- "SF_12"
+  v <- "QALYs"
 
     
   ## handle runtime subdirectory
