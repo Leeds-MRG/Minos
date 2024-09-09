@@ -693,7 +693,7 @@ scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
 summary_funcs <- c(whole_pop_income_quint = whole_pop_income_quint_summarise,
-                   families_income_quint = families_income_quint_summarise,
+                   families_income_quint = families_income_quint_summarise
 )
 
 # summary_funcs <- c(whole_pop = whole_pop_summarise,
