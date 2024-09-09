@@ -47,7 +47,7 @@ class Tobacco(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream("tobacco")
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -128,13 +128,16 @@ class Tobacco(Base):
         # if simulation goes beyond real data in 2020 dont load the transition model again.
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"ncigs/zip/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "zip")
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model,
+                                                                    self.rpy2Modules,
+                                                                    "zip",
+                                                                    seed=self.run_seed)
 
         # The calculation relies on the R predict method and the model that has already been specified
         nextWaveTobacco = r_utils.predict_next_timestep_zip(model=self.transition_model,
-                                                            rpy2Modules= self.rpy2Modules,
+                                                            rpy2Modules=self.rpy2Modules,
                                                             current=pop,
-                                                            dependent='ncigs')
+                                                            seed=self.run_seed)
         return nextWaveTobacco
 
     def plot(self, pop, config):

@@ -43,7 +43,7 @@ class FinancialSituation(Base):
         # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -63,7 +63,8 @@ class FinancialSituation(Base):
                         'hh_income',
                         'marital_status',
                         'housing_tenure',
-                        'financial_situation'
+                        'financial_situation',
+                        'urban'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -100,12 +101,13 @@ class FinancialSituation(Base):
         nextWaveFinancialPerception = self.calculate_financial_situation(pop)
         nextWaveFinancialPerception["financial_situation"] = self.random.choice(nextWaveFinancialPerception.index,
                                                                 list(nextWaveFinancialPerception.columns+1),
-                                                                nextWaveFinancialPerception).astype(float)
+                                                                nextWaveFinancialPerception)
         nextWaveFinancialPerception.index = pop.index
-        #nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
+        nextWaveFinancialPerception["financial_situation"] = nextWaveFinancialPerception["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
-        self.population_view.update(nextWaveFinancialPerception['financial_situation'].astype(int))
+        #nextWaveFinancialPerception['financial_situation'] = nextWaveFinancialPerception['financial_situation'].astype(float)
+        self.population_view.update(nextWaveFinancialPerception['financial_situation'])
 
     def calculate_financial_situation(self, pop):
         # year = 2020
@@ -122,6 +124,6 @@ class FinancialSituation(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.fs_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='financial_situation')
+                                                  seed=self.run_seed)
 
         return prob_df

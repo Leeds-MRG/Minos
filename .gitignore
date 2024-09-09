@@ -28,6 +28,8 @@ minos/*/__pycache__/
 data/*/*.csv
 data/*.csv
 data/final_US/cross_validation/*
+data/replenishing/*
+data/imputed_final_US/*
 # R transitions objects and coefficient files
 data/transitions/*coefficients.txt
 data/transitions/*.rds
@@ -67,6 +69,8 @@ Minos.Rproj
 # Knitted R notebook files
 minos/validation/*.html
 minos/outcomes/*.html
+minos/outcomes/*.pdf
+minos/outcomes/*.png
 minos/testing/*.html
 
 # rob phd data
@@ -117,3 +121,6 @@ notebooks/hh_composition_composite.ipynb
 notebooks/new_housing_composite.ipynb
 notebooks/testing_new_transition_vars.ipynb
 notebooks/equivalent_income.ipynb
+
+# LA 5/7/24
+minos/*.gif

@@ -31,7 +31,7 @@ class Replenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
-        config = builder.configuration
+        self.config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -110,7 +110,7 @@ class Replenishment(Base):
         view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
 
 
-        if config.synthetic:  # only have spatial column and new pidp for synthpop.
+        if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
                              # "new_pidp",
                              'local_simd_deciles',
@@ -206,7 +206,12 @@ class Replenishment(Base):
             #pop['time'] += 1
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
-            new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
+            if 'run_id' in self.config.keys():
+                #new_wave = pd.read_csv(f"{self.replenishing_dir}/{(self.config['run_ID']//10) + 1}_replenishing_pop_2015-2070.csv")
+                new_wave = pd.read_csv(f"{self.replenishing_dir}/{((self.config['run_ID']-1)//10) + 1}_replenishing_pop_2015-2070.csv")
+            else:
+                new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
+
             # Now select the population for the current year
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds

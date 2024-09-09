@@ -47,7 +47,7 @@ main <- function(n_imputations, iterations_per_imputation){
   # save to individual waves.
   # get composite/complete case this data instead. I.E. slot into current pipeline and makes.
   start.data <- read_all_UKHLS_waves(here::here("data/"), "composite_US")
-  start.data <- start.data[which(start.data$time>=2018),]
+  start.data <- start.data[which(start.data$time>=2015),]
 
   mice_columns <- c("age",
                     "region",
@@ -131,6 +131,7 @@ main <- function(n_imputations, iterations_per_imputation){
     final.mice.data <- complete(mice_set, 1)
   }
 
+  final.mice.data$nkids_ind[final.mice.data$nkids_ind > 10] <- 10
   end.time <- Sys.time()
   log_print("")
   log_print("Time Elapsed: ")

@@ -16,13 +16,13 @@
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
-require(argparse)
-require(tidyverse)
-require(stringr)
-require(pscl)
-require(dplyr)
-require(tidyr)
-require(texreg)
+library(argparse)
+library(tidyverse)
+library(stringr)
+library(pscl)
+library(dplyr)
+library(tidyr)
+library(texreg)
 
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
