@@ -537,20 +537,20 @@ scen.path <- here::here(out.path, scen)
 scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
-summary_funcs <- c(whole_pop_income_quint_together = whole_pop_income_quint_summary,
-                   families_income_quint_together = families_income_quint_summary
-)
-
-# summary_funcs <- c(treated = treated_summary,
-#                    whole_pop_income_quint_together = whole_pop_income_quint_summary,
-#                    families_income_quint_together = families_income_quint_summary,
-#                    priority_any = priority_any_summarise,
-#                    priority_num = priority_num_summarise,
-#                    priority_ethnicity = priority_summarise_ethnicity,
-#                    priority_child_under_one = priority_summarise_child_under_one,
-#                    priority_mother_under_25 = priority_summarise_mother_under_25,
-#                    priority_three_plus_children = priority_summarise_three_plus_children
+# summary_funcs <- c(whole_pop_income_quint_together = whole_pop_income_quint_summary,
+#                    families_income_quint_together = families_income_quint_summary
 # )
+
+summary_funcs <- c(treated = treated_summary,
+                   whole_pop_income_quint_together = whole_pop_income_quint_summary,
+                   families_income_quint_together = families_income_quint_summary,
+                   priority_any = priority_any_summarise,
+                   priority_num = priority_num_summarise,
+                   priority_ethnicity = priority_summarise_ethnicity,
+                   priority_child_under_one = priority_summarise_child_under_one,
+                   priority_mother_under_25 = priority_summarise_mother_under_25,
+                   priority_three_plus_children = priority_summarise_three_plus_children
+)
 
 # indices_of_inequality = indices_of_inequality
 
