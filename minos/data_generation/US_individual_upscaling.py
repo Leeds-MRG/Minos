@@ -8,8 +8,6 @@ import numpy as np
 import os
 from os.path import dirname as up
 import US_utils
-# from minos.data_generation.US_upscaling import subset_zone_ids, take_synthpop_sample, merge_with_spatial_attributes, get_spatial_attribute_data
-from minos.data_generation.align_household_spatial_data import main as align_main
 import argparse
 
 
