@@ -48,6 +48,7 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline: setup
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
 
+### HR 09/09/24 All US-only setup for fertility here ###
 NOPARITY_CONFIG=$(CONFIG)/default_noparity.yaml
 NOPARITY_MODE=default_config_noparity
 baseline_noparity: setup
@@ -57,6 +58,7 @@ PARITY_CONFIG=$(CONFIG)/default_parity.yaml
 PARITY_MODE=default_config_parity
 baseline_parity: setup
 	$(PYTHON) scripts/run.py -c $(PARITY_CONFIG) -o $(PARITY_MODE)
+################################################
 
 baseline_inflated: setup_inflated
 	$(PYTHON) scripts/run.py -c $(CONFIG)/inflated_default.yaml -o inflated_default
@@ -207,15 +209,27 @@ baseline: ### Baseline run of MINOS, using configuration defined in testConfig.y
 baseline_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled
 
-NOPARITY_SCALED_CONFIG=$(CONFIG)/uk_scaled_noparity.yaml
-NOPARITY_SCALED_MODE=uk_scaled_noparity
+### HR 09/09/24 All GB-individual synthpop setup for fertility here ###
+NOPARITY_UK_CONFIG=$(CONFIG)/uk_scaled_noparity.yaml
+NOPARITY_UK_MODE=uk_scaled_noparity
 baseline_uk_noparity: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(NOPARITY_SCALED_CONFIG) -o $(NOPARITY_SCALED_MODE)
+	$(PYTHON) scripts/run.py -c $(NOPARITY_UK_CONFIG) -o $(NOPARITY_UK_MODE)
 
-PARITY_SCALED_CONFIG=$(CONFIG)/uk_scaled_parity.yaml
-PARITY_SCALED_MODE=uk_scaled_parity
+PARITY_UK_CONFIG=$(CONFIG)/uk_scaled_parity.yaml
+PARITY_UK_MODE=uk_scaled_parity
 baseline_uk_parity: setup_uk_scaled
-	$(PYTHON) scripts/run.py -c $(PARITY_SCALED_CONFIG) -o $(PARITY_SCALED_MODE)
+	$(PYTHON) scripts/run.py -c $(PARITY_UK_CONFIG) -o $(PARITY_UK_MODE)
+
+NOPARITY_GB_CONFIG=$(CONFIG)/gb_scaled_noparity.yaml
+NOPARITY_GB_MODE=gb_scaled_noparity
+baseline_gb_noparity: setup_gb_scaled
+	$(PYTHON) scripts/run.py -c $(NOPARITY_GB_CONFIG) -o $(NOPARITY_GB_MODE)
+
+PARITY_GB_CONFIG=$(CONFIG)/gb_scaled_parity.yaml
+PARITY_GB_MODE=gb_scaled_parity
+baseline_gb_parity: setup_gb_scaled
+	$(PYTHON) scripts/run.py -c $(PARITY_GB_CONFIG) -o $(PARITY_GB_MODE)
+################################################
 
 intervention_hhIncome_uk: setup_uk_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/uk_scaled.yaml -o uk_scaled -i 'hhIncomeIntervention'
