@@ -309,17 +309,24 @@ def type_check(data):
 
     """
 
-    data['S7_mental_health'] = data['S7_mental_health'].astype('Int64')
-    data['S7_physical_health'] = data['S7_physical_health'].astype('Int64')
-    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype('Int64')
-    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
-    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('Int64')
-    data['job_sec'] = data['job_sec'].astype('Int64')
-    #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
-    data['nkids'] = data['nkids'].astype(float)
-    data['financial_situation'] = data['financial_situation'].astype(int)
-    data['behind_on_bills'] = data['behind_on_bills'].astype(int)
-    data['boost_amount'] = data['boost_amount'].astype(float)
+    type_dict = {'S7_mental_health': 'Int64',
+                 'S7_physical_health': 'Int64',
+                 'nutrition_quality_diff': 'Int64',
+                 'neighbourhood_safety': 'Int64',
+                 'job_sec': 'Int64',
+                 # 'S7_neighbourhood_safety': str,
+                 'nkids': float,
+                 'financial_situation': int,
+                 'behind_on_bills': int,
+                 'boost_amount': float,
+                 }
+
+    for v, t in type_dict.items():
+        try:
+            data[v] = data[v].astype(t)
+        except KeyError as e:
+            print('KeyError for variable {}; exception follows'.format(v))
+            print('KeyError:', e)
 
     return data
 
