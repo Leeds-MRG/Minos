@@ -45,14 +45,26 @@ REGION_DEFAULT = 'gb'
 PERCENT_DEFAULT = 0.1
 YEARS_DEFAULT = (2019,)
 VAR_LIST_DEFAULT_FERTILITY = ('pidp',
+                              'hidp',
+                              'alive',
                               'sex',
                               'age',
+                              'birth_year',
                               'region',
                               'ethnicity',
+                              'nkids',
                               'nkids_ind',
+                              'child_ages',
                               'nresp',
                               'nnewborn',
-                              'weight')
+                              # 'weight',
+                              'education_state',
+                              'max_educ',
+                              'hh_int_m',
+                              'hh_int_y',
+                              'time',
+                              'Date',
+                              )
 
 
 # HR 10/09/24 LSOA to ward mapping, adapted from IE(II)
@@ -143,7 +155,7 @@ def merge_with_synthpop(synthpop,
     merged_data : pd.DataFrame
         Merged synthetic US data with spatial component
     """
-    synthpop[f"new_{merge_column}"] = np.arange(synthpop.shape[0])
+    # synthpop[f"new_{merge_column}"] = np.arange(synthpop.shape[0])
     synthpop[merge_column] = synthpop[merge_column].astype(int)
     merged_data = synthpop.merge(us_data, how='left', on=merge_column)
     return merged_data
@@ -241,6 +253,7 @@ def main(region=REGION_DEFAULT,
     n : int
         Number of bootstrapping samples to take.
     """
+    var_list = list(var_list)
     for year in years:
 
         # Get raw (i.e. unpopulated) synthetic population
@@ -255,8 +268,9 @@ def main(region=REGION_DEFAULT,
         # Get LSOAs in region to be subsetted, then filter
         lsoa_col = "LSOA" + str(LSOA_YEAR_DEFAULT)[-2:] + "CD"
         lsoas = get_lsoas(region)
-        sp.rename(columns={'ZoneID': lsoa_col}, inplace=True)  # Rename column that is present in some version of synthpop
-        sp = sp.loc[sp['LSOA11CD'].isin(lsoas)]
+        # sp.rename(columns={'ZoneID': lsoa_col}, inplace=True)  # Rename column that is present in some version of synthpop
+        # sp = sp.loc[sp['LSOA11CD'].isin(lsoas)]
+        sp = sp.loc[sp['ZoneID'].isin(lsoas)]
 
         ''' HR 11/09/24 Bootstrapping not tested '''
         # # If bootstrapping sample from subsetted synthetic data with replacement (i.e. allow multiple instances)
@@ -273,22 +287,27 @@ def main(region=REGION_DEFAULT,
         #     sp = sp[mask]
         # # 2. ...THEN DROP EXTRANEOUS COLUMNS HERE AS NECESSARY
 
+        # Get US data, filtering for required variables only
+        us_fullpath = os.path.join(DATA_DIR, 'imputed_final_US', str(year) + '_US_cohort.csv')
+        us_data = pd.read_csv(us_fullpath)[var_list]
+
         ''' HR 11/09/24 Multisampling not tested '''
         # Generate n sample populations
         if multisamp:
             n_samples = 10
             for i in range(n_samples):
-                sampled_data = take_sample(sp, percentage)
+                # Get sample of synthpop and merge with US data
+                multi = take_sample(sp, percentage)
+                merged_multi = merge_with_synthpop(multi, us_data)
 
-                file_dest = os.path.join(DATA_DIR, f'scaled_{region}_US_{i+1}/')
-                US_utils.save_file(sampled_data, file_dest, '', year)
+                # Scramble pidp
+                merged_multi['pidp'] = merged_multi.reset_index().index
 
-        # Get percentage sample of merged data
+                file_multi = os.path.join(DATA_DIR, f'scaled_{region}_US_{i+1}/')
+                US_utils.save_file(merged_multi, file_multi, '', year)
+
+        # Get sample of synthpop and merge with US data
         samp = take_sample(sp, percentage)
-
-        # Get US data (filtering for required variables only) and merge with synthpop
-        us_fullpath = os.path.join(DATA_DIR, 'imputed_final_US', str(year) + '_US_cohort.csv')
-        us_data = pd.read_csv(us_fullpath)[var_list]
         merged = merge_with_synthpop(samp, us_data)
 
         # Compute proportion of synthpop individuals present in US data, i.e. degree of overlap - should be 100%!
@@ -299,10 +318,15 @@ def main(region=REGION_DEFAULT,
         prop = 100*n_overlap/n_total
         print('Degree of overlap b/t synthpop and US data: {}/{} ({}%)'.format(n_overlap, n_total, prop))
 
+        # Scramble pidp
+        merged['pidp'] = merged.reset_index().index
+
         if priority_sub:
             # file_dest = os.path.join(DATA_DIR, f'{region}_priority_sub/')
+            print('Priority sub true')
             pass  # HR 11/09/24 Bypassing priority group functionality as not tested
         else:
+            print('Priority sub false')
             file_dest = os.path.join(DATA_DIR, f'scaled_{region}_US/')
         US_utils.save_file(merged, file_dest, '', year)
 
@@ -313,11 +337,11 @@ if __name__ == '__main__':
                                                  'using Understanding Society')
     parser.add_argument("-r", "--region", required=True, type=str, default=REGION_DEFAULT,
                         help="The region to subset for the GB synthetic population")
-    parser.add_argument("-b", "--do_bootstrapping", required=False, action='store_true', default=False,
+    parser.add_argument("-b", "--do_bootstrapping", required=False, action='store_false',
                         help="Bootstrapping the synthetic population to include uncertainty?")
-    parser.add_argument('-pr', '--priority_subgroups', required=False, action='store_true', default=False,
+    parser.add_argument('-pr', '--priority_subgroups', required=False, default=False,
                         help="Create a synthetic population of only the people in a priority subgroup")
-    parser.add_argument('-m', '--multisample', required=False, action='store_true', default=False,
+    parser.add_argument('-m', '--multisample', required=False, action='store_true',
                         help='Generate 10 distinct samples to evaluate sample uncertainty; should only be used if the'
                              'percentage of the sample is less than 100% (otherwise you would just duplicate that '
                              'sample')
@@ -342,12 +366,12 @@ if __name__ == '__main__':
     percentage = args['percentage']
     bootstrap_sample_size = args['bootstrap_sample_size']
 
-    main(region,
-         priority_subgroups,
-         multisample,
-         do_bootstrapping,
-         years,
-         var_list,
-         percentage,
-         bootstrap_sample_size,
+    main(region=region,
+         bootstrapping=do_bootstrapping,
+         priority_sub=priority_subgroups,
+         multisamp=multisample,
+         years=years,
+         var_list=var_list,
+         percentage=percentage,
+         n=bootstrap_sample_size,
          )
