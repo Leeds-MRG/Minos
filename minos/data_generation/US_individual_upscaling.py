@@ -291,8 +291,7 @@ def main(region=REGION_DEFAULT,
         us_fullpath = os.path.join(DATA_DIR, 'imputed_final_US', str(year) + '_US_cohort.csv')
         us_data = pd.read_csv(us_fullpath)[var_list]
 
-        ''' HR 11/09/24 Multisampling not tested '''
-        # Generate n sample populations
+        # Multisampling: generate n sample populations
         if multisamp:
             n_samples = 10
             for i in range(n_samples):
