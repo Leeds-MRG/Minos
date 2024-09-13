@@ -335,13 +335,13 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Individual-level synthetic population creation'
                                                  'using Understanding Society')
-    parser.add_argument("-r", "--region", required=True, type=str, default=REGION_DEFAULT,
+    parser.add_argument("-r", "--region", required=False, type=str, default=REGION_DEFAULT,
                         help="The region to subset for the GB synthetic population")
-    parser.add_argument("-b", "--do_bootstrapping", required=False, action='store_false',
+    parser.add_argument("-b", "--do_bootstrapping", required=False, action='store_true', default=False,
                         help="Bootstrapping the synthetic population to include uncertainty?")
-    parser.add_argument('-pr', '--priority_subgroups', required=False, default=False,
+    parser.add_argument('-pr', '--priority_subgroups', required=False, action='store_true', default=False,
                         help="Create a synthetic population of only the people in a priority subgroup")
-    parser.add_argument('-m', '--multisample', required=False, action='store_true',
+    parser.add_argument('-m', '--multisample', required=False, action='store_true', default=False,
                         help='Generate 10 distinct samples to evaluate sample uncertainty; should only be used if the'
                              'percentage of the sample is less than 100% (otherwise you would just duplicate that '
                              'sample')
