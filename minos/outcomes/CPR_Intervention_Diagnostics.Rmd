@@ -23,6 +23,9 @@ library(knitr)
 library(here)
 library(gghighlight)
 library(spatstat)
+library(ggalluvial)
+library(gridExtra)
+library(circlize)
 
 #workingDir <- "/home/luke/Documents/MINOS/Minos/"
 workingDir <- normalizePath('../')
@@ -277,6 +280,87 @@ density_plot_quintile_2(base.dat, int.dat, quintile = 5)
 ```
 
 
+### Version 3
+
+```{r}
+density_plot_quintile_3 <- function(base, int, quintile) {
+  
+  base <- base %>%
+    filter(income_quintile == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Baseline = hh_income)
+  int <- int %>%
+    filter(income_quintile == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Intervention = hh_income)
+  
+  combined <- merge(base, int, by = c('pidp', 'time'))
+  combined <- combined %>%
+    pivot_longer(cols = Baseline:Intervention,
+                 names_to = 'Source',
+                 values_to = 'hh_income')
+  
+  # Calculate the 1st and 99th percentiles
+  lower_cutoff <- quantile(combined$hh_income, 0.01)
+  upper_cutoff <- quantile(combined$hh_income, 0.99)
+  
+  filtered_combined <- combined %>%
+    filter(hh_income > lower_cutoff, hh_income < upper_cutoff)
+  
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source, fill = Source)) +
+    geom_density_ridges(alpha = 0.3) +
+    labs(title = 'Household Income Density Plots',
+         subtitle = paste0('Quintile ', quintile))
+  return(p)
+}
+
+density_plot_quintile_3(base.dat, int.dat, quintile = 1)
+density_plot_quintile_3(base.dat, int.dat, quintile = 2)
+density_plot_quintile_3(base.dat, int.dat, quintile = 3)
+density_plot_quintile_3(base.dat, int.dat, quintile = 4)
+density_plot_quintile_3(base.dat, int.dat, quintile = 5)
+```
+
+### Version 4
+
+```{r}
+density_plot_quintile_4 <- function(base, int, quintile) {
+  
+  base <- base %>%
+    filter(income_quintile == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Baseline = hh_income)
+  int <- int %>%
+    select(pidp, time, hh_income) %>%
+    rename(Intervention = hh_income)
+  
+  combined <- merge(base, int, by = c('pidp', 'time'))
+  combined <- combined %>%
+    pivot_longer(cols = Baseline:Intervention,
+                 names_to = 'Source',
+                 values_to = 'hh_income')
+  
+  # Calculate the 1st and 99th percentiles
+  lower_cutoff <- quantile(combined$hh_income, 0.01)
+  upper_cutoff <- quantile(combined$hh_income, 0.99)
+  
+  filtered_combined <- combined %>%
+    filter(hh_income > lower_cutoff, hh_income < upper_cutoff)
+  
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source, fill = Source)) +
+    geom_density_ridges(alpha = 0.3) +
+    labs(title = 'Household Income Density Plots',
+         subtitle = paste0('Quintile ', quintile))
+  return(p)
+}
+
+density_plot_quintile_4(base.dat, int.dat, quintile = 1)
+density_plot_quintile_4(base.dat, int.dat, quintile = 2)
+density_plot_quintile_4(base.dat, int.dat, quintile = 3)
+density_plot_quintile_4(base.dat, int.dat, quintile = 4)
+density_plot_quintile_4(base.dat, int.dat, quintile = 5)
+```
+
 ## Mean Income
 
 ```{r}
@@ -364,6 +448,351 @@ mean_income_quintile_2 <- function(base, int) {
 }
 
 mean_income_quintile_2(base.dat, int.dat)
+```
+
+## Thresholds Over Time
+
+```{r}
+# get min-max by group as this is upper and lower limits of the quintiles
+
+base <- base.dat %>%
+  group_by(time, income_quint) %>%
+  summarise(min = min(hh_income),
+            max = max(hh_income)) %>%
+  mutate(source = 'Baseline')
+int <- int.dat %>%
+  group_by(time, income_quint) %>%
+  summarise(min = min(hh_income),
+            max = max(hh_income)) %>%
+  mutate(source = 'Intervention')
+
+combined <- rbind(base, int)
+combined$income_quint <- factor(combined$income_quint)
+
+quintile_threshold_plot <- function(data, year) {
+  ggplot(filter(data, time == year), 
+         aes(x = income_quint, y = min,
+             ymin = min, lower = min, ymax = max, upper = max,
+             group = source, 
+             colour = source, 
+             fill = source)) +
+    geom_crossbar(position = position_dodge()) +
+    labs(title = 'Quintile Thresholds',
+         subtitle = year)
+}
+
+quintile_threshold_plot(combined, year = 2020)
+quintile_threshold_plot(combined, year = 2021)
+quintile_threshold_plot(combined, year = 2025)
+quintile_threshold_plot(combined, year = 2030)
+quintile_threshold_plot(combined, year = 2035)
+```
+
+# Flows Between Quintiles
+
+## Alluvial Plot
+
+```{r}
+plot_alluvial <- function(base.dat, int.dat, start_year) {
+  # Prepare baseline data
+  base_alluvial <- base.dat %>%
+    filter(time %in% c(start_year, start_year + 1)) %>%
+    select(pidp, time, income_quint) %>%
+    spread(time, income_quint) %>%
+    rename(Quintile_T1 = !!as.name(paste0(start_year)), 
+           Quintile_T2 = !!as.name(paste0(start_year + 1))) %>%
+    group_by(Quintile_T1, Quintile_T2) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    mutate(scenario = "Baseline")
+  
+  # Prepare intervention data
+  int_alluvial <- int.dat %>%
+    filter(time %in% c(start_year, start_year + 1)) %>%
+    select(pidp, time, income_quint) %>%
+    spread(time, income_quint) %>%
+    rename(Quintile_T1 = !!as.name(paste0(start_year)), 
+           Quintile_T2 = !!as.name(paste0(start_year + 1))) %>%
+    group_by(Quintile_T1, Quintile_T2) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    mutate(scenario = "Intervention")
+  
+  # Combine both datasets
+  combined_alluvial <- bind_rows(base_alluvial, int_alluvial)
+  
+  # Plot
+  ggplot(combined_alluvial, aes(axis1 = Quintile_T1, 
+                                axis2 = Quintile_T2, 
+                                y = count)) +
+    geom_alluvium(aes(fill = as.factor(Quintile_T1))) +  # Color by first quintile
+    geom_stratum() +
+    geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+    scale_x_discrete(limits = c(paste0(start_year), paste0(start_year + 1)), expand = c(0.15, 0.05)) +
+    labs(title = "Flows between Quintiles over Time", 
+         x = "Year", 
+         y = "Count") +
+    facet_grid(. ~ scenario) +  # Side-by-side comparison of baseline and intervention
+    theme_minimal()
+}
+
+
+#plot_alluvial(base.dat, int.dat, 2020)
+#plot_alluvial(base.dat, int.dat, 2025)
+#plot_alluvial(base.dat, int.dat, 2030)
+#plot_alluvial(base.dat, int.dat, 2034)
+```
+
+### Difference Alluvial
+
+```{r}
+plot_alluvial_difference_all_years <- function(base.dat, int.dat) {
+  
+  # Helper function to prepare alluvial data across all consecutive years
+  prepare_alluvial_data_all_years <- function(data) {
+    data %>%
+      select(pidp, time, income_quint) %>%
+      group_by(pidp) %>%
+      arrange(time) %>%  # Ensure data is sorted by time
+      mutate(Quintile_T1 = lag(income_quint),  # Previous year's quintile
+             Quintile_T2 = income_quint) %>%   # Current year's quintile
+      filter(!is.na(Quintile_T1)) %>%  # Remove rows without previous year
+      group_by(Quintile_T1, Quintile_T2) %>%
+      summarise(count = n()) %>%
+      ungroup()
+  }
+  
+  # Prepare baseline and intervention data for all years
+  base_alluvial <- prepare_alluvial_data_all_years(base.dat) %>%
+    rename(count_baseline = count)
+  int_alluvial <- prepare_alluvial_data_all_years(int.dat) %>%
+    rename(count_intervention = count)
+  
+  # Combine both datasets and calculate the difference in counts
+  combined_alluvial <- base_alluvial %>%
+    full_join(int_alluvial, by = c("Quintile_T1", "Quintile_T2")) %>%
+    mutate(diff_count = coalesce(count_intervention, 0) - coalesce(count_baseline, 0)) %>%
+    replace_na(list(diff_count = 0))  # Handle missing values
+  
+  # Plot the difference in flows across all years without axis labels
+  ggplot(combined_alluvial, aes(axis1 = Quintile_T1, axis2 = Quintile_T2, y = abs(diff_count))) +
+    geom_alluvium(aes(fill = as.factor(Quintile_T1)), width = 0.15) +
+    geom_stratum(width = 0.15) +
+    geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+    scale_fill_viridis_d() +
+    labs(title = "Difference in Flows between Quintiles: Baseline vs Intervention (All Years)") +
+    theme_minimal() +
+    theme(
+      legend.position = "none",      # Remove legend
+      axis.title = element_blank(),  # Remove axis titles
+      axis.text = element_blank(),   # Remove axis text
+      axis.ticks = element_blank()   # Remove axis ticks
+    )
+}
+
+# Example usage:
+plot_alluvial_difference_all_years(base.dat, int.dat)
+
+```
+
+
+## Heatmaps
+
+```{r}
+# Prepare data for heatmap
+df_heatmap <- base.dat %>%
+  filter(time %in% c(2020, 2021)) %>% # Select two time points
+  select(pidp, time, income_quint) %>%
+  spread(time, income_quint) %>%
+  rename(Quintile_T1 = `2020`, Quintile_T2 = `2021`) %>%
+  group_by(Quintile_T1, Quintile_T2) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  complete(Quintile_T1 = 1:5, Quintile_T2 = 1:5, fill = list(count = 0))
+
+
+ggplot(df_heatmap, aes(Quintile_T1, Quintile_T2, fill = count)) +
+  geom_tile() +
+  geom_text(aes(label = count), color = "black", size = 4) +  # Add count labels in each tile
+  scale_fill_gradient(low = "white", high = "blue") +
+  labs(title = "Transition Heatmap between Quintiles",
+       x = "Quintile at Baseline", y = "Quintile at Intervention") +
+  theme_minimal()
+```
+
+
+```{r}
+plot_transition_heatmaps <- function(base_data, int_data) {
+  
+  # Helper function to process the data and prepare it for plotting
+  prepare_heatmap_data <- function(data) {
+    data %>%
+      arrange(pidp, time) %>%  # Sort by individual and time
+      group_by(pidp) %>%  # Group by individual
+      mutate(Quintile_T1 = income_quint,  # Current quintile
+             Quintile_T2 = lead(income_quint),  # Next year's quintile
+             Year_T1 = time,  # Current year
+             Year_T2 = lead(time)) %>%  # Next year
+      filter(!is.na(Quintile_T2) & Year_T2 == Year_T1 + 1) %>%  # Keep only consecutive years
+      ungroup() %>%
+      group_by(Quintile_T1, Quintile_T2) %>%
+      summarise(count = n()) %>%
+      ungroup() %>%
+      complete(Quintile_T1 = 1:5, Quintile_T2 = 1:5, fill = list(count = 0))  # Ensure all combinations
+  }
+  
+  # Prepare data for baseline and intervention
+  df_baseline <- prepare_heatmap_data(base_data)
+  df_intervention <- prepare_heatmap_data(int_data)
+  
+  # Create the baseline heatmap
+  p1 <- ggplot(df_baseline, aes(Quintile_T1, Quintile_T2, fill = count)) +
+    geom_tile() +  # Create the heatmap
+    geom_text(aes(label = count), color = "black", size = 4) +  # Add count labels in each tile
+    scale_fill_gradient(low = "white", high = "blue") +  # Color gradient for the tiles
+    labs(title = "Baseline Transition Heatmap",
+         x = "Quintile at Year T1", y = "Quintile at Year T2") +
+    theme_minimal()
+  
+  # Create the intervention heatmap
+  p2 <- ggplot(df_intervention, aes(Quintile_T1, Quintile_T2, fill = count)) +
+    geom_tile() +  # Create the heatmap
+    geom_text(aes(label = count), color = "black", size = 4) +  # Add count labels in each tile
+    scale_fill_gradient(low = "white", high = "blue") +  # Color gradient for the tiles
+    labs(title = "Intervention Transition Heatmap",
+         x = "Quintile at Year T1", y = "Quintile at Year T2") +
+    theme_minimal()
+  
+  # Arrange the two plots side by side for comparison
+  #gridExtra::grid.arrange(p1, p2, ncol = 2)
+  print(p1)
+  print(p2)
+}
+
+# Example usage:
+plot_transition_heatmaps(base.dat, int.dat)
+
+```
+
+### Difference Heatmap
+
+```{r}
+plot_transition_heatmap_difference <- function(base_data, int_data) {
+  
+  # Helper function to process the data and prepare it for comparison
+  prepare_heatmap_data <- function(data) {
+    data %>%
+      arrange(pidp, time) %>%  # Sort by individual and time
+      group_by(pidp) %>%  # Group by individual
+      mutate(Quintile_T1 = income_quint,  # Current quintile
+             Quintile_T2 = lead(income_quint),  # Next year's quintile
+             Year_T1 = time,  # Current year
+             Year_T2 = lead(time)) %>%  # Next year
+      filter(!is.na(Quintile_T2) & Year_T2 == Year_T1 + 1) %>%  # Keep only consecutive years
+      ungroup() %>%
+      group_by(Quintile_T1, Quintile_T2) %>%
+      summarise(count = n()) %>%
+      ungroup() %>%
+      complete(Quintile_T1 = 1:5, Quintile_T2 = 1:5, fill = list(count = 0))  # Ensure all combinations
+  }
+  
+  # Prepare data for baseline and intervention
+  df_baseline <- prepare_heatmap_data(base_data) %>%
+    rename(count_baseline = count)
+  df_intervention <- prepare_heatmap_data(int_data) %>%
+    rename(count_intervention = count)
+  
+  # Merge the two datasets by Quintile_T1 and Quintile_T2
+  df_difference <- df_baseline %>%
+    left_join(df_intervention, by = c("Quintile_T1", "Quintile_T2")) %>%
+    mutate(diff_count = count_intervention - count_baseline) %>%
+    replace_na(list(diff_count = 0))  # Handle missing values
+  
+  # Plot the difference heatmap
+  ggplot(df_difference, aes(Quintile_T1, Quintile_T2, fill = diff_count)) +
+    geom_tile() +  # Create the heatmap
+    geom_text(aes(label = diff_count), color = "black", size = 4) +  # Add difference labels in each tile
+    scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +  # Diverging color scale
+    labs(title = "Difference in Transition Counts between Baseline and Intervention",
+         x = "Quintile at Year T1", y = "Quintile at Year T2",
+         fill = "Count Difference") +
+    theme_minimal()
+}
+
+# Example usage:
+plot_transition_heatmap_difference(base.dat, int.dat)
+```
+
+# Chord Diagram
+
+```{r}
+# Function to prepare data for chord diagram
+prepare_chord_data_all_years <- function(data) {
+  data %>%
+    select(pidp, time, income_quint) %>%
+    group_by(pidp) %>%
+    arrange(time) %>%  # Ensure data is sorted by time
+    mutate(Quintile_T1 = lag(income_quint),  # Previous year's quintile
+           Quintile_T2 = income_quint) %>%   # Current year's quintile
+    filter(!is.na(Quintile_T1)) %>%  # Remove rows without previous year
+    group_by(Quintile_T1, Quintile_T2) %>%
+    summarise(count = n(), .groups = "drop")  # Ensure no grouping remains
+}
+
+# Function to create a chord diagram with labels
+plot_chord_difference_all_years <- function(base.dat, int.dat) {
+  
+  # Prepare baseline and intervention data for all years
+  base_chord <- prepare_chord_data_all_years(base.dat) %>%
+    rename(count_baseline = count)
+  int_chord <- prepare_chord_data_all_years(int.dat) %>%
+    rename(count_intervention = count)
+  
+  # Combine both datasets and calculate the difference in counts
+  combined_chord <- base_chord %>%
+    full_join(int_chord, by = c("Quintile_T1", "Quintile_T2")) %>%
+    mutate(diff_count = coalesce(count_intervention, 0) - coalesce(count_baseline, 0)) %>%
+    replace_na(list(diff_count = 0)) %>%
+    group_by(Quintile_T1, Quintile_T2) %>%
+    summarise(diff_count = sum(diff_count), .groups = "drop")  # Aggregate flows
+  
+  # Prepare data for chord diagram (no duplicate rows)
+  chord_matrix <- combined_chord %>%
+    spread(Quintile_T2, diff_count, fill = 0) %>%
+    column_to_rownames(var = "Quintile_T1") %>%
+    as.matrix()
+  
+  # Define color palette for the quintiles
+  chord_colors <- viridis::viridis(5)
+  
+  # Define labels for the quintiles
+  quintile_labels <- paste("Quintile", 1:5)
+  
+  # Plot chord diagram with labels
+  circos.clear()
+  circos.par(start.degree = 90)  # Start the chord diagram from the top
+  chordDiagram(chord_matrix, 
+               annotationTrack = c("name", "grid"),  # Add labels and grid
+               transparency = 0.5,                   # Adjust transparency of flows
+               grid.col = chord_colors,              # Color by quintile
+               preAllocateTracks = 1,
+               directional = 1)                      # Optional: make it directional
+  
+  # Add labels for each quintile
+  circos.track(track.index = 1, panel.fun = function(x, y) {
+    circos.text(CELL_META$xcenter, CELL_META$ylim[1] + 0.1, 
+                quintile_labels[CELL_META$sector.numeric.index], 
+                facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5))
+  }, bg.border = NA)
+  
+  # Remove axis labels and ticks
+  circos.track(track.index = 1, panel.fun = function(x, y) {
+    circos.axis(labels.cex = 0, labels = FALSE, major.tick = FALSE)
+  })
+}
+
+# Example usage:
+plot_chord_difference_all_years(base.dat, int.dat)
 ```
 
 
