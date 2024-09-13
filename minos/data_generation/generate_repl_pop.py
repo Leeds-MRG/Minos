@@ -306,6 +306,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
+    elif region == 'gb':
+        data_source = 'scaled_gb_US'
+        output_dir = 'data/replenishing/gb_scaled'
+        source_year = 2019
 
     if priority_sub:
         data_source = 'scot_priority_sub'
@@ -367,6 +371,8 @@ def main():
                              "generated from the synthpop.")
 
     args = parser.parse_args()
+    print(args)
+
     scotland_mode = args.scotland
     cross_validation = args.crossval
     inflated = args.inflated
@@ -377,6 +383,7 @@ def main():
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
     projections = pd.read_csv(proj_file)
+
     # rename and drop some columns to prepare
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})

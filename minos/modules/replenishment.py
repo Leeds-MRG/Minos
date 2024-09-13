@@ -10,7 +10,7 @@ import os
 
 
 # suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+# pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
 class Replenishment(Base):
@@ -109,14 +109,16 @@ class Replenishment(Base):
 
         view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
 
-
         if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
-            view_columns += ["ZoneID",
-                             # "new_pidp",
-                             'local_simd_deciles',
-                             'simd_decile',
-                             # 'cluster'
-                             ]
+            try:
+                view_columns += self.config.replenishing_columns  # HR 13/09/24 Workaround to reduce data size for GB synthpop
+            except:
+                view_columns += ["ZoneID",
+                                 # "new_pidp",
+                                 'local_simd_deciles',
+                                 'simd_decile',
+                                 # 'cluster'
+                                 ]
         columns_created = ['entrance_time']
 
         # Shorthand methods for readability.
@@ -181,7 +183,10 @@ class Replenishment(Base):
         # Add new simulants to the overall population frame.
         self.register(new_population[["entrance_time", "age"]])
         np.seterr(invalid='ignore')
-        new_population['S7_neighbourhood_safety'] = new_population['S7_neighbourhood_safety'].astype(str)  # HR 457
+        try:  # Deal with missing var if using pared-down variable set
+            new_population['S7_neighbourhood_safety'] = new_population['S7_neighbourhood_safety'].astype(str)  # HR 457
+        except KeyError:
+            print('KeyError for S7_neighbourhood_safety')
 
         self.population_view.update(new_population)
 
