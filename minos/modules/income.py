@@ -1702,10 +1702,12 @@ class XGBIncome(Base):
 
         # Variance scaling with a scaling factor applied to some interventions (child poverty reduction)
         # TODO: Rename this attribute to something more generic about child poverty interventions
-        if self.reset_income_intervention:
-            newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=True, scaling_factor=0.5)
-        else:
-            newWaveIncome = scale_adjust_variance(newWaveIncome, pop)
+        # if self.reset_income_intervention:
+        #     newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=True, scaling_factor=0.5)
+        # else:
+        #     newWaveIncome = scale_adjust_variance(newWaveIncome, pop)
+
+        newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.5)
 
         # Adjust Skewness
         target_skew = skew(pop["hh_income_last"])
