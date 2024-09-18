@@ -1513,6 +1513,64 @@ def scale_and_clip(newWaveIncome, pop):
     return newWaveIncome
 
 
+def scale_adjust_variance(newWaveIncome, pop, is_intervention=False, scaling_factor=1.0):
+    """
+    Scales and clips household income, applying a scaling factor for variance
+    reduction in the case of an intervention scenario.
+
+    Parameters
+    ----------
+    newWaveIncome : DataFrame
+        The current wave of population income data.
+    pop : DataFrame
+        Population data from the previous wave.
+    is_intervention : bool, optional
+        Whether the current run is an intervention (default is False).
+    scaling_factor : float, optional
+        The factor to scale variance by (default is 1.0, meaning no scaling).
+
+    Returns
+    -------
+    newWaveIncome : DataFrame
+        Updated income data after scaling and clipping.
+    """
+
+    # Get household income statistics from the previous wave
+    income_mean = np.mean(newWaveIncome["hh_income"])
+    std_last = np.std(pop['hh_income_last'])
+    std_new = np.std(newWaveIncome["hh_income"])
+    std_ratio = std_last / std_new
+
+    # Apply the scaling factor to the variance only if it's an intervention run
+    if is_intervention:
+        std_ratio *= scaling_factor
+
+    # Scaling transformation (sigmoid-like approach)
+    hh_income_min = np.min(pop['hh_income_last'])
+    hh_income_max = np.max(pop['hh_income_last'])
+
+    # Step 1: Min-Max normalization
+    normalized_income = (newWaveIncome["hh_income"] - hh_income_min) / (hh_income_max - hh_income_min)
+
+    # Step 2: Apply the scaled variance ratio
+    scaled_income = normalized_income * std_ratio
+
+    # Step 3: Clip only the lower end to the minimum value (allowing upper values to go unrestricted)
+    clipped_income = np.maximum(scaled_income, 0)
+
+    # Step 4: Reverse the normalization to the original scale
+    final_income = clipped_income * (hh_income_max - hh_income_min) + hh_income_min
+
+    # Apply a correction to ensure the mean is preserved
+    final_income -= (np.mean(final_income) - income_mean)
+
+    # Assign the result back to the newWaveIncome
+    newWaveIncome["hh_income"] = final_income
+
+    return newWaveIncome
+
+
+
 class XGBIncome(Base):
 
     # Special methods used by vivarium.
@@ -1640,7 +1698,14 @@ class XGBIncome(Base):
         # newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
 
         # scale and clip hh_income
-        newWaveIncome = scale_and_clip(newWaveIncome, pop)
+        #newWaveIncome = scale_and_clip(newWaveIncome, pop)
+
+        # Variance scaling with a scaling factor applied to some interventions (child poverty reduction)
+        # TODO: Rename this attribute to something more generic about child poverty interventions
+        if self.reset_income_intervention:
+            newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=True, scaling_factor=0.5)
+        else:
+            newWaveIncome = scale_adjust_variance(newWaveIncome, pop)
 
         # Adjust Skewness
         target_skew = skew(pop["hh_income_last"])
