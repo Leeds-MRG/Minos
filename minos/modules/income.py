@@ -1468,6 +1468,51 @@ def scale_variance_by_quintile(new_data, old_data, column_name, old_column_name)
     return new_data
 
 
+def scale_and_clip(newWaveIncome, pop):
+    """
+
+    Parameters
+    ----------
+    newWaveIncome
+    pop
+
+    Returns
+    -------
+
+    """
+
+    # Get household income statistics from the previous wave
+    income_mean = np.mean(newWaveIncome["hh_income"])
+    std_ratio = np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"])
+
+    # Scaling transformation (sigmoid-like approach)
+    # Step 1: Min-Max normalization
+    hh_income_min = np.min(pop['hh_income_last'])
+    hh_income_max = np.max(pop['hh_income_last'])
+    # Normalize based on the previous wave's min-max range
+    normalized_income = (newWaveIncome["hh_income"] - hh_income_min) / (hh_income_max - hh_income_min)
+
+    # Step 2: Apply standard deviation scaling while preserving variance
+    scaled_income = normalized_income * std_ratio
+
+    # # Step 3: Clip the scaled values to stay within the min/max bounds
+    #clipped_income = np.clip(scaled_income, 0, 1)
+    # Step 3: Clip only the lower end to the minimum value
+    # Allow upper values to be predicted without restriction
+    clipped_income = np.maximum(scaled_income, 0)  # Ensures no value goes below 0
+
+    # Step 4: Reverse the normalization back to the original scale
+    final_income = clipped_income * (hh_income_max - hh_income_min) + hh_income_min
+
+    # Apply a correction to ensure that the mean is preserved
+    final_income -= (np.mean(final_income) - income_mean)
+
+    # Assign the result back to the newWaveIncome
+    newWaveIncome["hh_income"] = final_income
+
+    return newWaveIncome
+
+
 class XGBIncome(Base):
 
     # Special methods used by vivarium.
@@ -1586,13 +1631,16 @@ class XGBIncome(Base):
         # Apply the scaling function
         #newWaveIncome = scale_variance_by_quintile(newWaveIncome, pop, 'hh_income')
 
-        # calculate household income mean
-        income_mean = np.mean(newWaveIncome["hh_income"])
-        # calculate change in standard deviation between waves.
-        std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
-        # rescale income to have new mean but keep old standard deviation.
-        newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        # # calculate household income mean
+        # income_mean = np.mean(newWaveIncome["hh_income"])
+        # # calculate change in standard deviation between waves.
+        # std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
+        # # rescale income to have new mean but keep old standard deviation.
+        # newWaveIncome["hh_income"] *= std_ratio
+        # newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+
+        # scale and clip hh_income
+        newWaveIncome = scale_and_clip(newWaveIncome, pop)
 
         # Adjust Skewness
         target_skew = skew(pop["hh_income_last"])

@@ -223,7 +223,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
 
   ## LA 9/2/24
   # Saving min and max value from input data for clipping in r_utils function
-  if (depend %in% c('SF_12_PCS', 'SF_12_MCS', 'SF_12')) {
+  if (depend %in% c('SF_12_PCS', 'SF_12_MCS', 'SF_12', 'hh_income')) {
     attr(model,"min_value") <- min_value
     attr(model,"max_value") <- max_value
   }
@@ -494,6 +494,10 @@ estimate_XGB <- function(data, formula, depend, reflect) {
   data <- drop_na(data)
   # Try only dropping NA values in the response variable
   #data <- drop_na(data, any_of(depend))
+  
+  # Get max and min value for clipping later
+  max_value <- nanmax(data[[depend]])
+  min_value <- nanmin(data[[depend]])
 
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
 
@@ -594,9 +598,10 @@ estimate_XGB <- function(data, formula, depend, reflect) {
 
   attr(model, "recipe") <- prep_rec
 
-  # if (reflect) {
-  #   attr(model,"max_value") <- max_value
-  # }
+  if (reflect) {
+    attr(model,"max_value") <- max_value
+    attr(model,"min_value") <- min_value
+  }
 
   return(model)
 }

@@ -360,7 +360,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     with localconverter(ro.default_converter + pandas2ri.converter):
         currentRDF = ro.conversion.py2rpy(current)
 
-    if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12"]:
+    if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12", "hh_income"]:
         max_value = model.do_slot("max_value")
         min_value = model.do_slot("min_value")
 
@@ -417,7 +417,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         #ols_data = ro.conversion.rpy2py(ols_data)
         prediction = ro.conversion.rpy2py(prediction)
 
-    if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12"]:
+    if dependent in ["SF_12_PCS", "SF_12_MCS", "SF_12", "hh_income"]:
         # Final step is to clip the values to min and max seen in input data
         prediction = np.clip(prediction, min_value, max_value)
         #prediction = np.clip(prediction, 0, 100)

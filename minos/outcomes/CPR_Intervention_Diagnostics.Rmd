@@ -26,6 +26,7 @@ library(spatstat)
 library(ggalluvial)
 library(gridExtra)
 library(circlize)
+library(viridis)
 
 #workingDir <- "/home/luke/Documents/MINOS/Minos/"
 workingDir <- normalizePath('../')
@@ -44,8 +45,8 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```
 
 ```{r, include=FALSE}
-out.path <- here::here('output', 'default_config/')
-#out.path <- here::here('output', 'scotland_scaled/')
+#out.path <- here::here('output', 'default_config/')
+out.path <- here::here('output', 'scotland_scaled/')
 base.dat <- read_singular_local_out(out.path, 
                                     'baseline', 
                                     drop.dead = TRUE, 
@@ -63,6 +64,8 @@ int.dat <- read_singular_local_out(out.path,
 #                                    drop.dead = TRUE,
 #                                    drop.zero.weight = TRUE)
 ```
+
+
 
 # Household Income
 
@@ -159,6 +162,8 @@ ggplot(inc, aes(x = time, y = hh_income, group = scen, color = scen, fill = scen
 ggplot(inc, aes(x = time, y = SF_12, group = scen, color = scen, fill = scen)) +
   geom_line() +
   geom_point()
+
+rm(boosted.pidps)
 ```
 
 
@@ -196,11 +201,13 @@ density_plot <- function(base, int) {
   return(p)
 }
 
-p <- density_plot(base.dat, int.dat)
+# p <- density_plot(base.dat, int.dat)
+# 
+# p <- p + facet_wrap(~ income_quint, ncol=1)
+# 
+# print(p)
 
-p <- p + facet_wrap(~ income_quint, ncol=1)
-
-print(p)
+rm(p)
 
 # ggplot(base.dat, aes(x = hh_income, y = time, group = time)) +
 #   geom_density_ridges(color = 'blue', alpha = 0.3) +
@@ -600,24 +607,24 @@ plot_alluvial_difference_all_years(base.dat, int.dat)
 
 ```{r}
 # Prepare data for heatmap
-df_heatmap <- base.dat %>%
-  filter(time %in% c(2020, 2021)) %>% # Select two time points
-  select(pidp, time, income_quint) %>%
-  spread(time, income_quint) %>%
-  rename(Quintile_T1 = `2020`, Quintile_T2 = `2021`) %>%
-  group_by(Quintile_T1, Quintile_T2) %>%
-  summarise(count = n()) %>%
-  ungroup() %>%
-  complete(Quintile_T1 = 1:5, Quintile_T2 = 1:5, fill = list(count = 0))
-
-
-ggplot(df_heatmap, aes(Quintile_T1, Quintile_T2, fill = count)) +
-  geom_tile() +
-  geom_text(aes(label = count), color = "black", size = 4) +  # Add count labels in each tile
-  scale_fill_gradient(low = "white", high = "blue") +
-  labs(title = "Transition Heatmap between Quintiles",
-       x = "Quintile at Baseline", y = "Quintile at Intervention") +
-  theme_minimal()
+# df_heatmap <- base.dat %>%
+#   filter(time %in% c(2020, 2021)) %>% # Select two time points
+#   select(pidp, time, income_quint) %>%
+#   spread(time, income_quint) %>%
+#   rename(Quintile_T1 = `2020`, Quintile_T2 = `2021`) %>%
+#   group_by(Quintile_T1, Quintile_T2) %>%
+#   summarise(count = n()) %>%
+#   ungroup() %>%
+#   complete(Quintile_T1 = 1:5, Quintile_T2 = 1:5, fill = list(count = 0))
+# 
+# 
+# ggplot(df_heatmap, aes(Quintile_T1, Quintile_T2, fill = count)) +
+#   geom_tile() +
+#   geom_text(aes(label = count), color = "black", size = 4) +  # Add count labels in each tile
+#   scale_fill_gradient(low = "white", high = "blue") +
+#   labs(title = "Transition Heatmap between Quintiles",
+#        x = "Quintile at Baseline", y = "Quintile at Intervention") +
+#   theme_minimal()
 ```
 
 
@@ -670,7 +677,7 @@ plot_transition_heatmaps <- function(base_data, int_data) {
 }
 
 # Example usage:
-plot_transition_heatmaps(base.dat, int.dat)
+#plot_transition_heatmaps(base.dat, int.dat)
 
 ```
 
@@ -723,7 +730,7 @@ plot_transition_heatmap_difference <- function(base_data, int_data) {
 plot_transition_heatmap_difference(base.dat, int.dat)
 ```
 
-# Chord Diagram
+## Chord Diagram
 
 ```{r}
 # Function to prepare data for chord diagram
@@ -793,6 +800,230 @@ plot_chord_difference_all_years <- function(base.dat, int.dat) {
 
 # Example usage:
 plot_chord_difference_all_years(base.dat, int.dat)
+```
+
+## Income Growth Trajectories
+
+Quick bit of data prep.
+
+```{r}
+base.dat <- base.dat %>%
+  select(pidp, hidp, time, income_quint, hh_income, SF_12) %>%
+  mutate(scenario = 'Baseline')
+int.dat <- int.dat %>%
+  select(pidp, hidp, time, income_quint, hh_income, SF_12) %>%
+  mutate(scenario = 'Intervention')
+
+all.dat <- rbind(base.dat, int.dat)
+```
+
+```{r}
+# Calculate average income growth by quintile and year
+income_growth <- all.dat %>%
+  group_by(time, income_quint, scenario) %>%
+  summarise(avg_income = mean(hh_income)) %>%
+  mutate(income_growth = avg_income - lag(avg_income, 1)) %>%
+  filter(!is.na(income_growth))
+
+# Plot
+ggplot(income_growth, aes(x = time, y = income_growth, color = scenario)) +
+  geom_line() +
+  facet_wrap(~income_quint) +
+  labs(title = "Income Growth by Quintile Over Time",
+       x = "Year", y = "Income Growth") +
+  theme_minimal()
+```
+
+## SF-12 MCS Distribution Shifts
+
+```{r}
+# Plot SF-12 MCS distribution by quintile
+ggplot(all.dat, aes(x = SF_12, fill = scenario)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~income_quint) +
+  labs(title = "SF-12 MCS Distribution by Quintile and Scenario",
+       x = "SF-12 MCS", y = "Density") +
+  theme_minimal()
+
+# ggplot(filter(all.dat, scenario == 'Baseline'), aes(x = SF_12, fill = scenario)) +
+#   geom_density(alpha = 0.5) +
+#   facet_wrap(~income_quint) +
+#   labs(title = "SF-12 MCS Distribution by Quintile and Scenario",
+#        x = "SF-12 MCS", y = "Density") +
+#   theme_minimal()
+```
+
+## Change in SF-12
+
+```{r}
+# Calculate change in SF-12 MCS by quintile and year
+sf12_change <- all.dat %>%
+  group_by(time, income_quint, scenario) %>%
+  summarise(mean_sf12 = mean(SF_12)) %>%
+  spread(scenario, mean_sf12) %>%
+  mutate(sf12_diff = Intervention - Baseline)
+
+# Plot
+ggplot(sf12_change, aes(x = time, y = sf12_diff, fill = as.factor(income_quint))) +
+  geom_col(position = "dodge") +
+  labs(title = "Change in SF-12 MCS by Quintile",
+       x = "Year", y = "SF-12 MCS Change") +
+  theme_minimal()
+```
+
+## Income vs SF-12
+
+```{r}
+# Scatter plot of income change vs SF-12 MCS change by quintile
+# sf12_income_corr <- all.dat %>%
+#   group_by(pidp, time, income_quint, scenario) %>%
+#   summarise(income_change = hh_income - lag(hh_income),
+#             sf12_change = SF_12 - lag(SF_12)) %>%
+#   filter(!is.na(income_change) & !is.na(sf12_change))
+
+sf12_income_corr <- all.dat %>%
+  select(pidp, time, income_quint, scenario, hh_income, SF_12) %>%
+  arrange(pidp, time) %>%  # Ensure data is arranged by individual and time
+  group_by(pidp, income_quint, scenario) %>%
+  mutate(income_change = hh_income - lag(hh_income),  # Change in household income
+         sf12_change = SF_12 - lag(SF_12)) %>%  # Change in SF-12 MCS
+  filter(!is.na(income_change) & !is.na(sf12_change))  # Filter out NA changes
+
+```
+
+```{r}
+
+ggplot(sf12_income_corr, aes(x = income_change, y = sf12_change, color = scenario)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~income_quint) +
+  labs(title = "Income Change vs. SF-12 MCS Change",
+       x = "Income Change", y = "SF-12 MCS Change") +
+  theme_minimal()
+```
+
+
+## Heatmap of SF-12 Transitions
+
+```{r}
+# Categorize SF-12 MCS transitions: "Improving", "Stable", "Worsening"
+prepare_sf12_transitions <- function(data) {
+  data %>%
+    select(pidp, time, income_quint, SF12_MCS) %>%
+    group_by(pidp) %>%
+    arrange(time) %>%  # Ensure data is ordered by time
+    mutate(SF12_MCS_change = SF12_MCS - lag(SF12_MCS)) %>%
+    mutate(SF12_MCS_transition = case_when(
+      SF12_MCS_change > 0 ~ "Improving",
+      SF12_MCS_change == 0 ~ "Stable",
+      SF12_MCS_change < 0 ~ "Worsening",
+      TRUE ~ NA_character_
+    )) %>%
+    filter(!is.na(SF12_MCS_transition)) %>%
+    ungroup()
+}
+
+# Prepare the data
+sf12_transitions <- prepare_sf12_transitions(data)
+
+# Calculate the count of transitions per quintile and transition type
+sf12_transition_counts <- sf12_transitions %>%
+  group_by(income_quint, SF12_MCS_transition) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  spread(SF12_MCS_transition, count, fill = 0)
+
+# Normalize the counts to show proportions per quintile
+sf12_transition_counts <- sf12_transition_counts %>%
+  gather(SF12_MCS_transition, count, -income_quint) %>%
+  group_by(income_quint) %>%
+  mutate(proportion = count / sum(count)) %>%
+  ungroup()
+
+# Plot the heatmap
+ggplot(sf12_transition_counts, aes(x = SF12_MCS_transition, y = as.factor(income_quint), fill = proportion)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(title = "SF-12 MCS Transitions Heatmap by Quintile",
+       x = "SF-12 MCS Transition", y = "Income Quintile", fill = "Proportion") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r}
+# Function to prepare data for heatmap of SF-12 MCS transitions
+prepare_sf12_heatmap_data <- function(data) {
+  data %>%
+    arrange(pidp, time) %>%  # Arrange data by individual and time
+    group_by(pidp) %>%
+    mutate(SF12_T1 = lag(SF_12),  # Previous year's SF-12 score
+           SF12_T2 = SF_12) %>%   # Current year's SF-12 score
+    filter(!is.na(SF12_T1)) %>%  # Remove rows without previous year
+    group_by(SF12_T1, SF12_T2) %>%
+    summarise(count = n()) %>%  # Count the number of transitions
+    ungroup() %>%
+    complete(SF12_T1, SF12_T2, fill = list(count = 0))  # Ensure all possible combinations
+}
+
+# Function to plot heatmap showing the differences between baseline and intervention transitions
+plot_sf12_heatmap_difference <- function(base.dat, int.dat) {
+  # Prepare baseline and intervention data
+  base_heatmap <- prepare_sf12_heatmap_data(base.dat) %>%
+    rename(count_baseline = count)
+  int_heatmap <- prepare_sf12_heatmap_data(int.dat) %>%
+    rename(count_intervention = count)
+  
+  # Combine both datasets and calculate differences in counts and proportions
+  combined_heatmap <- base_heatmap %>%
+    full_join(int_heatmap, by = c("SF12_T1", "SF12_T2")) %>%
+    mutate(count_baseline = coalesce(count_baseline, 0),
+           count_intervention = coalesce(count_intervention, 0),
+           diff_count = count_intervention - count_baseline,
+           total_count = count_baseline + count_intervention,
+           diff_prop = ifelse(total_count > 0, diff_count / total_count, 0)) %>%
+    replace_na(list(diff_count = 0, diff_prop = 0))  # Handle missing values
+  
+  # Plot heatmap of count differences
+  count_heatmap <- ggplot(combined_heatmap, aes(SF12_T1, SF12_T2, fill = diff_count)) +
+    geom_tile() +
+    scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
+    labs(title = "Difference in SF-12 MCS Transitions (Counts)", 
+         x = "SF-12 MCS (Previous Year)", 
+         y = "SF-12 MCS (Current Year)", 
+         fill = "Count Difference") +
+    theme_minimal()
+  
+  # Plot heatmap of proportion differences
+  prop_heatmap <- ggplot(combined_heatmap, aes(SF12_T1, SF12_T2, fill = diff_prop)) +
+    geom_tile() +
+    scale_fill_gradient2(low = "red", mid = "white", high = "blue", midpoint = 0) +
+    labs(title = "Difference in SF-12 MCS Transitions (Proportions)", 
+         x = "SF-12 MCS (Previous Year)", 
+         y = "SF-12 MCS (Current Year)", 
+         fill = "Proportion Difference") +
+    theme_minimal()
+  
+  # Return both plots
+  list(count_heatmap = count_heatmap, prop_heatmap = prop_heatmap)
+}
+
+# Example usage
+plots <- plot_sf12_heatmap_difference(base.dat, int.dat)
+plots$count_heatmap  # Display the count heatmap
+plots$prop_heatmap  # Display the proportion heatmap
+
+```
+
+
+
+
+
+
+
+
+```{r}
+
 ```
 
 
