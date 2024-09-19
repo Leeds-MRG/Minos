@@ -1570,6 +1570,75 @@ def scale_adjust_variance(newWaveIncome, pop, is_intervention=False, scaling_fac
     return newWaveIncome
 
 
+def scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=False, scaling_factor=1.0):
+    """
+    Scales and clips household income, with a lopsided variance reduction.
+    For intervention runs, scaling is applied only to the bottom half of the
+    distribution (below median) while the top half is scaled normally.
+
+    Parameters
+    ----------
+    newWaveIncome : DataFrame
+        The current wave of population income data.
+    pop : DataFrame
+        Population data from the previous wave.
+    is_intervention : bool, optional
+        Whether the current run is an intervention (default is False).
+    scaling_factor : float, optional
+        The factor to scale variance by for the bottom half (default is 1.0).
+
+    Returns
+    -------
+    newWaveIncome : DataFrame
+        Updated income data after scaling and clipping.
+    """
+
+    # Get household income statistics from the previous wave
+    income_mean = np.mean(newWaveIncome["hh_income"])
+    std_last = np.std(pop['hh_income_last'])
+    std_new = np.std(newWaveIncome["hh_income"])
+    std_ratio = std_last / std_new
+
+    # Calculate the median of the new income distribution
+    income_median = np.median(newWaveIncome["hh_income"])
+
+    # Split the population into top and bottom halves based on median
+    is_bottom_half = newWaveIncome["hh_income"] <= income_median
+
+    # Scaling transformation
+    hh_income_min = np.min(pop['hh_income_last'])
+    hh_income_max = np.max(pop['hh_income_last'])
+
+    # Step 1: Min-Max normalization
+    normalized_income = (newWaveIncome["hh_income"] - hh_income_min) / (hh_income_max - hh_income_min)
+
+    if is_intervention:
+        # Apply standard scaling to the top half (above median)
+        top_half_scaled = normalized_income[~is_bottom_half] * std_ratio
+
+        # Apply variance-reducing scaling to the bottom half (below or equal to median)
+        bottom_half_scaled = normalized_income[is_bottom_half] * std_ratio * scaling_factor
+
+        # Combine the two halves
+        scaled_income = np.where(is_bottom_half, bottom_half_scaled, top_half_scaled)
+    else:
+        # Apply normal scaling across the whole distribution if not an intervention
+        scaled_income = normalized_income * std_ratio
+
+    # Step 3: Clip only the lower end to the minimum value
+    clipped_income = np.maximum(scaled_income, 0)
+
+    # Step 4: Reverse the normalization to the original scale
+    final_income = clipped_income * (hh_income_max - hh_income_min) + hh_income_min
+
+    # Apply a correction to ensure the mean is preserved
+    final_income -= (np.mean(final_income) - income_mean)
+
+    # Assign the result back to the newWaveIncome
+    newWaveIncome["hh_income"] = final_income
+
+    return newWaveIncome
+
 
 class XGBIncome(Base):
 
@@ -1702,12 +1771,10 @@ class XGBIncome(Base):
 
         # Variance scaling with a scaling factor applied to some interventions (child poverty reduction)
         # TODO: Rename this attribute to something more generic about child poverty interventions
-        # if self.reset_income_intervention:
-        #     newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=True, scaling_factor=0.5)
-        # else:
-        #     newWaveIncome = scale_adjust_variance(newWaveIncome, pop)
+        #newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.9)
 
-        newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.5)
+        # For intervention run (reduce variance only in bottom half):
+        newWaveIncome = scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.8)
 
         # Adjust Skewness
         target_skew = skew(pop["hh_income_last"])
