@@ -906,47 +906,47 @@ ggplot(sf12_income_corr, aes(x = income_change, y = sf12_change, color = scenari
 
 ```{r}
 # Categorize SF-12 MCS transitions: "Improving", "Stable", "Worsening"
-prepare_sf12_transitions <- function(data) {
-  data %>%
-    select(pidp, time, income_quint, SF12_MCS) %>%
-    group_by(pidp) %>%
-    arrange(time) %>%  # Ensure data is ordered by time
-    mutate(SF12_MCS_change = SF12_MCS - lag(SF12_MCS)) %>%
-    mutate(SF12_MCS_transition = case_when(
-      SF12_MCS_change > 0 ~ "Improving",
-      SF12_MCS_change == 0 ~ "Stable",
-      SF12_MCS_change < 0 ~ "Worsening",
-      TRUE ~ NA_character_
-    )) %>%
-    filter(!is.na(SF12_MCS_transition)) %>%
-    ungroup()
-}
-
-# Prepare the data
-sf12_transitions <- prepare_sf12_transitions(data)
-
-# Calculate the count of transitions per quintile and transition type
-sf12_transition_counts <- sf12_transitions %>%
-  group_by(income_quint, SF12_MCS_transition) %>%
-  summarise(count = n()) %>%
-  ungroup() %>%
-  spread(SF12_MCS_transition, count, fill = 0)
-
-# Normalize the counts to show proportions per quintile
-sf12_transition_counts <- sf12_transition_counts %>%
-  gather(SF12_MCS_transition, count, -income_quint) %>%
-  group_by(income_quint) %>%
-  mutate(proportion = count / sum(count)) %>%
-  ungroup()
-
-# Plot the heatmap
-ggplot(sf12_transition_counts, aes(x = SF12_MCS_transition, y = as.factor(income_quint), fill = proportion)) +
-  geom_tile() +
-  scale_fill_gradient(low = "white", high = "red") +
-  labs(title = "SF-12 MCS Transitions Heatmap by Quintile",
-       x = "SF-12 MCS Transition", y = "Income Quintile", fill = "Proportion") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# prepare_sf12_transitions <- function(data) {
+#   data %>%
+#     select(pidp, time, income_quint, SF12_MCS) %>%
+#     group_by(pidp) %>%
+#     arrange(time) %>%  # Ensure data is ordered by time
+#     mutate(SF12_MCS_change = SF12_MCS - lag(SF12_MCS)) %>%
+#     mutate(SF12_MCS_transition = case_when(
+#       SF12_MCS_change > 0 ~ "Improving",
+#       SF12_MCS_change == 0 ~ "Stable",
+#       SF12_MCS_change < 0 ~ "Worsening",
+#       TRUE ~ NA_character_
+#     )) %>%
+#     filter(!is.na(SF12_MCS_transition)) %>%
+#     ungroup()
+# }
+# 
+# # Prepare the data
+# sf12_transitions <- prepare_sf12_transitions(data)
+# 
+# # Calculate the count of transitions per quintile and transition type
+# sf12_transition_counts <- sf12_transitions %>%
+#   group_by(income_quint, SF12_MCS_transition) %>%
+#   summarise(count = n()) %>%
+#   ungroup() %>%
+#   spread(SF12_MCS_transition, count, fill = 0)
+# 
+# # Normalize the counts to show proportions per quintile
+# sf12_transition_counts <- sf12_transition_counts %>%
+#   gather(SF12_MCS_transition, count, -income_quint) %>%
+#   group_by(income_quint) %>%
+#   mutate(proportion = count / sum(count)) %>%
+#   ungroup()
+# 
+# # Plot the heatmap
+# ggplot(sf12_transition_counts, aes(x = SF12_MCS_transition, y = as.factor(income_quint), fill = proportion)) +
+#   geom_tile() +
+#   scale_fill_gradient(low = "white", high = "red") +
+#   labs(title = "SF-12 MCS Transitions Heatmap by Quintile",
+#        x = "SF-12 MCS Transition", y = "Income Quintile", fill = "Proportion") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
@@ -1009,9 +1009,9 @@ plot_sf12_heatmap_difference <- function(base.dat, int.dat) {
 }
 
 # Example usage
-plots <- plot_sf12_heatmap_difference(base.dat, int.dat)
-plots$count_heatmap  # Display the count heatmap
-plots$prop_heatmap  # Display the proportion heatmap
+#plots <- plot_sf12_heatmap_difference(base.dat, int.dat)
+#plots$count_heatmap  # Display the count heatmap
+#plots$prop_heatmap  # Display the proportion heatmap
 
 ```
 
