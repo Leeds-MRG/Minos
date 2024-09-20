@@ -1619,8 +1619,12 @@ def scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=False, scaling_f
         # Apply variance-reducing scaling to the bottom half (below or equal to median)
         bottom_half_scaled = normalized_income[is_bottom_half] * std_ratio * scaling_factor
 
-        # Combine the two halves
-        scaled_income = np.where(is_bottom_half, bottom_half_scaled, top_half_scaled)
+        # Initialize the full scaled_income array
+        scaled_income = np.zeros_like(normalized_income)
+
+        # Assign the scaled values to the corresponding halves
+        scaled_income[is_bottom_half] = bottom_half_scaled
+        scaled_income[~is_bottom_half] = top_half_scaled
     else:
         # Apply normal scaling across the whole distribution if not an intervention
         scaled_income = normalized_income * std_ratio
