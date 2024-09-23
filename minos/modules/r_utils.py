@@ -62,9 +62,9 @@ def predict_next_timestep_ols(model, rpy2_modules, current, dependent, seed):
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -107,9 +107,9 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, seed
     base = rpy2_modules['base']
     stats = rpy2_modules['stats']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -155,9 +155,9 @@ def predict_next_timestep_clm(model, rpy2modules, current, dependent, seed):
     stats = rpy2modules['stats']
     ordinal = rpy2modules['ordinal']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -207,9 +207,9 @@ def predict_nnet(model, rpy2Modules, current, columns, seed):
     stats = rpy2Modules['stats']
     nnet = rpy2Modules['nnet']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -246,9 +246,9 @@ def predict_next_timestep_zip(model, rpy2Modules, current, seed):
     stats = rpy2Modules['stats']
     zeroinfl = rpy2Modules['zeroinfl']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # grab transition model
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -292,9 +292,9 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     geepack = rpy2_modules['geepack']
     stats = rpy2_modules['stats']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     current["pidp"] = -current["pidp"]
 
@@ -344,9 +344,9 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     #current = current.drop([dependent, 'time'], axis=1)
     #current["pidp"] = -current["pidp"]
@@ -448,9 +448,9 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
     bestNormalize = rpy2_modules['bestNormalize']
     lme4 = rpy2_modules["lme4"]
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -512,9 +512,9 @@ def predict_next_rf(model, rpy2_modules, current, dependent, seed, noise_gauss=0
     stats = rpy2_modules['stats']
     rf = rpy2_modules['randomForest']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -560,9 +560,9 @@ def predict_next_rf_ordinal(model, rpy2_modules, current, seed):
     stats = rpy2_modules['stats']
     ranger = rpy2_modules['ranger']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -589,9 +589,9 @@ def predict_next_MARS(model, rpy2_modules, current, dependent, seed, noise_gauss
     stats = rpy2_modules['stats']
     earth = rpy2_modules['earth']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     # Convert from pandas to R using package converter
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -633,9 +633,9 @@ def predict_next_xgb(model, rpy2_modules, current, dependent, seed, log_transfor
     xgboost = rpy2_modules['xgboost']
     recipes = rpy2_modules['recipes']
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     recipe = model.do_slot("recipe")
 
@@ -709,9 +709,9 @@ def randomise_fixed_effects(model, rpy2_modules, type, seed):
         Same model class with adjusted fixed effects.
     """
 
-    # Set the seed in R
-    seed_command = f'set.seed({seed})'
-    r(seed_command)
+    # # Set the seed in R
+    # seed_command = f'set.seed({seed})'
+    # r(seed_command)
 
     if type == "glmm":
         beta = model.do_slot("beta")
