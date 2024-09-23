@@ -204,6 +204,8 @@ class Replenishment(Base):
             if 'run_id' in self.config.keys():
                 #new_wave = pd.read_csv(f"{self.replenishing_dir}/{(self.config['run_ID']//10) + 1}_replenishing_pop_2015-2070.csv")
                 new_wave = pd.read_csv(f"{self.replenishing_dir}/{((self.config['run_ID']-1)//10) + 1}_replenishing_pop_2015-2070.csv")
+            elif self.config.synthetic:
+                new_wave = pd.read_csv(f"{self.replenishing_dir}/1_replenishing_pop_2015-2070.csv")
             else:
                 new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
 

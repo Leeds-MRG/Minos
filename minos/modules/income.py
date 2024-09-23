@@ -1451,21 +1451,25 @@ def scale_variance_by_quintile(new_data, old_data, column_name, old_column_name)
         current_quintile_data = new_data[new_data['quintile'] == quintile][column_name]
         old_quintile_data = old_data[old_data['quintile'] == quintile][old_column_name]
 
-        # Calculate income mean for the current quintile
-        income_mean = np.mean(current_quintile_data)
+        # Calculate income mean and median for the current quintile
+        old_quintile_median = np.median(old_quintile_data)
+        new_quintile_median = np.median(current_quintile_data)
 
-        # Calculate change in standard deviation between waves for the current quintile
+        # Rebase new income values to the old median by shifting them
+        new_data.loc[new_data['quintile'] == quintile, column_name] -= (new_quintile_median - old_quintile_median)
+
+        # Now calculate the change in standard deviation between waves for the current quintile
         std_ratio = np.std(old_quintile_data) / np.std(current_quintile_data)
 
-        # Rescale income to have the new mean but keep the old standard deviation
+        # Rescale income to match the old standard deviation
         new_data.loc[new_data['quintile'] == quintile, column_name] *= std_ratio
-        new_data.loc[new_data['quintile'] == quintile, column_name] -= ((std_ratio - 1) * income_mean)
 
     # Drop the quintile column
     new_data.drop(columns=['quintile'], inplace=True)
     old_data.drop(columns=['quintile'], inplace=True)
 
     return new_data
+
 
 
 def scale_and_clip(newWaveIncome, pop):
@@ -1754,21 +1758,20 @@ class XGBIncome(Base):
         newWaveIncome['hidp'] = pop['hidp']
         newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income)#.reset_index(drop=True)
 
+
+        # calculate household income mean
+        income_mean = np.mean(newWaveIncome["hh_income"])
+        # calculate change in standard deviation between waves.
+        std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
+        # rescale income to have new mean but keep old standard deviation.
+        newWaveIncome["hh_income"] *= std_ratio
+        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+
         ## SCALING FIX FOR CHILD POV INTERVENTIONS??
         # Instead of scaling the whole pop at once, lets scale by quintile to maintain the variance of higher quintiles
         # This is especially important in interventions that target small groups, and especially especially so in
         # interventions that have fixed thresholds (like child pov reduction)
-
-        # Apply the scaling function
-        #newWaveIncome = scale_variance_by_quintile(newWaveIncome, pop, 'hh_income')
-
-        # # calculate household income mean
-        # income_mean = np.mean(newWaveIncome["hh_income"])
-        # # calculate change in standard deviation between waves.
-        # std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
-        # # rescale income to have new mean but keep old standard deviation.
-        # newWaveIncome["hh_income"] *= std_ratio
-        # newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        #newWaveIncome = scale_variance_by_quintile(newWaveIncome, pop, 'hh_income', 'hh_income_last')
 
         # scale and clip hh_income
         #newWaveIncome = scale_and_clip(newWaveIncome, pop)
@@ -1778,11 +1781,11 @@ class XGBIncome(Base):
         #newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.9)
 
         # For intervention run (reduce variance only in bottom half):
-        newWaveIncome = scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.8)
+        #newWaveIncome = scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.8)
 
-        # Adjust Skewness
-        target_skew = skew(pop["hh_income_last"])
-        newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
+        # # Adjust Skewness
+        # target_skew = skew(pop["hh_income_last"])
+        # newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
 
         # difference in hh income
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']

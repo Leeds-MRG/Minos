@@ -85,6 +85,19 @@ raw.dat <- raw.dat %>%
 shall.we.save <- FALSE
 ```
 
+## Income Quintile
+
+```{r}
+raw.dat <- raw.dat %>%
+  group_by(time) %>%
+  mutate(income_quint = ntile(hh_income, 5))
+
+base.dat <- base.dat %>%
+  group_by(time) %>%
+  mutate(income_quint = ntile(hh_income, 5))
+```
+
+
 # DEMOGRAPHICS
 
 ## Age Structure
@@ -515,6 +528,8 @@ ggplot(combined, aes(x = time, y = proportion, group = ethnicity, color = ethnic
   geom_col() +
   geom_vline(xintercept = start.year) +
   labs(title = 'Households with Children Count')
+
+rm(raw.hh_kids_prop, base.hh_kids_prop, combined)
 ```
 
 
@@ -613,6 +628,129 @@ ggplot(data = rel.threshold, aes(x = time, y = poverty_threshold)) +
 # abs.threshold <- abs.threshold * 0.6
 # 
 # print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
+```
+
+
+### Analysis by Quintile
+
+```{r}
+density_plot_quintile <- function(raw, base, quintile) {
+  
+  raw <- raw %>%
+    filter(income_quint == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Final_US = hh_income)
+  base <- base %>%
+    filter(income_quint == quintile) %>%
+    select(pidp, time, hh_income) %>%
+    rename(Baseline = hh_income)
+  
+  #combined <- merge(base, int, by = c('pidp', 'time'))
+  
+  combined <- rbind(raw, base)
+  
+  combined <- combined %>%
+    pivot_longer(cols = Final_US:Baseline,
+                 names_to = 'Source',
+                 values_to = 'hh_income')
+  
+  p <- ggplot(combined, aes(x = hh_income, y = time, group = interaction(time, Source), color = Source, fill = Source)) +
+    geom_density_ridges(alpha = 0.3) +
+    labs(title = 'Household Income Density Plots',
+         subtitle = paste0('Quintile ', quintile))
+  
+  return(p)
+}
+
+density_plot_quintile(base.dat, int.dat, quintile = 1)
+density_plot_quintile(base.dat, int.dat, quintile = 2)
+density_plot_quintile(base.dat, int.dat, quintile = 3)
+density_plot_quintile(base.dat, int.dat, quintile = 4)
+density_plot_quintile(base.dat, int.dat, quintile = 5)
+```
+
+
+#### Mean Income
+
+```{r}
+mean_income_quintile <- function(raw, base) {
+  raw <- raw %>%
+    select(pidp, time, hh_income, income_quint, weight) %>%
+    mutate(source = 'Final_US')
+  base <- base %>%
+    select(pidp, time, hh_income, income_quint, weight) %>%
+    mutate(source = 'Baseline')
+  
+  combined <- rbind(base, int)
+  
+  combined <- combined %>%
+    group_by(time, income_quint, source) %>%
+    summarise(mean = weighted.mean(hh_income, weight),
+              median = weighted.median(hh_income, weight))
+  
+  combined$income_quint <- factor(combined$income_quint)
+  combined$source <- factor(combined$source)
+
+  
+  p1 <- ggplot(combined, aes(x = time, y = mean, group = interaction(income_quint, source), color = income_quint, linetype = source, fill = income_quint)) +
+    geom_line() +
+    labs(title = 'Mean hh_income by quintile',
+         subtitle = 'Baseline vs Intervention')
+  
+  p2 <- ggplot(combined, aes(x = time, y = median, group = interaction(income_quint, source), color = income_quint, linetype = source, fill = income_quint)) +
+    geom_line() +
+    labs(title = 'Median hh_income by quintile',
+         subtitle = 'Baseline vs Intervention')
+  
+  print(p1)
+  print(p2)
+  #return(p)
+}
+
+mean_income_quintile(base.dat, int.dat)
+```
+
+#### Thresholds Over Time
+
+```{r}
+# get min-max by group as this is upper and lower limits of the quintiles
+
+base <- base.dat %>%
+  group_by(time, income_quint) %>%
+  summarise(min = min(hh_income),
+            max = max(hh_income)) %>%
+  mutate(source = 'Baseline')
+int <- int.dat %>%
+  group_by(time, income_quint) %>%
+  summarise(min = min(hh_income),
+            max = max(hh_income)) %>%
+  mutate(source = 'Intervention')
+
+combined <- rbind(base, int)
+combined$income_quint <- factor(combined$income_quint)
+
+quintile_threshold_plot <- function(data, year) {
+  ggplot(filter(data, time == year), 
+         aes(x = income_quint, y = min,
+             ymin = min, lower = min, ymax = max, upper = max,
+             group = source, 
+             colour = source, 
+             fill = source)) +
+    geom_crossbar(position = position_dodge()) +
+    labs(title = 'Quintile Thresholds',
+         subtitle = year)
+}
+
+quintile_threshold_plot(combined, year = 2020)
+quintile_threshold_plot(combined, year = 2021)
+quintile_threshold_plot(combined, year = 2025)
+quintile_threshold_plot(combined, year = 2030)
+quintile_threshold_plot(combined, year = 2035)
+```
+
+
+```{r}
+
 ```
 
 
