@@ -616,7 +616,7 @@ class RFDiffMWB(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -889,7 +889,7 @@ class MarsMWB(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -1006,7 +1006,7 @@ class RFMWB(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -1204,7 +1204,7 @@ class XGBMWB(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
