@@ -24,7 +24,7 @@ categorical_missing_different_plot <- function(data, v1, v2) {
   categorical_lonely_sf12_plot <- ggmice(plot.data, aes(x=!!sym(v2), y=perc)) +
     geom_bar(aes(fill=factor(!!sym(v2)), color='black'), stat='identity') +
     facet_wrap(~ is_missing)
-  ggsave(paste("plots/", v1, "_vs_", v2, "_missing_dist.pdf"))
+  ggsave(paste0("plots/", v1, "_vs_", v2, "_missing_dist.pdf"))
 }
 
 main <- function() {
