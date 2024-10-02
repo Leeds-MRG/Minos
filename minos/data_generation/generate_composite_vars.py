@@ -634,7 +634,7 @@ def generate_energy_composite(data):
     data['duel_payment'] = house_time_groupby['duel_payment'].transform("max")
 
     # does household energy spending exceed 10% of net income?
-    data["FP10"] = 10 * data['yearly_energy'] > data['net_hh_income']
+    data["FP10"] = (10 * data['yearly_energy']) > (data['net_hh_income']*12)
 
     # remove all but yearly_energy variable left.
     data.drop(labels=['has_electric',
