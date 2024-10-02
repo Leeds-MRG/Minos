@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+
+library(here)
+source(here::here("minos", "outcomes", "minos_SF12_maps.R"))
+
+electricity_consumption_data <- read.csv(here::here("persistent_data", "spatial_data", "UK_electricity_by_lsoa.csv"))
+electricity_consumption_data <- electricity_consumption_data[, c("LSOA.code", "Median..consumption..kWh.per.meter.")]
+colnames(electricity_consumption_data) <- c("ZoneID", "median_electricity")
+electricity_consumption_data$median_electricity <- as.numeric(gsub(",", "", electricity_consumption_data$median_electricity))  
+
+gas_consumption_data <- read.csv(here::here("persistent_data", "spatial_data", "UK_gas_by_lsoa.csv"))
+gas_consumption_data <- gas_consumption_data[, c("LSOA.code", "Median..consumption..kWh.per.meter.")]
+colnames(gas_consumption_data) <- c("ZoneID", "median_gas")
+gas_consumption_data$median_gas <- as.numeric(gsub(",", "", gas_consumption_data$median_gas))  
+
+# get geojson data. convert to tibble.
+lsoa_data <- st_read(here::here("persistent_data", "spatial_data", "UK_super_outputs.geojson"))
+gmca_la_names <- c("Bolton", "Bury", "Rochdale", "Oldham", "Tameside", "Stockport", "Manchester", "Trafford", "Salford", "Wigan")
+lsoa_data <- lsoa_data[which(lsoa_data$LAName %in% gmca_la_names), ]
+
+# get 2020 data. 
+# aggregate four yearly energy consumptions median by lsoa. 
+full_pop_data <- read.csv(here::here("data", "scaled_manchester_aligned_US", "2020_US_cohort.csv"))
+
+elec_aggregate <- aggregate(full_pop_data$yearly_electric, list(full_pop_data$ZoneID), median)
+elec_gas_aggregate <- aggregate(full_pop_data$yearly_gas_electric, list(full_pop_data$ZoneID), median)
+gas_aggregate <- aggregate(full_pop_data$yearly_gas, list(full_pop_data$ZoneID), median)
+oil_aggregate <- aggregate(full_pop_data$yearly_oil, list(full_pop_data$ZoneID), median)
+other_aggregate <- aggregate(full_pop_data$yearly_other_fuel, list(full_pop_data$ZoneID), median)
+
+colnames(elec_aggregate) <- c("ZoneID", "yearly_electric")
+elec_aggregate$yearly_gas_electric <- elec_gas_aggregate$x
+elec_aggregate$yearly_gas <- gas_aggregate$x
+elec_aggregate$yearly_oil <- oil_aggregate$x
+elec_aggregate$yearly_other_fuel <- other_aggregate$x
+
+#attach geojson data.
+elec_aggregate2 <- merge(elec_aggregate, lsoa_data, by="ZoneID")
+
+# plot it.
+
+v <- 'yearly_electric'
+elec_map <- ggplot(data = elec_aggregate2, aes(geometry = geometry, fill=.data[[v]])) +
+    #geom_sf() + # black outlines on borders for clarity.
+    geom_sf(color=NA) + # black outlines on borders for clarity.
+    scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+    labs(fill="Yearly Electricity Consumption (£s)")  + # colour bar label.
+    theme(legend.position="bottom") + # change plot to widescreen dimensions.
+    xlab("Longitude") + # axis labels
+    ylab("Latitude")
+print(elec_map)
+ggsave(here::here("plots","electric_map.pdf"), plot=last_plot())
+
+v <- 'yearly_gas_electric'
+gas_elec_map <- ggplot(data = elec_aggregate2, aes(geometry = geometry, fill=.data[[v]])) +
+    #geom_sf() + # black outlines on borders for clarity.
+    geom_sf(color=NA) + # black outlines on borders for clarity.
+    scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+    labs(fill="Yearly Gas and Electricity Consumption (£s)")  + # colour bar label.
+    theme(legend.position="bottom") + # change plot to widescreen dimensions.
+    xlab("Longitude") + # axis labels
+    ylab("Latitude")
+print(gas_elec_map)
+ggsave(here::here("plots","gas_electric_map.pdf"), plot=last_plot())
+
+
+v <- 'yearly_gas'
+gas_map <- ggplot(data = elec_aggregate2, aes(geometry = geometry, fill=.data[[v]])) +
+    #geom_sf() + # black outlines on borders for clarity.
+    geom_sf(color=NA) + # black outlines on borders for clarity.
+    scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+    labs(fill="Yearly Gas Consumption (£s)")  + # colour bar label.
+    theme(legend.position="bottom") + # change plot to widescreen dimensions.
+    xlab("Longitude") + # axis labels
+    ylab("Latitude")
+print(gas_map)
+ggsave(here::here("plots","gas_map.pdf"), plot=last_plot())
+
+v <- 'yearly_oil'
+oil_map <- ggplot(data = elec_aggregate2, aes(geometry = geometry, fill=.data[[v]])) +
+    #geom_sf() + # black outlines on borders for clarity.
+    geom_sf(color=NA) + # black outlines on borders for clarity.
+    scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+    labs(fill="Yearly Fuel Oil Consumption (£s)") + # colour bar label.
+    theme(legend.position="bottom") + # change plot to widescreen dimensions.
+    xlab("Longitude") + # axis labels
+    ylab("Latitude")
+print(oil_map)
+ggsave(here::here("plots","oil_map.pdf"), plot=last_plot())
+
+
+v <- 'yearly_other_fuel'
+other_map <- ggplot(data = elec_aggregate2, aes(geometry = geometry, fill=.data[[v]])) +
+    #geom_sf() + # black outlines on borders for clarity.
+    geom_sf(color=NA) + # black outlines on borders for clarity.
+    scale_fill_viridis_c(alpha = 1.0, direction=-1) + # use viridis colour scale and reverse it  so brighter is better.
+    labs(fill="Yearly Other Fuel Consumption (£s)")  + # colour bar label.
+    theme(legend.position="bottom") + # change plot to widescreen dimensions.
+    xlab("Longitude") + # axis labels
+    ylab("Latitude")
+print(other_map)
+ggsave(here::here("plots","other_fuel_map.pdf"), plot=last_plot())
+
+# quantile plots as well.
+
+pdf(here::here("plots", "electricty_quantile_plot.pdf"))
+hist(elec_aggregate2$yearly_electric, xlab="Yearly Electricity Cost", main="")
+#plot(sort(elec_aggregate2$yearly_electric), xlab="Observation", ylab = "Monthly Electricity Cost")
+dev.off()
+
+pdf(here::here("plots", "gas_electricty_quantile_plot.pdf"))
+hist(elec_aggregate2$yearly_gas_electric, xlab="YearlyGas and Electricity Cost", main="")
+#plot(sort(elec_aggregate2$yearly_gas_electric), xlab="Observation", ylab = "Monthly Gas and Electricity Cost")
+dev.off()
+
+pdf(here::here("plots", "gas_quantile_plot.pdf"))
+hist(elec_aggregate2$yearly_gas, xlab="Yearly Gas Cost", main="")
+#plot(sort(elec_aggregate2$yearly_gas), xlab="Observation", ylab = "Monthly Gas Cost")
+dev.off()
+
+pdf(here::here("plots", "oil_quantile_plot.pdf"))
+hist(elec_aggregate2$yearly_oil, xlab="Yearly Fuel Oil Cost", main="")
+#plot(sort(elec_aggregate2$yearly_oil), xlab="Observation", ylab = "Monthly Fuel Oil Cost")
+dev.off()
+
+pdf(here::here("plots", "other_fuel_quantile_plot.pdf"))
+hist(elec_aggregate2$yearly_other_fuel, xlab="Yearly Other Fuel Cost", main="")
+#plot(sort(elec_aggregate2$yearly_other_fuel), xlab="Observation", ylab = "Monthly Other Fuel Cost")
+dev.off()
+
+#qqplot(elec_aggregate2$yearly_electric)
+
+# rolling in DESNZ real median KWH usage for validation. 
+elec_aggregate3 <- merge(elec_aggregate2, electricity_consumption_data, by="ZoneID")
+elec_aggregate4 <- merge(elec_aggregate3, gas_consumption_data, by="ZoneID")
+
+# simple linear regression between KWH use and energy bill. 
+print(summary(lm(median_electricity ~ yearly_electric-1, data=elec_aggregate4)))
+print(summary(lm(median_gas ~ yearly_gas-1, data=elec_aggregate4)))
+
+print(summary(lm(yearly_electric ~ median_electricity -1, data=elec_aggregate4)))
+print(summary(lm(yearly_gas~median_gas -1, data=elec_aggregate4)))
+
+plot(elec_aggregate4$yearly_gas, elec_aggregate4$median_gas)
+plot(elec_aggregate4$yearly_electric, elec_aggregate4$median_electric)
+
+```

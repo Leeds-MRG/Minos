@@ -197,14 +197,14 @@ good_heating_dummy_GMCA_map:
 
 #NB change in subsets here are important.
 EPCG_GMCA_map:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2023 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2023 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2024 -v "SF_12" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2025 -v "SF_12" -s true
 
 EPCG_GMCA_map_PCS:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2024 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12_PCS"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2024 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12_PCS"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2024 -v "SF_12_PCS" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12_PCS"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12_PCS"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2025 -v "SF_12_PCS" -s true
 
 GBIS_GMCA_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12"
@@ -212,21 +212,24 @@ GBIS_GMCA_map:
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2025 -v "SF_12" -s true
 
 GBIS_GMCA_map_PCS:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2024 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12_PCS"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "GBIS" -y 2024 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12_PCS"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2024 -v "SF_12_PCS" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "SF_12_PCS"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "GBIS" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "SF_12_PCS"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2025 -v "SF_12_PCS" -s true
 
 GBIS_GMCA_map_QALYs:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2030 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "QALYs"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "GBIS" -y 2030 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "QALYs"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2030 -v "QALYs" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "QALYs"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "GBIS" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "QALYs"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "GBIS" -r "manchester" -y 2025 -v "QALYs" -s true
 
 EPCG_GMCA_map_QALYs:
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2030 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "QALYs"
-	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2030 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "QALYs"
-	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2030 -v "QALYs" -s true
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester" -v "QALYs"
+	$(PYTHON) minos/outcomes/format_spatial_output.py -i "EPCG" -y 2025 -m "energy_manchester_scaled" -s who_alive -p true -r "manchester"  -v "QALYs"
+	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "EPCG" -r "manchester" -y 2025 -v "QALYs" -s true
 
 FFRS_GMCA_map:
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "baseline" -y 2024 -m "energy_manchester_scaled" -s who_poor_heating -p true -r "manchester" -v "SF_12"
 	$(PYTHON) minos/outcomes/format_spatial_output.py -i "fossilFuelReplacementScheme" -y 2024 -m "energy_manchester_scaled" -s who_boosted -p true -r "manchester"  -v "SF_12"
 	$(RSCRIPT) minos/outcomes/sf12_difference_map.R -m "energy_manchester_scaled" -b "baseline" -i "fossilFuelReplacementScheme" -r "manchester" -y 2024 -v "SF_12" -s true
+
+spatial_analysis_maps:  GBIS_GMCA_map EPCG_GMCA_map GBIS_GMCA_map_PCS EPCG_GMCA_map_PCS GBIS_GMCA_map_QALYs EPCG_GMCA_map_QALYs
+spatial_analysis_maps_QALY_only: GBIS_GMCA_map_QALYs EPCG_GMCA_map_QALYs

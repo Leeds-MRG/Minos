@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -13,11 +15,275 @@ ICER plots
 disaggregation of good performing LSOAs/MSOAs. 
 
 ```{r}
-plot(cars)
+library(here)
+library(ggplot2)
+library(dplyr)
+library(xtable)
+
+# load 2020 data.
+full_pop_data <- read.csv(here::here("data", "scaled_manchester_aligned_US", "2020_US_cohort.csv"))
+full_pop_data$FP10 <- ((full_pop_data$yearly_energy * 10) > (full_pop_data$net_hh_income * 12))
+full_pop_data$is_green <- "Total Population" 
+
+full_pop_data_copy <- full_pop_data
+full_pop_data_copy2 <- full_pop_data
+
+
+# load green csvs for epcg/gbis.
+epcg_green_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_EPCG_2025_diffmap.pdfgreen_lsoas.csv"))
+#gbis_green_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_GBIS_2030_diffmap.pdfgreen_lsoas.csv"))
+epcg_expensive_non_green_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_EPCG_2025_diffmap.pdfexpensive_non_green_lsoas.csv"))
+
+
+#distributional differences for heating and income between full pop and green pop.
+#green_subpopulation <- full_pop_data[which(full_pop_data$ZoneID %in% epcg_green_lsoas$x), ]
+full_pop_data[which(full_pop_data$ZoneID %in% epcg_green_lsoas$x), "is_green"] <- "Cost-Effective LSOAs"
+full_pop_data <- full_pop_data[which(full_pop_data$is_green != "Total Population"), ] 
+#full_pop_data[which(!(full_pop_data$ZoneID %in% epcg_green_lsoas$x)), "is_green"] <- "Not Green LSOAs"
+
+full_pop_data_copy2[which(full_pop_data_copy2$ZoneID %in% epcg_expensive_non_green_lsoas$x), "is_green"] <- "Expensive and not Cost-Effective LSOAs"
+#full_pop_data_copy2 <- full_pop_data_copy2[which(full_pop_data$is_green == "All Not Expensive and Not Green LSOAs"), ] 
+full_pop_data_copy2 <- full_pop_data_copy2[which(full_pop_data_copy2$is_green != "Total Population"), ] 
+
+
+full_pop_data <- rbind(full_pop_data, full_pop_data_copy, full_pop_data_copy2)
+#full_pop_data <- full_pop_data[which(full_pop_data$is_green != "F"), ] 
+#print(table(full_pop_data$is_green))
+
+
+full_pop_data$housing_quality <- factor(full_pop_data$housing_quality, levels=c("Low", "Medium", "High"), ordered=T)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+```{r}
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+aggregate_by_group_continuous <- function(data, v) {
+  out_table <- full_pop_data %>%
+    group_by(is_green) %>%
+     summarise("Variable Mean" = mean(!!sym(v)))  %>%
+        mutate(Variable = "", .before=is_green) %>%
+          rename("LSOA Type" = is_green)
+    out_table$Variable[1] <- v
+  return (out_table)
+}
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+aggregate_by_group_discrete <- function(data, v) {
+  out_table <- full_pop_data %>%
+    group_by(is_green, !!sym(v)) %>%
+     summarise(count = n())  %>%
+      ungroup() %>%
+        mutate(freq = sum(count), .by=is_green) %>%
+          mutate(prct = 100*count / freq) %>%
+            mutate(Variable = "", .before=is_green) %>%
+              rename("Variable Levels" = !!sym(v), "LSOA Type"= is_green) %>%
+                select(-one_of(c("count", "freq"))) %>%
+                  arrange("Variable Levels")
+  
+  out_table$`Variable Levels` <- as.character(out_table$`Variable Levels`)
+  out_table$Variable[1] <- v
+  return (out_table)
+}
+
+
+discrete_var_table <- data.frame()
+
+for (var in c('housing_quality' ,'FP10', 'ethnicity', 'simd_decile')){
+  discrete_var_table <- rbind(discrete_var_table, aggregate_by_group_discrete(full_pop_data, var))
+}
+
+continuous_var_table <- data.frame()
+
+for (var in c('hh_income', "yearly_energy", "hh_rent","hh_mortgage", "nutrition_quality", "ncars", "council_tax", "yearly_electric", "yearly_gas", "yearly_oil", "yearly_gas_electric", "yearly_other_fuel", "age")){
+  continuous_var_table <- rbind(continuous_var_table, aggregate_by_group_continuous(full_pop_data, var))
+}
+
+
+write.csv(discrete_var_table, file = here::here("plots", "EPCG_discrete_var_table.csv"), row.names=F)
+write.csv(continuous_var_table, file = here::here("plots", "EPCG_continuous_var_table.csv"), row.names=F)
+#print(xtable(discrete_var_table, type = "latex"), file = here::here("plots", "EPCG_discrete_var_table.tex"))
+#print(xtable(continuous_var_table, type = "latex"), file = here::here("plots", "EPCG_continuous_var_table.tex"))
+
+
+```
+
+
+# ```{r}
+# 
+# ggplot(full_pop_data, aes(x = hh_income, colour = is_green)) +
+#   geom_density() +labs(x="Household Disposable Income", y="Density", colour="LSOA Type")#+
+#   #labs(x="Intervention Cost", y="QALY Cumulative Gain", color="IMD Decile")
+# ggsave(here::here("plots","EPCG_hh_income.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = SF_12, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_SF_12.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = SF_12_PCS, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_SF_12_PCS.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = yearly_energy, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_yearly_energy.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = yearly_gas, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_yearly_gas.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = yearly_electric, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_yearly_electric.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = yearly_gas_electric, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_yearly_gas_electric.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = age, colour = is_green)) +
+#   geom_density()+labs(x="Age", y="Density", colour="LSOA Type")
+# ggsave(here::here("plots","EPCG_age.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = yearly_oil, colour = is_green)) +
+#   geom_density()
+# ggsave(here::here("plots","EPCG_yearly_oil.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x = nutrition_quality, colour = is_green)) +
+#   geom_density()
+# 
+# ggplot(full_pop_data, aes(x = hh_mortgage, colour = is_green)) +
+#   geom_density()
+# 
+# ```
+# 
+# ```{r}
+# ggplot(full_pop_data, aes(x=as.factor(heating), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# ggsave(here::here("plots","EPCG_heating.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(housing_quality), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# ggsave(here::here("plots","EPCG_housing_quality.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(neighbourhood_safety), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# ggsave(here::here("plots","EPCG_neighbourhood_safety.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(FP10), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" ) +labs(x="FP10", y="Density", fill="LSOA Type")
+# ggsave(here::here("plots","EPCG_FP10.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(ethnicity), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" ) +labs(x="Ethncity", y="Density", fill="LSOA Type")
+# ggsave(here::here("plots","EPCG_ethnicity.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(ncars), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# ggsave(here::here("plots","EPCG_ncars.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(sex), fill=as.factor(is_green)))+
+#   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" ) +labs(x="Sex", y="Density", fill="LSOA Type")
+# ggsave(here::here("plots","EPCG_sex.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(simd_decile), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )+labs(x="IMD Decile", y="Density", fill="LSOA Type")
+# ggsave(here::here("plots","EPCG_simd_decile.pdf"), plot=last_plot())
+# 
+# ggplot(full_pop_data, aes(x=as.factor(financial_situation), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ggplot(full_pop_data, aes(x=as.factor(simd_decile), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ggplot(full_pop_data, aes(x=as.factor(is_overcrowded), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ggplot(full_pop_data, aes(x=as.factor(S7_labour_state), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ggplot(full_pop_data, aes(x=as.factor(education_state), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ggplot(full_pop_data, aes(x=as.factor(housing_tenure), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ggplot(full_pop_data, aes(x=as.factor(number_of_rooms), fill=as.factor(is_green)))+
+#     geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" )
+# 
+# ```
+
+<!-- # do the same again for baseline and intervened green pops? -->
+
+<!-- ```{r} -->
+
+<!-- # baseline and epcg green lsoa populations in 2025.   -->
+
+<!-- baseline_2025 <- read.csv(here::here("output", "energy_manchester_scaled", "baseline", "2024_07_25_15_08_03", "0001_run_id_2025.csv")) -->
+<!-- epcg_2025 <- read.csv(here::here("output", "energy_manchester_scaled", "EPCG", "2024_07_26_18_23_14", "0001_run_id_2025.csv")) -->
+
+<!-- baseline_2025 <-  baseline_2025[which(baseline_2025$ZoneID %in% epcg_green_lsoas$x), ] -->
+<!-- epcg_2025 <-  epcg_2025[which(epcg_2025$ZoneID %in% epcg_green_lsoas$x), ] -->
+
+<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- epcg_2025 <- epcg_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+
+<!-- baseline_2025$group <- "baseline" -->
+<!-- epcg_2025$group <- "epcg" -->
+
+<!-- plot_data <- rbind(baseline_2025, epcg_2025) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- ggplot(plot_data, aes(x = hh_income, colour = group)) + -->
+<!--   geom_density() -->
+
+<!-- ggplot(plot_data, aes(x = SF_12, colour = group)) + -->
+<!--   geom_density() -->
+
+<!-- ggplot(plot_data, aes(x = SF_12_PCS, colour = group)) + -->
+<!--   geom_density() -->
+
+<!-- ggplot(plot_data, aes(x = yearly_energy, colour = group)) + -->
+<!--   geom_density() -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- ggplot(plot_data, aes(x=as.factor(heating), fill=as.factor(group)))+ -->
+<!--   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" ) -->
+
+<!-- ggplot(plot_data, aes(x=as.factor(housing_quality), fill=as.factor(group)))+ -->
+<!--   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" ) -->
+
+<!-- ggplot(plot_data, aes(x=as.factor(neighbourhood_safety), fill=as.factor(group)))+ -->
+<!--   geom_bar(aes( y=..count../tapply(..count.., ..fill.. ,sum)[..fill..]), position="dodge" ) -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+<!-- baseline_2025 <- read.csv(here::here("output", "energy_manchester_scaled", "baseline", "2024_07_25_15_08_03", "0001_run_id_2025.csv")) -->
+<!-- epcg_2025 <- read.csv(here::here("output", "energy_manchester_scaled", "EPCG", "2024_07_26_18_23_14", "0001_run_id_2025.csv")) -->
+
+<!-- baseline_2025 <-  baseline_2025[which(!(baseline_2025$ZoneID %in% epcg_green_lsoas$x)), ] -->
+<!-- epcg_2025 <-  epcg_2025[which(!(epcg_2025$ZoneID %in% epcg_green_lsoas$x)), ] -->
+
+<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- epcg_2025 <- epcg_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+
+<!-- baseline_2025$group <- "baseline" -->
+<!-- epcg_2025$group <- "epcg" -->
+
+<!-- plot_data <- rbind(baseline_2025, epcg_2025) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- ggplot(plot_data, aes(x = hh_income, colour = group)) + -->
+<!--   geom_density() -->
+
+<!-- ggplot(plot_data, aes(x = SF_12, colour = group)) + -->
+<!--   geom_density() -->
+
+<!-- ggplot(plot_data, aes(x = SF_12_PCS, colour = group)) + -->
+<!--   geom_density() -->
+
+<!-- ggplot(plot_data, aes(x = yearly_energy, colour = group)) + -->
+<!--   geom_density() -->
+<!-- ``` -->
+
