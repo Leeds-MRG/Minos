@@ -186,7 +186,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['hh_income'] -= 400
 
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
-        newWavenetIncome['FP10'] = (newWavenetIncome['yearly_energy'] / newWavenetIncome['hh_income'] > 0.1)
+        newWavenetIncome['FP10'] = ((newWavenetIncome['yearly_energy'] / (12*newWavenetIncome['net_hh_income'])) > 0.1)
         print(np.mean(newWavenetIncome['hh_income']))
         self.population_view.update(
             newWavenetIncome[['net_hh_income', 'hh_income', 'hh_income_diff', 'net_hh_income_diff', "FP10"]])
