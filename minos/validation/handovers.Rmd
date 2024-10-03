@@ -484,6 +484,8 @@ ggplot(combined, aes(x = time, y = n, group = ethnicity, color = ethnicity, fill
   geom_line() +
   geom_vline(xintercept = start.year) +
   labs(title = 'Households with Children Count')
+
+rm(raw.hhs_kids.ethnicity, base.hhs_kids.ethnicity)
 ```
 
 

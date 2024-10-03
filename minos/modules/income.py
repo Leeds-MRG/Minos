@@ -1765,7 +1765,7 @@ class XGBIncome(Base):
         std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
         # rescale income to have new mean but keep old standard deviation.
         newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        #newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
 
         ## SCALING FIX FOR CHILD POV INTERVENTIONS??
         # Instead of scaling the whole pop at once, lets scale by quintile to maintain the variance of higher quintiles
