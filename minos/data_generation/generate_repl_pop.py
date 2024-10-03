@@ -79,11 +79,11 @@ def expand_repl(US_wave, region):
         # change time (for entry year)
         new_repl['time'] = year
         # change birth year
-        new_repl['birth_year'] = new_repl['birth_year'] + (year - 2017)
+        #new_repl['birth_year'] = new_repl['birth_year'] + (year - 2017)
         # change interview year
-        new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
+        #new_repl['hh_int_y'] = new_repl['hh_int_y'].astype(int) + (year - 2017)
         # now update Date variable (just use US_utils function
-        new_repl = US_utils.generate_interview_date_var(new_repl)
+        #new_repl = US_utils.generate_interview_date_var(new_repl)
         # adjust pidp to ensure unique values (have checked this and made sure this will never give us a duplicate)
         # new_repl['pidp'] = new_repl['pidp'] + year + 1000000 + 2*new_repl.index
 
@@ -266,9 +266,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['ncigs'] = final_repl['ncigs'].astype(int)
     final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
     final_repl['loneliness'] = final_repl['loneliness'].astype(int)
-    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
-    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
-    final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
+    #final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
+    #final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
+    #final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)
     final_repl['nkids'] = final_repl['nkids'].astype(float)

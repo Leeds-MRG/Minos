@@ -70,10 +70,10 @@ def reweight_stock(data, projections):
 def generate_difference_variables(data):
     # creating difference in hh income for lmm difference models.
     data = data.sort_values(by=['time'])
-    diff_columns = ["hh_income", "net_hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
+    diff_columns = ["hh_income"]#, "net_hh_income", "SF_12", "nutrition_quality", "job_hours", 'hourly_wage']
     diff_column_names = [item + "_diff" for item in diff_columns]
     data[diff_column_names] = data.groupby(["pidp"])[diff_columns].diff().fillna(0)
-    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
+    #data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype(int)
     return data
 
 
@@ -380,7 +380,18 @@ def generate_input_stock(projections, cross_validation):
 
     data = generate_difference_variables(data)
 
+    # dropping dead columns
+    data.drop(columns=["matdepa","matdepd","matdepe","birth_year",
+                      "matdepf","matdepg","matdeph","matdepi","matdepj", "S7_physical_health",
+                      "S7_mental_health", "nobs",  "job_duration_m", "job_duration_y",
+                      "job_industry", "job_occupation", "alcohol_spending", "ndrinks", "gross_paypm",
+                      "gross_pay_se", "job_hours", "job_hours_se", "job_inc", "jb_inc_per", "job_sector",
+                      "depression", "birth_month", "academic_year", "Date", "hourly_wage", "phealth", "hh_int_m",
+                      "hh_int_y"], axis=1, inplace=True)
+
     US_utils.save_multiple_files(data, years, "data/imputed_final_US/", "")
+
+
 
     # Cross Validation stuff
     # Split pop in half with rng - half to transitions to fit models, half to simulate
