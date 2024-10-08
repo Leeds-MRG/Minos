@@ -83,9 +83,7 @@ class lmmYJNetIncome(Base):
                         "hh_rent",
                         "hh_mortgage",
                         "council_tax",
-                        'net_hh_income_diff',
                         "yearly_energy",
-                        'hh_int_m',
                         'time',
                         'hidp',
                         "FP10"
@@ -164,7 +162,7 @@ class lmmYJNetIncome(Base):
 
         #newWavenetIncome['net_hh_income'] = newWavenetIncome['net_hh_income'].clip(-5000, 30000)
 
-        newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
+        #newWavenetIncome['net_hh_income_diff'] = newWavenetIncome['net_hh_income'] - pop['net_hh_income']
 
         #newWavenetIncome[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy", "outgoings"]] = pop[['hh_rent', 'hh_mortgage', "oecd_equiv", "council_tax", "yearly_energy", "outgoings"]]
         newWavenetIncome['yearly_energy'] = pop['yearly_energy']
@@ -189,7 +187,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome['FP10'] = ((newWavenetIncome['yearly_energy'] / (12*newWavenetIncome['net_hh_income'])) > 0.1)
         print(np.mean(newWavenetIncome['hh_income']))
         self.population_view.update(
-            newWavenetIncome[['net_hh_income', 'hh_income', 'hh_income_diff', 'net_hh_income_diff', "FP10"]])
+            newWavenetIncome[['net_hh_income', 'hh_income', 'hh_income_diff', "FP10"]])
 
     def calculate_net_income(self, pop):
         """Calculate income transition distribution based on provided people/indices

@@ -65,7 +65,7 @@ class HourlyWage(Base):
                         'S7_labour_state',
                         'hh_income',
                         'hourly_wage',
-                        'hourly_wage_diff',
+                        #'hourly_wage_diff',
                         'time'
                         ]
 
@@ -170,7 +170,7 @@ class HourlyWage(Base):
         # print(std_ratio)
 
         #print("job_hours", np.mean(newWaveJobHours['job_hours']))
-        self.population_view.update(pop[['hourly_wage', 'hourly_wage_diff']])
+        self.population_view.update(pop[['hourly_wage']])
 
         # Now people not in employment
         non_working_pop = self.population_view.get(event.index,
@@ -184,7 +184,7 @@ class HourlyWage(Base):
         # now calculate diff (although probably not useful)
         non_working_pop['hourly_wage_diff'] = non_working_pop['hourly_wage'] - non_working_pop['hourly_wage']
 
-        self.population_view.update(non_working_pop[['hourly_wage', 'hourly_wage_diff']])
+        self.population_view.update(non_working_pop[['hourly_wage']])
 
     #def on_time_step(self, pop_data):
 

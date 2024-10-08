@@ -98,9 +98,7 @@ class lmmYJOutgoings(Base):
                         "hh_rent",
                         "hh_mortgage",
                         "council_tax",
-                        'net_hh_income_diff',
                         "yearly_energy",
-                        'hh_int_m',
                         'housing_tenure',
                         'time',
                         'hidp'

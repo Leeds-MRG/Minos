@@ -386,7 +386,7 @@ def generate_input_stock(projections, cross_validation):
                       "S7_mental_health", "nobs",  "job_duration_m", "job_duration_y",
                       "job_industry", "job_occupation", "alcohol_spending", "ndrinks", "gross_paypm",
                       "gross_pay_se", "job_hours", "job_hours_se", "job_inc", "jb_inc_per", "job_sector",
-                      "depression", "birth_month", "academic_year", "Date", "hourly_wage", "phealth", "hh_int_m",
+                      "depression", "birth_month", "academic_year", "Date", "phealth", "hh_int_m", #"hourly_wage",
                       "hh_int_y"], axis=1, inplace=True)
 
     US_utils.save_multiple_files(data, years, "data/imputed_final_US/", "")

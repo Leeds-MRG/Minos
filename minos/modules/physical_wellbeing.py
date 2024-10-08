@@ -184,7 +184,7 @@ class lmmYJPCS(Base):
                         'weight',
                         'hh_income',
                         'SF_12',
-                        'SF_12_diff',
+                        #'SF_12_diff',
                         'SF_12_PCS',
                         #'SF_12_PCS_diff',
                         'housing_quality',
@@ -262,7 +262,7 @@ class lmmYJPCS(Base):
         # Clip to minimum and maximum values seen in current wave
         #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], min_PCS, max_PCS)
 
-        newWavePWB["SF_12_PCS_diff"] = newWavePWB["SF_12_PCS"] - pop["SF_12_PCS"]
+        #newWavePWB["SF_12_PCS_diff"] = newWavePWB["SF_12_PCS"] - pop["SF_12_PCS"]
         # Update population with new SF_12_PCS
         #print(np.mean(newWavePWB["SF_12_PCS"]))
         #print(np.std(newWavePWB["SF_12_PCS"]))

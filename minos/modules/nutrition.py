@@ -169,7 +169,7 @@ class lmmYJNutrition(Base):
                         'pidp',
                         'hidp',
                         'nutrition_quality',
-                        'nutrition_quality_diff',
+                        #'nutrition_quality_diff',
                         'ncigs',
                         "SF_12"
                         ]
@@ -221,13 +221,13 @@ class lmmYJNutrition(Base):
 
         #newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
         newWaveNutrition['nutrition_quality'] = np.clip(newWaveNutrition['nutrition_quality'], 0, 110) # clipping because of idiot that eats 150 vegetables per week.
-        newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
+        #newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality'] - pop['nutrition_quality']
         newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(int)
-        newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(int)
+        #newWaveNutrition['nutrition_quality_diff'] = newWaveNutrition['nutrition_quality_diff'].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print('nutrition', np.mean(newWaveNutrition['nutrition_quality']))
-        self.population_view.update(newWaveNutrition[['nutrition_quality', 'nutrition_quality_diff']])
+        self.population_view.update(newWaveNutrition[['nutrition_quality']])#, 'nutrition_quality_diff']])
 
     def calculate_nutrition(self, pop):
         """Calculate loneliness transition distribution based on provided people/indices.
