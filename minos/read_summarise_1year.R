@@ -599,8 +599,7 @@ priority_num_confint_summarise <- function(data) {
     mutate(num_priority_groups = case_when(
       num_priority_groups == 0 ~ 0,
       num_priority_groups == 1 ~ 1,
-      num_priority_groups == 2 ~ 2,
-      num_priority_groups >= 3 ~ 3)) %>%
+      num_priority_groups >= 2 ~ 2)) %>%
     group_by(num_priority_groups) %>%
     summarise(count = n(),
               SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
