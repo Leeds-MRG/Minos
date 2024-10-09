@@ -38,21 +38,21 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   # fit models to this grand data frame.
   modDef_path = paste0(transitionSourceDir_path, mod_def_name)
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
-  
+
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
+  orig_data$housing_quality <- factor(orig_data$housing_quality,
                                  levels = c('Low',
                                             'Medium',
                                             'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
-                                    levels = c('No to all', 
-                                               'Yes to some', 
+  orig_data$S7_housing_quality <- factor(orig_data$S7_housing_quality,
+                                    levels = c('No to all',
+                                               'Yes to some',
                                                'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                         levels = c('Often', 
-                                                    'Some of the time', 
+  orig_data$S7_neighbourhood_safety <- factor(orig_data$S7_neighbourhood_safety,
+                                         levels = c('Often',
+                                                    'Some of the time',
                                                     'Hardly ever'))
-  data$S7_labour_state <- factor(data$S7_labour_state,
+  orig_data$S7_labour_state <- factor(orig_data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
                                             'Job Seeking',
@@ -60,7 +60,9 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                             'Family Care',
                                             'Not Working'))
 
-  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO")
+  valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF",
+                                      "ORDGEE", "CLMM", "RF", "RFO", "RF_DIFF",
+                                      "MARS", "XGB")
 
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
 
@@ -117,43 +119,28 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       use.weights <- TRUE
     }
 
-    # if (dependent %in% c()) {  # 'SF_12_PCS', "SF_12_MCS"
-    #   do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
-    # }
-    # else {
-    #   do.reflect=FALSE
-    # }
-    do.reflect=FALSE
+    if (dependent %in% c('SF_12', 'SF_12_PCS')) {  # 'SF_12_PCS', "SF_12_MCS"
+      do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
+    }
+    else {
+      do.reflect=FALSE
+    }
 
     if (dependent %in% c("hh_income")) {  # "SF_12"
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
     }
-    
+
     if (dependent %in% c('SF_12_PCS', 'SF_12_MCS', 'SF_12')) {
       do.log.transform <- T
     } else {
       do.log.transform <- F
     }
-    
-    if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety',
-                         'job_sec', 'financial_situation', 'behind_on_bills')) {
-      data[[dependent]] <- factor(data[[dependent]])
-    }
 
-    # experimental ordinal long models. ignore.
-    # if (mod.type == "ORDGEE") {
-    #   temp.dependent <- paste0("ordered(", dependent, ")") # make dependent variable into ordered factor.
-    #   formula.string <- paste0(temp.dependent, " ~ ", independents)
-    #   form <- as.formula(formula.string)
-    # }
-    # else if (mod.type == "CLMM") {
-    #   formula.string <- paste0(dependent, " ~ ", independents)
-    #   form <- as.formula(formula.string)
-    # } else {
-    #   formula.string <- paste0(dependent, " ~ ", independents)
-    #   form <- as.formula(formula.string)
+    # if (dependent %in% c('housing_quality', 'loneliness', 'neighbourhood_safety',
+    #                      'job_sec', 'financial_situation', 'behind_on_bills')) {
+    #   data[[dependent]] <- factor(data[[dependent]])
     # }
 
     # READ THIS FOR HOURLY_WAGE
@@ -173,19 +160,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #     filter(hourly_wage < 300)
     # }
 
-
-    # differencing data for difference models using dplyr lag.
-    # NOTE NEED TO UPDATE MODEL DEFINITIONS TO HAVE _DIFF IN RESPONSE VARIABLE NAME.
-    if (tolower(mod.type) == "lmm_diff")  {
-      data <- data %>%
-        group_by(pidp) %>%
-        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-        mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
-        rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
-      # update model formula with _diff variable.
-      dependent <-  paste0(dependent, "_diff")
-    }
-
     # if using glmms need to be careful which time the outcome variable is from.
     # for nutrition quality and SF12 using previous wave information to predict next
     # state so create response income_new that is the lead value.
@@ -193,25 +167,48 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # For SF12 predicting current state given changes in all other information and previous SF12 value.
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
     # We have SF_12_last in the model formula for 2019 SF12.
-    if (dependent == "nutrition_quality" || dependent == "hh_income") {
-      # get leading nutrition/income value and label with _new.
-      data <- data %>%
-        group_by(pidp) %>%
-        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
-        mutate(new = lead(.data[[dependent]], order_by = time)) %>%
-        rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
-      dependent <-  paste0(dependent, "_new")
-    }
-    else if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep', 
+    # if (dependent == "nutrition_quality") {  # dependent == "hh_income"
+    #   # get leading nutrition/income value and label with _new.
+    #   data <- data %>%
+    #     group_by(pidp) %>%
+    #     #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+    #     mutate(new = lead(.data[[dependent]], order_by = time)) %>%
+    #     rename_with(.fn = ~paste0(dependent, '_', .), .cols = new)  # add the dependent as prefix to the calculated diff
+    #   dependent <-  paste0(dependent, "_new")
+    # }
+    # else
+    if (dependent %in% c('SF_12_MCS', 'SF_12_PCS', 'SF_12', 'matdep',
                               'chron_disease', 'housing_quality',
                               'loneliness', 'neighbourhood_safety', 'job_sec',
-                              'financial_situation', 'behind_on_bills')) {
+                              'financial_situation', 'behind_on_bills',
+                              'hh_income', 'nutrition_quality')) {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
         #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
         mutate(last = lag(.data[[dependent]], order_by = time)) %>%
         rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)  # add the dependent as prefix to the calculated diff
+    }
+
+    # differencing data for difference models using dplyr lag.
+    # NOTE NEED TO UPDATE MODEL DEFINITIONS TO HAVE _DIFF IN RESPONSE VARIABLE NAME.
+    if (tolower(mod.type) %in% c("lmm_diff", "rf_diff") & (dependent %in% c('hh_income', 'SF_12')))  {
+      # data <- data %>%
+      #   group_by(pidp) %>%
+      #   #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+      #   mutate(diff = lead(.data[[dependent]], order_by = time) - .data[[dependent]]) %>%
+      #   rename_with(.fn = ~paste0(dependent, '_', .), .cols = diff)  # add the dependent as prefix to the calculated diff
+      # update model formula with _diff variable.
+
+      # set the dependent as diff variable
+      dependent <-  paste0(dependent, "_diff")
+
+      # calculate last diff
+      data <- data %>%
+        group_by(pidp) %>%
+        #mutate(diff = .data[[dependent]] - lag(.data[[dependent]], order_by = time)) %>%
+        mutate(last = lag(.data[[dependent]], order_by = time)) %>%
+        rename_with(.fn = ~paste0(dependent, '_', .), .cols = last)
     }
 
     formula.string <- paste0(dependent, " ~ ", independents)
@@ -223,10 +220,6 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
 
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
-    
-    
-    
-    print(sprintf("Model is being fit on %d individual records...", nrow(sorted_df)))
 
     # function call and parameters based on model type.
     if(tolower(mod.type) == 'glmm') {
@@ -270,17 +263,28 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                           formula = form,
                                           depend = dependent)
 
-    } else if (tolower(mod.type) == "rf") {
+    } else if (tolower(mod.type) %in% c("rf", "rf_diff")) {
 
       model <- estimate_RandomForest(data = sorted_df,
                                      formula = form,
                                      depend = dependent)
-      
+
     } else if (tolower(mod.type) == "rfo") {
-      
+
       model <- estimate_RandomForestOrdinal(data = sorted_df,
                                             formula = form,
                                             depend = dependent)
+    } else if (tolower(mod.type) == "mars") {
+
+      model <- estimate_MARS(data = sorted_df,
+                             formula = form)
+
+    } else if (tolower(mod.type) == "xgb") {
+
+      model <- estimate_XGB(data = sorted_df,
+                            formula = form,
+                            depend = dependent,
+                            reflect = do.reflect)
     }
 
     write_coefs <- F

@@ -51,15 +51,23 @@ source(here::here('minos', 'validation', 'utils.r'))
 
 ```{r}
 # Read raw datafiles in
-raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+#raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'imputed_final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+#raw.files <- list.files(here::here('data', 'scaled_scotland_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 raw.dat <- raw.dat %>%
   filter(weight > 0)
 
 out.path <- here::here('output', 'default_config/')
-base.dat <- read_singular_local_out(out.path, 'baseline', 
-                                    drop.dead = TRUE, 
+# out.path <- here::here('output', 'scotland_scaled/')
+base.dat <- read_singular_local_out(out.path, 'baseline',
+                                    drop.dead = TRUE,
                                     drop.zero.weight = TRUE)
+
+# base.dat <- read_singular_local_out(out.path, 'ChildPovertyReduction',
+#                                     drop.dead = TRUE,
+#                                     drop.zero.weight = TRUE)
+
 #base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
 ```
 
@@ -69,6 +77,10 @@ base.dat <- read_singular_local_out(out.path, 'baseline',
 start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
+
+# Need to remove extra data from raw data after start year
+raw.dat <- raw.dat %>%
+  filter(time <= start.year)
 
 shall.we.save <- FALSE
 ```
@@ -110,13 +122,24 @@ handover_ordinal(empty.dat, base.dat_fam, var = 'age_bucket', save = shall.we.sa
 ```{r}
 raw.maxAge <- raw.dat %>%
   group_by(time) %>%
-  summarise(max_age = max(age))
+  summarise(max_age = max(age)) %>%
+  mutate(scen = 'final_US')
 
 base.maxAge <- base.dat %>%
   group_by(time) %>%
-  summarise(max_age = max(age))
+  summarise(max_age = max(age)) %>%
+  mutate(scen = 'baseline')
 
-handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+
+combined <- rbind(raw.maxAge, base.maxAge)
+
+#handover_lineplots(raw.maxAge, base.maxAge, 'max_age')
+ggplot(combined, aes(x = time, y = max_age, group = scen, colour = scen)) +
+  geom_line() +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
+  labs(title = 'Max year of age') +
+  xlab('Year') +
+  ylab('Age')
 
 ## Check counts in very old age groups
 brks = c(75, 80, 85, 90, 95, 100, 105, 110)
@@ -144,7 +167,7 @@ combined <- rbind(raw.countOldAge, base.countOldAge)
 
 ggplot(combined, aes(x = time, y = age_group_counts, group = age_group, colour = age_group)) +
   geom_line() +
-  geom_vline(xintercept = 2021, linetype = 'dashed') +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
   labs(title = 'Counts by older age group', subtitle = '75 to 110 by 5 year groups') +
   xlab('Year') +
   ylab('Count')
@@ -223,14 +246,25 @@ var.norm <- merged %>%
 ```{r}
 raw.alive <- raw.dat %>%
   group_by(time) %>%
-  summarise(n = n())
+  summarise(n = n()) %>%
+  mutate(scen = 'final_US')
 
 base.alive <- base.dat %>%
   group_by(time) %>%
-  summarise(n = n())
+  summarise(n = n()) %>%
+  mutate(scen = 'baseline')
 
 #handover_boxplots(raw.alive, base.alive, 'n')
-handover_lineplots(raw.alive, base.alive, "n")
+#handover_lineplots(raw.alive, base.alive, "n")
+
+combined <- rbind(raw.alive, base.alive)
+
+ggplot(combined, aes(x = time, y = n, group = scen, color = scen, fill = scen)) +
+  geom_line() +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
+  labs(title = 'Total Count in Sample') +
+  xlab('Year') +
+  ylab('Count')
 
 rm(raw.alive, base.alive)
 ```
@@ -257,6 +291,7 @@ combined <- rbind(raw.hhs, base.hhs)
 ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = source)) +
   geom_point() +
   geom_line() +
+  geom_vline(xintercept = start.year, linetype = 'dashed') +
   labs(title = 'Households Count')
 ```
 
@@ -388,25 +423,98 @@ ggplot(combined, aes(x = time, y = proportion, group = income_group, color = inc
 
 
 ```{r}
-# Step 1: Filter for households with children
-households_with_kids <- raw.dat %>%
+# # Step 1: Filter for households with children
+# households_with_kids <- raw.dat %>%
+#   filter(nkids > 0) %>%
+#   select(hidp, time, hh_income) %>%
+#   distinct() %>%
+#   select(-hidp)
+# 
+# # Step 2: Calculate income quintiles
+# households_with_kids <- households_with_kids %>%
+#   group_by(time) %>%
+#   mutate(income_quintile = ntile(hh_income, 5)) %>%
+#   ungroup()
+# 
+# # Step 3: Count households within each income quintile per year
+# household_count_by_income_quintile <- households_with_kids %>%
+#   group_by(time, income_quintile) %>%
+#   summarise(n = n())
+# 
+# household_count_by_income_quintile
+```
+
+### Households With Children (Ethnic Group)
+
+```{r}
+raw.hhs_kids.ethnicity <- raw.dat %>%
   filter(nkids > 0) %>%
-  select(hidp, time, hh_income) %>%
+  select(hidp, time, hh_income, ethnicity) %>%  # Select relevant columns to reduce data size
   distinct() %>%
-  select(-hidp)
+  group_by(time, ethnicity) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'final_US')
 
-# Step 2: Calculate income quintiles
-households_with_kids <- households_with_kids %>%
-  group_by(time) %>%
-  mutate(income_quintile = ntile(hh_income, 5)) %>%
-  ungroup()
+base.hhs_kids.ethnicity <- base.dat %>%
+  filter(nkids > 0) %>%
+  select(hidp, time, hh_income, ethnicity) %>%  # Select relevant columns to reduce data size
+  distinct() %>%
+  group_by(time, ethnicity) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(source = 'baseline')
 
-# Step 3: Count households within each income quintile per year
-household_count_by_income_quintile <- households_with_kids %>%
-  group_by(time, income_quintile) %>%
-  summarise(n = n())
+combined <- rbind(raw.hhs_kids.ethnicity, base.hhs_kids.ethnicity)
+combined$ethnicity <- factor(combined$ethnicity)
 
-household_count_by_income_quintile
+ggplot(combined, aes(x = time, y = n, group = ethnicity, color = ethnicity, fill = ethnicity)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
+```
+
+
+```{r}
+calculate_hh_proportions <- function(data, group.var) {
+  # Step 1: Filter for households with children
+  households_with_kids <- data %>%
+    filter(nkids > 0) %>%
+    select(hidp, time, hh_income, .data[[group.var]]) %>%
+    distinct()
+  
+  # Step 3: Count households within each income group per year
+  household_counts <- households_with_kids %>%
+    group_by(time, .data[[group.var]]) %>%
+    summarise(count = n(), .groups = 'drop')
+  
+  # Step 4: Calculate total households with children per year
+  total_households_per_year <- households_with_kids %>%
+    group_by(time) %>%
+    summarise(total_count = n(), .groups = 'drop')
+  
+  # Step 5: Calculate proportion of households in each group per year
+  household_proportions <- household_counts %>%
+    left_join(total_households_per_year, by = "time") %>%
+    mutate(proportion = count / total_count) %>%
+    select(time, .data[[group.var]], proportion)
+  
+  return(household_proportions)
+}
+
+raw.hh_kids_prop <- calculate_hh_proportions(raw.dat, group.var = 'ethnicity')
+base.hh_kids_prop <- calculate_hh_proportions(base.dat, group.var = 'ethnicity')
+
+raw.hh_kids_prop$source <- 'final_US'
+raw.hh_kids_prop <- filter(raw.hh_kids_prop, time != start.year)
+base.hh_kids_prop$source <- 'baseline'
+
+combined <- rbind(raw.hh_kids_prop, base.hh_kids_prop)
+combined$ethnicity <- factor(combined$ethnicity)
+
+ggplot(combined, aes(x = time, y = proportion, group = ethnicity, color = ethnicity, fill = ethnicity)) +
+  geom_col() +
+  geom_vline(xintercept = start.year) +
+  labs(title = 'Households with Children Count')
 ```
 
 
@@ -420,17 +528,23 @@ household_count_by_income_quintile
 
 handover_boxplots(raw.dat, base.dat, 'hh_income')
 handover_lineplots(raw.dat, base.dat, "hh_income")
-handover_boxplots(raw.dat, base.dat, 'council_tax')
-handover_lineplots(raw.dat, base.dat, "council_tax")
+
+handover_boxplots(raw.dat, base.dat, 'hh_income_diff')
+handover_lineplots(raw.dat, base.dat, "hh_income_diff")
+# handover_boxplots(raw.dat, base.dat, 'council_tax')
+# handover_lineplots(raw.dat, base.dat, "council_tax")
+
+handover_boxplots(base.dat, base.dat, 'hh_income_diff')
+handover_lineplots(base.dat, base.dat, "hh_income_diff")
 ```
 
 ### Spaghetti
 
 ```{r}
 raw.inc <- raw.dat %>%
-  select(pidp, age, time, hh_income)
+  select(pidp, age, time, hh_income, hh_income_diff)
 base.inc <- base.dat %>%
-  select(pidp, age, time, hh_income)
+  select(pidp, age, time, hh_income, hh_income_diff)
 
 income.spag <- rbind(raw.inc, base.inc)
 
@@ -446,6 +560,17 @@ spaghetti_plot(income.spag.sample, 'hh_income',
 spaghetti_highlight_max_plot(income.spag.sample, 'hh_income',
                save = shall.we.save,
                save.path = save.path)
+
+spaghetti_plot(income.spag.sample, 'hh_income_diff',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(income.spag.sample, 'hh_income_diff',
+               save = shall.we.save,
+               save.path = save.path)
+
+# spaghetti_plot(base.inc, 'hh_income',
+#                save = shall.we.save,
+#                save.path = save.path)
 
 rm(raw.inc, base.inc, income.spag)
 ```
@@ -479,15 +604,15 @@ ggplot(data = rel.threshold, aes(x = time, y = poverty_threshold)) +
 
 #### Absolute
 ```{r}
-raw.2010 <- raw.dat %>%
-  filter(time == 2010)
-
-abs.threshold <- weighted.median(x = raw.2010$hh_income, 
-                                 w = raw.2010$weight, 
-                                 na.rm = TRUE)
-abs.threshold <- abs.threshold * 0.6
-
-print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
+# raw.2010 <- raw.dat %>%
+#   filter(time == 2010)
+# 
+# abs.threshold <- weighted.median(x = raw.2010$hh_income, 
+#                                  w = raw.2010$weight, 
+#                                  na.rm = TRUE)
+# abs.threshold <- abs.threshold * 0.6
+# 
+# print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
 ```
 
 
@@ -497,75 +622,19 @@ print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
 # sf12 boxplot handovers
 handover_boxplots(raw.dat, base.dat, 'SF_12')
 handover_lineplots(raw.dat, base.dat, "SF_12")
-# 
-# raw.sf12 <- raw.dat %>% 
-#   dplyr::select(pidp, time, SF_12) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'final_US')
-# 
-# base.sf12 <- base.dat %>%
-#   dplyr::select(pidp, time, SF_12) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'baseline_output')
-# 
-# # merge before plot
-# sf12 <- rbind(raw.sf12, base.sf12)
-# 
-# # Now plot
-# ggplot(data = sf12, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
-#   geom_smooth() +
-#   #geom_line() +
-#   geom_vline(xintercept=start.year, linetype='dotted') +
-#   labs(title = 'Mental Wellbeing (SF12)', subtitle = 'Full Sample') +
-#   xlab('Year') +
-#   ylab('SF12')
-# 
-# ## Try a version where final_US is limited to only those present from wave 1 
-# # onwards because the sample refreshments are messing with the plot
-# raw.sf12.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
-# 
-# raw.sf12.2 <- raw.dat %>% 
-#   dplyr::select(pidp, time, SF_12) %>%
-#   filter(pidp %in% raw.sf12.wave1) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'final_US')
-# 
-# base.sf12.2 <- base.dat %>%
-#   dplyr::select(pidp, time, SF_12) %>%
-#   filter(pidp %in% raw.sf12.wave1) %>%
-#   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
-#   mutate(source = 'baseline_output')
-# 
-# sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
-# 
-# # Now plot
-# ggplot(data = sf12.2, mapping = aes(x = time, y = sf12, group = source, colour = source)) +
-#   geom_line() +
-#   geom_vline(xintercept=start.year, linetype='dotted') +
-#   labs(title = 'Mental Wellbeing (SF12 MCS)') +
-#   xlab('Year') +
-#   ylab('SF12')
-# 
-# if (shall.we.save) {
-#   ggsave(filename = 'SF12_wav1.png',
-#        plot = last_plot(),
-#        path = save.path)
-# }
-# 
-# rm(raw.sf12, base.sf12, sf12, raw.sf12.wave1, raw.sf12.2, base.sf12.2, sf12.2)
+
+handover_boxplots(raw.dat, base.dat, 'SF_12_diff')
+handover_lineplots(raw.dat, base.dat, "SF_12_diff")
+
 ```
 
 ### Spaghetti
 
 ```{r}
 raw.sf12 <- raw.dat %>%
-  select(pidp, age, time, SF_12)
+  select(pidp, age, time, SF_12, SF_12_diff)
 base.sf12 <- base.dat %>%
-  select(pidp, age, time, SF_12)
+  select(pidp, age, time, SF_12, SF_12_diff)
 
 sf12.spag <- rbind(raw.sf12, base.sf12)
 
@@ -574,6 +643,13 @@ spaghetti_plot(sf12.spag.sample, 'SF_12',
                save = shall.we.save,
                save.path = save.path)
 spaghetti_highlight_max_plot(sf12.spag.sample, 'SF_12',
+               save = shall.we.save,
+               save.path = save.path)
+
+spaghetti_plot(sf12.spag.sample, 'SF_12_diff',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(sf12.spag.sample, 'SF_12_diff',
                save = shall.we.save,
                save.path = save.path)
   
@@ -635,18 +711,18 @@ rm(raw.housing, base.housing, housing, housing.norm)
 ### Spaghetti
 
 ```{r}
-# raw.s <- raw.dat %>%
-#   select(pidp, age, time, housing_quality)
-# base.s <- base.dat %>%
-#   select(pidp, age, time, housing_quality)
-# 
-# spag <- rbind(raw.s, base.s)
-# 
-# spaghetti_plot(spag, 'housing_quality',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# rm(raw.s, base.s, spag)
+raw.s <- raw.dat %>%
+  select(pidp, age, time, housing_quality)
+base.s <- base.dat %>%
+  select(pidp, age, time, housing_quality)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'housing_quality',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
 ```
 
 ## Neighbourhood Safety
@@ -701,18 +777,18 @@ if (shall.we.save) {
 ### Spaghetti
 
 ```{r}
-# raw.s <- raw.dat %>%
-#   select(pidp, age, time, neighbourhood_safety)
-# base.s <- base.dat %>%
-#   select(pidp, age, time, neighbourhood_safety)
-# 
-# spag <- rbind(raw.s, base.s)
-# 
-# spaghetti_plot(spag, 'neighbourhood_safety',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# rm(raw.s, base.s, spag)
+raw.s <- raw.dat %>%
+  select(pidp, age, time, neighbourhood_safety)
+base.s <- base.dat %>%
+  select(pidp, age, time, neighbourhood_safety)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'neighbourhood_safety',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
 ```
 
 ## Loneliness
@@ -767,18 +843,18 @@ rm(raw.loneliness, base.loneliness, loneliness, loneliness.norm)
 ### Spaghetti
 
 ```{r}
-# raw.s <- raw.dat %>%
-#   select(pidp, age, time, loneliness)
-# base.s <- base.dat %>%
-#   select(pidp, age, time, loneliness)
-# 
-# spag <- rbind(raw.s, base.s)
-# 
-# spaghetti_plot(spag, 'loneliness',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# rm(raw.s, base.s, spag)
+raw.s <- raw.dat %>%
+  select(pidp, age, time, loneliness)
+base.s <- base.dat %>%
+  select(pidp, age, time, loneliness)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'loneliness',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
 ```
 
 ## Nutrition Quality
@@ -833,23 +909,23 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 ### Spaghetti
 
 ```{r}
-# raw.nut <- raw.dat %>%
-#   select(pidp, age, time, nutrition_quality)
-# base.nut <- base.dat %>%
-#   select(pidp, age, time, nutrition_quality)
-# 
-# nut.spag <- rbind(raw.nut, base.nut)
-# 
-# spaghetti_plot(nut.spag, 'nutrition_quality',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# 
-# density_ridges(nut.spag, "nutrition_quality", 
-#                save = T, 
-#                save.path = save.path)
-# 
-# rm(raw.nut, base.nut, nut.spag)
+raw.nut <- raw.dat %>%
+  select(pidp, age, time, nutrition_quality)
+base.nut <- base.dat %>%
+  select(pidp, age, time, nutrition_quality)
+
+nut.spag <- rbind(raw.nut, base.nut)
+
+spaghetti_plot(nut.spag, 'nutrition_quality',
+               save = shall.we.save,
+               save.path = save.path)
+
+
+density_ridges(nut.spag, "nutrition_quality",
+               save = T,
+               save.path = save.path)
+
+rm(raw.nut, base.nut, nut.spag)
 ```
 
 ## Physical Health
@@ -1054,18 +1130,18 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ### Spaghetti
 
 ```{r}
-# raw.s <- raw.dat %>%
-#   select(pidp, age, time, education_state)
-# base.s <- base.dat %>%
-#   select(pidp, age, time, education_state)
-# 
-# spag <- rbind(raw.s, base.s)
-# 
-# spaghetti_plot(spag, 'education_state',
-#                save = shall.we.save,
-#                save.path = save.path)
-# 
-# rm(raw.s, base.s, spag)
+raw.s <- raw.dat %>%
+  select(pidp, age, time, education_state)
+base.s <- base.dat %>%
+  select(pidp, age, time, education_state)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'education_state',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
 ```
 
 ## Financial Situation
@@ -1173,15 +1249,18 @@ rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.n
 
 ```{r}
 raw.hh_unique <- raw.dat %>%
-  select(hidp, time, nkids) %>%
-  distinct()
+  select(hidp, time, nkids, weight) %>%
+  distinct(hidp, time, nkids, .keep_all = TRUE) %>%
+  mutate(scen = 'final_US')
 
 base.hh_unique <- base.dat %>%
-  select(hidp, time, nkids) %>%
-  distinct()
+  select(hidp, time, nkids, weight) %>%
+  distinct(hidp, time, nkids, .keep_all = TRUE) %>%
+  mutate(scen = 'baseline')
 
 #handover_boxplots(raw.hh_unique, base.hh_unique, 'nkids')
 handover_lineplots(raw.hh_unique, base.hh_unique, 'nkids')
+
 ```
 
 ```{r}
@@ -1405,6 +1484,8 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
   labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
   xlab('Year') +
   ylab('Count')
+
+combined.nkids
 
 ```
 

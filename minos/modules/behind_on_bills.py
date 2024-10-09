@@ -40,7 +40,7 @@ class BehindOnBills(Base):
         # self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -61,7 +61,8 @@ class BehindOnBills(Base):
                         'marital_status',
                         'housing_tenure',
                         "behind_on_bills",
-                        "SF_12"
+                        "SF_12",
+                        'urban'
                         ]
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -96,12 +97,12 @@ class BehindOnBills(Base):
         nextWaveBills = self.calculate_behind_on_bills(pop)
         nextWaveBills["behind_on_bills"] = self.random.choice(nextWaveBills.index,
                                                               list(nextWaveBills.columns+1),
-                                                              nextWaveBills).astype(float)
+                                                              nextWaveBills)
         nextWaveBills.index = pop.index
         #nextWaveBills["financial_situation"] = nextWaveBills["financial_situation"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new income.
-        self.population_view.update(nextWaveBills['behind_on_bills'])
+        self.population_view.update(nextWaveBills['behind_on_bills'].astype(int))
 
     def calculate_behind_on_bills(self, pop):
         # year = 2019
@@ -111,6 +112,6 @@ class BehindOnBills(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.bb_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='behind_on_bills')
+                                                  seed=self.run_seed)
 
         return prob_df

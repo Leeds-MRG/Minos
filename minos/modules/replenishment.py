@@ -3,12 +3,14 @@ File for adding new cohorts from Understanding Society data to the population
 """
 
 import pandas as pd
+import numpy as np
 import logging
 from minos.modules.base_module import Base
+import os
 
 
 # suppressing a warning that isn't a problem
-pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
+# pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
 
 
 class Replenishment(Base):
@@ -29,7 +31,7 @@ class Replenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
-        config = builder.configuration
+        self.config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -105,16 +107,24 @@ class Replenishment(Base):
         #                 'child_ages',
         #                 ]
 
-        view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
+        # view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
+        # view_columns = list(pd.read_csv("data/scaled_gb_US/2019_US_cohort.csv").columns)
 
+        # HR 24/09/24 Workaround for all cases (US and synthpop): get columns from input data
+        column_source = self.config.base_input_data_dir
+        latest_file = os.listdir(column_source)[0]
+        view_columns = list(pd.read_csv(os.path.join(column_source, latest_file)).columns)
 
-        if config.synthetic:  # only have spatial column and new pidp for synthpop.
-            view_columns += ["ZoneID",
-                             # "new_pidp",
-                             'local_simd_deciles',
-                             'simd_decile',
-                             # 'cluster'
-                             ]
+        if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
+            try:
+                view_columns += self.config.replenishing_columns  # HR 13/09/24 Workaround to reduce data size for GB synthpop
+            except:
+                view_columns += ["ZoneID",
+                                 # "new_pidp",
+                                 'local_simd_deciles',
+                                 'simd_decile',
+                                 # 'cluster'
+                                 ]
         columns_created = ['entrance_time']
 
         # Shorthand methods for readability.
@@ -151,14 +161,14 @@ class Replenishment(Base):
             # Add entrance times and convert ages to floats for pd.timedelta to handle.
             new_population = pd.read_csv(f"{self.input_data_dir}/{self.current_year}_US_cohort.csv")
             new_population.loc[new_population.index, "entrance_time"] = new_population["time"]
-            new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            new_population.loc[new_population.index, "age"] = new_population["age"].astype('Int64')
             logging.info(f"Starting cohort loaded for {self.current_year}.")
 
         elif pop_data.user_data["cohort_type"] == "replenishment":
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
-            new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
+            new_population.loc[new_population.index, "age"] = new_population["age"].astype("Int64")
             logging.info(f"Replenishing cohort added for {self.current_year}.")
 
         elif pop_data.user_data["cohort_type"] == "births":
@@ -178,6 +188,12 @@ class Replenishment(Base):
         # Register simulants entrance time and age to CRN. I.E keep them seeded.
         # Add new simulants to the overall population frame.
         self.register(new_population[["entrance_time", "age"]])
+        np.seterr(invalid='ignore')
+        try:  # Deal with missing var if using pared-down variable set
+            new_population['S7_neighbourhood_safety'] = new_population['S7_neighbourhood_safety'].astype(str)  # HR 457
+        except KeyError:
+            print('KeyError for S7_neighbourhood_safety')
+
         self.population_view.update(new_population)
 
     def on_time_step(self, event):
@@ -201,7 +217,12 @@ class Replenishment(Base):
             #pop['time'] += 1
             self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
-            new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
+            if 'run_id' in self.config.keys():
+                #new_wave = pd.read_csv(f"{self.replenishing_dir}/{(self.config['run_ID']//10) + 1}_replenishing_pop_2015-2070.csv")
+                new_wave = pd.read_csv(f"{self.replenishing_dir}/{((self.config['run_ID']-1)//10) + 1}_replenishing_pop_2015-2070.csv")
+            else:
+                new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
+
             # Now select the population for the current year
             new_wave = new_wave[(new_wave['time'] == event.time.year)]
             # TODO: Check how the population size changes over time now that we're only adding in 16 year olds
@@ -317,7 +338,7 @@ class NoReplenishment(Base):
         #                 'job_hours_diff',
         #                 ]
 
-        view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
+        view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
 
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",

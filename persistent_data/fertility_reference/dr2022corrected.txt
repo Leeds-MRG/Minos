@@ -1,0 +1,2 @@
+# HR 18/06/24 Mortality stats, EW 1994-2022
+# Downloaded from here: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/deathsregisteredinenglandandwalesseriesdrreferencetables

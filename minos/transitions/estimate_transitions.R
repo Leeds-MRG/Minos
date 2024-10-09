@@ -16,13 +16,13 @@
 source("minos/transitions/utils.R")
 source("minos/transitions/transition_model_functions.R")
 
-require(argparse)
-require(tidyverse)
-require(stringr)
-require(pscl)
-require(dplyr)
-require(tidyr)
-require(texreg)
+library(argparse)
+library(tidyverse)
+library(stringr)
+library(pscl)
+library(dplyr)
+library(tidyr)
+library(texreg)
 
 # Take the line from the model_definitions.txt and pull out what we need
 digest_params <- function(line) {
@@ -213,7 +213,18 @@ run_yearly_models <- function(transitionDir_path,
       # Now make string into formula
       form <- as.formula(formula.string)
 
+      # if(dependent == 'ncigs') {
+      #   print(paste0("ncigs, year: ", year))
+      #   browser()
+      # }
+      
+      ## Get only required variables
+      merged <- merged[, append(all.vars(form), c("time", 'pidp', 'weight'))]
 
+      # if(dependent == 'ncigs') {
+      #   print(paste0("ncigs, year: ", year))
+      #   browser()
+      # }
 
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {

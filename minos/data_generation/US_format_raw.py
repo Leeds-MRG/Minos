@@ -255,6 +255,8 @@ def format_ukhls_columns(year):
                       'nkids_dv': 'nkids',  # number of children in household
                       'lnprnt': 'nkids_ind_raw',  # number of children ever had by individual at first interview
                       'preg': 'nkids_ind_new',  # whether had a child (actually a pregnancy) since last interview
+                      'nchresp': 'nresp',  # number of children under 16 that person is responsible for
+                      'nnewborn': 'nnewborn',  # number of newborns during year
                       ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
                       'xpelecy': 'yearly_electric',  # yearly electricty expenditure
@@ -511,7 +513,8 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
 
     # merge the data on the hidp variable and return combined dataframe.
     # Code here prevents duplicate columns that occur in both datasets. 44444
-    combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
+    # combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
+    combined = indresp.merge(right=hhresp, how='left', on=merge_key, suffixes=('', '_delme'))  # HR 444
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
 

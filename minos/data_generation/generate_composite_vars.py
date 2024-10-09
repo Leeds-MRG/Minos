@@ -901,14 +901,15 @@ def calculate_equivalent_income(data):
     }
 
     # Now we add together weights for each factor level to generate the exponent term
+    DEFAULT = np.nan
     data['EI_exp_term'] = 0
-    #pop['EI_exp_term'] = pop['EI_exp_term'] + phys_health_dict.get(pop['S7_physical_health'])
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: phys_health_dict[x['S7_physical_health']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: men_health_dict[x['S7_mental_health']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: loneliness_dict[x['loneliness']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: employment_dict[x['S7_labour_state']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: housing_dict[x['S7_housing_quality']], axis=1)
-    data['EI_exp_term'] = data['EI_exp_term'] + data.apply(lambda x: nh_safety_dict[x['S7_neighbourhood_safety']], axis=1)
+    #pop['EI_exp_term'] += phys_health_dict.get(pop['S7_physical_health'])
+    data['EI_exp_term'] += data.apply(lambda x: phys_health_dict.get(x['S7_physical_health'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: men_health_dict.get(x['S7_mental_health'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: loneliness_dict.get(x['loneliness'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: employment_dict.get(x['S7_labour_state'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: housing_dict.get(x['S7_housing_quality'], DEFAULT), axis=1)
+    data['EI_exp_term'] += data.apply(lambda x: nh_safety_dict.get(x['S7_neighbourhood_safety'], DEFAULT), axis=1)
 
     # finally do the calculation for equivalent income (EI = income^EI_exp_term)
     data['equivalent_income'] = data['hh_income'] * np.exp(data['EI_exp_term'])
@@ -977,7 +978,7 @@ def calculate_children(data,
     data.loc[(data['nkids_ind'] > parity_max) & (data['sex'] == "Female"), 'nkids_ind'] = parity_max
 
     # Drop interim variables as not used elsewhere in pipeline
-    data.drop(labels=['nkids_ind_raw', 'nkids_ind_new'],
+    data.drop(labels=['nkids_ind_raw'],
               axis=1,
               inplace=True)
     return data
@@ -1039,6 +1040,78 @@ def generate_poverty_cohort_vars(data):
     return data
 
 
+def assign_quintiles(group):
+    #TODO: docstring
+    group['income_quintile'] = pd.qcut(group['hh_income'], 5, labels=False) + 1
+    return group
+
+
+def generate_initial_income_quintile(data):
+    #TODO: docstring
+    print('Generating income quintiles...')
+
+    data = data.groupby('time').apply(assign_quintiles)
+    return data
+
+
+def generate_priority_subgroups(data):
+    """
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    print('Generating priority subgroups...')
+
+    # List of priority subgroups:
+    # - Minority ethnicity
+    # - Child under one
+    # - Three plus children
+    # - Mother under 25
+    # - Disabled member in household
+
+    # Ethnicity
+    data['priority_ethnicity'] = data['ethnicity'] != 'WBI'
+    # Child under one
+    data['priority_child_under_one'] = data['child_ages'].str[0] == '0'
+    # Three plus children
+    data['priority_three_plus_children'] = data['nkids'] >= 3
+
+    # mother under 25 slightly more complicated
+    mothers_under_25 = data[(data['sex'] == 'Female') & (data['nkids_ind'] > 0) & (data['age'] < 25)]
+    mothers_under_25_hh = mothers_under_25['hidp'].unique()
+    data['priority_mother_under_25'] = data['hidp'].isin(mothers_under_25_hh)
+
+    # disabled
+    disabled = data[data['S7_labour_state'] == 'disabled']
+    disabled_hhs = disabled['hidp'].unique()
+    data['priority_disabled'] = data['hidp'].isin(disabled_hhs)
+
+    return data
+
+
+def generate_intervention_vars(data):
+    """
+    Need to create intervention variables before we start as they are *sometimes* needed in income calculations.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+
+    """
+    data['boost_amount'] = 0.
+    data['income_boosted'] = False
+
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1065,6 +1138,9 @@ def main():
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
     data = generate_poverty_cohort_vars(data)  # initial relative poverty variable
+    data = generate_initial_income_quintile(data)  # generate initial income quintiles
+    data = generate_priority_subgroups(data)  # priority subgroups from Scottish government
+    data = generate_intervention_vars(data)  # Intervention variables
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
