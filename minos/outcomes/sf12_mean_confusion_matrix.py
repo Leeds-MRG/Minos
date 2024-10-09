@@ -18,7 +18,7 @@ def get_means_dataframe(params, year):
         if p[0] not in out.keys():
             out[p[0]] = {}
         try:
-            out[p[0]][p[1]] = np.nanmean(pd.read_csv(file_name)["SF_12"])
+            out[p[0]][p[1]] = np.nanmean(pd.read_csv(file_name)["SF_12_MCS"])
         except:
             out[p[0]][p[1]] = np.nanmean(pd.read_csv(file_name)["0"])
 
@@ -27,7 +27,7 @@ def get_all_dataframe(params, year):
     for p in params:
         file_name = get_file_name(p, 2016)
         new_data = pd.read_csv(file_name)
-        new_data.columns = ['index', "SF_12"]
+        new_data.columns = ['index', "SF_12_MCS"]
         new_data = new_data.drop('index', axis=1)
         new_data['uplift'] = p[0]
         new_data['prop'] = p[1]
@@ -45,7 +45,7 @@ def confusion_matrix_plot(data):
 
 def sf12_catplot(data):
     f = plt.figure()
-    sns.catplot(x='uplift', y='SF_12', col='prop', kind='boxen', data=data)
+    sns.catplot(x='uplift', y='SF_12_MCS', col='prop', kind='boxen', data=data)
     plt.xlabel("Percentage Uplift (%)")
     plt.ylabel("Household Uplift Amount (£)")
     plt.savefig("plots/sf12_means_catplot.pdf")

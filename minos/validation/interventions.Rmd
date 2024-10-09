@@ -59,24 +59,24 @@ income.merged.byyr <- income.merged %>%
 ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
   geom_line()
 ```
-## SF_12
+## SF_12_MCS
 ```{r}
 sf12.base <- base %>% 
-  select(pidp, time, SF_12)
+  select(pidp, time, SF_12_MCS)
 sf12.energy <- energy %>% 
-  select(pidp, time, SF_12, income_boosted)
+  select(pidp, time, SF_12_MCS, income_boosted)
 # first rename and cbind
-sf12.b <- rename(sf12.base, base = SF_12)
-sf12.e <- rename(sf12.energy, energy = SF_12)
+sf12.b <- rename(sf12.base, base = SF_12_MCS)
+sf12.e <- rename(sf12.energy, energy = SF_12_MCS)
 sf12.merged <- merge(sf12.b, sf12.e, by=c('pidp', 'time'))
 sf12.merged <- pivot_longer(data = sf12.merged,
                               cols = base:energy,
                               names_to = 'scenario',
-                              values_to = 'SF_12')
+                              values_to = 'SF_12_MCS')
 sf12.merged.byyr <- sf12.merged %>%
   group_by(time, scenario) %>%
-  summarise(SF_12 = mean(SF_12))
-ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenario)) +
+  summarise(SF_12_MCS = mean(SF_12_MCS))
+ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12_MCS, color=scenario)) +
   geom_line()
 ```
 
@@ -208,24 +208,24 @@ income.merged.byyr <- income.merged %>%
 ggplot(data = income.merged.byyr, mapping = aes(x = time, y = hh_income, color=scenario)) +
   geom_line()
 ```
-## SF_12
+## SF_12_MCS
 ```{r}
 sf12.base <- base %>% 
-  select(pidp, time, SF_12)
+  select(pidp, time, SF_12_MCS)
 sf12.poverty <- poverty %>% 
-  select(pidp, time, SF_12, income_boosted)
+  select(pidp, time, SF_12_MCS, income_boosted)
 # first rename and cbind
-sf12.b <- rename(sf12.base, base = SF_12)
-sf12.e <- rename(sf12.poverty, poverty = SF_12)
+sf12.b <- rename(sf12.base, base = SF_12_MCS)
+sf12.e <- rename(sf12.poverty, poverty = SF_12_MCS)
 sf12.merged <- merge(sf12.b, sf12.e, by=c('pidp', 'time'))
 sf12.merged <- pivot_longer(data = sf12.merged,
                               cols = base:poverty,
                               names_to = 'scenario',
-                              values_to = 'SF_12')
+                              values_to = 'SF_12_MCS')
 sf12.merged.byyr <- sf12.merged %>%
   group_by(time, scenario) %>%
-  summarise(SF_12 = mean(SF_12))
-ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12, color=scenario)) +
+  summarise(SF_12_MCS = mean(SF_12_MCS))
+ggplot(data = sf12.merged.byyr, mapping = aes(x = time, y = SF_12_MCS, color=scenario)) +
   geom_line()
 ```
 

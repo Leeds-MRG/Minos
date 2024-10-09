@@ -183,8 +183,8 @@ class lmmYJPCS(Base):
                         'time',
                         'weight',
                         'hh_income',
-                        'SF_12',
-                        #'SF_12_diff',
+                        'SF_12_MCS',
+                        #'SF_12_MCS_diff',
                         'SF_12_PCS',
                         #'SF_12_PCS_diff',
                         'housing_quality',
@@ -214,7 +214,7 @@ class lmmYJPCS(Base):
         super().setup(builder)
 
         #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/lmm/SF_12_MCS_LMM", self.rpy2_modules, path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12_PCS/glmm/SF_12_PCS_GLMM", self.rpy2_modules, path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"SF_12_PCS/lmm/SF_12_PCS_LMM", self.rpy2_modules,
         #                                                     path=self.transition_dir)
@@ -269,7 +269,7 @@ class lmmYJPCS(Base):
         self.population_view.update(newWavePWB[['SF_12_PCS']])#, "SF_12_PCS_diff"]])
 
     def calculate_pwb(self, pop):
-        """Calculate SF_12 transition distribution based on provided people/indices
+        """Calculate SF_12_MCS transition distribution based on provided people/indices
         Parameters
         ----------
             index : pd.Index

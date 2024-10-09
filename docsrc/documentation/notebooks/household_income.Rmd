@@ -48,7 +48,7 @@ Each variable included is defined as follows. Each variable with discrete values
 - job_sec. NSSEC code for individual's employment. Ordinal values describing job quality. [@clemens2014method]
 - labour state. Is a person employed, unemployed, student etc. Discrete states. [@dilmaghani2018sexual]
 - education state. Highest attain qualification. Ordinal values based on UK government education tiers [@eika2019educational]
-- SF_12. Mental well-being. Continuous score indicating overall mental-wellbeing. is this an indicator of hh_income? [@viswanathan2005nature]
+- SF_12_MCS. Mental well-being. Continuous score indicating overall mental-wellbeing. is this an indicator of hh_income? [@viswanathan2005nature]
 - housing quality. Ordinal values indicating number of appliances in household. [@brewer2007poverty]
 
 ### Results

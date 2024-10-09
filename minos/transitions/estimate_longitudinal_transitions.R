@@ -95,13 +95,13 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     #  use.weights <- TRUE
     #}
     
-    if (dependent == "SF_12") {
+    if (dependent == "SF_12_MCS") {
       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed. 
     } else {
       do.reflect=FALSE
     }
     
-    if (dependent %in% c("SF_12", "hh_income", "net_hh_income", "hh_rent", "council_tax")) {
+    if (dependent %in% c("SF_12_MCS", "hh_income", "net_hh_income", "hh_rent", "council_tax")) {
       do.yeo.johnson = T #
     } else {
       do.yeo.johnson = F
@@ -159,7 +159,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     # I.E. using 2019 information to predict income_new values from 2020.
     # For SF12 predicting current state given changes in all other information and previous SF12 value. 
     # I.E. using 2020 information and 2019 SF12 to estimate 2020 SF12.
-    # We have SF_12_last in the model formula for 2019 SF12. 
+    # We have SF_12_MCS_last in the model formula for 2019 SF12. 
     if (dependent %in% c("nutrition_quality", "hh_income", "net_hh_income", "hh_rent", "hh_mortgage", "council_tax", 'yearly_energy', 'ncigs', 'ncars') ) {
       # get leading nutrition/income value and label with _new.
        data <- data %>%
@@ -171,7 +171,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
          formula.string <- paste0(dependent, " ~ ", independents)
          form <- as.formula(formula.string) 
        }
-    else if (dependent %in% c("SF_12", 'job_hours', 'hourly_wage', "SF_12_PCS"))  {
+    else if (dependent %in% c("SF_12_MCS", 'job_hours', 'hourly_wage', "SF_12_PCS"))  {
       # get lagged SF12 value and label with _last.
       data <- data %>%
         group_by(pidp) %>%
@@ -259,9 +259,11 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     }
     
     #browser()
-    write_coefs <- T
+    write_coefs <- F
+    create.if.not.exists("data/transitions/coefficients")
     if (write_coefs && !(tolower(mod.type) %in% c("rf", "mzip")))
     {
+      create.if.not.exists("data/transitions/coefficients")
       texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', mod.type, '.tex')
       texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
     }

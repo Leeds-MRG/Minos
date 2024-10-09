@@ -15,13 +15,13 @@ data <- read.csv("data/scaled_manchester_aligned_US/2020_US_cohort.csv")
 # get continuous variables.
 # summarise.
 # latex table. 
-cont_variables <- c("SF_12", "hh_income", "SF_12_PCS",
+cont_variables <- c("SF_12_MCS", "hh_income", "SF_12_PCS",
                     "council_tax", "oecd_equiv", "hh_rent", "hh_mortgage", "net_hh_income", "yearly_gas", 
                     "yearly_electric", "yearly_gas_electric", "yearly_oil", "yearly_other_fuel")
-# cont_variables <- c("SF_12", "hh_income", "job_hours", "hourly_wage", "SF_12_PCS", 
+# cont_variables <- c("SF_12_MCS", "hh_income", "job_hours", "hourly_wage", "SF_12_PCS", 
 #                     "council_tax", "oecd_equiv", "hh_rent", "hh_mortgage", "gross_paypm", 
 #                     "job_hours_se", "yearly_council_tax_change", "net_hh_income", "outgoings", "phealth", 
-#                     "equivalent_income", "hh_income_diff", "net_hh_income_diff", "SF_12_diff", 
+#                     "equivalent_income", "hh_income_diff", "net_hh_income_diff", "SF_12_MCS_diff", 
 #                     "job_hours_diff", "hourly_wage_diff")
 cont_data <- data[, cont_variables]
  #cont_data <- data %>%

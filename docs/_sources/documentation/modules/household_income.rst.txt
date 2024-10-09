@@ -65,7 +65,7 @@ documentation
    states. (Dilmaghani 2018)
 -  education state. Highest attain qualification. Ordinal values based
    on UK government education tiers (Eika, Mogstad, and Zafar 2019)
--  SF_12. Mental well-being. Continuous score indicating overall
+-  SF_12_MCS. Mental well-being. Continuous score indicating overall
    mental-wellbeing. is this an indicator of hh_income? (Viswanathan,
    Anderson, and Thomas 2005)
 -  housing quality. Ordinal values indicating number of appliances in

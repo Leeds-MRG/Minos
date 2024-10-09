@@ -166,14 +166,14 @@ a poisson counts model estimating the number of cigarettes consumed.</p>
 <p>Two set of variables are needed for the logistic and poisson parts of
 the ZIP model respectively.</p>
 <p>Variables that predict how much a person smokes.</p>
-<p>age. persons age. generally older people and very young smoke. SF_12.
+<p>age. persons age. generally older people and very young smoke. SF_12_MCS.
 wellbeing estimates number of cigarettes smoked. labour_state. whether a
 person is employed or not. ethnicity. certain ethnicities more likely to
 smoke cigarettes. education_state. highest qualification. job_sec job
 quality hh_income household income ncigs previous number consumed.</p>
 <p>Variables that predict whether a person smokes</p>
 <p>ethnicity. certain ethnicities more likely to smoke cigarettes.
-labour_state. whether a person is employed or not. age SF_12. wellbeing
+labour_state. whether a person is employed or not. age SF_12_MCS. wellbeing
 estimates number of cigarettes smoked. ncigs previous number consumed.</p>
 </section>
 <section id="results">
@@ -201,7 +201,7 @@ to estimate consumption over 20 cigarettes.</p>
 <span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)5 -3.817e-02         NA      NA       NA</span>
 <span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)6 -2.838e-01         NA      NA       NA</span>
 <span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)7  2.962e-01         NA      NA       NA</span>
-<span class="c1">## SF_12                                        -3.491e-03         NA      NA       NA</span>
+<span class="c1">## SF_12_MCS                                        -3.491e-03         NA      NA       NA</span>
 <span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1          8.265e-02         NA      NA       NA</span>
 <span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2          7.372e-01         NA      NA       NA</span>
 <span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4          1.603e-01         NA      NA       NA</span>
@@ -244,7 +244,7 @@ to estimate consumption over 20 cigarettes.</p>
 <span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7       -0.7934972         NA      NA       NA</span>
 <span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8       -0.7788828         NA      NA       NA</span>
 <span class="c1">## hh_income                                   0.0002134         NA      NA       NA</span>
-<span class="c1">## SF_12                                       0.0179618         NA      NA       NA</span>
+<span class="c1">## SF_12_MCS                                       0.0179618         NA      NA       NA</span>
 <span class="c1">##</span>
 <span class="c1">## Number of iterations in BFGS optimization: 90</span>
 <span class="c1">## Log-likelihood: -84.87 on 50 Df</span>

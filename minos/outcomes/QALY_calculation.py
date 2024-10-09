@@ -68,8 +68,8 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
     # drop dead people before calculating outcomes
     df = df[df['alive'] != 'dead']
 
-    # adjust SF_12 values by sampling weight
-    #df['SF_12'] = (df['SF_12'] * ((1 / df['weight']) / df['weight'].sum()))
+    # adjust SF_12_MCS values by sampling weight
+    #df['SF_12_MCS'] = (df['SF_12_MCS'] * ((1 / df['weight']) / df['weight'].sum()))
     #df['SF_12_PCS'] = (df['SF_12_PCS'] * ((1 / df['weight']) / df['weight'].sum()))
 
     # record boost information for intervention runs, set to 0 for baseline
@@ -85,7 +85,7 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
         pop_boosted = df['income_boosted'].sum()
         total_boost = df.groupby(by=['hidp'])['intervention_cost'].max().sum() # TODO group by households, take max and sum.
 
-    return [run_id, alive_pop, dead_pop, total_pop_size, pop_boosted, total_boost, alive_ratio, np.nanmean(df['SF_12']), np.nanmean(df['SF_12_PCS'])]
+    return [run_id, alive_pop, dead_pop, total_pop_size, pop_boosted, total_boost, alive_ratio, np.nanmean(df['SF_12_MCS']), np.nanmean(df['SF_12_PCS'])]
 
 
 def calculate_qaly(df):
@@ -111,10 +111,10 @@ def calculate_qaly(df):
     # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
     df['utility'] = -1.6984 + \
         (df['SF_12_PCS'] * 0.07927) + \
-        (df['SF_12'] * 0.02859) + \
-        ((df['SF_12_PCS'] * df['SF_12']) * -0.000126) + \
+        (df['SF_12_MCS'] * 0.02859) + \
+        ((df['SF_12_PCS'] * df['SF_12_MCS']) * -0.000126) + \
         ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
-        ((df['SF_12'] * df['SF_12']) * -0.00014) + \
+        ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
         ((df['SF_12_PCS'] * df['SF_12_PCS'] * df['SF_12_PCS']) * 0.0000107)
 
     # Now calculate QALYs by multiplying utility score by pop_size
@@ -150,7 +150,7 @@ def main(mode, intervention, subset_func_string=None):
 
         new_df = pd.DataFrame(aggregated_means)
         new_df.columns = ['run_id', 'alive_pop', 'dead_pop', 'total_pop_size', 'pop_boosted', 'total_boost',
-                          'alive_ratio', 'SF_12', 'SF_12_PCS']
+                          'alive_ratio', 'SF_12_MCS', 'SF_12_PCS']
         new_df['year'] = year
         new_df['intervention'] = intervention
         combined_output = pd.concat([combined_output, new_df])

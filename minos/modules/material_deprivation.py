@@ -57,8 +57,8 @@ class MaterialDeprivation(Base):
                         'region',
                         'education_state',
                         'hh_income',
-                        'SF_12_MCS',
-                        'SF_12_MCS_diff',
+                        'SF_12_MCS_MCS',
+                        'SF_12_MCS_MCS_diff',
                         'SF_12_PCS',
                         'SF_12_PCS_diff',
                         'marital_status',
@@ -83,7 +83,7 @@ class MaterialDeprivation(Base):
 
 
         #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/lmm/SF_12_MCS_LMM", self.rpy2_modules, path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"matdep/glmmb/matdep_GLMMB", self.rpy2_modules, path=self.transition_dir)
         # self.gee_transition_model = r_utils.load_transitions(f"matdep/clm/matdep_2018-2019", self.rpy2_modules,
         #                                                      path=self.transition_dir)
@@ -113,7 +113,7 @@ class MaterialDeprivation(Base):
         # newWaveMatdep["matdep"] *= (11/np.std(newWaveMatdep["matdep"]))
         # newWaveMatdep["matdep"] -= ((std_ratio-1)*sf12_mean)
         # newWaveMatdep["matdep"] -= 1.5
-        # #newWaveMatdep["matdep"] += (50 - np.mean(newWaveMatdep["SF_12_MCS"]))
+        # #newWaveMatdep["matdep"] += (50 - np.mean(newWaveMatdep["SF_12_MCS_MCS"]))
         # newWaveMatdep["matdep"] = np.clip(newWaveMatdep["matdep"], 0, 1) # keep within [0, 100] bounds of SF12.
         # newWaveMatdep["matdep_diff"] = newWaveMatdep["matdep"] - pop["matdep"]
         # # Update population with new SF12_MCS
@@ -134,7 +134,7 @@ class MaterialDeprivation(Base):
 
 
     def calculate_matdep(self, pop):
-        """Calculate SF_12 transition distribution based on provided people/indices
+        """Calculate SF_12_MCS transition distribution based on provided people/indices
         Parameters
         ----------
             index : pd.Index

@@ -47,7 +47,7 @@ the ZIP model respectively.
 
 Variables that predict how much a person smokes.
 
-age. persons age. generally older people and very young smoke. SF_12.
+age. persons age. generally older people and very young smoke. SF_12_MCS.
 wellbeing estimates number of cigarettes smoked. labour_state. whether a
 person is employed or not. ethnicity. certain ethnicities more likely to
 smoke cigarettes. education_state. highest qualification. job_sec job
@@ -56,7 +56,7 @@ quality hh_income household income ncigs previous number consumed.
 Variables that predict whether a person smokes
 
 ethnicity. certain ethnicities more likely to smoke cigarettes.
-labour_state. whether a person is employed or not. age SF_12. wellbeing
+labour_state. whether a person is employed or not. age SF_12_MCS. wellbeing
 estimates number of cigarettes smoked. ncigs previous number consumed.
 
 Results
@@ -88,7 +88,7 @@ to estimate consumption over 20 cigarettes.
    ## relevel(factor(education_state), ref = "3")5 -3.817e-02         NA      NA       NA
    ## relevel(factor(education_state), ref = "3")6 -2.838e-01         NA      NA       NA
    ## relevel(factor(education_state), ref = "3")7  2.962e-01         NA      NA       NA
-   ## SF_12                                        -3.491e-03         NA      NA       NA
+   ## SF_12_MCS                                        -3.491e-03         NA      NA       NA
    ## relevel(factor(job_sec), ref = "3")1          8.265e-02         NA      NA       NA
    ## relevel(factor(job_sec), ref = "3")2          7.372e-01         NA      NA       NA
    ## relevel(factor(job_sec), ref = "3")4          1.603e-01         NA      NA       NA
@@ -131,7 +131,7 @@ to estimate consumption over 20 cigarettes.
    ## relevel(factor(job_sec), ref = "3")7       -0.7934972         NA      NA       NA
    ## relevel(factor(job_sec), ref = "3")8       -0.7788828         NA      NA       NA
    ## hh_income                                   0.0002134         NA      NA       NA
-   ## SF_12                                       0.0179618         NA      NA       NA
+   ## SF_12_MCS                                       0.0179618         NA      NA       NA
    ## 
    ## Number of iterations in BFGS optimization: 90 
    ## Log-likelihood: -84.87 on 50 Df

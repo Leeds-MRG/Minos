@@ -99,7 +99,7 @@ def get_region_lsoas(region):
 def calculate_QALYs(df):
     alive_pop = df['alive'].value_counts()['alive']
 
-    sf_12 = np.nanmean(df['SF_12'])
+    sf_12 = np.nanmean(df['SF_12_MCS'])
     sf_12_pcs = np.nanmean(df['SF_12_PCS'])
     utility = -1.6984 + \
         (sf_12_pcs * 0.07927) + \
@@ -195,7 +195,7 @@ def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_si
         For example, geojson data may consist of LSOAs and SF12 values are being appended. In this case we would have
         a dictionary with LSOA keys each with some SF12 mean value.
     v : str
-        Name of the new property being added e.g `SF_12`
+        Name of the new property being added e.g `SF_12_MCS`
     Returns
     -------
     geojson_data : geojson.MultiPolygon
@@ -287,7 +287,7 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
     if minos_data.shape[0]:
         subset_columns = ['pidp', "ZoneID",'time', 'hidp']
         if v == "QALYs":
-            subset_columns += ["SF_12_PCS", "SF_12", 'alive']
+            subset_columns += ["SF_12_PCS", "SF_12_MCS", 'alive']
         else:
             subset_columns.append(v)
         if "intervention_cost" in minos_data.columns:
@@ -372,7 +372,7 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
             total_minos_data = pd.concat([total_minos_data, subset_minos_data])
 
 
-        # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
+        # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12_MCS by lsoa.
         total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
         total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year), ]
 

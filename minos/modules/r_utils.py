@@ -322,7 +322,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     #current["pidp"] = -current["pidp"]
 
     # need to add tiny value to the 0 MCS values as this causes problems in log transform
-    if dependent == "SF_12_MCS":
+    if dependent == "SF_12_MCS_MCS":
         current.loc[current[dependent] <= 0.0, dependent] = 0.01
 
 
@@ -332,7 +332,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # flip left skewed data to right skewed about its maximum.
     if reflect:
-        if dependent in ["SF_12_PCS", "SF_12_MCS"]:
+        if dependent in ["SF_12_PCS", "SF_12_MCS_MCS"]:
             max_value = model.do_slot("max_value")
             min_value = model.do_slot("min_value")
         max_value = model.do_slot("max_value")
@@ -348,7 +348,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     prediction = lme4.predict_merMod(model, currentRDF, type='response', allow_new_levels=True)  # estimate next income using OLS.
 
-    # if dependent == "SF_12":
+    # if dependent == "SF_12_MCS":
     #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
     # elif dependent == "nutrition_quality":
     #     ols_data = ols_data.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
@@ -374,8 +374,8 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
 
     valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality',
-                        'nutrition_quality_diff', 'SF_12_PCS', 'SF_12_MCS']
-    if dependent == "SF_12" and noise_std:
+                        'nutrition_quality_diff', 'SF_12_PCS', 'SF_12_MCS_MCS']
+    if dependent == "SF_12_MCS" and noise_std:
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
     elif (dependent in valid_dependents) and noise_std:
         VGAM = rpy2_modules["VGAM"]
@@ -437,7 +437,7 @@ def predict_next_timestep_yj_gamma_glmm(model, rpy2_modules, current, dependent,
 
     if dependent == 'nutrition_quality':
         prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.
-    elif dependent == "SF_12" and noise_std:
+    elif dependent == "SF_12_MCS" and noise_std:
         VGAM = rpy2_modules["VGAM"]
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std) # add gaussian noise.
         #prediction = prediction.ro + stats.rnorm(current.shape[0], 0, noise_std) # add gaussian noise.

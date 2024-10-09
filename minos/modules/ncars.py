@@ -61,7 +61,7 @@ class nCars(Base):
                         "housing_quality",
                         'job_sec',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         "ncars",
                         "S7_labour_state",
                         'pidp',

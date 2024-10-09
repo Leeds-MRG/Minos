@@ -22,7 +22,7 @@ source("docsrc/documentation/notebooks/sphinx_notebook_utils.R")
 What methods are used? Justification due to output data type. explanation of model output.
 
 ```{r SF12_Density}
-continuous_density("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")  
+continuous_density("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds", "next_SF_12_MCS")  
 ```
 
 ### Data
@@ -35,8 +35,8 @@ What are the results. Coefficients tables. diagnostic plots. measures of goodnes
 
 ```{r SF12_Output, echo=FALSE}
 options(width=120)
-ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
-ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
+ols_output("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds")
+ols_histogram("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds", "next_SF_12_MCS")
 ```
 
 ### References

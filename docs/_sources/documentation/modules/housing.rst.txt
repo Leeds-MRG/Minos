@@ -39,7 +39,7 @@ goodness of fit.
 
 ::
 
-   ## formula: next_housing_quality ~ age + factor(sex) + SF_12 + relevel(factor(ethnicity), ref = "WBI") + hh_income
+   ## formula: next_housing_quality ~ age + factor(sex) + SF_12_MCS + relevel(factor(ethnicity), ref = "WBI") + hh_income
    ## data:    data
    ## 
    ##  link  threshold nobs     logLik AIC    niter max.grad cond.H 
@@ -49,7 +49,7 @@ goodness of fit.
    ##                                              Estimate Std. Error z value Pr(>|z|)  
    ## age                                         0.0082681  0.0113336   0.730   0.4657  
    ## factor(sex)Male                            -0.0938937  0.3845571  -0.244   0.8071  
-   ## SF_12                                      -0.0136238  0.0202522  -0.673   0.5011  
+   ## SF_12_MCS                                      -0.0136238  0.0202522  -0.673   0.5011  
    ## relevel(factor(ethnicity), ref = "WBI")BAN  1.0235392  2.6780803   0.382   0.7023  
    ## relevel(factor(ethnicity), ref = "WBI")BLA  1.3244641  1.6063660   0.825   0.4097  
    ## relevel(factor(ethnicity), ref = "WBI")BLC  0.6422992  2.4039794   0.267   0.7893  

@@ -31,12 +31,12 @@ Help()
    echo " "
    echo "\$5 simply indicates the prefix of the final line plot. E.g. if set to XXXX the plot will be save as XXXX_lineplot.pdf"
    echo " "
-   echo "\$6 indicates the variable of which we are plotting. Before 19/10/23 SF_12_MCS was the only variable we were "
+   echo "\$6 indicates the variable of which we are plotting. Before 19/10/23 SF_12_MCS_MCS was the only variable we were "
    echo "interested in plotting, but this has now expanded to include equivalent_income and soon will include SF_12_PCS."
    echo " "
    echo "There are some other variables here such as aggregation method set to nanmean for now but open to others later."
    echo " "
-   echo "\$6 indicates the variable of which we are plotting. Before 19/10/23 SF_12_MCS was the only variable we were "
+   echo "\$6 indicates the variable of which we are plotting. Before 19/10/23 SF_12_MCS_MCS was the only variable we were "
    echo "interested in plotting, but this has now expanded to include equivalent_income and soon will include SF_12_PCS."
    echo " "
 }
@@ -53,7 +53,7 @@ while getopts ":h" option; do
 done
 
 AGG_METHOD="nanmean"
-#AGG_VAR="SF_12_MCS"
+#AGG_VAR="SF_12_MCS_MCS"
 # custom baseline for living wage only.
 python3 minos/outcomes/aggregate_minos_output.py -m "$1" -d "$2" -t "$3" -a $AGG_METHOD -f "$4" -v "$6"
 # stack aggregated files into one long array.

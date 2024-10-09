@@ -50,7 +50,7 @@ class PhysicalActivity(Base):
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
         view_columns = ["sex",
-                        "SF_12",
+                        "SF_12_MCS",
                         'SF_12_PCS',
                         "ethnicity",
                         "age",

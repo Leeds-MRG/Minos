@@ -111,9 +111,10 @@ colnames(discrete_var_table)[5] <- "EPCG Percentages"
 
 continuous_var_table$`EPCG Variable Mean` <- epcg_continuous_table$Variable.Mean
 continuous_var_table <- continuous_var_table[, c("Variable", "LSOA Type", "EPCG Variable Mean", "GBIS Variable Mean")]
+continuous_var_table <- continuous_var_table[, c("Variable", "LSOA Type", "GBIS Variable Mean", "EPCG Variable Mean")]
 
-print(xtable(discrete_var_table, type = "latex"), file = here::here("plots", "GBIS_discrete_var_table.tex"))
-print(xtable(continuous_var_table, type = "latex"), file = here::here("plots", "GBIS_continuous_var_table.tex"))
+print(xtable(discrete_var_table, type = "latex"), file = here::here("plots", "GBIS_discrete_var_table.tex"), include.rownames=FALSE)
+print(xtable(continuous_var_table, type = "latex"), file = here::here("plots", "GBIS_continuous_var_table.tex"), include.rownames=FALSE)
 
 
 ```

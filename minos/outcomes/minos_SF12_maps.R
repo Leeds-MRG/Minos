@@ -209,7 +209,7 @@ minos_diff_map <- function(data, destination_file_name, v, do_save=T){
 
 
 
-# map of locally or nationally scaled multiple deprevation index (MDI) useful comparison with SF_12 due to high correlation >0.8.
+# map of locally or nationally scaled multiple deprevation index (MDI) useful comparison with SF_12_MCS due to high correlation >0.8.
 imd_map <- function(){
   lsoas <- read.csv("persistent_data/spatial_data/glasgow_data_zones.csv")
 
@@ -484,7 +484,7 @@ main.single <- function(geojson_file_name, destination_file_name, v){
   data <- st_read(geojson_file_name)
   data <- geojson_to_tibble(data)
   #data <- subset_geojson(data, lsoa_subset_function)
-  #data[which(data$SF_12 %in% head(sort(data$SF_12), 10)),] # ten worst performing areas by SF12.
+  #data[which(data$SF_12_MCS %in% head(sort(data$SF_12_MCS), 10)),] # ten worst performing areas by SF12.
   minos_map(data, destination_file_name, v)
 }
 
@@ -504,7 +504,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
 
-  #data1 <- calculate_diff(data1, data2, "SF_12")
+  #data1 <- calculate_diff(data1, data2, "SF_12_MCS")
   data1 <- calculate_relative_diff(data1, data2, v)
   
   #data1 <- data1[data1$diff < 10, ]
@@ -526,6 +526,6 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   # imd_ranks$local_IMD_Ranks <- rank(imd_ranks$IMDRank)
   #
   # data1 <- merge(data1, imd_ranks, by=(c("ZoneID")))
-  # data1$local_sf12_ranks <- rank(data1$SF_12)
+  # data1$local_sf12_ranks <- rank(data1$SF_12_MCS)
   # print(corr(data1$local_sf12_ranks, data1$local_IMD_ranks))
 }

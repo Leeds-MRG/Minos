@@ -15,7 +15,7 @@ main <- function() {
   baseline.data <- read_singular_local_out("output/default_config/", "baseline", drop.dead=T)
   rp.data <- read_singular_local_out("output/default_config/", "25RelativePoverty", drop.dead=T)
   
-  required_cols <-  c("pidp", "SF_12", "time", "hh_income")
+  required_cols <-  c("pidp", "SF_12_MCS", "time", "hh_income")
   baseline.data <- baseline.data[, required_cols]
   rp.data <- rp.data[, required_cols]
 
@@ -75,7 +75,7 @@ main <- function() {
                      rp.bottom.sample.tracks, rp.middle.sample.tracks, rp.top.sample.tracks)
 
   # plot a 3x3 facet grid of these spaghetti plots for SF-12.
-  spaghetti.sample.plot <- ggplot(data = plot.data, aes(x=time, y=SF_12, group = factor(pidp), color=factor(pidp))) +
+  spaghetti.sample.plot <- ggplot(data = plot.data, aes(x=time, y=SF_12_MCS, group = factor(pidp), color=factor(pidp))) +
                            geom_line(alpha=0.5) +
                            facet_wrap( ~ group) +
                            scale_fill_viridis_d() + 

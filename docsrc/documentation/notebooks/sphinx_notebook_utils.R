@@ -254,9 +254,9 @@ test_main <-function()
   clm_output("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds")
   
   # MWB
-  continuous_density("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")  
-  ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
-  ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
+  continuous_density("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds", "next_SF_12_MCS")  
+  ols_output("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds")
+  ols_histogram("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds", "next_SF_12_MCS")
   
   #neighbourhood
   discrete_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", 'next_neighbourhood_safety')

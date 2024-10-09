@@ -45,8 +45,8 @@ main <- function() {
                     "ethnicity",
                     "loneliness",
                     "sex",
-                    "SF_12",
-                    #"SF_12p",
+                    "SF_12_MCS",
+                    #"SF_12_MCSp",
                     #"smoker",
                     "nkids",
                     "behind_on_bills",
@@ -80,8 +80,8 @@ main <- function() {
   #                   "ethnicity",
   #                   "loneliness",
   #                   "sex", 
-  #                   "SF_12",
-  #                   #"SF_12p",
+  #                   "SF_12_MCS",
+  #                   #"SF_12_MCSp",
   #                   #"smoker",
   #                   "nkids",       
   #                   "behind_on_bills",
@@ -114,8 +114,8 @@ main <- function() {
   #                   "ethnicity",
   #                   "loneliness",
   #                   "sex", 
-  #                   "SF_12",
-  #                   #"SF_12p",
+  #                   "SF_12_MCS",
+  #                   #"SF_12_MCSp",
   #                   #"smoker",
   #                   "nkids",       
   #                   "behind_on_bills",
@@ -154,8 +154,8 @@ main <- function() {
                    "ethnicity",
                    #"loneliness",
                    "sex", 
-                   "SF_12",
-                   #"SF_12p",
+                   "SF_12_MCS",
+                   #"SF_12_MCSp",
                    #"hhsize",
                    "housing_tenure",
                    "housing_quality",
@@ -176,7 +176,7 @@ main <- function() {
   aggr(mice.data[, mice_columns], cex.axis = .7, oma = c(10,5,5,0))
   dev.off()
   
-  #spineMiss(mice.data[, c("SF_12", "loneliness")])
+  #spineMiss(mice.data[, c("SF_12_MCS", "loneliness")])
   
   # shows a few correlations.
   # wrt loneliness only sf-12 and marital status. 
@@ -189,8 +189,8 @@ main <- function() {
   ggsave("plots/correlation_plot.pdf")
   
   categorical_missing_different_plot(mice.data, "marital_status", "loneliness") 
-  categorical_missing_different_plot(mice.data, "SF_12", "loneliness")
-  categorical_missing_different_plot(mice.data, "SF_12", "ghq_depression")
+  categorical_missing_different_plot(mice.data, "SF_12_MCS", "loneliness")
+  categorical_missing_different_plot(mice.data, "SF_12_MCS", "ghq_depression")
 }
 
 main()

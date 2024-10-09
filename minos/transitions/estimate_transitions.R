@@ -100,7 +100,7 @@ run_yearly_models <- function(transitionDir_path,
     formula.string.orig <- split1[2]
 
     ## Calculate diff for rate of change models
-    # only applicable to hh_income and SF_12 for now
+    # only applicable to hh_income and SF_12_MCS for now
     #if (tolower(mod.type) == 'ols_diff') {
     #  data <- data %>%
     #    group_by(pidp) %>%
@@ -165,9 +165,9 @@ run_yearly_models <- function(transitionDir_path,
       # tobacco model only estimated for 2013 onwards
       if(dependent == 'ncigs' & year < 2013) { next }
       #TODO: Maybe copy values from wave 2 onto wave 1? Assuming physical health changes slowly?
-      # SF_12 predictor (physical health score) not available in wave 1
-      if(dependent == 'SF_12' & year == 2009) { next }
-      if(dependent %in% c('SF_12_MCS', 'SF_12_PCS') & year == 2009) { next }
+      # SF_12_MCS predictor (physical health score) not available in wave 1
+      if(dependent == 'SF_12_MCS' & year == 2009) { next }
+      if(dependent %in% c('SF_12_MCS_MCS', 'SF_12_PCS') & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
       if(dependent %in% c('matdep') & year %in% c(2009, 2010, 2012, 2014, 2016, 2018, 2020)) { next }
@@ -204,7 +204,7 @@ run_yearly_models <- function(transitionDir_path,
       }
 
       #print(formula.string)
-      ## For the SF_12 model alone, we need to modify the formula on the fly
+      ## For the SF_12_MCS model alone, we need to modify the formula on the fly
       # as neighbourhood_safety, loneliness, nutrition_quality and ncigs are
       # not present every year
       if(!year %in% c(2015, 2017, 2019, 2020)) {
@@ -291,7 +291,8 @@ run_yearly_models <- function(transitionDir_path,
       #coef.filepath <- paste0(out.path2, '/', dependent, '_', year, '_', depend.year, '_coefficients.txt')
       #write_csv(coefs, file = coef.filepath)
       # writing tex table of coefficients. easy writing for papers and documentation. 
-      write_coefs <- T
+      write_coefs <- F
+      create.if.not.exists("data/transitions/coefficients")
       if (write_coefs & tolower(mod.type) != "nnet") # cant write coefs for nnet using texreg.
       {
         create.if.not.exists("data/transitions/coefficients")

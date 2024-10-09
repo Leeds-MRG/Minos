@@ -57,7 +57,7 @@ class ChronicDisease(Base):
                         'region',
                         'education_state',
                         'hh_income',
-                        'SF_12_MCS',
+                        'SF_12_MCS_MCS',
                         'SF_12_PCS',
                         'marital_status',
                         'loneliness',

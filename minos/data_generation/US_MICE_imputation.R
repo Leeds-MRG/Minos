@@ -26,8 +26,8 @@ main <- function(n_imputations, iterations_per_imputation){
                     "ethnicity",
                     "loneliness",
                     "sex", 
-                    "SF_12",
-                    #"SF_12p",
+                    "SF_12_MCS",
+                    #"SF_12_MCSp",
                     #"smoker",
                     "nkids",       
                     "behind_on_bills",
@@ -77,7 +77,6 @@ main <- function(n_imputations, iterations_per_imputation){
   start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)  
   start.data$marital_status <- as.factor(start.data$marital_status)  
   
-  browser()
   other.data <- start.data[, !names(start.data) %in% mice_columns]
   mice.data <- start.data[, c(mice_columns)]
   mice.data <- replace.missing(mice.data)

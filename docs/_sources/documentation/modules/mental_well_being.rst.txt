@@ -17,7 +17,7 @@ explanation of model output.
 
 .. code:: r
 
-   continuous_density("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")  
+   continuous_density("data/transitions/SF_12_MCS/OLS/SF_12_MCS_2018_2019.rds", "next_SF_12_MCS")  
 
 .. figure:: ./figure/SF12_Density-1.png
    :alt: plot of chunk SF12_Density
@@ -67,7 +67,7 @@ goodness of fit.
    ## factor(housing_quality)3                   -8.717e-01  3.948e-01  -2.208   0.0273 *  
    ## phealth                                     2.357e+00  1.550e-01  15.209  < 2e-16 ***
    ## ncigs                                      -3.404e-02  2.502e-02  -1.360   0.1738    
-   ## SF_12                                       3.798e-01  8.988e-03  42.261  < 2e-16 ***
+   ## SF_12_MCS                                       3.798e-01  8.988e-03  42.261  < 2e-16 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
    ## 

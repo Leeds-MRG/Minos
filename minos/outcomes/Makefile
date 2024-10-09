@@ -53,21 +53,21 @@ vulnerable_groups_lineplots: aggregate_combined_vulnerable aggregate_minos_outpu
 # achieve this with the following make target:							#
 #																		#
 # vulnerable_groups_lineplot_MCS: MODE=default_config					#
-# vulnerable_groups_lineplot_MCS: AGG_VAR=SF_12							#
+# vulnerable_groups_lineplot_MCS: AGG_VAR=SF_12_MCS							#
 # vulnerable_groups_lineplot_MCS: vulnerable_groups_lineplots			#
 #																		#
 # This would generate lineplots for each of the vulnerable groups 		#
-# defined by the Scottish government, using SF_12_MCS as the target 	#
+# defined by the Scottish government, using SF_12_MCS_MCS as the target 	#
 # variable.																#
 #########################################################################
 
-######## SF_12 PLOTS ########
+######## SF_12_MCS PLOTS ########
 
 .PHONY: all_lineplots_MCS all_lineplots_PCS
 
-# will change to SF_12_MCS when PCS is implemented
+# will change to SF_12_MCS_MCS when PCS is implemented
 all_lineplots_MCS: MODE=default_config
-all_lineplots_MCS: AGG_VAR=SF_12
+all_lineplots_MCS: AGG_VAR=SF_12_MCS
 all_lineplots_MCS: default_all_lineplots
 
 # PCS COMING SOON THIS WON'T WORK YET!
@@ -76,7 +76,7 @@ all_lineplots_PCS: AGG_VAR=SF_12_PCS
 all_lineplots_PCS: default_all_lineplots
 
 lineplot_livingWage: MODE=default_config
-lineplot_livingWage: AGG_VAR=SF_12
+lineplot_livingWage: AGG_VAR=SF_12_MCS
 lineplot_livingWage: aggregate_minos_output_living_wage
 lineplot_livingWage:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(TESTING)/testing_livingWage_intervention.Rmd')"
@@ -509,10 +509,10 @@ aggregate_minos_manchester_EPCG:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "EPCG"
 
 aggregate_minos_manchester_combined:
-	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 
 aggregate_minos_manchester_noEnergyPriceIncrease:
-	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "SF_12_MCS"
 
 aggregate_minos_manchester_noEnergyPriceIncrease_yearly_energy:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "yearly_energy"
@@ -520,22 +520,22 @@ aggregate_minos_manchester_noEnergyPriceIncrease_yearly_energy:
 # MCS QUINTILES
 
 aggregate_minos_manchester_EPCG_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_quintiles" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_quintiles" "SF_12_MCS"
 
 aggregate_minos_manchester_good_heating_dummy_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GHD_quintiles" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GHD_quintiles" "SF_12_MCS"
 
 aggregate_minos_manchester_GBIS_quintiles:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_quintiles" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_quintiles" "SF_12_MCS"
 
-aggregate_minos_manchester_EPCG_GBIS_SF_12:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_SF_12" "SF_12"
+aggregate_minos_manchester_EPCG_GBIS_SF_12_MCS:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_GBIS_SF_12_MCS" "SF_12_MCS"
 
 aggregate_minos_manchester_GBIS_quintiles_income:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_income_quintiles" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "GBIS_income_quintiles" "SF_12_MCS"
 
 aggregate_minos_manchester_EPCG_quintiles_income:
-	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_income_quintiles" "SF_12"
+	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "EPCG_income_quintiles" "SF_12_MCS"
 
 
 # BOOST AMOUNT

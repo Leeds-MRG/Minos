@@ -217,7 +217,7 @@ diff_by_whole_period_quintile <- function(raw, var) {
   return(raw.quint.sum)
 }
 
-SF_12.stats <- diff_by_whole_period_quintile(raw.dat, 'SF_12')
+SF_12_MCS.stats <- diff_by_whole_period_quintile(raw.dat, 'SF_12_MCS')
 ```
 
 
@@ -328,14 +328,14 @@ Almost no change. The only noticeable change at this resolution is a small shift
 
 Very useful plot! 
 
-## SF_12_MCS
+## SF_12_MCS_MCS
 
-Quick look at SF_12_MCS also.
+Quick look at SF_12_MCS_MCS also.
 
 ```{r}
-spaghetti_plot(old.dat, 'SF_12')
-spaghetti_plot(new.dat, 'SF_12')
-spaghetti_plot(raw.dat, 'SF_12')
+spaghetti_plot(old.dat, 'SF_12_MCS')
+spaghetti_plot(new.dat, 'SF_12_MCS')
+spaghetti_plot(raw.dat, 'SF_12_MCS')
 ```
 
 # Violin Plots
@@ -351,9 +351,9 @@ violin_plot(raw.dat, 'hh_income')
 ## SF12
 
 ```{r}
-violin_plot(old.dat, 'SF_12')
-violin_plot(new.dat, 'SF_12')
-violin_plot(raw.dat, 'SF_12')
+violin_plot(old.dat, 'SF_12_MCS')
+violin_plot(new.dat, 'SF_12_MCS')
+violin_plot(raw.dat, 'SF_12_MCS')
 ```
 
 
@@ -370,7 +370,7 @@ base.cv <- read_singular_local_out(cv.outpath, 'baseline')
 
 ## MODELS
 mod.path <- 'Minos/data/transitions/cross_validation/'
-sf12.mod <- readRDS(paste0(mod.path, 'SF_12/ols2/SF_12_2017_2018.rds'))
+sf12.mod <- readRDS(paste0(mod.path, 'SF_12_MCS/ols2/SF_12_MCS_2017_2018.rds'))
 income.mod <- readRDS(paste0(mod.path, 'hh_income/ols2/hh_income_2019_2020.rds'))
 
 ```
@@ -388,17 +388,17 @@ summary(income.mod)
 ```{r}
 #miss.values <- c(-9, -8, -7, -3, -2, -1, -10)
 #raw <- raw.cv %>%
-#  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+#  filter(!hh_income %in% miss.values, !SF_12_MCS %in% miss.values) %>%
 #  group_by(pidp) %>%
 #  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
-#         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+#         diff.SF12_MCS = SF_12_MCS - lag(SF_12_MCS, order_by = time)) %>%
 #  filter(time != 2009)
 
 #base <- base.cv %>%
-#  filter(!hh_income %in% miss.values, !SF_12 %in% miss.values) %>%
+#  filter(!hh_income %in% miss.values, !SF_12_MCS %in% miss.values) %>%
 #  group_by(pidp) %>%
 #  mutate(diff.hh_income = hh_income - lag(hh_income, order_by = time),
-#         diff.SF12_MCS = SF_12 - lag(SF_12, order_by = time)) %>%
+#         diff.SF12_MCS = SF_12_MCS - lag(SF_12_MCS, order_by = time)) %>%
 #  filter(time != 2014)
 ```
 
@@ -432,7 +432,7 @@ summary(income.mod)
 #test <- base.cv %>%
 #  group_by(time) %>%
 #  summarise(mean.income = mean(hh_income, na.rm = TRUE),
-#            mean.SF12 = mean(SF_12, na.rm = TRUE))
+#            mean.SF12 = mean(SF_12_MCS, na.rm = TRUE))
 
 #ggplot(test, aes(x = time, y = mean.income)) +
 #  geom_line()

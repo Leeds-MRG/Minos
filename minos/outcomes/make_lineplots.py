@@ -80,17 +80,17 @@ def aggregate_boosted_counts_and_cumulative_score(df, v):
     new_df["number_boosted"] = [df.shape[0]] + np.sum(df.groupby("hidp")['nkids'].max())
     new_df[f'summed_{v}'] = [sum(df[v])]
 
-    if v == "SF_12" and df.shape[0] !=0:
+    if v == "SF_12_MCS" and df.shape[0] !=0:
         #df = df.loc[df['weight']>0, ]
         #df['weight'] = 1/df['weight']
-        #new_df[f"prct_below_45.6"] = sum(df['weight']*(df['SF_12'] < 45.6))/sum(df['weight'])
-        new_df[f"prct_below_45.6"] = sum(df['SF_12'] < 45.6)/df.shape[0]
+        #new_df[f"prct_below_45.6"] = sum(df['weight']*(df['SF_12_MCS'] < 45.6))/sum(df['weight'])
+        new_df[f"prct_below_45.6"] = sum(df['SF_12_MCS'] < 45.6)/df.shape[0]
     if "boost_amount" in df.columns:
         new_df["intervention_cost"] = np.sum(df.groupby("hidp")['boost_amount'].max())
     return new_df
 
 
-def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", aggregate_method=np.nanmean,
+def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12_MCS", aggregate_method=np.nanmean,
                   mode="default_config", region=None):
     """
 
@@ -152,7 +152,7 @@ def aggregate_csv(file, subset_function_string=None, outcome_variable="SF_12", a
     return agg_value
 
 
-def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12", ref="Baseline", method=np.nanmean,
+def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12_MCS", ref="Baseline", method=np.nanmean,
                                 mode="default_config", region=None):
     """ Get multiple MINOS files, subset and aggregate over some variable and aggregate method.
 
@@ -331,7 +331,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     None
     """
 
-    if v in ["SF_12", "SF_12_PCS"]:
+    if v in ["SF_12_MCS", "SF_12_PCS"]:
         df[v] *= 100
     if v in ['boost_amount','intervention_cost']:
         df[v] = np.log(df[v]+1)
@@ -359,7 +359,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
 
-    variable_name_map = {"SF_12": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
+    variable_name_map = {"SF_12_MCS": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
 
     # Sort out axis labels
     y_label = variable_name_map[v]
@@ -368,9 +368,9 @@ def aggregate_lineplot(df, destination, prefix, v, method):
 
     if method == weighted_nanmean:
         y_label += " Weighted Mean"
-    elif v == "SF_12_AUC":
+    elif v == "SF_12_MCS_AUC":
         y_label += " AUC"
-    elif v == "SF_12_ICER":
+    elif v == "SF_12_MCS_ICER":
         y_label += " ICER"
 
     plt.ylabel(y_label)
@@ -425,20 +425,20 @@ def quintiles_lineplot(df, destination, prefix, v, method):
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
 
-    variable_name_map = {"SF_12": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
+    variable_name_map = {"SF_12_MCS": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
 
     # Sort out axis labels
     y_label = variable_name_map[v]
-    #if v == 'SF_12':
+    #if v == 'SF_12_MCS':
     #   y_label = 'SF12 MCS Percentage Change'
 
     y_label = f"{v} "
 
     if method == weighted_nanmean:
         y_label += " Weighted Mean"
-    elif v == "SF_12_AUC":
+    elif v == "SF_12_MCS_AUC":
         y_label += " AUC"
-    elif v == "SF_12_ICER":
+    elif v == "SF_12_MCS_ICER":
         y_label += " ICER"
 
     plt.legend(title="Quintile")
@@ -494,7 +494,7 @@ def child_uplift_cost_sum(df, v, weights='weight'):
     return np.nansum(weights * group[v].min())/np.nansum(weights)
 
 
-def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
+def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12_MCS",
          method='nanmean', region=None, do_simd_quintiles = False, do_income_quintiles=False):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
@@ -545,7 +545,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
                                                          method=method, region=region)
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
-    if v in ["SF_12", "SF_12_PCS"] and method == weighted_nanmean:
+    if v in ["SF_12_MCS", "SF_12_PCS"] and method == weighted_nanmean:
         if do_simd_quintiles:
             print("start relative scaling..")
             scaled_data = pd.DataFrame()
@@ -583,7 +583,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
             #print("relative scaling done. plotting.. ")
             aggregate_lineplot(aggregate_long_stack, "plots", prefix, v, method)
 
-    elif v in ["SF_12", "SF_12_PCS"] and method == aggregate_boosted_counts_and_cumulative_score:
+    elif v in ["SF_12_MCS", "SF_12_PCS"] and method == aggregate_boosted_counts_and_cumulative_score:
         # groupby intervention and cumsum over time.
         aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()
         #scaled_data = relative_scaling(aggregate_long_stack, "sf12_auc", ref)
@@ -591,7 +591,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
         #aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
 
-        aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean",
+        aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_MCS_AUC': "mean",
                                                                                    'intervention_cost': 'mean',
                                                                                    'number_boosted': "mean",
                                                                                    'population_size': "mean",
@@ -625,7 +625,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         rescale_AUC = np.mean(rescale_AUC.loc[aggregate_long_stack3['tag'] == ref, f"{v}_AUC", ])
 
         aggregate_long_stack3.loc[aggregate_long_stack3['tag'] != ref, f"{v}_AUC"] += rescale_AUC
-        aggregate_long_stack_baseline_means = aggregate_long_stack3.loc[aggregate_long_stack3['tag']==ref, ].groupby(["tag", "year"]).agg({'SF_12_AUC': "mean"}).values.flatten()
+        aggregate_long_stack_baseline_means = aggregate_long_stack3.loc[aggregate_long_stack3['tag']==ref, ].groupby(["tag", "year"]).agg({'SF_12_MCS_AUC': "mean"}).values.flatten()
         repeat_amount = len(np.unique(aggregate_long_stack3['tag']))*len(np.unique(aggregate_long_stack3['id']))
         aggregate_long_stack3_diff = np.tile(aggregate_long_stack_baseline_means, repeat_amount)
         #aggregate_long_stack3_diff.reset_index(drop=True, inplace=True)

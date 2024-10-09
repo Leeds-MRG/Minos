@@ -14,7 +14,7 @@ def all_child_lineplot(*args):
     subset_function_strings = "who_kids,who_boosted"
     prefix = "baseline_all_child_uplift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean')
 
 
@@ -24,7 +24,7 @@ def poverty_line_child_lineplot(*args):
     subset_function_strings = "who_below_poverty_line_and_kids,who_boosted"
     prefix = "baseline_poverty_child_uplift"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean', region=None)
 
 
@@ -35,7 +35,7 @@ def living_wage_lineplot(*args):
     prefix = "baseline_living_wage"
     config_mode = "default_config"
     ref="Baseline"
-    v="SF_12"
+    v="SF_12_MCS"
     method = "nanmean"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method)
@@ -50,7 +50,7 @@ def epcg_and_no_support_lineplot(*args):
     prefix = "baseline_energy_downlift"
     config_mode = "default_config"
     ref="Baseline"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = "nanmean"
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v,
                   method=method)
@@ -64,7 +64,7 @@ def ebss_lineplot(*args):
     subset_function_strings = "who_uses_energy,who_boosted"
     prefix = "baseline_ebss"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean')
 
 
@@ -74,7 +74,7 @@ def all_five_lineplots(*args):
     subset_function_strings = "who_alive,who_boosted,who_boosted,who_boosted,who_boosted"
     prefix = "all_five_combined"
     config_mode = "default_config"
-    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12",
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref="Baseline", v="SF_12_MCS",
                   method='nanmean')
 
 
@@ -113,7 +113,7 @@ def poverty_line_simd_deciles_lineplot(*args):
     prefix = "25_poverty_simd_deciles"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -125,7 +125,7 @@ def poverty_line_first_decile_lineplot(*args):
     prefix = "25_poverty_first_simd_decile"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -137,7 +137,7 @@ def poverty_line_tenth_decile_lineplot(*args):
     prefix = "25_poverty_tenth_simd_decile"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     # lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -149,7 +149,7 @@ def poverty_line_fifth_decile_lineplot(*args):
     prefix = "25_poverty_fifth_simd_decile"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -161,7 +161,7 @@ def simd_decile_baseline_lineplot(*args):
     prefix = "baseline_simd_deciles"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -173,7 +173,7 @@ def epcg_simd_deciles_lineplot(*args):
     prefix = "ebss_simd_deciles"
     config_mode = "glasgow_scaled"
     ref = "National Average"
-    v = "SF_12"
+    v = "SF_12_MCS"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
@@ -565,7 +565,7 @@ string_to_lineplot_function = {
     "EPCG_quintiles": generic_simd_quintiles_lineplot,
     "GBIS_quintiles": generic_simd_quintiles_lineplot,
 
-    "EPCG_GBIS_SF_12": generic_multiple_lineplot,
+    "EPCG_GBIS_SF_12_MCS": generic_multiple_lineplot,
     "EPCG_GBIS_yearly_energy": generic_multiple_lineplot,
     "EPCG_GBIS_intervention_cost": generic_multiple_lineplot,
 
@@ -691,7 +691,7 @@ string_to_lineplot_function_args = {
     "EPCG_quintiles": ["EPCG", "EPCG Quintiles"],
     "GBIS_quintiles": ["GBIS", "GBIS Quintiles"],
 
-    "EPCG_GBIS_SF_12": [["baseline", "EPCG", "GBIS"],
+    "EPCG_GBIS_SF_12_MCS": [["baseline", "EPCG", "GBIS"],
                                 ["Baseline", "EPCG", "GBIS"],
                                 ["who_uses_energy", "who_boosted", "who_boosted"]],
     "EPCG_GBIS_yearly_energy": [["baseline", "EPCG", "GBIS"],
@@ -712,8 +712,8 @@ if __name__ == '__main__':
     try:
         plot_var = sys.argv[3]
     except:
-        print("No specified plot variable. Defaulting to SF_12.")
-        plot_var = "SF_12"
+        print("No specified plot variable. Defaulting to SF_12_MCS.")
+        plot_var = "SF_12_MCS"
     plot_function = string_to_lineplot_function[plot_choice]
     if plot_choice in string_to_lineplot_function_args.keys():
         plot_function_args = string_to_lineplot_function_args[plot_choice]

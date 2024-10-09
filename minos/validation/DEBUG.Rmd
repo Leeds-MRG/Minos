@@ -211,15 +211,15 @@ base.income.check <- base.dat %>%
 # first figure out how to plot final_US
 # start with hh_income
 raw.sf12 <- raw.dat %>% 
-  select(pidp, time, SF_12) %>%
+  select(pidp, time, SF_12_MCS) %>%
   group_by(time) %>%
-  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.sf12 <- base.dat %>%
-  select(pidp, time, SF_12) %>%
+  select(pidp, time, SF_12_MCS) %>%
   group_by(time) %>%
-  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
 
 # merge before plot
@@ -235,17 +235,17 @@ ggplot(data = sf12, mapping = aes(x = time, y = sf12, group = source, colour = s
 raw.sf12.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 
 raw.sf12.2 <- raw.dat %>% 
-  select(pidp, time, SF_12) %>%
+  select(pidp, time, SF_12_MCS) %>%
   filter(pidp %in% raw.sf12.wave1) %>%
   group_by(time) %>%
-  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
   mutate(source = 'final_US')
 
 base.sf12.2 <- base.dat %>%
-  select(pidp, time, SF_12) %>%
+  select(pidp, time, SF_12_MCS) %>%
   filter(pidp %in% raw.sf12.wave1) %>%
   group_by(time) %>%
-  summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+  summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
   mutate(source = 'baseline_output')
 
 sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
@@ -609,13 +609,13 @@ ggplot(data = filter(ethnic.state, ethnicity != 'WBI'), mapping = aes(x = time, 
 
 ```{r}
 sf12 <- data %>% 
-  select(pidp, time, SF_12)
+  select(pidp, time, SF_12_MCS)
 
 # calculate and plot mean over time
 sf12.byyr <- data %>% group_by(time) %>%
-  summarise(SF_12 = mean(SF_12))
+  summarise(SF_12_MCS = mean(SF_12_MCS))
 
-ggplot(data = sf12.byyr, mapping = aes(x = time, y = SF_12)) +
+ggplot(data = sf12.byyr, mapping = aes(x = time, y = SF_12_MCS)) +
   geom_line()
 ```
 
@@ -628,7 +628,7 @@ sf12.2030 <- sf12 %>% filter(time == 2030)
 sf12.joined <- rbind(sf12.2018, sf12.2020, sf12.2030)
 sf12.joined$time <- as.factor(sf12.joined$time)
 
-ggplot(data = sf12.joined, mapping = aes(x = SF_12, group = time, fill = time, color = time)) +
+ggplot(data = sf12.joined, mapping = aes(x = SF_12_MCS, group = time, fill = time, color = time)) +
   geom_histogram(position='dodge')
 ```
 
@@ -636,17 +636,17 @@ TODO: Why are we getting the same exact values from 2020 - 2030?
 
 ```{r}
 print("2018:")
-sprintf("Min: %f", min(sf12.2018$SF_12))
-sprintf("Max: %f", max(sf12.2018$SF_12))
-sprintf("Mean: %f", mean(sf12.2018$SF_12))
+sprintf("Min: %f", min(sf12.2018$SF_12_MCS))
+sprintf("Max: %f", max(sf12.2018$SF_12_MCS))
+sprintf("Mean: %f", mean(sf12.2018$SF_12_MCS))
 print("2020:")
-sprintf("Min: %f", min(sf12.2020$SF_12))
-sprintf("Max: %f", max(sf12.2020$SF_12))
-sprintf("Mean: %f", mean(sf12.2020$SF_12))
+sprintf("Min: %f", min(sf12.2020$SF_12_MCS))
+sprintf("Max: %f", max(sf12.2020$SF_12_MCS))
+sprintf("Mean: %f", mean(sf12.2020$SF_12_MCS))
 print("2030:")
-sprintf("Min: %f", min(sf12.2030$SF_12))
-sprintf("Max: %f", max(sf12.2030$SF_12))
-sprintf("Mean: %f", mean(sf12.2030$SF_12))
+sprintf("Min: %f", min(sf12.2030$SF_12_MCS))
+sprintf("Max: %f", max(sf12.2030$SF_12_MCS))
+sprintf("Mean: %f", mean(sf12.2030$SF_12_MCS))
 ```
 
 ## hh_income
@@ -798,7 +798,7 @@ ggplot(data = loneliness.state, mapping = aes(x = time, y = n, group = lonelines
 trans.path <- 'Minos/data/transitions/'
 
 educ.mod <- readRDS(paste0(trans.path, 'education_state/nnet/education_state_2018_2019.rds'))
-sf_12.mod <- readRDS(paste0(trans.path, 'SF_12/ols/SF_12_2018_2019.rds'))
+sf_12.mod <- readRDS(paste0(trans.path, 'SF_12_MCS/ols/SF_12_MCS_2018_2019.rds'))
 house.mod <- readRDS(paste0(trans.path, 'housing_quality/clm/housing_quality_2018_2019.rds'))
 income.mod <- readRDS(paste0(trans.path, 'hh_income/ols/hh_income_2018_2019.rds'))
 ```
@@ -826,20 +826,20 @@ correct <- do.call(rbind, lapply(correct.files, read.csv))
 ```
 
 ```{r}
-f.sf12 <- raw.dat %>% select(pidp, time, SF_12)
-c.sf12 <- correct %>% select(pidp, time, SF_12)
+f.sf12 <- raw.dat %>% select(pidp, time, SF_12_MCS)
+c.sf12 <- correct %>% select(pidp, time, SF_12_MCS)
 
 
 ```
 
-Now see if any SF_12 values are missing in either the final data or corrected.
+Now see if any SF_12_MCS values are missing in either the final data or corrected.
 
 ```{r}
-sum(is.na(f.sf12$SF_12))
-sum(is.na(c.sf12$SF_12))
+sum(is.na(f.sf12$SF_12_MCS))
+sum(is.na(c.sf12$SF_12_MCS))
 
-sum(f.sf12$SF_12 == -9)
-sum(c.sf12$SF_12 == -9)
+sum(f.sf12$SF_12_MCS == -9)
+sum(c.sf12$SF_12_MCS == -9)
 
 f.drop <- f.sf12 %>% select(-pidp)
 c.drop <- c.sf12 %>% select(-pidp)
@@ -847,11 +847,11 @@ c.drop <- c.sf12 %>% select(-pidp)
 # missing by year
 final.miss <- f.drop %>% 
   group_by(time) %>%
-  summarise(final.missing = sum((SF_12 == -9)))
+  summarise(final.missing = sum((SF_12_MCS == -9)))
 
 correct.miss <- c.drop %>% 
   group_by(time) %>%
-  summarise(correct.missing = sum((SF_12 == -9)))
+  summarise(correct.missing = sum((SF_12_MCS == -9)))
 
 compare <- merge(final.miss, correct.miss, by='time')
 ```

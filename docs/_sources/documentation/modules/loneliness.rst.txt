@@ -44,7 +44,7 @@ goodness of fit.
 ::
 
    ## formula: 
-   ## next_loneliness ~ age + factor(sex) + SF_12 + relevel(factor(education_state), ref = "3") + relevel(factor(job_sec), ref = "3") + hh_income + relevel(factor(hh_comp), ref = "3") + relevel(factor(marital_status), ref = "Partnered") + relevel(factor(ethnicity), ref = "WBI")
+   ## next_loneliness ~ age + factor(sex) + SF_12_MCS + relevel(factor(education_state), ref = "3") + relevel(factor(job_sec), ref = "3") + hh_income + relevel(factor(hh_comp), ref = "3") + relevel(factor(marital_status), ref = "Partnered") + relevel(factor(ethnicity), ref = "WBI")
    ## data:    data
    ## 
    ##  link  threshold nobs     logLik AIC    niter max.grad cond.H 
@@ -54,7 +54,7 @@ goodness of fit.
    ##                                                               Estimate Std. Error z value Pr(>|z|)    
    ## age                                                         -5.569e-03  1.835e-02  -0.303 0.761523    
    ## factor(sex)Male                                             -3.589e-01  4.577e-01  -0.784 0.432936    
-   ## SF_12                                                       -8.155e-02  2.343e-02  -3.480 0.000501 ***
+   ## SF_12_MCS                                                       -8.155e-02  2.343e-02  -3.480 0.000501 ***
    ## relevel(factor(education_state), ref = "3")0                 2.914e-02  8.171e-01   0.036 0.971555    
    ## relevel(factor(education_state), ref = "3")1                -9.217e-01  2.282e+00  -0.404 0.686310    
    ## relevel(factor(education_state), ref = "3")2                -9.872e-02  7.794e-01  -0.127 0.899213    

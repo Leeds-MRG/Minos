@@ -62,7 +62,7 @@ def main(source, spatial_source, year, params, param_names):
     print(US_data.shape)
     # subset US data. grab common pidps to prevent NA errors.
     spatial_data2 = spatial_data.loc[spatial_data["pidp"].isin(US_data["pidp"]),]
-    US_data2 = US_data.loc[US_data["pidp"].isin(spatial_data2["pidp"]),["pidp", "SF_12", 'hidp', "boost_amount"]]
+    US_data2 = US_data.loc[US_data["pidp"].isin(spatial_data2["pidp"]),["pidp", "SF_12_MCS", 'hidp', "boost_amount"]]
     US_data2 = US_data2.groupby("pidp", as_index=False).mean()
 
     # left merge US data into spatial data.
@@ -75,7 +75,7 @@ def main(source, spatial_source, year, params, param_names):
     spatial_data3.reset_index(drop=True)
 
     # default dict assigns missing values to 0. prevents key errors later for any LSOA missing a value.
-    spatial_dict = defaultdict(int, zip(spatial_data3["ZoneID"], spatial_data3["SF_12"]))
+    spatial_dict = defaultdict(int, zip(spatial_data3["ZoneID"], spatial_data3["SF_12_MCS"]))
     print("merger done.")
 
     # load in geojson map data from ONS.
@@ -91,7 +91,7 @@ def main(source, spatial_source, year, params, param_names):
         SF12_code = spatial_dict[ons_code]
         if SF12_code == 0:
             SF12_code = None
-        item['properties']["SF_12"] = SF12_code
+        item['properties']["SF_12_MCS"] = SF12_code
         map_geojson['features'][i] = item
 
     # save updated geojson for use in map plots.

@@ -74,7 +74,7 @@ def cut_outliers(df, lower, upper, var):
 #     data = US_utils.load_multiple_data(file_names)
 #
 #     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-#                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
+#                           "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12_MCS',
 #                           "housing_tenure", "heating",
 #                           "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage', "behind_on_bills"]
 #     # REMOVED:  'job_sector', 'labour_state'
@@ -151,7 +151,7 @@ def input_main():
     data = data.drop(labels=drop_mice_columns, axis=1)
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12',
+                          "education_state", 'region', "age", "job_sector", 'financial_situation', #'SF_12_MCS',
                           "housing_tenure",
                           "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
     # REMOVED:  'job_sector', 'labour_state'
@@ -200,7 +200,7 @@ def transition_main():
 
     # HR 283-285 check this var list and next block are okay
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
-                          "education_state", 'region', "age", "job_sector", 'financial_situation', # 'SF_12',
+                          "education_state", 'region', "age", "job_sector", 'financial_situation', # 'SF_12_MCS',
                           "housing_tenure", 'hh_income', "nkids_ind", "job_hours",
                           'heating']
 

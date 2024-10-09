@@ -50,11 +50,11 @@ STEPS:
 ```{r}
 # Calculate difference in SF12 between individuals in both scenarios for every year
 base.subset <- base %>% 
-  select(pidp, time, SF_12) %>%
-  rename(SF12.base = SF_12)
+  select(pidp, time, SF_12_MCS) %>%
+  rename(SF12.base = SF_12_MCS)
 int.subset <- int %>% 
-  select(pidp, time, income_boosted, SF_12) %>%
-  rename(SF12.int = SF_12,
+  select(pidp, time, income_boosted, SF_12_MCS) %>%
+  rename(SF12.int = SF_12_MCS,
          boosted = income_boosted)
 
 combined <- merge(base.subset, int.subset, by = c('pidp', 'time'))
@@ -150,18 +150,18 @@ int <- read_singular_local_out(out.path, 'energyDownlift')
 
 ```{r}
 # get just one year
-#b.2020 <- base %>% filter(time == 2020, SF_12 != -8.0)
-b.2030 <- base %>% filter(time == 2030, SF_12 != -8.0)
-i.2030 <- int %>% filter(time == 2030, SF_12 != -8.0)
+#b.2020 <- base %>% filter(time == 2020, SF_12_MCS != -8.0)
+b.2030 <- base %>% filter(time == 2030, SF_12_MCS != -8.0)
+i.2030 <- int %>% filter(time == 2030, SF_12_MCS != -8.0)
 ```
 
 ```{r}
 # get just the SF12 columns
-b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(baseline = SF_12)
-i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(intervention = SF_12)
-#b.2020 <- b.2020 %>% select(pidp, SF_12) %>% rename(initial = SF_12)
-#b.2030 <- b.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
-#i.2030 <- i.2030 %>% select(pidp, SF_12) %>% rename(end = SF_12)
+b.2030 <- b.2030 %>% select(pidp, SF_12_MCS) %>% rename(baseline = SF_12_MCS)
+i.2030 <- i.2030 %>% select(pidp, SF_12_MCS) %>% rename(intervention = SF_12_MCS)
+#b.2020 <- b.2020 %>% select(pidp, SF_12_MCS) %>% rename(initial = SF_12_MCS)
+#b.2030 <- b.2030 %>% select(pidp, SF_12_MCS) %>% rename(end = SF_12_MCS)
+#i.2030 <- i.2030 %>% select(pidp, SF_12_MCS) %>% rename(end = SF_12_MCS)
 ```
 
 ```{r}

@@ -73,7 +73,7 @@ def relative_scaling(df, v, ref):
     return df
 
 
-def main(output_dir, source_directories, tags, v="SF_12", method="nanmean", destination = None, ref=None):
+def main(output_dir, source_directories, tags, v="SF_12_MCS", method="nanmean", destination = None, ref=None):
     """
 
     Parameters
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                         help="Corresponding name tags for which data is being processed. I.E which intervention Baseline/£20 Uplift etc. Used as label in later plots.")
     parser.add_argument("-s", "--sources", required=True, type=str,
                         help="Source directories for aggregated data. Writted as one string separated by commas. E.g. baseline,childUplift,povertyUplift")
-    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
+    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12_MCS',
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
     parser.add_argument("-a", "--aggregate_method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to nanmean. Any further aggregators must be added in and will throw errors.")

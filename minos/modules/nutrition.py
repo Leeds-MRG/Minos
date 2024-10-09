@@ -48,7 +48,7 @@ class Nutrition(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'education_state',
                         'S7_labour_state',
                         'job_sec',
@@ -171,7 +171,7 @@ class lmmYJNutrition(Base):
                         'nutrition_quality',
                         #'nutrition_quality_diff',
                         'ncigs',
-                        "SF_12"
+                        "SF_12_MCS"
                         ]
 
         #view_columns += self.transition_model.rx2('model').names
@@ -298,7 +298,7 @@ class lmmDiffNutrition(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'education_state',
                         #'labour_state',
                         'job_sec',

@@ -460,13 +460,13 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
   
   # test model with hard coded formulae.
   #model <- mixed_model(#fixed = ncigs_new ~ scale(age) + factor(ethnicity) + factor(sex) + scale(hh_income) + factor(education_state),
-  #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12),
+  #  fixed = ncigs_new~scale(age) + scale(nutrition_quality) + scale(hh_income) + scale(SF_12_MCS),
   #  random = ~ 1|pidp,MZIP : ncars ~ scale(ncars) + scale(age) + I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
   
   #  #weights=weight,
   #  data = data,
   #  family = zi.poisson(), 
-  #  zi_fixed = ~ scale(age) + scale(SF_12))
+  #  zi_fixed = ~ scale(age) + scale(SF_12_MCS))
   
   #browser()
   #test.data <- drop_na(data)
