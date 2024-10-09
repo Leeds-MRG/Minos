@@ -14,6 +14,8 @@ synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 
 synthetic_uk_data: data uk_scaled_data synthetic_uk_repl
 
+synthetic_gb_data: data gb_scaled_data synthetic_gb_repl
+
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2021_US_cohort.csv
 
@@ -74,7 +76,11 @@ synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_po
 
 uk_scaled_data: $(UKSCALEDDATA)/2020_US_cohort.csv
 
+gb_scaled_data: $(GBSCALEDDATA)/2019_US_cohort.csv
+
 synthetic_uk_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv
+
+synthetic_gb_repl: $(DATADIR)/replenishing/gb_scaled/replenishing_pop_2015-2070.csv
 
 scot_priority_sub_data: $(PSUBDATA)/2020_US_cohort.csv
 
@@ -157,8 +163,15 @@ $(DATADIR)/replenishing/scotland_scaled/replenishing_pop_2015-2070.csv: $(SCOTLA
 $(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -m -r 'uk' -p 1
 
+# Synthetic population input for GB
+$(GBSCALEDDATA)/2019_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_individual_upscaling.py
+	$(PYTHON) $(DATAGEN)/US_individual_upscaling.py -m -r 'gb' -p 1
+
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -m --region 'uk'
+
+$(DATADIR)/replenishing/gb_scaled/replenishing_pop_2015-2070.csv: $(GBSCALEDDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
+	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -m --region 'gb'
 
 # Synthetic populations consisting of only those in a priority subgroup household
 $(PSUBDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py

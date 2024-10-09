@@ -194,7 +194,7 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--percentage", required=False, type=int, default=100,
                         help="Percentage of synthetic population to use (e.g. 0-100%).")
     parser.add_argument("-b", "--do_bootstrapping", required=False, action='store_true',
-                        help="Bootstrapping the synthetic population to incudce uncertainty?")
+                        help="Bootstrapping the synthetic population to induce uncertainty?")
     parser.add_argument("-s", "--bootstrap_sample_size", required=False, type=int, default=1,
                         help="How many bootstrap samples to take. Should only be used with do_bootstrapping above.")
     parser.add_argument('-pr', '--priority_subgroups', required=False, action='store_true',

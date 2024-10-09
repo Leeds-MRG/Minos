@@ -27,6 +27,7 @@ TESTING = $(SOURCEDIR)/testing
 SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
+GBSCALEDDATA = $(DATADIR)/scaled_gb_US
 TESTING = $(SOURCEDIR)/testing
 MICEDATA = $(DATADIR)/mice_US
 IMPUTEDCOMPLETEDATA = $(DATADIR)/imputed_complete_US
@@ -127,6 +128,8 @@ setup_scotland_scaled: install data scotland_scaled_data transitions_default syn
 setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 synthetic_scotland_repl
 
 setup_uk_scaled: install data synthetic_uk_data transitions_default synthetic_uk_repl
+
+setup_gb_scaled: install data synthetic_gb_data transitions_default synthetic_gb_repl
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
