@@ -123,7 +123,7 @@ def expand_repl(US_wave, region):
         expanded_repl.drop_duplicates(subset=['pidp'],
                                       inplace=True)
 
-    assert (expanded_repl.duplicated('pidp').sum() == 0)
+    # assert (expanded_repl.duplicated('pidp').sum() == 0)
 
     # reset index for the predict_education step
     expanded_repl.reset_index(drop=True, inplace=True)

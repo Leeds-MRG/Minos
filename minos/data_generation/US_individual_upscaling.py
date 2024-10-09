@@ -46,7 +46,7 @@ PERCENT_DEFAULT = 0.1
 YEARS_DEFAULT = (2019,)
 VAR_LIST_DEFAULT_FERTILITY = ('pidp',
                               'hidp',
-                              'alive',
+                              # 'alive',
                               'sex',
                               'age',
                               'birth_year',
@@ -57,7 +57,7 @@ VAR_LIST_DEFAULT_FERTILITY = ('pidp',
                               'child_ages',
                               'nresp',
                               'nnewborn',
-                              # 'weight',
+                              # 'weight',  # Not required for any synthpop as only correct for US pop
                               'education_state',
                               'max_educ',
                               'hh_int_m',
