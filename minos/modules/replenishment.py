@@ -107,7 +107,13 @@ class Replenishment(Base):
         #                 'child_ages',
         #                 ]
 
-        view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
+        # view_columns = list(pd.read_csv("data/imputed_final_US/2020_US_cohort.csv").columns)
+        # view_columns = list(pd.read_csv("data/scaled_gb_US/2019_US_cohort.csv").columns)
+
+        # HR 24/09/24 Workaround for all cases (US and synthpop): get columns from input data
+        column_source = self.config.base_input_data_dir
+        latest_file = os.listdir(column_source)[0]
+        view_columns = list(pd.read_csv(os.path.join(column_source, latest_file)).columns)
 
         if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
             try:
