@@ -1758,14 +1758,13 @@ class XGBIncome(Base):
         newWaveIncome['hidp'] = pop['hidp']
         newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income)#.reset_index(drop=True)
 
-
         # calculate household income mean
         income_mean = np.mean(newWaveIncome["hh_income"])
         # calculate change in standard deviation between waves.
         std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
         # rescale income to have new mean but keep old standard deviation.
         newWaveIncome["hh_income"] *= std_ratio
-        #newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
+        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
 
         ## SCALING FIX FOR CHILD POV INTERVENTIONS??
         # Instead of scaling the whole pop at once, lets scale by quintile to maintain the variance of higher quintiles
@@ -1783,9 +1782,9 @@ class XGBIncome(Base):
         # For intervention run (reduce variance only in bottom half):
         #newWaveIncome = scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.8)
 
-        # # Adjust Skewness
-        # target_skew = skew(pop["hh_income_last"])
-        # newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
+        # Adjust Skewness
+        target_skew = skew(pop["hh_income_last"])
+        newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
 
         # difference in hh income
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']
