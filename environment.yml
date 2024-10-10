@@ -1,13 +1,22 @@
-name: minos_conda
+name: minos_conda_micromamba
 channels:
   - conda-forge
   - defaults
 dependencies: # Added pip and python at top to avoid conda giving grumpy warnings
-  - pip
+  #- pip
   - python_abi=3.9=*cp*
-  - python=3.9
+  - python~=3.9
   #- conda-forge::conda- # For alternative method of "conda build ."; required conda-build to be installed
-  - r-base=4.1.3
+  - r-base
+  - r-sf
+  - r-dplyr
+  - r-tidyverse
+  - r-argparse
+  - r-ordinal
+  - r-nnet
+  - r-pscl
+  - r-geojsonsf
+  - r-sp
   - r-sf
   - r-dplyr
   - r-tidyverse
@@ -27,36 +36,61 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-ggextra
   - r-ggridges
   - r-gghighlight
+  - r-shadowtext
+  - r-lme4
+  - r-VGAM
+  - r-bestNormalize
+  - r-here
+  - r-scales
+  - r-ggextra
+  - r-ggridges
+  - r-gghighlight
   - r-randomForest
   - r-parallelly
   - r-doParallel
   - r-caret
-  - r-spatstat
+  - r-GLMMadaptive
+  - r-parallelly
+  - r-doParallel
+  - r-caret
+  - r-GLMMadaptive
   - r-ranger
   - pandoc
   - sphinx
   - myst-parser
   - gcc
-  - pip: # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
-      - rpy2
-      - pyyaml>=5.4
-      - pytest~=6.0.1
-      - pandas~=1.4.1
-      - numpy~=1.22.3
-      - scikit-learn
-      - setuptools
-      - matplotlib
-      - distutils_pytest
-      - striprtf
-      - geojson
-      - seaborn
-      - matplotlib
-      - sphinx-rtd-theme
-      - sphinxcontrib-bibtex
-      - nbsphinx
-      - uuid
-      - geopandas
-      - topojson
-      #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
-
+  - rpy2
+  - setuptools
+  - seaborn
+  - pandoc
+  - sphinx
+  - myst-parser
+  - gcc
+ # Same packages as were in "requirements.txt" except minos and vivarium, as both installed during "make install"
+  - pip:
+    - pyyaml>=5.4
+    - pytest~=6.0.1
+    - striprtf
+    - scikit-learn
+    - geojson
+    - sphinx-rtd-theme
+    - sphinxcontrib-bibtex
+    - nbsphinx
+    - geopandas
+    - topojson
+    - striprtf
+    - scikit-learn
+    - geojson
+    - sphinx-rtd-theme
+    - sphinxcontrib-bibtex
+    - nbsphinx
+    - geopandas
+    - topojson
+    - uuid
+    - distutils_pytest
+    #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
+    - pandas==1.4.4
+    - numpy==1.22.4
+    - matplotlib
 prefix:
+

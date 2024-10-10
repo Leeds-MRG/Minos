@@ -29,12 +29,24 @@ yourproject/
 └─  US_spatial_lookup/
 ```
 
-4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
+4. There are two methods to install the required conda environment. Only one of step 4a and 4b should be completed.
+
+
+4a. Create the conda environment using the [micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html) package manager.
+It is a pure C++ conda package manager that is much faster and more verbose. Commands are very similar to those seen in conda and it uses the same environment.yml file. The following are used to install and activate the required conda environment.
+
+``` 
+micromamba create -f environment.yml 
+micromamba activate minos_conda_micromamba
+```
+
+4b. Alternatively, create a ```conda``` environment using the standard anaconda3 package manager and the environment.yml file via the commands below. Note that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
 
    NOTE: GCC is now required to install rpy2, please ensure GCC is avaiable on your system, e.g. GCC can be installed to your conda base environment ```conda install -c conda-forge gcc```
 
 ```
-> conda env create -f environment.yml
+conda env create -f environment.yml
+conda activate minos_conda_micromamba
 ```
 
 5. Navigate to the uppermost *Minos* folder. The following command will install *Minos* and all its dependencies. All replenishing and transition data necessary to run *Minos* will be generated, all of which are derived from the Understanding Society dataset. This may take several minutes. You will then be able to run any of the microsimulation scenarios provided.
