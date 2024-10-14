@@ -13,7 +13,7 @@ synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 
 synthetic_uk_data: data uk_scaled_data synthetic_uk_repl
 
-synthetic_manchester_data: data manchester_scaled_data synthetic_manchester_repl
+synthetic_manchester_data: install data manchester_scaled_data synthetic_manchester_repl
 
 arc4_synthetic_manchester_data:  # running in arc script to stop it timing out.
 	bash scripts/arc4_manchester_data_gen.sh
