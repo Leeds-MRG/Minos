@@ -41,7 +41,8 @@ class Heating(Base):
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
         # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
+        #self.random = builder.randomness.get_stream(self.generate_random_crn_key())
 
 
         # Determine which subset of the main population is used in this module.
