@@ -40,6 +40,11 @@ micromamba create -f environment.yml
 micromamba activate minos_conda_micromamba
 ```
 
+Some other useful commands
+```
+micromamba clean --locks clear mamba locks
+```
+
 4b. Alternatively, create a ```conda``` environment using the standard anaconda3 package manager and the environment.yml file via the commands below. Note that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
 
    NOTE: GCC is now required to install rpy2, please ensure GCC is avaiable on your system, e.g. GCC can be installed to your conda base environment ```conda install -c conda-forge gcc```

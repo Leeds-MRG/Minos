@@ -8,31 +8,18 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - python~=3.9
   #- conda-forge::conda- # For alternative method of "conda build ."; required conda-build to be installed
   - r-base
-  - r-sf
   - r-dplyr
   - r-tidyverse
   - r-argparse
   - r-ordinal
-  - r-nnet
-  - r-pscl
-  - r-geojsonsf
-  - r-sp
   - r-sf
-  - r-dplyr
-  - r-tidyverse
-  - r-argparse
-  - r-ordinal
   - r-nnet
   - r-pscl
   - r-geojsonsf
   - r-sp
   - r-texreg
   - r-shadowtext
-  - r-lme4
-  - r-VGAM
-  - r-bestNormalize
-  - r-here
-  - r-scales
+  - r-mice
   - r-ggextra
   - r-ggridges
   - r-gghighlight
@@ -42,19 +29,14 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-bestNormalize
   - r-here
   - r-scales
-  - r-ggextra
-  - r-ggridges
-  - r-gghighlight
   - r-randomForest
-  - r-parallelly
-  - r-doParallel
   - r-caret
   - r-GLMMadaptive
   - r-parallelly
   - r-doParallel
-  - r-caret
-  - r-GLMMadaptive
   - r-ranger
+  - r-logr
+  - r-spatstat
   - pandoc
   - sphinx
   - myst-parser
@@ -72,7 +54,6 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
     - pytest~=6.0.1
     - striprtf
     - scikit-learn
-    - geojson
     - sphinx-rtd-theme
     - sphinxcontrib-bibtex
     - nbsphinx
@@ -81,11 +62,6 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
     - striprtf
     - scikit-learn
     - geojson
-    - sphinx-rtd-theme
-    - sphinxcontrib-bibtex
-    - nbsphinx
-    - geopandas
-    - topojson
     - uuid
     - distutils_pytest
     #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
