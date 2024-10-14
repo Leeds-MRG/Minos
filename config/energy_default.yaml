@@ -27,7 +27,8 @@ scotland: FALSE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
 components : [lmmYJPCS(), lmmYJMWB(), Loneliness(), nCars(), lmmTobacco(), S7Labour(),
-              HourlyWage(), PhysicalActivity(), Alcohol(),
+              #HourlyWage(),
+              PhysicalActivity(), Alcohol(),
               JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(),
               lmmYJNetIncome(), behindOnBills(),
               financialSituation(), energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(),
