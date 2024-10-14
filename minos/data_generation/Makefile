@@ -14,8 +14,9 @@ synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 synthetic_uk_data: data uk_scaled_data synthetic_uk_repl
 
 synthetic_manchester_data: data manchester_scaled_data synthetic_manchester_repl
-	bash scripts/arc4_manchester_data_gen.sh
 
+arc4_synthetic_manchester_data:  # running in arc script to stop it timing out.
+	bash scripts/arc4_manchester_data_gen.sh
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2021_US_cohort.csv
