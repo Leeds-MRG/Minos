@@ -1784,8 +1784,8 @@ class XGBIncome(Base):
         #newWaveIncome = scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.8)
 
         # Adjust Skewness
-        target_skew = skew(pop["hh_income_last"])
-        newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
+        #target_skew = skew(pop["hh_income_last"])
+        #newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
 
         # difference in hh income
         newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']
