@@ -263,6 +263,9 @@ def main(data, save=False):
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
                  'nkids_ind_raw',  # 'ncigs', 'ndrinks']
+                 'matdep1', 'matdep2', 'matdep3', 'matdep4', 'matdep5', 'matdep6', 'matdep7', 'matdep8', 'matdep9',
+                 'matdep10', 'matdep11', 'matdep12', 'matdep13', 'matdep14', 'matdep15', 'matdep16', 'matdep17',
+                 'matdep18', 'matdep19', 'matdep21',
                  'loneliness',
                  'burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism',  # nh_safety
                  'fruit_days', 'fruit_per_day', 'veg_days', 'veg_per_day']

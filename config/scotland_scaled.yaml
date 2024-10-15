@@ -34,7 +34,7 @@ synthetic: TRUE
 #components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 #components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
 #components : [lmmYJMWB(), Loneliness(), Tobacco(), S7Labour(), JobSec(), FinancialSituation(), BehindOnBills(), Neighbourhood(), Housing(), lmmYJNutrition(), lmmYJIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [XGBMWB(), Loneliness(), Tobacco(), S7Labour(), JobSec(), FinancialSituation(), BehindOnBills(), Neighbourhood(), Housing(), lmmYJNutrition(), XGBIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+components : [XGBMWB(), MaterialDeprivationChild(), Loneliness(), Tobacco(), S7Labour(), JobSec(), FinancialSituation(), BehindOnBills(), Neighbourhood(), Housing(), lmmYJNutrition(), XGBIncome(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
 
 scale_rates:
   method: "constant"

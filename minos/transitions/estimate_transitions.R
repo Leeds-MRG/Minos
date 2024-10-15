@@ -165,6 +165,8 @@ run_yearly_models <- function(transitionDir_path,
       if(dependent == 'SF_12' & year == 2009) { next }
       # OLS_DIFF models can only start from wave 2 (no diff in first wave)
       if(tolower(mod.type) == 'ols_diff' & year == 2009) { next }
+      if(dependent == 'child_matdep' & !year %in% c(2014, 2016, 2018)) { next }
+      if(grepl('child_matdep', dependent)){ depend.year <- year + 2 } # set up 3 year horizon
 
       print(paste0('Starting estimation for ', dependent, ' in ', year))
 
@@ -212,8 +214,10 @@ run_yearly_models <- function(transitionDir_path,
       #print(formula.string)
       # Now make string into formula
       form <- as.formula(formula.string)
-
-
+      
+      # get only required variables and sort by pidp/time.
+      merged <- merged[, append(all.vars(form), c("time", 'pidp', 'weight'))]
+      #merged <- merged[order(df$pidp, df$time),]
 
       ## Different model types require different functions
       if(tolower(mod.type) == 'ols') {
@@ -352,6 +356,8 @@ dataDir <- 'data/final_US/'
 modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
+
+default <- T
 
 create.if.not.exists(transitionDir)
 

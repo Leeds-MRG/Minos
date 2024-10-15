@@ -310,6 +310,35 @@ def format_ukhls_columns(year):
                       # the simplest and most complete for our purposes.
                       'benbase4': 'universal_credit',
                       # receives core benefits (I.E. universal credit/means tested benefits).
+
+                      # -- All variables for child poverty interventions
+                      # Household size variables
+                      'nadoecd_dv': 'n_adult_oecd',  # Number of adults >=14 in hh, derived
+                      'nchoecd_dv': 'n_child_oecd',  # Number of children <14 in hh, derived
+                      # Child material deprivation variables
+                      'cdelply': 'matdep1',  # 1. Outdoor space
+                      'cdephave2': 'matdep2',  # 2. Own bedrooms
+                      'cdephave4': 'matdep3',  # 3. Celebrations
+                      'cdephave3': 'matdep4',  # 4. Leisure equipment
+                      'cdephave1': 'matdep5',  # 5. Holiday
+                      'cdepdo2': 'matdep6',  # 6. Hobby
+                      'cdepdo3': 'matdep7',  # 7. Friends over
+                      'cdeptrp': 'matdep8',  # 8. School trips
+                      'cplay': 'matdep9',  # 9. Toddler group
+                      'cdepdo4': 'matdep10',  # 10. Organised activity
+                      'cdepdo5': 'matdep11',  # 11. Fruit and veg
+                      'cdepdo6': 'matdep12',  # 12. Warm winter coat
+                      # Adult material deprivation variables
+                      'matdepd': 'matdep13',  # 13. House in decent state of repair
+                      'matdepa': 'matdep14',  # 14. Holiday
+                      'matdepe': 'matdep15',  # 15. Contents insurance
+                      'matdepf': 'matdep16',  # 16. Regular savings
+                      'matdepg': 'matdep17',  # 17. Replace furniture
+                      'matdeph': 'matdep18',  # 18. Repair electrical goods
+                      'matdepi': 'matdep19',  # 19. Spend on yourself
+                      # 'hheat': 'matdep20',  # 20. Keep accomm. warm enough - ALREADY HERE AS "heating"
+                      'matdepj': 'matdep21',  # 21. Keep up with bills
+                      # ------------------------------------------------
                       }
 
     # Some variables change names halfway through UKHLS.
@@ -548,7 +577,7 @@ def format_data(year, data, verbose):
     data = format_ukhls_heating(data)
 
     #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
-    if year >= 2014:
+    if year >= 2009:
         data = US_format_raw_children_data.main(data, year)
     data = format_analysis_weight(data, year)
 

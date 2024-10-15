@@ -297,8 +297,9 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
 {
   data_plot <- data[, c("time", v)]
   # Remove missing values
-  data_plot <- data_plot %>%
-    filter(!data_plot[[v]] %in% miss.values)
+  #data_plot <- data_plot %>%
+  #  filter(!data_plot[[v]] %in% miss.values)
+  data_plot <- data_plot[!data_plot[[v]] %in% miss.values, ]
   if (min(data_plot$time) < 2021) {
     handover <- TRUE
   }

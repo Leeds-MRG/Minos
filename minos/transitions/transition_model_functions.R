@@ -89,8 +89,11 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
   data[[depend]] <- as.factor(data[[depend]])
 
   data = replace.missing(data)
+  data <- drop_na(data)
 
   print(sprintf("Model is being fit on %d individual records...", nrow(data)))
+  
+  browser()
 
   if(include_weights) {
     model <- glm(formula, family=binomial(link="logit"), weights = weight, data=data)

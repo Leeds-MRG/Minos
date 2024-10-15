@@ -1,3 +1,4 @@
+LOGIT : matdep_child ~ factor(matdep_child) + scale(hh_income) + relevel(factor(ethnicity), ref = 'WBI') + factor(region) + relevel(factor(education_state), ref = "1") + scale(nkids_ind) + factor(financial_situation) + factor(marital_status)
 RFO : housing_quality ~ age + sex + ethnicity + region + education_state + neighbourhood_safety + loneliness + nutrition_quality + ncigs + hh_income + housing_tenure + housing_quality_last + behind_on_bills + financial_situation
 RFO : loneliness ~ loneliness_last + age + sex + ethnicity + region + education_state + housing_quality + neighbourhood_safety + nutrition_quality + ncigs + job_sec + hh_income + marital_status + behind_on_bills + financial_situation
 RFO : neighbourhood_safety ~ age + sex + ethnicity + region + education_state + hh_income + behind_on_bills + financial_situation + neighbourhood_safety_last + housing_quality + loneliness + nutrition_quality + ncigs
