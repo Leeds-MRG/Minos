@@ -615,7 +615,7 @@ compare_lone_parent <- function(comparison_scen) {
 
 
 ```{r "mental_illness_risk_plots", include=FALSE}
-mental_illness_risk_plots <- function(summary_group, scen.list, palette = my_palette) {
+mental_illness_risk_plots <- function(summary_group, scen.list, palette = my_palette, scale = scaling_factor) {
 
   tit <- ' '
   if (summary_group == 'UC_men_illness_risk') { tit <- 'UC Population' }
@@ -913,6 +913,17 @@ mental_illness_risk_plots_interval <- function(summary_group, scen.list, palette
 }
 ```
 
+# Sample Size Calculations
+
+```{r}
+# E&W adults: 48,566,000
+# N: 160,908; 211,034
+# N total: 371,942
+
+# so we have
+scaling_factor <- (371942 / 48566000) * 100
+scaling_factor
+```
 
 
 # Whole Population
@@ -1083,6 +1094,128 @@ compare_lone_parent(comparison_scen = '100UniversalCredit')
 # Mental Illness Risk
 
 ## Whole Pop
+
+```{r}
+summary_group <- 'men_illness_risk'
+scen.list = scen.list.25_100
+
+
+tit <- ' '
+  if (summary_group == 'UC_men_illness_risk') { tit <- 'UC Population' }
+  if (summary_group == 'UC_families_men_illness_risk') { tit <- 'UC Families' }
+  if (summary_group == 'men_illness_risk') { tit <- 'Whole Population' }
+  if (summary_group == 'men_illness_risk_families') { tit <- 'Families' }
+  
+  # scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+  # summary_group <- 'men_illness_risk'
+  
+  #scen.list <- c('baseline', comparison_scen)
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  data <- data %>%
+    mutate_at("scen", str_replace, "UniversalCredit", "") %>%
+    mutate(scen = if_else(scen == "baseline", scen, paste0("£", scen)))
+  
+  plot_data1 <- data %>%
+    filter(mental_health_risk == 'TRUE') %>%
+    select(-prop, -mental_health_risk) %>%
+    pivot_wider(names_from = scen,
+                values_from = count) %>%
+    mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
+    select(run_id, year, starts_with('diff')) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_sep = '_',
+                 names_to = c("diff", "scen"),
+                 values_to = 'Count')
+  
+  # Extract numeric part from 'scen' column then...
+  scen_numeric <- as.numeric(gsub("[^0-9]", "", plot_data1$scen))
+  # ...Reorder 'scen' column based on numeric values for plotting
+  plot_data1$scen <- factor(plot_data1$scen, levels = unique(plot_data1$scen[order(scen_numeric)]))
+  
+  
+  plot_data1_confint <- plot_data1 %>%
+    group_by(year, scen) %>%
+    summarise(n = n(),
+              Mean_Count = mean(Count),
+              margin = qt(0.975, df = n - 1) * (sd(Count) / sqrt(n)),
+              lower = Mean_Count - margin,
+              upper = Mean_Count + margin)
+  
+  
+  p1 <- ggplot(plot_data1_confint, aes(x = year, y = Mean_Count, group = scen)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper, color = scen, fill = scen), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = scen), linetype = 'dashed') +
+    geom_point(aes(color = scen)) +
+    scale_color_manual(values = palette) +
+    scale_fill_manual(values = palette) +
+    xlab('Year') +
+    ylab('Mean Change') +
+    theme(
+        legend.title = element_blank(),  # Remove the legend title
+        legend.position = c(0.2, 0.7),  # Position the legend inside the plot
+        legend.text = element_text(size = 8),  # Increase the text size for better readability
+        legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
+        legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
+    ) +
+    guides(
+        color = guide_legend(
+            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+        ),
+        fill = guide_legend(
+            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+        )
+    )
+  
+    plot_data_2 <- data %>%
+      filter(mental_health_risk == 'TRUE') %>%
+      select(-mental_health_risk, -count) %>%
+      pivot_wider(names_from = scen,
+                  values_from = prop) %>%
+      mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
+      select(run_id, year, starts_with('diff')) %>%
+      pivot_longer(cols = starts_with("diff"),
+                   names_sep = '_',
+                   names_to = c("diff", "scen"),
+                   values_to = 'Proportion')
+    
+    plot_data2_confint <- plot_data_2 %>%
+      mutate(Proportion = Proportion * 100) %>%
+      group_by(year, scen) %>%
+      summarise(n = n(),
+              Mean_Proportion = mean(Proportion),
+              margin = qt(0.975, df = n - 1) * (sd(Proportion) / sqrt(n)),
+              lower = Mean_Proportion - margin,
+              upper = Mean_Proportion + margin)
+    
+    p2 <- ggplot(plot_data2_confint, aes(x = year, y = Mean_Proportion, group = scen)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper, color = scen, fill = scen), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = scen), linetype = 'dashed') +
+    geom_point(aes(color = scen)) +
+    scale_color_manual(values = palette) +
+    scale_fill_manual(values = palette) +
+    xlab('Year') +
+    ylab('Mean Change (%)') +
+    theme(
+        legend.title = element_blank(),  # Remove the legend title
+        legend.position = c(0.2, 0.7),  # Position the legend inside the plot
+        legend.text = element_text(size = 8),  # Increase the text size for better readability
+        legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
+        legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
+    ) +
+    guides(
+        color = guide_legend(
+            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+        ),
+        fill = guide_legend(
+            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+        )
+    )
+  
+  print(p1)
+  print(p2)
+```
+
 
 ```{r}
 mental_illness_risk_plots('men_illness_risk', scen.list = scen.list.25_100)

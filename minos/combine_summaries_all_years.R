@@ -469,6 +469,20 @@ UC_summarise <- function(data) {
   return(data)
 }
 
+UC_kids_summarise <- function(data) {
+  data <- data %>%
+    mutate(children = nkids > 0) %>%
+    filter(weight > 0) %>%
+    group_by(universal_credit, children, run_id) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
 UC_rel_pov_summarise <- function(data) {
   
   hh_rep_income <- data %>%
@@ -1016,32 +1030,34 @@ scen <- args[[3]]
 
 
 # Create named list of summary functions to go through
-summary_funcs <- c(whole_pop = whole_pop_summarise,
-                   whole_pop_income_quint = whole_pop_income_quint_summarise,
-                   families = families_summarise,
-                   families_income_quint = families_income_quint_summarise,
-                   UC = UC_summarise,
-                   UC_rel_pov = UC_rel_pov_summarise,
-                   UC_init_rel_pov = UC_init_rel_pov_summarise,
-                   UC_kids_rel_pov = UC_kids_rel_pov_summarise,
-                   UC_kids_init_rel_pov = UC_kids_init_rel_pov_summarise,
-                   UC_abs_pov = UC_abs_pov_summarise,
-                   UC_init_abs_pov = UC_init_abs_pov_summarise,
-                   UC_kids_abs_pov = UC_kids_abs_pov_summarise,
-                   UC_kids_init_abs_pov = UC_kids_init_abs_pov_summarise,
-                   UC_gender = UC_gender_summarise,
-                   priority_any = priority_any_summarise,
-                   men_illness_risk = men_illness_risk_summarise,
-                   men_illness_risk_families = men_illness_risk_families_summarise,
-                   UC_men_illness_risk = UC_men_illness_risk_summarise,
-                   UC_families_men_illness_risk = UC_men_illness_risk_families_summarise,
-                   UC_men_illness_risk_lower = UC_men_illness_risk_lower_summarise,
-                   UC_families_men_illness_risk_lower = UC_men_illness_risk_lower_families_summarise,
-                   UC_men_illness_risk_higher = UC_men_illness_risk_higher_summarise,
-                   UC_families_men_illness_risk_higher = UC_men_illness_risk_higher_families_summarise,
-                   priority_lone_parent = priority_lone_parent_summarise,
-                   priority_lone_parent_UC = priority_lone_parent_UC_summarise
-)
+summary_funcs <- c(UC_kids = UC_kids_summarise)
+
+# summary_funcs <- c(whole_pop = whole_pop_summarise,
+#                    whole_pop_income_quint = whole_pop_income_quint_summarise,
+#                    families = families_summarise,
+#                    families_income_quint = families_income_quint_summarise,
+#                    UC = UC_summarise,
+#                    UC_rel_pov = UC_rel_pov_summarise,
+#                    UC_init_rel_pov = UC_init_rel_pov_summarise,
+#                    UC_kids_rel_pov = UC_kids_rel_pov_summarise,
+#                    UC_kids_init_rel_pov = UC_kids_init_rel_pov_summarise,
+#                    UC_abs_pov = UC_abs_pov_summarise,
+#                    UC_init_abs_pov = UC_init_abs_pov_summarise,
+#                    UC_kids_abs_pov = UC_kids_abs_pov_summarise,
+#                    UC_kids_init_abs_pov = UC_kids_init_abs_pov_summarise,
+#                    UC_gender = UC_gender_summarise,
+#                    priority_any = priority_any_summarise,
+#                    men_illness_risk = men_illness_risk_summarise,
+#                    men_illness_risk_families = men_illness_risk_families_summarise,
+#                    UC_men_illness_risk = UC_men_illness_risk_summarise,
+#                    UC_families_men_illness_risk = UC_men_illness_risk_families_summarise,
+#                    UC_men_illness_risk_lower = UC_men_illness_risk_lower_summarise,
+#                    UC_families_men_illness_risk_lower = UC_men_illness_risk_lower_families_summarise,
+#                    UC_men_illness_risk_higher = UC_men_illness_risk_higher_summarise,
+#                    UC_families_men_illness_risk_higher = UC_men_illness_risk_higher_families_summarise,
+#                    priority_lone_parent = priority_lone_parent_summarise,
+#                    priority_lone_parent_UC = priority_lone_parent_UC_summarise
+# )
 
 # summary_funcs <- c(whole_pop = whole_pop_summarise,
 #                    whole_pop_income_quint = whole_pop_income_quint_summarise,
