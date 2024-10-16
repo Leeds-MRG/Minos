@@ -4,7 +4,9 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import logging
+
 from minos.modules.base_module import Base
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 
 class EPCG(Base):
 
@@ -851,3 +853,165 @@ class noEnergyPriceIncrease(Base):
                                    "intervention_cost": 0},  # hh income boosted by how much?
                                   index=pop_data.index)
         self.population_view.update(pop_update)
+
+
+
+
+class winterFuelPayment(Base):
+
+    @property
+    def name(self):
+        return "winter_fuel_payment"
+
+    def __repr__(self):
+        return "winterFuelPayment()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for death rate
+        - Add required columns to population data frame
+        - Add listener event to check if people die on each time step.
+        - Update other required items such as randomness stream.
+
+        Parameter
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module. essentially what is needed for
+        # transition models and any outputs.
+        view_columns = ["hh_income",
+                        'alive',
+                        'universal_credit',
+                        'hidp',
+                        "S7_labour_state",
+                        "marital_status",
+                        'age',
+                        'ethnicity',
+                        'yearly_energy']
+
+        columns_created = ["income_boosted", "boost_amount"]
+        self.population_view = builder.population.get_view(columns=view_columns + columns_created)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants,
+                                                 creates_columns=columns_created)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        #builder.event.register_listener("time_step", self.on_time_step, priority=4)
+        super().setup(builder)
+
+    def on_initialize_simulants(self, pop_data):
+        pop_update = pd.DataFrame({'income_boosted': False,
+                                   'boost_amount': 0.},
+                                  index=pop_data.index)
+        self.population_view.update(pop_update)
+
+    def on_time_step(self, event):
+
+        logging.info("INTERVENTION:")
+        logging.info(f"\tApplying effects of the winter fuel payment in year {event.time.year}...")
+
+        # get the alive population.
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+
+        # print(np.mean(pop['hh_income'])) # for debugging purposes.
+        # TODO probably a faster way to do this than resetting the whole column.
+        # TODO change this to yearly energy subsetting?
+        if self.uplift_condition == "who_below_poverty_line_and_kids":
+            pop['hh_income'] -= pop['boost_amount']  # reset boost if people move out of bottom decile. only do this for relative poverty uplift.
+        else:
+            pop['income_boosted'] = False
+
+        #TODO implement who eligible from this block of text.
+        # TODO calculate pension credit eligibility.
+        # TODO use this to calculate WFP eligibility.
+        """ get eligible individuals. pensioners/retired from labour state and on universal credit?
+        
+         https://www.gov.uk/winter-fuel-payment
+         https://www.gov.uk/winter-fuel-payment/eligibility
+         eligible if.
+         - pension credit
+         - universal credit
+         - income-related Employment and Support Allowance(ESA) 
+         - income-based Jobseeker’s Allowance(JSA) Income Support
+         - Child Tax Credit
+         - Working Tax Credit
+         these are the same UC and legacy benefits for the scottish child payment plus pension credits. 
+         primary focus here is pension credits and how people are eligible. 
+        
+        To be eligible for pension credits you must then.
+        https://www.gov.uk/pension-credit/eligibility
+        - live in england, scotland or wales
+        - reach state pension age. 
+            (this is not a simple age https://www.gov.uk/state-pension-age). 
+            goes up dependent on age (birth year). Not too difficult to calulate.
+        - if you have a partner (just general couple cohbatiation, dont need to be married) you must both be at station pension age.
+        - or one of you is getting a housing benefit for people over state pension age.    
+        
+        - pension credit tops up your combined weekly household income (pensions, earnings from emploment, 
+            and social security benefits like carers allowance.) to 218.15 if single and 332.95 is partnered.
+        - might be eligible with higher income if you have a disability, care for someone, have savings, or have housing costs.
+        - payments that do NOT count as part of income.
+            - adult disability paymnet
+            - attendance allowance
+            - chirstmas bonus (santa is a generous taxman)
+            - child benefit
+            - disability living allowance.
+            - personal independence payment
+            - social fund payments lke the winter fuel allowance. 
+            - housing benefit
+            - council tax reduction. 
+            
+        wealth also affects pension credit.
+            If you have £10,000 or less in savings and investments this will not affect your Pension Credit.
+            If you have more than £10,000, every £500 over £10,000 counts as £1 income a week. 
+            For example, if you have £11,000 in savings, this counts as £2 income a week.
+
+        You DO NOT GET THE PAYMENT IF
+        - In hospital for last year.
+        - In prison for last year.
+        - In carehome for last year.
+        - Live in Scotland (for the last year). 
+        
+        for how much you get    
+            £200 if you were born between 23 September 1944 and 22 September 1958 (65/66 years old in 2024).
+            £300 if you were born before 23 September 1944
+            ONE PAYMENT PER HOUSEHOLD IF EITHER PARTNER IS ELIGIBLE. ALWAYS TAKE THE LARGER PAYMENT.
+            E.G IF ONE GETS 200 AND ONE GETS 300 THE WHOLE HOUSEHOLD GETS 300 ONCE. 
+        """
+
+
+        # TODO MAKE SURE WHOLE HOUSEHOLD RECEIVES SUPPORT and NO DOUBLING UP.
+        uplifted_households = np.unique(dynamic_subset_function(pop, self.uplift_condition)['hidp'])
+        pop.loc[pop['hidp'].isin(uplifted_households) ,'income_boosted'] = True # set everyone who satisfies uplift condition to true.
+
+
+        # TODO determine how much boost they get. is it dependent on household characteristics? seems to be either 200 or 300 pounds flat.
+        #TODO get specific energy boost amounts
+        pop['boost_amount'] = pop['income_boosted'] * 300 # starting with this for now.
+        #pop['income_boosted'] = (pop['boost_amount'] != 0)
+        #TODO adding to yearly energy.
+        pop['yearly_energy'] += pop['boost_amount']
+        # print(np.mean(pop['hh_income'])) # for debugging.
+
+
+
+
+
+        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        logging.info(f"\tNumber of people uplifted: {sum(pop['income_boosted'])}")
+        logging.info(f"\t...which is {(sum(pop['income_boosted']) / len(pop)) * 100}% of the total population.")
+        logging.info(f"\tTotal boost amount: {pop['boost_amount'].sum()}")
+        logging.info(f"\tMean boost amount: {pop['boost_amount'][pop['income_boosted']].mean()}")
