@@ -923,6 +923,31 @@ mental_illness_risk_plots_interval <- function(summary_group, scen.list, palette
 # so we have
 scaling_factor <- (371942 / 48566000) * 100
 scaling_factor
+
+
+
+# Q1: What is the total eligible sample in E&W?
+#   : UC_families_count * 100/scaling_factor
+
+UC_families <- generate_df_list('UC_kids', 'baseline')
+UC_families <- do.call(rbind, UC_families)
+
+UC_fam <- UC_families %>%
+  filter(universal_credit == 1,
+         children == TRUE,
+         year == 2024) %>%
+  group_by(run_id) %>%
+  summarise(total_count = sum(count)) %>%
+  ungroup() %>%
+  summarise(mean_count = mean(total_count))
+
+mean_count <- UC_fam[[1]]
+mean_count
+
+
+# eligible sample
+eligible_sample_count <- mean_count * (100 / scaling_factor)
+eligible_sample_count
 ```
 
 
@@ -1100,7 +1125,9 @@ summary_group <- 'men_illness_risk'
 scen.list = scen.list.25_100
 
 
-tit <- ' '
+  total_adults_EW <- 48566000
+
+  tit <- ' '
   if (summary_group == 'UC_men_illness_risk') { tit <- 'UC Population' }
   if (summary_group == 'UC_families_men_illness_risk') { tit <- 'UC Families' }
   if (summary_group == 'men_illness_risk') { tit <- 'Whole Population' }
@@ -1141,6 +1168,10 @@ tit <- ' '
               margin = qt(0.975, df = n - 1) * (sd(Count) / sqrt(n)),
               lower = Mean_Count - margin,
               upper = Mean_Count + margin)
+  
+  final_count <- plot_data1_confint %>%
+    filter(year == max(year),
+           )
   
   
   p1 <- ggplot(plot_data1_confint, aes(x = year, y = Mean_Count, group = scen)) +
