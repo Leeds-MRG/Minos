@@ -85,7 +85,8 @@ main <- function(n_imputations, iterations_per_imputation){
                     "housing_tenure",
                     "job_sector",
                     "marital_status",
-                    'hourly_wage'
+                    'hourly_wage',
+                    'universal_credit'
                     #"hh_comp",
   )
 
