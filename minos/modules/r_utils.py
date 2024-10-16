@@ -219,7 +219,7 @@ def predict_nnet(model, rpy2Modules, current, columns):
 
     return pd.DataFrame(np.array(prediction), columns=columns)
 
-def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
+def predict_next_timestep_zip(model, rpy2Modules, current, dependent, noise_std=0):
     """ Get next state for alcohol monthly expenditure using zero inflated poisson models.
 
     Parameters
@@ -251,6 +251,10 @@ def predict_next_timestep_zip(model, rpy2Modules, current, dependent):
     # zero determine probability of them not drinking
     counts = stats.predict(model, currentRDF, type="count")
     zeros = stats.predict(model, currentRDF, type="zero")
+
+    if noise_std:
+        n = current.shape[0]
+        counts = counts.ro + stats.rnorm(n, 0, noise_std) # add gaussian noise.
 
     # draw randomly if a person drinks
     # if they drink assign them their predicted value from count.

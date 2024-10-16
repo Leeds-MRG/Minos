@@ -32,8 +32,8 @@ synthetic: TRUE
 #components : [lmmYJMWB(), Loneliness(), nCars(), lmmTobacco(), S7Labour(), HourlyWage(),
 #              JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(), lmmYJNetIncome(), behindOnBills(), financialSituation(),
 #              energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [lmmYJPCS(), lmmYJMWB(), Loneliness(), nCars(), lmmTobacco(), S7Labour(), #MaterialDeprivation(),
-              HourlyWage(), PhysicalActivity(), Alcohol(),
+components : [lmmYJPCS(), lmmYJMWB(), Loneliness(), nCars(), #lmmTobacco(), MaterialDeprivation(), HourlyWage(),
+              PhysicalActivity(), Alcohol(), S7Labour(),
               JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(),
               lmmYJNetIncome(), behindOnBills(),
               financialSituation(), energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(),

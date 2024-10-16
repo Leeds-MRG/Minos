@@ -267,6 +267,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', mod.type, '.tex')
       texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
     }
+    
+    #browser()
     saveRDS(model, file=paste0(out.path2, dependent, "_", mod.type, '.rds')) # shorter file name with no years..
     print(paste0(mod.type, ' model for ', dependent, ' generated for years ', min(year.range), ' - ', max(year.range)))
     print(paste0("Finished for ", dependent, ", mod type ", mod.type, '.'))

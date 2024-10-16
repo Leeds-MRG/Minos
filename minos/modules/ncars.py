@@ -78,9 +78,11 @@ class nCars(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
-        self.transition_model = r_utils.load_transitions(f"ncars/mzip/ncars_new_MZIP", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "mixed_zip")
+        self.transition_model = r_utils.load_transitions(f"ncars/zip/ncars_2020_2021", self.rpy2Modules, path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "zip")
 
+        #self.transition_model = r_utils.load_transitions(f"ncars/mzip/ncars_new_MZIP", self.rpy2Modules, path=self.transition_dir)
+        #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "mixed_zip")
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -101,7 +103,7 @@ class nCars(Base):
         print(f"before ncars: {np.mean(pop['ncars'])}")
 
         # Predict next tobacco value
-        newWaveNCars = pd.DataFrame(self.calculate_n_cars(pop))
+        newWaveNCars = pd.DataFrame(self.calculate_n_cars_zip(pop))
         newWaveNCars.columns = ['ncars']
         newWaveNCars.index = pop.index
 
@@ -124,7 +126,37 @@ class nCars(Base):
         print(f"ncars: {np.mean(newWaveNCars['ncars'])}")
         self.population_view.update(newWaveNCars["ncars"])
 
-    def calculate_n_cars(self, pop):
+    def calculate_n_cars_zip(self, pop):
+        """Calculate tobacco transition distribution based on provided people/indices
+
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        # load transition model based on year.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2020
+        else:
+            year = max(self.year, 2014)
+            year = min(year, 2020)
+
+        # The calculation relies on the R predict method and the model that has already been specified
+        # nextWaveNCars = r_utils.predict_next_timestep_zip(model=transition_model,
+        #                                                     rpy2Modules= self.rpy2Modules,
+        #                                                     current=pop,
+        #                                                     dependent='ncars_next')
+        nextWaveNCars = r_utils.predict_next_timestep_zip(model=self.transition_model,
+                                                          rpy2Modules= self.rpy2Modules,
+                                                          current=pop,
+                                                          dependent='ncars_new',
+                                                          noise_std=0.25)
+        return nextWaveNCars
+
+    def calculate_n_cars_mzip(self, pop):
         """Calculate tobacco transition distribution based on provided people/indices
 
         Parameters
