@@ -99,7 +99,7 @@ def get_region_lsoas(region):
 def calculate_QALYs(df):
     alive_pop = df['alive'].value_counts()['alive']
 
-    sf_12 = np.nanmean(df['SF_12'])
+    sf_12 = np.nanmean(df['SF_12_MCS'])
     sf_12_pcs = np.nanmean(df['SF_12_PCS'])
     utility = -1.6984 + \
         (sf_12_pcs * 0.07927) + \
@@ -112,6 +112,58 @@ def calculate_QALYs(df):
     # Now calculate QALYs by multiplying utility score by pop_size
     qaly = utility * alive_pop
     return qaly
+
+def calculate_QALYs_var(df):
+    alive_pop = df['alive'].value_counts()['alive']
+
+    sf_12 = df['SF_12_MCS']
+    sf_12_pcs = df['SF_12_PCS']
+    utility = -1.6984 + \
+        (sf_12_pcs * 0.07927) + \
+        (sf_12 * 0.02859) + \
+        ((sf_12_pcs * sf_12) * -0.000126) + \
+        ((sf_12_pcs * sf_12_pcs) * -0.00141) + \
+        ((sf_12 * sf_12) * -0.00014) + \
+        ((sf_12_pcs* sf_12_pcs * sf_12_pcs) * 0.0000107)
+
+    # Now calculate QALYs by multiplying utility score by pop_size
+    qaly = utility * (df['alive'] == "alive")
+    qaly = qaly.loc[qaly!=0, ]
+    return np.var(qaly)
+
+def calculate_QALYs_inequalty(df):
+    alive_pop = df['alive'].value_counts()['alive']
+
+    sf_12 = df['SF_12_MCS']
+    sf_12_pcs = df['SF_12_PCS']
+    utility = -1.6984 + \
+        (sf_12_pcs * 0.07927) + \
+        (sf_12 * 0.02859) + \
+        ((sf_12_pcs * sf_12) * -0.000126) + \
+        ((sf_12_pcs * sf_12_pcs) * -0.00141) + \
+        ((sf_12 * sf_12) * -0.00014) + \
+        ((sf_12_pcs* sf_12_pcs * sf_12_pcs) * 0.0000107)
+
+    # Now calculate QALYs by multiplying utility score by pop_size
+    qaly = utility * (df['alive'] == "alive")
+    qaly = qaly.loc[qaly!=0, ]
+    return paretoXY(qaly)
+
+
+def paretoXY(s, x=80, threshold=0):
+    ''' Return a list until you account for X% of the whole and remainders are less than Y% individually.
+        The threshold percentage allows you to hedge your bets and check items just past the threshold. '''
+
+    #Generate percentages, and sort, and find accumulated total
+    #Exclude any negative payments that can make the cumulative percentage go > 100% before we get to them
+    df=pd.DataFrame( s[s>0].sort_values(ascending=False) )
+    df['pc']= 100*s/s.sum()
+    df['cum_pc']=df['pc'].cumsum()
+    #Return ordered items that either together account at least for X% of the total,
+    # and/or individually account for at least Y% of the total
+    #The threshold provides a fudge factor on both components...
+    n = len(df)
+    return len(df[ (df['cum_pc']-df['pc'] <= x+ x*threshold/100)]) / n
 
 def group_by_and_aggregate(data, group_column, v, method):
     """ Aggregate values by
@@ -139,11 +191,18 @@ def group_by_and_aggregate(data, group_column, v, method):
     current_time = data['time'].max()
     if v == "QALYs":
         method = calculate_QALYs
-        data = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x)))
+        data2 = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x)))
+        data2.columns = ["QALYs"]
+        method = calculate_QALYs_var
+        data2['QALYs_var'] = pd.Series(data.groupby([group_column]).apply(lambda x: method(x))).values
+        method = calculate_QALYs_inequalty
+        data2['QALYs_pareto_index'] = pd.Series(data.groupby([group_column]).apply(lambda x: method(x))).values
+        data = data2
+
     else:
         data = pd.DataFrame(data.groupby([group_column]).apply(lambda x: method(x[v])))
+        data.columns = [v]
 
-    data.columns = [v]
     data['intervention_cost'] = intervention_cost
     data['time'] = current_time - 1
     data['pop_size'] = pop_sizes
@@ -154,14 +213,22 @@ def group_by_and_aggregate(data, group_column, v, method):
 
 def group_by_and_aggregate_longitudinal(data, group_column, v, method):
     if v == "QALYs":
+        # get mean, variance, and inequality in QALYs.
         grouped_variable = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'QALYs': np.cumsum})["QALYs"]
+        qaly_var = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'QALYs_var': np.mean})["QALYs_var"]
+        qaly_inequality = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'QALYs_pareto_index': np.mean})["QALYs_pareto_index"]
     else:
         grouped_variable = data.groupby(by=[group_column, 'run_id' , 'time'], as_index=False)[v].mean()[v]
     pop_sizes = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'pop_size': np.mean})['pop_size']
     data = data.groupby(by=[group_column, 'run_id', 'time'], as_index=False).agg({'intervention_cost': np.cumsum})
     data[v] = grouped_variable
+    if v == "QALYs":
+        data['QALYs_var'] = qaly_var
+        data['QALYs_pareto_index'] = qaly_inequality
+
     data['pop_size'] = pop_sizes
     return data
+
 
 def subset_lsoas_by_region(spatial_data, region_data):
     """ Find lsoas within a certain region e.g. scotland, manchester.
@@ -181,7 +248,7 @@ def subset_lsoas_by_region(spatial_data, region_data):
     return spatial_data[spatial_data['ZoneID'].isin(region_data["lsoa11cd"])]
 
 
-def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_size_dict, v):
+def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_size_dict, v, var_dict=None, inequality_dict = None):
     """ Add new property to some geojson multipolygon data such as mean SF12 value
 
     Multipolygon is essentially a list of dictionaries. Each polygon has a 'features' subdictionary that is being appended.
@@ -209,7 +276,9 @@ def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_si
         variable_code = new_variable_dict[LSOA_code]
         intervention_cost_code = intervention_cost_dict[LSOA_code]
         pop_size_code = pop_size_dict[LSOA_code]
-
+        if v == "QALYs":
+            variance_code = var_dict[LSOA_code]
+            inequality_code = inequality_dict[LSOA_code]
         if variable_code == 0:  # TODO needs improving with a more general catch all.
             variable_code = None
         # assign the new mean of v to the geojson feature.
@@ -218,6 +287,11 @@ def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_si
         item['properties'][v] = variable_code
         item['properties']['intervention_cost'] = intervention_cost_code
         item['properties']['pop_size'] = pop_size_code
+
+        if v == "QALYs":
+            item['properties']['qaly_var'] = variance_code
+            item['properties']['qaly_pareto_index'] = inequality_code
+
         geojson_data['features'][i] = item
     return geojson_data
 
@@ -287,7 +361,7 @@ def load_synthetic_data(minos_file, subset_function, v, method=np.nanmean):
     if minos_data.shape[0]:
         subset_columns = ['pidp', "ZoneID",'time', 'hidp']
         if v == "QALYs":
-            subset_columns += ["SF_12_PCS", "SF_12", 'alive']
+            subset_columns += ["SF_12_PCS", "SF_12_MCS", 'alive']
         else:
             subset_columns.append(v)
         if "intervention_cost" in minos_data.columns:
@@ -372,7 +446,7 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
             total_minos_data = pd.concat([total_minos_data, subset_minos_data])
 
 
-        # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12 by lsoa.
+        # aggregate repeat minos runs again by LSOA to get grand mean change in SF_12_MCS by lsoa.
         total_minos_data = group_by_and_aggregate_longitudinal(total_minos_data, "ZoneID", v, method)
         total_minos_data = total_minos_data.loc[total_minos_data["time"] == int(year), ]
 
@@ -387,6 +461,12 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
     spatial_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data[v]))
     cost_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["intervention_cost"]))
     pop_size_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["pop_size"]))
+
+    if v == "QALYs":
+        variance_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["QALYs_var"]))
+        inequality_dict = defaultdict(int, zip(total_minos_data["ZoneID"], total_minos_data["QALYs_pareto_index"]))
+    else:
+        variance_dict, inequality_dict = None, None
 
     # Load in national LSOA geojson map data from ONS.
     # https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-super-generalised-clipped-bsc-ew-v3/about
@@ -409,7 +489,7 @@ def main(intervention, year, region, subset_function, is_synthetic_pop, v, metho
         json_data = subset_geojson(json_data, region_data["ZoneID"])
     else:
         json_data = subset_geojson(json_data, total_minos_data["ZoneID"])
-    json_data = edit_geojson(json_data, spatial_dict, cost_dict, pop_size_dict, v)
+    json_data = edit_geojson(json_data, spatial_dict, cost_dict, pop_size_dict, v, variance_dict, inequality_dict)
 
     # save updated geojson for use in map plots.
     print(f"GeoJSON {v} attribute added.")

@@ -95,21 +95,20 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   
   # take cost, variable, and imd.
   
-  
-  data <- data[, c("diff", "intervention_cost.y", "ZoneID", "pop_size.y")]
-  
+  data <- data[, c("diff", "intervention_cost.y", "ZoneID", "pop_size.y", "qaly_var.x", "qaly_pareto_index.x")]
+  colnames(data) <- c("diff", "intervention_cost", "ZoneID", "pop_size", "qaly_var", "qaly_pareto_index")
+    
   imd_data <- read.csv("persistent_data/spatial_data/UK_lsoa_imd.csv")
   colnames(imd_data) <- c("ZoneID", "IMD_Rank", "IMD_decile")
   data <- merge(data, imd_data, by="ZoneID")
   #browser()
   
-  data$intervention_cost_per_capita <- data$intervention_cost.y / data$pop_size.y
+  data$intervention_cost_per_capita <- data$intervention_cost / data$pop_size
   # lineplot cost and variable. colour by imd. 
   
   # other parametres and save.
   
   if(do_save == T){
-    browser()
     destination = strsplit(destination_file_name, "/")[[1]][1]
     file_name = strsplit(destination_file_name, "/")[[1]][2]
     extension <- "cost_vs_gain_by_lsoa_"
@@ -117,7 +116,7 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
     pdf(destination_file_name)
     #plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
     #plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
-    f <- ggplot(data, aes(x=intervention_cost.y, y=diff, color=factor(IMD_decile))) +
+    f <- ggplot(data, aes(x=intervention_cost, y=diff, color=factor(IMD_decile))) +
       geom_point() + geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
       labs(x="Intervention Cost", y="QALY Cumulative Gain", color="IMD Decile") + 
       annotate("text", x=800000, y=10, label = "<- Minimum Cost-Effectivess Line \n    According to the Green Book.", color = "black", hjust=0) +
@@ -132,12 +131,33 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   else {
     plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
   }
-  green_lsoas <- data[((data$intervention_cost.y/data$diff) <= 70000) * data$intervention_cost.y>1000, "ZoneID"]
+  green_lsoas <- data[((data$intervention_cost/data$diff) <= 70000) * data$intervention_cost>1000, "ZoneID"]
   write.csv(green_lsoas, paste0(destination_file_name, "green_lsoas.csv"))
   
-  expensive_non_green_lsoas <-  data[((data$intervention_cost.y/data$diff) > 70000) * data$intervention_cost.y>500000, "ZoneID"]
+  expensive_non_green_lsoas <-  data[((data$intervention_cost/data$diff) > 70000) * data$intervention_cost>500000, "ZoneID"]
   write.csv(expensive_non_green_lsoas, paste0(destination_file_name, "expensive_non_green_lsoas.csv"))
-}
+
+  # doing plot with uncertainty and inequality as well.
+  # qaly gain variance and pareto index for now. 
+  if(do_save == T){
+    destination = strsplit(destination_file_name, "/")[[1]][1]
+    file_name = strsplit(destination_file_name, "/")[[1]][2]
+    extension <- "uncertainty_vs_gain_by_lsoa_"
+    destination_file_name <- paste0(destination, "/", extension, file_name)
+    pdf(destination_file_name)
+    #plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
+    #plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+    f <- ggplot(data, aes(x=qaly_var, y=diff, color=qaly_pareto_index)) +
+      geom_point() + #+ geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
+      labs(x="QALY Uncertainty (Variance) ", y="QALY Cumulative Gain", color="QALY Inequality (Pareto Index)")
+    print(f)
+    #abline(a=1/30000, b=0)
+    dev.off()
+    print("saved uncertainty gain scatterplot to: ")
+    print(destination_file_name)
+  }
+  
+  }
 
 minos_map <- function(data, destination_file, v, do_save=T){
   # plot map of minos results from a geojson data.
@@ -503,6 +523,7 @@ main.diff <- function(geojson_file1, geojson_file2, destination_file_name, v){
   #data2 <- subset_geojson(data2, lsoa_subset_function)
   data1 <- geojson_to_tibble(data1)
   data2 <- geojson_to_tibble(data2)
+  
 
   #data1 <- calculate_diff(data1, data2, "SF_12")
   data1 <- calculate_relative_diff(data1, data2, v)

@@ -27,7 +27,7 @@ main <- function(){
   year <- args$year
   synth <- args$synth
   v <- args$var
-
+  # 
   # output_subdir <- "energy_manchester_scaled"
   # run <- "baseline"
   # intervention <- "EPCG"
