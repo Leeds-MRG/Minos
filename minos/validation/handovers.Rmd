@@ -1637,7 +1637,7 @@ prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'low_income_matdep_ch
 var <- prepped.list$var
 norm <- prepped.list$norm
 
-tit <- 'Material Deprivation Child'
+tit <- 'Low Income & Material Deprivation Child'
 
 # Now plot
 ggplot(data = var, mapping = aes(x = time, y = n, group = low_income_matdep_child, colour = low_income_matdep_child)) +
@@ -1663,6 +1663,71 @@ if (shall.we.save) {
 
 rm(prepped.list, var, norm, tit)
 
+```
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, low_income_matdep_child)
+base.s <- base.dat %>%
+  select(pidp, age, time, low_income_matdep_child)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'low_income_matdep_child',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
+```
+
+### Child Material Deprivation 
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'matdep_child')
+
+var <- prepped.list$var
+norm <- prepped.list$norm
+
+tit <- 'Material Deprivation Child'
+
+# Now plot
+ggplot(data = var, mapping = aes(x = time, y = n, group = matdep_child, colour = matdep_child)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit, subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = norm, mapping = aes(x = time, y = prct, fill=matdep_child)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = tit) +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'matdep_child.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, var, norm, tit)
+```
+
+```{r}
+raw.s <- raw.dat %>%
+  select(pidp, age, time, matdep_child)
+base.s <- base.dat %>%
+  select(pidp, age, time, matdep_child)
+
+spag <- rbind(raw.s, base.s)
+
+spaghetti_plot(spag, 'matdep_child',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.s, base.s, spag)
 ```
 
 ## Hourly Wage

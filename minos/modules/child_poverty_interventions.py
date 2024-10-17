@@ -2062,7 +2062,14 @@ class ChildPovertyReductionMatDep(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["hh_income", 'nkids', 'pidp', 'hidp', 'child_matdep', "income_boosted", "boost_amount"]
+        view_columns = ["hh_income",
+                        'nkids',
+                        'pidp',
+                        'hidp',
+                        "income_boosted",
+                        "boost_amount",
+                        'matdep_child',
+                        'low_income_matdep_child']
         columns_created = ['income_boosted_this_wave']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
@@ -2110,7 +2117,7 @@ class ChildPovertyReductionMatDep(Base):
 
         # Generate a few important populations to use for reporting / further work
         full_pop_hh_rep = full_pop.groupby('hidp').first().reset_index()  # single representative of each household
-        pov_pop_hh_rep = full_pop_hh_rep[full_pop_hh_rep['hh_income'] < absolute_pov_threshold]
+        pov_pop_hh_rep = full_pop_hh_rep[full_pop_hh_rep['low_income_matdep_child'] == 1]
         pov_pop_children_hh_rep = pov_pop_hh_rep[pov_pop_hh_rep['nkids'] > 0]
 
         # Number of children
@@ -2120,9 +2127,11 @@ class ChildPovertyReductionMatDep(Base):
         print(f"Number of children in the model: {num_kids}")
 
         print(
-            f"There are {len(pov_pop_hh_rep)}/{len(full_pop_hh_rep)} households in relative poverty, with {len(pov_pop_children_hh_rep)} containing children.")
+            f"There are {len(pov_pop_hh_rep)}/{len(full_pop_hh_rep)} households in in low income and child material "
+            f"deprivation, with {len(pov_pop_children_hh_rep)} containing children.")
         print(
-            f"This amounts to {num_kids_in_pov} children in poverty, which is {(num_kids_in_pov / num_kids) * 100}% of the total.")
+            f"This amounts to {num_kids_in_pov} children in low income and material deprivation, which is "
+            f"{(num_kids_in_pov / num_kids) * 100}% of the total.")
 
         # DO NOT reset the previous income_boosted for testing
         # We need to track people who have been intervened so we can continue the intervention indefinitely
@@ -2143,24 +2152,23 @@ class ChildPovertyReductionMatDep(Base):
         # target_pop = self.population_view.get(event.index,
         #                                       query=f"alive == 'alive' & nkids > 0 & hh_income < "
         #                                             f"{relative_poverty_threshold}")
-        target_pop = full_pop[(full_pop['nkids'] > 0) & (full_pop['hh_income'] < absolute_pov_threshold)]
+        target_pop = full_pop[(full_pop['nkids'] > 0) & (full_pop['low_income_matdep_child'] == 1)]
 
         # 3a. This is the SUSTAIN intervention, so we want to find the households that have previously received the
         # intervention (if any) and uplift them again. This is to simulate ongoing support for a set of families
-        target_pop['boost_amount'][(target_pop['income_boosted'] is True) &  # previously uplifted
-                                   (target_pop['hh_income'] < absolute_pov_threshold)] = (  # in poverty
-                absolute_pov_threshold - target_pop['hh_income'] + 1)  # boost is difference between income and threshold (+1 to guarantee above threshold)
+        target_pop['matdep_child'][(target_pop['income_boosted'] is True) &  # previously uplifted
+                                   (target_pop['low_income_matdep_child'] == 1)] = 1  # in poverty
 
         # boost amount should only be positive
-        target_pop[target_pop['boost_amount'] < 0]['boost_amount'] = 0
-        target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
+        #target_pop[target_pop['boost_amount'] < 0]['boost_amount'] = 0
+        #target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
 
         # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
         for index, row in target_pop.iterrows():
             pidp = row['pidp']
             if pidp in full_pop['pidp'].values:
-                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['hh_income']
-                full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
+                full_pop.loc[full_pop['pidp'] == pidp, 'matdep_child'] = row['matdep_child']
+                #full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
                 full_pop.loc[full_pop['pidp'] == pidp, 'income_boosted'] = row['income_boosted']
 
         #self.population_view.update(target_pop[['hh_income', 'boost_amount']])
@@ -2221,19 +2229,19 @@ class ChildPovertyReductionMatDep(Base):
         uplift_pop = target_pop[target_pop['hidp'].isin(target_hidps)]
 
         # boost is amount to take them above poverty threshold (+1 to guarantee above threshold and not equal to)
-        uplift_pop['boost_amount'] = absolute_pov_threshold - uplift_pop['hh_income'] + 1
+        uplift_pop['matdep_child'] = 0
         # assign income_boosted == True if previously True or uplifted in current wave
         uplift_pop['income_boosted'] = True
         uplift_pop['income_boosted_this_wave'] = True
-        uplift_pop['hh_income'] += uplift_pop['boost_amount']
+        #uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
         # 9. Update original population with uplifted values
         # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
         for index, row in uplift_pop.iterrows():
             pidp = row['pidp']
             if pidp in full_pop['pidp'].values:
-                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['hh_income']
-                full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
+                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['metdep_child']
+                #full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
                 full_pop.loc[full_pop['pidp'] == pidp, 'income_boosted'] = row['income_boosted']
 
         # Convert 'income_boosted' column back to boolean type
@@ -2243,7 +2251,7 @@ class ChildPovertyReductionMatDep(Base):
 
         # Generate a few important populations to use for reporting / further work
         full_pop_hh_rep = full_pop.groupby('hidp').first().reset_index()  # single representative of each household
-        pov_pop_hh_rep = full_pop_hh_rep[full_pop_hh_rep['hh_income'] < absolute_pov_threshold]
+        pov_pop_hh_rep = full_pop_hh_rep[full_pop_hh_rep['low_income_matdep_child'] == 1]
         pov_pop_children_hh_rep = pov_pop_hh_rep[pov_pop_hh_rep['nkids'] > 0]
 
         # Number of children

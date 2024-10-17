@@ -357,7 +357,7 @@ modDefFilename <- 'model_definitions_default.txt'
 transitionDir <- 'data/transitions/'
 mode <- 'default'
 
-default <- T
+#default <- T
 
 create.if.not.exists(transitionDir)
 
