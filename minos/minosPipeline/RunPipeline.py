@@ -40,6 +40,7 @@ from minos.modules.heating import Heating
 from minos.modules.financial_situation import FinancialSituation
 from minos.modules.behind_on_bills import BehindOnBills
 from minos.modules.material_deprivation import MaterialDeprivationChild
+from minos.modules.poverty_metrics import ChildPovertyMetrics
 
 from minos.modules.child_poverty_interventions import hhIncomeIntervention
 from minos.modules.child_poverty_interventions import hhIncomeChildUplift
@@ -115,6 +116,7 @@ components_map = {
     "JobSec()": JobSec(),
     "HourlyWage()": HourlyWage(),
     "MaterialDeprivationChild()": MaterialDeprivationChild(),
+    "ChildPovertyMetrics()": ChildPovertyMetrics(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff

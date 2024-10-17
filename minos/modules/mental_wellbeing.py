@@ -484,7 +484,8 @@ class lmmYJMWB(Base):
                         'SF_12',
                         'SF_12_diff',
                         'pidp',
-                        'hh_income'
+                        'hh_income',
+                        'matdep_child'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -1225,7 +1226,8 @@ class XGBMWB(Base):
                         'SF_12',
                         'SF_12_diff',
                         'pidp',
-                        'hh_income'
+                        'hh_income',
+                        'matdep_child'
                         ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
