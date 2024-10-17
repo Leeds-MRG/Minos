@@ -242,6 +242,7 @@ def type_check(data):
     data['financial_situation'] = data['financial_situation'].astype(int)
     data['behind_on_bills'] = data['behind_on_bills'].astype(int)
     data['boost_amount'] = data['boost_amount'].astype(float)
+    data['matdep_child'] = data['matdep_child'].astype(int)
 
     return data
 

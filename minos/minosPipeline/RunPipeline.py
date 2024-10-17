@@ -53,6 +53,7 @@ from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOL
 from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOLUTE_psub
 from minos.modules.child_poverty_interventions import ChildPovertyReduction
 from minos.modules.child_poverty_interventions import ChildPovertyReductionSUSTAIN
+from minos.modules.child_poverty_interventions import ChildPovertyReductionMatDep
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
@@ -143,6 +144,7 @@ intervention_components_map = {        #Interventions
     "ChildPovertyReductionABSOLUTE_psub": ChildPovertyReductionABSOLUTE_psub(),
     "ChildPovertyReduction": ChildPovertyReduction(),
     "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
+    "ChildPovertyReductionMatDep": ChildPovertyReductionMatDep(),
   
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),
@@ -324,6 +326,7 @@ def type_check(data):
     data['financial_situation'] = data['financial_situation'].astype(int)
     data['behind_on_bills'] = data['behind_on_bills'].astype(int)
     data['boost_amount'] = data['boost_amount'].astype(float)
+    data['matdep_child'] = data['matdep_child'].astype(int)
 
     return data
 
