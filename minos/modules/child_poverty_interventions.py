@@ -2495,7 +2495,7 @@ class ChildPovertyReductionMatDepIncome(Base):
         for index, row in uplift_pop.iterrows():
             pidp = row['pidp']
             if pidp in full_pop['pidp'].values:
-                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['metdep_child']
+                full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['matdep_child']
                 full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
                 full_pop.loc[full_pop['pidp'] == pidp, 'income_boosted'] = row['income_boosted']
 
