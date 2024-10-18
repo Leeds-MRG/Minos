@@ -187,7 +187,7 @@ run_yearly_models <- function(transitionDir_path,
       # dependent from T+1 (rename to 'next_{dependent}' soon)
       depen.df <- data %>% 
         filter(time == depend.year) %>% 
-        select(pidp, all_of(dependent))
+        dplyr::select(pidp, all_of(dependent)) # annoying mask of MASS::select
 
       # rename to next_{dependent}
       next.colnames <- c('pidp', paste0('next_', dependent))

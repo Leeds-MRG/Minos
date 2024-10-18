@@ -181,7 +181,7 @@ class lmmYJNetIncome(Base):
         newWavenetIncome["hh_income"] *= std_ratio
         newWavenetIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
         newWavenetIncome['hh_income'] = newWavenetIncome['hh_income'].clip(-2500, 15000)
-        newWavenetIncome['hh_income'] -= 400
+        #newWavenetIncome['hh_income'] -= 200
 
         newWavenetIncome['hh_income_diff'] = newWavenetIncome['hh_income'] - pop['hh_income']
         newWavenetIncome['FP10'] = ((newWavenetIncome['yearly_energy'] / (12*newWavenetIncome['net_hh_income'])) > 0.1)
@@ -208,7 +208,7 @@ class lmmYJNetIncome(Base):
                                                                           dependent='net_hh_income_new',
                                                                           yeo_johnson=True,
                                                                           reflect=False,
-                                                                          noise_std=0.35)  # 0.25 best so far.
+                                                                          noise_std=0.55)  # 0.25 best so far.
         # get new hh income diffs and update them into history_data.
         # self.update_history_dataframe(pop, self.year-1)
         # new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

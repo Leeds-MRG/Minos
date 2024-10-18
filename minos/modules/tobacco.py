@@ -96,14 +96,18 @@ class Tobacco(Base):
         self.year = event.time.year
 
         # Predict next tobacco value
-        newWaveTobacco = pd.DataFrame(self.calculate_tobacco(pop))
-        newWaveTobacco.columns = ['ncigs']
+        newWaveTobacco  = pd.DataFrame(self.calculate_tobacco_clm(pop))
+        newWaveTobacco["ncigs"] = self.random.choice(newWaveTobacco.index,
+                                                                list(5*newWaveTobacco.columns),
+                                                                newWaveTobacco ).astype(int)
+        #newWaveTobacco.columns = ['ncigs']
         newWaveTobacco.index = pop.index
+
 
         newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
-        newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
+        #newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 300)
         self.population_view.update(newWaveTobacco["ncigs"])
 
     def calculate_tobacco(self, pop):
@@ -135,6 +139,37 @@ class Tobacco(Base):
                                                             current=pop,
                                                             dependent='ncigs')
         return nextWaveTobacco
+
+    def calculate_tobacco_clm(self, pop):
+        """Calculate tobacco transition distribution based on provided people/indices
+
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        # load transition model based on year.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2020
+        else:
+            year = max(self.year, 2014)
+            year = min(year, 2020)
+
+        # if simulation goes beyond real data in 2020 dont load the transition model again.
+        if not self.transition_model or year <= 2020:
+            self.transition_model = r_utils.load_transitions(f"ncigs/clm/ncigs_{year}_{year + 1}", self.rpy2Modules, path=self.transition_dir)
+            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
+
+        # The calculation relies on the R predict method and the model that has already been specified
+        nextWaveTobacco = r_utils.predict_next_timestep_clm(model=self.transition_model,
+                                                            rpy2modules=self.rpy2Modules,
+                                                            current=pop,
+                                                            dependent='ncigs')
+        return nextWaveTobacco
+
 
     def plot(self, pop, config):
 
@@ -246,13 +281,16 @@ class lmmTobacco(Base):
         # Update population with new tobacco
         newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 50)
 
-        non_zero_ncigs = newWaveTobacco.loc[newWaveTobacco['ncigs']!=0, ]
-        non_zero_ncigs['ncigs'] *= 1.05
-        non_zero_ncigs['ncigs'] = 5 * (np.ceil((non_zero_ncigs['ncigs'] / 5))) # change from np.round
+
+        non_zero_ncigs = newWaveTobacco.loc[newWaveTobacco['ncigs']!=0, "ncigs"]
+
+        #non_zero_ncigs['ncigs'] *= 1.05
+        #non_zero_ncigs['ncigs'] = 5 * (np.ceil((non_zero_ncigs['ncigs'] / 5))) # change from np.round
 
         tobacco_mean = np.mean(non_zero_ncigs["ncigs"])
-        #std_ratio = (np.std(pop.loc[pop['ncigs']>0, 'ncigs'])/np.std(non_zero_ncigs['ncigs']))*0.85
-        #non_zero_ncigs["ncigs"] *= std_ratio
+        std_ratio = (np.std(pop.loc[pop['ncigs']>0, 'ncigs'])/np.std(non_zero_ncigs['ncigs']))*0.85
+        non_zero_ncigs["ncigs"] *= std_ratio * 1.1
+
         #non_zero_ncigs["ncigs"] -= ((std_ratio-1)*tobacco_mean)
         #non_zero_ncigs['ncigs'] -= np.min(non_zero_ncigs['ncigs'])
         #non_zero_ncigs['ncigs'] = non_zero_ncigs['ncigs'].clip(lower=0)
@@ -262,7 +300,7 @@ class lmmTobacco(Base):
         # UNHASH THIS IF SCALING FAILS.
         #non_zero_ncigs.loc[non_zero_ncigs['ncigs'] == 0, 'ncigs'] += 5
 
-        newWaveTobacco.loc[newWaveTobacco['ncigs']>0, 'ncigs'] = non_zero_ncigs['ncigs']
+        newWaveTobacco.loc[newWaveTobacco['ncigs']>0, 'ncigs'] = non_zero_ncigs
 
         #newWaveTobacco['ncigs'] *= 1.1
         newWaveTobacco["ncigs"] = np.round(newWaveTobacco["ncigs"]).astype(int)
@@ -292,7 +330,7 @@ class lmmTobacco(Base):
                                                                   rpy2Modules= self.rpy2Modules,
                                                                   current=pop,
                                                                   dependent='ncigs_new',
-                                                                  noise_std=0.20)
+                                                                  noise_std=0.25)
         return nextWaveTobacco
 
     def plot(self, pop, config):

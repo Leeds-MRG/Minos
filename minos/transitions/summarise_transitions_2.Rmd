@@ -1,0 +1,623 @@
+---
+title: "MINOS Transition Models"
+output: html_notebook
+---
+
+# Setup
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+require(ordinal)
+require(nnet)
+require(pscl)
+
+workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r "paths", include=FALSE}
+trans.path <- 'data/transitions/'
+```
+
+```{r "data", include=FALSE}
+dataDir <- 'data/final_US/'
+
+# Load input data
+filelist <- list.files(dataDir, 
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')
+#filelist <- paste0(dataDir, filelist)
+data <- do.call(rbind, lapply(filelist, read.csv))
+```
+
+
+## Read Models
+```{r "models"}
+
+#testing.hh_income <- readRDS(paste0(trans.path, 'test/', 'hh_income/ols/hh_income_2018_2019.rds'))
+
+# Transitions models
+#hh_income <- readRDS(paste0(trans.path, 'hh_income/ols/hh_income_2018_2019.rds'))
+#housing <- readRDS(paste0(trans.path, 'housing_quality/clm/housing_quality_2018_2019.rds'))
+loneliness <- readRDS(paste0(trans.path, 'loneliness/clm/loneliness_2018_2019.rds'))
+#mwb <- readRDS(paste0(trans.path, 'SF_12_MCS/ols/SF_12_MCS_2018_2019.rds'))
+#mwb2 <- readRDS(paste0(trans.path, 'SF_12_MCS/ols/SF_12_MCS_2017_2018.rds'))
+#mwb3 <- readRDS(paste0(trans.path, 'SF_12_MCS/ols/SF_12_MCS_2014_2015.rds'))
+#pcs <- readRDS(paste0(trans.path, 'SF_12_PCS/ols/SF_12_PCS_2017_2018.rds'))
+#neighbourhood <- readRDS(paste0(trans.path, 'neighbourhood_safety/clm/neighbourhood_safety_2017_2020.rds'))
+#nutrition <- readRDS(paste0(trans.path, 'nutrition_quality/ols/nutrition_quality_2018_2019.rds'))
+#tobacco <- readRDS(paste0(trans.path, 'ncigs/zip/ncigs_2018_2019.rds'))
+
+# Education
+#education <- readRDS(paste0(trans.path, '../education/nnet/educ_nnet_2018_2019.rds'))
+#education <- readRDS(paste0(trans.path, 'education_state/nnet/education_state_2018_2019.rds'))
+```
+
+## Predictor Variables
+
+### Job Sec
+
+This is the job NSSEC codes for those in employment:
+
+1. Large employers and higher management
+2. Higher professional
+3. Lower management and professional
+4. Intermediate
+5. Small employers and own account
+6. Lower supervisory and technical
+7. Semi-routine
+8. Routine
+
+Where included in a transitions model, the reference level for job sec is 3. Lower management and professional. This is the most common NSSEC and also conceptually relatively easy to compare. See [jbnssec8_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbnssec8_dv) for more information.
+
+At present, Job Sec is NOT transitioned through the model and instead held constant. This will change in the near future.
+
+### Job Sector
+
+This variable holds information on whether a respondent is employed in the public or private sector (more specifically private vs non-private - see [jbsect](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/jbsect)).
+
+Values are:
+1. Private firm or business, a limited company
+2. Other type of organisation
+
+The reference value chosen was 1. private firm or business, because this was the most common value of the two.
+
+At present, Job Sector is NOT transitioned through the model and instead held constant. This will change in the near future.
+
+### Household Composition
+
+`hh_comp` refers to household composition (number of adults, children etc.) and is derived from a US variable - [hhtype_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hhtype_dv).
+
+We have collapsed the ~18 level `hhtype_dv` variable into 4 levels:
+1. Single adult no kids
+2. Single adult 1+ kids
+3. Multiple adults no kids
+4. Multiple adults 1+ kids
+
+At present, Household Composition is NOT transitioned through the model and instead held constant. This will change in the near future.
+
+### Marital Status
+
+Marital status is derived from a US variable - [mastat_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/mastat_dv).
+
+
+
+### Physical Health
+
+`phealth` is a proxy variable for physical health. It is continuous score derived from SF-12 questions that focus on physical health (care was taken to not include anything that could be related directly to mental wellbeing). Variables included are:
+- [Physical health limits moderate activities](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf2a)
+- [Physical health limits several flights of stairs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf2b)
+- [Physical health limits amount of work](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf3a)
+- [Physical health limits kind of work](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf3b)
+- [Pain interfered with work](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/scsf5)
+
+Each of these questions is answered from 1-3 or 1-5 with levels such as 'None of the time' or 'Some of the time'. We summed the responses to these questions, and divided them by the number of questions answered to get a summary score from 1-5.
+
+NOTE: `phealth` is currently only used in the predictive model for SF_12_MCS, and is planned to be replaced with a proxy based on the General Health Questionnaire (GHQ) to avoid any crossover with SF_12 Physical Component Score. At the same time, an `mhealth` proxy will be derived from the GHQ also to be part of the SF_12_PCS predictive model.
+
+# Analysis
+
+## Household Income
+
+Household income is calculated as:
+
+> hh_income = (net_monthly_income - monthly_outgoings) / oecd_equivalence__factor_scale
+
+- [net_monthly_income](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fihhmnnet1_dv)
+- monthly_outgoings is the sum of [rent](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rentgrs_dv), [mortgage](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xpmg_dv), and [council tax](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ficountax_dv).
+- [oecd_equivalence_scale](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ieqmoecd_dv)
+
+```{r "income_plot", echo=FALSE}
+income.dat <- data %>% 
+  group_by(hh_income)
+income.plot <- ggplot(income.dat, aes(x = hh_income)) +
+  geom_histogram()
+income.plot.core <- ggplot(filter(income.dat, hh_income > -2000, hh_income < 10000), aes(x = hh_income)) +
+  geom_histogram()
+```
+
+```{r}
+income.plot # Income has huge spread (-£88k to £330k) so hard to see without limiting
+income.plot.core # Limited from -£2000 to £10000 (vast majority of records lie in this range)
+```
+
+In MINOS, `hh_income` is estimated with an Ordinary Least Squares (OLS) regression model with the following formula:
+
+> hh_income ~ age + hh_income + sex + ethnicity + region + education_state + job_sec + job_sector
+
+```{r}
+summary(hh_income)
+```
+```{r}
+anova(hh_income, test = 'Chisq')
+```
+
+## Housing
+
+Our definition of housing quality is taken straight from the calculations of SIPHER 7 domains:
+
+From SIPHER 7, housing quality depends on:
+> Your home is in a reasonable state of repair, has reasonable facilities (cooking/washing) and provides reasonable warmth
+
+6 variables from Understanding Society were chosen to collectively represent housing quality:
+- [fridge freezer](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cduse5)
+- [washing machine](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cduse6)
+- [tumble dryer](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cduse7)
+- [dishwasher](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cduse8)
+- [microwave](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/cduse9)
+- [adequate heating](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/hheat)
+
+These variables are then categorised into a 'core' set and a 'bonus' set.
+
+Core:
+
+- Fridge Freezer
+- Washing Machine
+- Adequate Heating
+
+Bonus:
+
+- Tumble Dryer
+- Dishwasher
+- Microwave
+
+A 3 level composite variable is then created based on the presence of core and bonus variables:
+
+1. Missing 1+ core variables
+2. All core variables present and some bonus
+3. All core and all bonus variables present
+
+```{r "housing_plot", echo=FALSE}
+housing.dat <- data %>% 
+  group_by(housing_quality) %>%
+  summarise(counts = n())
+house.plot <- ggplot(housing.dat, aes(x = housing_quality, y = counts)) +
+  geom_bar(fill = "#0073C2FF", stat = "identity") +
+  geom_text(aes(label = counts), vjust = -0.3) +
+  xlab('Housing Quality') +
+  ylab('Frequency')
+
+#print(house.plot)
+```
+
+
+```{r}
+house.plot
+```
+
+
+We estimate a Cumulative Link Model (CLM) using this formula:
+
+> housing_quality ~ age + sex + SF_12 + ethnicity + hh_income
+
+```{r}
+summary(housing)
+```
+### Significance
+```{r}
+anova(housing)
+#drop1(housing, test = 'Chisq')
+```
+
+
+## Loneliness
+
+A score for loneliness is taken directly from a US variable - [sclonely](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely). The questions used to output levels of loneliness in Understanding Society come from the Government Statistical Service (GSS) harmonised principle of loneliness. This means the outputs are comparable with other surveys that use this principle. The GSS has a [guidance page](https://analysisfunction.civilservice.gov.uk/policy-store/loneliness-indicators/) which may be useful to understand what other data can and cannot be compared with this output.
+The `sclonely` variable is only available in waves 9,10,11 (and now 12), and is an ordinal variable with 3 levels:
+1 - Hardly ever or never
+2 - Some of the time
+3 - Often
+
+To predict loneliness, we estimate a CLM model with the formula:
+
+> loneliness ~ age + sex + SF_12 + education_state + job_sec + hh_income + hh_comp + marital_status + ethnicity
+
+See above for details on [job_sec](#Job-Sec), [hh_comp](#Household-Composition), and [marital_status](#Marital-Status).
+
+```{r}
+summary(loneliness)
+```
+
+### Significance
+```{r}
+anova(loneliness)
+```
+
+### Modifications and Justification
+
+Loneliness has been [linked with educational attainment](https://www.tandfonline.com/doi/full/10.1080/03601270701569275?casa_token=3vV_r99mb0QAAAAA%3ACK8Wogj5cs5CQm8gZfLKuHJtctkCyGX_i2y4CLyDgAhsReGB1s7QrV1I0qul-6Gw75QBcY93WoWuWA). Higher educational attainment has been linked with lower levels of stress and neuroticism, of which both have been linked with loneliness (more neuroticism/stress linked to more loneliness).
+
+Loneliness has been [linked with ethnicity](https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020-09208-0).
+> The association between ethnicity and loneliness was stronger among young and early middle-aged adults, compared to late middle-aged adults.
+
+## Mental Wellbeing
+
+The current main outcome of interest is the mental wellbeing of a respondent, measured by SF-12 MCS summary scores and taken directly from a US variable ([sf12mcs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sf12mcs_dv)).
+
+```{r "SF12_MCS_plot", echo=FALSE}
+sf12.m.dat <- data %>% 
+  group_by(SF_12_MCS) %>%
+  filter(SF_12_MCS > 0)
+sf12.m.plot <- ggplot(sf12.m.dat, aes(x = SF_12_MCS)) +
+  geom_histogram()
+```
+
+```{r}
+sf12.m.plot
+```
+
+
+We use an OLS regression model with the formula:
+
+> SF_12_MCS ~ age + sex + ethnicity + hh_income + housing_quality + phealth + neighbourhood_safety + ncigs + loneliness + nutrition_quality + SF_12_MCS
+
+See other sections for information on [phealth](#Physical-Health), [neighbourhood_safety](#Neighbourhood-Safety), [loneliness](#Loneliness), and [nutrition_quality](#Nutrition-Quality)
+
+```{r}
+print('2017-2018')
+summary(mwb2)
+```
+
+Reference factors:
+- Gender :            Female
+- Ethnicity :         Bangladesh
+- Education_state :   0 (none of the above - no qualification?)
+- Labour_state :      Employed
+- Housing_quality :   1 (None of the indicators of good housing quality - tumble dryer, sufficient heating, fridge freezer, microwave, washing machine)
+
+## Physical Wellbeing
+
+A relatively new addition to the model is the physical wellbeing module, based on the SF_12 Physical Component Score (PCS). SF_12_PCS scores are taken directly from the US variable ([sf12pcs]https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sf12pcs_dv).
+
+The current main outcome of interest is the mental wellbeing of a respondent, measured by SF-12 MCS summary scores and taken directly from a US variable ([sf12mcs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sf12mcs_dv)).
+
+```{r "SF12_PCS_plot", echo=FALSE}
+sf12.p.dat <- data %>% 
+  group_by(SF_12_PCS) %>%
+  filter(SF_12_PCS > 0)
+sf12.p.plot <- ggplot(sf12.p.dat, aes(x = SF_12_PCS)) +
+  geom_histogram()
+```
+
+```{r}
+sf12.p.plot
+```
+
+We use an OLS regression model with the formula:
+
+> SF_12_PCS ~ age + sex + ethnicity + hh_income + housing_quality + neighbourhood_safety + ncigs + loneliness + nutrition_quality + SF_12_PCS
+
+See other sections for information on [neighbourhood_safety](#Neighbourhood-Safety), [loneliness](#Loneliness), and [nutrition_quality](#Nutrition-Quality)
+
+```{r}
+print('2017-2018')
+summary(pcs)
+```
+
+## Neighbourhood Safety
+
+Neighbourhood Safety is a composite derived from 7 questions related to different facets of safety in the neighbourhood.
+
+They are:
+- burglaries
+- car crime
+- drunks
+- muggings
+- racial abuse
+- teenager issues
+- vandalism issues
+
+Each respondent is asked if they are concerned with these issues in their neighbourhood, and response with 1 of:
+> 1) Hardly ever / 2) some of the time / 3) often
+
+We then assign people into three categories:
+1. Response to all crime questions is “not at all common” (very safe neighbourhood). Justification is that if you
+    perceive no threat at all this is the best possible state.
+2. Responds to 1+ question as “not very common” but no responses to ‘fairly or very common’ (safe neighbourhood).
+    Justification is that on the whole these people probably feel safe but not all is perfect, so probably not
+    quite as desirable as group 1.
+3. Responds to 1+ question as fairly or very common’ (not safe). Justification is that if perception of crime is
+    very or fairly common, no matter what category, you are likely to feel that your neighbourhood safety is
+    compromised.
+    
+The distribution of this variable is shown below:
+```{r "neighbourhood_plot", echo=FALSE}
+neigh.dat <- data %>% 
+  group_by(neighbourhood_safety) %>%
+  filter(neighbourhood_safety > 0) %>%
+  summarise(counts = n())
+neigh.plot <- ggplot(neigh.dat, aes(x = neighbourhood_safety, y = counts)) +
+  geom_bar(fill = "#0073C2FF", stat = "identity") +
+  geom_text(aes(label = counts), vjust = -0.3) +
+  xlab('Neighbourhood Safety') +
+  ylab('Frequency')
+
+#print(house.plot)
+```
+
+
+```{r}
+neigh.plot
+```
+
+
+We estimate a Cumulative Link Model (CLM) using this formula:
+
+> neighbourhood_safety ~ age + sex + job_sec + ethnicity + hh_income + housing_quality + region
+
+**neighbourhood safety is only estimated for 2011-2014 and 2014-2017 due to data issues (questions only asked every 3 waves)**
+
+```{r}
+summary(neighbourhood)
+```
+
+### Significance
+```{r}
+anova(neighbourhood)
+```
+
+## Nutrition
+
+Nutrition was a tricky model, due to data issues (or lack of it). We generated a composite of nutrition quality based on the frequency and amount of fruit and vegetable consumption.
+
+We generated a proxy variable using:
+
+> nutrition_quality = (vegetable_freq * veg_per_day) + (fruit_freq * fruit_per_day)
+
+Both [fruit](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkfruit) and [vegetable](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkvege) consumption frequency was measured in days per week, and reported as:
+1 - Never
+2 - 1-3 days
+3 - 4-6 days
+4 - every day
+
+The amount of [fruit](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fruitamt) and [veg](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vegeamt) per day was a continuous variable, indicating the number of portions of fruit or veg eaten on an average day when the respondent eats fruit or veg.
+
+The nutrition_quality composite variable is a continuous variable, where higher values indicate better quality nutrition.
+
+```{r "nutrition_plot", echo=FALSE}
+nut.dat <- data %>% 
+  group_by(nutrition_quality) %>%
+  filter(nutrition_quality >= 0)
+nut.plot <- ggplot(nut.dat, aes(x = nutrition_quality)) +
+  geom_histogram()
+```
+
+
+```{r}
+nut.plot
+```
+
+We estimate an OLS model using this formula:
+
+> nutrition_quality ~ age + sex + education_state + ethnicity + hh_income + ncigs
+
+```{r}
+summary(nutrition)
+```
+
+### Significance
+```{r}
+anova(nutrition)
+```
+
+
+## Tobacco
+
+Tobacco consumption is measured in the usual number of cigarettes smoked per day, and is taken directly from a US variable ([ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs)).
+
+```{r "ncigs_plots", echo=FALSE}
+ncigs.dat <- data %>% 
+  group_by(ncigs) %>%
+  filter(ncigs >= 0)
+
+ncigs.dat.smok <- ncigs.dat %>%
+  filter(ncigs > 0)
+
+ncigs.plot <- ggplot(ncigs.dat, aes(x = ncigs)) +
+  geom_histogram()
+
+ncigs.plot.smok <- ggplot(ncigs.dat.smok, aes(x = ncigs)) +
+  geom_histogram()
+```
+
+```{r}
+ncigs.plot
+```
+
+The vast majority of the population are non-smokers, but looking at the same plot with non-smokers removed:
+
+```{r}
+ncigs.plot.smok
+```
+
+
+To predict ncigs, we estimated a zero inflated poisson model with the formula:
+
+> ncigs ~ age + sex + education_state + job_sec + ethnicity + hh_income + SF_12 | ethnicity + job_sec + hh_income + SF_12
+
+ZIP : ncigs ~ age + factor(sex) + relevel(factor(education_state), ref = '3') + SF_12 + relevel(factor(job_sec), ref = '3') + hh_income + relevel(factor(ethnicity), ref = 'WBI') | relevel(factor(ethnicity), ref = 'WBI') + relevel(factor(job_sec), ref = '3') + hh_income + SF_12
+
+The formula here is in two parts. The variables defined AFTER the pipe symbol ( | ) are used to predict if a respondent smokes, and the variables defined BEFORE the pipe symbol are used to predict the number of cigarettes smoked if required.
+
+```{r}
+summary(tobacco)
+```
+### Modifications and Justification
+
+#### Ethnicity
+Justification for using ethnicity to predict smoking: [Bhopal et al.](https://www.bmj.com/content/328/7431/76.short). 
+This review found differences in cigarette consumption between many ethnic minority groups. 
+
+#### NS-SEC
+Justification for job_sec (NSSEC) to predict smoking: [Hiscock et al. (2014)](https://academic.oup.com/jpubhealth/article/34/3/390/1560637?login=false).
+Paper links socioeconomic status and smoking in England. NS-SEC was 1 of 7 measures of SES used to classify individuals (routine or manual occupation was +1 in an SES score from 0-7).
+
+Also [Aspinall and Mitton (2014)](https://www.sciencedirect.com/science/article/pii/S0033350613004228)
+ > There was a clear social class (NS-SEC) gradient in smoking prevalence for ‘White British’ and ‘Other White’ males and females ([Fig. 1](https://www.sciencedirect.com/science/article/pii/S0033350613004228#fig1)). There was also a gradient, less regular partly because of small numbers, in the ‘White and Black Caribbean’ and ‘White and Black African’ groups. This was much less perceptible in the ‘White and Asian’ group. In the Indian, Pakistani and Bangladeshi groups, the gradient was either much more muted or entirely absent. There was some evidence of a gradient in the black groups but a much stronger gradient in the Chinese group, commensurate with that seen in the White groups.
+
+
+## Education
+
+Estimating education is at present a bit of a special case. It is only applied in preparation of the replenishing population of 16 year olds, to predict the highest level of education they will achieve in the model. As such, only immutable variables can be used as predictors.
+
+Education is categorised into 7 levels, where each level can include multiple qualifications at a similar level:
+
+0 - None of the above (no qualification)
+1 - Other school certification
+2 - GCSE/O level
+2 - Standard/O/lower
+2 - CSE
+3 - AS level
+3 - A level
+3 - International Baccalaureate
+3 - Welsh Baccalaureate
+3 - Scottish Highers
+3 - Cert. 6th year studies
+5 - Nursing/other med qua
+5 - Diploma in HE
+6 - Teaching qual not PGCE
+6 - 1st degree or equivalent
+7 - Higher degree
+7 - Other higher degree
+  
+(Level 4 is not present in Understanding Society data).
+
+```{r "educ_plot", echo=FALSE}
+educ.dat <- data %>% 
+  group_by(education_state) %>%
+  summarise(counts = n())
+educ.plot <- ggplot(educ.dat, aes(x = education_state, y = counts)) +
+  geom_bar(fill = "#0073C2FF", stat = "identity") +
+  geom_text(aes(label = counts), vjust = -0.3) +
+  xlab('Education State') +
+  ylab('Frequency')
+
+#print(house.plot)
+```
+
+
+```{r}
+educ.plot
+```
+
+We estimate future education state with a Multinomial Logistic Regression model, with the formula:
+
+> education_state ~ sex + ethnicity + region
+
+```{r}
+coef(education)
+```
+
+# DEFUNKT
+
+## Alcohol
+
+**THIS MODEL AND ITS EFFECTS HAVE BEEN REMOVED FROM MINOS**
+The links between alcohol and SF-12 are not as clear as previously imagined, and with the difficulty in fitting an alcohol model and the complexity it adds we have decided to remove it.
+
+OLD MODEL DEFINITION STRING:
+ZIP : alcohol_spending ~ age + factor(sex) + scale(SF_12) + relevel(factor(labour_state), ref = "Employed") + factor(job_sec) + relevel(factor(ethnicity), ref = "WBI") + scale(hh_income) | relevel(factor(ethnicity), ref = "WBI") + relevel(factor(labour_state), ref = "Employed") + age + scale(SF_12)
+
+Alcohol consumption is measured by a respondents total household weekly spend on alcohol, from this US variable ([xpaltob_g3 ](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xpaltob_g3)).
+
+Alcohol spending is estimated using a zero inflated poisson model, with the formula:
+
+> alcohol_spending ~ age + sex + SF_12 + labour_state + job_sec + ethnicity + hh_income | ethnicity + labour_state + age + SF_12
+
+```{r}
+alcohol <- readRDS(paste0(trans.path, 'alcohol_spending/alcohol_spending_2018_2019.rds'))
+summary(alcohol)
+```
+
+## Labour
+
+**THIS MODEL AND ITS EFFECTS HAVE BEEN REMOVED FROM THE MODEL**
+Labour state is a very complicated subject with the information we have access to, and we decided that because it is not a pathway to SF-12 MCS as defined by SIPHER, we can safely ignore it and assume that the labour state dynamics will be captured in some way by hh_income model. If this is not satisfactory, we can come back to this module as its all still saved.
+
+OLD MODEL DEFINITION STRING:
+NNET : labour_state ~ age + factor(sex) + relevel(factor(ethnicity), ref = "WBI") + relevel(factor(education_state), ref = "3") + scale(SF_12) + factor(housing_quality) + relevel(factor(labour_state), ref = "Employed") + factor(job_sec) + scale(hh_income) + scale(alcohol_spending)
+
+Labour state is an ordinal variable with 10 levels, relating to the type of employment:
+
+1 - Self-employed
+2 - Employed
+3 - Unemployed
+4 - Retired
+5 - Maternity Leave
+6 - Family care
+7 - Full time student, school
+8 - Long term sick, disabled
+9 - Government training scheme
+10 - Other
+
+We estimate next labour state with a multinomial logistic regression model, with the formula:
+
+> labour_state ~ age + sex + ethnicity + education_state + SF_12 + housing_quality + labour_state + job_sec + hh_income + alcohol_spending
+
+```{r}
+#labour <- readRDS(paste0(trans.path, '../labour/nnet/labour_nnet_2018_2019.rds'))
+labour <- readRDS(paste0(trans.path, 'labour_state/labour_state_2018_2019.rds'))
+summary(labour)
+```
+
+```{r}
+#summary(labour)$coefficients
+```
+
+
+
+
+```{r}
+
+```
+
+
+EXPLAIN RESPONSE VARIABLE
+EXPLAIN MODEL PREDICTORS AND JUSTIFY
+EXPLAIN MODEL STRUCTURE
+INCLUDING GOODNESS OF FIT PLOTS AND STATISTICS.
+
+## Energy Poverty Additional Pathways
+
+### net income
+
+### mortgage, rent, council tax, oecd
+
+### yearly energy. four constituent components. 
+
+### heating
+
+### behind on bills
+
+### financial situation
+
+
+
+### housing tenure (is this transitinoed?)
+
+
+

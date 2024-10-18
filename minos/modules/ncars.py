@@ -65,7 +65,8 @@ class nCars(Base):
                         "ncars",
                         "S7_labour_state",
                         'pidp',
-                        'hidp'
+                        'hidp',
+                        'yearly_energy'
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -78,8 +79,12 @@ class nCars(Base):
         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
         # individual graduate in an education module.
         builder.event.register_listener("time_step", self.on_time_step, priority=6)
-        self.transition_model = r_utils.load_transitions(f"ncars/zip/ncars_2020_2021", self.rpy2Modules, path=self.transition_dir)
-        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "zip")
+        #self.transition_model = r_utils.load_transitions(f"ncars/zip/ncars_2020_2021", self.rpy2Modules, path=self.transition_dir)
+        #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "zip")
+
+
+        self.transition_model = r_utils.load_transitions(f"ncars/clm/ncars_2020_2021", self.rpy2Modules, path=self.transition_dir)
+        self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "clm")
 
         #self.transition_model = r_utils.load_transitions(f"ncars/mzip/ncars_new_MZIP", self.rpy2Modules, path=self.transition_dir)
         #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "mixed_zip")
@@ -103,27 +108,37 @@ class nCars(Base):
         print(f"before ncars: {np.mean(pop['ncars'])}")
 
         # Predict next tobacco value
-        newWaveNCars = pd.DataFrame(self.calculate_n_cars_zip(pop))
-        newWaveNCars.columns = ['ncars']
+        newWaveNCars = pd.DataFrame(self.calculate_n_cars_clm(pop))
+        newWaveNCars["ncars"] = self.random.choice(newWaveNCars.index,
+                                                                list(newWaveNCars.columns),
+                                                                newWaveNCars).astype(int)
         newWaveNCars.index = pop.index
 
-        non_zero_ncars = newWaveNCars.loc[newWaveNCars['ncars']>0, ]
-        ncars_mean = np.mean(non_zero_ncars["ncars"])
-        std_ratio = (np.std(pop.loc[pop['ncars']>0, 'ncars'])/np.std(non_zero_ncars['ncars']))
+        #non_zero_ncars = newWaveNCars.loc[newWaveNCars['ncars']>0, ]
+        #ncars_mean = np.mean(non_zero_ncars["ncars"])
+        #std_ratio = (np.std(pop.loc[pop['ncars']>0, 'ncars'])/np.std(non_zero_ncars['ncars']))
+
+        # scaling for mzip model
+        """
         #non_zero_ncars["ncars"] *= std_ratio
         #non_zero_ncars["ncars"] -= ((std_ratio-1)*ncars_mean)
         non_zero_ncars['ncars'] += 0.105 #0.175
         newWaveNCars.loc[newWaveNCars['ncars']>0, 'ncars'] = non_zero_ncars['ncars']
+        """
 
-        newWaveNCars['ncars'] = newWaveNCars['ncars'].clip(0, 10)
+        #non_zero_ncars["ncars"] *= std_ratio
+        #non_zero_ncars["ncars"] -= ((std_ratio-1)*ncars_mean) * 1.2
+        #non_zero_ncars['ncars'] -= 0.105 #0.175
+        #newWaveNCars.loc[newWaveNCars['ncars']>0, 'ncars'] = non_zero_ncars['ncars']
+
         newWaveNCars['hidp'] = pop['hidp']
-        newWaveNCars['ncars'] = newWaveNCars.groupby(by=['hidp'])['ncars'].transform('max')
-        newWaveNCars['ncars'] = np.round(newWaveNCars['ncars']).astype(int) # switch back to ints. viv column takes float though..
+        newWaveNCars['ncars'] = newWaveNCars.groupby(by=['hidp'])['ncars'].transform('median')
+        newWaveNCars['ncars'] = newWaveNCars['ncars'].astype(int) # switch back to ints. viv column takes float though..
         #newWaveNCars['ncars'] = newWaveNCars['ncars'].astype(float)
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new tobacco
-        print(f"ncars: {np.mean(newWaveNCars['ncars'])}")
+        print(f"mean ncars: {np.mean(newWaveNCars['ncars'])}")
         self.population_view.update(newWaveNCars["ncars"])
 
     def calculate_n_cars_zip(self, pop):
@@ -155,6 +170,36 @@ class nCars(Base):
                                                           dependent='ncars_new',
                                                           noise_std=0.25)
         return nextWaveNCars
+
+    def calculate_n_cars_clm(self, pop):
+        """Calculate tobacco transition distribution based on provided people/indices
+
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+        # load transition model based on year.
+        if self.cross_validation:
+            # if cross-val, fix year to final year model
+            year = 2020
+        else:
+            year = max(self.year, 2014)
+            year = min(year, 2020)
+
+        # The calculation relies on the R predict method and the model that has already been specified
+        # nextWaveNCars = r_utils.predict_next_timestep_zip(model=transition_model,
+        #                                                     rpy2Modules= self.rpy2Modules,
+        #                                                     current=pop,
+        #                                                     dependent='ncars_next')
+        nextWaveNCars = r_utils.predict_next_timestep_clm(model=self.transition_model,
+                                                          rpy2modules= self.rpy2Modules,
+                                                          current=pop,
+                                                          dependent='ncars_new')
+        return nextWaveNCars
+
 
     def calculate_n_cars_mzip(self, pop):
         """Calculate tobacco transition distribution based on provided people/indices
