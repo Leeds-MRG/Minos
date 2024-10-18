@@ -54,6 +54,7 @@ from minos.modules.child_poverty_interventions import ChildPovertyReductionABSOL
 from minos.modules.child_poverty_interventions import ChildPovertyReduction
 from minos.modules.child_poverty_interventions import ChildPovertyReductionSUSTAIN
 from minos.modules.child_poverty_interventions import ChildPovertyReductionMatDep
+from minos.modules.child_poverty_interventions import ChildPovertyReductionMatDepIncome
 from minos.modules.living_wage_interventions import livingWageIntervention
 from minos.modules.energy_interventions import energyDownlift, energyDownliftNoSupport
 from minos.modules.energy_interventions import GBIS,goodHeatingDummy,fossilFuelReplacementScheme
@@ -145,6 +146,7 @@ intervention_components_map = {        #Interventions
     "ChildPovertyReduction": ChildPovertyReduction(),
     "ChildPovertyReductionSUSTAIN": ChildPovertyReductionSUSTAIN(),
     "ChildPovertyReductionMatDep": ChildPovertyReductionMatDep(),
+    "ChildPovertyReductionMatDepIncome": ChildPovertyReductionMatDepIncome(),
   
     "GBIS": GBIS(),
     "goodHeatingDummy": goodHeatingDummy(),

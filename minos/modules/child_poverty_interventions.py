@@ -2417,9 +2417,10 @@ class ChildPovertyReductionMatDepIncome(Base):
                                    (target_pop['low_income_matdep_child'] == 1)] = (  # income below threshold
                 income_threshold - full_pop['hh_income'] + 1)  # boost amount is difference to threshold
 
-        # boost amount should only be positive
-        #target_pop[target_pop['boost_amount'] < 0]['boost_amount'] = 0
-        #target_pop['hh_income'] = target_pop['hh_income'] + target_pop['boost_amount']  # apply the boost
+        # boost_amount must be positive
+        target_pop[target_pop['boost_amount'] < 0]['boost_amount'] = 0.
+
+        # TODO: Add noise with scipy.stats.truncnorm
 
         # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
         for index, row in target_pop.iterrows():
@@ -2481,10 +2482,13 @@ class ChildPovertyReductionMatDepIncome(Base):
 
         # boost is amount to take them above poverty threshold (+1 to guarantee above threshold and not equal to)
         uplift_pop['matdep_child'] = 0
+        uplift_pop['boost_amount'] = (income_threshold - uplift_pop['hh_income']) + 1
+        # boost_amount must be positive
+        uplift_pop[uplift_pop['boost_amount'] < 0]['boost_amount'] = 0.
         # assign income_boosted == True if previously True or uplifted in current wave
         uplift_pop['income_boosted'] = True
         uplift_pop['income_boosted_this_wave'] = True
-        #uplift_pop['hh_income'] += uplift_pop['boost_amount']
+        uplift_pop['hh_income'] += uplift_pop['boost_amount']
 
         # 9. Update original population with uplifted values
         # Iterate over rows in 'uplift_pop' and update corresponding rows in 'full_pop'
@@ -2492,7 +2496,7 @@ class ChildPovertyReductionMatDepIncome(Base):
             pidp = row['pidp']
             if pidp in full_pop['pidp'].values:
                 full_pop.loc[full_pop['pidp'] == pidp, 'hh_income'] = row['metdep_child']
-                #full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
+                full_pop.loc[full_pop['pidp'] == pidp, 'boost_amount'] = row['boost_amount']
                 full_pop.loc[full_pop['pidp'] == pidp, 'income_boosted'] = row['income_boosted']
 
         # Convert 'income_boosted' column back to boolean type
