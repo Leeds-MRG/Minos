@@ -488,6 +488,31 @@ handover_lineplots <- function(raw, base, var) {
     ylab(var)
 }
 
+handover_median_lineplots <- function(raw, base, var) {
+  # GENERALISE THIS AND DOCSTRING
+  raw.medians <- raw %>% 
+    dplyr::select(pidp, time, var) %>%
+    group_by(time) %>%
+    summarise(summary_var = median(.data[[var]], na.rm = TRUE)) %>%
+    mutate(source = 'final_US')
+  
+  base.medians <- base %>%
+    dplyr::select(pidp, time, var) %>%
+    group_by(time) %>%
+    summarise(summary_var = median(!!sym(var), na.rm = TRUE)) %>%
+    mutate(source = 'baseline_output')
+  
+  # merge before plot
+  combined <- rbind(raw.medians, base.medians)
+  
+  # Now plot
+  ggplot(data = combined, aes(x = time, y = summary_var, group = source, color = source)) +
+    geom_line() +
+    geom_vline(xintercept=start.year, linetype='dotted') +
+    labs(title = var, subtitle = 'Full Sample') +
+    xlab('Year') +
+    ylab(paste0(var," Median"))
+}
 
 zip_density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NULL)
 {

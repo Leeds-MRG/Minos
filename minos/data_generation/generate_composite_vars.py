@@ -1357,6 +1357,11 @@ def generate_chron_disease_proxy(data):
 
     return data
 
+def format_counts(data):
+    data.loc[data['ncars'] >= 5, 'ncars'] = 5
+    data['ncigs'] = 5 * round(data['ncigs'] / 5)
+    data.loc[data['ncigs']>=50, 'ncigs'] = 50
+    return data
 
 def main():
     maxyr = US_utils.get_data_maxyr()
@@ -1386,6 +1391,9 @@ def main():
     data = generate_physical_activity_binary(data)  # physical activity composite
     data = generate_chron_disease_proxy(data)  # Chronic Disease proxy
     data = calculate_children(data)  # total number of biological children
+
+    data = format_counts(data) # format counts data.
+
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
