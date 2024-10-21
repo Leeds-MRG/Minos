@@ -574,8 +574,7 @@ priority_num_summarise <- function(data) {
     mutate(num_priority_groups = case_when(
       num_priority_groups == 0 ~ 0,
       num_priority_groups == 1 ~ 1,
-      num_priority_groups == 2 ~ 2,
-      num_priority_groups >= 3 ~ 3)) %>%
+      num_priority_groups >= 2 ~ 2)) %>%
     group_by(num_priority_groups, run_id) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),

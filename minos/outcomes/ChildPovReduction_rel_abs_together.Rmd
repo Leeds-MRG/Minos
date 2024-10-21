@@ -741,6 +741,107 @@ synthpop_uncertainty <- function(summary_group, scen, var) {
 ```
 
 
+```{r "priority_subgroups", include=FALSE}
+priority_subgroup_plot <- function(priority_group, scen) {
+  
+  priority_group <- paste0('priority_', priority_group)
+  scen <- paste0(scen, '_together')
+  
+  #print(priority_group)
+  #print(scen)
+  
+  data <- do.call(rbind, generate_df_list(priority_group, scen))
+  
+  #return(data)
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, mean_cost, year, scenario) %>%
+    pivot_wider(names_from = scenario,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  #return(plot_data)
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  plot_data_confint2 <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+    
+  
+  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted') +
+    geom_smooth() +
+    xlab('Year') +
+    ylab('Change in Mean SF-12 MCS') +
+    theme_minimal()
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = priority_group) +
+    xlab('Year') +
+    ylab('Change in Mean SF-12 MCS') +
+    theme_minimal()
+  
+  p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = priority_group) +
+    xlab('Year') +
+    ylab('Change in Mean SF-12 MCS') +
+    theme_minimal()
+  
+  #print(p1)
+  print(p2)
+  #print(p3)
+  
+  # ggsave(filename = paste0(priority_group, '_smooth', '.png'),
+  #        plot = p1)
+  # 
+  # ggsave(filename = paste0(priority_group, '_confint', '.png'),
+  #        plot = p2)
+}
+
+# test <- priority_subgroup_plot(priority_group = 'child_under_one',
+#                                scen = 'ChildPovertyReduction')
+```
+
+
+```{r}
+priority_subgroup_plot(priority_group = 'child_under_one',
+                               scen = 'ChildPovertyReduction')
+priority_subgroup_plot(priority_group = 'ethnicity',
+                               scen = 'ChildPovertyReduction')
+priority_subgroup_plot(priority_group = 'mother_under_25',
+                               scen = 'ChildPovertyReduction')
+priority_subgroup_plot(priority_group = 'three_plus_children',
+                               scen = 'ChildPovertyReduction')
+```
+
+
+
 ```{r "Data", include=FALSE}
 scen.list <- c('baseline', 'ChildPovertyReduction')
 scen <- 'ChildPovertyReduction'
@@ -944,7 +1045,7 @@ SF12_change_simple(summary_group = 'priority_any',
 
 ### Number of Priority Subgroups
 
-Results disaggregated by if household belongs to 0, 1, 2, 3+ priority subgroups.
+Results disaggregated by if household belongs to 0, 1, 2+ priority subgroups.
 
 ```{r}
 SF12_change_num_priority_groups(scen.list)
