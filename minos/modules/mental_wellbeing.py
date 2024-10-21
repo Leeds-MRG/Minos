@@ -1277,7 +1277,7 @@ class XGBMWB(Base):
         #newWaveMWB = scale_variance_by_quintile(newWaveMWB, pop, 'SF_12')
 
         # scaling
-        #sf12_mean_old = np.mean(pop['SF_12_last'])
+        sf12_mean_old = np.mean(pop['SF_12_last'])
         sf12_mean_new = np.mean(newWaveMWB["SF_12"])
         #std_ratio = (np.std(pop['SF_12']) / np.std(newWaveMWB["SF_12"]))
         #std_ratio = (10.9 / np.std(newWaveMWB["SF_12"]))
