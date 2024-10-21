@@ -430,7 +430,6 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
   data <- drop_na(data)
   
   set.seed(123)
-  
   # Train the ranger model
   ranger_model <- ranger(
     formula = formula,
@@ -439,6 +438,6 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
     probability = TRUE,
     verbose = TRUE
   )
-  
+
   return(ranger_model)
 }
