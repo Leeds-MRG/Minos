@@ -22,7 +22,7 @@ from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lm
 from minos.modules.labour import Labour
 from minos.modules.neighbourhood import Neighbourhood
 from minos.modules.alcohol import Alcohol
-from minos.modules.tobacco import Tobacco
+from minos.modules.tobacco import Tobacco, ordinalTobacco
 from minos.modules.loneliness import Loneliness
 from minos.modules.education import Education
 from minos.modules.nutrition import Nutrition, lmmYJNutrition, lmmDiffNutrition
@@ -76,6 +76,7 @@ components_map = {
     "MWB()": MWB(),
     # Intermediary modules
     "Tobacco()": Tobacco(),
+    "ordinalTobacco()": ordinalTobacco(),
     "Alcohol()": Alcohol(),
     "Neighbourhood()": Neighbourhood(),
     "Labour()": Labour(),

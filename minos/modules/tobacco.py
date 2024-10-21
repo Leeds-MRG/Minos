@@ -144,3 +144,132 @@ class Tobacco(Base):
         histplot(pop, x="ncigs", stat='density')
         plt.savefig(file_name)
         plt.close()
+
+
+class ordinalTobacco(Base):
+
+    # Special methods used by vivarium.
+    @property
+    def name(self):
+        return 'ordinal_tobacco'
+
+    def __repr__(self):
+        return "ordinalTobacco()"
+
+    def setup(self, builder):
+        """ Initialise the module during simulation.setup().
+
+        Notes
+        -----
+        - Load in data from pre_setup
+        - Register any value producers/modifiers for tobacco
+        - Add required columns to population data frame
+        - Update other required items such as randomness stream.
+
+        Parameters
+        ----------
+        builder : vivarium.engine.Builder
+            Vivarium's control object. Stores all simulation metadata and allows modules to use it.
+
+        """
+
+        # Load in inputs from pre-setup.
+        self.rpy2Modules = builder.data.load("rpy2_modules")
+
+        # Build vivarium objects for calculating transition probabilities.
+        # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
+        #self.transition_coefficients = builder.
+
+        # Assign randomness streams if necessary.
+        self.random = builder.randomness.get_stream("tobacco")
+
+        # Determine which subset of the main population is used in this module.
+        # columns_created is the columns created by this module.
+        # view_columns is the columns from the main population used in this module.
+        # In this case, view_columns are taken straight from the transition model
+        view_columns = ["age",
+                        "sex",
+                        "ethnicity",
+                        "region",
+                        "education_state",
+                        "housing_quality",
+                        "neighbourhood_safety",
+                        "loneliness",
+                        "nutrition_quality",
+                        "ncigs",
+                        'job_sec',
+                        'hh_income',
+                        'SF_12',
+                        'behind_on_bills',
+                        'financial_situation'
+                        ]
+        #view_columns += self.transition_model.rx2('model').names
+        self.population_view = builder.population.get_view(columns=view_columns)
+
+        # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
+        # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are
+        # created at the start of a model "setup" or after some deterministic (add cohorts) or random (births) event.
+        builder.population.initializes_simulants(self.on_initialize_simulants)
+
+        # Declare events in the module. At what times do individuals transition states from this module. E.g. when does
+        # individual graduate in an education module.
+        # builder.event.register_listener("time_step", self.on_time_step, priority=self.priority)
+        super().setup(builder)
+
+        self.fs_transition_model = r_utils.load_transitions(f"ncigs/rfo/ncigs_RFO",
+                                                             self.rpy2Modules,
+                                                             path=self.transition_dir)
+
+    def on_time_step(self, event):
+        """Produces new children and updates parent status on time steps.
+
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The event time_step that called this function.
+        """
+
+        logging.info("TOBACCO")
+
+        # Get living people to update their tobacco
+        pop = self.population_view.get(event.index, query="alive =='alive'")
+        self.year = event.time.year
+
+        pop['ncigs_last'] = pop['ncigs']
+
+        # Predict next tobacco value
+        newWaveTobacco = self.calculate_ordinal_tobacco(pop)
+        newWaveTobacco["ncigs"] = self.random.choice(newWaveTobacco.index,
+                                                                list(5 * newWaveTobacco.columns),
+                                                                newWaveTobacco).astype(int)
+        newWaveTobacco.index = pop.index
+        newWaveTobacco["ncigs"] = newWaveTobacco["ncigs"].astype(int)
+
+        newWaveTobacco["ncigs"] = np.clip(newWaveTobacco['ncigs'], 0, 50)
+        self.population_view.update(newWaveTobacco["ncigs"])
+
+    def calculate_ordinal_tobacco(self, pop):
+        """Calculate tobacco transition distribution based on provided people/indices
+
+        Parameters
+        ----------
+            index : pd.Index
+                Which individuals to calculate transitions for.
+        Returns
+        -------
+        """
+
+        # The calculation relies on the R predict method and the model that has already been specified
+        nextWaveTobacco = r_utils.predict_next_rf_ordinal(model=self.fs_transition_model,
+                                                            rpy2_modules= self.rpy2Modules,
+                                                            current=pop,
+                                                            dependent='ncigs')
+        return nextWaveTobacco
+
+    def plot(self, pop, config):
+
+        file_name = config.output_plots_dir + f"tobacco_hist_{self.year}.pdf"
+        f = plt.figure()
+        histplot(pop, x="ncigs", stat='density')
+        plt.savefig(file_name)
+        plt.close()

@@ -1039,6 +1039,18 @@ def generate_poverty_cohort_vars(data):
     return data
 
 
+def format_counts(data):
+    # bin counts data for ncigs and ncars together for use in ordinal models.
+
+    #data.loc[data['ncars'] >= 5, 'ncars'] = 5
+    data['ncigs'] = data['ncigs'].astype(float)
+    data.loc[data['ncigs']>0, 'ncigs'] = 5 * round(data.loc[data['ncigs']>0, 'ncigs'] / 5)
+    data.loc[data['ncigs']>=50, 'ncigs'] = 50
+    data['ncigs'] = data['ncigs'].astype(int)
+    print("Formatted Counts data.")
+    return data
+
+
 def main():
     maxyr = US_utils.get_data_maxyr()
     # first collect and load the datafiles for every year
@@ -1048,6 +1060,7 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
+    data = format_counts(data) # format counts data.
     data = generate_composite_housing_quality(data)  # housing_quality.
     data = generate_hh_income(data)  # hh_income.
     data = calculate_hourly_wage(data)  # hourly_wage
@@ -1065,6 +1078,7 @@ def main():
     data = calculate_children(data)  # total number of biological children
     data = generate_difference_variables(data)  # difference variables for longitudinal/difference models.
     data = generate_poverty_cohort_vars(data)  # initial relative poverty variable
+
 
     print('Finished composite generation. Saving data...')
     US_utils.save_multiple_files(data, years, "data/composite_US/", "")
