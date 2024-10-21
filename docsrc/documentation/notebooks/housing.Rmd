@@ -2,28 +2,41 @@
 title: "Housing"
 output: html_document
 bibliography: 
-  - "docsrc/refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
-  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+  - "`r here::here('docsrc', 'refs.bib')`"
+
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir= "../minos")
+library(here)
+library(glmnet)
+library(plyr)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+model_path <- here::here("data", "transitions", "housing_quality", "rfo", "housing_quality_RFO.rds")
+model <- readRDS(model_path)
+
+data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+obs <- data$housing_quality
+data$housing_quality_last <- data$housing_quality
+
+preds <- ranger::predictions(stats::predict(model, data))
+column_names <- colnames(preds)
+preds <-glmnet::rmult(preds)
+preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+v <- "housing_quality"
+
 ```
 
 ## Housing Quality
 
 Number of cigarettes consumed is an indicator of XXXX. test reference [@1987:nelson]. 
 
-```{r load_data, include=FALSE}
-source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
-```
-
 ### Methods
 
   What methods are used? Justification due to output data type. explanation of model output.
   
 ```{r housing_barchart, echo=FALSE}
-discrete_barplot("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds", 'next_housing_quality')
+discrete_barplot(obs, 'housing_quality')
 ```
 
 ### Data
@@ -37,8 +50,8 @@ discrete_barplot("data/transitions/housing_quality/clm/housing_quality_2018_2019
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
-clm_barplot("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds", "next_housing_quality") 
-clm_output("data/transitions/housing_quality/clm/housing_quality_2018_2019.rds")
+discrete_barplot2(obs, preds, "housing_quality") 
+rfo_output(model)
 ```
 
 
