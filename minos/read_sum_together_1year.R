@@ -198,9 +198,9 @@ generate_summary_csv <- function(combined_list, year, summary_funcs, save.path) 
 ###################### SUMMARY FUNCTIONS ####################
 
 treated_summary <- function(data) {
-  
+
   print("Calculating treated population summaries")
-  
+
   boosted.pidps <- data %>%
     filter(scenario == 'intervention') %>%
     filter(income_boosted == 'TRUE') %>%
@@ -236,6 +236,21 @@ whole_pop_income_quint_summary <- function(data) {
   return(output)
 }
 
+whole_pop_income_quint_summary_2 <- function(data) {
+  output <- data %>%
+    group_by(scenario) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    ungroup() %>%
+    group_by(run_id, scenario, income_quintile) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
+
 families_income_quint_summary <- function(data) {
   income_quints <- data %>%
     filter(scenario == 'baseline') %>%
@@ -255,17 +270,32 @@ families_income_quint_summary <- function(data) {
   return(output)
 }
 
+families_income_quint_summary_2 <- function(data) {
+  output <- data %>%
+    group_by(scenario) %>%
+    mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
+    ungroup() %>%
+    group_by(run_id, scenario, income_quintile) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
+
 #### INDICES OF INEQUALITY ####
 
 calculate_indices <- function(sub_data) {
-  
+
   # Calculate income quintiles from baseline run
   income_quints <- data %>%
     filter(scenario == 'baseline') %>%
     filter(nkids > 0) %>%
     mutate(income_quintile = ntile(hh_income, 5)) %>%  # Create income quintiles
     select(pidp, income_quintile)
-  
+
   # Calculate SF12 mid-point of each quintiles cumulative proportion
   income_dist <- data %>%
     inner_join(income_quints, by = 'pidp') %>%
@@ -275,17 +305,17 @@ calculate_indices <- function(sub_data) {
       population_proportion = n() / nrow(data),
       cumulative_proportion = cumsum(population_proportion) - (population_proportion / 2)
     )
-  
+
   # Fit linear regression model
   model <- lm(mean_SF12 ~ cumulative_proportion, data = income_distribution)
-  
+
   # Calculate SII
   SII <- coef(model)[2]
   # Calulate RII
   predicted_lowest <- predict(model, newdata = data.frame(cumulative_population = min(income_distribution$cumulative_population)))
   predicted_highest <- predict(model, newdata = data.frame(cumulative_population = max(income_distribution$cumulative_population)))
   RII <- predicted_highest / predicted_lowest
-  
+
   return(c(SII = SII, RII = RII))
 }
 
@@ -294,7 +324,7 @@ indices_of_inequality <- function(data) {
     group_by(run_id, scenario) %>%
     do(as.data.frame(t(calculate_indices(.)))) %>%
     ungroup()
-  
+
   summary_results <- results %>%
     group_by(scenario) %>%
     summarise(
@@ -303,7 +333,7 @@ indices_of_inequality <- function(data) {
       mean_RII = mean(RII),
       sd_RII = sd(RII)
     )
-  
+
   return(summary_results)
 }
 
@@ -464,7 +494,7 @@ priority_num_confint_summarise <- function(data) {
     mutate(num_priority_groups = case_when(
       num_priority_groups == 0 ~ 0,
       num_priority_groups == 1 ~ 1,
-      num_priority_groups == 2 ~ 2)) %>%
+      num_priority_groups >= 2 ~ 2)) %>%
     group_by(num_priority_groups, scenario) %>%
     summarise(count = n(),
               SF_12_margin = qnorm(0.975) * (sd(SF_12) / sqrt(count)),
@@ -507,16 +537,22 @@ scen.path <- here::here(out.path, scen)
 scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
+# summary_funcs <- c(whole_pop_income_quint_together = whole_pop_income_quint_summary,
+#                    families_income_quint_together = families_income_quint_summary
+# )
+
 summary_funcs <- c(treated = treated_summary,
                    whole_pop_income_quint_together = whole_pop_income_quint_summary,
+                   whole_pop_income_quint_together_2 = whole_pop_income_quint_summary_2,
                    families_income_quint_together = families_income_quint_summary,
+                   families_income_quint_together_2 = families_income_quint_summary_2,
                    priority_any = priority_any_summarise,
                    priority_num = priority_num_summarise,
                    priority_ethnicity = priority_summarise_ethnicity,
                    priority_child_under_one = priority_summarise_child_under_one,
                    priority_mother_under_25 = priority_summarise_mother_under_25,
                    priority_three_plus_children = priority_summarise_three_plus_children
-                   )
+)
 
 # indices_of_inequality = indices_of_inequality
 
