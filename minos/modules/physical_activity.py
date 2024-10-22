@@ -56,6 +56,7 @@ class PhysicalActivity(Base):
                         "age",
                         "education_state",
                         "hh_income",
+                        'region',
                         "active"]
         self.population_view = builder.population.get_view(columns=view_columns)
 

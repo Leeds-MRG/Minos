@@ -78,10 +78,10 @@ run_yearly_models <- function(transitionDir_path,
                                             'Family Care',
                                             'Not Working'))
   orig_data$auditc <- factor(orig_data$auditc,
-                        levels = c('Non-drinker',
-                                   'Low Risk',
-                                   'Increased Risk',
-                                   'High Risk'))
+                        levels = c('Low Risk',
+                                   'Increasing Risk',
+                                   'Higher Risk',
+                                   'Possible Dependence'))
 
   # read file
   repeat {

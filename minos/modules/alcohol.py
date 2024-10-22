@@ -128,7 +128,7 @@ class Alcohol(Base):
         else:
             year = min(self.year, 2018)
 
-        cols = ['Non-drinker', 'Low Risk', 'Increased Risk', 'High Risk']
+        cols = ['Low Risk', 'Increasing Risk', 'Higher Risk', 'Possible Dependence']
 
         transition_model = r_utils.load_transitions(f"auditc/nnet/auditc_{year}_{year + 1}",
                                                    self.rpy2Modules,

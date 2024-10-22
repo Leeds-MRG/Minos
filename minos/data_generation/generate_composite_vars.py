@@ -1011,10 +1011,11 @@ def calculate_auditc_score(data):
 
     # Ordinal values
     data['auditc'] = '-9'
-    data['auditc'][data['auditc_score'] == 0] = 'Non-drinker'  # 0 score is non-drinker
-    data['auditc'][data['auditc_score'].isin(range(1, 5))] = 'Low Risk'  # 1-4 is sensible
-    data['auditc'][data['auditc_score'].isin(range(5, 8))] = 'Increased Risk'  # 5-7 is hazardous
-    data['auditc'][data['auditc_score'] >= 8] = 'High Risk'  # 8-12 is harmful
+    #data['auditc'][data['auditc_score'] == 0] = 'Non-drinker'  # 0 score is non-drinker
+    data['auditc'][data['auditc_score'].isin(range(0, 5))] = 'Low Risk'  # 0-4 is low risk
+    data['auditc'][data['auditc_score'].isin(range(5, 8))] = 'Increasing Risk'  # 5-7 is increasing risk
+    data['auditc'][data['auditc_score'].isin(range(8, 11))] = 'Higher Risk'  # 8-10 is higher risk
+    data['auditc'][data['auditc_score'] >= 11] = 'Possible Dependence'  # 11-12 is possible dependence
 
     data.drop(labels=['auditc1', 'auditc2', 'auditc3', 'auditc4', 'auditc5',
                       'temp_auditc1', 'temp_auditc2', 'temp_auditc3',
