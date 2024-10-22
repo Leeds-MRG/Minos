@@ -20,7 +20,7 @@
 
 ############## SET NUMBER OF RUNS HERE ##############
 ## Tell computer this is an array job with tasks from 1 to N
-#$ -t 1-100
+#$ -t 1-40
 
 # create these if they dont exist. Will crash arc4 if you dont do this.
 mkdir -p logs
