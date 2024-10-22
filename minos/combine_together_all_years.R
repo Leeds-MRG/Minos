@@ -90,6 +90,21 @@ families_income_quint_summary_2 <- function(data) {
   return(output)
 }
 
+lone_parent_comparison_summary <- function(data) {
+  output <- data %>%
+    select(scenario, hh_comp) %>%
+    mutate(lone_parent = if_else(hh_comp == 2, 1, 
+                                 if_else(hh_comp == 4, 0, NA_character_))) %>%
+    group_by(scenario, lone_parent) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  
+  return(output)
+}
+
 #### INDICES OF INEQUALITY ####
 
 calculate_indices <- function(sub_data) {
@@ -375,7 +390,8 @@ summary_funcs <- c(treated = treated_summary,
                    priority_ethnicity = priority_summarise_ethnicity,
                    priority_child_under_one = priority_summarise_child_under_one,
                    priority_mother_under_25 = priority_summarise_mother_under_25,
-                   priority_three_plus_children = priority_summarise_three_plus_children
+                   priority_three_plus_children = priority_summarise_three_plus_children,
+                   lone_parent = lone_parent_comparison_summary
 )
 
 # indices_of_inequality = indices_of_inequality
