@@ -383,9 +383,25 @@ def RunPipeline(config, intervention=None):
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
-    pop.to_csv(output_file_path)
-    print("Saved initial data to: ", output_file_path)
-    logging.info(f"Saved initial data to: {output_file_path}")
+
+    save_columns = []
+    if 'keep_columns' in config.keys():
+        save_columns += config['keep_columns']
+    if ('intervention_keep_columns' in config.keys()) and intervention:
+        save_columns += config['intervention_keep_columns']
+    if 'synthpop_keep_columns' in config.keys():
+        save_columns += config['synthpop_keep_columns']
+
+    # only save 2020 data for single model runs
+    # or the first run out of multiple model runs with run id 1.
+    if (not intervention and (("run_ID" not in config.keys()) or config['run_ID'] == 1)):
+        if save_columns:
+            pop[save_columns].to_csv(output_file_path, index=False)
+        else:
+            pop.to_csv(output_file_path, index=False)
+
+        print("Saved initial data to: ", output_file_path)
+        logging.info(f"Saved initial data to: {output_file_path}")
 
 
     logging.info('Simulation loop start...')
@@ -411,7 +427,15 @@ def RunPipeline(config, intervention=None):
         output_data_filename = get_output_data_filename(config, year)
 
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
-        pop.to_csv(output_file_path)
+
+        # If specified in config using keep_columns intervention_keep_columns and synthetic_keep_columns,
+        # only save a subset of the MINOS output to csvs.
+        # Otherwise just save the entire thing.
+        if save_columns:
+            pop[save_columns].to_csv(output_file_path, index=False)
+        else:
+            pop.to_csv(output_file_path, index=False)
+
         print("Saved data to: ", output_file_path)
         logging.info(f"Saved data to: {output_file_path}")
 
