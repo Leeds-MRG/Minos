@@ -2,12 +2,29 @@
 title: "Neighbourhood"
 output: html_document
 bibliography: 
-  - "docsrc/refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiling the website using the makefile.
-  #- "../../refs.bib" # use this one if knitting directly in Rstudio. Easier for debugging.
+  - "`r here::here('docsrc', 'refs.bib')`"
+
 ---
 
-```{r load_data, include=FALSE}
-knitr::opts_knit$set(root.dir= "../minos")
+```{r setup, include=FALSE}
+library(here)
+library(glmnet)
+library(plyr)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+model_path <- here::here("data", "transitions", "neighbourhood_safety", "rfo", "neighbourhood_safety_RFO.rds")
+model <- readRDS(model_path)
+
+data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+obs <- data$neighbourhood_safety
+data$neighbourhood_safety_last <- data$neighbourhood_safety
+
+preds <- ranger::predictions(stats::predict(model, data))
+column_names <- colnames(preds)
+preds <-glmnet::rmult(preds)
+preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+v <- " neighbourhood_safety"
+
 ```
 
 ## Neighbourhood
@@ -15,14 +32,11 @@ knitr::opts_knit$set(root.dir= "../minos")
 
 Neighbourhood quality is an indicator of well-being suggested by the SIPHER-7 XXXX ref and others?. 
 
-```{r neighbourhood_setup, include=FALSE}
-source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
-```
 
 ### Methods
   
 ```{r neighbourhood_barchart, echo=FALSE}
-discrete_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", 'next_neighbourhood_safety')
+discrete_barplot(obs, 'neighbourhood_safety')
 ```
 
   Neighbourhood data are presented as a likert scale from 1-6 indicating the number of harmful activities that happen in a persons
@@ -39,8 +53,8 @@ discrete_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety
 
 ```{r housing_output, echo=FALSE}
 options(width=120)
-clm_barplot("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds", "next_neighbourhood_safety") 
-clm_output("data/transitions/neighbourhood_safety/clm/neighbourhood_safety_2014_2017.rds")  
+discrete_barplot2(obs, preds, "neighbourhood_safety") 
+rfo_output(model)
 ```
 
 

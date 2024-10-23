@@ -3,28 +3,43 @@ title: "Tobacco"
 output:
   pdf_document: default
   html_document: default
-bibliography: docsrc/refs.bib
+bibliography: 
+  - "`r here::here('docsrc', 'refs.bib')`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir= "../minos")
+library(here)
+library(glmnet)
+library(plyr)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+model_path <- here::here("data", "transitions", "ncigs", "rfo", "ncigs_RFO.rds")
+model <- readRDS(model_path)
+
+data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+obs <- data$ncigs
+data$ncigs_last <- data$ncigs
+
+preds <- ranger::predictions(stats::predict(model, data))
+column_names <- colnames(preds)
+preds <-glmnet::rmult(preds) - 1
+preds <- 5 * preds
+
+v <- "ncigs"
+
 ```
+
 ## Tobacco
 
 
 Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
-
-```{r load_data, include=FALSE}
-source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
-```
-
 
 ### Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
 ```{r tobacco_data}
-counts_density("data/transitions/ncigs/zip/ncigs_2018_2019.rds", "y")
+discrete_barplot(obs, "ncigs")
 ```
 
 ### Methods
@@ -61,8 +76,8 @@ Almost all coefficients significant. Particularly prevous consumption of cigaret
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-zip_output("data/transitions/ncigs/zip/ncigs_2018_2019.rds")
-zip_density("data/transitions/ncigs/zip/ncigs_2018_2019.rds", 'y')
+discrete_barplot2(obs, preds, "housing_quality") 
+rfo_output(model)
 ```
 
 

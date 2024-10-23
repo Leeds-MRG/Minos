@@ -2,28 +2,27 @@
 title: "Mental Well-Being"
 output: html_document
 bibliography: 
-  - "docsrc/refs.bib"
+  - "`r here::here('docsrc', 'refs.bib')`"
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir= "../minos")
-```
 
 ## Mental Well-Being
 
 Introductory fluff. Why do we need this module? test reference [@1987:nelson].
 
 ```{r load_data, include=FALSE}
-source("docsrc/documentation/notebooks/sphinx_notebook_utils.R")
+library(here)
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+model_path <- here::here("data", "transitions", "SF_12", "lmm", "SF_12_LMM.rds")
+model <- readRDS(model_path)
+
+obs <- model@frame$SF_12
+preds <- predict(model, type='response')
+v <- "SF_12"
 ```
 
 ### Methods
 
 What methods are used? Justification due to output data type. explanation of model output.
-
-```{r SF12_Density}
-continuous_density("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")  
-```
 
 ### Data
 
@@ -35,8 +34,13 @@ What are the results. Coefficients tables. diagnostic plots. measures of goodnes
 
 ```{r SF12_Output, echo=FALSE}
 options(width=120)
-ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
-ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
+#ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
+#ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
+
+#glmm_output(model_path)
+continuous_densities(obs, preds, v)
+print(summary(model))
+plot(model)
 ```
 
 ### References
