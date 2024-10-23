@@ -536,6 +536,11 @@ epcg_simd_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
 
 
+# EBSS energy downlift.
+energy_downlift_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_downlift"
+
+
 ########################################################################
 # need to add macros for these in make_lineplot_macros.sh. do later..  #
 ########################################################################
@@ -622,5 +627,7 @@ aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,wh
 aggregate_combined_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable" $(AGG_VAR) $(REGION)
 
+#aggregate_minos_output_energy
+#	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
 aggregate_minos_output_energy:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy crisis with the EPCG" who_uses_energy,who_boosted "epcg" "SF_12"
