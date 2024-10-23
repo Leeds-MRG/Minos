@@ -36,3 +36,13 @@ scale_rates:
         mortality: 1
         fertility: 1
 
+
+keep_columns : ["weight", "pidp", "hidp",
+                "alive", "SF_12", 'time',
+                "housing_quality", "hh_income", "neighbourhood_safety",
+                "nkids", "loneliness", "age",
+                "ethnicity", "marital_status", "S7_labour_state",
+                'has_newborn', "region", "hourly_wage",
+                "age", "job_hours"]
+intervention_keep_columns : ["income_boosted", "boost_amount"]
+#synthpop_keep_columns : ["ZoneID", "simd_decile"]

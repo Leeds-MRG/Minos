@@ -383,10 +383,20 @@ def RunPipeline(config, intervention=None):
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
+
+
     pop.to_csv(output_file_path)
     print("Saved initial data to: ", output_file_path)
     logging.info(f"Saved initial data to: {output_file_path}")
 
+
+    save_columns = []
+    if 'keep_columns' in config.keys():
+        save_columns += config['keep_columns']
+    if ('intervention_keep_columns' in config.keys()) and intervention:
+        save_columns += config['intervention_keep_columns']
+    if 'synthpop_keep_columns' in config.keys():
+        save_columns += config['synthpop_keep_columns']
 
     logging.info('Simulation loop start...')
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
@@ -411,9 +421,17 @@ def RunPipeline(config, intervention=None):
         output_data_filename = get_output_data_filename(config, year)
 
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
-        pop.to_csv(output_file_path)
-        print("Saved data to: ", output_file_path)
-        logging.info(f"Saved data to: {output_file_path}")
+
+        # don't save 2020 model run.
+        # only save 2020 data for the first model run or if only running a single run .
+        if (year > 1 or ("run_ID" in config.keys() and config['run_ID']=='0001')):
+            if save_columns:
+                pop[save_columns].to_csv(output_file_path, index=False)
+            else:
+                pop.to_csv(output_file_path, index=False)
+
+            print("Saved data to: ", output_file_path)
+            logging.info(f"Saved data to: {output_file_path}")
 
         # Print some summary stats on the simulation.
         print('alive', len(pop[pop['alive'] == 'alive']))
