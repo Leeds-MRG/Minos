@@ -394,7 +394,7 @@ def RunPipeline(config, intervention=None):
 
     # only save 2020 data for single model runs
     # or the first run out of multiple model runs with run id 1.
-    if (("run_ID" not in config.keys()) or config['run_ID'] == 1):
+    if (not intervention and (("run_ID" not in config.keys()) or config['run_ID'] == 1)):
         if save_columns:
             pop[save_columns].to_csv(output_file_path, index=False)
         else:
