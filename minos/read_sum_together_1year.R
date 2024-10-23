@@ -287,7 +287,7 @@ families_income_quint_summary_2 <- function(data) {
 
 lone_parent_comparison_summary <- function(data) {
   output <- data %>%
-    select(scenario, hh_comp) %>%
+    select(scenario, hh_comp, hh_income, boost_amount) %>%
     mutate(lone_parent = if_else(hh_comp == 2, 1, 
                                  if_else(hh_comp == 4, 0, NA_real_))) %>%
     group_by(scenario, lone_parent) %>%
