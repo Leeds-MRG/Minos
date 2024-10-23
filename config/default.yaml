@@ -43,6 +43,6 @@ keep_columns : ["weight", "pidp", "hidp",
                 "nkids", "loneliness", "age",
                 "ethnicity", "marital_status", "S7_labour_state",
                 'has_newborn', "region", "hourly_wage",
-                "age", "job_hours"]
+                "age", "job_hours", "yearly_energy"]
 intervention_keep_columns : ["income_boosted", "boost_amount"]
 #synthpop_keep_columns : ["ZoneID", "simd_decile"]
