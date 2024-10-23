@@ -59,7 +59,7 @@ arc4_aspatial_FFRS:
 manchester_housing_baseline: setup_manchester_scaled
 manchester_housing_baseline: RUN_CONFIG= $(CONFIG)/energy_manchester_scaled.yaml
 manchester_housing_baseline:
-	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE)
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o energy_manchester_scaled
 
 manchester_intervention_goodHeatingDummy: setup_manchester_scaled
 manchester_intervention_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
@@ -85,7 +85,7 @@ manchester_intervention_fossilFuelReplacementScheme:
 
 arc4_manchester_housing_baseline: MODE=energy_manchester_scaled
 arc4_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_housing_baseline:
+arc4_manchester_housing_baseline: setup_manchester_scaled
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 arc4_manchester_noEnergyPriceIncrease: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml

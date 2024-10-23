@@ -260,7 +260,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity', 'nkids_ind'])
+                                                                   requires_columns=['sex', 'region', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
@@ -272,6 +272,7 @@ class nkidsFertilityAgeSpecificRates(Base):
                         'nkids_ind',
                         'hidp',
                         'pidp',
+                        'region',
                         "child_ages",
                         "oecd_equiv"]
 
@@ -314,6 +315,13 @@ class nkidsFertilityAgeSpecificRates(Base):
         """
         # Get a view on all living people.
         population = self.population_view.get(event.index, query='alive == "alive"')
+
+        # stupid hack to force max nkids_ind to 10.
+        population.loc[(population['sex'] == 'Female') & (population.loc[population['sex']=='Female', "nkids_ind"] >= 10.), 'nkids_ind'] = 10.
+        self.population_view.update(population[['nkids_ind']])
+
+        population = self.population_view.get(event.index, query='alive == "alive"')
+
         population['has_newborn'] = False
         # resetting nkids in repl populations.
         population['nkids'] = population.groupby('hidp')['nkids'].transform("max")
