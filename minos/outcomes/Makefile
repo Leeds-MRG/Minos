@@ -526,7 +526,7 @@ every_single_scotland_plot: all_25_50_by_5_UC_scotland_uplifts all_priority_subg
 
 # EBSS energy downlift.
 ebss_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "ebss"
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "ebss"
 
 # do all the above together
 all_five_lineplot:
@@ -631,3 +631,4 @@ aggregate_combined_vulnerable:
 #	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
 aggregate_minos_output_energy:
 	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy crisis with the EPCG" who_uses_energy,who_boosted "epcg" "SF_12"
+

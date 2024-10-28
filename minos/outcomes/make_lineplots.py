@@ -453,6 +453,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
             # duplicate for all other tags.
             starter_frame = pd.concat([pd.DataFrame()] + ([starter_frame] * len(tags)))
             starter_frame['tag'] = tags
+            aggregate_long_stack = pd.concat([aggregate_long_stack, starter_frame])
 
         print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
         new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years,
