@@ -448,10 +448,10 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         if tag == ref:
             # create for reference tag.
             starter_frame = aggregate_variables_by_year(latest_file_path, tags[0],
-             [0, 2020], subset_function_strings[0],
-             v, ref, method, region)
+                                                  [0, 2020], subset_function_strings[0],
+                                                        v, ref, method, region)
             # duplicate for all other tags.
-            starter_frame = pd.DataFrame([starter_frame] * len(tags))
+            starter_frame = pd.concat([pd.DataFrame()] + ([starter_frame] * len(tags)))
             starter_frame['tag'] = tags
 
         print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")

@@ -394,14 +394,19 @@ def RunPipeline(config, intervention=None):
 
     # only save 2020 data for single model runs
     # or the first run out of multiple model runs with run id 1.
-    if (not intervention and (("run_ID" not in config.keys()) or config['run_ID'] == 1)):
-        if save_columns:
-            pop[save_columns].to_csv(output_file_path, index=False)
-        else:
-            pop.to_csv(output_file_path, index=False)
+    if not intervention:
+        if ("run_ID" not in config.keys()) or (config['run_ID'] == 1):
+            if save_columns:
+                pop[save_columns].to_csv(output_file_path, index=False)
+            else:
+                pop.to_csv(output_file_path, index=False)
 
-        print("Saved initial data to: ", output_file_path)
-        logging.info(f"Saved initial data to: {output_file_path}")
+            print("Saved initial data to: ", output_file_path)
+            logging.info(f"Saved initial data to: {output_file_path}")
+        else:
+            print("Running multiple models. Only saving 2020 data for first baseline model run with run id 1.")
+    else:
+        print("Policy intervention is applied. Initial data in 2020 is not saved.")
 
 
     logging.info('Simulation loop start...')
