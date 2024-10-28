@@ -181,7 +181,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
 
     aggregated_data = pd.DataFrame()
     aggregated_means = [None]
-    for year in years:
+    for year in years[1:]:
         files = glob(os.path.join(source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
         #files = [os.path.join(source, f"{str(ix).zfill(4)}_run_id_{year}.csv") for ix in range(1, 101)]
         #print(files)
@@ -191,44 +191,43 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
         # TODO: Set this value from the config file so it only happens for the year before simulation (currently 2020) and isn't hardcoded
 
         #NB if we want to cut the first obs off just change this to > instead of >=.
-        if (year >= 2020 or tag == ref) or method == aggregate_boosted_counts_and_cumulative_score:
-            with Pool() as pool:
-                aggregated_means = pool.starmap(aggregate_csv,
-                                                    zip(files, repeat(subset_func_string), repeat(v), repeat(method),
-                                                        repeat(mode), repeat(region)))
-            #if tag == "No Support" and year == 2035:
-            #    #print(len(aggregated_means))
-            #    #print([type(item) for item in aggregated_means])
-            if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
-                print(
-                    f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
-                aggregated_means = [None]
+        with Pool() as pool:
+            aggregated_means = pool.starmap(aggregate_csv,
+                                                zip(files, repeat(subset_func_string), repeat(v), repeat(method),
+                                                    repeat(mode), repeat(region)))
+        #if tag == "No Support" and year == 2035:
+        #    #print(len(aggregated_means))
+        #    #print([type(item) for item in aggregated_means])
+        if aggregated_means == []:  # if no datasets found for given year supply a dummy row.
+            print(
+                f"warning no datasets found for intervention {tag} and year {year}. This will result in a blank datapoint in the final lineplot.")
+            aggregated_means = [None]
 
-            if method in [weighted_nanmean, child_uplift_cost_sum, aggregate_cumulative_score_by_household]:
-                single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
-                single_year_aggregates['year'] = year
-                single_year_aggregates['tag'] = tag
-                single_year_aggregates['subset_function'] = subset_func_string
-                aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
-            elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
-                for i, single_year_aggregate in enumerate(aggregated_means):
-                    single_year_aggregate['year'] = year
-                    single_year_aggregate['tag'] = tag
-                    single_year_aggregate['id'] = i
-                    aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
-            elif method == aggregate_boosted_counts_and_cumulative_score:
-                for i, single_year_aggregate in enumerate(aggregated_means):
-                    if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
-                        single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
-                        single_year_aggregate["number_boosted"] = np.nan
-                        single_year_aggregate[f"summed_{v}"] = np.nan
-                        single_year_aggregate["intervention_cost"] = np.nan
-                    if source == ref:
-                        single_year_aggregate['intervention_cost'] = np.nan
-                    single_year_aggregate['year'] = year
-                    single_year_aggregate['tag'] = tag
-                    single_year_aggregate['id'] = i
-                    aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+        if method in [weighted_nanmean, child_uplift_cost_sum, aggregate_cumulative_score_by_household]:
+            single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
+            single_year_aggregates['year'] = year
+            single_year_aggregates['tag'] = tag
+            single_year_aggregates['subset_function'] = subset_func_string
+            aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
+        elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
+            for i, single_year_aggregate in enumerate(aggregated_means):
+                single_year_aggregate['year'] = year
+                single_year_aggregate['tag'] = tag
+                single_year_aggregate['id'] = i
+                aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
+        elif method == aggregate_boosted_counts_and_cumulative_score:
+            for i, single_year_aggregate in enumerate(aggregated_means):
+                if type(single_year_aggregate) != pd.DataFrame: # if no data available create a dummy frame to preserve data frame structure.
+                    single_year_aggregate = pd.DataFrame([i], columns = ['number_boosted'])
+                    single_year_aggregate["number_boosted"] = np.nan
+                    single_year_aggregate[f"summed_{v}"] = np.nan
+                    single_year_aggregate["intervention_cost"] = np.nan
+                if source == ref:
+                    single_year_aggregate['intervention_cost'] = np.nan
+                single_year_aggregate['year'] = year
+                single_year_aggregate['tag'] = tag
+                single_year_aggregate['id'] = i
+                aggregated_data = pd.concat([aggregated_data, single_year_aggregate])
 
     aggregated_data.reset_index(drop=True, inplace=True)
     return aggregated_data
@@ -534,10 +533,23 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     subset_function_strings = subset_function_strings.split(',')
 
     aggregate_long_stack = pd.DataFrame()
+
     for directory, tag, subset_function_string in zip(directories, tags, subset_function_strings):
         file_path = os.path.abspath(os.path.join('output/', mode, directory))
         latest_file_path = find_latest_source_file_path(file_path)
         years = find_MINOS_years_range(latest_file_path)
+
+        # creating frame for initial year where the outputs are all identical. keeps consistency in the plots.
+        if tag == ref:
+            # create for reference tag.
+            starter_frame = aggregate_variables_by_year(latest_file_path, tags[0],
+                                                  [None, 2020], subset_function_strings[0],
+                                                        v, ref, method, region)
+            # duplicate for all other tags.
+            starter_frame = pd.concat([pd.DataFrame()] + ([starter_frame] * len(tags)))
+            starter_frame['tag'] = tags
+            aggregate_long_stack = pd.concat([aggregate_long_stack, starter_frame])
+
 
         print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v} using subset {subset_function_string}")
         new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years,
