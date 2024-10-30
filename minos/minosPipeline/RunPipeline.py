@@ -426,7 +426,10 @@ def RunPipeline(config, intervention=None):
         logging.info(f'Finished running simulation for year: {config.time.start.year + year}')
 
         # get population dataframe.
-        pop = simulation.get_population()
+        pop = simulation.get_population(untracked=True)
+        #pop = pop.loc[pop['tracked']==True, ]
+
+        simulation.destroy_untracked_simulants() # destroys dead people in sim data frame. saves ram.
 
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
