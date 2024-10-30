@@ -44,8 +44,8 @@ def ffill_groupby(pid_groupby, f_columns):
     -------
     pid_groupby : Object with forward filled variables.
     """
-    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
-    return pid_groupby[f_columns].infer_objects().ffill()
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
+    #return pid_groupby[f_columns].infer_objects().ffill()
 
 def bfill_groupby(pid_groupby, b_columns):
     """ back fill groupby object
@@ -59,8 +59,8 @@ def bfill_groupby(pid_groupby, b_columns):
     pid_groupby : Object with back filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
-    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby[b_columns].infer_objects().bfill()
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
+    #return pid_groupby[b_columns].infer_objects().bfill()
 
 def fbfill_groupby(pid_groupby, fb_columns):
     """ forward and back fill groupby object
@@ -72,8 +72,8 @@ def fbfill_groupby(pid_groupby, fb_columns):
     -------
     pid_groupby : Object with forward-back filled variables.
     """
-    #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby[fb_columns].infer_objects().ffill().bfill()
+    return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
+    #return pid_groupby[fb_columns].infer_objects().ffill().bfill()
 
 def mffill_groupby(pid_groupby, mf_columns):
     """
@@ -540,7 +540,8 @@ def main(data, save=False):
     # define columns to be forward filled, back filled, and linearly interpolated.
     # note columns can be forward and back filled for immutables like ethnicity.
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating', 'ethnicity', 'sex', 'birth_year',
-                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker', 'pidp'] # 'ncigs', 'ndrinks']
+                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker', 'pidp',
+                 "tumble_dryer", "microwave", "dishwasher"] # 'ncigs', 'ndrinks']
     fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw']  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
     li_columns = ["age"]
