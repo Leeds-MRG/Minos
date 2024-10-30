@@ -524,6 +524,7 @@ class lmmYJMWB(Base):
         # Predict next mwb value
         newWaveMWB = pd.DataFrame(columns=['SF_12'])
         newWaveMWB['SF_12'] = self.calculate_mwb(pop)
+
         newWaveMWB.index = pop.index
         # newWaveMWB["SF_12"] -= 1
 
@@ -563,7 +564,8 @@ class lmmYJMWB(Base):
                                                                     pop,
                                                                     dependent='SF_12',
                                                                     log_transform=True,
-                                                                    noise_std=3)  #
+                                                                    reflect=True,
+                                                                    noise_std=0.1)  # was 3
 
         return nextWaveMWB
 
