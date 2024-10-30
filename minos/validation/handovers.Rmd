@@ -52,6 +52,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 ```{r}
 # Read raw datafiles in
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.files <- raw.files[1:length(raw.files)-1]
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
 raw.dat <- raw.dat %>%
   filter(weight > 0)
@@ -83,6 +84,9 @@ cut_bins <- c(-1, 15, 19, 24, 29, 44, 59, 74, 200)
 cut_labels <- c("0to15", "16to19", "20to24", "25to29", "30to44", "45to59", "60to74", "75plus")
 
 raw.dat$age_bucket <- cut(raw.dat$age, 
+                          breaks = cut_bins, 
+                          labels = cut_labels)
+base.dat$age_bucket <- cut(base.dat$age, 
                           breaks = cut_bins, 
                           labels = cut_labels)
 
@@ -420,8 +424,8 @@ household_count_by_income_quintile
 
 handover_boxplots(raw.dat, base.dat, 'hh_income')
 handover_lineplots(raw.dat, base.dat, "hh_income")
-handover_boxplots(raw.dat, base.dat, 'council_tax')
-handover_lineplots(raw.dat, base.dat, "council_tax")
+#handover_boxplots(raw.dat, base.dat, 'council_tax')
+#handover_lineplots(raw.dat, base.dat, "council_tax")
 ```
 
 ### Spaghetti
@@ -787,8 +791,8 @@ TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 
 ```{r}
 #  nutriton quality line/boxplots.
-handover_boxplots(raw.dat, base.dat, 'nutrition_quality')
-handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
+# handover_boxplots(raw.dat, base.dat, 'nutrition_quality')
+# handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 
 
 # Try a version where final_US is limited to only those present from wave 1
@@ -852,87 +856,87 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 # rm(raw.nut, base.nut, nut.spag)
 ```
 
-## Physical Health
+<!-- ## Physical Health -->
 
-NOTE: At present, physical health is not predicted or transitioned.
+<!-- NOTE: At present, physical health is not predicted or transitioned. -->
 
-```{r}
-# first figure out how to plot final_US
-# start with hh_income
-raw.phealth <- raw.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'final_US')
+<!-- ```{r} -->
+<!-- # first figure out how to plot final_US -->
+<!-- # start with hh_income -->
+<!-- raw.phealth <- raw.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'final_US') -->
 
-base.phealth <- base.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'baseline_output')
+<!-- base.phealth <- base.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'baseline_output') -->
 
-# merge before plot
-phealth <- rbind(raw.phealth, base.phealth)
+<!-- # merge before plot -->
+<!-- phealth <- rbind(raw.phealth, base.phealth) -->
 
-# Now plot
-ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health', subtitle = 'Full Sample') +
-  xlab('Year') +
-  ylab('Average')
+<!-- # Now plot -->
+<!-- ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) + -->
+<!--   geom_line() + -->
+<!--   geom_vline(xintercept=start.year, linetype='dotted') + -->
+<!--   labs(title = 'Physical Health', subtitle = 'Full Sample') + -->
+<!--   xlab('Year') + -->
+<!--   ylab('Average') -->
 
-## Try a version where final_US is limited to only those present from wave 1
-# onwards because the sample refreshments are messing with the plot
-raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+<!-- ## Try a version where final_US is limited to only those present from wave 1 -->
+<!-- # onwards because the sample refreshments are messing with the plot -->
+<!-- raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009] -->
 
-raw.phealth2 <- raw.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  filter(pidp %in% raw.wave1) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'final_US')
+<!-- raw.phealth2 <- raw.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   filter(pidp %in% raw.wave1) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'final_US') -->
 
-base.phealth2 <- base.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  filter(pidp %in% raw.wave1) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'baseline_output')
+<!-- base.phealth2 <- base.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   filter(pidp %in% raw.wave1) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'baseline_output') -->
 
-phealth2 <- rbind(raw.phealth2, base.phealth2)
+<!-- phealth2 <- rbind(raw.phealth2, base.phealth2) -->
 
-# Now plot
-ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health') +
-  xlab('Year') +
-  ylab('Average')
+<!-- # Now plot -->
+<!-- ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) + -->
+<!--   geom_line() + -->
+<!--   geom_vline(xintercept=start.year, linetype='dotted') + -->
+<!--   labs(title = 'Physical Health') + -->
+<!--   xlab('Year') + -->
+<!--   ylab('Average') -->
 
-if (shall.we.save) {
-  ggsave(filename = 'physical_health_wav1.png',
-       plot = last_plot(),
-       path = save.path)
-}
+<!-- if (shall.we.save) { -->
+<!--   ggsave(filename = 'physical_health_wav1.png', -->
+<!--        plot = last_plot(), -->
+<!--        path = save.path) -->
+<!-- } -->
 
-#raw.phealth.check <- raw.dat %>%
-#  select(pidp, time, phealth) %>%
-#  filter(time > 2009) %>%
-#  filter(pidp %in% raw.wave1)
+<!-- #raw.phealth.check <- raw.dat %>% -->
+<!-- #  select(pidp, time, phealth) %>% -->
+<!-- #  filter(time > 2009) %>% -->
+<!-- #  filter(pidp %in% raw.wave1) -->
 
-#base.phealth.check <- base.dat %>%
-#  select(pidp, time, phealth) %>%
-#  filter(time > 2009) %>%
-#  filter(pidp %in% raw.wave1)
+<!-- #base.phealth.check <- base.dat %>% -->
+<!-- #  select(pidp, time, phealth) %>% -->
+<!-- #  filter(time > 2009) %>% -->
+<!-- #  filter(pidp %in% raw.wave1) -->
 
-rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, phealth2)
-#rm(raw.phealth.check, base.phealth.check)
-```
+<!-- rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, phealth2) -->
+<!-- #rm(raw.phealth.check, base.phealth.check) -->
+<!-- ``` -->
 
 ### Spaghetti
 
@@ -1004,51 +1008,80 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ## Education
 
 ```{r}
-prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
-
-var <- prepped.list$var
-norm <- prepped.list$norm
-
-tit <- 'Education State'
-
-# Now plot
-ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = tit, subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = tit) +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'education_state.png',
-         plot = last_plot(),
-         path = save.path)
-}
-
-
-rm(prepped.list, var, norm, tit)
+# prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
+# 
+# var <- prepped.list$var
+# norm <- prepped.list$norm
+# 
+# tit <- 'Education State'
+# 
+# # Now plot
+# ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
+#   geom_line() +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = tit, subtitle = 'Counts by Level') +
+#   xlab('Year') +
+#   ylab('Count')
+# 
+# ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
+#   geom_bar(stat = 'identity') +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = tit) +
+#   xlab('Year') +
+#   ylab('Proportion')
+# 
+# if (shall.we.save) {
+#   ggsave(filename = 'education_state.png',
+#          plot = last_plot(),
+#          path = save.path)
+# }
+# 
+# 
+# rm(prepped.list, var, norm, tit)prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'education_state')
+# 
+# var <- prepped.list$var
+# norm <- prepped.list$norm
+# 
+# tit <- 'Education State'
+# 
+# # Now plot
+# ggplot(data = var, mapping = aes(x = time, y = n, group = education_state, colour = education_state)) +
+#   geom_line() +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = tit, subtitle = 'Counts by Level') +
+#   xlab('Year') +
+#   ylab('Count')
+# 
+# ggplot(data = norm, mapping = aes(x = time, y = prct, fill=education_state)) +
+#   geom_bar(stat = 'identity') +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = tit) +
+#   xlab('Year') +
+#   ylab('Proportion')
+# 
+# if (shall.we.save) {
+#   ggsave(filename = 'education_state.png',
+#          plot = last_plot(),
+#          path = save.path)
+# }
+# 
+# 
+# rm(prepped.list, var, norm, tit)
 ```
 
 
 
 ```{r}
-pivoted <- combine_and_pivot_long(df1 = base.dat,
-                                       df1.name = 'simulated',
-                                       df2 = raw.dat,
-                                       df2.name = 'raw',
-                                       var = 'education_state')
-
-cv_ordinal_plots(pivoted.df = pivoted,
-                 var = 'education_state',
-                 save = shall.we.save,
-                 save.path = save.path)
+# pivoted <- combine_and_pivot_long(df1 = base.dat,
+#                                        df1.name = 'simulated',
+#                                        df2 = raw.dat,
+#                                        df2.name = 'raw',
+#                                        var = 'education_state')
+# 
+# cv_ordinal_plots(pivoted.df = pivoted,
+#                  var = 'education_state',
+#                  save = shall.we.save,
+#                  save.path = save.path)
 ```
 
 ### Spaghetti
@@ -1071,101 +1104,101 @@ cv_ordinal_plots(pivoted.df = pivoted,
 ## Financial Situation
 
 ```{r}
-raw.financial_situation <- raw.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.financial_situation <- base.dat %>%
-  dplyr::select(pidp, time, financial_situation) %>%
-  group_by(time, financial_situation) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-
-
-# merge before plot
-financial_situation <- rbind(raw.financial_situation, base.financial_situation)
-financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
-
-# Now plot
-ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-financial_situation.norm <- financial_situation %>%
-  group_by(time) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Financial situation') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'financial_situation.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
+# raw.financial_situation <- raw.dat %>%
+#   dplyr::select(pidp, time, financial_situation) %>%
+#   group_by(time, financial_situation) %>%
+#   count() %>%
+#   mutate(source = 'final_US')
+# 
+# base.financial_situation <- base.dat %>%
+#   dplyr::select(pidp, time, financial_situation) %>%
+#   group_by(time, financial_situation) %>%
+#   count() %>%
+#   mutate(source = 'baseline_output')
+# 
+# 
+# 
+# # merge before plot
+# financial_situation <- rbind(raw.financial_situation, base.financial_situation)
+# financial_situation$financial_situation <- as.factor(financial_situation$financial_situation)
+# 
+# # Now plot
+# ggplot(data = financial_situation, mapping = aes(x = time, y = n, group = financial_situation, colour = financial_situation)) +
+#   geom_line() +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = 'Financial Situation', subtitle = 'Counts by Level') +
+#   xlab('Year') +
+#   ylab('Count')
+# 
+# financial_situation.norm <- financial_situation %>%
+#   group_by(time) %>%
+#   mutate(total = sum(n)) %>%
+#   mutate(prct = (n / total))
+# 
+# ggplot(data = financial_situation.norm, mapping = aes(x = time, y = prct, fill=financial_situation)) +
+#   geom_bar(stat = 'identity') +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = 'Financial situation') +
+#   xlab('Year') +
+#   ylab('Proportion')
+# 
+# if (shall.we.save) {
+#   ggsave(filename = 'financial_situation.png',
+#        plot = last_plot(),
+#        path = save.path)
+# }
+# 
+# rm(raw.financial_situation, base.financial_situation, financial_situation, financial_situation.norm)
 ```
 
 ## Behind On Bills
 
 ```{r}
-raw.behind_on_bills <- raw.dat %>%
-  dplyr::select(pidp, time, behind_on_bills) %>%
-  group_by(time, behind_on_bills) %>%
-  count() %>%
-  mutate(source = 'final_US')
-
-base.behind_on_bills <- base.dat %>%
-  dplyr::select(pidp, time, behind_on_bills) %>%
-  group_by(time, behind_on_bills) %>%
-  count() %>%
-  mutate(source = 'baseline_output')
-
-
-
-# merge before plot
-behind_on_bills <- rbind(raw.behind_on_bills, base.behind_on_bills)
-behind_on_bills$behind_on_bills <- as.factor(behind_on_bills$behind_on_bills)
-
-# Now plot
-ggplot(data = behind_on_bills, mapping = aes(x = time, y = n, group = behind_on_bills, colour = behind_on_bills)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Behind On Bills', subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
-behind_on_bills.norm <- behind_on_bills %>%
-  group_by(time) %>%
-  mutate(total = sum(n)) %>%
-  mutate(prct = (n / total))
-
-ggplot(data = behind_on_bills.norm, mapping = aes(x = time, y = prct, fill=behind_on_bills)) +
-  geom_bar(stat = 'identity') +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Behind On Bills') +
-  xlab('Year') +
-  ylab('Proportion')
-
-if (shall.we.save) {
-  ggsave(filename = 'behind_on_bills.png',
-       plot = last_plot(),
-       path = save.path)
-}
-
-rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.norm)
+# raw.behind_on_bills <- raw.dat %>%
+#   dplyr::select(pidp, time, behind_on_bills) %>%
+#   group_by(time, behind_on_bills) %>%
+#   count() %>%
+#   mutate(source = 'final_US')
+# 
+# base.behind_on_bills <- base.dat %>%
+#   dplyr::select(pidp, time, behind_on_bills) %>%
+#   group_by(time, behind_on_bills) %>%
+#   count() %>%
+#   mutate(source = 'baseline_output')
+# 
+# 
+# 
+# # merge before plot
+# behind_on_bills <- rbind(raw.behind_on_bills, base.behind_on_bills)
+# behind_on_bills$behind_on_bills <- as.factor(behind_on_bills$behind_on_bills)
+# 
+# # Now plot
+# ggplot(data = behind_on_bills, mapping = aes(x = time, y = n, group = behind_on_bills, colour = behind_on_bills)) +
+#   geom_line() +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = 'Behind On Bills', subtitle = 'Counts by Level') +
+#   xlab('Year') +
+#   ylab('Count')
+# 
+# behind_on_bills.norm <- behind_on_bills %>%
+#   group_by(time) %>%
+#   mutate(total = sum(n)) %>%
+#   mutate(prct = (n / total))
+# 
+# ggplot(data = behind_on_bills.norm, mapping = aes(x = time, y = prct, fill=behind_on_bills)) +
+#   geom_bar(stat = 'identity') +
+#   geom_vline(xintercept=start.year, linetype='dotted') +
+#   labs(title = 'Behind On Bills') +
+#   xlab('Year') +
+#   ylab('Proportion')
+# 
+# if (shall.we.save) {
+#   ggsave(filename = 'behind_on_bills.png',
+#        plot = last_plot(),
+#        path = save.path)
+# }
+# 
+# rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.norm)
 ```
 
 
@@ -1331,80 +1364,80 @@ rm(raw.s, base.s, spag)
 ## Child Ages
 
 ```{r}
-raw.child.ages <- raw.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2013 & child_ages != 'childless') %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-r.s<- strsplit(raw.child.ages$child_ages, "_")
-
-raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
-raw.child.ages.expanded <- raw.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'final_US') %>%
-  filter(expanded_child_ages <= 16)
-
-base.child.ages <- base.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2009) %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-b.s<- strsplit(base.child.ages$child_ages, "_")
-
-base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
-base.child.ages.expanded <- base.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'baseline')
-
-combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
-
-combined$expanded_child_ages <- factor(combined$expanded_child_ages,
-                                       levels = c('0', '1', '2', '3', '4', '5', 
-                                                  '6', '7', '8', '9', '10', 
-                                                  '11', '12', '13', '14', '15', 
-                                                  '16', 'childless'))
-  
-ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
-  geom_line() +
-  geom_vline(xintercept = start.year) +
-  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
-  scale_colour_viridis_d() +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = combined, mapping = aes(x = expanded_child_ages, y = age_counts, group = factor(time), colour = factor(time))) +
-  geom_line() +
-  geom_vline(xintercept = start.year) +
-  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
-  scale_colour_viridis_d() +
-  xlab('Age') +
-  ylab('Count')
-
-base.child.ages.nkids <- base.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'baseline')
-
-raw.child.ages.nkids <- raw.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'final_US')
-
-combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
-
-ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
-  geom_line() +
-  labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
+# raw.child.ages <- raw.dat %>%
+#   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
+#   filter(time > 2013 & child_ages != 'childless') %>%
+#   group_by(time, hidp) %>%
+#   summarise(child_ages = find_mode(child_ages))
+# 
+# r.s<- strsplit(raw.child.ages$child_ages, "_")
+# 
+# raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
+# raw.child.ages.expanded <- raw.child.ages.expanded %>%
+#   group_by(time, expanded_child_ages) %>%
+#   summarise(age_counts = n()) %>%
+#   mutate(source = 'final_US') %>%
+#   filter(expanded_child_ages <= 16)
+# 
+# base.child.ages <- base.dat %>%
+#   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
+#   filter(time > 2009) %>%
+#   group_by(time, hidp) %>%
+#   summarise(child_ages = find_mode(child_ages))
+# 
+# b.s<- strsplit(base.child.ages$child_ages, "_")
+# 
+# base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
+# base.child.ages.expanded <- base.child.ages.expanded %>%
+#   group_by(time, expanded_child_ages) %>%
+#   summarise(age_counts = n()) %>%
+#   mutate(source = 'baseline')
+# 
+# combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
+# 
+# combined$expanded_child_ages <- factor(combined$expanded_child_ages,
+#                                        levels = c('0', '1', '2', '3', '4', '5', 
+#                                                   '6', '7', '8', '9', '10', 
+#                                                   '11', '12', '13', '14', '15', 
+#                                                   '16', 'childless'))
+#   
+# ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
+#   geom_line() +
+#   geom_vline(xintercept = start.year) +
+#   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+#   scale_colour_viridis_d() +
+#   xlab('Year') +
+#   ylab('Count')
+# 
+# ggplot(data = combined, mapping = aes(x = expanded_child_ages, y = age_counts, group = factor(time), colour = factor(time))) +
+#   geom_line() +
+#   geom_vline(xintercept = start.year) +
+#   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+#   scale_colour_viridis_d() +
+#   xlab('Age') +
+#   ylab('Count')
+# 
+# base.child.ages.nkids <- base.dat %>%
+#   group_by(time, hidp) %>%
+#   summarise(nkids_counts = mean(nkids)) %>%
+#   group_by(time) %>%
+#   summarise(nkids_by_year = sum(nkids_counts)) %>%
+#   mutate(source = 'baseline')
+# 
+# raw.child.ages.nkids <- raw.dat %>%
+#   group_by(time, hidp) %>%
+#   summarise(nkids_counts = mean(nkids)) %>%
+#   group_by(time) %>%
+#   summarise(nkids_by_year = sum(nkids_counts)) %>%
+#   mutate(source = 'final_US')
+# 
+# combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
+# 
+# ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
+#   geom_line() +
+#   labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
+#   xlab('Year') +
+#   ylab('Count')
 
 ```
 
