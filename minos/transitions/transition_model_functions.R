@@ -122,7 +122,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  browser()
+  #browser()
   data <- replace.missing(data)
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -191,7 +191,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   if (log_transform) {
     data[[depend]] <- log(data[[depend]])
   }
-
+  
   if(include_weights) {
     model <- lmer(formula,
                   weights=weight,
@@ -428,7 +428,7 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
   
   data <- replace.missing(data)
   data <- drop_na(data)
-  
+  #browser()
   set.seed(123)
   
   # Train the ranger model
