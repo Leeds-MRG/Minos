@@ -565,7 +565,7 @@ class lmmYJMWB(Base):
                                                                     dependent='SF_12',
                                                                     log_transform=True,
                                                                     reflect=True,
-                                                                    noise_std=0.1)  # was 3
+                                                                    noise_std=0.075)  # was 3
 
         return nextWaveMWB
 
