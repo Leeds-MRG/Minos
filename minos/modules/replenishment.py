@@ -224,11 +224,11 @@ class Replenishment(Base):
         # Only add new cohorts on the october of each year when the data is taken.
         # If its october update the current year and load in new cohort data.
         # Also update the time variable with the new year for everyone (dead people also)
-        pop = self.population_view.get(event.index, query='pidp > 0')
+        #pop = self.population_view.get(event.index, query='pidp > 0')
         if event.time.month == 10 and event.time.year == self.current_year + 1:
             self.current_year += 1
             #pop['time'] += 1
-            self.population_view.update(pop)
+            #self.population_view.update(pop)
             # Base year for the simulation is 2018, so we'll use this to select our replenishment pop
             new_wave = pd.read_csv(f"{self.replenishing_dir}/replenishing_pop_2015-2070.csv")
             # Now select the population for the current year
