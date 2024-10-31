@@ -55,6 +55,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-caret
   - r-GLMMadaptive
   - r-ranger
+  - r-spatstat
   - pandoc
   - sphinx
   - myst-parser
@@ -89,6 +90,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
     - uuid
     - distutils_pytest
     #- vivarium~=0.10.12 # Can install here, but KeyError issue is then missed during "make install"
+    - "--editable=git+https://github.com/RobertClay/vivarium#egg=vivarium"
     - pandas==1.4.4
     - numpy==1.22.4
     - matplotlib
