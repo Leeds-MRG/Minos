@@ -285,6 +285,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     write_coefs <- F
     if (write_coefs)
     {
+      create.if.not.exists("data/transitions/coefficients")
       texreg_file <- paste0(out.path2, "coefficients", dependent, '_', mod.type, '.rds')
       texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
     }

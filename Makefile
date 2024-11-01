@@ -87,6 +87,7 @@ install: ### Install Minos and requirements (all except vivarium removed to cond
 install: $(SITEPACKAGES)/vivarium/__init__.py
 
 $(SITEPACKAGES)/vivarium/__init__.py:
+	pip install git+https://github.com/RobertClay/vivarium#egg=vivarium
 	@echo "Installing remaining requirements via pip..."
 	#pip install vivarium~=0.10.12 # Alternative method to specifying this in setup.py, which is called by "pip install" below
 	pip install -v -e .
