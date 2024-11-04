@@ -252,37 +252,39 @@ def format_ukhls_columns(year):
                       'indscui_xw': "weight6p",  # Cross-sectional analysis weight (waves 6+)
                       ## ---------------------
                       ## All variables relating to number of children
-                      'nkids_dv': 'nkids',  # number of children in household
-                      'lnprnt': 'nkids_ind_raw',  # number of children ever had by individual at first interview
-                      'preg': 'nkids_ind_new',  # whether had a child (actually a pregnancy) since last interview
+                      'nkids_dv': 'nkids',  # Number of children in household
+                      'lnprnt': 'nkids_ind_raw',  # Number of children ever had by individual at first interview
+                      # 'preg': 'nkids_ind_new',  # Whether had a child (actually a pregnancy) since last interview
+                      # 'nchresp': 'nresp',  # Number of children under 16 that person is responsible for
+                      'nnewborn': 'nnewborn',  # Number of newborns since last interview
                       ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
-                      'xpelecy': 'yearly_electric',  # yearly electricty expenditure
+                      'xpelecy': 'yearly_electric',  # yearly electricity expenditure
                       'xpgasy': 'yearly_gas',  # yearly gas expenditure
                       'xpduely': 'yearly_gas_electric',  # yearly both expenditure.
                       'xpoily': 'yearly_oil',  # yearly oil expenditure.
                       'xpsfly': 'yearly_other_fuel',  # yearly other fuel (wood?)
-                      'fuelhave1': 'has_electric',  # spends money on electrictiy
+                      'fuelhave1': 'has_electric',  # spends money on electricity
                       'fuelhave2': 'has_gas',  # spends money on gas
                       'fuelhave3': 'has_oil',  # spends money on oil
                       'fuelhave4': 'has_other',  # has some other fuel source.
                       'fuelhave96': 'has_none',  # has no fuel source.
-                      'fuelduel': 'gas_electric_combined', # are gas and electric bills separate or combined?
-                       # Nutrition vars
-                       'wkfruit': 'fruit_days', # number of days respondent eats fruit per week
-                       'fruitamt':'fruit_per_day', # amount of fruit eaten on days when eating fruit
-                       'wkvege': 'veg_days', # no. days respondent eats veg per week
-                       'vegeamt': 'veg_per_day', # amt. veg eaten on veg eating days
-                       # hourly wage stuff (Keeping self-employed and small business vars just in case)
-                       'basrate': 'hourly_rate',  # basic pay hourly rate
-                       'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
-                       'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
-                       'jbhrs': 'job_hours',  # no. of hours normally worked in a week
-                       'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
-                       'jspayu': 'job_inc',  # average income from job/business
-                       'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
-                       # Private/Public sector var for living wage intervention
-                       'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
+                      'fuelduel': 'gas_electric_combined',  # are gas and electric bills separate or combined?
+                      # Nutrition vars
+                      'wkfruit': 'fruit_days',  # number of days respondent eats fruit per week
+                      'fruitamt': 'fruit_per_day',  # amount of fruit eaten on days when eating fruit
+                      'wkvege': 'veg_days',  # no. days respondent eats veg per week
+                      'vegeamt': 'veg_per_day',  # amt. veg eaten on veg eating days
+                      # hourly wage stuff (Keeping self-employed and small business vars just in case)
+                      'basrate': 'hourly_rate',  # basic pay hourly rate
+                      'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
+                      'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
+                      'jbhrs': 'job_hours',  # no. of hours normally worked in a week
+                      'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
+                      'jspayu': 'job_inc',  # average income from job/business
+                      'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
+                      # Private/Public sector var for living wage intervention
+                      'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
                       # SF12 MICE vars
                       'rentinc2': 'energy_in_rent',  # is it combined into rent?
                       'xphsdba': 'behind_on_bills',  # behind on energy bills?
@@ -303,9 +305,9 @@ def format_ukhls_columns(year):
                       'scsf7': 'health_limits_social',  # health limits social life.
                       'hhtype_dv': 'hh_composition',  # household composition
                       'mastat_dv': 'marstat',  # marital status
-                      'hhsize': 'hhsize', # number of people in household
-                      'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
-                      'urban_dv': 'urban', # urban or rural household.
+                      'hhsize': 'hhsize',  # number of people in household
+                      'tenure_dv': 'housing_tenure',  # housing tenure type (owned, rented etc.)
+                      'urban_dv': 'urban',  # urban or rural household.
                       # There are dozens of benefits variables in US this seems like
                       # the simplest and most complete for our purposes.
                       'benbase4': 'universal_credit',

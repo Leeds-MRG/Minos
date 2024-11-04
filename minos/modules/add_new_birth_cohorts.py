@@ -286,7 +286,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         self.randomness = builder.randomness.get_stream('fertility')
 
         view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
-        columns_created = ['has_newborn']
+        columns_created = ['nnewborn']
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
@@ -308,7 +308,7 @@ class nkidsFertilityAgeSpecificRates(Base):
             creation_window, and current simulation state (setup/running/etc.).
         """
         # One new column for whether a household has any newborn children.
-        pop_update = pd.DataFrame({'has_newborn': False},
+        pop_update = pd.DataFrame({'nnewborn': 0},
                                   index=pop_data.index)
         self.population_view.update(pop_update)
 
@@ -322,7 +322,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         """
         # Get a view on all living people.
         population = self.population_view.get(event.index, query='alive == "alive"')
-        population['has_newborn'] = False
+        population['nnewborn'] = 0
         # resetting nkids in repl populations.
         population['nkids'] = population.groupby('hidp')['nkids'].transform("max")
 
@@ -342,7 +342,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children_hidps = population.loc[had_children, 'hidp']  # Get all HIDPs of people who've had children
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all HIDPs who live in HH that has had a child
         population.loc[who_had_children_households, 'nkids'] += 1
-        population.loc[who_had_children_households, 'has_newborn'] = True
+        population.loc[who_had_children_households, 'nnewborn'] = 1
         population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x))  # Add new child to children ages chain.
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
@@ -350,7 +350,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
-        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'has_newborn']])
+        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn']])
 
     def add_new_child_to_chain(self, age_chain):
 
