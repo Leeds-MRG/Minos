@@ -287,9 +287,9 @@ families_income_quint_summary_2 <- function(data) {
 
 lone_parent_comparison_summary <- function(data) {
   output <- data %>%
-    select(scenario, hh_comp) %>%
+    select(scenario, hh_comp, hh_income, SF_12, weight, boost_amount) %>%
     mutate(lone_parent = if_else(hh_comp == 2, 1, 
-                                 if_else(hh_comp == 4, 0, NA_character_))) %>%
+                                 if_else(hh_comp == 4, 0, NA_real_))) %>%
     group_by(scenario, lone_parent) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
