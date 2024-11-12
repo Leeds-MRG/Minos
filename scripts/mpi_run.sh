@@ -1,15 +1,13 @@
 #!/bin/bash
 
-# Default values
 CONFIG=""
 OUTPUT=""
 INTERVENTION=""
-
-# Set the current date and time
-TIME=$(date +%Y_%m_%d_%H_%M_%S)
+TIME=""
+BASE_ID=0
 
 # Parse command-line arguments
-while getopts "c:o:i:" opt; do
+while getopts "c:o:i:t:b:" opt; do
   case ${opt} in
     c )
       CONFIG=$OPTARG
@@ -20,27 +18,34 @@ while getopts "c:o:i:" opt; do
     i )
       INTERVENTION=$OPTARG
       ;;
+    t )
+      TIME=$OPTARG
+      ;;
+    b )
+      BASE_ID=$OPTARG
+      ;;
     \? )
-      echo "Usage: $0 -c <config> -o <output> [-i <intervention>]"
+      echo "Usage: $0 -c <config> -o <output> [-i <intervention>] [-t <time>] -b <base_id>"
       exit 1
       ;;
   esac
 done
 
-# Check if mandatory arguments are set
-if [ -z "$CONFIG" ] || [ -z "$OUTPUT" ]; then
-  echo "Error: Both -c <config> and -o <output> are required."
-  exit 1
+# Set TIME to current date and time if not provided
+if [ -z "$TIME" ]; then
+  TIME=$(date +%Y_%m_%d_%H_%M_%S)
 fi
 
-# Build the command
-CMD="python scripts/run.py -c ${CONFIG} -o ${OUTPUT} -t ${TIME} -r \${OMPI_COMM_WORLD_RANK}"
+# Calculate a unique RUN_ID by adding the MPI rank to the BASE_ID
+RUN_ID=$((BASE_ID + ${OMPI_COMM_WORLD_RANK:-0}))
 
-# Add intervention argument if provided
+# Build the command
+CMD="python3 scripts/run.py -c $CONFIG -o $OUTPUT -t $TIME -r $RUN_ID"
+
+# Add intervention if specified
 if [ -n "$INTERVENTION" ]; then
-    CMD+=" -i ${INTERVENTION}"
+  CMD+=" -i $INTERVENTION"
 fi
 
 # Run the command
-echo "Running command: $CMD"
 eval $CMD

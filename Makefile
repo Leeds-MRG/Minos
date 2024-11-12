@@ -155,6 +155,13 @@ include scripts/SCP.Makefile  # SCP intervention scenarios
 ### Cleaning
 #####################################
 
+local_batch: batch2_cp_scot_reduced CPR_local_yearly_reduced CPR_local_allyears_reduced
+
+
+#####################################
+### Cleaning
+#####################################
+
 .PHONY: clean_out clean_logs clean_data clean_all
 
 clean_all: ### Remove output, log files, generated data files and transition models

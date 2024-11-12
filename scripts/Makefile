@@ -201,16 +201,29 @@ intervention_energyDownLiftNoSupport_scotland: setup_scotland_scaled
 	$(PYTHON) scripts/run.py -c $(CONFIG)/scotland_scaled.yaml -o scotland_scaled -i 'energyDownliftNoSupport'
 
 
-#################### BATCH #####################
+#################### LOCAL BATCH #####################
 
 batch_baseline_cpr_scot:
-	mpiexec -n 4 bash scripts/mpi_run.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR)
+	mpiexec -n 8 bash scripts/mpi_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR)
 
 batch_intervention_childPovertyReduction_scot:
-	mpiexec -n 4 bash  scripts/mpi_run.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
+	mpiexec -n 8 bash  scripts/mpi_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
 
-batch_cp_scot_reduced: SUBDIR=batch_scot_cpr
+batch_cp_scot_reduced: SUBDIR=batch_cpr_default
 batch_cp_scot_reduced: batch_baseline_cpr_scot batch_intervention_childPovertyReduction_scot
+
+#################### LOCAL BATCH 2 #####################
+
+batch2_baseline_cpr_scot:
+	bash scripts/mpi_batch_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -r $(TOTAL_RUNS) -b 6
+
+
+batch2_intervention_childPovertyReduction_scot:
+	bash scripts/mpi_batch_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReduction' -r $(TOTAL_RUNS) -b 6
+
+batch2_cp_scot_reduced: SUBDIR=batch2_cpr_default
+batch2_cp_scot_reduced: TOTAL_RUNS=24
+batch2_cp_scot_reduced: batch2_baseline_cpr_scot batch2_intervention_childPovertyReduction_scot
 
 
 ############################################

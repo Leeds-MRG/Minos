@@ -184,6 +184,18 @@ CPR_allyears_reduced:
 	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReduction
 	Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReduction
 
+CPR_local_yearly_reduced: SUBDIR=batch2_cpr_default
+CPR_local_yearly_reduced:
+	bash scripts/local_batch_yearly_sum.sh $(SUBDIR) cpr_sum_out baseline 2020 2035
+	bash scripts/local_batch_yearly_sum.sh $(SUBDIR) cpr_sum_out ChildPovertyReduction 2020 2035
+	bash scripts/local_batch_together_yearly_sum.sh $(SUBDIR) cpr_sum_out ChildPovertyReduction 2020 2035
+
+CPR_local_allyears_reduced: SUBDIR=batch2_cpr_default
+CPR_local_allyears_reduced:
+	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out baseline
+	Rscript minos/combine_summaries_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReduction
+	Rscript minos/combine_together_all_years.R $(SUBDIR) cpr_sum_out ChildPovertyReduction
+
 ##############################################################
 # SCP & CPR Visualisation Notebooks #
 ##############################################################
