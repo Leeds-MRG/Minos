@@ -188,12 +188,12 @@ living_wage_lineplot:
 # All Children Uplift
 all_child_lineplot: MODE="default_config"
 all_child_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "all_child"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "all_child"
 
 # Poverty Line Child Uplift
 poverty_line_lineplot: MODE="default_config"
 poverty_line_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py  $(MODE) "poverty_line_child"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "poverty_line_child"
 
 
 # individual lineplots for new child interventions in increments up to £100
@@ -211,7 +211,7 @@ aggregate_universal_credit_child_uplifts: MODE="glasgow_scaled"
 aggregate_universal_credit_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
 
-aggregate_priority_groups_child_uplifts: MODE= "glasgow_scaled"
+aggregate_priority_groups_child_uplifts: MODE="glasgow_scaled"
 aggregate_priority_groups_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
 
