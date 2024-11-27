@@ -43,7 +43,8 @@ class Ageing(Base):
         """
         # get alive people and add time in years to their age.
         population = self.population_view.get(event.index, query="alive == 'alive'")
-        population['age'] += event.step_size / pd.Timedelta(days=365.25)
+        #population['age'] += event.step_size / pd.Timedelta(days=365.25)
+        population['age'] += 1
 
 
         # add one to current year
@@ -55,14 +56,8 @@ class Ageing(Base):
         # do this by getting the oldest ALIVE member of a household and give everyone in the household that age chain.
         population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
         # update children age chains.
-        population = self.update_child_ages(population)
+        population = self.update_binary_child_ages(population)
 
-        # When a child reaches 16 years old and is then removed from the child_ages and nkids columns, the
-        # child_ages column is filled with a nan value instead of 'None'
-        # Doing this cleanup here because this is causing a mixed type column (strings for age_chains and float for nan)
-        #population['child_ages'][population['child_ages'].isna()] = None
-
-        population['nkids'] = population['nkids'].astype(float)
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
@@ -80,7 +75,6 @@ class Ageing(Base):
         -------
         pop: pd.DataFrame
         """
-        pop['child_ages'] = pop['child_ages'].astype(str)
         pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
                                                     #pd.DataFrame(.to_list(), index=pop.index)
 
@@ -120,6 +114,52 @@ class Ageing(Base):
                 age_chain = "childless"
 
         return age_chain, new_nkids
+
+
+    def update_binary_child_ages(self, pop):
+        """ Update age chains for all households with alive individuals.
+
+        Parameters
+        ----------
+        pop: pd.DataFrame
+
+        Returns
+        -------
+        pop: pd.DataFrame
+        """
+
+        pop['child_ages'] = pop['child_ages'].astype('int64')
+        updated_ages = pop['child_ages'].apply(lambda x: self.increment_binary_age_chains(x))
+                                                    #pd.DataFrame(.to_list(), index=pop.index)
+
+
+
+        pop[['child_ages', 'nkids_delta']] = updated_ages.tolist()
+        pop['nkids'] -= pop['nkids_delta']
+        pop['nkids'] = pop['nkids'].astype('float64')
+        return pop
+
+
+    def increment_binary_age_chains(self, age_chain):
+        """ update the ages of children in the age chains
+
+        Returns
+        -------
+        age_chain: string
+            List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
+        """
+
+        if age_chain == 0:
+            return (0, 0)
+
+        new_nkids = 0 #  default if no age chain found. assume no children.
+
+        # calculate exiting 16 year olds to calculate nkids change.
+        exiting_kids = age_chain >> 60
+        # cut 15 year olds off bit shifting left 4.
+        # resetting back to 64 bits. kinda ugly mask. 0xFFFFFFFF is the biggest int64 in hex for readibility. 2**63.
+        age_chain = 0xFFFFFFFF & (age_chain << 4)
+        return age_chain, exiting_kids
 
     # Special methods for vivarium.
     @property

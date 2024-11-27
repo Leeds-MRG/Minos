@@ -1333,18 +1333,19 @@ rm(raw.s, base.s, spag)
 ```{r}
 raw.child.ages <- raw.dat %>%
   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2013 & child_ages != 'childless') %>%
+  filter(time > 2013 & child_ages != 0) %>%
   group_by(time, hidp) %>%
   summarise(child_ages = find_mode(child_ages))
 
-r.s<- strsplit(raw.child.ages$child_ages, "_")
+r.s <- lapply(raw.child.ages$child_ages, bit64_double_child_ages_counter)
+#r.s<- strsplit(raw.child.ages$child_ages, "_")
 
 raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
 raw.child.ages.expanded <- raw.child.ages.expanded %>%
   group_by(time, expanded_child_ages) %>%
   summarise(age_counts = n()) %>%
-  mutate(source = 'final_US') %>%
-  filter(expanded_child_ages <= 16)
+  mutate(source = 'final_US') #%>%
+  #filter(expanded_child_ages <= 16)
 
 base.child.ages <- base.dat %>%
   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
@@ -1352,7 +1353,8 @@ base.child.ages <- base.dat %>%
   group_by(time, hidp) %>%
   summarise(child_ages = find_mode(child_ages))
 
-b.s<- strsplit(base.child.ages$child_ages, "_")
+b.s <- lapply(base.child.ages$child_ages, bit64_double_child_ages_counter)
+#b.s<- strsplit(base.child.ages$child_ages, "_")
 
 base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
 base.child.ages.expanded <- base.child.ages.expanded %>%

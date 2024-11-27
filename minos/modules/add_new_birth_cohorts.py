@@ -322,12 +322,19 @@ class nkidsFertilityAgeSpecificRates(Base):
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
+        #TODO SUMMING THIS BY HOUSEHOLD INCASE OF DOUBLE BIRTHS.
         # 1. Find everyone in a household who has had children by hidp and increment nkids by 1
+
+        # calculate new number of children PER HOUSEHOLD.
+        population['new_nkids'] = False
+        population.loc[had_children, 'new_nkids'] = True
+        population['new_nkids'] = population.groupby(by=['hidp'], as_index=False)['new_nkids'].transform("sum")
+
         had_children_hidps = population.loc[had_children, 'hidp'] # Get all HIDPs of people who've had children
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index # Get all HIDPs who live in HH that has had a child
-        population.loc[who_had_children_households, 'nkids'] += 1
-        population.loc[who_had_children_households, 'has_newborn'] = True
-        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x)) # add new child to children ages chain.
+        population.loc[who_had_children_households, 'nkids'] += population['new_nkids']
+        population.loc[who_had_children_households, 'has_newborn'] = True # assign newborn child.
+        population.loc[who_had_children_households, 'child_ages'] += population['new_nkids'] # add new child to children ages chain.
 
         # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
         #TODO future differentiation within a household of which kids belong to who in child age chains.
