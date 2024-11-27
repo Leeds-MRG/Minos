@@ -426,7 +426,7 @@ def RunPipeline(config, intervention=None):
         pop = simulation.get_population(untracked=True)
         #pop = pop.loc[pop['tracked']==True, ]
 
-        simulation.destroy_untracked_simulants() # destroys dead people in sim data frame. saves ram.
+        simulation.destroy_untracked_simulants()  # destroys dead people in sim data frame. saves ram.
 
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
@@ -448,17 +448,26 @@ def RunPipeline(config, intervention=None):
         logging.info(f"Saved data to: {output_file_path}")
 
         # Print some summary stats on the simulation.
-        print('alive', len(pop[pop['alive'] == 'alive']))
-        logging.info(f"Total alive: {len(pop[pop['alive'] == 'alive'])}")
+        print('alive:', len(pop.loc[pop['alive'] == 'alive']))
+        logging.info(f"Total alive: {len(pop.loc[pop['alive'] == 'alive'])}")
 
         # Print metrics for desired module.
         # TODO: this can be extended towards a generalised metrics method for each module.
         if 'Mortality()' in config.components:
-            print('dead', len(pop[pop['alive'] == 'dead']))
-            logging.info(f"Total dead: {len(pop[pop['alive'] == 'dead'])}")
+            print('dead:', len(pop.loc[pop['alive'] == 'dead']))
+            logging.info(f"Total dead: {len(pop.loc[pop['alive'] == 'dead'])}")
+
+            # Total mortality rate for sanity checking
+            y = config.time.start.year + year
+            n_alive = len(pop.loc[(pop['time'] == y) & (pop['alive'] == 'alive')])
+            n_dead = len(pop.loc[(pop['time'] == y-1) & (pop['alive'] == 'dead')])
+            mort = n_dead/n_alive
+            print('mortality rate:', mort)
+            logging.info(f"Mortality rate: {mort}")
+
         if 'FertilityAgeSpecificRates()' in config.components:
-            print('New children', len(pop[pop['parent_id'] != -1]))
-            logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
+            print('New children:', len(pop.loc[pop['parent_id'] != -1]))
+            logging.info(f"New children: {len(pop.loc[pop['parent_id'] != -1])}")
 
         #for component in components:
         #    component.plot(pop, config)
