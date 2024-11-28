@@ -136,6 +136,7 @@ class Ageing(Base):
 
         pop[['child_ages', 'nkids_delta']] = updated_ages.tolist()
         pop['nkids'] -= pop['nkids_delta']
+        pop['child_ages'] = pop['child_ages'].astype('int64')
         pop['nkids'] = pop['nkids'].astype('float64')
         return pop
 
@@ -152,13 +153,17 @@ class Ageing(Base):
         if age_chain == 0:
             return (0, 0)
 
-        new_nkids = 0 #  default if no age chain found. assume no children.
-
         # calculate exiting 16 year olds to calculate nkids change.
         exiting_kids = age_chain >> 60
         # cut 15 year olds off bit shifting left 4.
         # resetting back to 64 bits. kinda ugly mask. 0xFFFFFFFF is the biggest int64 in hex for readibility. 2**63.
-        age_chain = 0xFFFFFFFF & (age_chain << 4)
+        #TODO BUG IS HERE SOMEWHERE? not counting vlaues above 8 properly.
+
+        # 0xFFFFFFFF is the biggest number possible for int 64 as a hexidecimal.
+        # This is just a bit mask cutting the first four bits off
+        mask = (1 << 60) - 1
+        age_chain = mask & (age_chain) #0xFFFFFFFF &
+        age_chain = age_chain << 4
         return age_chain, exiting_kids
 
     # Special methods for vivarium.

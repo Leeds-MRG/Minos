@@ -208,7 +208,7 @@ find_mode <- function(x) {
 
 bit64_double_child_ages_counter <- function(starting64BitInt)
 {
-  left <- paste0(as.integer(rev(intToBits(starting64BitInt / (2**32)))), collapse = "")
+  left <- paste0(as.integer(rev(intToBits(starting64BitInt %/% (2**32)))), collapse = "")
   right <- paste0(as.integer(rev(intToBits(starting64BitInt %% (2**32)))), collapse = "")
   
   left <- gsub("(.{4})", "\\1 ", left)
@@ -221,7 +221,7 @@ bit64_double_child_ages_counter <- function(starting64BitInt)
     count <-  as.integer(strtoi(total[i], base=2))
     if (count > 0){
       for (j in count){
-        output <- append(output, as.character(16-i))
+        output <- append(output, 16 - i)
       }
     }
   }

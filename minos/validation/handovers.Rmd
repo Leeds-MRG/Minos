@@ -1349,7 +1349,7 @@ raw.child.ages.expanded <- raw.child.ages.expanded %>%
 
 base.child.ages <- base.dat %>%
   dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2009) %>%
+  filter(time > 2009 & child_ages != 0) %>%
   group_by(time, hidp) %>%
   summarise(child_ages = find_mode(child_ages))
 
