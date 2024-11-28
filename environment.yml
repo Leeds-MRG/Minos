@@ -54,6 +54,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-doParallel
   - r-caret
   - r-GLMMadaptive
+  - r-glmnet
   - r-ranger
   - pandoc
   - sphinx
