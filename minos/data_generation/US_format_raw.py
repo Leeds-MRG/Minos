@@ -603,7 +603,7 @@ if __name__ == "__main__":
     # Get source from args
     source = args.source_dir
     verbose = args.verbose
-    # source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
+    source = "../UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
     output = "data/raw_US/"
 
     main(years, source, verbose, output)

@@ -71,7 +71,8 @@ if __name__ == "__main__":
     file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
+    complete_case_vars = ["housing_quality",
+                          'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
                           "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
     # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'

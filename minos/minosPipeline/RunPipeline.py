@@ -383,9 +383,30 @@ def RunPipeline(config, intervention=None):
     # File name and save
     output_data_filename = get_output_data_filename(config)
     output_file_path = os.path.join(config.run_output_dir, output_data_filename)
-    pop.to_csv(output_file_path)
-    print("Saved initial data to: ", output_file_path)
-    logging.info(f"Saved initial data to: {output_file_path}")
+
+    save_columns = []
+    if 'keep_columns' in config.keys():
+        save_columns += config['keep_columns']
+    if ('intervention_keep_columns' in config.keys()) and intervention:
+        save_columns += config['intervention_keep_columns']
+    if 'synthpop_keep_columns' in config.keys():
+        save_columns += config['synthpop_keep_columns']
+
+    # only save 2020 data for single model runs
+    # or the first run out of multiple model runs with run id 1.
+    if not intervention:
+        if ("run_ID" not in config.keys()) or (config['run_ID'] == 1):
+            if save_columns:
+                pop[save_columns].to_csv(output_file_path, index=False)
+            else:
+                pop.to_csv(output_file_path, index=False)
+
+            print("Saved initial data to: ", output_file_path)
+            logging.info(f"Saved initial data to: {output_file_path}")
+        else:
+            print("Running multiple models. Only saving 2020 data for first baseline model run with run id 1.")
+    else:
+        print("Policy intervention is applied. Initial data in 2020 is not saved.")
 
 
     logging.info('Simulation loop start...')
@@ -402,7 +423,10 @@ def RunPipeline(config, intervention=None):
         logging.info(f'Finished running simulation for year: {config.time.start.year + year}')
 
         # get population dataframe.
-        pop = simulation.get_population()
+        pop = simulation.get_population(untracked=True)
+        #pop = pop.loc[pop['tracked']==True, ]
+
+        simulation.destroy_untracked_simulants()  # destroys dead people in sim data frame. saves ram.
 
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)
@@ -411,22 +435,39 @@ def RunPipeline(config, intervention=None):
         output_data_filename = get_output_data_filename(config, year)
 
         output_file_path = os.path.join(config.run_output_dir, output_data_filename)
-        pop.to_csv(output_file_path)
+
+        # If specified in config using keep_columns intervention_keep_columns and synthetic_keep_columns,
+        # only save a subset of the MINOS output to csvs.
+        # Otherwise just save the entire thing.
+        if save_columns:
+            pop[save_columns].to_csv(output_file_path, index=False)
+        else:
+            pop.to_csv(output_file_path, index=False)
+
         print("Saved data to: ", output_file_path)
         logging.info(f"Saved data to: {output_file_path}")
 
         # Print some summary stats on the simulation.
-        print('alive', len(pop[pop['alive'] == 'alive']))
-        logging.info(f"Total alive: {len(pop[pop['alive'] == 'alive'])}")
+        print('alive:', len(pop.loc[pop['alive'] == 'alive']))
+        logging.info(f"Total alive: {len(pop.loc[pop['alive'] == 'alive'])}")
 
         # Print metrics for desired module.
         # TODO: this can be extended towards a generalised metrics method for each module.
         if 'Mortality()' in config.components:
-            print('dead', len(pop[pop['alive'] == 'dead']))
-            logging.info(f"Total dead: {len(pop[pop['alive'] == 'dead'])}")
+            print('dead:', len(pop.loc[pop['alive'] == 'dead']))
+            logging.info(f"Total dead: {len(pop.loc[pop['alive'] == 'dead'])}")
+
+            # Total mortality rate for sanity checking
+            y = config.time.start.year + year
+            n_alive = len(pop.loc[(pop['time'] == y) & (pop['alive'] == 'alive')])
+            n_dead = len(pop.loc[(pop['time'] == y-1) & (pop['alive'] == 'dead')])
+            mort = n_dead/n_alive
+            print('mortality rate:', mort)
+            logging.info(f"Mortality rate: {mort}")
+
         if 'FertilityAgeSpecificRates()' in config.components:
-            print('New children', len(pop[pop['parent_id'] != -1]))
-            logging.info(f"New children: {len(pop[pop['parent_id'] != -1])}")
+            print('New children:', len(pop.loc[pop['parent_id'] != -1]))
+            logging.info(f"New children: {len(pop.loc[pop['parent_id'] != -1])}")
 
         #for component in components:
         #    component.plot(pop, config)

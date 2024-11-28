@@ -188,12 +188,12 @@ living_wage_lineplot:
 # All Children Uplift
 all_child_lineplot: MODE="default_config"
 all_child_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "all_child"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "all_child"
 
 # Poverty Line Child Uplift
 poverty_line_lineplot: MODE="default_config"
 poverty_line_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py  $(MODE) "poverty_line_child"
+	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "poverty_line_child"
 
 
 # individual lineplots for new child interventions in increments up to £100
@@ -211,7 +211,7 @@ aggregate_universal_credit_child_uplifts: MODE="glasgow_scaled"
 aggregate_universal_credit_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_universal_credit"
 
-aggregate_priority_groups_child_uplifts: MODE= "glasgow_scaled"
+aggregate_priority_groups_child_uplifts: MODE="glasgow_scaled"
 aggregate_priority_groups_child_uplifts:
 	python3 minos/outcomes/make_lineplots_macros.py $(MODE) "incremental_priority_groups"
 
@@ -526,7 +526,7 @@ every_single_scotland_plot: all_25_50_by_5_UC_scotland_uplifts all_priority_subg
 
 # EBSS energy downlift.
 ebss_lineplot:
-	python3 minos/outcomes/make_lineplots_macros.py "ebss"
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "ebss"
 
 # do all the above together
 all_five_lineplot:
@@ -534,6 +534,11 @@ all_five_lineplot:
 
 epcg_simd_lineplot:
 	python3 minos/outcomes/make_lineplots_macros.py "glasgow_scaled" "epcg_simd_lineplot"
+
+
+# EBSS energy downlift.
+energy_downlift_lineplot:
+	python3 minos/outcomes/make_lineplots_macros.py "energy_downlift"
 
 
 ########################################################################
@@ -622,5 +627,8 @@ aggregate_combined_vulnerable:VULNERABLE_DIRECTORY_SUBSETS=who_alive,who_kids,wh
 aggregate_combined_vulnerable:
 	bash minos/outcomes/make_lineplot.sh $(MODE) $(VULNERABLE_DIRECTORIES) $(VULNERABLE_DIRECTORY_TAGS) $(VULNERABLE_DIRECTORY_SUBSETS) "all_vulnerable" $(AGG_VAR) $(REGION)
 
+#aggregate_minos_output_energy
+#	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
 aggregate_minos_output_energy:
-	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift,energyDownliftNoSupport "Baseline,Energy crisis with the EPCG,Energy crisis with no support" who_uses_energy,who_boosted,who_boosted "epcg" $(AGG_VAR) $(REGION)
+	bash minos/outcomes/make_lineplot.sh $(MODE) baseline,energyDownlift "Baseline,Energy crisis with the EPCG" who_uses_energy,who_boosted "epcg" "SF_12"
+

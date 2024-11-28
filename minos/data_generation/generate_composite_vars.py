@@ -90,7 +90,9 @@ def generate_composite_housing_quality(data):
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
     data["housing_quality"] = np.select(conditions, values)
     # Set to -9 if missing (currently when housing_quality == 0)
-    data['housing_quality'][data['housing_quality'] == 0] = -9
+    #data['housing_quality'][data['housing_quality'] == 0] = -9
+    data.loc[((data['heating'] < 0) | (data['washing_machine'] < 0.) | (data['fridge_freezer'] < 0)
+              | (data['microwave'] < 0) | (data['dishwasher'] < 0) | (data['tumble_dryer'] < 0)), "housing_quality"] = "-9.0"
 
     print('Generating composite for SIPHER 7 housing_quality...')
     ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)

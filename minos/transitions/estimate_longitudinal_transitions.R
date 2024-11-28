@@ -117,13 +117,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
       use.weights <- TRUE
     }
 
-    # if (dependent %in% c()) {  # 'SF_12_PCS', "SF_12_MCS"
-    #   do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
-    # }
-    # else {
-    #   do.reflect=FALSE
-    # }
-    do.reflect=FALSE
+     if (dependent %in% c('SF_12_PCS', "SF_12_MCS", "SF_12")) {  # 
+       do.reflect = TRUE # only SF12 continuous data is reflected to be left skewed.
+     }
+     else {
+       do.reflect=FALSE
+    }
 
     if (dependent %in% c("hh_income")) {  # "SF_12"
       do.yeo.johnson = T #
@@ -286,6 +285,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     write_coefs <- F
     if (write_coefs)
     {
+      create.if.not.exists("data/transitions/coefficients")
       texreg_file <- paste0(out.path2, "coefficients", dependent, '_', mod.type, '.rds')
       texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
     }

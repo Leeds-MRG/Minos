@@ -296,7 +296,7 @@ def predict_next_timestep_gee(model, rpy2_modules, current, dependent, noise_std
     return newPandasPopDF[[dependent]]
 
 
-def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, log_transform, noise_std = 0):
+def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependent, log_transform, reflect, noise_std = 0):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
     for a module.
@@ -335,6 +335,9 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         max_value = model.do_slot("max_value")
         min_value = model.do_slot("min_value")
 
+    if reflect:
+        currentRDF[currentRDF.names.index(dependent)] = max_value.ro - currentRDF.rx2(dependent)
+
     if log_transform:
         # log transformation currently only for PCS (also testing MCS)
         currentRDF[currentRDF.names.index(dependent)] = base.log(currentRDF.rx2(dependent))
@@ -360,8 +363,6 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     #     print(min(dependent_list))
     #     print(max(dependent_list))
 
-    if log_transform:
-        prediction = base.exp(prediction)
 
 
     valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality',
@@ -373,6 +374,13 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std)  # add gaussian noise.
     else:
         prediction = prediction # no noise is added.
+
+
+    if log_transform:
+        prediction = base.exp(prediction)
+
+    if reflect:
+        prediction = max_value.ro - prediction
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
