@@ -825,3 +825,66 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
         return series_out
 
 ews = get_lsoa_la_map()
+
+def calculate_OECD_equivalence_factor(data):
+    """
+    Calculate the OECD equivalence factor for each household in the dataset.
+    The rules are as follows:
+    - First adult = 1
+    - Additional adult = 0.5
+    - Each child = 0.3
+    Only individuals with a weight > 0 are included in the calculation.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        DataFrame containing:
+        - 'hidp': Household ID for each individual.
+        - 'age': Age of each individual.
+        - 'nkids': Number of children in the household.
+        - 'weight': Survey weight for each individual.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The input DataFrame with an additional column 'oecd_factor',
+        where each individual within a household is assigned the same equivalence factor.
+    """
+    import pandas as pd
+
+    if not isinstance(data, pd.DataFrame):
+        raise ValueError("Input data must be a pandas DataFrame.")
+
+    # Ensure required columns are present
+    required_columns = ['hidp', 'age', 'nkids', 'weight']
+    if not all(col in data.columns for col in required_columns):
+        raise ValueError(f"Input data must contain the columns: {required_columns}")
+
+    # Filter out individuals with weight <= 0
+    data['is_adult'] = data['age'] >= 18
+
+    def calculate_equivalence_factor(group):
+        # Filter the group to include only individuals with weight > 0
+        valid_group = group[group['weight'] > 0]
+        if valid_group.empty:
+            return 0  # Return 0 if no valid individuals in the household
+        first_adult = 1 if valid_group['is_adult'].sum() > 0 else 0
+        additional_adults = max(valid_group['is_adult'].sum() - 1, 0) * 0.5
+        children = valid_group['nkids'].iloc[0] * 0.3
+        return first_adult + additional_adults + children
+
+    # Group by household and calculate the OECD equivalence factor
+    oecd_factors = (
+        data.groupby('hidp')
+        .apply(calculate_equivalence_factor)
+        .reset_index(name='oecd_factor')
+    )
+
+    # Merge the OECD equivalence factor back into the original DataFrame
+    data = data.merge(oecd_factors, on='hidp')
+
+    # Drop the temporary 'is_adult' column
+    data = data.drop(columns=['is_adult'])
+
+    return data
+

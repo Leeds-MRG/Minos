@@ -221,6 +221,11 @@ def calculate_hourly_wage(data):
     return data
 
 
+def select_random_income(group):
+    random_income = np.random.choice(group['hh_income'])
+    return group.assign(hh_income=random_income)
+
+
 def generate_hh_income(data):
     """ Generate household income based on the following formulas:
 
@@ -255,6 +260,8 @@ def generate_hh_income(data):
 
     # Adjust hh income for inflation
     data = US_utils.inflation_adjustment(data, "hh_income")
+
+    data = data.groupby('hidp').apply(select_random_income).reset_index(drop=True)
 
     # now drop the intermediates
     data.drop(labels=['hh_rent', 'hh_mortgage', 'outgoings', 'hh_netinc', 'oecd_equiv',

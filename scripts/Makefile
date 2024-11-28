@@ -215,12 +215,13 @@ batch_cp_scot_reduced: batch_baseline_cpr_scot batch_intervention_childPovertyRe
 #################### LOCAL BATCH 2 #####################
 
 batch2_baseline_cpr_scot:
-	bash scripts/mpi_batch_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -r $(TOTAL_RUNS) -b 6
+	bash scripts/mpi_batch_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -r $(TOTAL_RUNS) -b 4
 
 
 batch2_intervention_childPovertyReduction_scot:
-	bash scripts/mpi_batch_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReduction' -r $(TOTAL_RUNS) -b 6
+	bash scripts/mpi_batch_run.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReduction' -r $(TOTAL_RUNS) -b 4
 
+batch2_cp_scot_reduced: setup_scotland_scaled
 batch2_cp_scot_reduced: SUBDIR=batch2_cpr_default
 batch2_cp_scot_reduced: TOTAL_RUNS=24
 batch2_cp_scot_reduced: batch2_baseline_cpr_scot batch2_intervention_childPovertyReduction_scot

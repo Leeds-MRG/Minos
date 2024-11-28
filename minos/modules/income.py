@@ -5,6 +5,7 @@ Possible extension to interaction with employment/education and any spatial/inte
 """
 
 import pandas as pd
+from minos.utils import calculate_OECD_equivalence_factor
 import minos.modules.r_utils as r_utils
 from minos.modules.base_module import Base
 import matplotlib.pyplot as plt
@@ -1703,7 +1704,9 @@ class XGBIncome(Base):
                         'hh_income_diff',
                         'S7_labour_state',
                         'time',
-                        'hidp'
+                        'hidp',
+                        'nkids',
+                        'weight'
                         ]
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
@@ -1755,42 +1758,27 @@ class XGBIncome(Base):
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
 
-        # Ensure whole household has equal hh_income by taking mean after prediction
-        newWaveIncome['hidp'] = pop['hidp']
-        newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income).reset_index(drop=True)
+        # Ensure whole household has equal hh_income using the oecd equivalence factor
+        pop['hh_income'] = newWaveIncome['hh_income']
+        #pop = equivalise_predicted_income(pop)
+        pop['hh_income'] = mean_predicted_income(pop)
 
         # calculate household income mean
-        income_mean = np.mean(newWaveIncome["hh_income"])
+        income_mean = np.mean(pop["hh_income"])
         # calculate change in standard deviation between waves.
-        std_ratio = (np.std(pop['hh_income_last']) / np.std(newWaveIncome["hh_income"]))
+        std_ratio = (np.std(pop['hh_income_last']) / np.std(pop["hh_income"]))
         # rescale income to have new mean but keep old standard deviation.
-        newWaveIncome["hh_income"] *= std_ratio
-        newWaveIncome["hh_income"] -= ((std_ratio - 1) * income_mean)
-
-        ## SCALING FIX FOR CHILD POV INTERVENTIONS??
-        # Instead of scaling the whole pop at once, lets scale by quintile to maintain the variance of higher quintiles
-        # This is especially important in interventions that target small groups, and especially especially so in
-        # interventions that have fixed thresholds (like child pov reduction)
-        #newWaveIncome = scale_variance_by_quintile(newWaveIncome, pop, 'hh_income', 'hh_income_last')
-
-        # scale and clip hh_income
-        #newWaveIncome = scale_and_clip(newWaveIncome, pop)
-
-        # Variance scaling with a scaling factor applied to some interventions (child poverty reduction)
-        # TODO: Rename this attribute to something more generic about child poverty interventions
-        #newWaveIncome = scale_adjust_variance(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.9)
-
-        # For intervention run (reduce variance only in bottom half):
-        #newWaveIncome = scale_and_clip_lopsided(newWaveIncome, pop, is_intervention=self.reset_income_intervention, scaling_factor=0.8)
+        pop["hh_income"] *= std_ratio
+        pop["hh_income"] -= ((std_ratio - 1) * income_mean)
 
         # Adjust Skewness
         #target_skew = skew(pop["hh_income_last"])
         #newWaveIncome["hh_income"] = adjust_skewness(newWaveIncome["hh_income"], target_skew)
 
         # difference in hh income
-        newWaveIncome['hh_income_diff'] = newWaveIncome['hh_income'] - pop['hh_income_last']
+        pop['hh_income_diff'] = pop['hh_income'] - pop['hh_income_last']
 
-        self.population_view.update(newWaveIncome[['hh_income', 'hh_income_diff']])
+        self.population_view.update(pop[['hh_income', 'hh_income_diff']])
 
     def calculate_income(self, pop):
         """Calculate income transition distribution based on provided people/indices
@@ -1815,3 +1803,51 @@ class XGBIncome(Base):
                                                   noise_cauchy=0)
 
         return nextWaveIncome
+
+
+def equivalise_predicted_income(data):
+    """
+    Calculate the equivalised household income based on the OECD equivalence factor.
+    Parameters
+    ----------
+    data : DataFrame
+        Input DataFrame containing hh_income and hidp columns
+
+    Returns
+    -------
+    DataFrame
+        The updated DataFrame with an updated hh_income column
+    """
+
+    # Calculate the OECD equivalence factor and add it to the DataFrame
+    data = calculate_OECD_equivalence_factor(data)
+
+    # Sum hh_income for each household (grouped by hidp)
+    data['hh_income_sum'] = data.groupby('hidp')['hh_income'].transform('sum')
+
+    # Divide the household income sum by the OECD equivalence factor
+    data['hh_income'] = data['hh_income_sum'] / data['oecd_factor']
+
+    # Drop the intermediate column if not needed
+    data.drop(columns=['hh_income_sum',
+                       'oecd_factor'], inplace=True)
+
+    return data
+
+
+def mean_predicted_income(data):
+    """
+    Return a vector of income where the individual predicted hh_income values are
+    replaced with the average of the household.
+    Parameters
+    ----------
+    data : DataFrame
+        population_view DataFrame with hidp and hh_income columns
+
+    Returns
+    -------
+    data : DataFrame
+        DataFrame with the hh_income column averaged within households
+    """
+    #data['hh_income'] = data.groupby('hidp')['hh_income'].transform('mean')
+    return data.groupby('hidp')['hh_income'].transform('mean')
