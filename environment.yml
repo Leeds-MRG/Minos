@@ -92,5 +92,6 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
     - pandas==1.4.4
     - numpy==1.22.4
     - matplotlib
+    - openpyxl
 prefix:
 
