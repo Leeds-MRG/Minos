@@ -48,8 +48,7 @@ def complete_case_custom_years(data, var, years):
     print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
-    # data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
-    data.loc[data['time'].isin(years), var].replace(US_utils.missing_types, np.nan, inplace=True)  # Avoids SettingWithCopyWarning
+    data.loc[data['time'].isin(years), var] = data.loc[data['time'].isin(years), var].replace(US_utils.missing_types, np.nan)  # Avoids SettingWithCopyWarning
     data = data[~(data['time'].isin(years) & data[var].isna())]
 
     return data
