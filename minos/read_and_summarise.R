@@ -641,7 +641,7 @@ scen <- args[3]
 
 create.if.not.exists <- function(path) {
   if(!file.exists(path)) {
-    dir.create(path = path)
+    dir.create(path = path, recursive = TRUE)
   }
 }
 create.if.not.exists(save.path)
