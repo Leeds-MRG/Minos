@@ -995,7 +995,7 @@ def calculate_children(data,
     data.loc[(data['nkids_ind'] > parity_max) & (data['sex'] == "Female"), 'nkids_ind'] = parity_max
 
     # Drop interim variables as not used elsewhere in pipeline
-    data.drop(labels=['nkids_ind_raw', 'nnewborn'],
+    data.drop(labels=['nkids_ind_raw'],
               axis=1,
               inplace=True)
     return data

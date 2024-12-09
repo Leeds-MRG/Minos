@@ -286,7 +286,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         self.randomness = builder.randomness.get_stream('fertility')
 
         view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
-        columns_created = ['nnewborn']
+        # columns_created = ['nnewborn']
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
