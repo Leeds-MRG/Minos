@@ -958,27 +958,44 @@ def calculate_children(data,
     data['nkids_ind'] = data['nkids_ind_raw']
 
     pl = str(len(pidps))
-    for i,pidp in enumerate(pidps):
+    # for i,pidp in enumerate(pidps):
+    #     sys.stdout.write("\rProcessing pidp " + str(i+1) + " of " + pl + " (females only)")
+    #     subframe = data.loc[data['pidp'] == pidp][['pidp', 'nkids_ind_raw', 'nkids_ind_new', 'time']]
+    #     # Calculate number of children if:
+    #     # 1. Any pregnancies present (i.e. nkids_ind_new == 2)
+    #     # 2. There are no negative values in nkids_ind_raw (indicating invalid values)
+    #     if (2 in subframe['nkids_ind_new'].values) and not (subframe['nkids_ind_raw'].lt(0).any()):
+    #         # Increment values according to cumulative sum
+    #         # Note specific method avoids Pandas SettingWithCopyWarning
+    #         # See here: https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
+    #         data.loc[subframe.index, 'nkids_ind'] = subframe['nkids_ind_raw'] + (subframe['nkids_ind_new'] == 2).astype(int).cumsum()
+    #         # print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+    #     # elif (subframe['nkids_ind_raw'].lt(0).any()):
+    #     #     print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+    # print("")
+
+    # HR 11/10/24 New version using nnewborn (x > 0 indicates new children), in place of nkids_ind_new (x = 2 indicates pregnancy)
+    for i, pidp in enumerate(pidps):
         sys.stdout.write("\rProcessing pidp " + str(i+1) + " of " + pl + " (females only)")
-        subframe = data.loc[data['pidp'] == pidp][['pidp', 'nkids_ind_raw', 'nkids_ind_new', 'time']]
+        subframe = data.loc[data['pidp'] == pidp][['pidp', 'nkids_ind_raw', 'nnewborn', 'time']]
         # Calculate number of children if:
-        # 1. Any pregnancies present (i.e. nkids_ind_new == 2)
+        # 1. Any pregnancies present (i.e. nnewborn > 0)
         # 2. There are no negative values in nkids_ind_raw (indicating invalid values)
-        if (2 in subframe['nkids_ind_new'].values) and not (subframe['nkids_ind_raw'].lt(0).any()):
+        if (subframe['nnewborn'].sum() > 0) and not (subframe['nkids_ind_raw'].lt(0).any()):
             # Increment values according to cumulative sum
             # Note specific method avoids Pandas SettingWithCopyWarning
             # See here: https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
-            data.loc[subframe.index, 'nkids_ind'] = subframe['nkids_ind_raw'] + (subframe['nkids_ind_new'] == 2).astype(int).cumsum()
-            # print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+            data.loc[subframe.index, 'nkids_ind'] = subframe['nkids_ind_raw'] + subframe['nnewborn'].cumsum()
+            # print(data[['time', 'pidp', 'nkids_ind_raw', 'nnewborn', 'nkids_ind']].loc[subframe.index])
         # elif (subframe['nkids_ind_raw'].lt(0).any()):
-        #     print(data[['time', 'pidp', 'nkids_ind_raw', 'nkids_ind_new', 'nkids_ind']].loc[subframe.index])
+        #     print(data[['time', 'pidp', 'nkids_ind_raw', 'nnewborn', 'nkids_ind']].loc[subframe.index])
     print("")
 
     # Reset any women with more than nmax children to nmax
     data.loc[(data['nkids_ind'] > parity_max) & (data['sex'] == "Female"), 'nkids_ind'] = parity_max
 
     # Drop interim variables as not used elsewhere in pipeline
-    data.drop(labels=['nkids_ind_raw'],
+    data.drop(labels=['nkids_ind_raw', 'nnewborn'],
               axis=1,
               inplace=True)
     return data

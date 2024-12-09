@@ -300,7 +300,7 @@ def load_multiple_data(file_names):
     # load wave by year and mash them into one big frame.
     data = pd.DataFrame()
     for item in file_names:
-        wave = pd.read_csv(item)
+        wave = pd.read_csv(item, low_memory=False)
         data = pd.concat([data, wave], sort=False)
     data = data.reset_index(drop=True)  # Reset index so they are unique. drop=True does not keep it as a new column.
     return data
