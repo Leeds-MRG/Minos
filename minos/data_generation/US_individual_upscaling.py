@@ -268,9 +268,7 @@ def main(region=REGION_DEFAULT,
         # Get LSOAs in region to be subsetted, then filter
         lsoa_col = "LSOA" + str(LSOA_YEAR_DEFAULT)[-2:] + "CD"
         lsoas = get_lsoas(region)
-        # sp.rename(columns={'ZoneID': lsoa_col}, inplace=True)  # Rename column that is present in some version of synthpop
-        # sp = sp.loc[sp['LSOA11CD'].isin(lsoas)]
-        sp = sp.loc[sp['ZoneID'].isin(lsoas)]
+        sp.rename(columns={'synthetic_zone': lsoa_col}, inplace=True)  # Rename column that is present in some version of synthpop
 
         ''' HR 11/09/24 Bootstrapping not tested '''
         # # If bootstrapping sample from subsetted synthetic data with replacement (i.e. allow multiple instances)
@@ -340,7 +338,7 @@ if __name__ == '__main__':
                         help="Bootstrapping the synthetic population to include uncertainty?")
     parser.add_argument('-pr', '--priority_subgroups', required=False, action='store_true', default=False,
                         help="Create a synthetic population of only the people in a priority subgroup")
-    parser.add_argument('-m', '--multisample', required=False, action='store_true', default=False,
+    parser.add_argument('-m', '--multisample', required=False, action='store_false',
                         help='Generate 10 distinct samples to evaluate sample uncertainty; should only be used if the'
                              'percentage of the sample is less than 100% (otherwise you would just duplicate that '
                              'sample')
