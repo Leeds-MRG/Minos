@@ -285,8 +285,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages"]
-        # columns_created = ['nnewborn']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages", 'nnewborn']
+        columns_created = []
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
 
@@ -308,9 +308,10 @@ class nkidsFertilityAgeSpecificRates(Base):
             creation_window, and current simulation state (setup/running/etc.).
         """
         # One new column for whether a household has any newborn children.
-        pop_update = pd.DataFrame({'nnewborn': 0},
-                                  index=pop_data.index)
-        self.population_view.update(pop_update)
+        # pop_update = pd.DataFrame({'nnewborn': 0},
+        #                           index=pop_data.index)
+        # self.population_view.update(pop_update)
+        pass
 
     def on_time_step(self, event):
         """Produces new children and updates parent status on time steps.
@@ -350,6 +351,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
+
+        population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn']])
 
     def add_new_child_to_chain(self, age_chain):
