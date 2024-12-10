@@ -107,7 +107,6 @@ class Replenishment(Base):
 
         view_columns = list(pd.read_csv("data/final_US/2020_US_cohort.csv").columns)
 
-
         if config.synthetic:  # only have spatial column and new pidp for synthpop.
             view_columns += ["ZoneID",
                              # "new_pidp",
