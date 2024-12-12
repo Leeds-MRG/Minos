@@ -19,6 +19,7 @@ Handover plots are not strictly statistical validation, but more a type of 'sani
 ```{r "setup", include=FALSE}
 
 library(tidyverse)
+library(viridis)
 library(ggplot2)
 library(ggridges) # for densities over time plots. 
 library(knitr)
