@@ -285,7 +285,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages", 'nnewborn']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages", 'nnewborn', 'nresp']
         columns_created = []
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
@@ -352,8 +352,14 @@ class nkidsFertilityAgeSpecificRates(Base):
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
 
-        population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
-        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn']])
+        # HR 12/12/24 Also updating nresp and decrementing 1/16 of individuals by one to account for ageing out of 0-16 age range
+        # This is an imperfect solution as it doesn't account for actual child ages
+        population.loc[who_had_children_individuals, 'nresp'] += 1
+        ageout_sample = population.loc[who_had_children_individuals].sample(frac=1).sample(frac=1/16).index  # Shuffle then sample
+        population.loc[ageout_sample, 'nresp'] -= 1
+
+        # population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
+        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nresp']])
 
     def add_new_child_to_chain(self, age_chain):
 
