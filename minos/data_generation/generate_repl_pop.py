@@ -366,7 +366,7 @@ def main():
     parser.add_argument('-pr', '--priority_subgroup', action='store_true',
                         help="Select priority subgroup mode to generate a replenishing pop from the priority subgroup "
                              "only population.")
-    parser.add_argument('-m', '--multisample', action='store_false',
+    parser.add_argument('-m', '--multisample', action='store_false', default=False,
                         help="Multisample mode, generate 10 different replenishing populations from the 10 samples"
                              "generated from the synthpop.")
 
