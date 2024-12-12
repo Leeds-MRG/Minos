@@ -255,7 +255,7 @@ def format_ukhls_columns(year):
                       'nkids_dv': 'nkids',  # Number of children in household
                       'lnprnt': 'nkids_ind_raw',  # Number of children ever had by individual at first interview
                       # 'preg': 'nkids_ind_new',  # Whether had a child (actually a pregnancy) since last interview
-                      # 'nchresp': 'nresp',  # Number of children under 16 that person is responsible for
+                      'nchresp': 'nresp',  # Number of children under 16 that person is responsible for
                       'nnewborn': 'nnewborn',  # Number of newborns since last interview
                       ## ---------------------
                       'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
