@@ -285,7 +285,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages", 'nnewborn']
+        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages", 'nnewborn', 'nnewborn_hh']
         columns_created = []
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
@@ -339,21 +339,28 @@ class nkidsFertilityAgeSpecificRates(Base):
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
-        # 1. Find everyone in a household who has had children by hidp and increment nkids by 1
-        had_children_hidps = population.loc[had_children, 'hidp']  # Get all HIDPs of people who've had children
-        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all HIDPs who live in HH that has had a child
-        population.loc[who_had_children_households, 'nkids'] += 1
-        population.loc[who_had_children_households, 'nnewborn'] = 1
-        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x))  # Add new child to children ages chain.
-
-        # 2. Find individuals who have had children by pidp and increment nkids_ind by 1
+        # 1. Find individuals who have had children by pidp and increment nkids_ind by 1
         #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
+        population.loc[who_had_children_individuals, 'nnewborn'] = 1
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
 
+        # 2. Find everyone in a household who has had children by hidp and increment nkids by 1
+        had_children_hidps = population.loc[had_children, 'hidp'].unique()  # Get all HIDPs of people who've had children
+        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all HIDPs who live in HH that has had a child
+        population.loc[who_had_children_households, 'nkids'] += 1
+        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x))  # Add new child to children ages chain.
+
+        # 3. Find number of newborns per household
+        # population.loc[who_had_children_households, 'nnewborn'] = 1  # Old method, doesn't account for multiple newborns per hh
+        nnewborn_hh_map = population.loc[who_had_children_households].groupby('hidp')['nnewborn'].sum()
+        # population.loc[who_had_children_households, 'nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map)
+        population['nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map).fillna(0)
+
         population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
-        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn']])
+        population['nnewborn_hh'] = population['nnewborn_hh'].astype(float)
+        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh']])
 
     def add_new_child_to_chain(self, age_chain):
 
