@@ -57,6 +57,7 @@ VAR_LIST_DEFAULT_FERTILITY = ('pidp',
                               'child_ages',
                               'nresp',
                               'nnewborn',
+                              'nnewborn_hh',
                               # 'weight',  # Not required for any synthpop as only correct for US pop
                               'education_state',
                               'max_educ',
