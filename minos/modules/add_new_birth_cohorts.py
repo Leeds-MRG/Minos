@@ -363,8 +363,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         # population.loc[who_had_children_households, 'nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map)
         population['nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map).fillna(0)
 
-        population['nnewborn'] = population['nnewborn'].astype(float)
-        population['nnewborn_hh'] = population['nnewborn_hh'].astype(float)
+        # population['nnewborn'] = population['nnewborn'].astype(float)
+        population['nnewborn_hh'] = population['nnewborn_hh'].astype(int)
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh', 'nresp']])
         ###
 
