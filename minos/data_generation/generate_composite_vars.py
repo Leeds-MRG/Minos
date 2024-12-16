@@ -948,11 +948,13 @@ def calculate_children(data,
     """
     print('Generating composite for children per individual...')
 
-    # data.to_csv("datadump.csv")
     pidps_all = data['pidp'].unique()
     pidps = data.loc[data['sex'] == 'Female']['pidp'].unique()
     print("No. of pidps (all):", len(pidps_all))
     print("No. of pidps (females only):", len(pidps))
+
+    # Reset invalid values manually
+    data.loc[data['nnewborn'].isin(US_utils.missing_types), 'nnewborn'] = 0
 
     # Initialise new column
     data['nkids_ind'] = data['nkids_ind_raw']
@@ -993,6 +995,10 @@ def calculate_children(data,
 
     # Reset any women with more than nmax children to nmax
     data.loc[(data['nkids_ind'] > parity_max) & (data['sex'] == "Female"), 'nkids_ind'] = parity_max
+
+    # Create hh-level newborns column
+    nnewborn_hh_map = data.groupby('hidp')['nnewborn'].sum()
+    data['nnewborn_hh'] = data['hidp'].map(nnewborn_hh_map).fillna(0)
 
     # Drop interim variables as not used elsewhere in pipeline
     data.drop(labels=['nkids_ind_raw'],

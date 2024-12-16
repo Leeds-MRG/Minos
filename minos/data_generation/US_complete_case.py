@@ -101,8 +101,8 @@ def input_main():
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
-                          "housing_tenure", "nkids_ind", 'S7_labour_state', 'behind_on_bills']
-    # REMOVED:  'job_sector', 'labour_state'
+                          "housing_tenure", "nkids_ind", 'nnewborn', 'S7_labour_state', "behind_on_bills"]
+    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)
     # data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.  # HR 444
