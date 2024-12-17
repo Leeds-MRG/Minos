@@ -146,10 +146,11 @@ def transition_main():
 
     complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
-                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
+                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills",
+                          'nnewborn', 'nresp']
     # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
-    data = complete_case_varlist(data, complete_case_vars)  # remove any household with dodgy age chains.
+    data = complete_case_varlist(data, complete_case_vars)
     data['heating'] = data['heating'].astype('Int64')  # HR 457
     # wierd missing data for child ages.
     # data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains  # HR 457

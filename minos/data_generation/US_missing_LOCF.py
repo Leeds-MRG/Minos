@@ -262,11 +262,11 @@ def main(data, save=False):
     # note columns can be forward and back filled for immutables like ethnicity.
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating',
                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
-                 'nkids_ind_raw', 'region', 'nresp',  # 'ncigs', 'ndrinks']
+                 'nkids_ind_raw', 'region',  # 'ncigs', 'ndrinks']
                  'loneliness',
                  'burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism',  # nh_safety
                  'fruit_days', 'fruit_per_day', 'veg_days', 'veg_per_day']
-    fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw']  # or here if they're immutable.
+    fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw', 'nresp']  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
     li_columns = ["age"]
     data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
