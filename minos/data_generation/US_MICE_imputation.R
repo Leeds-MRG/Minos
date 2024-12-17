@@ -82,6 +82,7 @@ main <- function(n_imputations, iterations_per_imputation){
                     "nutrition_quality",
                     "job_hours",
                     "nkids_ind",
+                    "nresp",
                     "housing_tenure",
                     "job_sector",
                     "marital_status",
