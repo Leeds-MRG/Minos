@@ -174,7 +174,8 @@ def get_ward_to_region_map(year=WARD_YEAR_DEFAULT,
 
     ward_la_map = dict(zip(raw_ews[ward_col], raw_ews[la_col]))
     la_region_map = dict(zip(raw_ews[la_col], raw_ews[region_col]))
-    return ward_la_map, la_region_map
+    region_map = dict(zip(raw_ews[region_col], raw_ews[region_name_col]))
+    return ward_la_map, la_region_map, region_map
 
 
 # HR 10/09/24 Add spatial attributes (ward, LA, region) in one go
@@ -183,16 +184,18 @@ def add_spatial_attributes(pop,
                            ward_year=WARD_YEAR_DEFAULT,
                            ):
     ward_map = get_lsoa_to_ward_map(lsoa_year, ward_year)
-    ward_la_map, la_region_map = get_ward_to_region_map(ward_year)
+    ward_la_map, la_region_map, region_name_map = get_ward_to_region_map(ward_year)
 
     lsoa_col = "LSOA" + str(lsoa_year)[-2:] + "CD"
     ward_col = "WD" + str(ward_year)[-2:] + "CD"
     la_col = "LAD" + str(ward_year)[-2:] + "CD"
     region_col = "RGN" + str(ward_year)[-2:] + "CD"
+    region_name_col = "RGN" + str(ward_year)[-2:] + "NM"
 
     pop[ward_col] = pop[lsoa_col].map(ward_map)
     pop[la_col] = pop[ward_col].map(ward_la_map)
     pop[region_col] = pop[la_col].map(la_region_map)
+    pop[region_name_col] = pop[region_col].map(region_name_map)
     return pop
 
 
