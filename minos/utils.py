@@ -15,7 +15,6 @@ from math import sqrt, log, ceil, floor
 from random import random
 from numpy.random import choice
 
-
 import sys
 import importlib
 from vivarium.config_tree import ConfigTree
@@ -33,9 +32,60 @@ BIN_EDGES_DEFAULT = list(range(-1, 101))
 
 # LSOA/DZ to LA lookups, EW + S
 PERSISTENT_DIR = os.path.join(up(up(__file__)), 'persistent_data')
+SPATIAL_DIR = os.path.join(PERSISTENT_DIR, 'spatial_data')
 EW_LOOKUP = os.path.join(PERSISTENT_DIR, "LSOA_(2011)_to_LSOA_(2021)_to_Local_Authority_District_(2022)_Lookup_for_England_and_Wales_(Version_2).csv")
 S_LOOKUP = os.path.join(PERSISTENT_DIR, "DataZone2011lookup_2022-05-31.csv")
 EWS_LOOKUP = os.path.join(PERSISTENT_DIR, "EWS_LSOA_2011_LA_2022.csv")
+
+LSOA_FILES = {'scotland': 'scotland_data_zones.csv',
+              'glasgow': 'glasgow_data_zones.csv',
+              'manchester': 'manchester_lsoas.csv',
+              'sheffield': 'sheffield_lsoas.csv',
+              # 'cardiff': '',  # To do
+              # 'west_midlands': '',  # To do
+              }
+LSOA_WARD_MAPS = {(2011, 2022): 'LSOA11_WD22_LAD22_EW_LU.xlsx',
+                  # (2021, 2024): '',
+                  }
+LSOA_WARD_MAPS_S = {(2011, 2022): "DataZone2011lookup_2022-05-31.csv",
+                    # (2021, 2024): ''
+                    }
+WARD_REGION_MAPS = {2022: 'Ward_to_Local_Authority_District_to_County_to_Region_to_Country_(December_2022)_Lookup_in_United_Kingdom.csv',
+                    # 2024: '',
+                    }
+
+LSOA_YEAR_DEFAULT = 2011
+WARD_YEAR_DEFAULT = 2022
+
+
+def get_lsoas(region,
+              lsoa_year=LSOA_YEAR_DEFAULT,
+              ):
+    """
+
+    Parameters
+    ----------
+    region : str
+        Region to return subset for
+    lsoa_year : int
+        Year to use for LSOA definitions
+    Returns
+    -------
+    data_zones : list
+        Data zones in specified region
+    """
+
+    if region in LSOA_FILES:
+        lsoa_file = LSOA_FILES[region]
+        lsoa_fullpath = os.path.join(SPATIAL_DIR, lsoa_file)
+        lsoas = pd.read_csv(lsoa_fullpath)['LSOA11CD']
+    elif region == 'gb':
+        lsoas = list(get_lsoa_to_ward_map(lsoa_year=lsoa_year).keys())
+    else:
+        print("Error! Invalid region defined for spatial subsetting")
+        raise ValueError
+
+    return lsoas
 
 
 def get_lsoa_la_map(ew_file=EW_LOOKUP,
@@ -72,6 +122,78 @@ def get_lsoa_la_map(ew_file=EW_LOOKUP,
         print("Done; cached EWS lookup file to:\n{}".format(ews_file))
 
     return lookup_final
+
+
+# HR 10/09/24 LSOA to ward mapping, adapted from IE(II)
+def get_lsoa_to_ward_map(lsoa_year=LSOA_YEAR_DEFAULT,
+                         ward_year=WARD_YEAR_DEFAULT,
+                         ):
+    lsoa_col = "LSOA" + str(lsoa_year)[-2:] + "CD"
+    ward_col = "WD" + str(ward_year)[-2:] + "CD"
+
+    map_file = LSOA_WARD_MAPS[(lsoa_year, ward_year)]
+    map_file_fullpath = os.path.join(SPATIAL_DIR, map_file)
+    try:
+        map_ew_ = pd.read_csv(map_file_fullpath)
+    except:
+        map_ew_ = pd.read_excel(map_file_fullpath)
+    map_ew = dict(zip(map_ew_[lsoa_col], map_ew_[ward_col]))
+
+    lsoa_col_scot = "DZ2011_Code"
+    ward_col_scot = "MMWard_Code"
+    map_s_fullpath = os.path.join(SPATIAL_DIR, LSOA_WARD_MAPS_S[lsoa_year, ward_year])
+    map_s_ = pd.read_csv(map_s_fullpath, encoding='ISO-8859-1')
+    map_s = dict(zip(map_s_[lsoa_col_scot], map_s_[ward_col_scot]))
+
+    map_ews = map_ew | map_s
+    return map_ews
+
+
+# HR 10/09/24 Ward to region mapping, adapted from IE(II)
+def get_ward_to_region_map(year=WARD_YEAR_DEFAULT,
+                           ):
+    ward_col = "WD" + str(year)[-2:] + "CD"
+    ward_name_col = "WD" + str(year)[-2:] + "NM"
+    la_col = "LAD" + str(year)[-2:] + "CD"
+    la_name_col = "LAD" + str(year)[-2:] + "NM"
+    region_col = "RGN" + str(year)[-2:] + "CD"
+    region_name_col = "RGN" + str(year)[-2:] + "NM"
+    country_col = "CTRY" + str(year)[-2:] + "CD"
+    country_name_col = "CTRY" + str(year)[-2:] + "NM"
+
+    file_full = os.path.join(SPATIAL_DIR, WARD_REGION_MAPS[year])
+    raw_ews = pd.read_csv(file_full)
+
+    # Drop NI data
+    raw_ews = raw_ews.loc[raw_ews[ward_col].str[0].isin(('E', 'S', 'W'))]
+
+    # Paste country (code and name) to region columns for S and W
+    mask = raw_ews[ward_col].str[0].isin(('S', 'W'))
+    raw_ews.loc[mask, region_col] = raw_ews.loc[mask, country_col]
+    raw_ews.loc[mask, region_name_col] = raw_ews.loc[mask, country_name_col]
+
+    ward_la_map = dict(zip(raw_ews[ward_col], raw_ews[la_col]))
+    la_region_map = dict(zip(raw_ews[la_col], raw_ews[region_col]))
+    return ward_la_map, la_region_map
+
+
+# HR 10/09/24 Add spatial attributes (ward, LA, region) in one go
+def add_spatial_attributes(pop,
+                           lsoa_year=LSOA_YEAR_DEFAULT,
+                           ward_year=WARD_YEAR_DEFAULT,
+                           ):
+    ward_map = get_lsoa_to_ward_map(lsoa_year, ward_year)
+    ward_la_map, la_region_map = get_ward_to_region_map(ward_year)
+
+    lsoa_col = "LSOA" + str(lsoa_year)[-2:] + "CD"
+    ward_col = "WD" + str(ward_year)[-2:] + "CD"
+    la_col = "LAD" + str(ward_year)[-2:] + "CD"
+    region_col = "RGN" + str(ward_year)[-2:] + "CD"
+
+    pop[ward_col] = pop[lsoa_col].map(ward_map)
+    pop[la_col] = pop[ward_col].map(ward_la_map)
+    pop[region_col] = pop[la_col].map(la_region_map)
+    return pop
 
 
 def read_config(config_file):
