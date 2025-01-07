@@ -4,8 +4,9 @@ It is generally much tidier than having large blocks of code
 lying around to call one line from here.
 "
 library(ggplot2)
-source("minos/transitions/utils.R")
-real_data <- read.csv("data/final_US/2019_US_Cohort.csv")
+library(here)
+source(here::here("minos", "transitions", "utils.R"))
+real_data <- read.csv(here::here("data", "final_US", "2019_US_cohort.csv"))
 
 #source("minos/transitions/utils.R")
 #real_data <- read.csv("data/final_US/2018_US_Cohort.csv")
@@ -29,8 +30,7 @@ notebook_setwd<- function(){
 
 # general data visualisation
 
-continuous_density <- function(path, v){
-  obs <- readRDS(path)[[v]]
+continuous_density <- function(obs){
   quants = quantile(obs, c(.001, .999)) # cutting off huge outliers for better plots.
   plot(density(obs, from=quants[1], to=quants[2]), main='', xlab=v)
 }
@@ -41,11 +41,11 @@ counts_density <- function(path, v){
   plot(density(obs, from=0, to=quants[2]), main='', xlab=v)
 }
 
-discrete_barplot <- function(path, v){
-  obs <- readRDS(path)[[v]]
+discrete_barplot <- function(obs, v){
   counts <- table(obs)
   barplot(counts, horiz=F, cex.names=.7, las=2)
 }
+
 
 # ols models #############################################################################
 
@@ -75,6 +75,20 @@ ols_histogram <- function(data_path, v, mode="both"){
   }
 }
 
+continuous_densities <- function(obs, preds, v) {
+
+  # plot both in histogram. 
+  quants = quantile(obs, c(.001, .999))
+  d1 <- density(obs, from=quants[1], to=max(quants[2]))
+  d2 <- density(preds,  from=quants[1], to=max(quants[2]))
+  height <- max(max(d1$y), max(d2$y))
+  
+  plot(d1, col='red', ylim=c(0, 1.02*height), main='', xlab=v)
+  lines(d2, col='blue', lty=2)
+  legend('topleft', legend=c("Observed", "Predicted"), col=c("red", "blue"), lty=1:2)
+}
+
+
 ols_output <- function(data_path){
   ols<- readRDS(data_path)
   print(summary(ols))
@@ -84,14 +98,8 @@ ols_output <- function(data_path){
 
 # clm models ###################################################################
 
-clm_barplot <- function(data_path, v){
-  clm_model<- readRDS(data_path)
-  #column_index <- paste0("factor(", v)
-  #column_index <- paste0(column_index, ")")
-  #obs <- clm_model$model[, c(column_index)]
-  obs <- clm_model[[v]]
-  preds <- clm_model$class_preds
-  
+discrete_barplot2 <- function(obs, preds, v){
+
   obs <- as.data.frame(table(obs))
   colnames(obs) <- c("value", "freq")
   obs$source <- "Observed"
@@ -115,6 +123,12 @@ clm_output <- function(data_path){
   print(summary(clm_model))
   # any diagnostic plots for tobacco.
 }
+
+rfo_output <- function(model){
+  print(summary(model))
+  # any diagnostic plots for tobacco.
+}
+
 
 # glm models ###################################################################
 
@@ -141,23 +155,23 @@ glm_output <- function(data_path){
 
 # nnet models ######################################################################
 
-nnet_confusion_matrix <- function(data_path, mode, v){
+nnet_confusion_matrix <- function(obs, preds, mode, v){
   
   # each column is people actually in a state.
   # each row is people predicted a state.
   # E.g. row 3 column 2 is the percentage of people actually in family care
   # predicted as sick/disabled (~7%).
-  if (mode == "multinom"){
-    multinom_model<- readRDS(data_path)
-    #obs <- multinom_model$model[, c(v)]
-    obs <- as.data.frame(multinom_model[v])[,c(v)]
-    preds <- predict(multinom_model)
-  }
-  else if (mode == "ordinal"){
-    ordinal_model<- readRDS(data_path)
-    obs <- as.data.frame(multinom_model[v])[,c(v)]
-    preds <- predict(ordinal_model, type='class', real_data)$fit
-  }
+  # if (mode == "multinom"){
+  #   multinom_model<- model
+  #   #obs <- multinom_model$model[, c(v)]
+  #   obs <- as.data.frame(multinom_model[v])[,c(v)]
+  #   preds <- predict(multinom_model)
+  # }
+  # else if (mode == "ordinal"){
+  #   ordinal_model<- readRDS(data_path)
+  #   obs <- as.data.frame(multinom_model[v])[,c(v)]
+  #   preds <- predict(ordinal_model, type='class', real_data)$fit
+  # }
 
   confusion_matrix <- table(obs, preds)
   
