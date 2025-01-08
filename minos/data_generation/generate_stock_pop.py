@@ -300,7 +300,7 @@ def generate_transition_stock(projections, cross_validation):
     data['ncigs'] = data['ncigs'].astype('int64')
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
-    data.drop('S7_neighbourhood_safety', axis=1, inplace=True)
+    #data.drop('S7_neighbourhood_safety', axis=1, inplace=True)
     #data['housing_quality'] = data['housing_quality'].astype('int64')
 
     data = generate_difference_variables(data)
@@ -375,15 +375,16 @@ def generate_input_stock(projections, cross_validation):
     data['ncigs'] = data['ncigs'].astype('int64')
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype(int)
     data['nutrition_quality'] = data['nutrition_quality'].astype(int)
-    data.drop('S7_neighbourhood_safety', axis=1, inplace=True)
+    #data.drop('S7_neighbourhood_safety', axis=1, inplace=True)
     #data['housing_quality'] = data['housing_quality'].astype(int)
 
     data = generate_difference_variables(data)
 
     # dropping dead columns
     data.drop(columns=["matdepa","matdepd","matdepe","birth_year",
-                      "matdepf","matdepg","matdeph","matdepi","matdepj", "S7_physical_health",
-                      "S7_mental_health", "nobs",  "job_duration_m", "job_duration_y",
+                      "matdepf","matdepg","matdeph","matdepi","matdepj", #"S7_physical_health", "S7_mental_health",
+                       "nobs",
+                       "job_duration_m", "job_duration_y",
                       "job_industry", "job_occupation", "alcohol_spending", "ndrinks", "gross_paypm",
                       "gross_pay_se", "job_hours", "job_hours_se", "job_inc", "jb_inc_per", "job_sector",
                       "depression", "birth_month", "academic_year", "Date", "phealth", "hh_int_m", #"hourly_wage",

@@ -168,7 +168,7 @@ if __name__ == '__main__':
     parser.add_argument("-r", "--region", required=True, type=str,
                         help="""The region to subset for the UK synthetic population.
                               glasgow, scotland, manchester, sheffield, uk only for now.""")
-    parser.add_argument("-p", "--percentage", required=False, type=int,
+    parser.add_argument("-p", "--percentage", required=False, type=float,
                         help="Percentage of synthetic population to use (e.g. 0-100%).")
     parser.add_argument("-b", "--do_bootstrapping", required=False, type=bool,
                         help="Bootstrapping the synthetic population to incudce uncertainty?")
@@ -191,10 +191,10 @@ if __name__ == '__main__':
     else:
         bootstrap_sample_size = 1
 
-    #region = 'manchester'
-    #percentage = 10
-    #do_bootstrapping = False
-    #bootstrap_sample_size = 1
+    # region = 'manchester'
+    # percentage = 10
+    # do_bootstrapping = False
+    # bootstrap_sample_size = 1
     main(region, percentage, do_bootstrapping, bootstrap_sample_size)
 
 
