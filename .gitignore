@@ -38,6 +38,7 @@ data/transitions/*/*coefficients.txt
 data/transitions/*
 data/transitions/*/*
 data/transitions/*/*/*
+data/outcomes/paper1_plots/*
 
 # build stuff
 build/
