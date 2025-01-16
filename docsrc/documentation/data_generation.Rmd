@@ -1,0 +1,149 @@
+---
+title: "R Notebook"
+output: html_notebook
+bibliography: 
+  - "`r here::here('docsrc', 'refs.bib')`"
+csl:
+  - "`r here::here('docsrc', 'bib_style.csl')`"
+link-citations: true
+---
+
+# Data Generation
+
+This section reviews the data generation process of MINOS from raw 
+Understanding Society Stata files to final data used directly in MINOS 
+and transitions. 
+
+This documentation matchings makefile ordering founding in minos/data_generation/Makefile.
+used to generate `final_data`. Each section of this pipeline is discussed including key methods and files in minos/data_generation.
+
+Trying to replace US acronym with UKHLS. Free snacks if you find one.
+
+raw  processing -> 
+
+determininstic missing correction -> 
+
+stochastic missing correction -> 
+
+composite variables -> 
+
+complete case analysis -> 
+
+final reweighting -> 
+
+replenishing population generation ->
+
+synthetic population generation ->
+
+spatial alignment
+
+
+
+## Raw Formatting
+
+Main file here is US_format_raw.py
+
+Take raw stata files for UKHLS and make them more readable.
+
+Change variable names from data codes e.g. 'jobstat\_dv' to 'labour\_state'.
+
+change integer code variables to strings. 
+
+For example labour state provides integer values 1-9 that aren't readable.
+
+Labour state 'Employed' is better than labour state 3. 
+
+Merges individual response (indresp) and household response (hhresp) datasets together. 
+
+Need variables from both for analysis done simply using a left merge on household IDs.
+
+
+
+
+## Deterministic Missing Data Correction
+
+Main file here is US_missing_main.py
+
+There are a lot of missing data in UKHLS.
+
+Some of these data are missing deterministically for some specific reason. 
+Missing not at random but I actually know why and can exactly correct for it.
+
+The first stage is individual observations that are missing due to non-applicability.
+E.g. Individuals that are unemployed are registered as having a missing salary rather than no salary. 
+Their salary is not missing and is technically 0. This is assigned to 0 and then used to calculate
+household income later. There are several cases described including individiuals with no other general
+employment values like job hours and variables such as number of cigarettes consumed that are set to 0.
+Need to be careful here that we're removing observations that are non-applicable rather than observation
+that are genuinely missing due to refusal, don't know, proxy, clerical errors etc.
+
+UKHLS data also uses last observation carried forward formatting. Some observations are only recorded
+if they change values and are otherwise registered as missing. For example a persons ethnicity is registered only 
+as they enter the dataset, or even three years in for some reason, but is immutable and never updates. 
+For future observations this value is incorrectly recorded as missing. The last observation carried forwards (LOCF) 
+imputation algorithm is used to fill in these missing values using previous time values.  The LOCF algorithm is usually
+only applied forwards in time as nothing can be said about previous observations. However it can be used backwards in time 
+for obvious characteristics like ethnicity and biological sex that never change. Other imputation methods can be used here. 
+For age which is not carried forwards but changes deterministically over time (I.E. they get one year older every year) then
+linear interpolation is used to correctly update their age over time. There is plenty of scope here for other methods E.g. spatial/household interpolation.
+
+## MICE Imputation (Optional)
+
+This is not available in development branch yet but I'm writing it now anyway. See 367-net_income branch for examples. 
+
+The US_mice_imputation.R file applies MICE imputation to missing observations. 
+
+This algorithm is extremely well described elsewhere (see Stef Van Buuren papers/vignettes)
+@van2011mice.
+
+Predicting missing values based on other available complete information conditional on correlation and cross-coverage. 
+
+Goal is to produce a complete dataset with no missing values.
+
+## Composites
+
+Some UKHLS variables are not useful in the MINOS framework. 
+
+For one pathway we are particularly interested in changes to household disposable income. 
+However UKHLS features different variables such as gross household income and council tax payments that are used to derive the desired household disposable income.
+These composite variables are derived in this step. 
+
+There are a lot of them in the US_generate_composite_vars.py file to see more. They're well documented.
+
+## Complete Case
+
+What observations are removed from complete case analysis.
+
+The missing data correction stage above cannot remove all missing data.
+Some variables require complete columns with no missing values for MINOS to run. 
+In this stage complete case missing correction is used to remove any individual observations from the data with missing values in a subset of critical columns.
+This is a fast but naive way of preparing a complete dataset for MINOS. 
+
+NB if you're using MICE imputation it should vastly reduce the number of variables removed here. You can't impute everything but its useful. 
+
+If we're using MICE we split the data up into stochastically imputed and non-imputed datasets at this point. The following steps are applied to both imputed and non-imputed data with very minor differences. There are two main functions for each dataset denoted input main and transition main. 
+
+We use the former as the microsimulation input population as it is complete. The latter is used to generate transition models. Imputed could be used but it requires HUGE transition model objects that we haven't figured out how to trim so would make MINOS runs take 50GB+ of RAM. Also its slow.
+
+## Synthetic Population (Optional).
+
+UKHLS data is then merged with the WS3 synthetic population @lomaxsipher. This produces a full size population that is representative of the full UK population in terms of numbers and spatial disaggergation by LSOA. We usually take a small random sample of this population $0.1-10\%$ because its too computationally expensive to run the whole thing. 
+
+There is also some spatial anlignment here ensuring correct variables for properties such as government region that can get mangled due to the merge. 
+
+## Final data and replnishment Replenishment
+
+This file generate_repl_pop.py and generate_stock_pop.py do two things.
+
+First they tidy the input data for final use in microsimulation. removing dead variables, checking data types etc.
+
+Second this step generates the replenishing population. 
+
+This is a population of households that are added to the population each year to maintain sufficient population size.
+This is far from ideal but is a simple approach to keep population size up in lieu of generating full children at 16 years old with all attributes. 
+This also adjusts income household weights according to cell based reweighting matching changes in mid year demographic attributes over time. These weights are from the NEWETHPOP project based on NOMIS/ONS mid year estimates forecasting @wohland2018newethpop. 
+E.g. if there are more women or white british ethnicities predicted over time then their weights are icnreased to match. 
+
+
+## References
+
