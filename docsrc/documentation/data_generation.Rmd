@@ -39,7 +39,7 @@ spatial alignment
 
 
 
-## Raw Formatting
+# Raw Formatting
 
 Main file here is US_format_raw.py
 
@@ -60,7 +60,7 @@ Need variables from both for analysis done simply using a left merge on househol
 
 
 
-## Deterministic Missing Data Correction
+# Deterministic Missing Data Correction
 
 Main file here is US_missing_main.py
 
@@ -87,7 +87,7 @@ for obvious characteristics like ethnicity and biological sex that never change.
 For age which is not carried forwards but changes deterministically over time (I.E. they get one year older every year) then
 linear interpolation is used to correctly update their age over time. There is plenty of scope here for other methods E.g. spatial/household interpolation.
 
-## MICE Imputation (Optional)
+# MICE Imputation (Optional)
 
 This is not available in development branch yet but I'm writing it now anyway. See 367-net_income branch for examples. 
 
@@ -100,7 +100,7 @@ Predicting missing values based on other available complete information conditio
 
 Goal is to produce a complete dataset with no missing values.
 
-## Composites
+# Composites
 
 Some UKHLS variables are not useful in the MINOS framework. 
 
@@ -110,7 +110,7 @@ These composite variables are derived in this step.
 
 There are a lot of them in the US_generate_composite_vars.py file to see more. They're well documented.
 
-## Complete Case
+# Complete Case
 
 What observations are removed from complete case analysis.
 
@@ -125,13 +125,13 @@ If we're using MICE we split the data up into stochastically imputed and non-imp
 
 We use the former as the microsimulation input population as it is complete. The latter is used to generate transition models. Imputed could be used but it requires HUGE transition model objects that we haven't figured out how to trim so would make MINOS runs take 50GB+ of RAM. Also its slow.
 
-## Synthetic Population (Optional).
+# Synthetic Population (Optional).
 
 UKHLS data is then merged with the WS3 synthetic population @lomaxsipher. This produces a full size population that is representative of the full UK population in terms of numbers and spatial disaggergation by LSOA. We usually take a small random sample of this population $0.1-10\%$ because its too computationally expensive to run the whole thing. 
 
 There is also some spatial anlignment here ensuring correct variables for properties such as government region that can get mangled due to the merge. 
 
-## Final data and replnishment Replenishment
+# Final data and replnishment Replenishment
 
 This file generate_repl_pop.py and generate_stock_pop.py do two things.
 
@@ -145,5 +145,5 @@ This also adjusts income household weights according to cell based reweighting m
 E.g. if there are more women or white british ethnicities predicted over time then their weights are icnreased to match. 
 
 
-## References
+# References
 

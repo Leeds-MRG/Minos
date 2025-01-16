@@ -50,17 +50,15 @@
 <li class="toctree-l1"><a class="reference internal" href="summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Data Generation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#raw-formatting">Raw Formatting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#deterministic-missing-data-correction">Deterministic Missing Data Correction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mice-imputation-optional">MICE Imputation (Optional)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#composites">Composites</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#complete-case">Complete Case</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#synthetic-population-optional">Synthetic Population (Optional).</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#final-data-and-replnishment-replenishment">Final data and replnishment Replenishment</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#raw-formatting">Raw Formatting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deterministic-missing-data-correction">Deterministic Missing Data Correction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mice-imputation-optional">MICE Imputation (Optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#composites">Composites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-case">Complete Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synthetic-population-optional">Synthetic Population (Optional).</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#final-data-and-replnishment-replenishment">Final data and replnishment Replenishment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/modules_intro.html">Modules</a></li>
@@ -129,8 +127,9 @@ minos/data_generation.</p>
 <p>replenishing population generation -&gt;</p>
 <p>synthetic population generation -&gt;</p>
 <p>spatial alignment</p>
+</section>
 <section id="raw-formatting">
-<h3>Raw Formatting<a class="headerlink" href="#raw-formatting" title="Link to this heading"></a></h3>
+<h2>Raw Formatting<a class="headerlink" href="#raw-formatting" title="Link to this heading"></a></h2>
 <p>Main file here is US_format_raw.py</p>
 <p>Take raw stata files for UKHLS and make them more readable.</p>
 <p>Change variable names from data codes e.g. ‘jobstat_dv’ to
@@ -145,7 +144,7 @@ datasets together.</p>
 household IDs.</p>
 </section>
 <section id="deterministic-missing-data-correction">
-<h3>Deterministic Missing Data Correction<a class="headerlink" href="#deterministic-missing-data-correction" title="Link to this heading"></a></h3>
+<h2>Deterministic Missing Data Correction<a class="headerlink" href="#deterministic-missing-data-correction" title="Link to this heading"></a></h2>
 <p>Main file here is US_missing_main.py</p>
 <p>There are a lot of missing data in UKHLS.</p>
 <p>Some of these data are missing deterministically for some specific
@@ -179,7 +178,7 @@ their age over time. There is plenty of scope here for other methods
 E.g. spatial/household interpolation.</p>
 </section>
 <section id="mice-imputation-optional">
-<h3>MICE Imputation (Optional)<a class="headerlink" href="#mice-imputation-optional" title="Link to this heading"></a></h3>
+<h2>MICE Imputation (Optional)<a class="headerlink" href="#mice-imputation-optional" title="Link to this heading"></a></h2>
 <p>This is not available in development branch yet but I’m writing it now
 anyway. See 367-net_income branch for examples.</p>
 <p>The US_mice_imputation.R file applies MICE imputation to missing
@@ -191,7 +190,7 @@ conditional on correlation and cross-coverage.</p>
 <p>Goal is to produce a complete dataset with no missing values.</p>
 </section>
 <section id="composites">
-<h3>Composites<a class="headerlink" href="#composites" title="Link to this heading"></a></h3>
+<h2>Composites<a class="headerlink" href="#composites" title="Link to this heading"></a></h2>
 <p>Some UKHLS variables are not useful in the MINOS framework.</p>
 <p>For one pathway we are particularly interested in changes to household
 disposable income. However UKHLS features different variables such as
@@ -202,7 +201,7 @@ derived in this step.</p>
 more. They’re well documented.</p>
 </section>
 <section id="complete-case">
-<h3>Complete Case<a class="headerlink" href="#complete-case" title="Link to this heading"></a></h3>
+<h2>Complete Case<a class="headerlink" href="#complete-case" title="Link to this heading"></a></h2>
 <p>What observations are removed from complete case analysis.</p>
 <p>The missing data correction stage above cannot remove all missing data.
 Some variables require complete columns with no missing values for MINOS
@@ -224,7 +223,7 @@ haven’t figured out how to trim so would make MINOS runs take 50GB+ of
 RAM. Also its slow.</p>
 </section>
 <section id="synthetic-population-optional">
-<h3>Synthetic Population (Optional).<a class="headerlink" href="#synthetic-population-optional" title="Link to this heading"></a></h3>
+<h2>Synthetic Population (Optional).<a class="headerlink" href="#synthetic-population-optional" title="Link to this heading"></a></h2>
 <p>UKHLS data is then merged with the WS3 synthetic population
 [2]. This produces a full size population
 that is representative of the full UK population in terms of numbers and
@@ -236,7 +235,7 @@ for properties such as government region that can get mangled due to the
 merge.</p>
 </section>
 <section id="final-data-and-replnishment-replenishment">
-<h3>Final data and replnishment Replenishment<a class="headerlink" href="#final-data-and-replnishment-replenishment" title="Link to this heading"></a></h3>
+<h2>Final data and replnishment Replenishment<a class="headerlink" href="#final-data-and-replnishment-replenishment" title="Link to this heading"></a></h2>
 <p>This file generate_repl_pop.py and generate_stock_pop.py do two things.</p>
 <p>First they tidy the input data for final use in microsimulation.
 removing dead variables, checking data types etc.</p>
@@ -253,7 +252,7 @@ more women or white british ethnicities predicted over time then their
 weights are icnreased to match.</p>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <div class="references csl-bib-body docutils container" id="refs">
 <div class="csl-entry docutils container" id="ref-van2011mice">
 <p>1. Van Buuren S., Groothuis-Oudshoorn K. Mice: Multivariate
@@ -271,7 +270,6 @@ NEWETHPOP-ethnic population projections for UK local areas,
 2011-2061. UK Data Archive; 2018;</p>
 </div>
 </div>
-</section>
 </section>
 </section>
 
