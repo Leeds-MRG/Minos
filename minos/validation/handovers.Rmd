@@ -27,7 +27,7 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(gghighlight)
-library(spatstat)
+#library(spatstat)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
@@ -69,6 +69,10 @@ base.dat <- read_singular_local_out(out.path, 'baseline',
 start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
+
+# Need to remove extra data from raw data after start year
+raw.dat <- raw.dat %>%
+  filter(time <= start.year)
 
 shall.we.save <- FALSE
 ```
