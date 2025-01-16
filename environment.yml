@@ -1,4 +1,4 @@
-name: minos_conda_micromamba
+name: minos_conda
 channels:
   - conda-forge
   - defaults
