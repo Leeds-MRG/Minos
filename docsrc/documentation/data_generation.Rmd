@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Data Generation"
 output: html_notebook
 bibliography: 
   - "`r here::here('docsrc', 'refs.bib')`"
@@ -8,7 +8,7 @@ csl:
 link-citations: true
 ---
 
-# Data Generation
+# Introduction
 
 This section reviews the data generation process of MINOS from raw 
 Understanding Society Stata files to final data used directly in MINOS 
