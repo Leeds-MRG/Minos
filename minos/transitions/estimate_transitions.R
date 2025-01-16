@@ -131,7 +131,9 @@ run_yearly_models <- function(transitionDir_path,
     
     for(year in year.range) {
       
-      if (year == 2022) {
+      print(year)
+      
+      if (year == 2021) {
         break
       }
       
