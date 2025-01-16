@@ -67,20 +67,20 @@ because some people completed the survey before the end of the school
 year (i.e. someone could be 18 in the first month of the academic year,
 so it made more sense to wait until the next year to apply the change).
 
--  Level 2 is equivalent to GCSE level, which everyone should have
-   achieved by the age of 17
+- Level 2 is equivalent to GCSE level, which everyone should have
+  achieved by the age of 17
 
-   -  No need to check the maximum education level for this one,
-      everyone should stay in school until at least age 18 now
+  - No need to check the maximum education level for this one, everyone
+    should stay in school until at least age 18 now
 
--  Level 3 is equivalent to A-level, so make this change by age 19 if
-   max_educ is 3 or larger
--  Level 5 is nursing/medical and HE diploma, so make this change by age
-   22 if max_educ is 5
--  Level 6 is 1st degree or teaching qual (not PGCE), so make this
-   change by age 22 if max_educ is 6 or larger
--  Level 7 is higher degree (masters/PhD), so make this change by age 25
-   if max_educ is 7
+- Level 3 is equivalent to A-level, so make this change by age 19 if
+  max_educ is 3 or larger
+- Level 5 is nursing/medical and HE diploma, so make this change by age
+  22 if max_educ is 5
+- Level 6 is 1st degree or teaching qual (not PGCE), so make this change
+  by age 22 if max_educ is 6 or larger
+- Level 7 is higher degree (masters/PhD), so make this change by age 25
+  if max_educ is 7
 
 Currently there is no mechanism for those who achieve less than GCSE
 (level 0-1).

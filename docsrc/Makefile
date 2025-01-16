@@ -6,20 +6,22 @@
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SPHINXAPIBUILD   ?= sphinx-apidoc
-SOURCEDIR     = .
+SPHINXSOURCEDIR     = .
 BUILDDIR      = ../docs
 NOTEBOOKDIR = docsrc/documentation/notebooks/
+DOCSRCDIR=docsrc/
 NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/
+DOCUMENTATIONDIR=docsrc/documentation/
 
 # Render all Rmd, md, and rst files into rst files that sphinx can read.
 render_rmd:
 	# convert markdowns to rst.
-	pandoc --citeproc -s "docsrc/documentation/notebooks/education.md" -o "docsrc/documentation/modules/education.rst"
-	pandoc --citeproc -s "docsrc/documentation/notebooks/replenishment.md" -o "docsrc/documentation/modules/replenishment.rst"
-	pandoc --citeproc -s "docsrc/documentation/notebooks/modules_intro.md" -o "docsrc/documentation/modules/modules_intro.rst"
-	pandoc --citeproc -s "docsrc/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
-	pandoc --citeproc -s "docsrc/documentation/notebooks/mortality.md" -o "docsrc/documentation/modules/mortality.rst"
-	pandoc --citeproc -s "docsrc/documentation/notebooks/interventions.md" -o "docsrc/documentation/modules/interventions.rst"
+	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/education.md" -o "docsrc/documentation/modules/education.rst"
+	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/replenishment.md" -o "docsrc/documentation/modules/replenishment.rst"
+	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/modules_intro.md" -o "docsrc/documentation/modules/modules_intro.rst"
+	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
+	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/mortality.md" -o "docsrc/documentation/modules/mortality.rst"
+	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/interventions.md" -o "docsrc/documentation/modules/interventions.rst"
 
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
 	# (cd ..; ) makes a new shell that runs at the top level of the repo.
@@ -28,6 +30,9 @@ render_rmd:
 	# Can run notebooks here and in Rstudio without changing any paths.
 	# Probably a cleaner way to do this..
 
+	bash docsrc/compile_rmd_rst.sh "$(DOCUMENTATIONDIR)data_generation.Rmd" "$(DOCUMENTATIONDIR)data_generation.rst"
+
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst"
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst"
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(NOTEBOOKOUTPUTDIR)housing.rst"
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)household_income.Rmd" "$(NOTEBOOKOUTPUTDIR)household_income.rst"
@@ -45,8 +50,8 @@ render_rmd:
 	# probably a better way to do this in the compile_rmd_rst.sh replacing with pandoc --extract-media..
 
 sphinx_github: render_rmd
-	(cd docsrc; sphinx-build -b html $(SOURCEDIR) $(BUILDDIR)) # build and write to /docs output directory or it defaults to /html.
-	(cd docsrc; sphinx-apidoc -f -o $(SOURCEDIR) $(BUILDDIR)) # likewise
+	(cd docsrc; sphinx-build -b html $(SPHINXSOURCEDIR) $(BUILDDIR)) # build and write to /docs output directory or it defaults to /html.
+	(cd docsrc; sphinx-apidoc -f -o $(SPHINXSOURCEDIR) $(BUILDDIR)) # likewise
 	#@cp -af _build/html/. "$(BUILDIR)"
 
 clean_docs:

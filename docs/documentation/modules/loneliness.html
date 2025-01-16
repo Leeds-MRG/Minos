@@ -1,24 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Loneliness &mdash; Minos  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/minos_theme.css?v=85179c66" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=3d1d8b85"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=9fa44488"></script>
+      <script src="../../_static/doctools.js?v=dcc2bf79"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -48,7 +47,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_generation.html">R Notebook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modules_intro.html">Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="household_income.html">Household Income</a></li>
 <li class="toctree-l2"><a class="reference internal" href="housing.html">Housing</a></li>
@@ -104,127 +103,60 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="loneliness">
-<h1>Loneliness<a class="headerlink" href="#loneliness" title="Permalink to this heading"></a></h1>
+  <section id="loneliness">
+<h1>Loneliness<a class="headerlink" href="#loneliness" title="Link to this heading"></a></h1>
 <section id="id1">
-<h2>Loneliness<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
-<p>Introductory fluff. Why do we need this module? test reference (Nelson
-1987).</p>
+<h2>Loneliness<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
 <p>What methods are used? Justification due to output data type.
 explanation of model output.</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">discrete_barplot</span><span class="p">(</span><span class="s">&quot;data/transitions/loneliness/clm/loneliness_2018_2019.rds&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;next_loneliness&#39;</span><span class="p">)</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">discrete_barplot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;loneliness&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk loneliness_data" src="../../_images/loneliness_data-1.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
 <p>What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen</p>
 </section>
 <section id="results">
-<h3>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h3>
+<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
 <p>What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.</p>
 <figure class="align-default" id="id3">
 <img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+<p><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## formula:</span>
-<span class="c1">## next_loneliness ~ age + factor(sex) + SF_12 + relevel(factor(education_state), ref = &quot;3&quot;) + relevel(factor(job_sec), ref = &quot;3&quot;) + hh_income + relevel(factor(hh_comp), ref = &quot;3&quot;) + relevel(factor(marital_status), ref = &quot;Partnered&quot;) + relevel(factor(ethnicity), ref = &quot;WBI&quot;)</span>
-<span class="c1">## data:    data</span>
-<span class="c1">##</span>
-<span class="c1">##  link  threshold nobs     logLik AIC    niter max.grad cond.H</span>
-<span class="c1">##  logit flexible  103.1594 -75.90 223.81 6(0)  5.05e-12 1.7e+10</span>
-<span class="c1">##</span>
-<span class="c1">## Coefficients:</span>
-<span class="c1">##                                                               Estimate Std. Error z value Pr(&gt;|z|)</span>
-<span class="c1">## age                                                         -5.569e-03  1.835e-02  -0.303 0.761523</span>
-<span class="c1">## factor(sex)Male                                             -3.589e-01  4.577e-01  -0.784 0.432936</span>
-<span class="c1">## SF_12                                                       -8.155e-02  2.343e-02  -3.480 0.000501 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)0                 2.914e-02  8.171e-01   0.036 0.971555</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)1                -9.217e-01  2.282e+00  -0.404 0.686310</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)2                -9.872e-02  7.794e-01  -0.127 0.899213</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)5                 3.943e-02  9.663e-01   0.041 0.967449</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)6                -2.789e-02  8.153e-01  -0.034 0.972708</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;3&quot;)7                -1.657e-02  8.952e-01  -0.019 0.985232</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                        -5.268e-02  1.178e+00  -0.045 0.964341</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                        -4.476e-02  8.804e-01  -0.051 0.959455</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                         1.111e-01  7.103e-01   0.156 0.875694</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                         1.473e-01  8.046e-01   0.183 0.854767</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                         1.387e-01  1.024e+00   0.135 0.892287</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                         1.219e-01  6.942e-01   0.176 0.860594</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                         4.119e-01  8.313e-01   0.496 0.620235</span>
-<span class="c1">## hh_income                                                   -2.184e-05  1.065e-04  -0.205 0.837501</span>
-<span class="c1">## relevel(factor(hh_comp), ref = &quot;3&quot;)1                         6.569e-01  8.048e-01   0.816 0.414395</span>
-<span class="c1">## relevel(factor(hh_comp), ref = &quot;3&quot;)2                         1.534e-01  1.360e+00   0.113 0.910192</span>
-<span class="c1">## relevel(factor(hh_comp), ref = &quot;3&quot;)4                        -7.012e-04  5.634e-01  -0.001 0.999007</span>
-<span class="c1">## relevel(factor(marital_status), ref = &quot;Partnered&quot;)Separated  4.325e-01  9.785e-01   0.442 0.658485</span>
-<span class="c1">## relevel(factor(marital_status), ref = &quot;Partnered&quot;)Single     5.185e-01  7.343e-01   0.706 0.480147</span>
-<span class="c1">## relevel(factor(marital_status), ref = &quot;Partnered&quot;)Widowed    5.301e-01  1.257e+00   0.422 0.673306</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                   2.416e-01  2.916e+00   0.083 0.933978</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                  -1.811e-01  1.841e+00  -0.098 0.921640</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                   1.215e-02  2.594e+00   0.005 0.996264</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                  -2.081e-01  3.374e+00  -0.062 0.950826</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                   5.520e-02  1.409e+00   0.039 0.968742</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                  -1.125e-01  1.678e+00  -0.067 0.946581</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                   2.742e-01  2.027e+00   0.135 0.892424</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                  -6.353e-01  1.022e+01  -0.062 0.950411</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                   3.507e-01  3.219e+00   0.109 0.913227</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                   3.829e-01  1.886e+00   0.203 0.839100</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                  -1.210e-01  9.828e-01  -0.123 0.902043</span>
-<span class="c1">## ---</span>
-<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
-<span class="c1">##</span>
-<span class="c1">## Threshold coefficients:</span>
-<span class="c1">##     Estimate Std. Error z value</span>
-<span class="c1">## 1|2   -3.515      1.582  -2.221</span>
-<span class="c1">## 2|3   -1.130      1.544  -0.732</span>
-<span class="c1">## (273 observations deleted due to missingness)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##                           Length Class         Mode</span>
+<span class="c1">## predictions               50886  -none-        numeric</span>
+<span class="c1">## num.trees                     1  -none-        numeric</span>
+<span class="c1">## num.independent.variables     1  -none-        numeric</span>
+<span class="c1">## mtry                          1  -none-        numeric</span>
+<span class="c1">## min.node.size                 1  -none-        numeric</span>
+<span class="c1">## prediction.error              1  -none-        numeric</span>
+<span class="c1">## forest                       11  ranger.forest list</span>
+<span class="c1">## splitrule                     1  -none-        character</span>
+<span class="c1">## treetype                      1  -none-        character</span>
+<span class="c1">## call                          6  -none-        call</span>
+<span class="c1">## importance.mode               1  -none-        character</span>
+<span class="c1">## num.samples                   1  -none-        numeric</span>
+<span class="c1">## replace                       1  -none-        logical</span>
+<span class="c1">## dependent.variable.name       1  -none-        character</span>
+<span class="c1">## max.depth                     1  -none-        numeric</span>
 </pre></div>
 </div>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
-<div class="references csl-bib-body hanging-indent docutils container" id="refs">
-<div class="csl-entry docutils container" id="ref-1987-nelson">
-<p>Nelson, Edward. 1987. <em>Radically Elementary Probability Theory</em>.
-Princeton University Press.</p>
-</div>
-</div>
+<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
 </section>
 </section>
 </section>

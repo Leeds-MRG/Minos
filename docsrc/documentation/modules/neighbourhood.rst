@@ -42,7 +42,7 @@ goodness of fit.
 ::
 
    ##                           Length Class         Mode     
-   ## predictions               100455 -none-        numeric  
+   ## predictions               100587 -none-        numeric  
    ## num.trees                      1 -none-        numeric  
    ## num.independent.variables      1 -none-        numeric  
    ## mtry                           1 -none-        numeric  
@@ -56,6 +56,7 @@ goodness of fit.
    ## num.samples                    1 -none-        numeric  
    ## replace                        1 -none-        logical  
    ## dependent.variable.name        1 -none-        character
+   ## max.depth                      1 -none-        numeric
 
 References
 ----------
