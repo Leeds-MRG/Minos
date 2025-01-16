@@ -1357,6 +1357,28 @@ def generate_chron_disease_proxy(data):
 
     return data
 
+def generate_housing_sector(df):
+    """ Creating housing sector variable.
+
+    Parameters
+    ----------
+    df: pandas.DataFrame Understanding Society dataframe.
+
+    Returns
+    -------
+    df: pandas.DataFrame data frame with public/private/owned housing variable attached.
+
+    """
+
+    # three codes for if the house is owned outright, public rental, or private rental.
+
+    tenure_housing_sector_map = {1: 0, 2: 0, # owned outright assigned 0
+                                 3: 1, 4: 1,  # public rental sector assigned 1
+                                 5:2, 6:2, 7:2, # private rental sector assigned 2
+                                 -1:-1, -2:-2, -3:-3, -7:-7, -8:-8, -9:-9, -10:-10} # preserving error codes.
+    df['housing_sector'] = df['housing_tenure'].map(tenure_housing_sector_map)
+    return df
+
 
 def main():
     maxyr = US_utils.get_data_maxyr()
@@ -1367,6 +1389,7 @@ def main():
     data = US_utils.load_multiple_data(file_names)
 
     # generate composite variables
+    data = generate_housing_sector(data)
     data = format_housing_types(data)
     data = generate_composite_housing_quality(data)  # housing_quality.
     data = generate_hh_income(data)  # hh_income.

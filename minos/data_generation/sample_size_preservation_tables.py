@@ -8,8 +8,9 @@ def main():
 
     out = pd.DataFrame()
 
-    processing_steps = ["raw_US", "corrected_US", "mice_US", "imputed_complete_US", "imputed_final_US"]
+    processing_steps = ["raw_US", "corrected_US",  "composite_US", "mice_US", "imputed_complete_US", "imputed_final_US"]
     years = np.arange(2009, 2021, 1)
+    out["year"] = years
     for file_path in processing_steps:
         n_columns = []
         for year in years:
