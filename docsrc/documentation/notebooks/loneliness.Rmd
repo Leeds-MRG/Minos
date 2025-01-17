@@ -5,7 +5,7 @@ bibliography:
   - "`r here::here('docsrc', 'refs.bib')`" # finally figure out how to combine these for debugging and actual 
 ---
 
-## Loneliness
+# Loneliness
 
 ```{r setup, include=FALSE}
 library(here)
@@ -29,7 +29,11 @@ v <- "loneliness"
 ```
 
 
-### Methods
+## Introduction
+
+Prediction of ordinal loneliness state.
+
+## Methods
 
   What methods are used? Justification due to output data type. explanation of model output.
   
@@ -37,11 +41,11 @@ v <- "loneliness"
 discrete_barplot(obs, 'loneliness')
 ```
 
-### Data
+## Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
   
-### Results
+## Results
   
   What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
 
@@ -53,4 +57,4 @@ rfo_output(model)
 ```
 
 
-### References
+## References

@@ -6,8 +6,8 @@
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SPHINXAPIBUILD   ?= sphinx-apidoc
-SPHINXSOURCEDIR     = .
-BUILDDIR      = ../docs
+SPHINXSOURCEDIR     = docsrc/
+BUILDDIR      = docs
 NOTEBOOKDIR = docsrc/documentation/notebooks/
 DOCSRCDIR=docsrc/
 NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/
@@ -30,16 +30,15 @@ render_rmd:
 	# Can run notebooks here and in Rstudio without changing any paths.
 	# Probably a cleaner way to do this..
 
-	bash docsrc/compile_rmd_rst.sh "$(DOCUMENTATIONDIR)data_generation.Rmd" "$(DOCUMENTATIONDIR)data_generation.rst"
+	bash docsrc/compile_rmd_rst.sh "$(DOCUMENTATIONDIR)data_generation.Rmd" "$(DOCUMENTATIONDIR)data_generation.rst" 0
 
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(NOTEBOOKOUTPUTDIR)housing.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)household_income.Rmd" "$(NOTEBOOKOUTPUTDIR)household_income.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)labour.Rmd" "$(NOTEBOOKOUTPUTDIR)labour.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)loneliness.Rmd" "$(NOTEBOOKOUTPUTDIR)loneliness.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)neighbourhood.Rmd" "$(NOTEBOOKOUTPUTDIR)neighbourhood.rst"
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(NOTEBOOKOUTPUTDIR)tobacco.rst"
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(NOTEBOOKOUTPUTDIR)housing.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)household_income.Rmd" "$(NOTEBOOKOUTPUTDIR)household_income.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)labour.Rmd" "$(NOTEBOOKOUTPUTDIR)labour.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)loneliness.Rmd" "$(NOTEBOOKOUTPUTDIR)loneliness.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)neighbourhood.Rmd" "$(NOTEBOOKOUTPUTDIR)neighbourhood.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(NOTEBOOKOUTPUTDIR)tobacco.rst" 1
 
 	# Knitr outputs figures for the documentation in a folder /figure at the top repo level.
 	# I couldn't figure out how change where to output them so manually move them instead..
@@ -48,10 +47,12 @@ render_rmd:
 	rm -rf $(NOTEBOOKOUTPUTDIR)figure
 	mv -f figure $(NOTEBOOKOUTPUTDIR)figure
 	# probably a better way to do this in the compile_rmd_rst.sh replacing with pandoc --extract-media..
+	rm -rf docsrc/modules.rst # I can't figure out why this file keeps being generated. It doesn't do anything and just causes a warning.
+
 
 sphinx_github: render_rmd
-	(cd docsrc; sphinx-build -b html $(SPHINXSOURCEDIR) $(BUILDDIR)) # build and write to /docs output directory or it defaults to /html.
-	(cd docsrc; sphinx-apidoc -f -o $(SPHINXSOURCEDIR) $(BUILDDIR)) # likewise
+	sphinx-build -b html $(SPHINXSOURCEDIR) $(BUILDDIR) # build and write to /docs output directory or it defaults to /html.
+	sphinx-apidoc -f -o $(SPHINXSOURCEDIR) $(BUILDDIR) # likewise
 	#@cp -af _build/html/. "$(BUILDIR)"
 
 clean_docs:

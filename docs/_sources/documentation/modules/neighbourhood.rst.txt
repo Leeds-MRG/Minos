@@ -1,16 +1,14 @@
-=============
 Neighbourhood
-=============
+-------------
 
-
-Neighbourhood
-=============
+Introduction
+~~~~~~~~~~~~
 
 Neighbourhood quality is an indicator of well-being suggested by the
 SIPHER-7 XXXX ref and others?.
 
 Methods
--------
+~~~~~~~
 
 .. figure:: ./figure/neighbourhood_barchart-1.png
    :alt: plot of chunk neighbourhood_barchart
@@ -23,13 +21,13 @@ for individual health. These include robberies and vandalism with the
 full encoding available in the data tables.
 
 Data
-----
+~~~~
 
 What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen
 
 Results
--------
+~~~~~~~
 
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
@@ -59,4 +57,4 @@ goodness of fit.
    ## max.depth                      1 -none-        numeric
 
 References
-----------
+~~~~~~~~~~

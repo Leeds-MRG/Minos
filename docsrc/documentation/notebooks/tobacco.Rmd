@@ -29,12 +29,13 @@ v <- "ncigs"
 
 ```
 
-## Tobacco
+# Tobacco
 
+## Introduction
 
 Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
 
-### Data
+## Data
   
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
@@ -42,11 +43,11 @@ Number of cigarettes consumed is an indicator of several mental illnesses includ
 discrete_barplot(obs, "ncigs")
 ```
 
-### Methods
+## Methods
 
 The number of zero inflated values is higher than expected for a count distribution such as a poisson distribution. This inflation occurs naturally as a large proportion (over 50\%) of the population do not smoke. There are two sources of cigarette consumption that can be modelled using zero inflated models. In this case a zero-inflated poisson (ZIP) is used. Two models are fitted simulatenously. One is a logistic regression that estimates whether a person smokes cigarettes or not. This provides a simple probability of smoking or not. The second is a poisson counts model estimating the number of cigarettes consumed. 
 
-### Data
+## Data
 
 Two set of variables are needed for the logistic and poisson parts of the ZIP model respectively.
 
@@ -69,7 +70,7 @@ age
 SF_12. wellbeing estimates number of cigarettes smoked.
 ncigs previous number consumed.
 
-### Results
+## Results
   
 Almost all coefficients significant. Particularly prevous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
 
@@ -80,6 +81,5 @@ discrete_barplot2(obs, preds, "housing_quality")
 rfo_output(model)
 ```
 
-
-### References
+## References
 

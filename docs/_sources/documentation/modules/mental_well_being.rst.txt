@@ -1,28 +1,25 @@
-=================
 Mental Well-Being
-=================
+-----------------
 
+Introduction.
+~~~~~~~~~~~~~
 
-Mental Well-Being
-=================
-
-Introductory fluff. Why do we need this module? test reference (Nelson
-1987).
+Prediction of future Short Form 12 Mental Component Score (SF-12 MCS).
 
 Methods
--------
+~~~~~~~
 
 What methods are used? Justification due to output data type.
 explanation of model output.
 
 Data
-----
+~~~~
 
 What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen
 
 Results
--------
+~~~~~~~
 
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
@@ -118,13 +115,4 @@ goodness of fit.
    plot of chunk SF12_Output
 
 References
-----------
-
-.. container:: references csl-bib-body hanging-indent
-   :name: refs
-
-   .. container:: csl-entry
-      :name: ref-1987:nelson
-
-      Nelson, Edward. 1987. *Radically Elementary Probability Theory*.
-      Princeton University Press.
+~~~~~~~~~~

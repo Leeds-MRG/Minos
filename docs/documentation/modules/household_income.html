@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Household Income &mdash; Minos  documentation</title>
+  <title>Household Disposable Income &mdash; Minos  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=31edadca" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=8209df7b" />
       <link rel="stylesheet" type="text/css" href="../../_static/minos_theme.css?v=85179c66" />
@@ -23,7 +23,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Housing" href="housing.html" />
+    <link rel="next" title="Housing Quality" href="housing.html" />
     <link rel="prev" title="Modules" href="modules_intro.html" /> 
 </head>
 
@@ -50,26 +50,28 @@
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Household Income</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Household Income</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Modules</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Household Disposable Income</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html">Housing Quality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mortality.html">Mortality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="housing.html">Housing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="labour.html">Labour</a></li>
-<li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
-<li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#interventions">Interventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
 </ul>
@@ -95,8 +97,8 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
-          <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
-      <li class="breadcrumb-item active">Household Income</li>
+          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
+      <li class="breadcrumb-item active">Household Disposable Income</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -105,10 +107,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="household-income">
-<h1>Household Income<a class="headerlink" href="#household-income" title="Link to this heading"></a></h1>
-<section id="id1">
-<h2>Household Income<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+  <section id="household-disposable-income">
+<h1>Household Disposable Income<a class="headerlink" href="#household-disposable-income" title="Link to this heading"></a></h1>
 <p>Household disposable income is a well known indicator of mental
 well-being (Graham 2009). Estimating this is a crucial instrument for
 the effects of many policy interventions</p>
@@ -127,20 +127,20 @@ median income of <span class="math notranslate nohighlight">\(~£1250\)</span>.<
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">continuous_density</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id2">
+<figure class="align-default" id="id1">
 <img alt="plot of chunk hh_income_data" src="../../_images/hh_income_data-1.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk hh_income_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">plot of chunk hh_income_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
 <p>To estimate this variable Ordinary Least Squares (OLS) linear regression
 is used. This is a common technique for estimating Gaussian distributed
 variables that is easy to implement using base R.</p>
 </section>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
+<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
 <p>The formula for this linear regression is given as</p>
 <div class="math notranslate nohighlight">
 \[hh\_income\_next ~ age + sex + factor(ethnicity) + factor(region) + scale(hh\_income) + factor(job\_sec) + factor(labour\_state) + factor(education\_state) + scale(SF\_12) + factor(housing\_quality)\]</div>
@@ -170,7 +170,7 @@ household. (Brewer et al. 2007)</p></li>
 </ul>
 </section>
 <section id="results">
-<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
 <p>Model coefficients and diagnostics are displayed below. To summarise - r
 squared of 0.21 indicates reasonable fit. - Gender not significant. Some
 ethnicities see increases. Only London has higher income. High quality
@@ -178,10 +178,10 @@ jobs eanr more. PT employed earn less students earn more. Housing
 quality strong indicator of higher income. - diagnostic plots show
 underdispersion. Some extreme outlier values need investigating. -
 overall decent fit.</p>
-<figure class="align-default" id="id3">
+<figure class="align-default" id="id2">
 <img alt="plot of chunk income_output" src="../../_images/income_output-1.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Generalized linear mixed model fit by maximum likelihood (Adaptive Gauss-Hermite Quadrature, nAGQ = 0) [&#39;glmerMod&#39;]</span>
@@ -265,15 +265,15 @@ overall decent fit.</p>
 <span class="c1">##     vcov(summary(model))        if you need it</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id3">
 <img alt="plot of chunk income_output" src="../../_images/income_output-2.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <div class="references csl-bib-body hanging-indent docutils container" id="refs">
 <div class="csl-entry docutils container" id="ref-brewer2007poverty">
 <p>Brewer, Mike, Alastair Muriel, David Phillips, and Luke Sibieta.
@@ -308,14 +308,13 @@ Center.” <em>Quality of Life Research</em> 14 (4): 935–44.</p>
 </div>
 </section>
 </section>
-</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="modules_intro.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="housing.html" class="btn btn-neutral float-right" title="Housing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="housing.html" class="btn btn-neutral float-right" title="Housing Quality" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -5,9 +5,11 @@ bibliography:
   - "`r here::here('docsrc', 'refs.bib')`"
 ---
 
-## Mental Well-Being
+# Mental Well-Being
 
-Introductory fluff. Why do we need this module? test reference [@1987:nelson].
+## Introduction. 
+
+Prediction of future Short Form 12 Mental Component Score (SF-12 MCS).
 
 ```{r load_data, include=FALSE}
 library(here)
@@ -20,15 +22,15 @@ preds <- predict(model, type='response')
 v <- "SF_12"
 ```
 
-### Methods
+## Methods
 
 What methods are used? Justification due to output data type. explanation of model output.
 
-### Data
+## Data
 
 What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
-### Results
+## Results
 
 What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
 
@@ -43,4 +45,4 @@ print(summary(model))
 plot(model)
 ```
 
-### References
+## References

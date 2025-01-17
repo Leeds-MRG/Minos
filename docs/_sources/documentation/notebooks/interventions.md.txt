@@ -1,11 +1,15 @@
-## Interventions
+# Introduction
 
 Section on interventions for minos
 
-### Child Uplift
+# Child Uplift
 
+# Poverty Percentage Targets
 
-### Living Wage
+# Living Wage
 
+# Energy Downlift
 
-### Energy Downlift
+# EPCG
+
+# GBIS

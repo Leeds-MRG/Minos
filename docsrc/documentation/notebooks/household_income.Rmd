@@ -16,7 +16,7 @@ preds <- predict(model, type='response')
 v <- "hh_income"
 ```
 
-## Household Income
+# Household Disposable Income
 
 Household disposable income is a well known indicator of mental well-being [@graham2009understanding]. Estimating this is a crucial instrument for the effects of many policy interventions
 
@@ -30,13 +30,13 @@ This produces a continuous distribution of pounds per month available for a hous
 continuous_density(obs)  
 ```
 
-### Methods
+## Methods
 
   To estimate this variable Ordinary Least Squares (OLS) linear regression is used. This is a common  technique for estimating Gaussian distributed variables that is easy to implement using base R.
   
   
     
-### Data
+## Data
   
   The formula for this linear regression is given as
   
@@ -53,7 +53,7 @@ Each variable included is defined as follows. Each variable with discrete values
 - SF_12. Mental well-being. Continuous score indicating overall mental-wellbeing. is this an indicator of hh_income? [@viswanathan2005nature]
 - housing quality. Ordinal values indicating number of appliances in household. [@brewer2007poverty]
 
-### Results
+## Results
   
 Model coefficients and diagnostics are displayed below. To summarise
 - r squared of 0.21 indicates reasonable fit. 
@@ -69,4 +69,4 @@ plot(model)
 ```
 
 
-### References
+## References

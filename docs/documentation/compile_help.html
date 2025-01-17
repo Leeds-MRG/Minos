@@ -49,7 +49,12 @@
 <li class="toctree-l1"><a class="reference internal" href="data_discovery.html">Data Discovery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_tables.html">Data Tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../API/index.html">Welcome to Minos’ API documentation!</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Compiling this page using sphinx.</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Compiling this page using sphinx.</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conda-environment">Conda Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rendering-the-website">Rendering the website</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-components">Key components.</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -77,8 +82,11 @@
              
   <section id="compiling-this-page-using-sphinx">
 <h1>Compiling this page using sphinx.<a class="headerlink" href="#compiling-this-page-using-sphinx" title="Link to this heading"></a></h1>
-<p>Just some brief notes on how to compile this page.<br />
-First needs a python 3.8 environment with the following installed.</p>
+<p>Just some brief notes on how to compile this page.\</p>
+<section id="conda-environment">
+<h2>Conda Environment<a class="headerlink" href="#conda-environment" title="Link to this heading"></a></h2>
+<p>If you have the existing development conda environment installed just use that instead. Otherwise..</p>
+<p>First needs a python 3.8 environment with the following installed.</p>
 <p>conda install sphinx<br />
 conda install myst-parser<br />
 conda install -c conda-forge pandoc<br />
@@ -90,12 +98,31 @@ Markdown parser
 needed for nbsphinx.
 read the docs theme.
 bibtex</p>
-<p>Then move to the docsrc folder in terminal. Two key files here are index.rst which contains the file tree for the website.
-conf.py contains parameters for sphinx to run and html formatting.
-Makefile has one command ‘github’. Running this should recompile the website ready to be pushed to github.
+</section>
+<section id="rendering-the-website">
+<h2>Rendering the website<a class="headerlink" href="#rendering-the-website" title="Link to this heading"></a></h2>
+<p>In docsrc/Makefile we have the make sphinx_github command.</p>
+<p>This will render a lot of Rmd/ md files in this folder into rst format that sphinx can read.</p>
+<p>It will then render the sphinx website using the sphinx build commands into the /docs folder.</p>
+<p>DEATH WARNING. check docs/index.html before you push to development so the website doesn’t crash.
 When pushed to main branch on github the website should update in under 10 minutes.
-Please check the website on your local machine before pushing.
 Open the html files in /docs/ and look at them. Please.</p>
+</section>
+<section id="key-components">
+<h2>Key components.<a class="headerlink" href="#key-components" title="Link to this heading"></a></h2>
+<p>Two key files here are index.rst which contains the toctree file structure for the website.
+If you haven’t used restructured text before (rst) its similar to markdown with lots of guides online.</p>
+<p>conf.py contains parameters for sphinx to run and html formatting. This includes formatting using readthedocs css.</p>
+<p>compile_rmd_rst.sh knits R markdown files into md files and then into rst files so sphinx can read it.
+This uses pandoc package which is really nice for converting these text files between formats.
+It has tonnes of additional arguments so is quite customisable but im scared to touch it.
+Only use the argument to shift markdown headers around so the directory on the website loads properly.
+Its a bit janky but it works so..</p>
+<p>Will get some warnings when rendering the website.
+Its usually .md files used to generate the website that get converted to rst files and aren’t used in the website toctree.
+So long as its only complaining about md files it should be fine.
+Make sure all the md files it is complaining are missing have rst equivalents that are included in the toctree.</p>
+</section>
 </section>
 
 

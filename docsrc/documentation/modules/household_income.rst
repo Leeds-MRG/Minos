@@ -1,10 +1,5 @@
-================
-Household Income
-================
-
-
-Household Income
-================
+Household Disposable Income
+---------------------------
 
 Household disposable income is a well known indicator of mental
 well-being (Graham 2009). Estimating this is a crucial instrument for
@@ -34,14 +29,14 @@ median income of :math:`~£1250`.
    plot of chunk hh_income_data
 
 Methods
--------
+~~~~~~~
 
 To estimate this variable Ordinary Least Squares (OLS) linear regression
 is used. This is a common technique for estimating Gaussian distributed
 variables that is easy to implement using base R.
 
 Data
-----
+~~~~
 
 The formula for this linear regression is given as
 
@@ -72,7 +67,7 @@ documentation
   household. (Brewer et al. 2007)
 
 Results
--------
+~~~~~~~
 
 Model coefficients and diagnostics are displayed below. To summarise - r
 squared of 0.21 indicates reasonable fit. - Gender not significant. Some
@@ -176,7 +171,7 @@ overall decent fit.
    plot of chunk income_output
 
 References
-----------
+~~~~~~~~~~
 
 .. container:: references csl-bib-body hanging-indent
    :name: refs

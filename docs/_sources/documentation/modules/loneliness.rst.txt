@@ -1,13 +1,13 @@
-==========
 Loneliness
-==========
+----------
 
+Introduction
+~~~~~~~~~~~~
 
-Loneliness
-==========
+Prediction of ordinal loneliness state.
 
 Methods
--------
+~~~~~~~
 
 What methods are used? Justification due to output data type.
 explanation of model output.
@@ -22,13 +22,13 @@ explanation of model output.
    plot of chunk loneliness_data
 
 Data
-----
+~~~~
 
 What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen
 
 Results
--------
+~~~~~~~
 
 What are the results. Coefficients tables. diagnostic plots. measures of
 goodness of fit.
@@ -58,4 +58,4 @@ goodness of fit.
    ## max.depth                     1  -none-        numeric
 
 References
-----------
+~~~~~~~~~~

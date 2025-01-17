@@ -1,10 +1,8 @@
-======
 Labour
-======
+------
 
-
-Labour
-======
+Introduction
+~~~~~~~~~~~~
 
 Labour state is a measure of what an individual does. There are 8
 distinctive categories including employment, unemployment, and retired.
@@ -14,7 +12,7 @@ The encodings of these states can be found
 |plot of chunk labour_barchart|\ |image1|
 
 Methods
--------
+~~~~~~~
 
 Labour state is a complex categorical data type. Single layer neural
 network is a simple way to estimate this state. Use multinom function
@@ -23,7 +21,7 @@ from R’s nnet package. Formula for weights included given as.
 .. math:: labour\_state\_next = sex + ethnicity + age + education\_state + SF\_12 + housing\_quality + labour\_state + job\_sec + hh\_income + alcohol\_spending
 
 Data
-----
+~~~~
 
 Variables used in this model. Encodings for discrete variables found in
 data tables.
@@ -44,7 +42,7 @@ data tables.
 - alcohol spending. How much is spent on alcohol. XXXX cite. remove.
 
 Results
--------
+~~~~~~~
 
 - hard to determine goodness of fit.
 - use confusion matrix to estimate quality of fit.
@@ -59,7 +57,7 @@ Results
    plot of chunk labour_output
 
 References
-----------
+~~~~~~~~~~
 
 .. |plot of chunk labour_barchart| image:: ./figure/labour_barchart-1.png
 .. |image1| image:: ./figure/labour_barchart-2.png

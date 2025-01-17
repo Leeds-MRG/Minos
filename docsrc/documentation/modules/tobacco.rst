@@ -1,16 +1,14 @@
-=======
 Tobacco
-=======
+-------
 
-
-Tobacco
-=======
+Introduction
+~~~~~~~~~~~~
 
 Number of cigarettes consumed is an indicator of several mental
 illnesses including anxiety (Lawrence et al. 2010).
 
 Data
-----
+~~~~
 
 What variables are included? Why is this output chosen. What explanatory
 variables are used and why are they chosen
@@ -25,7 +23,7 @@ variables are used and why are they chosen
    plot of chunk tobacco_data
 
 Methods
--------
+~~~~~~~
 
 The number of zero inflated values is higher than expected for a count
 distribution such as a poisson distribution. This inflation occurs
@@ -40,7 +38,7 @@ a poisson counts model estimating the number of cigarettes consumed.
 .. _data-1:
 
 Data
-----
+~~~~
 
 Two set of variables are needed for the logistic and poisson parts of
 the ZIP model respectively.
@@ -60,7 +58,7 @@ labour_state. whether a person is employed or not. age SF_12. wellbeing
 estimates number of cigarettes smoked. ncigs previous number consumed.
 
 Results
--------
+~~~~~~~
 
 Almost all coefficients significant. Particularly prevous consumption of
 cigarettes. Good estimation of the number of non-smokers in the
@@ -91,7 +89,7 @@ to estimate consumption over 20 cigarettes.
    ## dependent.variable.name        1 -none-        character
 
 References
-----------
+~~~~~~~~~~
 
 .. container:: references csl-bib-body hanging-indent
    :name: refs

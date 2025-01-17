@@ -50,26 +50,29 @@
 <li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules_intro.html">Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="household_income.html">Household Income</a></li>
-<li class="toctree-l2"><a class="reference internal" href="housing.html">Housing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Labour</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Labour</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html">Housing Quality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Labour</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mortality.html">Mortality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
-<li class="toctree-l2"><a class="reference internal" href="education.html">Education</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#interventions">Interventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
 </ul>
@@ -95,7 +98,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
-          <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
       <li class="breadcrumb-item active">Labour</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -107,15 +110,16 @@
              
   <section id="labour">
 <h1>Labour<a class="headerlink" href="#labour" title="Link to this heading"></a></h1>
-<section id="id1">
-<h2>Labour<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>Labour state is a measure of what an individual does. There are 8
 distinctive categories including employment, unemployment, and retired.
 The encodings of these states can be found
 [here]](<a class="reference external" href="https://leeds-mrg.github.io/Minos/documentation/data_tables.html">https://leeds-mrg.github.io/Minos/documentation/data_tables.html</a>).</p>
 <p><img alt="plot of chunk labour_barchart" src="../../_images/labour_barchart-1.png" /><img alt="image1" src="../../_images/labour_barchart-2.png" /></p>
+</section>
 <section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
 <p>Labour state is a complex categorical data type. Single layer neural
 network is a simple way to estimate this state. Use multinom function
 from R’s nnet package. Formula for weights included given as.</p>
@@ -123,7 +127,7 @@ from R’s nnet package. Formula for weights included given as.</p>
 \[labour\_state\_next = sex + ethnicity + age + education\_state + SF\_12 + housing\_quality + labour\_state + job\_sec + hh\_income + alcohol\_spending\]</div>
 </section>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
+<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
 <p>Variables used in this model. Encodings for discrete variables found in
 data tables.</p>
 <ul class="simple">
@@ -144,7 +148,7 @@ XXXX cite.</p></li>
 </ul>
 </section>
 <section id="results">
-<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>hard to determine goodness of fit.</p></li>
 <li><p>use confusion matrix to estimate quality of fit.</p></li>
@@ -153,16 +157,15 @@ and expectedly hard to predict.</p></li>
 <li><p>some deterministic replacement needed for categories like student that
 have specific time frames. e.g. three years for a degree.</p></li>
 </ul>
-<figure class="align-default" id="id2">
+<figure class="align-default" id="id1">
 <img alt="plot of chunk labour_output" src="../../_images/labour_output-1.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk labour_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">plot of chunk labour_output</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
-</section>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 </section>
 </section>
 
