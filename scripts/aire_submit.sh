@@ -45,10 +45,10 @@ mkdir -p logs/errors
 ###########################################
 if [ "$#" -eq 4 ]; then
   echo "Running baseline MINOS simulation"
-  sbatch scripts/slurm_run.sh -c $2 -o $4 -t $TIME
+  sbatch scripts/aire_run.sh -c $2 -o $4 -t $TIME
 elif [ "$#" -eq 6 ]; then
   echo "Running MINOS simulation with $6"
-  sbatch scripts/slurm_run.sh -c $2 -o $4 -i $6 -t $TIME
+  sbatch scripts/aire_run.sh -c $2 -o $4 -i $6 -t $TIME
 fi
 
 # no errors
