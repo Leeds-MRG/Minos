@@ -1,0 +1,251 @@
+---
+title: "MHF NoScottish Descriptive Statistics"
+output: html_notebook
+---
+
+
+
+
+```{r "setup", include=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(purrr)
+library(knitr)
+library(kableExtra)
+
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+
+# DATA
+
+```{r}
+data <- read.csv(file = '/home/luke/Documents/WORK/MINOS/Minos/data/scaled_gb_US/2020_US_cohort.csv')
+```
+
+
+
+
+
+# Latex Tables
+
+```{r}
+# Convert continuous summary to LaTeX
+# continuous_summary_latex <- continuous_summary %>%
+#   kable(format = "latex", booktabs = TRUE) %>%
+#   kable_styling(latex_options = "hold_position")
+# 
+# # Save to file
+# writeLines(capture.output(continuous_summary_latex), con = "DELIVERABLES/MHF_SCP_NoScottish/continuous_summary.tex")
+# 
+# # For nominal/ordinal variables
+# for (name in names(nominal_ordinal_summary)) {
+#   latex_table <- nominal_ordinal_summary[[name]] %>%
+#     kable(format = "latex", booktabs = TRUE) %>%
+#     kable_styling(latex_options = "hold_position")
+#   
+#   writeLines(capture.output(latex_table), con = paste0("DELIVERABLES/MHF_SCP_NoScottish/", name, ".tex"))
+# }
+
+```
+
+
+
+
+
+```{r}
+colnames(data)
+```
+
+
+
+
+
+
+
+
+# FUNCTIONALISED
+
+## Summary Functions
+
+```{r}
+# Function to summarize continuous variables
+summarize_continuous <- function(data, vars, weight_col) {
+  data %>%
+    summarise(across(all_of(vars), list(
+      n = ~ n(),
+      mean = ~ weighted.mean(.x, w = .data[[weight_col]], na.rm = TRUE),
+      sd = ~ sqrt(weighted.mean((.x - weighted.mean(.x, w = .data[[weight_col]], na.rm = TRUE))^2, w = .data[[weight_col]], na.rm = TRUE)),
+      min = ~ min(.x, na.rm = TRUE),
+      max = ~ max(.x, na.rm = TRUE)
+    )))
+}
+
+# Function to summarize nominal/ordinal variables
+summarize_categorical <- function(data, vars, weight_col) {
+  map(vars, function(var) {
+    data %>%
+      group_by(.data[[var]]) %>%
+      summarise(count = sum(.data[[weight_col]], na.rm = TRUE)) %>%
+      mutate(prop = count / sum(count)) %>%
+      select(-count) %>%
+      pivot_wider(names_from = .data[[var]], values_from = prop, values_fill = 0) %>%
+      rename_with(~ paste0(var, "_", .))
+  }) %>%
+    reduce(left_join, by = character(0))  # Combine all summaries
+}
+```
+
+```{r}
+# Main function to generate stratified summary statistics
+generate_summary <- function(data, strat_var, continuous_vars, categorical_vars, weight_col) {
+  
+  # Function to generate stratified summaries
+  stratified_summaries <- function(subset_data) {
+    continuous_summary <- summarize_continuous(subset_data, continuous_vars, weight_col)
+    categorical_summary <- summarize_categorical(subset_data, categorical_vars, weight_col)
+    bind_cols(continuous_summary, categorical_summary)
+  }
+  
+  # Split the data by stratification variable
+  stratified_data <- split(data, data[[strat_var]])
+  
+  # Apply the summary function to each stratum
+  stratified_results <- map(stratified_data, stratified_summaries)
+  
+  # Bind the results together into a single data frame
+  result <- bind_rows(stratified_results, .id = strat_var)
+  
+  return(result)
+}
+
+# Function to print the summary table in HTML and LaTeX formats
+print_summary <- function(summary_df, file_prefix) {
+  # For R Notebook
+  summary_df %>%
+    kable(format = "html") %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+    print()
+  
+  # For LaTeX
+  summary_df %>%
+    kable(format = "latex", booktabs = TRUE) %>%
+    kable_styling(latex_options = "hold_position") %>%
+    save_kable(paste0(file_prefix, "_summary.tex"))
+}
+```
+
+## Writing to File
+
+```{r}
+write_summary_to_file <- function(summary_df, path, filename) {
+  
+  fname <- paste0(filename, "_summary.csv")
+  full_path <- paste0(path, fname)
+  
+  # Write to CSV
+  write_csv(summary_df, full_path)
+  
+  
+  message("Summary table saved as: ", fname)
+  message("Path: ", path)
+}
+```
+
+
+## Using the Functions
+
+```{r}
+# Example usage:
+#data <- data  # Replace with your actual data frame
+continuous_vars <- c("age", "hh_income", "SF_12", "nutrition_quality")
+categorical_vars <- c("sex", "education_state", "region", "ethnicity", "marital_status", "housing_quality", "neighbourhood_safety", "universal_credit", "S7_labour_state")
+
+
+```
+
+### Gender
+
+```{r}
+# Generate stratified summary statistics by gender (sex)
+summary_by_gender <- generate_summary(data, strat_var = "sex", continuous_vars, categorical_vars, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary_by_gender, file_prefix = "gender")
+
+# Write to file
+write_summary_to_file(summary_by_gender, 
+                      path = "/home/luke/Documents/WORK/MINOS/DELIVERABLES/MHF_SCP_NoScottish/",
+                      filename = "Gender")
+```
+
+### Universal Credit
+
+```{r}
+# Generate stratified summary statistics by gender (sex)
+summary_by_UC <- generate_summary(data, strat_var = "universal_credit", continuous_vars, categorical_vars, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary_by_UC, file_prefix = "universal_credit")
+
+# Write to file
+write_summary_to_file(summary_by_UC, 
+                      path = "/home/luke/Documents/WORK/MINOS/DELIVERABLES/MHF_SCP_NoScottish/",
+                      filename = "Universal_Credit")
+```
+
+### Region
+
+```{r}
+# Generate stratified summary statistics by gender (sex)
+summary_by_region <- generate_summary(data, strat_var = "region", continuous_vars, categorical_vars, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary_by_region, file_prefix = "region")
+
+# Write to file
+write_summary_to_file(summary_by_region, 
+                      path = "/home/luke/Documents/WORK/MINOS/DELIVERABLES/MHF_SCP_NoScottish/",
+                      filename = "Region")
+```
+
+
+### Relative Poverty
+
+```{r}
+# Generate stratified summary statistics by gender (sex)
+summary_by_region <- generate_summary(data, strat_var = "init_relative_poverty", continuous_vars, categorical_vars, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary_by_region, file_prefix = "init_relative_poverty")
+
+# Write to file
+write_summary_to_file(summary_by_region, 
+                      path = "/home/luke/Documents/WORK/MINOS/DELIVERABLES/MHF_SCP_NoScottish/",
+                      filename = "Relative_Poverty")
+```
+
+
+### Absolute Poverty
+
+```{r}
+# Generate stratified summary statistics by gender (sex)
+summary_by_region <- generate_summary(data, strat_var = "init_absolute_poverty", continuous_vars, categorical_vars, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary_by_region, file_prefix = "init_absolute_poverty")
+
+# Write to file
+write_summary_to_file(summary_by_region, 
+                      path = "/home/luke/Documents/WORK/MINOS/DELIVERABLES/MHF_SCP_NoScottish/",
+                      filename = "Absolute_Poverty")
+```
+
+
+```{r}
+
+```
+

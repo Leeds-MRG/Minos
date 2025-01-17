@@ -1,26 +1,25 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Household Income &mdash; Minos  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/minos_theme.css?v=85179c66" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../_static/jquery.js?v=3d1d8b85"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=9fa44488"></script>
+      <script src="../../_static/doctools.js?v=dcc2bf79"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -106,34 +105,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="household-income">
-<h1>Household Income<a class="headerlink" href="#household-income" title="Permalink to this heading"></a></h1>
+  <section id="household-income">
+<h1>Household Income<a class="headerlink" href="#household-income" title="Link to this heading"></a></h1>
 <section id="id1">
-<h2>Household Income<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<h2>Household Income<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <p>Household disposable income is a well known indicator of mental
 well-being (Graham 2009). Estimating this is a crucial instrument for
 the effects of many policy interventions</p>
@@ -149,23 +124,23 @@ estimates.</p>
 <p>This produces a continuous distribution of pounds per month available
 for a household to spend as it likes. This is plotted below with a
 median income of <span class="math notranslate nohighlight">\(~£1250\)</span>.</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">continuous_density</span><span class="p">(</span><span class="s">&quot;data/transitions/hh_income/ols/hh_income_2018_2019.rds&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;next_hh_income&quot;</span><span class="p">)</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">continuous_density</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk hh_income_data" src="../../_images/hh_income_data-1.png" />
 <figcaption>
-<p><span class="caption-text">plot of chunk hh_income_data</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text">plot of chunk hh_income_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
 <p>To estimate this variable Ordinary Least Squares (OLS) linear regression
 is used. This is a common technique for estimating Gaussian distributed
 variables that is easy to implement using base R.</p>
 </section>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
 <p>The formula for this linear regression is given as</p>
 <div class="math notranslate nohighlight">
 \[hh\_income\_next ~ age + sex + factor(ethnicity) + factor(region) + scale(hh\_income) + factor(job\_sec) + factor(labour\_state) + factor(education\_state) + scale(SF\_12) + factor(housing\_quality)\]</div>
@@ -175,8 +150,8 @@ documentation
 <a class="reference external" href="https://leeds-mrg.github.io/Minos/documentation/data_tables.html">here</a>.</p>
 <ul class="simple">
 <li><p>sex. Individual’s biological sex. (Dilmaghani 2018)</p></li>
-<li><p>ethnicity. Individual ethnicity. Discrete string values White
-British, Black African, etc. (Clemens and Dibben 2014)</p></li>
+<li><p>ethnicity. Individual ethnicity. Discrete string values White British,
+Black African, etc. (Clemens and Dibben 2014)</p></li>
 <li><p>region. Administrative region of the UK. Discrete strings such as
 London, North-East. (Brewer et al. 2007)</p></li>
 <li><p>household income. Previous household income values are a strong
@@ -185,8 +160,8 @@ indicator of current value. (Dilmaghani 2018)</p></li>
 describing job quality. (Clemens and Dibben 2014)</p></li>
 <li><p>labour state. Is a person employed, unemployed, student etc. Discrete
 states. (Dilmaghani 2018)</p></li>
-<li><p>education state. Highest attain qualification. Ordinal values based
-on UK government education tiers (Eika, Mogstad, and Zafar 2019)</p></li>
+<li><p>education state. Highest attain qualification. Ordinal values based on
+UK government education tiers (Eika, Mogstad, and Zafar 2019)</p></li>
 <li><p>SF_12. Mental well-being. Continuous score indicating overall
 mental-wellbeing. is this an indicator of hh_income? (Viswanathan,
 Anderson, and Thomas 2005)</p></li>
@@ -195,7 +170,7 @@ household. (Brewer et al. 2007)</p></li>
 </ul>
 </section>
 <section id="results">
-<h3>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h3>
+<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
 <p>Model coefficients and diagnostics are displayed below. To summarise - r
 squared of 0.21 indicates reasonable fit. - Gender not significant. Some
 ethnicities see increases. Only London has higher income. High quality
@@ -203,72 +178,102 @@ jobs eanr more. PT employed earn less students earn more. Housing
 quality strong indicator of higher income. - diagnostic plots show
 underdispersion. Some extreme outlier values need investigating. -
 overall decent fit.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
-<span class="c1">## Call:</span>
-<span class="c1">## lm(formula = formula, data = data, weights = weight)</span>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk income_output" src="../../_images/income_output-1.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Generalized linear mixed model fit by maximum likelihood (Adaptive Gauss-Hermite Quadrature, nAGQ = 0) [&#39;glmerMod&#39;]</span>
+<span class="c1">##  Family: Gamma  ( log )</span>
+<span class="c1">## Formula: hh_income_new ~ scale(hh_income) + scale(age) + I(scale(age)^2) +</span>
+<span class="c1">##     I(scale(age)^3) + factor(sex) + relevel(factor(ethnicity),</span>
+<span class="c1">##     ref = &quot;WBI&quot;) + factor(region) + relevel(factor(education_state),</span>
+<span class="c1">##     ref = &quot;1&quot;) + relevel(factor(job_sec), ref = &quot;3&quot;) + scale(SF_12) +</span>
+<span class="c1">##     relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;) + (1 |      pidp)</span>
+<span class="c1">##    Data: data</span>
 <span class="c1">##</span>
-<span class="c1">## Weighted Residuals:</span>
-<span class="c1">##     Min      1Q  Median      3Q     Max</span>
-<span class="c1">## -3725.0   -33.1     0.0    15.9  6347.0</span>
+<span class="c1">##       AIC       BIC    logLik  deviance  df.resid</span>
+<span class="c1">##  686691.4  687206.9 -343296.7  686593.4    273972</span>
 <span class="c1">##</span>
-<span class="c1">## Coefficients:</span>
-<span class="c1">##                                                                       Estimate Std. Error t value Pr(&gt;|t|)</span>
-<span class="c1">## (Intercept)                                                          5.527e+02  1.515e+02   3.647 0.000266 ***</span>
-<span class="c1">## hh_income                                                            3.161e-01  8.437e-03  37.470  &lt; 2e-16 ***</span>
-<span class="c1">## age                                                                  8.848e+00  1.044e+00   8.475  &lt; 2e-16 ***</span>
-<span class="c1">## factor(sex)Male                                                      5.537e+01  3.277e+01   1.690 0.091094 .</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                          -5.161e+02  2.259e+02  -2.285 0.022319 *</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                          -4.172e+02  1.383e+02  -3.016 0.002566 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                          -4.372e+02  2.009e+02  -2.176 0.029590 *</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                           8.409e+01  2.412e+02   0.349 0.727426</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                          -2.014e+02  1.034e+02  -1.948 0.051437 .</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                           3.101e+01  1.293e+02   0.240 0.810448</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                          -4.874e+02  1.537e+02  -3.171 0.001521 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                          -8.141e+02  7.165e+02  -1.136 0.255940</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                          -2.691e+02  2.589e+02  -1.039 0.298682</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                          -4.150e+02  1.433e+02  -2.896 0.003786 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                          -1.086e+02  7.215e+01  -1.504 0.132498</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)East Midlands            -1.175e+02  6.959e+01  -1.688 0.091404 .</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)East of England          -1.822e+01  6.217e+01  -0.293 0.769491</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)London                    2.758e+02  6.254e+01   4.410 1.05e-05 ***</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)North East               -1.602e+02  8.555e+01  -1.872 0.061192 .</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)North West                5.556e+01  6.347e+01   0.875 0.381353</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)Northern Ireland          6.979e+01  1.109e+02   0.629 0.529315</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)Scotland                 -5.225e+01  7.574e+01  -0.690 0.490307</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)South West                4.934e+01  6.389e+01   0.772 0.439916</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)Wales                     4.446e+01  9.399e+01   0.473 0.636239</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)West Midlands             6.790e+01  6.726e+01   1.009 0.312762</span>
-<span class="c1">## relevel(factor(region), ref = &quot;South East&quot;)Yorkshire and The Humber  5.072e+01  6.796e+01   0.746 0.455500</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                         1.738e+02  1.323e+02   1.314 0.188992</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                         4.084e+02  1.328e+02   3.076 0.002101 **</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                         5.270e+02  1.374e+02   3.835 0.000126 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                         4.471e+02  1.391e+02   3.214 0.001315 **</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                         5.200e+02  1.339e+02   3.882 0.000104 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                         7.634e+02  1.360e+02   5.611 2.06e-08 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                                 1.637e+02  8.293e+01   1.974 0.048445 *</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                                 1.012e+02  6.203e+01   1.632 0.102765</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                                -1.761e+02  5.211e+01  -3.379 0.000730 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                                -3.760e+01  6.157e+01  -0.611 0.541389</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                                -1.692e+02  7.413e+01  -2.283 0.022435 *</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                                -2.726e+02  5.052e+01  -5.396 6.96e-08 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                                -3.785e+02  6.139e+01  -6.164 7.33e-10 ***</span>
-<span class="c1">## relevel(factor(job_sector), ref = &quot;1&quot;)-8                            -1.380e+02  4.375e+01  -3.154 0.001616 **</span>
-<span class="c1">## relevel(factor(job_sector), ref = &quot;1&quot;)-2                            -3.071e+02  4.366e+02  -0.703 0.481797</span>
-<span class="c1">## relevel(factor(job_sector), ref = &quot;1&quot;)-1                            -3.460e+01  2.374e+02  -0.146 0.884120</span>
-<span class="c1">## relevel(factor(job_sector), ref = &quot;1&quot;)2                             -8.964e+01  4.390e+01  -2.042 0.041195 *</span>
+<span class="c1">## Scaled residuals:</span>
+<span class="c1">##      Min       1Q   Median       3Q      Max</span>
+<span class="c1">## -22.7420  -0.3217  -0.0375   0.2895  13.4051</span>
+<span class="c1">##</span>
+<span class="c1">## Random effects:</span>
+<span class="c1">##  Groups   Name        Variance Std.Dev.</span>
+<span class="c1">##  pidp     (Intercept) 0.000466 0.02159</span>
+<span class="c1">##  Residual             0.001933 0.04397</span>
+<span class="c1">## Number of obs: 274021, groups:  pidp, 49998</span>
+<span class="c1">##</span>
+<span class="c1">## Fixed effects:</span>
+<span class="c1">##                                                                     Estimate Std. Error  t value Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                                        2.818e+00  1.093e-03 2578.811  &lt; 2e-16 ***</span>
+<span class="c1">## scale(hh_income)                                                   1.796e-02  1.125e-04  159.629  &lt; 2e-16 ***</span>
+<span class="c1">## scale(age)                                                         1.319e-02  3.212e-04   41.065  &lt; 2e-16 ***</span>
+<span class="c1">## I(scale(age)^2)                                                    1.488e-03  1.589e-04    9.364  &lt; 2e-16 ***</span>
+<span class="c1">## I(scale(age)^3)                                                   -3.616e-03  1.214e-04  -29.777  &lt; 2e-16 ***</span>
+<span class="c1">## factor(sex)Male                                                    2.745e-04  2.882e-04    0.952 0.340947</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                        -1.382e-02  1.089e-03  -12.697  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                        -1.816e-02  9.587e-04  -18.938  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                        -1.411e-02  1.003e-03  -14.061  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                        -4.245e-03  2.016e-03   -2.106 0.035235 *</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                        -5.212e-03  7.341e-04   -7.100 1.24e-12 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                        -7.412e-03  9.978e-04   -7.428 1.10e-13 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                        -1.218e-02  1.150e-03  -10.593  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                        -1.175e-02  3.301e-03   -3.560 0.000371 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                        -1.170e-02  2.162e-03   -5.410 6.29e-08 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                        -1.291e-02  8.076e-04  -15.988  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                        -4.212e-03  7.863e-04   -5.356 8.49e-08 ***</span>
+<span class="c1">## factor(region)East of England                                      1.973e-03  6.388e-04    3.089 0.002010 **</span>
+<span class="c1">## factor(region)London                                               4.580e-03  6.347e-04    7.216 5.37e-13 ***</span>
+<span class="c1">## factor(region)North East                                          -3.213e-03  8.143e-04   -3.945 7.97e-05 ***</span>
+<span class="c1">## factor(region)North West                                           6.901e-04  6.186e-04    1.116 0.264568</span>
+<span class="c1">## factor(region)Scotland                                             2.743e-03  6.747e-04    4.066 4.78e-05 ***</span>
+<span class="c1">## factor(region)South East                                           3.930e-03  5.958e-04    6.596 4.22e-11 ***</span>
+<span class="c1">## factor(region)South West                                          -1.576e-05  6.486e-04   -0.024 0.980609</span>
+<span class="c1">## factor(region)Wales                                               -4.399e-04  7.294e-04   -0.603 0.546478</span>
+<span class="c1">## factor(region)West Midlands                                        1.787e-03  6.455e-04    2.768 0.005638 **</span>
+<span class="c1">## factor(region)Yorkshire and The Humber                            -7.755e-04  6.489e-04   -1.195 0.232062</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                      -2.102e-03  9.552e-04   -2.201 0.027733 *</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                       4.241e-03  9.648e-04    4.396 1.11e-05 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                       8.111e-03  1.005e-03    8.070 7.05e-16 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                       8.696e-03  1.028e-03    8.456  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                       1.623e-02  9.868e-04   16.445  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                       2.005e-02  1.020e-03   19.653  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0                              -7.989e-03  6.625e-04  -12.059  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                               7.950e-03  7.075e-04   11.237  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                               7.097e-03  5.822e-04   12.190  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                              -3.700e-03  4.653e-04   -7.954 1.81e-15 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                              -8.421e-03  5.678e-04  -14.832  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                              -4.453e-03  6.095e-04   -7.305 2.77e-13 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                              -7.323e-03  4.549e-04  -16.099  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                              -8.020e-03  5.713e-04  -14.038  &lt; 2e-16 ***</span>
+<span class="c1">## scale(SF_12)                                                       1.556e-03  1.079e-04   14.427  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Family Care  -7.395e-03  7.767e-04   -9.521  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)FT Education -4.700e-03  7.136e-04   -6.587 4.48e-11 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Job Seeking  -6.383e-03  7.492e-04   -8.519  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Not Working  -6.818e-03  6.490e-04  -10.505  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)PT Employed  -3.969e-03  3.380e-04  -11.743  &lt; 2e-16 ***</span>
 <span class="c1">## ---</span>
 <span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
-<span class="c1">##</span>
-<span class="c1">## Residual standard error: 160 on 10946 degrees of freedom</span>
-<span class="c1">##   (126 observations deleted due to missingness)</span>
-<span class="c1">## Multiple R-squared:  0.1762, Adjusted R-squared:  0.173</span>
-<span class="c1">## F-statistic: 55.73 on 42 and 10946 DF,  p-value: &lt; 2.2e-16</span>
 </pre></div>
 </div>
-<p><img alt="plot of chunk income_output" src="../../_images/income_output-1.png" /><img alt="image1" src="../../_images/income_output-2.png" /><img alt="image2" src="../../_images/income_output-3.png" /><img alt="image3" src="../../_images/income_output-4.png" /><img alt="image4" src="../../_images/income_output-5.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
+<span class="c1">## Correlation matrix not shown by default, as p = 47 &gt; 12.</span>
+<span class="c1">## Use print(summary(model), correlation=TRUE)  or</span>
+<span class="c1">##     vcov(summary(model))        if you need it</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk income_output" src="../../_images/income_output-2.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
+<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
 <div class="references csl-bib-body hanging-indent docutils container" id="refs">
 <div class="csl-entry docutils container" id="ref-brewer2007poverty">
 <p>Brewer, Mike, Alastair Muriel, David Phillips, and Luke Sibieta.

@@ -65,6 +65,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
                                       "MARS", "XGB")
 
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
+  
+  data <- data %>% filter(time != 2022)
 
 
   repeat{

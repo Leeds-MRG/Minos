@@ -445,7 +445,8 @@ estimate_RandomForest <- function(data, formula, depend) {
 
   print("Training RandomForest with parallel processing...")
   # Train RandomForest with parallel processing
-  fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = TRUE)
+  fitControl <- trainControl(method = "cv", number = 5, allowParallel = TRUE, verboseIter = FALSE)
+  set.seed(123)
 
   # Adjusting the model parameters to use fewer trees and limit depth
   rfModel <- train(formula,
@@ -487,7 +488,7 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
     data = data,
     num.trees = 100,
     probability = TRUE,
-    verbose = TRUE
+    verbose = FALSE
   )
 
   return(ranger_model)

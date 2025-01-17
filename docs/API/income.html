@@ -1,24 +1,23 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Income API &mdash; Minos  documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/minos_theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../_static/minos_theme.css?v=85179c66" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=3d1d8b85"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=9fa44488"></script>
+      <script src="../_static/doctools.js?v=dcc2bf79"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -55,6 +54,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Income API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#minos.modules.income.Income"><code class="docutils literal notranslate"><span class="pre">Income</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#minos.modules.income.Income.calculate_income"><code class="docutils literal notranslate"><span class="pre">Income.calculate_income()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.income.Income.calculate_income_rateofchange"><code class="docutils literal notranslate"><span class="pre">Income.calculate_income_rateofchange()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#minos.modules.income.Income.on_initialize_simulants"><code class="docutils literal notranslate"><span class="pre">Income.on_initialize_simulants()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#minos.modules.income.Income.on_time_step"><code class="docutils literal notranslate"><span class="pre">Income.on_time_step()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#minos.modules.income.Income.plot"><code class="docutils literal notranslate"><span class="pre">Income.plot()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#minos.modules.income.Income.setup"><code class="docutils literal notranslate"><span class="pre">Income.setup()</span></code></a></li>
@@ -91,38 +92,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="module-minos.modules.income">
-<span id="income-api"></span><h1>Income API<a class="headerlink" href="#module-minos.modules.income" title="Permalink to this heading"></a></h1>
+  <section id="module-minos.modules.income">
+<span id="income-api"></span><h1>Income API<a class="headerlink" href="#module-minos.modules.income" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minos.modules.income.Income">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minos.modules.income.</span></span><span class="sig-name descname"><span class="pre">Income</span></span><a class="reference internal" href="../_modules/minos/modules/income.html#Income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minos.modules.income.</span></span><span class="sig-name descname"><span class="pre">Income</span></span><a class="reference internal" href="../_modules/minos/modules/income.html#Income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.income.Income.calculate_income">
-<span class="sig-name descname"><span class="pre">calculate_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.calculate_income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.calculate_income" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calculate_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.calculate_income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.calculate_income" title="Link to this definition"></a></dt>
 <dd><p>Calculate income transition distribution based on provided people/indices</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -138,8 +115,44 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minos.modules.income.Income.calculate_income_rateofchange">
+<span class="sig-name descname"><span class="pre">calculate_income_rateofchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.calculate_income_rateofchange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.calculate_income_rateofchange" title="Link to this definition"></a></dt>
+<dd><p>Calculate income transition with rate of change (diff) models</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pop</strong> (<em>PopulationView</em>) – Population from MINOS to calculate next income for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>nextWaveIncome</strong> – Dataframe of new predicted hh_income value and difference from previous year.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minos.modules.income.Income.on_initialize_simulants">
+<span class="sig-name descname"><span class="pre">on_initialize_simulants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.on_initialize_simulants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.on_initialize_simulants" title="Link to this definition"></a></dt>
+<dd><p>Initiate columns for hh_income when new simulants are added.
+Only column needed is the diff column for rate of change model predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_data</strong> (<em>vivarium.framework.population.SimulantData</em>)</p></li>
+<li><p><strong>frame.</strong> (<em>Custom vivarium class for interacting with the population data</em>)</p></li>
+<li><p><strong>creation_time</strong> (<em>It is essentially a pandas DataFrame with a few extra attributes such as the</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<p>:param :
+:param creation_window:
+:param and current simulation state (setup/running/etc.).:</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.income.Income.on_time_step">
-<span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.on_time_step" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">on_time_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.on_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.on_time_step" title="Link to this definition"></a></dt>
 <dd><p>Predicts the hh_income for the next timestep.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -150,13 +163,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.income.Income.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.plot" title="Link to this definition"></a></dt>
 <dd><p>Default plot method for modules. Does nothing.</p>
 <p>Modules can specify another plot object that saves distributions of state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pop_data</strong> (<em>population data from vivarium. Whatever columns needs plotting.</em>) – </p></li>
+<li><p><strong>pop_data</strong> (<em>population data from vivarium. Whatever columns needs plotting.</em>)</p></li>
 <li><p><strong>config</strong> (<em>vivarium.configTree</em>) – Config yaml for any needed plot parameters.</p></li>
 </ul>
 </dd>
@@ -168,7 +181,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minos.modules.income.Income.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.setup" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minos/modules/income.html#Income.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minos.modules.income.Income.setup" title="Link to this definition"></a></dt>
 <dd><p>Initialise the module during simulation.setup().</p>
 <p class="rubric">Notes</p>
 <ul class="simple">

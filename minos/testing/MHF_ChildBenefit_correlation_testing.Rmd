@@ -1,0 +1,522 @@
+---
+title: "Correlation Analysis - SF-12"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+---
+
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(ggridges) # for densities over time plots. 
+library(knitr)
+library(here)
+library(kableExtra)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r, include=FALSE}
+source(here::here('minos', 'utils_datain.R'))
+```
+
+## Data
+
+```{r}
+# Raw files have mismatched number of columns from the early to the late files (BHPS to UKHLS)
+# therefore have to build the raw.files list a little more involved to ensure we only get 2009 onwards
+
+#raw.files1 <- list.files(here::here('data', 'raw_US'), pattern='2009_US_cohort.csv', full.names = TRUE)
+raw.files2 <- list.files(here::here('data', 'raw_US'), pattern='201[4-9]{1}_US_cohort.csv', full.names = TRUE)
+raw.files3 <- list.files(here::here('data', 'raw_US'), pattern='202[0-9]{1}_US_cohort.csv', full.names = TRUE)
+
+#raw.files <- c(raw.files1, raw.files2, raw.files3)
+raw.files <- c(raw.files2, raw.files3)
+
+```
+
+
+```{r, include=FALSE}
+# Read raw datafiles in
+#raw.files <- list.files(here::here('data', 'raw_US'), pattern='2[0-9]{3}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0) %>%  # remove all 0 weight individuals
+  mutate(age_group = cut(age, 
+                         breaks = c(0,16,20,26,46,61,120), 
+                         labels = c('0-15', '16-19', '20-25', '26-45', '46-60', '61+'),
+                         include.lowest = TRUE,
+                         right = FALSE))
+
+```
+
+# Quick Data Checking
+
+```{r}
+table(raw.dat$sex, raw.dat$hosp_visits)
+```
+
+
+# Clinical Depression
+
+First we'll to see if there is a relationship between SF-12 Mental Component Score (MCS) and clinical_depression (from the UKHLS variable [hcond17](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hcond17/) - has a doctor ever told you that you have clinical depression?). clinical_depression == 0 is no clinical depression, and == 1 is clinical depression.
+
+```{r}
+dat <- raw.dat %>%
+  select(pidp, time, SF_12, clinical_depression) %>%
+  filter(clinical_depression >= 0)
+
+t.test(SF_12 ~ clinical_depression, data = dat, var.equal=FALSE)
+```
+
+The above T-test shows a significant difference in mean SF-12 between individuals with and without clinical depression. The difference in means is also very large in the context of SF-12 MCS, with an 18 point gap.
+
+# Hospital Utilisation
+
+Next we will test the relationship between SF-12 MCS and Hospital Utilisation (from UKHLS variable [hosp](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hosp/) - In the last 12 months, have you been in hospital or clinic as an in-patient overnight or longer?).
+
+```{r}
+dat <- raw.dat %>%
+  select(pidp, time, SF_12, hosp_visits) %>%
+  filter(hosp_visits > 0)
+
+dat$hosp_visits <- ifelse(dat$hosp_visits == 1, 1, 0)
+
+t.test(SF_12 ~ hosp_visits, data = dat, var.equal=FALSE)
+```
+
+The above T-test shows once again that there is a significant difference in the mean SF-12 between individuals who have 
+
+## Hospital Use in the Future
+
+```{r}
+d1 <- raw.dat %>%
+  select(pidp, time, hosp_visits) %>%
+  mutate(time = time - 1)
+
+d1$hosp_visits <- ifelse(d1$hosp_visits == 1, 1, 0)
+
+d2 <- raw.dat %>%
+  select(pidp, time, SF_12)
+
+d.merged <- merge(x = d1, y = d2, by = c('pidp', 'time'))
+```
+
+```{r}
+t.test(SF_12 ~ hosp_visits, data = d.merged, var.equal=FALSE)
+```
+
+# GP Visit
+
+## chi-squared
+
+```{r}
+dat <- raw.dat %>%
+  select(pidp, time, SF_12, gp_visits) %>%
+  filter(gp_visits >= 0)
+
+dat$gp_visits <- factor(dat$gp_visits)
+
+#t.test(SF_12 ~ gp_visits, data = dat, var.equal=FALSE)
+#wilcox.test(SF_12 ~ gp_visits, data = dat)
+
+threshold <- 48.9
+below <- paste0("Below ", threshold) # create labels dynamically from the threshold
+above <- paste0("Above ", threshold)
+dat$high_risk <- ifelse(dat$SF_12 < threshold, below , above)
+
+
+# Table the results to prepare for fishers test
+table_high_risk <- table(dat$high_risk, dat$gp_visits)
+print(table_high_risk)
+
+# Fishers exact test
+#fisher_test <- fisher.test(table_high_risk)
+
+chi.gp <- chisq.test(table_high_risk)
+
+print(chi.gp)
+print(chi.gp$observed)
+print(chi.gp$expected)
+
+print(chi.gp$statistic)
+```
+
+## logistic regression odds ratios
+
+```{r}
+model <- glm(gp_visits ~ high_risk, family = 'binomial', data=dat)
+options(scipen=999)
+summary(model)
+print('--------------------------------')
+print(exp(coef(model)))
+
+print('Odds Ratio: ')
+print(exp(coef(model)[[2]]))
+
+print('Confidence Intervals: ')
+print(exp(confint(model)))
+print(exp(confint(model)[[2]]))
+print(exp(confint(model)[[4]]))
+
+```
+
+
+# SF12 Histograms
+
+```{r}
+t1 <- raw.dat %>%
+  filter(hosp_visits == 1)  # YES TO HOSPITAL USE
+
+t2 <- raw.dat %>%
+  filter(hosp_visits == 2)  # NO TO HOSPITAL USE
+
+hist(t1$SF_12,
+     main = 'Histogram of SF-12 (Visited hospital in previous 12 months)',
+     xlab = 'SF-12')
+hist(t2$SF_12,
+     main = 'Histogram of SF-12 (No hospital visit in previous 12 months)',
+     xlab = 'SF-12')
+```
+
+
+
+
+# Odds Ratios
+
+## Functions
+
+```{r}
+prep_future_hosp_data <- function(data, var) {
+  d1 <- data %>%
+    select(pidp, time, .data[[var]], weight) %>%
+    mutate(time = time - 1)
+  
+  d2 <- data %>%
+    select(pidp, time, SF_12)
+  
+  d.merged <- merge(x = d1, y = d2, by = c('pidp', 'time'))
+  
+  return(d.merged)
+}
+
+
+odds_ratio_and_chisq <- function(data, threshold, var, age_group, future = FALSE) {
+  
+  # If we want to look at future hospitalisation, needs some prep
+  if(future) {
+    data <- prep_future_hosp_data(data, var)
+  }
+  
+  # Handle missing values in all variables (negative) and make sure var is factor
+  data <- data %>%
+    filter(.data[[var]] >= 0,
+           SF_12 >= 0) %>%
+    mutate(!!var := factor(.data[[var]]))
+  
+  # Recode hosp to binary 0/1, and create a binary from SF_12 for above/below
+  #  threshold
+  if (var == 'hosp_visits') {
+    data$hosp_visits <- ifelse(data$hosp_visits == 1, 1, 0)
+  }
+  below <- paste0("Below ", threshold) # create labels dynamically from the threshold
+  above <- paste0("Above ", threshold)
+  data$high_risk <- ifelse(data$SF_12 < threshold, below , above)
+  
+  # Some info for the chisq result
+  print(paste0('Threshold is ', threshold))
+  print(paste0('Variable is ', var))
+  print(paste0('Analysis is for future 12 months? ', future))
+  
+  # Table the results to prepare for fishers test
+  table_high_risk <- table(data$high_risk, data[[var]])
+  chi <- chisq.test(table_high_risk)
+  print(chi)
+
+  
+  # Create formula object for model from strings
+  form <- formula(paste0(var, ' ~ high_risk'))
+  #print(form)
+  
+  model <- glm(form, 
+               family = 'binomial', 
+               data=data,
+               weights = weight)
+  options(scipen=999)
+  summary(model)
+  
+  # Calculate odds ratio and confidence intervals
+  odds_ratio = exp(coef(model)[[2]])
+  
+  #print('Confidence Intervals: ')
+  #print(exp(confint(model)))
+  odds.conf.low = exp(confint(model)[[2]])
+  odds.conf.high = exp(confint(model)[[4]])
+  
+  #print('--------------------------------')
+  
+  if(threshold == 45.6) {
+    schema = '30-day'
+  } else if (threshold == 48.9) {
+    schema = '12-month'
+  }
+  
+  if(future) {
+    admission = 'Next 12 months'
+  } else {
+    admission = 'Previous 12 months'
+  }
+  
+  if(var == 'hosp_visits') {
+    return_df <- data.frame(HospitalAdmission = admission, 
+                            threshold = schema, 
+                            OR = odds_ratio, 
+                            conf.low = odds.conf.low,
+                            conf.high = odds.conf.high,
+                            row.names = NULL)
+  }
+  
+  if(var == 'gp_visits') {
+    return_df <- data.frame(GPVisit = admission, 
+                            threshold = schema, 
+                            OR = odds_ratio, 
+                            conf.low = odds.conf.low,
+                            conf.high = odds.conf.high,
+                            row.names = NULL)
+  }
+  
+  return(return_df)
+}
+#test <- fishers_exact(data = raw.dat, threshold = 45.6, future = FALSE)
+#test <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
+#test <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
+
+
+plot_odds_ratios_single <- function(df_list, key_col = 'HospitalAdmission') {
+  # merge df_list into one df
+  merged <- do.call(rbind, df_list)
+  
+  if ('HospitalAdmission' %in%  colnames(merged)) {
+    merged$HospitalAdmission <- factor(merged$HospitalAdmission, levels = c('Previous 12 months', 'Next 12 months'))
+  } else if ('GPVisit' %in% colnames(merged)) {
+    merged$GPVisit <- factor(merged$GPVisit, levels = c('Previous 12 months', 'Next 12 months'))
+  }
+  # Ensure factor type of variables and give proper labels
+  #merged[[key_col]] <- factor(merged[[key_col]], levels = c('Previous 12 months', 'Next 12 months'))
+  merged$threshold <- factor(merged$threshold, levels = c('12-month'))
+  
+  p1 <- ggplot(merged, aes(x = factor(threshold), y = OR, color = .data[[key_col]], fill = .data[[key_col]])) +
+    geom_point(position = position_dodge(width = 0.5), size = 3) +    # Plot points with dodge for separation
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high),              # Error bars for confidence intervals
+                  position = position_dodge(width = 0.5), width = 0.2) +
+    #geom_hline(yintercept = 1, linetype='dashed') +
+    labs(x = "Depressive Disorder Threshold", y = "Odds Ratio", color = key_col, fill = key_col) +
+    theme_minimal() +
+    theme(legend.position = "right") +  # Place the legend on the right
+    scale_color_manual(values = c("Next 12 months" = "blue", "Previous 12 months" = "red")) +  # Colors for future and non-future
+    scale_fill_manual(values = c("Next 12 months" = "blue", "Previous 12 months" = "red"))
+  
+  print(p1)
+}
+
+
+# plot_odds_ratios_combined <- function(df_list) {
+#   # merge df_list into one df
+#   merged <- do.call(rbind, df_list)
+#   
+#   # Ensure factor type of variables and give proper labels
+#   merged$HospitalAdmission <- factor(merged$HospitalAdmission, levels = c('Previous 12 months', 'Next 12 months'))
+#   merged$GPVisit <- factor(merged$GPVisit, levels = c('Previous 12 months', 'Next 12 months'))
+#   merged$threshold <- factor(merged$threshold, levels = c('12-month'))
+#   
+#   p1 <- ggplot(merged, aes(x = factor(threshold), y = OR, color = .data[[key_col]], fill = .data[[key_col]])) +
+#     geom_point(position = position_dodge(width = 0.5), size = 3) +    # Plot points with dodge for separation
+#     geom_errorbar(aes(ymin = conf.low, ymax = conf.high),              # Error bars for confidence intervals
+#                   position = position_dodge(width = 0.5), width = 0.2) +
+#     #geom_hline(yintercept = 1, linetype='dashed') +
+#     labs(x = "Depressive Disorder Threshold", y = "Odds Ratio", color = key_col, fill = key_col) +
+#     theme_minimal() +
+#     theme(legend.position = "right") +  # Place the legend on the right
+#     scale_color_manual(values = c("Next 12 months" = "blue", "Previous 12 months" = "red")) +  # Colors for future and non-future
+#     scale_fill_manual(values = c("Next 12 months" = "blue", "Previous 12 months" = "red"))
+#   
+#   print(p1)
+# }
+
+plot_odds_ratios_combined <- function(df_list) {
+  # Combine the list of dataframes into one
+  merged <- do.call(rbind, df_list)
+  
+  # Ensure factor type of variables and give proper labels
+  merged$HospitalAdmission <- factor(merged$HospitalAdmission, levels = c('Previous 12 months', 'Next 12 months'))
+  merged$GPVisit <- factor(merged$GPVisit, levels = c('Previous 12 months', 'Next 12 months'))
+  merged$threshold <- factor(merged$threshold, levels = c('12-month'))
+  
+  # Create a new variable to indicate plot grouping
+  merged$PlotGroup <- ifelse(!is.na(merged$HospitalAdmission), "Hospital Admission", "GP Visit")
+  merged$x_position <- ifelse(merged$PlotGroup == "Hospital Admission", 1, 2) # Assign x-positions
+  
+  # Update x-axis labels
+  x_labels <- c("Hospital Admission", "GP Visit")
+  
+  p <- ggplot(merged, aes(x = factor(x_position), y = OR, color = threshold, fill = threshold)) +
+    geom_point(position = position_dodge(width = 0.5), size = 3) +    # Points with dodge
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high),             # Error bars for confidence intervals
+                  position = position_dodge(width = 0.5), width = 0.2) +
+    geom_vline(xintercept = 1.5, linetype = "dashed", color = "black") +  # Dashed vertical line separating groups
+    labs(x = NULL, y = "Odds Ratio", color = "Threshold", fill = "Threshold") +
+    scale_x_discrete(labels = x_labels) +
+    scale_color_manual(values = c("blue", "red")) +  # Customize colors
+    scale_fill_manual(values = c("blue", "red")) +
+    theme_minimal() +
+    theme(
+      legend.position = "right",               # Legend on the right
+      axis.text.x = element_text(size = 10)   # Adjust x-axis label size
+    )
+  
+  print(p)
+}
+
+
+```
+
+
+## Hospital Visits
+
+```{r}
+prev <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
+future <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = TRUE)
+
+df_list <- list(prev, future)
+plot_odds_ratios_single(df_list, key_col = 'HospitalAdmission')
+```
+
+
+## GP Visits
+
+```{r}
+prev <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
+future <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = TRUE)
+
+df_list <- list(prev, future)
+plot_odds_ratios_single(df_list, key_col = 'GPVisit')
+```
+
+## Combined Hosp GP Plot
+
+```{r}
+prev_hosp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
+future_hosp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = TRUE)
+
+prev_gp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
+future_gp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = TRUE)
+
+df_list <- list(prev_hosp, future_hosp, prev_gp, future_gp)
+plot_odds_ratios_combined(df_list)
+
+```
+
+
+# Sample Statistics
+
+Going to separate the pop into 2 groups for this. Those under the 45.6 and those above.
+
+```{r}
+# load in summary stats utils script for functions
+source('utils_summary_stats.R')
+
+miss.values <- c(-10, -9, -8, -7, -3, -2, -1,
+                 -10., -9., -8., -7., -3., -2., -1.)
+
+#data <- read.csv('../data/raw_US/2014_US_cohort.csv')
+
+continuous_vars <- c("age", "hh_netinc", "SF_12")
+categorical_vars_before <- c("sex", "education_state", "region", "ethnicity", "universal_credit", "marstat", "labour_state_raw", "emp_type")
+categorical_vars_after <- c("sex", "education_state", "region", "ethnicity", "universal_credit", "marital_status", "labour_state", "age_group")
+
+data <- raw.dat %>%
+  group_by(pidp) %>%
+  fill(labour_state_raw) %>%  # forward filling the labour_state_raw variable before subsetting the year
+  ungroup() %>%
+  filter(time == 2014) %>%
+  select(all_of(continuous_vars), all_of(categorical_vars_before), 'weight') %>%
+  filter(rowSums(across(all_of(continuous_vars), ~ .x %in% miss.values)) == 0) %>%
+  filter(rowSums(across(all_of(categorical_vars_before), ~ .x %in% miss.values)) == 0) %>%
+  mutate(
+    marital_status = case_when(
+      marstat == 1 ~ "Single",
+      marstat %in% c(2, 3, 10) ~ "Partnered",
+      marstat %in% c(4, 5, 7, 8) ~ "Separated",
+      marstat %in% c(6, 9) ~ "Widowed",
+      TRUE ~ NA_character_  # Handle unexpected values
+      )
+  ) %>%
+  mutate(
+    labour_state = case_when(
+    labour_state_raw %in% c("Employed", "Self-employed") & emp_type %in% c(1, -7, -9) ~ "FT Employed",
+    labour_state_raw %in% c("Employed", "Self-employed") & emp_type == 2 ~ "PT Employed",
+    labour_state_raw %in% c("Unemployed", "Short-term Working") ~ "Job Seeking",
+    labour_state_raw %in% c("Student", "Government Training") ~ "FT Education",
+    labour_state_raw %in% c("Family Care") ~ "Family Care",
+    labour_state_raw %in% c("Retired", "Maternity Leave", "Sick/Disabled") ~ "Not Working",
+    TRUE ~ NA_character_  # Handle unexpected values
+    )) %>%
+  mutate(age_group = cut(age, 
+                         breaks = c(0,16,20,26,46,61,120), 
+                         labels = c('0-15', '16-19', '20-25', '26-45', '46-60', '61+'),
+                         include.lowest = TRUE,
+                         right = FALSE)
+         )
+```
+
+## Gender
+
+```{r}
+# Generate stratified summary statistics by gender (sex)
+summary_by_gender <- generate_summary(data, strat_var = "sex", continuous_vars, categorical_vars_after, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary_by_gender, file_prefix = "gender")
+```
+
+## Thresholds
+
+### 48.9 (12-month)
+
+```{r}
+data.mod <- data %>%
+  mutate(under.12.month = SF_12 < 48.9)
+
+summary.48.9 <- generate_summary(data.mod, strat_var = "under.12.month", continuous_vars, categorical_vars_after, weight_col = "weight")
+
+# Print the summary tables
+print_summary(summary.48.9, file_prefix = "Under 48.9")
+```
+
+
+
+
+
+
+
+```{r}
+
+```

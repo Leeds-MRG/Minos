@@ -110,7 +110,7 @@ run_yearly_models <- function(transitionDir_path,
     # crossval needs to start in 2010, whereas default model can have reduced timespan
     # avoid first year as data is weird and missing in a lot of cases
     if(mode == 'cross_validation') {
-      year.range <- seq(max(data$time) - 3, (max(data$time)-1))
+      year.range <- seq(max(data$time) - 3, (max(data$time) - 1))
     } else {
       year.range <- seq(max(data$time) - 6, (max(data$time) - 1))
       #year.range <- seq(min(data$time), (max(data$time) - 1)) # fit full range for model of models testing purposes
@@ -130,6 +130,13 @@ run_yearly_models <- function(transitionDir_path,
     valid_yearly_model_types = c("NNET", "OLS", "OLS_DIFF", "CLM", "GLM", "ZIP", "LOGIT", "OLS_YJ")
     
     for(year in year.range) {
+      
+      print(year)
+      
+      if (year == 2021) {
+        break
+      }
+      
       if(!is.element(mod.type, valid_yearly_model_types))
         {
         print(paste0("WARNING. model ", paste0(mod.type, " not valid for yearly models. Skipping..")))

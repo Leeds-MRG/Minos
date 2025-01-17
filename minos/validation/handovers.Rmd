@@ -28,7 +28,7 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(gghighlight)
-library(spatstat)
+#library(spatstat)
 
 #workingDir <- "/home/luke/Documents/WORK/MINOS/"
 workingDir <- normalizePath('../')
