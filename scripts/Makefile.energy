@@ -40,7 +40,7 @@ aire_aspatial_goodHeatingDummy:
 
 aire_aspatial_GBIS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 aire_aspatial_GBIS: MODE = energy_default_config
-aire_aspatial_GBIS:a
+aire_aspatial_GBIS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
 aire_aspatial_FFRS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
@@ -86,7 +86,7 @@ manchester_intervention_fossilFuelReplacementScheme:
 aire_manchester_housing_baseline: MODE=energy_manchester_scaled
 aire_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 aire_manchester_housing_baseline:
-	bash scripts/aire_submit.sh  $(RUN_CONFIG) $(MODE)
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 aire_manchester_noEnergyPriceIncrease: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 aire_manchester_noEnergyPriceIncrease: MODE=energy_manchester_scaled
