@@ -2,9 +2,9 @@
 
 echo
 echo "******************************************************************************************************"
-echo "Please note the number of runs is defined by a variable in 'scripts/arc_run.sh', and cannot be"
+echo "Please note the number of runs is defined by a variable in 'scripts/aire_run.sh', and cannot be"
 echo "assigned by a command line argument, or otherwise automated. You must modify this parameter by"
-echo "changing the value of the task array in 'scripts/arc_run.sh'"
+echo "changing the value of the task array in 'scripts/aire_run.sh'"
 echo "******************************************************************************************************"
 echo
 
@@ -45,10 +45,10 @@ mkdir -p logs/errors
 ###########################################
 if [ "$#" -eq 4 ]; then
   echo "Running baseline MINOS simulation"
-  sbatch --array=1-5  'scripts/slurm_run.sh' -c $2 -o $4 -t $TIME
+  sbatch 'scripts/slurm_run.sh' -c $2 -o $4 -t $TIME
 elif [ "$#" -eq 6 ]; then
   echo "Running MINOS simulation with $6"
-  sbatch --array=1-5  'scripts/slurm_run.sh' -c $2 -o $4 -i $6 -t $TIME
+  sbatch 'scripts/slurm_run.sh' -c $2 -o $4 -i $6 -t $TIME
 fi
 
 # no errors
