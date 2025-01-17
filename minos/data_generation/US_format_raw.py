@@ -312,6 +312,9 @@ def format_ukhls_columns(year):
                       # the simplest and most complete for our purposes.
                       'benbase4': 'universal_credit',
                       # receives core benefits (I.E. universal credit/means tested benefits).
+                      # Healthcare Utilisation variables
+                      'hosp': 'hosp_visits',
+                      'hl2gp': 'gp_visits',
                       }
 
     # Some variables change names halfway through UKHLS.

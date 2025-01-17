@@ -1,26 +1,25 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Labour &mdash; Minos  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/minos_theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/minos_theme.css?v=85179c66" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../_static/jquery.js?v=3d1d8b85"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=9fa44488"></script>
+      <script src="../../_static/doctools.js?v=dcc2bf79"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -106,46 +105,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="labour">
-<h1>Labour<a class="headerlink" href="#labour" title="Permalink to this heading"></a></h1>
+  <section id="labour">
+<h1>Labour<a class="headerlink" href="#labour" title="Link to this heading"></a></h1>
 <section id="id1">
-<h2>Labour<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<h2>Labour<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <p>Labour state is a measure of what an individual does. There are 8
 distinctive categories including employment, unemployment, and retired.
 The encodings of these states can be found
 [here]](<a class="reference external" href="https://leeds-mrg.github.io/Minos/documentation/data_tables.html">https://leeds-mrg.github.io/Minos/documentation/data_tables.html</a>).</p>
-<figure class="align-default" id="id2">
-<img alt="plot of chunk labour_barchart" src="documentation/modules/figure/labour_barchart-1.png" />
-<figcaption>
-<p><span class="caption-text">plot of chunk labour_barchart</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
-</figcaption>
-</figure>
+<p><img alt="plot of chunk labour_barchart" src="../../_images/labour_barchart-1.png" /><img alt="image1" src="../../_images/labour_barchart-2.png" /></p>
 <section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h3>
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
 <p>Labour state is a complex categorical data type. Single layer neural
 network is a simple way to estimate this state. Use multinom function
 from R’s nnet package. Formula for weights included given as.</p>
@@ -153,7 +123,7 @@ from R’s nnet package. Formula for weights included given as.</p>
 \[labour\_state\_next = sex + ethnicity + age + education\_state + SF\_12 + housing\_quality + labour\_state + job\_sec + hh\_income + alcohol\_spending\]</div>
 </section>
 <section id="data">
-<h3>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h3>
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
 <p>Variables used in this model. Encodings for discrete variables found in
 data tables.</p>
 <ul class="simple">
@@ -174,21 +144,24 @@ XXXX cite.</p></li>
 </ul>
 </section>
 <section id="results">
-<h3>Results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h3>
+<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>hard to determine goodness of fit.</p></li>
 <li><p>use confusion matrix to estimate quality of fit.</p></li>
 <li><p>employed/retired well predicted. unemployed/student volatile socially
 and expectedly hard to predict.</p></li>
-<li><p>some deterministic replacement needed for categories like student
-that have specific time frames. e.g. three years for a degree.</p></li>
+<li><p>some deterministic replacement needed for categories like student that
+have specific time frames. e.g. three years for a degree.</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in table(obs, preds): all arguments must have the same length</span>
-</pre></div>
-</div>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk labour_output" src="../../_images/labour_output-1.png" />
+<figcaption>
+<p><span class="caption-text">plot of chunk labour_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
+<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
 </section>
 </section>
 </section>

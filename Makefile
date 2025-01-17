@@ -142,8 +142,7 @@ include minos/outcomes/Makefile # plotting makefile
 include minos/validation/Makefile # validation scripts
 include minos/outcomes/maps.Makefile  # mapping functions
 include scripts/SCP.Makefile  # SCP intervention scenarios
-#include docsrc/Makefile # sphinx makefile
-
+include docsrc/Makefile # sphinx makefile
 
 #####################################
 ### Cleaning

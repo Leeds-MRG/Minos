@@ -11,10 +11,7 @@ distinctive categories including employment, unemployment, and retired.
 The encodings of these states can be found
 [here]](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
 
-.. figure:: ./figure/labour_barchart-1.png
-   :alt: plot of chunk labour_barchart
-
-   plot of chunk labour_barchart
+|plot of chunk labour_barchart|\ |image1|
 
 Methods
 -------
@@ -31,34 +28,38 @@ Data
 Variables used in this model. Encodings for discrete variables found in
 data tables.
 
--  sex. Biological sex male/female.
--  ethnicity. Ethnicity e.g. white british. XXXX cite.
--  age in years. XXXX cite.
--  education. Highest qualification attained. XXXX cite
--  sf12. Mental well-being score. XXXX cite
--  housing quality. Number of household appliances. Ordinal 1-3. XXXX
-   cite
--  labour_state. Previous labour state. XXXX cite. Probably remove this.
-   dominates prediction..
--  nssec. Socioeconomic code of job. Indicates job quality with 1-9
-   ordinal variable. XXXX cite
--  household income. Monthly disposable income of individuals household.
-   XXXX cite.
--  alcohol spending. How much is spent on alcohol. XXXX cite. remove.
+- sex. Biological sex male/female.
+- ethnicity. Ethnicity e.g. white british. XXXX cite.
+- age in years. XXXX cite.
+- education. Highest qualification attained. XXXX cite
+- sf12. Mental well-being score. XXXX cite
+- housing quality. Number of household appliances. Ordinal 1-3. XXXX
+  cite
+- labour_state. Previous labour state. XXXX cite. Probably remove this.
+  dominates prediction..
+- nssec. Socioeconomic code of job. Indicates job quality with 1-9
+  ordinal variable. XXXX cite
+- household income. Monthly disposable income of individuals household.
+  XXXX cite.
+- alcohol spending. How much is spent on alcohol. XXXX cite. remove.
 
 Results
 -------
 
--  hard to determine goodness of fit.
--  use confusion matrix to estimate quality of fit.
--  employed/retired well predicted. unemployed/student volatile socially
-   and expectedly hard to predict.
--  some deterministic replacement needed for categories like student
-   that have specific time frames. e.g. three years for a degree.
+- hard to determine goodness of fit.
+- use confusion matrix to estimate quality of fit.
+- employed/retired well predicted. unemployed/student volatile socially
+  and expectedly hard to predict.
+- some deterministic replacement needed for categories like student that
+  have specific time frames. e.g. three years for a degree.
 
-::
+.. figure:: ./figure/labour_output-1.png
+   :alt: plot of chunk labour_output
 
-   ## Error in table(obs, preds): all arguments must have the same length
+   plot of chunk labour_output
 
 References
 ----------
+
+.. |plot of chunk labour_barchart| image:: ./figure/labour_barchart-1.png
+.. |image1| image:: ./figure/labour_barchart-2.png

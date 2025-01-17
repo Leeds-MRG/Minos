@@ -2,16 +2,18 @@
 title: "Household Income"
 output: html_document
 bibliography: 
-  - "docsrc/refs.bib"  # switch bibliography position. depending on where the file is being run. stick to this one when compiiling the website using the makefile
-  #- "../../refs.bib" # useful for debugging.
+  - "`r here::here('docsrc', 'refs.bib')`" # finally figure out how to combine these for debugging and actual 
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir= "../minos")
-```
-
 ```{r load_data, include=FALSE}
-source('docsrc/documentation/notebooks/sphinx_notebook_utils.R')
+library(here)
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+model_path <- here::here("data", "transitions", "hh_income", "glmm", "hh_income_new_GLMM.rds")
+model <- readRDS(model_path)
+
+obs <- model@frame$hh_income
+preds <- predict(model, type='response')
+v <- "hh_income"
 ```
 
 ## Household Income
@@ -25,7 +27,7 @@ $$    hh\_income = hh\_income\_ * inflation\_factor$$
 This produces a continuous distribution of pounds per month available for a household to spend as it likes. This is plotted below with a median income of $~£1250$.
 
 ```{r, hh_income_data}
-continuous_density("data/transitions/hh_income/ols/hh_income_2018_2019.rds", "next_hh_income")  
+continuous_density(obs)  
 ```
 
 ### Methods
@@ -61,8 +63,9 @@ Model coefficients and diagnostics are displayed below. To summarise
 
 ```{r income_output, echo=FALSE}
 options(width=120)
-ols_output("data/transitions/hh_income/ols/hh_income_2018_2019.rds")
-ols_histogram("data/transitions/hh_income/ols/hh_income_2018_2019.rds", "next_hh_income")
+continuous_densities(obs, preds, v)
+print(summary(model))
+plot(model)
 ```
 
 

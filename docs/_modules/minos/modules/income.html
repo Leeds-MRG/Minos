@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>minos.modules.income &mdash; Minos  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/minos_theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/minos_theme.css?v=85179c66" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../_static/jquery.js?v=3d1d8b85"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=9fa44488"></script>
+      <script src="../../../_static/doctools.js?v=dcc2bf79"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,8 +86,13 @@
 <span class="kn">from</span> <span class="nn">minos.modules.base_module</span> <span class="kn">import</span> <span class="n">Base</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">seaborn</span> <span class="kn">import</span> <span class="n">histplot</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<div class="viewcode-block" id="Income"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income">[docs]</a><span class="k">class</span> <span class="nc">Income</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Income">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income">[docs]</a>
+<span class="k">class</span> <span class="nc">Income</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
 
     <span class="c1"># Special methods used by vivarium.</span>
     <span class="nd">@property</span>
@@ -98,7 +102,9 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Income()&quot;</span>
 
-<div class="viewcode-block" id="Income.setup"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+<div class="viewcode-block" id="Income.setup">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.setup">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
 
 <span class="sd">        Notes</span>
@@ -117,6 +123,7 @@
 
         <span class="c1"># Load in inputs from pre-setup.</span>
         <span class="c1"># self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;rpy2_modules&quot;</span><span class="p">)</span>
 
         <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
         <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
@@ -136,24 +143,49 @@
                         <span class="s1">&#39;region&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;job_sec&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;labour_state&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;S7_labour_state&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;education_state&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;SF_12&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;housing_quality&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;job_sector&#39;</span><span class="p">]</span>
-        <span class="c1">#view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+        <span class="c1"># view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">view_columns</span><span class="p">)</span>
 
         <span class="c1"># Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
         <span class="c1"># module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
         <span class="c1"># created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
-        <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">initializes_simulants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_initialize_simulants</span><span class="p">)</span>
+        <span class="c1"># builder.population.initializes_simulants(self.on_initialize_simulants)</span>
 
         <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
         <span class="c1"># individual graduate in an education module.</span>
-        <span class="n">builder</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">register_listener</span><span class="p">(</span><span class="s2">&quot;time_step&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_time_step</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+        <span class="c1"># builder.event.register_listener(&quot;time_step&quot;, self.on_time_step, priority=self.priority)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Income.on_time_step"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Income.on_initialize_simulants">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_initialize_simulants">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  Initiate columns for hh_income when new simulants are added.</span>
+<span class="sd">        Only column needed is the diff column for rate of change model predictions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop_data: vivarium.framework.population.SimulantData</span>
+<span class="sd">            Custom vivarium class for interacting with the population data frame.</span>
+<span class="sd">            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
+<span class="sd">            creation_window, and current simulation state (setup/running/etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create frame with new 3 columns and add it to the main population frame.</span>
+        <span class="c1"># This is the same for both new cohorts and newborn babies.</span>
+        <span class="c1"># Neither should be dead yet.</span>
+        <span class="n">pop_update</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                                  <span class="n">index</span><span class="o">=</span><span class="n">pop_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pop_update</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Income.on_time_step">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.on_time_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
 
 <span class="sd">        Parameters</span>
@@ -161,22 +193,30 @@
 <span class="sd">        event : vivarium.population.PopulationEvent</span>
 <span class="sd">            The event time_step that called this function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;INCOME&quot;</span><span class="p">)</span>
+
         <span class="c1"># Get living people to update their income</span>
         <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;alive ==&#39;alive&#39;&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">year</span>
 
         <span class="c1">## Predict next income value</span>
         <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
-        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">])</span>
-        <span class="c1"># Set index type to int (instead of object as previous)</span>
-        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.rename(columns={&quot;new_dependent&quot;: &quot;hh_income&quot;,</span>
+        <span class="c1">#                                               &quot;predicted&quot;: &quot;hh_income_diff&quot;})</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.to_frame(name=&#39;hh_income&#39;)</span>
+        <span class="c1"># Set index back to population of interest.</span>
+        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
 
         <span class="c1"># Draw individuals next states randomly from this distribution.</span>
         <span class="c1"># Update population with new income</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="Income.calculate_income"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.calculate_income">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<div class="viewcode-block" id="Income.calculate_income">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.calculate_income">[docs]</a>
+    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
 
 <span class="sd">        Parameters</span>
@@ -189,19 +229,974 @@
 <span class="sd">            Vector of new household incomes from OLS prediction.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># load transition model based on year.</span>
-        <span class="n">year</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="mi">2018</span><span class="p">)</span>
-        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/ols/hh_income_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="c1"># The calculation relies on the R predict method and the model that has already been specified</span>
-        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_ols</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">)</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="mi">2019</span><span class="p">)</span>
+        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/ols/hh_income_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                   <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_ols</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                           <span class="n">pop</span><span class="p">,</span>
+                                                           <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nextWaveIncome</span></div>
 
-<div class="viewcode-block" id="Income.plot"><a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 
+<div class="viewcode-block" id="Income.calculate_income_rateofchange">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.calculate_income_rateofchange">[docs]</a>
+    <span class="k">def</span> <span class="nf">calculate_income_rateofchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition with rate of change (diff) models</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop: PopulationView</span>
+<span class="sd">                Population from MINOS to calculate next income for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nextWaveIncome: pd.Dataframe</span>
+<span class="sd">            Dataframe of new predicted hh_income value and difference from previous year.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_validation</span><span class="p">:</span>
+            <span class="c1"># if cross-val, fix year to final year model</span>
+            <span class="n">year</span> <span class="o">=</span> <span class="mi">2019</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">year</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="mi">2019</span><span class="p">)</span>
+
+        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/ols_diff/hh_income_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                    <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="c1"># The calculation relies on the R predict method and the model that has already been specified</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_ols</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span>
+                                                                <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                                <span class="n">pop</span><span class="p">,</span>
+                                                                <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+                                                                <span class="n">year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nextWaveIncome</span></div>
+
+
+<div class="viewcode-block" id="Income.plot">
+<a class="viewcode-back" href="../../../API/income.html#minos.modules.income.Income.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_plots_dir</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;income_hist_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
         <span class="n">histplot</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;hh_income&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">geeIncome</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+    <span class="c1"># Special methods used by vivarium.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;geeIncome&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;geeIncome()&quot;</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Load in data from pre_setup</span>
+<span class="sd">        - Register any value producers/modifiers for income</span>
+<span class="sd">        - Add required columns to population data frame</span>
+<span class="sd">        - Update other required items such as randomness stream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        builder : vivarium.engine.Builder</span>
+<span class="sd">            Vivarium&#39;s control object. Stores all simulation metadata and allows modules to use it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load in inputs from pre-setup.</span>
+        <span class="c1"># self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;rpy2_modules&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
+        <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
+        <span class="c1"># self.transition_coefficients = builder.</span>
+
+        <span class="c1"># Assign randomness streams if necessary.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_random_crn_key</span><span class="p">())</span>
+
+        <span class="c1"># Determine which subset of the main population is used in this module.</span>
+        <span class="c1"># columns_created is the columns created by this module.</span>
+        <span class="c1"># view_columns is the columns from the main population used in this module.</span>
+        <span class="c1"># In this case, view_columns are taken straight from the transition model</span>
+        <span class="n">view_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pidp&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;weight&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;age&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;sex&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;ethnicity&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;region&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;job_sec&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;labour_state&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;education_state&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;SF_12&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;housing_quality&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;job_sector&#39;</span><span class="p">]</span>
+        <span class="c1"># view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">view_columns</span><span class="p">)</span>
+
+        <span class="c1"># Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
+        <span class="c1"># module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
+        <span class="c1"># created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
+        <span class="c1"># builder.population.initializes_simulants(self.on_initialize_simulants)</span>
+
+        <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
+        <span class="c1"># individual graduate in an education module.</span>
+        <span class="c1"># builder.event.register_listener(&quot;time_step&quot;, self.on_time_step, priority=self.priority)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+
+        <span class="c1"># just load this once.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gee_transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/gee/hh_income_GEE&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                         <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_hh_income</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;  Initiate columns for hh_income when new simulants are added.</span>
+<span class="sd">            Only column needed is the diff column for rate of change model predictions.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">                pop_data: vivarium.framework.population.SimulantData</span>
+<span class="sd">                Custom vivarium class for interacting with the population data frame.</span>
+<span class="sd">                It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
+<span class="sd">                creation_window, and current simulation state (setup/running/etc.).</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Create frame with new 3 columns and add it to the main population frame.</span>
+            <span class="c1"># This is the same for both new cohorts and newborn babies.</span>
+            <span class="c1"># Neither should be dead yet.</span>
+            <span class="n">pop_update</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                                      <span class="n">index</span><span class="o">=</span><span class="n">pop_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pop_update</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : vivarium.population.PopulationEvent</span>
+<span class="sd">            The event time_step that called this function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get living people to update their income</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;alive ==&#39;alive&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">year</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_hh_income</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_hh_income</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">income_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">])</span>
+
+        <span class="c1">## Predict next income value</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.rename(columns={&quot;new_dependent&quot;: &quot;hh_income&quot;,</span>
+        <span class="c1">#                                               &quot;predicted&quot;: &quot;hh_income_diff&quot;})</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.to_frame(name=&#39;hh_income&#39;)</span>
+        <span class="c1"># Set index back to population of interest.</span>
+        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_gaussian_noise</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="c1"># Draw individuals next states randomly from this distribution.</span>
+        <span class="c1"># Update population with new income</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop: PopulationView</span>
+<span class="sd">                Population from MINOS to calculate next income for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nextWaveIncome: pd.Series</span>
+<span class="sd">            Vector of new household incomes from OLS prediction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_gee</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gee_transition_model</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                           <span class="n">pop</span><span class="p">,</span>
+                                                           <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nextWaveIncome</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_hh_income</span>
+    <span class="k">def</span> <span class="nf">calculate_income_rateofchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition with rate of change (diff) models</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop: PopulationView</span>
+<span class="sd">                Population from MINOS to calculate next income for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nextWaveIncome: pd.Dataframe</span>
+<span class="sd">            Dataframe of new predicted hh_income value and difference from previous year.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="mi">2019</span><span class="p">)</span>
+        <span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/ols/hh_income_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                    <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="c1"># The calculation relies on the R predict method and the model that has already been specified</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_ols</span><span class="p">(</span><span class="n">transition_model</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                           <span class="n">pop</span><span class="p">,</span>
+                                                           <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+                                                           <span class="n">year</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nextWaveIncome</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_plots_dir</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;income_hist_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">histplot</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;hh_income&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">geeYJIncome</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+    <span class="c1"># Special methods used by vivarium.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;geeYJIncome&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;geeYJIncome()&quot;</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Load in data from pre_setup</span>
+<span class="sd">        - Register any value producers/modifiers for income</span>
+<span class="sd">        - Add required columns to population data frame</span>
+<span class="sd">        - Update other required items such as randomness stream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        builder : vivarium.engine.Builder</span>
+<span class="sd">            Vivarium&#39;s control object. Stores all simulation metadata and allows modules to use it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load in inputs from pre-setup.</span>
+        <span class="c1"># self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;rpy2_modules&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
+        <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
+        <span class="c1"># self.transition_coefficients = builder.</span>
+
+        <span class="c1"># Assign randomness streams if necessary.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_random_crn_key</span><span class="p">())</span>
+
+        <span class="c1"># Determine which subset of the main population is used in this module.</span>
+        <span class="c1"># columns_created is the columns created by this module.</span>
+        <span class="c1"># view_columns is the columns from the main population used in this module.</span>
+        <span class="c1"># In this case, view_columns are taken straight from the transition model</span>
+        <span class="c1">#view_columns = [&#39;pidp&#39;,</span>
+        <span class="c1">#                &#39;age&#39;,</span>
+        <span class="c1">#                &#39;sex&#39;,</span>
+        <span class="c1">#                &#39;ethnicity&#39;,</span>
+        <span class="c1">#                &#39;region&#39;,</span>
+        <span class="c1">#                &#39;hh_income&#39;,</span>
+        <span class="c1">#                &#39;job_sec&#39;,</span>
+        <span class="c1">#                #&#39;labour_state&#39;,</span>
+        <span class="c1">#                &#39;education_state&#39;,</span>
+        <span class="c1">#                &#39;SF_12&#39;,</span>
+        <span class="c1">#                &#39;weight&#39;,</span>
+        <span class="c1">#                #&#39;housing_quality&#39;,</span>
+        <span class="c1">#                &#39;job_sector&#39;]</span>
+        <span class="n">view_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;age&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;sex&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ethnicity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;region&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;education_state&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;job_sec&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;job_sector&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;time&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;pidp&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;weight&#39;</span>
+        <span class="p">]</span>
+        <span class="c1"># view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">view_columns</span><span class="p">)</span>
+
+        <span class="c1"># Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
+        <span class="c1"># module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
+        <span class="c1"># created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
+        <span class="c1"># builder.population.initializes_simulants(self.on_initialize_simulants)</span>
+
+        <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
+        <span class="c1"># individual graduate in an education module.</span>
+        <span class="c1"># builder.event.register_listener(&quot;time_step&quot;, self.on_time_step, priority=self.priority)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+
+        <span class="c1"># just load this once.</span>
+        <span class="c1">#self.gee_transition_model = r_utils.load_transitions(f&quot;hh_income/gee_yj/hh_income_GEE_YJ&quot;, self.rpy2Modules,</span>
+        <span class="c1">#                                             path=self.transition_dir)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gee_transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/gee_yj_gamma/hh_income_GEE_YJ_GAMMA&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_history_dataframe</span><span class="p">(</span><span class="s2">&quot;final_US&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">2019</span><span class="p">,</span> <span class="mi">2020</span><span class="p">],</span> <span class="n">view_columns</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  Initiate columns for hh_income when new simulants are added.</span>
+<span class="sd">        Only column needed is the diff column for rate of change model predictions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop_data: vivarium.framework.population.SimulantData</span>
+<span class="sd">            Custom vivarium class for interacting with the population data frame.</span>
+<span class="sd">            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
+<span class="sd">            creation_window, and current simulation state (setup/running/etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create frame with new 3 columns and add it to the main population frame.</span>
+        <span class="c1"># This is the same for both new cohorts and newborn babies.</span>
+        <span class="c1"># Neither should be dead yet.</span>
+        <span class="n">pop_update</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                                  <span class="n">index</span><span class="o">=</span><span class="n">pop_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pop_update</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : vivarium.population.PopulationEvent</span>
+<span class="sd">            The event time_step that called this function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get living people to update their income</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;alive ==&#39;alive&#39;&quot;</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;pidp&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">year</span>
+
+        <span class="c1">## Predict next income value</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.rename(columns={&quot;new_dependent&quot;: &quot;hh_income&quot;,</span>
+        <span class="c1">#                                               &quot;predicted&quot;: &quot;hh_income_diff&quot;})</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.to_frame(name=&#39;hh_income&#39;)</span>
+        <span class="c1"># Set index back to population of interest.</span>
+        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="c1">#newWaveIncome[&#39;hh_income&#39;] += self.generate_gaussian_noise(pop.index, 0, 1000)</span>
+        <span class="c1"># Draw individuals next states randomly from this distribution.</span>
+        <span class="c1"># Update population with new income</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+
+    <span class="c1"># def calculate_income(self, pop):</span>
+    <span class="c1">#     &quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#         pop: PopulationView</span>
+    <span class="c1">#             Population from MINOS to calculate next income for.</span>
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+    <span class="c1">#     nextWaveIncome: pd.Series</span>
+    <span class="c1">#         Vector of new household incomes from OLS prediction.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     # load transition model based on year.</span>
+    <span class="c1">#     #if self.year != 2020:</span>
+    <span class="c1">#     self.update_history_dataframe(pop, self.year)</span>
+    <span class="c1">#     nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,</span>
+    <span class="c1">#                                                        self.rpy2Modules,</span>
+    <span class="c1">#                                                        self.history_data,</span>
+    <span class="c1">#                                                        dependent=&#39;hh_income&#39;,</span>
+    <span class="c1">#                                                        noise_std=1)#2</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return nextWaveIncome.iloc[self.history_data.loc[self.history_data[&#39;time&#39;]==self.year].index]</span>
+
+    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop: PopulationView</span>
+<span class="sd">                Population from MINOS to calculate next income for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nextWaveIncome: pd.Series</span>
+<span class="sd">            Vector of new household incomes from OLS prediction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+        <span class="c1">#if self.year != 2020:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_history_dataframe</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_yj_gamma_gee</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gee_transition_model</span><span class="p">,</span>
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">history_data</span><span class="p">,</span>
+                                                                       <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+                                                                       <span class="n">reflect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                       <span class="n">noise_std</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="c1">#2</span>
+
+        <span class="k">return</span> <span class="n">nextWaveIncome</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">history_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">history_data</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_plots_dir</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;income_hist_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">histplot</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;hh_income&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+
+<span class="k">class</span> <span class="nc">lmmYJIncome</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+    <span class="c1"># Special methods used by vivarium.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;lmmYJIncome&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;lmmYJIncome()&quot;</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Load in data from pre_setup</span>
+<span class="sd">        - Register any value producers/modifiers for income</span>
+<span class="sd">        - Add required columns to population data frame</span>
+<span class="sd">        - Update other required items such as randomness stream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        builder : vivarium.engine.Builder</span>
+<span class="sd">            Vivarium&#39;s control object. Stores all simulation metadata and allows modules to use it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load in inputs from pre-setup.</span>
+        <span class="c1"># self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;rpy2_modules&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
+        <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
+        <span class="c1"># self.transition_coefficients = builder.</span>
+
+        <span class="c1"># Assign randomness streams if necessary.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_random_crn_key</span><span class="p">())</span>
+
+        <span class="c1"># Determine which subset of the main population is used in this module.</span>
+        <span class="c1"># columns_created is the columns created by this module.</span>
+        <span class="c1"># view_columns is the columns from the main population used in this module.</span>
+        <span class="c1"># In this case, view_columns are taken straight from the transition model</span>
+        <span class="c1">#view_columns = [&#39;pidp&#39;,</span>
+        <span class="c1">#                &#39;age&#39;,</span>
+        <span class="c1">#                &#39;sex&#39;,</span>
+        <span class="c1">#                &#39;ethnicity&#39;,</span>
+        <span class="c1">#                &#39;region&#39;,</span>
+        <span class="c1">#                &#39;hh_income&#39;,</span>
+        <span class="c1">#                &#39;job_sec&#39;,</span>
+        <span class="c1">#                #&#39;labour_state&#39;,</span>
+        <span class="c1">#                &#39;education_state&#39;,</span>
+        <span class="c1">#                &#39;SF_12&#39;,</span>
+        <span class="c1">#                &#39;weight&#39;,</span>
+        <span class="c1">#                #&#39;housing_quality&#39;,</span>
+        <span class="c1">#                &#39;job_sector&#39;]</span>
+        <span class="n">view_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;sex&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ethnicity&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;education_state&quot;</span><span class="p">,</span>
+                        <span class="s1">&#39;job_sec&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;SF_12&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;pidp&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;hh_income_diff&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;S7_labour_state&#39;</span>
+                        <span class="p">]</span>
+
+
+        <span class="c1">#columns_created = [&#39;hh_income_diff&#39;]</span>
+        <span class="c1"># view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">view_columns</span><span class="p">)</span><span class="c1"># + columns_created)</span>
+
+        <span class="c1"># Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
+        <span class="c1"># module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
+        <span class="c1"># created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
+        <span class="c1">#builder.population.initializes_simulants(self.on_initialize_simulants, creates_columns=columns_created)</span>
+
+        <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
+        <span class="c1"># individual graduate in an education module.</span>
+        <span class="c1"># builder.event.register_listener(&quot;time_step&quot;, self.on_time_step, priority=self.priority)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+
+        <span class="c1"># just load this once.</span>
+        <span class="c1">#self.gee_transition_model = r_utils.load_transitions(f&quot;hh_income/gee_yj/hh_income_GEE_YJ&quot;, self.rpy2Modules,</span>
+        <span class="c1">#                                             path=self.transition_dir)</span>
+        <span class="c1">#self.gee_transition_model = r_utils.load_transitions(f&quot;hh_income/gee_diff/hh_income_GEE_DIFF&quot;, self.rpy2Modules,</span>
+        <span class="c1">#                                                     path=self.transition_dir)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/glmm/hh_income_new_GLMM&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">randomise_fixed_effects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span> <span class="s2">&quot;glmm&quot;</span><span class="p">)</span>
+        <span class="c1">#self.history_data = self.generate_history_dataframe(&quot;final_US&quot;, [2018, 2019], view_columns)</span>
+        <span class="c1">#self.history_data[&quot;hh_income_diff&quot;] = self.history_data[&#39;hh_income&#39;] - self.history_data.groupby([&#39;pidp&#39;])[&#39;hh_income&#39;].shift(1)</span>
+
+    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  Initiate columns for hh_income when new simulants are added.</span>
+<span class="sd">        Only column needed is the diff column for rate of change model predictions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop_data: vivarium.framework.population.SimulantData</span>
+<span class="sd">            Custom vivarium class for interacting with the population data frame.</span>
+<span class="sd">            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
+<span class="sd">            creation_window, and current simulation state (setup/running/etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create frame with new 3 columns and add it to the main population frame.</span>
+        <span class="c1"># This is the same for both new cohorts and newborn babies.</span>
+        <span class="c1"># Neither should be dead yet.</span>
+        <span class="n">pop_update</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">},</span>
+                                  <span class="n">index</span><span class="o">=</span><span class="n">pop_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pop_update</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : vivarium.population.PopulationEvent</span>
+<span class="sd">            The event time_step that called this function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get living people to update their income</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;alive ==&#39;alive&#39;&quot;</span><span class="p">)</span>
+        <span class="c1">#pop = pop.sort_values(&#39;pidp&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">year</span>
+
+        <span class="c1"># dummy column to load new prediction into.</span>
+        <span class="n">pop</span><span class="p">[</span><span class="s1">&#39;hh_income_new&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span>
+
+
+        <span class="c1">## Predict next income values</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="c1"># calculate household income mean</span>
+        <span class="n">income_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">])</span>
+        <span class="c1"># calculate change in standard deviation between waves.</span>
+        <span class="n">std_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">]))</span>
+        <span class="c1"># rescale income to have new mean but keep old standard deviation.</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">std_ratio</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="p">((</span><span class="n">std_ratio</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">income_mean</span><span class="p">)</span>
+        <span class="c1">#newWaveIncome[&quot;hh_income&quot;] -= 75</span>
+
+        <span class="c1"># difference in hh income</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">pop</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">,</span> <span class="s1">&#39;hh_income_diff&#39;</span><span class="p">]])</span>
+
+    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop: PopulationView</span>
+<span class="sd">                Population from MINOS to calculate next income for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nextWaveIncome: pd.Series</span>
+<span class="sd">            Vector of new household incomes from OLS prediction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_yj_gamma_glmm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_model</span><span class="p">,</span>
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                                       <span class="n">pop</span><span class="p">,</span>
+                                                                       <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income_new&#39;</span><span class="p">,</span>
+                                                                       <span class="n">yeo_johnson</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                                       <span class="n">reflect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                       <span class="n">noise_std</span><span class="o">=</span><span class="mf">0.175</span><span class="p">)</span>  <span class="c1">#0.45 for yj. 100? for non yj.</span>
+        <span class="c1"># get new hh income diffs and update them into history_data.</span>
+        <span class="c1">#self.update_history_dataframe(pop, self.year-1)</span>
+        <span class="c1">#new_history_data = self.history_data.loc[self.history_data[&#39;time&#39;]==self.year].index # who in current_year</span>
+        <span class="c1">#next_diffs = nextWaveIncome.iloc[new_history_data]</span>
+        <span class="k">return</span> <span class="n">nextWaveIncome</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_plots_dir</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;income_hist_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">histplot</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;hh_income&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">lmmDiffIncome</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+
+    <span class="c1"># Special methods used by vivarium.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;lmmDiffIncome&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;lmmDiffIncome()&quot;</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - Load in data from pre_setup</span>
+<span class="sd">        - Register any value producers/modifiers for income</span>
+<span class="sd">        - Add required columns to population data frame</span>
+<span class="sd">        - Update other required items such as randomness stream.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        builder : vivarium.engine.Builder</span>
+<span class="sd">            Vivarium&#39;s control object. Stores all simulation metadata and allows modules to use it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load in inputs from pre-setup.</span>
+        <span class="c1"># self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;rpy2_modules&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build vivarium objects for calculating transition probabilities.</span>
+        <span class="c1"># Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
+        <span class="c1"># self.transition_coefficients = builder.</span>
+
+        <span class="c1"># Assign randomness streams if necessary.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">randomness</span><span class="o">.</span><span class="n">get_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_random_crn_key</span><span class="p">())</span>
+
+        <span class="c1"># Determine which subset of the main population is used in this module.</span>
+        <span class="c1"># columns_created is the columns created by this module.</span>
+        <span class="c1"># view_columns is the columns from the main population used in this module.</span>
+        <span class="c1"># In this case, view_columns are taken straight from the transition model</span>
+        <span class="c1">#view_columns = [&#39;pidp&#39;,</span>
+        <span class="c1">#                &#39;age&#39;,</span>
+        <span class="c1">#                &#39;sex&#39;,</span>
+        <span class="c1">#                &#39;ethnicity&#39;,</span>
+        <span class="c1">#                &#39;region&#39;,</span>
+        <span class="c1">#                &#39;hh_income&#39;,</span>
+        <span class="c1">#                &#39;job_sec&#39;,</span>
+        <span class="c1">#                #&#39;labour_state&#39;,</span>
+        <span class="c1">#                &#39;education_state&#39;,</span>
+        <span class="c1">#                &#39;SF_12&#39;,</span>
+        <span class="c1">#                &#39;weight&#39;,</span>
+        <span class="c1">#                #&#39;housing_quality&#39;,</span>
+        <span class="c1">#                &#39;job_sector&#39;]</span>
+        <span class="n">view_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;age&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;sex&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ethnicity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;region&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;education_state&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;job_sec&#39;</span><span class="p">,</span>
+            <span class="c1">#&#39;job_sector&#39;,</span>
+            <span class="s1">&#39;time&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;pidp&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;weight&#39;</span><span class="p">,</span>
+            <span class="c1">#&#39;hh_income_diff&#39;</span>
+        <span class="p">]</span>
+        <span class="n">columns_created</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">]</span>
+        <span class="c1"># view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">get_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">view_columns</span> <span class="o">+</span> <span class="n">columns_created</span><span class="p">)</span>
+
+        <span class="c1"># Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
+        <span class="c1"># module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
+        <span class="c1"># created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
+        <span class="n">builder</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">initializes_simulants</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_initialize_simulants</span><span class="p">,</span> <span class="n">creates_columns</span><span class="o">=</span><span class="n">columns_created</span><span class="p">)</span>
+
+        <span class="c1"># Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
+        <span class="c1"># individual graduate in an education module.</span>
+        <span class="c1"># builder.event.register_listener(&quot;time_step&quot;, self.on_time_step, priority=self.priority)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span>
+
+        <span class="c1"># just load this once.</span>
+        <span class="c1">#self.gee_transition_model = r_utils.load_transitions(f&quot;hh_income/gee_yj/hh_income_GEE_YJ&quot;, self.rpy2Modules,</span>
+        <span class="c1">#                                             path=self.transition_dir)</span>
+        <span class="c1">#self.gee_transition_model = r_utils.load_transitions(f&quot;hh_income/gee_diff/hh_income_GEE_DIFF&quot;, self.rpy2Modules,</span>
+        <span class="c1">#                                                     path=self.transition_dir)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gee_transition_model</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">load_transitions</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hh_income/lmm_diff/hh_income_LMM_DIFF&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_dir</span><span class="p">)</span>
+        <span class="c1">#self.history_data = self.generate_history_dataframe(&quot;final_US&quot;, [2018, 2019], view_columns)</span>
+        <span class="c1">#self.history_data[&quot;hh_income_diff&quot;] = self.history_data[&#39;hh_income&#39;] - self.history_data.groupby([&#39;pidp&#39;])[&#39;hh_income&#39;].shift(1)</span>
+
+    <span class="k">def</span> <span class="nf">on_initialize_simulants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  Initiate columns for hh_income when new simulants are added.</span>
+<span class="sd">        Only column needed is the diff column for rate of change model predictions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop_data: vivarium.framework.population.SimulantData</span>
+<span class="sd">            Custom vivarium class for interacting with the population data frame.</span>
+<span class="sd">            It is essentially a pandas DataFrame with a few extra attributes such as the creation_time,</span>
+<span class="sd">            creation_window, and current simulation state (setup/running/etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create frame with new 3 columns and add it to the main population frame.</span>
+        <span class="c1"># This is the same for both new cohorts and newborn babies.</span>
+        <span class="c1"># Neither should be dead yet.</span>
+        <span class="n">pop_update</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">},</span>
+                                  <span class="n">index</span><span class="o">=</span><span class="n">pop_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pop_update</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : vivarium.population.PopulationEvent</span>
+<span class="sd">            The event time_step that called this function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get living people to update their income</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="s2">&quot;alive ==&#39;alive&#39;&quot;</span><span class="p">)</span>
+        <span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;pidp&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">year</span>
+
+        <span class="c1">#pop[&#39;hh_income_diff_last&#39;] = pop[&#39;hh_income_diff&#39;]</span>
+        <span class="c1">## Predict next income value</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">,</span> <span class="s1">&#39;hh_income_diff&#39;</span><span class="p">])</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+        <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">]</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.rename(columns={&quot;new_dependent&quot;: &quot;hh_income&quot;,</span>
+        <span class="c1">#                                               &quot;predicted&quot;: &quot;hh_income_diff&quot;})</span>
+        <span class="c1"># newWaveIncome = newWaveIncome.to_frame(name=&#39;hh_income&#39;)</span>
+        <span class="c1"># Set index back to population of interest.</span>
+
+        <span class="c1">#newWaveIncome[&#39;hh_income&#39;] += self.generate_gaussian_noise(pop.index, 0, 1000)</span>
+        <span class="c1"># Draw individuals next states randomly from this distribution.</span>
+        <span class="c1"># Update population with new income</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population_view</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">,</span> <span class="s1">&#39;hh_income_diff&#39;</span><span class="p">]])</span>
+
+    <span class="c1"># def calculate_income(self, pop):</span>
+    <span class="c1">#     &quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#         pop: PopulationView</span>
+    <span class="c1">#             Population from MINOS to calculate next income for.</span>
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+    <span class="c1">#     nextWaveIncome: pd.Series</span>
+    <span class="c1">#         Vector of new household incomes from OLS prediction.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     # load transition model based on year.</span>
+    <span class="c1">#     #if self.year != 2020:</span>
+    <span class="c1">#     self.update_history_dataframe(pop, self.year)</span>
+    <span class="c1">#     nextWaveIncome = r_utils.predict_next_timestep_yj_gaussian_gee(self.gee_transition_model,</span>
+    <span class="c1">#                                                        self.rpy2Modules,</span>
+    <span class="c1">#                                                        self.history_data,</span>
+    <span class="c1">#                                                        dependent=&#39;hh_income&#39;,</span>
+    <span class="c1">#                                                        noise_std=1)#2</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return nextWaveIncome.iloc[self.history_data.loc[self.history_data[&#39;time&#39;]==self.year].index]</span>
+
+    <span class="k">def</span> <span class="nf">calculate_income</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            pop: PopulationView</span>
+<span class="sd">                Population from MINOS to calculate next income for.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        nextWaveIncome: pd.Series</span>
+<span class="sd">            Vector of new household incomes from OLS prediction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># load transition model based on year.</span>
+        <span class="n">nextWaveIncome</span> <span class="o">=</span> <span class="n">r_utils</span><span class="o">.</span><span class="n">predict_next_timestep_yj_gaussian_lmm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gee_transition_model</span><span class="p">,</span>
+                                                                    <span class="bp">self</span><span class="o">.</span><span class="n">rpy2Modules</span><span class="p">,</span>
+                                                                    <span class="n">pop</span><span class="p">,</span>
+                                                                    <span class="n">dependent</span><span class="o">=</span><span class="s1">&#39;hh_income_diff&#39;</span><span class="p">,</span>
+                                                                    <span class="n">yeo_johnson</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                                                                    <span class="n">reflect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                    <span class="n">noise_std</span><span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span><span class="c1">#0.45</span>
+        <span class="c1"># get new hh income diffs and update them into history_data.</span>
+        <span class="c1">#self.update_history_dataframe(pop, self.year-1)</span>
+        <span class="c1">#new_history_data = self.history_data.loc[self.history_data[&#39;time&#39;]==self.year].index # who in current_year</span>
+        <span class="c1">#next_diffs = nextWaveIncome.iloc[new_history_data]</span>
+        <span class="k">return</span> <span class="n">nextWaveIncome</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_plots_dir</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;income_hist_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">histplot</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;hh_income&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="c1"># old net income test keeping in case I need any of it later.</span>
+
+<span class="c1"># # Annual average inflation based on CPI index.</span>
+<span class="c1"># # https://www.statista.com/statistics/270384/inflation-rate-in-the-united-kingdom/</span>
+<span class="c1"># annual_cpi_rates = {</span>
+<span class="c1">#     2017: 2.68,</span>
+<span class="c1">#     2018: 2.48,</span>
+<span class="c1">#     2019: 1.79,</span>
+<span class="c1">#     2020: 0.85,</span>
+<span class="c1">#     2021: 2.59,</span>
+<span class="c1">#     2022: 9.12,</span>
+<span class="c1">#     2023: 8.99,</span>
+<span class="c1">#     2024: 3.73,</span>
+<span class="c1">#     2025: 1.82,</span>
+<span class="c1">#     2026: 2.00,</span>
+<span class="c1">#     # Stabilises to 2% because they can&#39;t predict this far ahead.. All years beyond have this value.</span>
+<span class="c1">#     # This is a Bank of England target and is highly optimistic..</span>
+<span class="c1"># }</span>
+
+<span class="c1">#</span>
+<span class="c1"># class lmmYJNetIncome(Base):</span>
+<span class="c1">#</span>
+<span class="c1">#     # Special methods used by vivarium.</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def name(self):</span>
+<span class="c1">#         return &#39;net_income&#39;</span>
+<span class="c1">#</span>
+<span class="c1">#     def __repr__(self):</span>
+<span class="c1">#         return &quot;netIncome()&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#     def setup(self, builder):</span>
+<span class="c1">#         &quot;&quot;&quot; Initialise the module during simulation.setup().</span>
+<span class="c1">#         Notes</span>
+<span class="c1">#         -----</span>
+<span class="c1">#         - Load in data from pre_setup</span>
+<span class="c1">#         - Register any value producers/modifiers for income</span>
+<span class="c1">#         - Add required columns to population data frame</span>
+<span class="c1">#         - Update other required items such as randomness stream.</span>
+<span class="c1">#         Parameters</span>
+<span class="c1">#         ----------</span>
+<span class="c1">#         builder : vivarium.engine.Builder</span>
+<span class="c1">#             Vivarium&#39;s control object. Stores all simulation metadata and allows modules to use it.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#         # Load in inputs from pre-setup.</span>
+<span class="c1">#         # self.transition_model = builder.data.load(&quot;income_transition&quot;)</span>
+<span class="c1">#         self.rpy2_modules = builder.data.load(&quot;rpy2_modules&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#         # Build vivarium objects for calculating transition probabilities.</span>
+<span class="c1">#         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.</span>
+<span class="c1">#         # self.transition_coefficients = builder.</span>
+<span class="c1">#</span>
+<span class="c1">#         # Assign randomness streams if necessary.</span>
+<span class="c1">#         self.random = builder.randomness.get_stream(self.generate_random_crn_key())</span>
+<span class="c1">#</span>
+<span class="c1">#         # Determine which subset of the main population is used in this module.</span>
+<span class="c1">#         # columns_created is the columns created by this module.</span>
+<span class="c1">#         # view_columns is the columns from the main population used in this module.</span>
+<span class="c1">#         # In this case, view_columns are taken straight from the transition model</span>
+<span class="c1">#         view_columns = [&#39;pidp&#39;,</span>
+<span class="c1">#                         &#39;age&#39;,</span>
+<span class="c1">#                         &#39;sex&#39;,</span>
+<span class="c1">#                         &#39;ethnicity&#39;,</span>
+<span class="c1">#                         &#39;region&#39;,</span>
+<span class="c1">#                         &#39;net_hh_income&#39;,</span>
+<span class="c1">#                         &#39;job_sec&#39;,</span>
+<span class="c1">#                         &#39;labour_state&#39;,</span>
+<span class="c1">#                         &#39;education_state&#39;,</span>
+<span class="c1">#                         &#39;SF_12&#39;,</span>
+<span class="c1">#                         &#39;housing_quality&#39;,</span>
+<span class="c1">#                         &#39;job_sector&#39;,</span>
+<span class="c1">#                         &#39;hh_income&#39;,</span>
+<span class="c1">#                         &#39;oecd_equiv&#39;,</span>
+<span class="c1">#                         &#39;outgoings&#39;,</span>
+<span class="c1">#                         &#39;tenure&#39;,</span>
+<span class="c1">#                         &#39;yearly_energy&#39;,</span>
+<span class="c1">#                         #&#39;financial_situation&#39;,</span>
+<span class="c1">#                         &#39;marital_status&#39;,</span>
+<span class="c1">#                         &#39;hhsize&#39;,</span>
+<span class="c1">#                         #&#39;FP10&#39;,</span>
+<span class="c1">#                         #&#39;boost_amount&#39;</span>
+<span class="c1">#                         ]</span>
+<span class="c1">#         # view_columns += self.transition_model.rx2(&#39;model&#39;).names</span>
+<span class="c1">#         self.population_view = builder.population.get_view(columns=view_columns)</span>
+<span class="c1">#</span>
+<span class="c1">#         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each</span>
+<span class="c1">#         # module. Declare what constructer is used. usually on_initialize_simulants method is called. Inidividuals are</span>
+<span class="c1">#         # created at the start of a model &quot;setup&quot; or after some deterministic (add cohorts) or random (births) event.</span>
+<span class="c1">#         builder.population.initializes_simulants(self.on_initialize_simulants)</span>
+<span class="c1">#</span>
+<span class="c1">#         # Declare events in the module. At what times do individuals transition states from this module. E.g. when does</span>
+<span class="c1">#         # individual graduate in an education module.</span>
+<span class="c1">#         builder.event.register_listener(&quot;time_step&quot;, self.on_time_step, priority=2)</span>
+<span class="c1">#</span>
+<span class="c1">#         self.income_transition_model =  r_utils.load_transitions(f&quot;net_hh_income/lmm/net_hh_income_LMM&quot;, self.rpy2_modules)</span>
+<span class="c1">#</span>
+<span class="c1">#     def on_time_step(self, event):</span>
+<span class="c1">#         &quot;&quot;&quot; Predicts the hh_income for the next timestep.</span>
+<span class="c1">#         Parameters</span>
+<span class="c1">#         ----------</span>
+<span class="c1">#         event : vivarium.population.PopulationEvent</span>
+<span class="c1">#             The event time_step that called this function.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         # Get living people to update their income</span>
+<span class="c1">#         pop = self.population_view.get(event.index, query=&quot;alive ==&#39;alive&#39;&quot;)</span>
+<span class="c1">#         self.year = event.time.year</span>
+<span class="c1">#</span>
+<span class="c1">#         ## Predict next income value</span>
+<span class="c1">#         newWaveNetIncome = self.calculate_income(pop)</span>
+<span class="c1">#         newWaveNetIncome = pd.DataFrame(newWaveNetIncome, columns=[&quot;net_hh_income&quot;]) # net hh income pre overheads/bills.</span>
+<span class="c1">#         # Set index type to int (instead of object as previous)</span>
+<span class="c1">#         newWaveNetIncome.index = pop.index</span>
+<span class="c1">#         # adjust for inflation</span>
+<span class="c1">#         newWaveNetIncome[&#39;net_hh_income&#39;] = self.adjust_inflation(newWaveNetIncome[&#39;net_hh_income&#39;], self.year)</span>
+<span class="c1">#         # calculate net (disposable) income based on overheads and house size.</span>
+<span class="c1">#         newWaveNetIncome[&#39;hh_income&#39;] = self.transform_net_to_disposable_income(newWaveNetIncome[&#39;net_hh_income&#39;],</span>
+<span class="c1">#                                                                                 pop[&#39;outgoings&#39;],</span>
+<span class="c1">#                                                                                 pop[&#39;oecd_equiv&#39;])</span>
+<span class="c1">#</span>
+<span class="c1">#         # nextWaveFinancialSituation = self.calculate_financial_situation(pop)</span>
+<span class="c1">#         # nextWaveFinancialSituation[&quot;financial_situation&quot;] = self.random.choice(nextWaveFinancialSituation.index, list(nextWaveFinancialSituation.columns+1),</span>
+<span class="c1">#         #                                                                       nextWaveFinancialSituation).astype(float)</span>
+<span class="c1">#         # nextWaveFinancialSituation.index = pop.index</span>
+<span class="c1">#         # newWaveNetIncome[&#39;financial_situation&#39;] = nextWaveFinancialSituation[&#39;financial_situation&#39;]</span>
+<span class="c1">#         # calculate FP10 based on energy usage and Net income</span>
+<span class="c1">#         # newWaveNetIncome[&#39;FP10&#39;] = self.calculate_fp10(newWaveNetIncome[&#39;hh_income&#39;], pop[&#39;yearly_energy&#39;])</span>
+<span class="c1">#</span>
+<span class="c1">#         # Draw individuals next states randomly from this distribution.</span>
+<span class="c1">#         # Update population with new income.</span>
+<span class="c1">#         # self.population_view.update(newWaveNetIncome[[&#39;Net_hh_income&#39;, &#39;net_hh_income&#39;, &#39;FP10&#39;, &#39;financial_situation&#39;]])</span>
+<span class="c1">#         self.population_view.update(newWaveNetIncome[[&#39;hh_income&#39;, &#39;net_hh_income&#39;]])</span>
+<span class="c1">#</span>
+<span class="c1">#     def calculate_income(self, pop):</span>
+<span class="c1">#         &quot;&quot;&quot;Calculate income transition distribution based on provided people/indices</span>
+<span class="c1">#         Parameters</span>
+<span class="c1">#         ----------</span>
+<span class="c1">#             pop: PopulationView</span>
+<span class="c1">#                 Population from MINOS to calculate next income for.</span>
+<span class="c1">#         Returns</span>
+<span class="c1">#         -------</span>
+<span class="c1">#         nextWaveIncome: pd.Series</span>
+<span class="c1">#             Vector of new household incomes from OLS prediction.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         # load transition model based on year.</span>
+<span class="c1">#         year = min(self.year, 2018)</span>
+<span class="c1">#         # The calculation relies on the R predict method and the model that has already been specified</span>
+<span class="c1">#         nextWaveNetIncome = r_utils.predict_next_timestep_ols(self.income_transition_model, self.rpy2_modules, pop, dependent=&#39;Net_hh_income&#39;, transform = True)</span>
+<span class="c1">#         return nextWaveNetIncome</span>
+<span class="c1">#</span>
+<span class="c1">#     def calculate_financial_situation(self, pop):</span>
+<span class="c1">#         year = min(self.year, 2018)</span>
+<span class="c1">#         transition_model = r_utils.load_transitions(f&quot;financial_situation/clm/financial_situation_{year}_{year + 1}&quot;, self.rpy2_modules)</span>
+<span class="c1">#         return r_utils.predict_next_timestep_clm(transition_model, self.rpy2_modules, pop, dependent=&#39;financial_situation&#39;)</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#     def transform_net_to_disposable_income(self, net_income, outgoings, oecd_equiv):</span>
+<span class="c1">#         # convert net to disposable income</span>
+<span class="c1">#         return (net_income - outgoings) / oecd_equiv</span>
+<span class="c1">#</span>
+<span class="c1">#     def calculate_fp10(self, net_income, energy_use):</span>
+<span class="c1">#         # Is 10% of net/disposable income spent on fuel?</span>
+<span class="c1">#         return (10 * energy_use) &gt;= net_income</span>
+<span class="c1">#</span>
+<span class="c1">#     def adjust_inflation(self, net_income, year):</span>
+<span class="c1">#         &quot;&quot;&quot; Adjust disposable income according to yearly inflation.&quot;&quot;&quot;</span>
+<span class="c1">#         if year &gt;= 2026:</span>
+<span class="c1">#             yearly_inf_rate = 1.02</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             yearly_inf_rate = 1 + (annual_cpi_rates[year] / 100)  # Get forecasted inflation rate due to CPI.</span>
+<span class="c1">#</span>
+<span class="c1">#             # Widely assumed to be 2% after 2026 for UK.</span>
+<span class="c1">#         return net_income / yearly_inf_rate</span>
 </pre></div>
 
            </div>

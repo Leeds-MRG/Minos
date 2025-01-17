@@ -63,6 +63,8 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
   valid_longitudnial_model_types <- c("LMM", "LMM_DIFF", "GLMM", "GEE_DIFF","ORDGEE", "CLMM", "RF", "RFO")
 
   orig_data[which(orig_data$ncigs==-8), 'ncigs'] <- 0
+  
+  data <- data %>% filter(time != 2022)
 
 
   repeat{
