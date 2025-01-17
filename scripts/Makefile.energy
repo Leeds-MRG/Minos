@@ -40,7 +40,7 @@ aire_aspatial_goodHeatingDummy:
 
 aire_aspatial_GBIS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
 aire_aspatial_GBIS: MODE = energy_default_config
-aire_aspatial_GBIS:
+aire_aspatial_GBIS:a
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
 aire_aspatial_FFRS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
