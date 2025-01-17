@@ -178,25 +178,25 @@ manchester_baseline:
 .phony: arc4_all_scenarios arc4_all_scot_scenarios arc4_cv_baseline
 
 arc4_baseline:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
 arc4_intervention_hhIncome:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
 arc4_intervention_hhIncomeChildUplift:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
 arc4_intervention_PovertyLineChildUplift:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
 arc4_intervention_livingWage:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
 arc4_intervention_energyDownLift:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
 arc4_intervention_energyDownLiftNoSupport:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
 arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
 
@@ -238,7 +238,7 @@ arc4_all_scenarios_S7_glasgow: RUN_CONFIG=$(CONFIG)/S7_glasgow_scaled.yaml
 arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
 
 arc4_cv_baseline: cv_setup
-	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
+	bash scripts/aire_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
