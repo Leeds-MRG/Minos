@@ -173,71 +173,71 @@ manchester_baseline:
 ## Running MINOS scenarios on Arc4
 #####################################
 
-.phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
-.phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
-.phony: arc4_all_scenarios arc4_all_scot_scenarios arc4_cv_baseline
+.phony: aire_baseline aire_intervention_hhIncome aire_intervention_hhIncomeChildUplift
+.phony: aire_intervention_PovertyLineChildUplift aire_intervention_livingWage aire_intervention_energyDownLift
+.phony: aire_all_scenarios aire_all_scot_scenarios aire_cv_baseline
 
-arc4_baseline:
+aire_baseline:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
-arc4_intervention_hhIncome:
+aire_intervention_hhIncome:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
-arc4_intervention_hhIncomeChildUplift:
+aire_intervention_hhIncomeChildUplift:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
-arc4_intervention_PovertyLineChildUplift:
+aire_intervention_PovertyLineChildUplift:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
-arc4_intervention_livingWage:
+aire_intervention_livingWage:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
-arc4_intervention_energyDownLift:
+aire_intervention_energyDownLift:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
-arc4_intervention_energyDownLiftNoSupport:
+aire_intervention_energyDownLiftNoSupport:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
-arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
+aire_all_scenarios: aire_baseline aire_intervention_hhIncomeChildUplift aire_intervention_PovertyLineChildUplift aire_intervention_livingWage aire_intervention_energyDownLift aire_intervention_energyDownLiftNoSupport
 
 ## All default scenarios
-arc4_all_scenarios_default: setup
-arc4_all_scenarios_default: MODE=default_config
-arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_all_scenarios_default: arc4_all_scenarios
+aire_all_scenarios_default: setup
+aire_all_scenarios_default: MODE=default_config
+aire_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
+aire_all_scenarios_default: aire_all_scenarios
 
 ## All SF12 scenarios using glasgow scaled population
-arc4_all_scenarios_glasgow: setup_glasgow_scaled
-arc4_all_scenarios_glasgow: MODE=SF12_glasgow_scaled
-arc4_all_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_all_scenarios_glasgow: arc4_all_scenarios
+aire_all_scenarios_glasgow: setup_glasgow_scaled
+aire_all_scenarios_glasgow: MODE=SF12_glasgow_scaled
+aire_all_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+aire_all_scenarios_glasgow: aire_all_scenarios
 
 ## All SF12 scenarios using glasgow scaled population
-arc4_all_scenarios_uk: setup_uk_scaled
-arc4_all_scenarios_uk: MODE=SF12_uk_scaled
-arc4_all_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
-arc4_all_scenarios_uk: arc4_all_scenarios
+aire_all_scenarios_uk: setup_uk_scaled
+aire_all_scenarios_uk: MODE=SF12_uk_scaled
+aire_all_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
+aire_all_scenarios_uk: aire_all_scenarios
 
 ## All Scotland scenarios
 ## DEPRECATED - these have been superseded by the glasgow synthetic population scenarios
-arc4_all_scenarios_scot: setup
-arc4_all_scenarios_scot: MODE=scotland_mode
-arc4_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
-arc4_all_scenarios_scot: arc4_all_scenarios
+aire_all_scenarios_scot: setup
+aire_all_scenarios_scot: MODE=scotland_mode
+aire_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
+aire_all_scenarios_scot: aire_all_scenarios
 
 ## All SIPHEFR7 Equivalent Income scenarios
-arc4_all_scenarios_S7: setup_S7
-arc4_all_scenarios_S7: MODE=SIPHER7
-arc4_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
-arc4_all_scenarios_S7: arc4_all_scenarios
+aire_all_scenarios_S7: setup_S7
+aire_all_scenarios_S7: MODE=SIPHER7
+aire_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+aire_all_scenarios_S7: aire_all_scenarios
 
 ## All SIPHER7 Equivalent Income scenarios with Glasgow synthetic data
-arc4_all_scenarios_S7_glasgow: setup_glasgow_scaled_S7
-arc4_all_scenarios_S7_glasgow: MODE=SIPHER7_glasgow
-arc4_all_scenarios_S7_glasgow: RUN_CONFIG=$(CONFIG)/S7_glasgow_scaled.yaml
-arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
+aire_all_scenarios_S7_glasgow: setup_glasgow_scaled_S7
+aire_all_scenarios_S7_glasgow: MODE=SIPHER7_glasgow
+aire_all_scenarios_S7_glasgow: RUN_CONFIG=$(CONFIG)/S7_glasgow_scaled.yaml
+aire_all_scenarios_S7_glasgow: aire_all_scenarios
 
-arc4_cv_baseline: cv_setup
+aire_cv_baseline: cv_setup
 	bash scripts/aire_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
 #####################################

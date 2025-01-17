@@ -28,24 +28,24 @@ intervention_fossilFuelReplacementScheme:
 # ARC4 Aspatial Housing Interventions #
 #######################################
 
-arc4_housing_baseline: MODE = energy_default_config
-arc4_housing_baseline: RUN_CONFIG = $(CONFIG)/energy_default.yaml
-arc4_housing_baseline:
+aire_housing_baseline: MODE = energy_default_config
+aire_housing_baseline: RUN_CONFIG = $(CONFIG)/energy_default.yaml
+aire_housing_baseline:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
-arc4_aspatial_goodHeatingDummy: RUN_CONFIG = $(CONFIG)/energy_default.yaml
-arc4_aspatial_goodHeatingDummy: MODE = energy_default_config
-arc4_aspatial_goodHeatingDummy:
+aire_aspatial_goodHeatingDummy: RUN_CONFIG = $(CONFIG)/energy_default.yaml
+aire_aspatial_goodHeatingDummy: MODE = energy_default_config
+aire_aspatial_goodHeatingDummy:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
 
-arc4_aspatial_GBIS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
-arc4_aspatial_GBIS: MODE = energy_default_config
-arc4_aspatial_GBIS:
+aire_aspatial_GBIS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
+aire_aspatial_GBIS: MODE = energy_default_config
+aire_aspatial_GBIS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
-arc4_aspatial_FFRS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
-arc4_aspatial_FFRS: MODE = energy_default_config
-arc4_aspatial_FFRS:
+aire_aspatial_FFRS: RUN_CONFIG = $(CONFIG)/energy_default.yaml
+aire_aspatial_FFRS: MODE = energy_default_config
+aire_aspatial_FFRS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
 ###########################
@@ -83,35 +83,35 @@ manchester_intervention_fossilFuelReplacementScheme:
 # ARC Manchester Housing Interventions #
 ########################################
 
-arc4_manchester_housing_baseline: MODE=energy_manchester_scaled
-arc4_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_housing_baseline:
+aire_manchester_housing_baseline: MODE=energy_manchester_scaled
+aire_manchester_housing_baseline: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_housing_baseline:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
-arc4_manchester_noEnergyPriceIncrease: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_noEnergyPriceIncrease: MODE=energy_manchester_scaled
-arc4_manchester_noEnergyPriceIncrease:
+aire_manchester_noEnergyPriceIncrease: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_noEnergyPriceIncrease: MODE=energy_manchester_scaled
+aire_manchester_noEnergyPriceIncrease:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'noEnergyPriceIncrease'
 
 
-arc4_manchester_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_goodHeatingDummy: MODE=energy_manchester_scaled
-arc4_manchester_goodHeatingDummy:
+aire_manchester_goodHeatingDummy: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_goodHeatingDummy: MODE=energy_manchester_scaled
+aire_manchester_goodHeatingDummy:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'goodHeatingDummy'
 
-arc4_manchester_EPCG: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_EPCG: MODE=energy_manchester_scaled
-arc4_manchester_EPCG:
+aire_manchester_EPCG: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_EPCG: MODE=energy_manchester_scaled
+aire_manchester_EPCG:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'EPCG'
 
-arc4_manchester_GBIS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_GBIS: MODE=energy_manchester_scaled
-arc4_manchester_GBIS:
+aire_manchester_GBIS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_GBIS: MODE=energy_manchester_scaled
+aire_manchester_GBIS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
-arc4_manchester_FFRS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
-arc4_manchester_FFRS: MODE=energy_manchester_scaled
-arc4_manchester_FFRS:
+aire_manchester_FFRS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_FFRS: MODE=energy_manchester_scaled
+aire_manchester_FFRS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
-arc4_all_manchester: arc4_manchester_housing_baseline arc4_manchester_goodHeatingDummy arc4_manchester_EPCG arc4_manchester_GBIS
+aire_all_manchester: aire_manchester_housing_baseline aire_manchester_goodHeatingDummy aire_manchester_EPCG aire_manchester_GBIS
