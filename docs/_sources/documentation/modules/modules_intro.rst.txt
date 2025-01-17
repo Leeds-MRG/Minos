@@ -1,8 +1,5 @@
-Modules
-=======
-
 Introduction
-------------
+============
 
 MINOS consists of multiple modules. Each module has a specific purpose
 in the microsimulaton. Most are transition modules that evolve some
