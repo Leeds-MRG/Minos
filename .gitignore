@@ -101,8 +101,7 @@ plots/*
 # Docs output
 docs/
 docs/*
-docsrc/
-docsrc/*
+docsrc/*.html
 
 # HR 21/12/22 Windows utils stuff to ignore
 minos/windowsutils/output/
