@@ -79,6 +79,13 @@ manchester_intervention_fossilFuelReplacementScheme: MODE=energy_manchester_scal
 manchester_intervention_fossilFuelReplacementScheme:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
+manchester_intervention_EPCG: setup_manchester_scaled
+manchester_intervention_EPCG: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+manchester_intervention_EPCG: MODE=energy_manchester_scaled
+manchester_intervention_EPCG:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'EPCG'
+
+
 ########################################
 # ARC Manchester Housing Interventions #
 ########################################
