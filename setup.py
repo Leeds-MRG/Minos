@@ -20,7 +20,7 @@ setup(name='minos',
       license='MIT',
       packages=['minos'],
       zip_safe=False,
-      install_requires=['vivarium~=0.10.12'],
+      install_requires=['vivarium~=0.10.12', 'numpy==1.22.4', "pandas==1.4.4"],
       test_suite='nose.collector',
       tests_require=['nose'],
 )
