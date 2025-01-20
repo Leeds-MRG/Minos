@@ -220,6 +220,22 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     df <- data[, append(all.vars(form), c("time", 'pidp', 'weight'))]
     sorted_df <- df[order(df$pidp, df$time),]
 
+    # HR 17/01/25 Filter for individuals with fewer than n observations (adapted from utils.R)
+    # Want to avoid R error below, presumably caused by individuals that should be removed if fewer than n obs
+    # but which are retained for full GB synthpop
+    # "Error: number of levels of each grouping factor must be < number of observations (problems: pidp)"
+    # Issue not fixed at time of writing
+    # uniq <- n_distinct(sorted_df$pidp)
+    # print(uniq)
+    #
+    # n <- 4
+    # complete_pidps <- strtoi(rownames(data.frame(which(table(sorted_df$pidp) >= n))))
+    # sorted_df <- sorted_df
+    # sorted_df <- sorted_df[which(sorted_df$pidp%in%complete_pidps),]
+    #
+    # uniq <- n_distinct(sorted_df$pidp)
+    # print(uniq)
+
     # remove duplicate columns (at present just pidp as its present in model definitions also)
     sorted_df <- sorted_df[ , !duplicated(colnames(sorted_df))]
 
