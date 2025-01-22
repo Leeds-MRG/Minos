@@ -615,7 +615,6 @@ class lmmYJIncome(Base):
                         'S7_labour_state'
                         ]
 
-
         #columns_created = ['hh_income_diff']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)# + columns_created)

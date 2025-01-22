@@ -1,4 +1,4 @@
-name: minos_conda
+name: minos_conda_test
 channels:
   - conda-forge
   - defaults
@@ -34,6 +34,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-GLMMadaptive
   - r-glmnet
   - r-ranger
+  - r-spatstat
   - pandoc
   - sphinx
   - myst-parser

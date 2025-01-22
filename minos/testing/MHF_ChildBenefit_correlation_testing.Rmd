@@ -44,12 +44,12 @@ source(here::here('minos', 'utils_datain.R'))
 # Raw files have mismatched number of columns from the early to the late files (BHPS to UKHLS)
 # therefore have to build the raw.files list a little more involved to ensure we only get 2009 onwards
 
-#raw.files1 <- list.files(here::here('data', 'raw_US'), pattern='2009_US_cohort.csv', full.names = TRUE)
-raw.files2 <- list.files(here::here('data', 'raw_US'), pattern='201[4-9]{1}_US_cohort.csv', full.names = TRUE)
-raw.files3 <- list.files(here::here('data', 'raw_US'), pattern='202[0-9]{1}_US_cohort.csv', full.names = TRUE)
-
-#raw.files <- c(raw.files1, raw.files2, raw.files3)
-raw.files <- c(raw.files2, raw.files3)
+# raw.files1 <- list.files(here::here('data', 'raw_US'), pattern='2009_US_cohort.csv', full.names = TRUE)
+# raw.files2 <- list.files(here::here('data', 'raw_US'), pattern='201[4-9]{1}_US_cohort.csv', full.names = TRUE)
+# raw.files3 <- list.files(here::here('data', 'raw_US'), pattern='202[0-9]{1}_US_cohort.csv', full.names = TRUE)
+# 
+# #raw.files <- c(raw.files1, raw.files2, raw.files3)
+# raw.files <- c(raw.files2, raw.files3)
 
 ```
 
@@ -57,157 +57,57 @@ raw.files <- c(raw.files2, raw.files3)
 ```{r, include=FALSE}
 # Read raw datafiles in
 #raw.files <- list.files(here::here('data', 'raw_US'), pattern='2[0-9]{3}_US_cohort.csv', full.names = TRUE)
-raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.files <- list.files(here::here('data', 'raw_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+
+raw.dat <- lapply(raw.files, function(file) {
+  # Read the file
+  df <- read.csv(file)
+  
+  # Standardize the 'ethnicity' column to character (or choose numeric if preferred)
+  if ("ethnicity" %in% names(df)) {
+    df$ethnicity <- as.character(df$ethnicity)
+  }
+  
+  return(df)
+}) %>%
+  bind_rows()
+
+
+# Process the data
 raw.dat <- raw.dat %>%
+  group_by(pidp) %>%
+  # First replace those missing inapplicable (-8) with NA
+  mutate(across(starts_with('hcond'), ~ na_if(., -8))) %>%
+  # Forward fill missing values for hcond variables
+  #mutate(across(starts_with("hcond"), ~ tidyr::replace_na(.))) %>%
+  fill(starts_with("hcond"), .direction = "down") %>% 
+  # Create the chronic_disease variable
+  mutate(
+    chronic_disease = if_any(starts_with("hcond"), ~ . == 1) * 1
+  )
+
+raw.dat <- raw.dat %>%
+  filter(time > 2013) %>%
   filter(weight > 0) %>%  # remove all 0 weight individuals
+  filter(SF_12 >= 0,
+         sex %in% c('Male', 'Female'),
+         age >= 16) %>% 
   mutate(age_group = cut(age, 
                          breaks = c(0,16,20,26,46,61,120), 
                          labels = c('0-15', '16-19', '20-25', '26-45', '46-60', '61+'),
                          include.lowest = TRUE,
-                         right = FALSE))
+                         right = FALSE),
+         white_british = ifelse(ethnicity == 'WBI', 1, 0))
+
 
 ```
 
-# Quick Data Checking
+# FUNCTIONS
 
 ```{r}
-table(raw.dat$sex, raw.dat$hosp_visits)
-```
-
-
-# Clinical Depression
-
-First we'll to see if there is a relationship between SF-12 Mental Component Score (MCS) and clinical_depression (from the UKHLS variable [hcond17](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hcond17/) - has a doctor ever told you that you have clinical depression?). clinical_depression == 0 is no clinical depression, and == 1 is clinical depression.
-
-```{r}
-dat <- raw.dat %>%
-  select(pidp, time, SF_12, clinical_depression) %>%
-  filter(clinical_depression >= 0)
-
-t.test(SF_12 ~ clinical_depression, data = dat, var.equal=FALSE)
-```
-
-The above T-test shows a significant difference in mean SF-12 between individuals with and without clinical depression. The difference in means is also very large in the context of SF-12 MCS, with an 18 point gap.
-
-# Hospital Utilisation
-
-Next we will test the relationship between SF-12 MCS and Hospital Utilisation (from UKHLS variable [hosp](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hosp/) - In the last 12 months, have you been in hospital or clinic as an in-patient overnight or longer?).
-
-```{r}
-dat <- raw.dat %>%
-  select(pidp, time, SF_12, hosp_visits) %>%
-  filter(hosp_visits > 0)
-
-dat$hosp_visits <- ifelse(dat$hosp_visits == 1, 1, 0)
-
-t.test(SF_12 ~ hosp_visits, data = dat, var.equal=FALSE)
-```
-
-The above T-test shows once again that there is a significant difference in the mean SF-12 between individuals who have 
-
-## Hospital Use in the Future
-
-```{r}
-d1 <- raw.dat %>%
-  select(pidp, time, hosp_visits) %>%
-  mutate(time = time - 1)
-
-d1$hosp_visits <- ifelse(d1$hosp_visits == 1, 1, 0)
-
-d2 <- raw.dat %>%
-  select(pidp, time, SF_12)
-
-d.merged <- merge(x = d1, y = d2, by = c('pidp', 'time'))
-```
-
-```{r}
-t.test(SF_12 ~ hosp_visits, data = d.merged, var.equal=FALSE)
-```
-
-# GP Visit
-
-## chi-squared
-
-```{r}
-dat <- raw.dat %>%
-  select(pidp, time, SF_12, gp_visits) %>%
-  filter(gp_visits >= 0)
-
-dat$gp_visits <- factor(dat$gp_visits)
-
-#t.test(SF_12 ~ gp_visits, data = dat, var.equal=FALSE)
-#wilcox.test(SF_12 ~ gp_visits, data = dat)
-
-threshold <- 48.9
-below <- paste0("Below ", threshold) # create labels dynamically from the threshold
-above <- paste0("Above ", threshold)
-dat$high_risk <- ifelse(dat$SF_12 < threshold, below , above)
-
-
-# Table the results to prepare for fishers test
-table_high_risk <- table(dat$high_risk, dat$gp_visits)
-print(table_high_risk)
-
-# Fishers exact test
-#fisher_test <- fisher.test(table_high_risk)
-
-chi.gp <- chisq.test(table_high_risk)
-
-print(chi.gp)
-print(chi.gp$observed)
-print(chi.gp$expected)
-
-print(chi.gp$statistic)
-```
-
-## logistic regression odds ratios
-
-```{r}
-model <- glm(gp_visits ~ high_risk, family = 'binomial', data=dat)
-options(scipen=999)
-summary(model)
-print('--------------------------------')
-print(exp(coef(model)))
-
-print('Odds Ratio: ')
-print(exp(coef(model)[[2]]))
-
-print('Confidence Intervals: ')
-print(exp(confint(model)))
-print(exp(confint(model)[[2]]))
-print(exp(confint(model)[[4]]))
-
-```
-
-
-# SF12 Histograms
-
-```{r}
-t1 <- raw.dat %>%
-  filter(hosp_visits == 1)  # YES TO HOSPITAL USE
-
-t2 <- raw.dat %>%
-  filter(hosp_visits == 2)  # NO TO HOSPITAL USE
-
-hist(t1$SF_12,
-     main = 'Histogram of SF-12 (Visited hospital in previous 12 months)',
-     xlab = 'SF-12')
-hist(t2$SF_12,
-     main = 'Histogram of SF-12 (No hospital visit in previous 12 months)',
-     xlab = 'SF-12')
-```
-
-
-
-
-# Odds Ratios
-
-## Functions
-
-```{r}
-prep_future_hosp_data <- function(data, var) {
+prep_future_data <- function(data, var) {
   d1 <- data %>%
-    select(pidp, time, .data[[var]], weight) %>%
+    select(pidp, time, .data[[var]], weight, age, sex, white_british, region, chronic_disease) %>%
     mutate(time = time - 1)
   
   d2 <- data %>%
@@ -219,17 +119,37 @@ prep_future_hosp_data <- function(data, var) {
 }
 
 
-odds_ratio_and_chisq <- function(data, threshold, var, age_group, future = FALSE) {
+generate_odds_ratios <- function(data, var) {
+  # Create formula object for model from strings
+  form <- formula(paste0(var, ' ~ high_risk + age + sex + white_british + chronic_disease'))
+  
+  model <- glm(form, 
+               family = 'binomial', 
+               data=data,
+               weights = weight)
+  options(scipen=999)
+  print(summary(model))
+  
+  # Calculate odds ratio and confidence intervals
+  odds_ratio = exp(coef(model)[[2]])
+  confints = confint(model)
+  odds.conf.low = exp(confints[[2]])
+  odds.conf.high = exp(confints[[(length(confints) / 2) + 2]])
+  
+  return(list(odds_ratio, odds.conf.low, odds.conf.high))
+}
+
+
+odds_ratio_bin <- function(data, threshold, var, age_group, future = FALSE) {
   
   # If we want to look at future hospitalisation, needs some prep
   if(future) {
-    data <- prep_future_hosp_data(data, var)
+    data <- prep_future_data(data, var)
   }
   
   # Handle missing values in all variables (negative) and make sure var is factor
   data <- data %>%
-    filter(.data[[var]] >= 0,
-           SF_12 >= 0) %>%
+    filter(.data[[var]] >= 0) %>%
     mutate(!!var := factor(.data[[var]]))
   
   # Recode hosp to binary 0/1, and create a binary from SF_12 for above/below
@@ -246,32 +166,12 @@ odds_ratio_and_chisq <- function(data, threshold, var, age_group, future = FALSE
   print(paste0('Variable is ', var))
   print(paste0('Analysis is for future 12 months? ', future))
   
-  # Table the results to prepare for fishers test
-  table_high_risk <- table(data$high_risk, data[[var]])
-  chi <- chisq.test(table_high_risk)
-  print(chi)
-
+  # use function above to generate the model and calculate odds ratios
+  output_list <- generate_odds_ratios(data, var)
   
-  # Create formula object for model from strings
-  form <- formula(paste0(var, ' ~ high_risk'))
-  #print(form)
-  
-  model <- glm(form, 
-               family = 'binomial', 
-               data=data,
-               weights = weight)
-  options(scipen=999)
-  summary(model)
-  
-  # Calculate odds ratio and confidence intervals
-  odds_ratio = exp(coef(model)[[2]])
-  
-  #print('Confidence Intervals: ')
-  #print(exp(confint(model)))
-  odds.conf.low = exp(confint(model)[[2]])
-  odds.conf.high = exp(confint(model)[[4]])
-  
-  #print('--------------------------------')
+  odds_ratio <- output_list[[1]]
+  odds.conf.low <- output_list[[2]]
+  odds.conf.high <- output_list[[3]]
   
   if(threshold == 45.6) {
     schema = '30-day'
@@ -295,7 +195,7 @@ odds_ratio_and_chisq <- function(data, threshold, var, age_group, future = FALSE
   }
   
   if(var == 'gp_visits') {
-    return_df <- data.frame(GPVisit = admission, 
+    return_df <- data.frame(GPVisit = admission,
                             threshold = schema, 
                             OR = odds_ratio, 
                             conf.low = odds.conf.low,
@@ -305,10 +205,6 @@ odds_ratio_and_chisq <- function(data, threshold, var, age_group, future = FALSE
   
   return(return_df)
 }
-#test <- fishers_exact(data = raw.dat, threshold = 45.6, future = FALSE)
-#test <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
-#test <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
-
 
 plot_odds_ratios_single <- function(df_list, key_col = 'HospitalAdmission') {
   # merge df_list into one df
@@ -337,30 +233,6 @@ plot_odds_ratios_single <- function(df_list, key_col = 'HospitalAdmission') {
   print(p1)
 }
 
-
-# plot_odds_ratios_combined <- function(df_list) {
-#   # merge df_list into one df
-#   merged <- do.call(rbind, df_list)
-#   
-#   # Ensure factor type of variables and give proper labels
-#   merged$HospitalAdmission <- factor(merged$HospitalAdmission, levels = c('Previous 12 months', 'Next 12 months'))
-#   merged$GPVisit <- factor(merged$GPVisit, levels = c('Previous 12 months', 'Next 12 months'))
-#   merged$threshold <- factor(merged$threshold, levels = c('12-month'))
-#   
-#   p1 <- ggplot(merged, aes(x = factor(threshold), y = OR, color = .data[[key_col]], fill = .data[[key_col]])) +
-#     geom_point(position = position_dodge(width = 0.5), size = 3) +    # Plot points with dodge for separation
-#     geom_errorbar(aes(ymin = conf.low, ymax = conf.high),              # Error bars for confidence intervals
-#                   position = position_dodge(width = 0.5), width = 0.2) +
-#     #geom_hline(yintercept = 1, linetype='dashed') +
-#     labs(x = "Depressive Disorder Threshold", y = "Odds Ratio", color = key_col, fill = key_col) +
-#     theme_minimal() +
-#     theme(legend.position = "right") +  # Place the legend on the right
-#     scale_color_manual(values = c("Next 12 months" = "blue", "Previous 12 months" = "red")) +  # Colors for future and non-future
-#     scale_fill_manual(values = c("Next 12 months" = "blue", "Previous 12 months" = "red"))
-#   
-#   print(p1)
-# }
-
 plot_odds_ratios_combined <- function(df_list) {
   # Combine the list of dataframes into one
   merged <- do.call(rbind, df_list)
@@ -382,6 +254,7 @@ plot_odds_ratios_combined <- function(df_list) {
     geom_errorbar(aes(ymin = conf.low, ymax = conf.high),             # Error bars for confidence intervals
                   position = position_dodge(width = 0.5), width = 0.2) +
     geom_vline(xintercept = 1.5, linetype = "dashed", color = "black") +  # Dashed vertical line separating groups
+    geom_hline(yintercept = 0) +
     labs(x = NULL, y = "Odds Ratio", color = "Threshold", fill = "Threshold") +
     scale_x_discrete(labels = x_labels) +
     scale_color_manual(values = c("blue", "red")) +  # Customize colors
@@ -395,15 +268,19 @@ plot_odds_ratios_combined <- function(df_list) {
   print(p)
 }
 
-
 ```
+
+
+
+
+# Odds Ratios - BINARY
 
 
 ## Hospital Visits
 
 ```{r}
-prev <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
-future <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = TRUE)
+prev <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
+future <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = TRUE)
 
 df_list <- list(prev, future)
 plot_odds_ratios_single(df_list, key_col = 'HospitalAdmission')
@@ -413,8 +290,8 @@ plot_odds_ratios_single(df_list, key_col = 'HospitalAdmission')
 ## GP Visits
 
 ```{r}
-prev <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
-future <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = TRUE)
+prev <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
+future <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = TRUE)
 
 df_list <- list(prev, future)
 plot_odds_ratios_single(df_list, key_col = 'GPVisit')
@@ -423,16 +300,148 @@ plot_odds_ratios_single(df_list, key_col = 'GPVisit')
 ## Combined Hosp GP Plot
 
 ```{r}
-prev_hosp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
-future_hosp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = TRUE)
+prev_hosp <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = FALSE)
+future_hosp <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'hosp_visits', future = TRUE)
 
-prev_gp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
-future_gp <- odds_ratio_and_chisq(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = TRUE)
+prev_gp <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = FALSE)
+future_gp <- odds_ratio_bin(data = raw.dat, threshold = 48.9, var = 'gp_visits', future = TRUE)
 
 df_list <- list(prev_hosp, future_hosp, prev_gp, future_gp)
-plot_odds_ratios_combined(df_list)
+#plot_odds_ratios_combined(df_list)
 
 ```
+
+# Odds Ratios - ALL FACTOR LEVELS
+
+## GP Visits
+
+```{r}
+
+odds_ratio_one_level <- function(data, threshold, var, target_gp_level, future = FALSE) {
+  
+  # Some info for the chisq result
+  print(paste0('Threshold is ', threshold))
+  print(paste0('Variable is ', var))
+  print(paste0('Analysis is for future 12 months? ', future))
+  print(paste0('Target gp_visits is: ', target_gp_level))
+  
+  # If we want to look at future hospitalisation, needs some prep
+  if(future) {
+    data <- prep_future_data(data, var)
+  }
+  
+  # Handle missing values in all variables (negative) and make sure var is factor
+  data <- data %>%
+    filter(.data[[var]] >= 0) %>%
+    mutate(!!var := factor(.data[[var]])) %>%
+    mutate(gp_visits = ifelse(gp_visits == target_gp_level, 1, 0))
+  
+  below <- paste0("Below ", threshold) # create labels dynamically from the threshold
+  above <- paste0("Above ", threshold)
+  data$high_risk <- ifelse(data$SF_12 < threshold, below , above)
+  
+  # use function above to generate the model and calculate odds ratios
+  output_list <- generate_odds_ratios(data, var)
+  
+  odds_ratio <- output_list[[1]]
+  odds.conf.low <- output_list[[2]]
+  odds.conf.high <- output_list[[3]]
+  
+  if(future) {
+    admission = 'Next 12 months'
+  } else {
+    admission = 'Previous 12 months'
+  }
+  
+  if(var == 'gp_visits') {
+    return_df <- data.frame(Admission = admission,
+                            GPVisits = target_gp_level,
+                            OR = odds_ratio, 
+                            conf.low = odds.conf.low,
+                            conf.high = odds.conf.high,
+                            Future = future,
+                            row.names = NULL)
+  }
+  
+  return(return_df)
+}
+
+
+odds_ratio_all_levels <- function(data) {
+  df_list <- lapply(0:4, function(i) {
+    list(
+      gp_past = odds_ratio_one_level(data = data,
+                                    threshold = 48.9,
+                                    var = 'gp_visits',
+                                    target_gp_level = i,
+                                    future = FALSE),
+      gp_future = odds_ratio_one_level(data = data,
+                                      threshold = 48.9,
+                                      var = 'gp_visits',
+                                      target_gp_level = i,
+                                      future = TRUE)
+    )
+  })
+  # Row-bind the gp_past data frames together
+  gp_past_all_levels <- do.call(rbind, lapply(df_list, `[[`, 'gp_past'))
+  
+  # Row-bind the gp_future data frames together
+  gp_future_all_levels <- do.call(rbind, lapply(df_list, `[[`, 'gp_future'))
+  
+  # Return both sets of data frames
+  return(list(gp_past_all_levels, gp_future_all_levels))
+}
+
+all_levels_results_gp <- odds_ratio_all_levels(data = raw.dat)
+
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+plot_gp_odds_ratios <- function(results_gp) {
+  # Combine the two dataframes into one
+  combined_results <- bind_rows(results_gp[[1]], results_gp[[2]])
+  
+  # Create the plot
+  p <- ggplot(combined_results, aes(x = factor(GPVisits), y = OR, color = Future)) +
+    # Add points for the Odds Ratios
+    geom_point(position = position_dodge(0.5), size = 1) +
+    # Add error bars for the confidence intervals
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), 
+                  width = 0.2, 
+                  position = position_dodge(0.5)) +
+    # Add dashed line at OR == 1 to show positive / negative relationship
+    geom_hline(yintercept = 1, linetype = 'dashed') +
+    # Customize colors
+    scale_color_manual(values = c("FALSE" = "blue", "TRUE" = "green"),
+                       labels = c("Non-Future", "Future")) +
+    # Customize labels and theme
+    labs(
+      title = "Odds Ratios of GP Visits",
+      x = "Frequency of GP Visits (0-4)",
+      y = "Odds Ratio (OR)",
+      color = "Group"
+    ) +
+    theme_minimal() +
+    theme(
+      legend.position = "right",
+      axis.text.x = element_text(size = 12),
+      axis.title = element_text(size = 14),
+      plot.title = element_text(size = 16, face = "bold")
+    )
+  
+  # Print the plot
+  return(p)
+}
+
+# Example usage:
+plot_gp_odds_ratios(all_levels_results_gp)
+
+```
+
 
 
 # Sample Statistics
@@ -480,10 +489,11 @@ data <- raw.dat %>%
     TRUE ~ NA_character_  # Handle unexpected values
     )) %>%
   mutate(age_group = cut(age, 
-                         breaks = c(0,16,20,26,46,61,120), 
-                         labels = c('0-15', '16-19', '20-25', '26-45', '46-60', '61+'),
+                         breaks = c(0,16,20,26,46,61,70,120), 
+                         labels = c('0-15', '16-19', '20-25', '26-45', '46-60', '61-70', '70+'),
                          include.lowest = TRUE,
-                         right = FALSE)
+                         right = FALSE),
+         white_british = ifelse(ethnicity == 'WBI', 1, 0)
          )
 ```
 
@@ -519,4 +529,249 @@ print_summary(summary.48.9, file_prefix = "Under 48.9")
 
 ```{r}
 
+```
+
+
+
+
+
+
+# DEFUNKT
+
+## Odds Ratio Age Filtered
+
+```{r}
+# Function to aid in the filtering for the odds_ratio and chisq function below
+filter_helper <- function(data, target_var, target_level) {
+  if (target_var == 'age_group') {
+    # Check for possible age_group values
+    stopifnot(target_level %in% c('all', '16-19', '20-25', '26-45', '46-60', '61+'))
+  }
+  if (target_var == 'gp_visits') {
+    # Check for possible gp_visits values
+    stopifnot(target_level %in% c('all', 1:5))
+  }
+  if (target_level == 'all') {
+    return(data)
+  } else {
+    return(data %>% filter(.data[[target_var]] == target_level))
+  }
+}
+
+
+odds_ratio_and_chisq_filtered <- function(data, threshold, var, target_age_group = 'all', target_gp_level = 'all', future = FALSE) {
+  
+  # Some info for the chisq result
+  print(paste0('Threshold is ', threshold))
+  print(paste0('Variable is ', var))
+  print(paste0('Analysis is for future 12 months? ', future))
+  print(paste0('Target age_group is: ', target_age_group))
+  print(paste0('Target gp_visits is: ', target_gp_level))
+  
+  # If we want to look at future hospitalisation, needs some prep
+  if(future) {
+    data <- prep_future_data(data, var)
+  }
+  
+  #return(data)
+  
+  # Handle missing values in all variables (negative) and make sure var is factor
+  data <- data %>%
+    filter(.data[[var]] >= 0,
+           SF_12 >= 0) %>%
+    mutate(!!var := factor(.data[[var]])) %>%
+    filter_helper(., 'age_group', target_age_group) %>%
+    filter_helper(., 'gp_visits', target_gp_level)
+  
+  # Recode hosp to binary 0/1, and create a binary from SF_12 for above/below
+  #  threshold
+  if (var == 'hosp_visits') {
+    data$hosp_visits <- ifelse(data$hosp_visits == 1, 1, 0)
+  }
+  below <- paste0("Below ", threshold) # create labels dynamically from the threshold
+  above <- paste0("Above ", threshold)
+  data$high_risk <- ifelse(data$SF_12 < threshold, below , above)
+  
+  # Create formula object for model from strings
+  form <- formula(paste0(var, ' ~ high_risk + age + sex'))
+  #print(form)
+  
+  model <- glm(form, 
+               family = 'binomial', 
+               data=data,
+               weights = weight)
+  options(scipen=999)
+  print(summary(model))
+  
+  # Calculate odds ratio and confidence intervals
+  odds_ratio = exp(coef(model)[[2]])
+  
+  #print('Confidence Intervals: ')
+  #print(exp(confint(model)))
+  odds.conf.low = exp(confint(model)[[2]])
+  odds.conf.high = exp(confint(model)[[6]])
+  
+  if(threshold == 45.6) {
+    schema = '30-day'
+  } else if (threshold == 48.9) {
+    schema = '12-month'
+  }
+  
+  if(future) {
+    admission = 'Next 12 months'
+  } else {
+    admission = 'Previous 12 months'
+  }
+  
+  if(var == 'hosp_visits') {
+    return_df <- data.frame(HospitalAdmission = admission, 
+                            threshold = schema, 
+                            OR = odds_ratio, 
+                            conf.low = odds.conf.low,
+                            conf.high = odds.conf.high,
+                            row.names = NULL)
+  }
+  
+  if(var == 'gp_visits') {
+    return_df <- data.frame(GPVisit = admission, 
+                            threshold = schema, 
+                            OR = odds_ratio, 
+                            conf.low = odds.conf.low,
+                            conf.high = odds.conf.high,
+                            row.names = NULL)
+  }
+  
+  return(return_df)
+}
+
+```
+
+
+## Quick Data Checking
+
+```{r}
+table(raw.dat$sex, raw.dat$hosp_visits)
+```
+
+
+## Clinical Depression
+
+First we'll to see if there is a relationship between SF-12 Mental Component Score (MCS) and clinical_depression (from the UKHLS variable [hcond17](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hcond17/) - has a doctor ever told you that you have clinical depression?). clinical_depression == 0 is no clinical depression, and == 1 is clinical depression.
+
+```{r}
+dat <- raw.dat %>%
+  select(pidp, time, SF_12, clinical_depression) %>%
+  filter(clinical_depression >= 0)
+
+t.test(SF_12 ~ clinical_depression, data = dat, var.equal=FALSE)
+```
+
+The above T-test shows a significant difference in mean SF-12 between individuals with and without clinical depression. The difference in means is also very large in the context of SF-12 MCS, with an 18 point gap.
+
+## Hospital Utilisation
+
+Next we will test the relationship between SF-12 MCS and Hospital Utilisation (from UKHLS variable [hosp](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hosp/) - In the last 12 months, have you been in hospital or clinic as an in-patient overnight or longer?).
+
+```{r}
+dat <- raw.dat %>%
+  select(pidp, time, SF_12, hosp_visits) %>%
+  filter(hosp_visits > 0)
+
+dat$hosp_visits <- ifelse(dat$hosp_visits == 1, 1, 0)
+
+t.test(SF_12 ~ hosp_visits, data = dat, var.equal=FALSE)
+```
+
+The above T-test shows once again that there is a significant difference in the mean SF-12 between individuals who have 
+
+### Hospital Use in the Future
+
+```{r}
+d1 <- raw.dat %>%
+  select(pidp, time, hosp_visits) %>%
+  mutate(time = time - 1)
+
+d1$hosp_visits <- ifelse(d1$hosp_visits == 1, 1, 0)
+
+d2 <- raw.dat %>%
+  select(pidp, time, SF_12)
+
+d.merged <- merge(x = d1, y = d2, by = c('pidp', 'time'))
+```
+
+```{r}
+t.test(SF_12 ~ hosp_visits, data = d.merged, var.equal=FALSE)
+```
+
+## GP Visit
+
+### chi-squared
+
+```{r}
+dat <- raw.dat %>%
+  select(pidp, time, SF_12, gp_visits) %>%
+  filter(gp_visits >= 0)
+
+dat$gp_visits <- factor(dat$gp_visits)
+
+#t.test(SF_12 ~ gp_visits, data = dat, var.equal=FALSE)
+#wilcox.test(SF_12 ~ gp_visits, data = dat)
+
+threshold <- 48.9
+below <- paste0("Below ", threshold) # create labels dynamically from the threshold
+above <- paste0("Above ", threshold)
+dat$high_risk <- ifelse(dat$SF_12 < threshold, below , above)
+
+
+# Table the results to prepare for fishers test
+table_high_risk <- table(dat$high_risk, dat$gp_visits)
+print(table_high_risk)
+
+# Fishers exact test
+#fisher_test <- fisher.test(table_high_risk)
+
+chi.gp <- chisq.test(table_high_risk)
+
+print(chi.gp)
+print(chi.gp$observed)
+print(chi.gp$expected)
+
+print(chi.gp$statistic)
+```
+
+### logistic regression odds ratios
+
+```{r}
+model <- glm(gp_visits ~ high_risk, family = 'binomial', data=dat)
+options(scipen=999)
+summary(model)
+print('--------------------------------')
+print(exp(coef(model)))
+
+print('Odds Ratio: ')
+print(exp(coef(model)[[2]]))
+
+print('Confidence Intervals: ')
+print(exp(confint(model)))
+print(exp(confint(model)[[2]]))
+print(exp(confint(model)[[4]]))
+
+```
+
+
+## SF12 Histograms
+
+```{r}
+t1 <- raw.dat %>%
+  filter(hosp_visits == 1)  # YES TO HOSPITAL USE
+
+t2 <- raw.dat %>%
+  filter(hosp_visits == 2)  # NO TO HOSPITAL USE
+
+hist(t1$SF_12,
+     main = 'Histogram of SF-12 (Visited hospital in previous 12 months)',
+     xlab = 'SF-12')
+hist(t2$SF_12,
+     main = 'Histogram of SF-12 (No hospital visit in previous 12 months)',
+     xlab = 'SF-12')
 ```

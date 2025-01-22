@@ -6,7 +6,7 @@
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SPHINXAPIBUILD   ?= sphinx-apidoc
-SOURCEDIR     = .
+#SOURCEDIR     = .
 BUILDDIR      = ../docs
 NOTEBOOKDIR = docsrc/documentation/notebooks/
 NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/

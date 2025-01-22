@@ -1,0 +1,654 @@
+---
+title: "Depressive Threshold Investigation"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: false
+    df_print: paged
+    code_folding: hide
+---
+
+
+
+
+# TODO
+- [x] Generate binary flags for each of the Scottish priority family groups
+- [x] As part of question 2, generate a forest plot for the priority family groups and below the threshold
+- [x] Recode hospital and gp variables into 0/1 binary
+- [x] Remove records with missing future hosp and gp value (last wave will be removed)
+- [ ] Add variables to the Characteristics analysis
+    - [ ] GOR (region)
+    - [ ] Rurality
+    - [ ] Highest Education Qualification
+- [x] Add additional factors to the models to control for attrition and starting survey in poor health
+    - [x] Dummy for present in next wave
+    - [x] Dummy for present in all waves
+    - [x] Counter for number of observations
+- [ ] Do summary stats table - Remember rowSums not colSums
+- [ ] Change plot labels from p value to OR value
+
+
+
+
+# SETUP
+
+```{r "setup", include=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(ggridges) # for densities over time plots. 
+library(knitr)
+library(here)
+library(survey)
+library(lme4)
+library(glmmTMB)
+library(broom.mixed)
+library(gtsummary)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/"
+workingDir <- normalizePath('../')
+knitr::opts_knit$set(root.dir = workingDir)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+rm(workingDir)
+```
+
+Source utils for some functions.
+
+```{r, include=FALSE}
+source(here::here('minos', 'utils_datain.R'))
+```
+
+
+
+```{r, include=FALSE}
+# Read raw datafiles in
+#raw.files <- list.files(here::here('data', 'raw_US'), pattern='2[0-9]{3}_US_cohort.csv', full.names = TRUE)
+raw.files <- list.files(here::here('data', 'raw_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+
+# Read all the files, and handle any problems with columns being different types
+#   in different years
+raw.dat <- lapply(raw.files, function(file) {
+  # Read the file
+  df <- read.csv(file)
+  
+  # Standardize the 'ethnicity' column to character (or choose numeric if preferred)
+  if ("ethnicity" %in% names(df)) {
+    df$ethnicity <- as.character(df$ethnicity)
+  }
+  
+  return(df)
+}) %>%
+  bind_rows()
+
+cpi_dat <- read.csv(here::here('persistent_data', 'CPI_202309.csv'))
+
+```
+
+Do all the pre-processing for the raw data here.
+
+```{r}
+# Forward fill some variables
+#   All chronic disease variables ('hcond#')
+#   nkids_ind_raw
+raw.dat.p <- raw.dat %>%
+  group_by(pidp) %>%
+  # First replace those missing inapplicable (-8) with NA
+  mutate(across(starts_with('hcond'), ~ na_if(., -8))) %>%
+  mutate(across('nkids_ind_raw', ~ na_if(., -8))) %>%
+  # Forward fill missing values
+  fill(starts_with("hcond"), .direction = "down") %>%
+  fill('nkids_ind_raw', .direction = "down") %>%
+  # Create the chronic_disease variable and rename nkids_ind_raw
+  mutate(
+    chronic_disease = if_any(starts_with("hcond"), ~ . == 1) * 1,
+    nkids_ind = nkids_ind_raw
+  )
+
+# Remove some records that are not useful, i.e. missing important vars
+#   Also generate some variables like age_group and white_british (binary)
+raw.dat.p <- raw.dat.p %>%
+  filter(time > 2013) %>%
+  filter(weight > 0) %>%  # Remove all 0-weight individuals
+  filter(
+    !hh_netinc %in% c(-9, -8, -7, -3, -2, -1),
+    SF_12 >= 0,
+    sex %in% c('Male', 'Female'),
+    age >= 16,
+    hosp_visits %in% c(1, 2),  # Ensure hosp_visits is present
+    gp_visits %in% c(0, 1, 2, 3, 4),
+    education_state %in% c(0,1,2,3,5,6,7)
+  ) %>% 
+  mutate(  # Recode marstat variable into string marital_status
+    marital_status = case_when(
+      marstat == 1 ~ "Single",
+      marstat %in% c(2, 3, 10) ~ "Partnered",
+      marstat %in% c(4, 5, 7, 8) ~ "Separated",
+      marstat %in% c(6, 9) ~ "Widowed",
+      TRUE ~ NA_character_  # Handle unexpected values
+    )
+  ) %>%
+  filter(
+    marital_status %in% c('Single', 'Partnered', 'Separated', 'Widowed')
+  ) %>%
+  mutate(  # Recode labour_state_raw into string labour_state
+    labour_state = case_when(
+      labour_state_raw %in% c("Employed", "Self-employed") & emp_type %in% c(1, -7, -9) ~ "FT Employed",
+      labour_state_raw %in% c("Employed", "Self-employed") & emp_type == 2 ~ "PT Employed",
+      labour_state_raw %in% c("Unemployed", "Short-term Working") ~ "Job Seeking",
+      labour_state_raw %in% c("Student", "Government Training") ~ "FT Education",
+      labour_state_raw %in% c("Family Care") ~ "Family Care",
+      labour_state_raw %in% c("Retired", "Maternity Leave", "Sick/Disabled") ~ "Not Working",
+      TRUE ~ NA_character_  # Handle unexpected values
+    )
+  ) %>%
+  mutate(age_group = cut(age, 
+                         breaks = c(0, 16, 20, 26, 46, 61, 120), 
+                         labels = c('0-15', '16-19', '20-25', '26-45', '46-60', '61+'),
+                         include.lowest = TRUE,
+                         right = FALSE)) %>%
+  mutate(  # Recode hosp_visits into binary 0/1
+    hosp_visits = case_when(
+      hosp_visits == 1 ~ 1,
+      hosp_visits == 2 ~ 0,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  mutate(white_british = ifelse(ethnicity == 'WBI', 1, 0),
+         depress_risk = SF_12 < 48.9,
+         FT_employed = labour_state == 'FT Employed',
+         PT_employed = labour_state == 'PT Employed',
+         employed = labour_state %in% c('FT Employed', 'PT Employed'),
+         gp_binary = gp_visits > 0)
+
+
+
+# Generate binary flags for each of the priority family groups
+raw.dat.p <- raw.dat.p %>%
+  group_by(hidp, time) %>%  # These are household groupings so group_by hidp
+  mutate(priority_min_ethnic = ifelse(any(ethnicity != 'WBI'), TRUE, FALSE),  # minority ethnic 
+         priority_child_under_one = ifelse(any(substr(child_ages, 1, 1) == 0), TRUE, FALSE),  # child under one
+         priority_three_plus_children = ifelse(any(nkids >= 3), TRUE, FALSE),  # three plus children
+         priority_mother_under_25 = ifelse(any(age < 25 & nkids_ind > 0), TRUE, FALSE),  # mother under 25
+         priority_disabled = ifelse(any(labour_state_raw == "Sick/Disabled"), TRUE, FALSE),  # disabled adult or child
+         priority_lone_parent = ifelse(any(nkids > 0 & n() == 1), TRUE, FALSE)) %>%  # lone parent household
+  ungroup()
+
+# Generate vars for future use of healthcare 
+raw.dat.p <- raw.dat.p %>%
+  arrange(pidp, time) %>%  # First sort by person and time so we can use lead()
+  group_by(pidp) %>%
+  mutate(
+    future_hosp_visits = lead(hosp_visits, n = 1),
+    future_gp_binary = lead(gp_binary, n = 1)
+  ) %>%
+  ungroup()
+
+# Generate dummys for controlling for attrition and poor starting health
+raw.dat.p <- raw.dat.p %>%
+  group_by(pidp) %>%
+  mutate(
+    # Dummy for present next wave
+    present_next_wave = if_else(lead(time, default = NA) == time + 1, 1, 0, missing = 0),
+    # Dummy for present in all waves
+    present_all_waves = if_else(n_distinct(time) == max(time) - min(time) + 1, 1, 0),
+    # Counter for number of observations
+    num_obs = n()
+  ) %>%
+  ungroup()
+```
+
+Need to do some processing on the cpi dataframe, then adjust income values for inflation. Using November 2020 for baseline £ value.
+
+```{r}
+cpi <- cpi_dat %>%
+  select(-X)
+
+raw.dat.adj <- raw.dat.p %>%
+  filter(hh_int_y != -9,
+         hh_int_y != -8,
+         hh_int_m != -9,
+         hh_int_m != -8) %>%  # if no interview date can't do inflation adjustment
+  mutate(Date = hh_int_y * 100 + hh_int_m) %>%  # Combine year and month into a Date variable with format YYYYMM (to match cpi data)
+  left_join(cpi, by = "Date") %>%  # join cpi data onto raw.dat by Date column 
+  mutate(hh_netinc_adjusted = hh_netinc / CPI * 100)  # adjust pound value using CPI with base November 2020
+  
+```
+
+
+# RESEARCH QUESTIONS
+
+1. Are you more likely to be under the threshold if in poverty? (Simple descriptive stats - pov/not
+pov & threshold/not threshold)
+2. a) What characteristics are associated with (make you more likely?) being under the threshold
+(education, age, marital stat, employment, etc.)
+2. b) Does poverty have an effect here that is independent of these characteristics? (run same models
+this time controlling for poverty)
+3. Why do we care? Under threshold means more likely to require healthcare and therefore cost
+more money for the state. Looping that back means...
+- Reducing poverty helps to reduce proportion of people under the threshold, which will reduce the
+need for healthcare in the general population, which saves money
+- Use the discussion to talk about the ScotGov priority subgroups, can relate these subgroups to
+poverty and therefore lower mental well-being and increased need for healthcare
+
+# ANALYSES REQUIRED
+
+1. Link poverty to the threshold. First look at descriptive statistics, then use odds ratio (chisq in place
+of glm) to look at the relationship between the 2 groups
+2. Odds ratios for characteristics? Simple descriptive stats? Think an odds ratio plot with each
+characteristic showing whether more or less likely to be seen in group under threshold
+3. Same plot but with poverty added? Could just add poverty to the plot above and get same effect?
+Or maybe this is more about how controlling for poverty changes the results? Do both then go back
+to Nik and see what he thinks
+4. Odds ratios for how threshold affects future use of healthcare. Can remove the previous 12 months
+stuff as this is really more about the future than explaining the past
+
+# 1. Link Poverty to Threshold
+
+First job is to link the poverty rate to the SF-12 threshold. The hypothesis here is that the rate of poverty is significantly
+higher in the group under the threshold. At first we only want to explore this specific relationship, so we won't control
+for any other factors.
+We will focus on Relative Poverty for now, as it is easier to justify (and work with) the values in a population such as US.
+
+Research Question:
+1. Are you more likely to be under the threshold if in poverty? (Simple descriptive stats - pov/not
+pov & threshold/not threshold)
+
+```{r}
+# First step is to calculate the relative poverty threshold, and we can then 
+#   attach that to the original data as a binary flag
+#   The relative poverty threshold should be calculated on households and not individuals,
+#   so we need to take only 1 individual from each household
+pov_thresholds_yearly <- raw.dat.adj %>%
+  select(pidp, hidp, time, hh_netinc_adjusted) %>%
+  group_by(hidp) %>%
+  slice(1) %>%
+  ungroup() %>%
+  group_by(time) %>%
+  summarise(rel_pov_thresh = mean(hh_netinc_adjusted) * 0.6)
+
+# Now attach the threshold back onto the data and create a binary poverty variable
+data <- raw.dat.adj %>%
+  left_join(pov_thresholds_yearly, by = "time") %>%
+  mutate(poverty = hh_netinc_adjusted < rel_pov_thresh) %>%
+  select(-rel_pov_thresh, -Date, -CPI) %>%
+  filter(!is.na(future_hosp_visits),
+         !is.na(future_gp_binary))
+
+# Now take a small subset of the data and ask the question for each year
+#dat.test <- data %>%
+#  select(pidp, hidp, time, depress_risk, poverty)
+```
+
+## Rao-Scott Chi-Squared
+
+A normal Chi-Squared test is not suitable here due to the repeated observations over time. This invalidates the assumption of independence in the observations so we need to use something different. The Rao-Scott Chi-Squared test from the survey package seems to be what we need, as this can handle complex survey data, including clustering and weights.
+
+```{r}
+# First create survey design object
+design <- svydesign(id = ~pidp, data = data, weights = ~weight)
+
+# Now perform Rao-Scott test
+rs_test <- svychisq(~depress_risk + poverty, design = design)
+print(rs_test)
+
+
+## Visualise
+# Contingency Table
+table <- svytable(~depress_risk + poverty, design = design)
+print(table)
+
+
+# Convert to proportions
+prop_table <- prop.table(table, margin = 2)  # Proportions within poverty groups
+df <- as.data.frame(as.table(prop_table))
+
+# Plot
+ggplot(df, aes(x = poverty, y = Freq, fill = depress_risk)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(
+    x = "Poverty Status",
+    y = "Proportion",
+    fill = "Low SF-12 MCS",
+    title = "Proportion of Low SF-12 MCS Scores by Poverty Status"
+  ) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal()
+```
+
+## Odds Ratio (Mixed-Effects Logistic Regression)
+
+The above Rao-Scott Chi-Squared test output shows a very significant result - that there is a relationship between poverty and the depressive risk threshold that is very unlikely to be a result of random chance.
+
+Now we have verified a significant relationship we can quantify it by calculating odds ratios.
+
+```{r}
+model <- glmmTMB(
+  depress_risk ~ poverty + (1 | pidp),
+  data = data,
+  family = binomial(link = "logit")
+)
+
+summary(model)
+```
+
+Now we have the model we can use it to calculate the odds ratio.
+
+```{r}
+# get fixed effects
+coef_summary <- summary(model)$coefficients$cond
+# calculate odds ratio
+odds_ratios <- exp(coef_summary[, "Estimate"])
+# add confidence intervals
+conf_int <- exp(confint(model, parm = "beta_", level = 0.95))
+
+# Combine results into a readable table
+results <- data.frame(
+  Term = rownames(coef_summary),
+  Odds_Ratio = odds_ratios,
+  Lower_CI = conf_int[, 1],
+  Upper_CI = conf_int[, 2],
+  p_value = coef_summary[, "Pr(>|z|)"]
+)
+
+print(results)
+
+ggplot(results, aes(x = Term, y = Odds_Ratio)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = Lower_CI, ymax = Upper_CI), width = 0.2) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  #scale_y_log10() +  # Log scale for better visualization
+  labs(
+    title = "Odds Ratios and 95% Confidence Intervals",
+    x = "Predictor",
+    y = "Odds Ratio"
+  ) +
+  theme_minimal()
+```
+
+
+# 2. a) Link Characteristics to Threshold
+
+2. a) What characteristics are associated with (make you more likely?) being under the threshold
+(education, age, marital stat, employment, etc.)
+
+Forest plot: "https://medium.com/@ginoasuncion/visualizing-logistic-regression-results-using-a-forest-plot-in-python-bc7ba65b55bb"
+
+## Fit Model
+
+```{r}
+model_2a <- glmmTMB(
+  depress_risk ~ age_group + sex + white_british + labour_state + marital_status + present_next_wave + present_all_waves + num_obs + (1 | pidp),
+  data = data,
+  family = binomial(link = "logit")
+)
+
+```
+
+## Calculate Odds Ratios
+
+```{r}
+
+produce_OR_forest_data <- function(model) {
+  # Extract fixed effects
+  coef_summary <- summary(model)$coefficients$cond
+  
+  # Calculate odds ratios and confidence intervals
+  odds_ratios <- exp(coef_summary[, "Estimate"])
+  conf_int <- exp(confint(model, parm = "beta_", level = 0.95))
+  
+  # Combine results into a readable table
+  forest_data <- data.frame(
+    Term = rownames(coef_summary),
+    Odds_Ratio = odds_ratios,
+    Lower_CI = conf_int[, 1],
+    Upper_CI = conf_int[, 2],
+    p_value = coef_summary[, "Pr(>|z|)"]
+  )
+  
+  # Keep only the predictors of interest (excluding intercept)
+  forest_data <- forest_data[!forest_data$Term %in% "(Intercept)", ]
+  
+  # Do some cleanup of the plot labels
+  forest_data$Term <- recode(
+    forest_data$Term,
+    `age_group20-25` = "Age: 20-25",
+    `age_group26-45` = "Age: 26-45",
+    `age_group46-60` = "Age: 46-60",
+    `age_group61+` = "Age: 61+",
+    `sexMale` = "Sex: Male",
+    `white_british` = "Ethnicity: White-British",
+    `marital_statusWidowed` = "Marital Status: Widowed",
+    `marital_statusSingle` = "Marital Status: Single",
+    `marital_statusSeparated` = "Marital Status: Separated",
+    `labour_statePT Employed` = "Labour State: PT Employed",
+    `labour_stateFT Employed` = "Labour State: FT Employed",
+    `labour_stateFT Education` = "Labour State: PT Education",
+    `labour_stateNot Working` = "Labour State: Not Working",
+    `labour_stateJob Seeking` = "Labour State: Job Seeking",
+    `employedTRUE` = "Employed",
+    `povertyTRUE` = "Poverty",
+    `priority_min_ethnicTRUE` = "Priority: Minority Ethnic",
+    `priority_child_under_oneTRUE` = "Priority: Child Under One",
+    `priority_three_plus_childrenTRUE` = "Priority: Three Plus Children",
+    `priority_mother_under_25TRUE` = "Priority: Mother Under 25",
+    `priority_disabledTRUE` = "Priority: Disabled Family Member",
+    `priority_lone_parentTRUE` = "Priority: Lone Parent"
+  )
+  
+
+  
+  return(forest_data)
+}
+
+forest_2a <- produce_OR_forest_data(model_2a)
+```
+
+## Forest Plot
+
+```{r}
+ggplot(forest_2a, aes(x = Term, y = Odds_Ratio)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = Lower_CI, ymax = Upper_CI), width = 0.2) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  geom_text(aes(label = ifelse(p_value < 0.05, "p < 0.05", "")), 
+            nudge_x = 0.3, size = 3, hjust = 0) +
+  scale_y_log10() +
+  coord_flip() +
+  labs(
+    title = "Forest Plot of Odds Ratios with p-values",
+    x = "",
+    y = "Odds Ratio (log scale)"
+  ) +
+  theme_minimal()
+```
+
+# 2. b) How Does Poverty Change This?
+
+2. b) Does poverty have an effect here that is independent of these characteristics? (run same models
+this time controlling for poverty)
+
+This is simple, just generating a new model with the poverty term added.
+
+```{r}
+model_2b <- glmmTMB(
+  depress_risk ~ age_group + sex + white_british + labour_state + marital_status + poverty + present_next_wave + present_all_waves + num_obs + (1 | pidp),
+  data = data,
+  family = binomial(link = "logit")
+)
+
+forest_2b <- produce_OR_forest_data(model_2b)
+
+```
+
+```{r}
+
+ggplot(forest_2b, aes(x = Term, y = Odds_Ratio)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = Lower_CI, ymax = Upper_CI), width = 0.2) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  geom_text(aes(label = ifelse(p_value < 0.05, "p < 0.05", "")), 
+            nudge_x = 0.3, size = 3, hjust = 0) +
+  scale_y_log10() +
+  coord_flip() +
+  labs(
+    title = "Forest Plot of Odds Ratios with p-values",
+    x = "",
+    y = "Odds Ratio (log scale)"
+  ) +
+  theme_minimal()
+```
+
+# 2. c) Priority Family Groups
+
+```{r}
+model_2c <- glmmTMB(
+  depress_risk ~ priority_min_ethnic + priority_child_under_one + priority_three_plus_children + priority_mother_under_25 + priority_disabled + priority_lone_parent + present_next_wave + present_all_waves + num_obs + (1 | pidp),
+  data = data,
+  family = binomial(link = "logit")
+)
+
+forest_2c <- produce_OR_forest_data(model_2c)
+
+ggplot(forest_2c, aes(x = Term, y = Odds_Ratio)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = Lower_CI, ymax = Upper_CI), width = 0.2) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  geom_text(aes(label = ifelse(p_value < 0.05, "p < 0.05", "")), 
+            nudge_x = 0.3, size = 3, hjust = 0) +
+  scale_y_log10() +
+  coord_flip() +
+  labs(
+    title = "Forest Plot of Odds Ratios with p-values",
+    x = "",
+    y = "Odds Ratio (log scale)"
+  ) +
+  theme_minimal()
+```
+
+
+# 3. Depressive Threshold & Healthcare
+
+3. Why do we care? Under threshold means more likely to require healthcare and therefore cost
+more money for the state. Looping that back means...
+- Reducing poverty helps to reduce proportion of people under the threshold, which will reduce the
+need for healthcare in the general population, which saves money
+- Use the discussion to talk about the ScotGov priority subgroups, can relate these subgroups to
+poverty and therefore lower mental well-being and increased need for healthcare
+
+Now produce odds ratios for the relationship between the threshold and healthcare utilisation **in the future**.
+This means generating variables for hospital admission and gp visits (binary) in the next 12 months.
+
+We will only use the binary for gp visits and not the ordinal levels (at least for now).
+
+
+```{r}
+model_3_hosp <- glmmTMB(
+  future_hosp_visits ~ depress_risk + present_next_wave + present_all_waves + num_obs + (1 | pidp),
+  data = data,
+  family = binomial(link = "logit")
+)
+
+model_3_gp <- glmmTMB(
+  future_gp_binary ~ depress_risk + present_next_wave + present_all_waves + num_obs + (1 | pidp),
+  data = data,
+  family = binomial(link = "logit")
+)
+
+# Extract odds ratios and confidence intervals
+results <- bind_rows(
+  tidy(model_3_hosp, conf.int = TRUE, effects = "fixed") %>% 
+    filter(term == "depress_riskTRUE") %>% 
+    mutate(variable = "Future Hospital Visits"),
+  
+  tidy(model_3_gp, conf.int = TRUE, effects = "fixed") %>% 
+    filter(term == "depress_riskTRUE") %>% 
+    mutate(variable = "Future GP Visits")
+)
+
+# Rename columns for clarity
+results <- results %>%
+  select(variable, estimate, conf.low, conf.high) %>%
+  mutate(
+    odds_ratio = exp(estimate),
+    lower_ci = exp(conf.low),
+    upper_ci = exp(conf.high)
+  ) %>%
+  select(variable, odds_ratio, lower_ci, upper_ci)
+
+print(results)
+
+# Plot results
+ggplot(results, aes(x = variable, y = odds_ratio, ymin = lower_ci, ymax = upper_ci)) +
+  geom_pointrange(color = "blue", size = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  coord_flip() +  # Flip coordinates for easier reading
+  labs(
+    title = "Odds Ratios for Healthcare Use by Depression Risk",
+    x = "Healthcare Type",
+    y = "Odds Ratio (95% CI)"
+  ) +
+  theme_minimal()
+
+```
+
+# Summary Statistics
+
+Row sums!
+
+```{r}
+dat.2014 <- data %>%
+  filter(time == 2015)
+
+table <- dat.2014 %>%
+  select(depress_risk, age, hh_netinc_adjusted, sex, marital_status, education_state, labour_state) %>%
+  tbl_summary(
+    by = depress_risk, 
+    type = list(
+      age ~ "continuous",
+      hh_netinc_adjusted ~ "continuous",
+      sex ~ "categorical",
+      marital_status ~ "categorical",
+      education_state ~ "categorical",
+      labour_state ~ "categorical"
+      ),
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_dichotomous() ~ "{p}%",
+      all_categorical() ~ "{p}%"
+      ),
+    percent = "row"  # Ensures percentages sum to 100 across rows, not columns
+    ) %>%
+  add_p() %>%  # Add p-values for group comparisons
+  modify_header(label ~ "**Variable**") %>%  # Format the table headers
+  modify_spanning_header(all_stat_cols() ~ "**Depression Risk**")  # Add header span
+
+
+print(table)
+```
+
+```{r}
+latex_code <- table %>%
+  as_gt() %>%
+  gt::as_latex()
+
+filename <- '/home/luke/Documents/WORK/MINOS/DELIVERABLES/MCS_to_hosp/sum_stats_table.tex'
+
+writeLines(latex_code, filename)
+```
+
+
+
+
+
+
+
+
+```{r}
+
+```
+
