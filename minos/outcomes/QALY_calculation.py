@@ -190,4 +190,5 @@ if __name__ == '__main__':
     intervention = args.intervention
     subset_func_string = args.subset
 
+    print(mode, intervention, subset_func_string)
     main(mode, intervention, subset_func_string)
