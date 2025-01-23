@@ -9,9 +9,8 @@
 #SBATCH --cpus-per-task=16                               # Number of CPU cores per task
 #SBATCH --mem=10G                                       # Job memory request
 #SBATCH --time=01:00:00                                 # Time limit hrs:min:sec
-#SBATCH --output=logs/logs/minos_batch-%A-%a.out        # Standard output log.
-#SBATCH --error=logs/errors/minos_batch-%A-%a.err       # Standard error log.
+#SBATCH --output=logs/logs/minos_single_qaly_lineplot-%A-%a.out        # Standard output log.
+#SBATCH --error=logs/errors/minos_single_qaly_lineplot-%A-%a.err       # Standard error log.
 
-
-python3 python minos/outcomes/QALY_calculation.py -m $2 -i $4
+python3 minos/outcomes/QALY_calculation.py -m $2 -i $4
 
