@@ -509,7 +509,7 @@ aggregate_minos_manchester_EPCG:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "EPCG"
 
 aggregate_minos_manchester_combined:
-	sbatch scripts/aire_single_lineplot.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 
 aggregate_minos_manchester_combined_private_rental:
