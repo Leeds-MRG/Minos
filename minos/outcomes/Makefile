@@ -623,7 +623,8 @@ aggregate_minos_manchester_combined_cost:
 QALY_baseline: MODE=$(EXPERIMENT)
 QALY_baseline: INTERVENTION=baseline
 QALY_baseline:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_GHD: MODE=$(EXPERIMENT)
 QALY_GHD: INTERVENTION=goodHeatingDummy
