@@ -620,28 +620,24 @@ aggregate_minos_manchester_combined_cost:
 ################
 
 
-QALY_baseline: MODE=$(EXPERIMENT)
 QALY_baseline: INTERVENTION=baseline
 QALY_baseline:
-	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
-	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_GHD: MODE=$(EXPERIMENT)
 QALY_GHD: INTERVENTION=goodHeatingDummy
 QALY_GHD:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_EPCG: MODE=$(EXPERIMENT)
 QALY_EPCG: INTERVENTION=EPCG
 QALY_EPCG:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-QALY_GBIS: MODE=$(EXPERIMENT)
 QALY_GBIS: INTERVENTION=GBIS
 QALY_GBIS:
 	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
-all_energy_QALY: EXPERIMENT=energy_manchester_scaled
+all_energy_QALY: MODE=energy_manchester_scaled
 all_energy_QALY: QALY_baseline QALY_GHD QALY_EPCG QALY_GBIS
 all_energy_QALY:
 	python3 minos/outcomes/QALY_plot.py
