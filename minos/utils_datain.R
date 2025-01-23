@@ -163,7 +163,7 @@ collapse_multiple_out_to_summary <- function(big.out) {
   
   grouped <- big.out %>% 
     group_by(pidp) %>%
-    summarise(SF_12 = mean(SF_12),
+    summarise(SF_12_MCS = mean(SF_12_MCS),
               hh_income = mean(hh_income),
               housing_quality = median(housing_quality),
               neighbourhood_safety = median(neighbourhood_safety),
@@ -182,7 +182,7 @@ get_summary_out <- function(scenario_out_path, year, var.list) {
   
   grouped <- big.out %>% 
     group_by(pidp) %>%
-    summarise(SF_12 = mean(SF_12),
+    summarise(SF_12_MCS = mean(SF_12_MCS),
               hh_income = mean(hh_income),
               housing_quality = median(housing_quality),
               neighbourhood_safety = median(neighbourhood_safety),

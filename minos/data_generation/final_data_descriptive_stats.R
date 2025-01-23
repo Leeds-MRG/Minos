@@ -26,13 +26,13 @@ main <- function() {
                    "job_sector",
                    "job_sec",
                    "nutrition_quality",
-                   "SF_12",
+                   "SF_12_MCS",
                    "loneliness")
   
   key_continuous_columns <- c("age",
                              "hh_income",
                              "nutrition_quality",
-                             "SF_12")
+                             "SF_12_MCS")
   
   key_discrete_columns <- c(
                    "nkids",

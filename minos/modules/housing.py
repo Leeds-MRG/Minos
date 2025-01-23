@@ -69,7 +69,7 @@ class Housing(Base):
                         'hh_income',
                         'hh_income_diff',
                         'housing_tenure',
-                        'SF_12',
+                        'SF_12_MCS',
                         'yearly_energy',
                         'heating']
         self.population_view = builder.population.get_view(columns=view_columns)

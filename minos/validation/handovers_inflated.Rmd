@@ -142,19 +142,19 @@ rm(raw.inc, base.inc, income.spag)
 
 ```{r}
 # sf12 boxplot handovers
-handover_boxplots(raw.dat, base.dat, 'SF_12')
-handover_lineplots(raw.dat, base.dat, "SF_12")
+handover_boxplots(raw.dat, base.dat, 'SF_12_MCS')
+handover_lineplots(raw.dat, base.dat, "SF_12_MCS")
 # 
 # raw.sf12 <- raw.dat %>% 
-#   dplyr::select(pidp, time, SF_12) %>%
+#   dplyr::select(pidp, time, SF_12_MCS) %>%
 #   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+#   summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
 #   mutate(source = 'final_US')
 # 
 # base.sf12 <- base.dat %>%
-#   dplyr::select(pidp, time, SF_12) %>%
+#   dplyr::select(pidp, time, SF_12_MCS) %>%
 #   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+#   summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
 #   mutate(source = 'baseline_output')
 # 
 # # merge before plot
@@ -174,17 +174,17 @@ handover_lineplots(raw.dat, base.dat, "SF_12")
 # raw.sf12.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
 # 
 # raw.sf12.2 <- raw.dat %>% 
-#   dplyr::select(pidp, time, SF_12) %>%
+#   dplyr::select(pidp, time, SF_12_MCS) %>%
 #   filter(pidp %in% raw.sf12.wave1) %>%
 #   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+#   summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
 #   mutate(source = 'final_US')
 # 
 # base.sf12.2 <- base.dat %>%
-#   dplyr::select(pidp, time, SF_12) %>%
+#   dplyr::select(pidp, time, SF_12_MCS) %>%
 #   filter(pidp %in% raw.sf12.wave1) %>%
 #   group_by(time) %>%
-#   summarise(sf12 = mean(SF_12, na.rm = TRUE)) %>%
+#   summarise(sf12 = mean(SF_12_MCS, na.rm = TRUE)) %>%
 #   mutate(source = 'baseline_output')
 # 
 # sf12.2 <- rbind(raw.sf12.2, base.sf12.2)
@@ -210,21 +210,21 @@ handover_lineplots(raw.dat, base.dat, "SF_12")
 
 ```{r}
 raw.sf12 <- raw.dat %>%
-  select(pidp, age, time, SF_12)
+  select(pidp, age, time, SF_12_MCS)
 base.sf12 <- base.dat %>%
-  select(pidp, age, time, SF_12)
+  select(pidp, age, time, SF_12_MCS)
 
 sf12.spag <- rbind(raw.sf12, base.sf12)
 
 sf12.spag.sample <- sf12.spag[which(sf12.spag$pidp %in% pidp_sample), ]
-spaghetti_plot(sf12.spag.sample, 'SF_12',
+spaghetti_plot(sf12.spag.sample, 'SF_12_MCS',
                save = shall.we.save,
                save.path = save.path)
-spaghetti_highlight_max_plot(sf12.spag.sample, 'SF_12',
+spaghetti_highlight_max_plot(sf12.spag.sample, 'SF_12_MCS',
                save = shall.we.save,
                save.path = save.path)
   
-density_ridges(sf12.spag, "SF_12", 
+density_ridges(sf12.spag, "SF_12_MCS", 
                save = T, 
                save.path = save.path)
 

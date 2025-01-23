@@ -44,7 +44,7 @@ minos.split.hist2 <- function(d1, d2, var, labels, cols, title){
   
   yupper <- max(max(hgA$counts), max(hgB$counts))
   
-  plot(hgA, col=cols[1], xlab="SF_12", xlim=c(20,80), ylim = c(0, yupper+0.005), ylab="Density", main=title)
+  plot(hgA, col=cols[1], xlab="SF_12_MCS", xlim=c(20,80), ylim = c(0, yupper+0.005), ylab="Density", main=title)
   plot(hgB, col=cols[2], add = T)
   legend("topleft", labels, fill=cols)
 }
@@ -66,13 +66,13 @@ minos.split.hist3 <- function(d1, d2, d3, var, labels, cols, title){
   hgC <- hist(v3, breaks=ax, plot=F)
   hgC$counts <- hgC$counts/sum(hgC$counts)
   yupper <- max(max(hgA$counts), max(hgB$counts), max(hgC$counts))
-  plot(hgA, col=cols[1], xlab="SF_12", xlim=c(20,80), ylab="Density", ylim = c(0, yupper+0.005), main=title)
+  plot(hgA, col=cols[1], xlab="SF_12_MCS", xlim=c(20,80), ylab="Density", ylim = c(0, yupper+0.005), main=title)
   plot(hgB, col=cols[2], add = T)
   plot(hgC, col=cols[3], add = T)
   legend("topleft", labels, fill=cols)
 }
 
-test_title <- "Projected vs Real SF_12 distribution for 2016 UK Population."
+test_title <- "Projected vs Real SF_12_MCS distribution for 2016 UK Population."
 
 main <- function(year){
   real_source <- 'data/final_US/'
@@ -83,20 +83,20 @@ main <- function(year){
   d1 <- read.csv('data/final_US/2016_US_Cohort.csv')
   d2 <- read.csv('output/baseline/run_id_0_2016.csv')
 
-  minos.t.test(d1, d2, "SF_12")
-  minos.split.hist2(d1, d2, "SF_12", c("Real", "Minos"), c(c1, c2), "Minos SF12 Prediction VS Real Data.")
+  minos.t.test(d1, d2, "SF_12_MCS")
+  minos.split.hist2(d1, d2, "SF_12_MCS", c("Real", "Minos"), c(c1, c2), "Minos SF12 Prediction VS Real Data.")
   
   
   minos_baseline<-get.sf12.data(real_source, 'output/baseline', year)$d2
   minos_poverty<-get.sf12.data(real_source, 'output/povertyUplift', year)$d2
   minos_all<-get.sf12.data(real_source, 'output/childUplift', year)$d2
     
-  minos.t.test(minos0, minos20, "SF_12")
-  minos.t.test(minos20, minos100, "SF_12")
+  minos.t.test(minos0, minos20, "SF_12_MCS")
+  minos.t.test(minos20, minos100, "SF_12_MCS")
   
-  minos.split.hist2(minos0, minos20, "SF_12", c("0", "20"), c(c1, c2), "£0 vs £20 Uplift")
-  minos.split.hist2(minos0, minos100, "SF_12",  c("0", "100"), c(c1, c3), "£0 vs £100 Uplift")
-  minos.split.hist3(minos0, minos20, minos100, "SF_12",  c("0", "20", "100"), c(c1, c2, c3), "All Three Income Strategies")
+  minos.split.hist2(minos0, minos20, "SF_12_MCS", c("0", "20"), c(c1, c2), "£0 vs £20 Uplift")
+  minos.split.hist2(minos0, minos100, "SF_12_MCS",  c("0", "100"), c(c1, c3), "£0 vs £100 Uplift")
+  minos.split.hist3(minos0, minos20, minos100, "SF_12_MCS",  c("0", "20", "100"), c(c1, c2, c3), "All Three Income Strategies")
 }
 
 main(2016)

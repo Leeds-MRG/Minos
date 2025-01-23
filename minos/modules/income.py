@@ -64,7 +64,7 @@ class Income(Base):
                         'job_sec',
                         'S7_labour_state',
                         'education_state',
-                        'SF_12',
+                        'SF_12_MCS',
                         'housing_quality',
                         'job_sector']
         # view_columns += self.transition_model.rx2('model').names
@@ -238,7 +238,7 @@ class geeIncome(Base):
                         'job_sec',
                         'labour_state',
                         'education_state',
-                        'SF_12',
+                        'SF_12_MCS',
                         'housing_quality',
                         'job_sector']
         # view_columns += self.transition_model.rx2('model').names
@@ -409,7 +409,7 @@ class geeYJIncome(Base):
         #                'job_sec',
         #                #'labour_state',
         #                'education_state',
-        #                'SF_12',
+        #                'SF_12_MCS',
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
@@ -598,7 +598,7 @@ class lmmYJIncome(Base):
         #                'job_sec',
         #                #'labour_state',
         #                'education_state',
-        #                'SF_12',
+        #                'SF_12_MCS',
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
@@ -608,7 +608,7 @@ class lmmYJIncome(Base):
                         "region",
                         "education_state",
                         'job_sec',
-                        'SF_12',
+                        'SF_12_MCS',
                         'pidp',
                         'hh_income',
                         'hh_income_diff',
@@ -778,7 +778,7 @@ class lmmDiffIncome(Base):
         #                'job_sec',
         #                #'labour_state',
         #                'education_state',
-        #                'SF_12',
+        #                'SF_12_MCS',
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
@@ -993,7 +993,7 @@ class lmmDiffIncome(Base):
 #                         'job_sec',
 #                         'labour_state',
 #                         'education_state',
-#                         'SF_12',
+#                         'SF_12_MCS',
 #                         'housing_quality',
 #                         'job_sector',
 #                         'hh_income',

@@ -262,7 +262,7 @@ def edit_geojson(geojson_data, new_variable_dict, intervention_cost_dict, pop_si
         For example, geojson data may consist of LSOAs and SF12 values are being appended. In this case we would have
         a dictionary with LSOA keys each with some SF12 mean value.
     v : str
-        Name of the new property being added e.g `SF_12`
+        Name of the new property being added e.g `SF_12_MCS`
     Returns
     -------
     geojson_data : geojson.MultiPolygon

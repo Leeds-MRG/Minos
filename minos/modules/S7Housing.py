@@ -57,7 +57,7 @@ class S7Housing(Base):
         # transition models and any outputs.
         view_columns = ["sex",
                         "S7_labour_state",
-                        "SF_12",
+                        "SF_12_MCS",
                         "job_sec",
                         "ethnicity",
                         "age",

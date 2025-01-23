@@ -63,7 +63,7 @@ class lmmYJNetIncome(Base):
         #                'job_sec',
         #                #'labour_state',
         #                'education_state',
-        #                'SF_12',
+        #                'SF_12_MCS',
         #                'weight',
         #                #'housing_quality',
         #                'job_sector']
@@ -73,7 +73,7 @@ class lmmYJNetIncome(Base):
                         "region",
                         "education_state",
                         'job_sec',
-                        'SF_12',
+                        'SF_12_MCS',
                         'pidp',
                         'hh_income',
                         'hh_income_diff',

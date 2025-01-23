@@ -65,7 +65,7 @@ class Tobacco(Base):
                         "ncigs",
                         'job_sec',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         ]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
@@ -189,7 +189,7 @@ class lmmTobacco(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'education_state',
                         'S7_labour_state',
                         'job_sec',
@@ -200,7 +200,7 @@ class lmmTobacco(Base):
                         "neighbourhood_safety",
                         "loneliness",
                         "hh_income",
-                        "SF_12"]
+                        "SF_12_MCS"]
         #view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns)
 

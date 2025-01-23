@@ -75,4 +75,4 @@ main <- function(){
 }
 
 main()
-#main.single("output/baseline/2016.geojson", "output/baseline/scotland_sf12_map.pdf", "scotland", "SF_12")
+#main.single("output/baseline/2016.geojson", "output/baseline/scotland_sf12_map.pdf", "scotland", "SF_12_MCS")

@@ -56,7 +56,7 @@ class Alcohol(Base):
                         'ethnicity',
                         'region',
                         'hh_income',
-                        'SF_12',
+                        'SF_12_MCS',
                         'SF_12_PCS',
                         'education_state',
                         'financial_situation',

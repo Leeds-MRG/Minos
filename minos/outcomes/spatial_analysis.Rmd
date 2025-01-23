@@ -114,9 +114,9 @@ write.csv(continuous_var_table, file = here::here("plots", "EPCG_continuous_var_
 #   #labs(x="Intervention Cost", y="QALY Cumulative Gain", color="IMD Decile")
 # ggsave(here::here("plots","EPCG_hh_income.pdf"), plot=last_plot())
 # 
-# ggplot(full_pop_data, aes(x = SF_12, colour = is_green)) +
+# ggplot(full_pop_data, aes(x = SF_12_MCS, colour = is_green)) +
 #   geom_density()
-# ggsave(here::here("plots","EPCG_SF_12.pdf"), plot=last_plot())
+# ggsave(here::here("plots","EPCG_SF_12_MCS.pdf"), plot=last_plot())
 # 
 # ggplot(full_pop_data, aes(x = SF_12_PCS, colour = is_green)) +
 #   geom_density()
@@ -222,8 +222,8 @@ write.csv(continuous_var_table, file = here::here("plots", "EPCG_continuous_var_
 <!-- baseline_2025 <-  baseline_2025[which(baseline_2025$ZoneID %in% epcg_green_lsoas$x), ] -->
 <!-- epcg_2025 <-  epcg_2025[which(epcg_2025$ZoneID %in% epcg_green_lsoas$x), ] -->
 
-<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
-<!-- epcg_2025 <- epcg_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- epcg_2025 <- epcg_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
 
 <!-- baseline_2025$group <- "baseline" -->
 <!-- epcg_2025$group <- "epcg" -->
@@ -235,7 +235,7 @@ write.csv(continuous_var_table, file = here::here("plots", "EPCG_continuous_var_
 <!-- ggplot(plot_data, aes(x = hh_income, colour = group)) + -->
 <!--   geom_density() -->
 
-<!-- ggplot(plot_data, aes(x = SF_12, colour = group)) + -->
+<!-- ggplot(plot_data, aes(x = SF_12_MCS, colour = group)) + -->
 <!--   geom_density() -->
 
 <!-- ggplot(plot_data, aes(x = SF_12_PCS, colour = group)) + -->
@@ -264,8 +264,8 @@ write.csv(continuous_var_table, file = here::here("plots", "EPCG_continuous_var_
 <!-- baseline_2025 <-  baseline_2025[which(!(baseline_2025$ZoneID %in% epcg_green_lsoas$x)), ] -->
 <!-- epcg_2025 <-  epcg_2025[which(!(epcg_2025$ZoneID %in% epcg_green_lsoas$x)), ] -->
 
-<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
-<!-- epcg_2025 <- epcg_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- epcg_2025 <- epcg_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
 
 <!-- baseline_2025$group <- "baseline" -->
 <!-- epcg_2025$group <- "epcg" -->
@@ -277,7 +277,7 @@ write.csv(continuous_var_table, file = here::here("plots", "EPCG_continuous_var_
 <!-- ggplot(plot_data, aes(x = hh_income, colour = group)) + -->
 <!--   geom_density() -->
 
-<!-- ggplot(plot_data, aes(x = SF_12, colour = group)) + -->
+<!-- ggplot(plot_data, aes(x = SF_12_MCS, colour = group)) + -->
 <!--   geom_density() -->
 
 <!-- ggplot(plot_data, aes(x = SF_12_PCS, colour = group)) + -->

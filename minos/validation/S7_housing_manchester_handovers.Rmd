@@ -2,7 +2,7 @@
 params:
     file_path: '' # default arguments. specify others in command line.
     intervention: ''
-title: "Housing Default Handovers"
+title: "Housing Manchester Handovers"
 output:
   #output_file: "`r paste('minos/validation/', params$file_path, '_', params$intervention, '_handovers.html') `"
   html_document:
@@ -59,7 +59,7 @@ source(here::here('minos', 'validation', 'utils.r'))
 raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)[1:12]
 raw.dat <- do.call(rbind, lapply(raw.files, read.csv)) 
 
-out.path <- here::here('output', 'energy_default_config/')
+out.path <- here::here('output', 'energy_manchester_scaled_s7/')
 base.dat <- read_singular_local_out(out.path, 'baseline', drop.dead = TRUE)
 #base.dat <- read_singular_local_out(out.path, 'goodHeatingDummy', drop.dead = TRUE)
 ```
@@ -749,87 +749,87 @@ handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 # rm(raw.nut, base.nut, nut.spag)
 ```
 
-## Physical Health
+<!-- ## Physical Health -->
 
-NOTE: At present, physical health is not predicted or transitioned.
+<!-- NOTE: At present, physical health is not predicted or transitioned. -->
 
-```{r}
-# first figure out how to plot final_US
-# start with hh_income
-raw.phealth <- raw.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'final_US')
+<!-- ```{r} -->
+<!-- # first figure out how to plot final_US -->
+<!-- # start with hh_income -->
+<!-- raw.phealth <- raw.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'final_US') -->
 
-base.phealth <- base.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'baseline_output')
+<!-- base.phealth <- base.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'baseline_output') -->
 
-# merge before plot
-phealth <- rbind(raw.phealth, base.phealth)
+<!-- # merge before plot -->
+<!-- phealth <- rbind(raw.phealth, base.phealth) -->
 
-# Now plot
-ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health', subtitle = 'Full Sample') +
-  xlab('Year') +
-  ylab('Average')
+<!-- # Now plot -->
+<!-- ggplot(data = phealth, mapping = aes(x = time, y = phealth, group = source, colour = source)) + -->
+<!--   geom_line() + -->
+<!--   geom_vline(xintercept=start.year, linetype='dotted') + -->
+<!--   labs(title = 'Physical Health', subtitle = 'Full Sample') + -->
+<!--   xlab('Year') + -->
+<!--   ylab('Average') -->
 
-## Try a version where final_US is limited to only those present from wave 1
-# onwards because the sample refreshments are messing with the plot
-raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
+<!-- ## Try a version where final_US is limited to only those present from wave 1 -->
+<!-- # onwards because the sample refreshments are messing with the plot -->
+<!-- raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009] -->
 
-raw.phealth2 <- raw.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  filter(pidp %in% raw.wave1) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'final_US')
+<!-- raw.phealth2 <- raw.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   filter(pidp %in% raw.wave1) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'final_US') -->
 
-base.phealth2 <- base.dat %>%
-  dplyr::select(pidp, time, phealth) %>%
-  filter(time > 2009) %>%
-  filter(pidp %in% raw.wave1) %>%
-  group_by(time) %>%
-  summarise(phealth = mean(phealth, na.rm = TRUE)) %>%
-  mutate(source = 'baseline_output')
+<!-- base.phealth2 <- base.dat %>% -->
+<!--   dplyr::select(pidp, time, phealth) %>% -->
+<!--   filter(time > 2009) %>% -->
+<!--   filter(pidp %in% raw.wave1) %>% -->
+<!--   group_by(time) %>% -->
+<!--   summarise(phealth = mean(phealth, na.rm = TRUE)) %>% -->
+<!--   mutate(source = 'baseline_output') -->
 
-phealth2 <- rbind(raw.phealth2, base.phealth2)
+<!-- phealth2 <- rbind(raw.phealth2, base.phealth2) -->
 
-# Now plot
-ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) +
-  geom_line() +
-  geom_vline(xintercept=start.year, linetype='dotted') +
-  labs(title = 'Physical Health') +
-  xlab('Year') +
-  ylab('Average')
+<!-- # Now plot -->
+<!-- ggplot(data = phealth2, mapping = aes(x = time, y = phealth, group = source, colour = source)) + -->
+<!--   geom_line() + -->
+<!--   geom_vline(xintercept=start.year, linetype='dotted') + -->
+<!--   labs(title = 'Physical Health') + -->
+<!--   xlab('Year') + -->
+<!--   ylab('Average') -->
 
-if (shall.we.save) {
-  ggsave(filename = 'physical_health_wav1.png',
-       plot = last_plot(),
-       path = save.path)
-}
+<!-- if (shall.we.save) { -->
+<!--   ggsave(filename = 'physical_health_wav1.png', -->
+<!--        plot = last_plot(), -->
+<!--        path = save.path) -->
+<!-- } -->
 
-#raw.phealth.check <- raw.dat %>%
-#  select(pidp, time, phealth) %>%
-#  filter(time > 2009) %>%
-#  filter(pidp %in% raw.wave1)
+<!-- #raw.phealth.check <- raw.dat %>% -->
+<!-- #  select(pidp, time, phealth) %>% -->
+<!-- #  filter(time > 2009) %>% -->
+<!-- #  filter(pidp %in% raw.wave1) -->
 
-#base.phealth.check <- base.dat %>%
-#  select(pidp, time, phealth) %>%
-#  filter(time > 2009) %>%
-#  filter(pidp %in% raw.wave1)
+<!-- #base.phealth.check <- base.dat %>% -->
+<!-- #  select(pidp, time, phealth) %>% -->
+<!-- #  filter(time > 2009) %>% -->
+<!-- #  filter(pidp %in% raw.wave1) -->
 
-rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, phealth2)
-#rm(raw.phealth.check, base.phealth.check)
-```
+<!-- rm(raw.phealth, base.phealth, phealth, raw.wave1, raw.phealth2, base.phealth2, phealth2) -->
+<!-- #rm(raw.phealth.check, base.phealth.check) -->
+<!-- ``` -->
 
 ### Spaghetti
 
@@ -1346,5 +1346,171 @@ zip_density_ridges(ncigs.spag, "ncigs",
 rm(raw.ncigs, base.ncigs, ncigs.spag)
 ```
 
+
+# SIPHER 7
+
+## S7 Mental Health
+
+## S7 Labour State
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_mental_health')
+
+s7_mental_health.state <- prepped.list$var
+s7_mental_health.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = s7_mental_health.state, mapping = aes(x = time, y = n, group = S7_mental_health, colour = S7_mental_health)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Mental Health', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = s7_mental_health.norm, mapping = aes(x = time, y = prct, fill=S7_mental_health)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Mental Health') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_mental_health.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+## S7 Physical Health
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_physical_health')
+
+s7_physical_health.state <- prepped.list$var
+s7_physical_health.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = s7_physical_health.state, mapping = aes(x = time, y = n, group = S7_physical_health, colour = S7_physical_health)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Physical Health', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = s7_physical_health.norm, mapping = aes(x = time, y = prct, fill=S7_physical_health)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Physical Health') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_physical_health.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+## S7 Housing Quality
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_housing_quality')
+
+s7_housing_quality.state <- prepped.list$var
+s7_housing_quality.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = s7_housing_quality.state, mapping = aes(x = time, y = n, group = S7_housing_quality, colour = S7_housing_quality)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Housing Quality', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = s7_housing_quality.norm, mapping = aes(x = time, y = prct, fill=S7_housing_quality)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Housing Quality') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_housing_quality.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+## S7 Neighbourhood Safety
+
+```{r}
+prepped.list <- validation_prep_ordinal(raw.dat, base.dat, 'S7_neighbourhood_safety')
+
+s7_neighbourhood_safety.state <- prepped.list$var
+s7_neighbourhood_safety.norm <- prepped.list$norm
+
+# Now plot
+ggplot(data = s7_neighbourhood_safety.state, mapping = aes(x = time, y = n, group = S7_neighbourhood_safety, colour = S7_neighbourhood_safety)) +
+  geom_line() +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Neighbourhood Safety', subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = s7_neighbourhood_safety.norm, mapping = aes(x = time, y = prct, fill=S7_neighbourhood_safety)) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'S7 Neighbourhood Safety') +
+  xlab('Year') +
+  ylab('Proportion')
+
+if (shall.we.save) {
+  ggsave(filename = 'S7_neighbourhood_safety.png',
+         plot = last_plot(),
+         path = save.path)
+}
+
+
+rm(prepped.list, lab.state, lab.state.norm)
+```
+
+
+## S7 Equivalent Income
+
+
+
+```{r}
+raw.equivalent.inc <- raw.dat %>%
+  select(pidp, age, time, equivalent_income)
+base.equivalent.inc <- base.dat %>%
+  select(pidp, age, time, equivalent_income)
+
+equivalent.income.spag <- rbind(raw.equivalent.inc, base.equivalent.inc)
+
+density_ridges(equivalent.income.spag, 'equivalent_income',
+               save=FALSE, 
+               save.path=save.path)
+
+pidp_sample <- sample(unique(equivalent.income.spag$pidp), size=nrow(raw.equivalent.inc)/10, replace=FALSE)
+equivalent.income.spag.sample <- equivalent.income.spag[which(equivalent.income.spag$pidp %in% pidp_sample), ]
+spaghetti_plot(equivalent.income.spag.sample, 'equivalent_income',
+               save = shall.we.save,
+               save.path = save.path)
+spaghetti_highlight_max_plot(equivalent.income.spag.sample, 'equivalent_income',
+               save = shall.we.save,
+               save.path = save.path)
+
+rm(raw.equivalent.inc, base.equivalent.inc, equivalent.income.spag)
+```
 
 

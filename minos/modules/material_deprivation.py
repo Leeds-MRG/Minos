@@ -83,7 +83,7 @@ class MaterialDeprivation(Base):
 
 
         #only need to load this once for now.
-        #self.gee_transition_model = r_utils.load_transitions(f"SF_12/lmm/SF_12_LMM", self.rpy2_modules, path=self.transition_dir)
+        #self.gee_transition_model = r_utils.load_transitions(f"SF_12_MCS/lmm/SF_12_MCS_LMM", self.rpy2_modules, path=self.transition_dir)
         #self.gee_transition_model = r_utils.load_transitions(f"matdep/glmmb/matdep_GLMMB", self.rpy2_modules, path=self.transition_dir)
         # self.gee_transition_model = r_utils.load_transitions(f"matdep/clm/matdep_2018-2019", self.rpy2_modules,
         #                                                      path=self.transition_dir)
@@ -134,7 +134,7 @@ class MaterialDeprivation(Base):
 
 
     def calculate_matdep(self, pop):
-        """Calculate SF_12 transition distribution based on provided people/indices
+        """Calculate SF_12_MCS transition distribution based on provided people/indices
         Parameters
         ----------
             index : pd.Index

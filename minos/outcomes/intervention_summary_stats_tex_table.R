@@ -3,7 +3,7 @@ library(ggplot2)
 
 process_cost_stats_files <- function(file.name) {
   data <- read.csv(file.name)
-  data[which(data$tag!="Baseline"), "SF_12_AUC"] <- data[which(data$tag!="Baseline"), "SF_12_AUC"] + data[1, "SF_12_AUC"]
+  data[which(data$tag!="Baseline"), "SF_12_MCS_AUC"] <- data[which(data$tag!="Baseline"), "SF_12_MCS_AUC"] + data[1, "SF_12_MCS_AUC"]
   
   
   if (file.name == "plots/baselineenergyDownliftenergyDownliftNoSupport_counts_over_time.csv")
@@ -15,12 +15,12 @@ process_cost_stats_files <- function(file.name) {
     data$prct_below_45.6_diff <- data$prct_below_45.6 - data$prct_below_45.6[1:16]
   }
   
-  data$SF_12_AUC <- (data$SF_12_AUC - data$SF_12_AUC[1:16])
-  #data$SF_12_AUC <- (data$SF_12_AUC - data$SF_12_AUC[1:16]) * 100 / data$SF_12_AUC[1:16]
-  data$SF_12_AUC <- data$SF_12_AUC/data$number_boosted # 6100000
-  #data$SF_12_AUC_scaled <- data$SF_12_AUC/data$number_boosted
-  #ggplot(data, aes(x=year, y=SF_12_AUC_scaled, group=tag, color=tag, )) + geom_line()
-  #ggplot(data, aes(x=year, y=SF_12_AUC, group=tag, color=tag)) + geom_line()
+  data$SF_12_MCS_AUC <- (data$SF_12_MCS_AUC - data$SF_12_MCS_AUC[1:16])
+  #data$SF_12_MCS_AUC <- (data$SF_12_MCS_AUC - data$SF_12_MCS_AUC[1:16]) * 100 / data$SF_12_MCS_AUC[1:16]
+  data$SF_12_MCS_AUC <- data$SF_12_MCS_AUC/data$number_boosted # 6100000
+  #data$SF_12_MCS_AUC_scaled <- data$SF_12_MCS_AUC/data$number_boosted
+  #ggplot(data, aes(x=year, y=SF_12_MCS_AUC_scaled, group=tag, color=tag, )) + geom_line()
+  #ggplot(data, aes(x=year, y=SF_12_MCS_AUC, group=tag, color=tag)) + geom_line()
   data <- data[which(data$tag!="Baseline"), ]
   data <- data[which(data$tag!="No Support"), ]
   return (data)
@@ -110,7 +110,7 @@ main <- function() {
                hline.after = c(-1, 0, 4, 8, 12, 16))
                #hline.after = c(-1, 0, 16, 32, 48, 64))
   
-  #uplift_25_file <- uplift_25_file[, c("population_size", "number_boosted", "SF_12_AUC")]
+  #uplift_25_file <- uplift_25_file[, c("population_size", "number_boosted", "SF_12_MCS_AUC")]
   
   # get intervention
   # get cumulative MCS population uplift amount intervention cost.

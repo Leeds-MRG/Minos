@@ -61,7 +61,7 @@ def aggregate_lineplot(source, destination, v, method, prefix, region):
     file_name = os.path.join(destination, file_name)
 
     # Sort out axis labels
-    if v == 'SF_12':
+    if v == 'SF_12_MCS':
         v = 'SF12 MCS'
     if v == 'equivalent_income':
         v = 'Equivalent Income'
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                         help="The source directory for Understanding Society/Minos data. Usually has form output/*. where * specified by model config e.g. baseline/childUplift/etc.")
     parser.add_argument("-d", "--destination", required=False, type=str, default=None,
                         help="Where is the aggregated csv being saved to. Defaults to source directory.")
-    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12',
+    parser.add_argument("-v", "--variable", required=False, type=str, default='SF_12_MCS',
                         help="What variable from Minos is being aggregated. Defaults to SF12.")
     parser.add_argument("-a", "--aggregate_method", required=False, type=str, default="nanmean",
                         help="What method is used to aggregate population. Defaults to np.nanmean.")

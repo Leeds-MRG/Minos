@@ -61,7 +61,7 @@ class behindOnBills(Base):
                         'marital_status',
                         'housing_tenure',
                         "behind_on_bills",
-                        "SF_12",
+                        "SF_12_MCS",
                         'yearly_energy',
                         'financial_situation'
                         ]

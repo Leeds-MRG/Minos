@@ -41,13 +41,13 @@ data <- do.call(rbind, lapply(base.files, read.csv))
 
 ```{r}
 sf12 <- data %>% 
-  select(pidp, time, SF_12)
+  select(pidp, time, SF_12_MCS)
 
 # calculate and plot mean over time
 sf12.byyr <- data %>% group_by(time) %>%
-  summarise(SF_12 = mean(SF_12))
+  summarise(SF_12_MCS = mean(SF_12_MCS))
 
-ggplot(data = sf12.byyr, mapping = aes(x = time, y = SF_12)) +
+ggplot(data = sf12.byyr, mapping = aes(x = time, y = SF_12_MCS)) +
   geom_line()
 ```
 
@@ -60,7 +60,7 @@ sf12.2030 <- sf12 %>% filter(time == 2030)
 sf12.joined <- rbind(sf12.2018, sf12.2020, sf12.2030)
 sf12.joined$time <- as.factor(sf12.joined$time)
 
-ggplot(data = sf12.joined, mapping = aes(x = SF_12, group = time, fill = time, color = time)) +
+ggplot(data = sf12.joined, mapping = aes(x = SF_12_MCS, group = time, fill = time, color = time)) +
   geom_histogram(position='dodge')
 ```
 
@@ -68,17 +68,17 @@ TODO: Why are we getting the same exact values from 2020 - 2030?
 
 ```{r}
 print("2018:")
-sprintf("Min: %f", min(sf12.2018$SF_12))
-sprintf("Max: %f", max(sf12.2018$SF_12))
-sprintf("Mean: %f", mean(sf12.2018$SF_12))
+sprintf("Min: %f", min(sf12.2018$SF_12_MCS))
+sprintf("Max: %f", max(sf12.2018$SF_12_MCS))
+sprintf("Mean: %f", mean(sf12.2018$SF_12_MCS))
 print("2020:")
-sprintf("Min: %f", min(sf12.2020$SF_12))
-sprintf("Max: %f", max(sf12.2020$SF_12))
-sprintf("Mean: %f", mean(sf12.2020$SF_12))
+sprintf("Min: %f", min(sf12.2020$SF_12_MCS))
+sprintf("Max: %f", max(sf12.2020$SF_12_MCS))
+sprintf("Mean: %f", mean(sf12.2020$SF_12_MCS))
 print("2030:")
-sprintf("Min: %f", min(sf12.2030$SF_12))
-sprintf("Max: %f", max(sf12.2030$SF_12))
-sprintf("Mean: %f", mean(sf12.2030$SF_12))
+sprintf("Min: %f", min(sf12.2030$SF_12_MCS))
+sprintf("Max: %f", max(sf12.2030$SF_12_MCS))
+sprintf("Mean: %f", mean(sf12.2030$SF_12_MCS))
 ```
 
 ## hh_income

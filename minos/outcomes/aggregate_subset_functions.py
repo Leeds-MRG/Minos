@@ -38,6 +38,15 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      # "who_income_benefits": None,
                      # "who_no_public_funds_recourse": None,
 
+                     # new GMCA/nature subgroups
+                     'who_private_rental': [who_alive, who_private_rental_sector],
+                     'who_private_rental_and_UC': [who_alive, who_private_rental_sector, who_universal_credit],
+                     'who_private_rental_and_disabled': [who_alive, who_private_rental_sector, who_disabled],
+                     'who_public_rental': [who_alive, who_private_rental_sector],
+                     'who_owned_outright': [who_alive, who_private_rental_sector],
+
+
+                     # scottish priority groups.
                      'who_priority_subgroups': [who_alive, who_kids, who_priority_subgroups],
                      'who_priority_subgroups_and_kids': [who_alive, who_kids, who_priority_subgroups],
                      'who_multiple_priority_subgroups': [who_alive, who_kids, who_multiple_priority_subgroups],
@@ -238,8 +247,8 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
 
 def get_required_intervention_variables(subset_function_string):
     # get required variables for intervention used in aggregate_subset_function. makes csvs load much faster.
-    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12", "SF_12_PCS",'time', "housing_quality", "hh_income",
-                         "neighbourhood_safety", "nkids", "loneliness", 'yearly_energy', 'heating']
+    default_variables = ["weight", "pidp", "hidp", "alive", "SF_12_MCS", "SF_12_PCS",'time', "housing_quality", "hh_income",
+                         "neighbourhood_safety", "nkids", "loneliness", 'yearly_energy', 'heating', 'housing_sector', "universal_credit"]
 
     if "boosted" in subset_function_string:
         default_variables += ["income_boosted", "boost_amount"] #boost_amount
@@ -473,3 +482,14 @@ def get_region_lsoas(region):
 
 def who_poor_heating(df):
     return df.query("heating == 0.")
+
+
+def who_owned_outright(df):
+    return df.query("housing_sector == 0")
+
+def who_public_rental_sector(df):
+    return df.query("housing_sector == 1")
+
+def who_private_rental_sector(df):
+    return df.query("housing_sector == 2")
+

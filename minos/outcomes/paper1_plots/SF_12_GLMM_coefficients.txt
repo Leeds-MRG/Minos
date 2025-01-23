@@ -15,7 +15,7 @@
 \bottomrule
 \multicolumn{2}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
 \caption{Model glmm coefficients for estimation of variable: SF\_12.}
-\label{table: GLMM_SF_12_coefficients}
+\label{table: GLMM_SF_12_MCS_coefficients}
 \endlastfoot \\
 (Intercept)                                                     & -1.1295 \; (0.3720)^{**}  \\
 SF\_12\_last                                                    & 0.0027 \; (0.0001)^{***}  \\

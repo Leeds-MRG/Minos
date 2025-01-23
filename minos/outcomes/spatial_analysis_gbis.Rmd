@@ -126,9 +126,9 @@ ggplot(full_pop_data, aes(x = hh_income, colour = is_green)) +
   #labs(x="Intervention Cost", y="QALY Cumulative Gain", color="IMD Decile")
 ggsave(here::here("plots","EPCG_hh_income.pdf"), plot=last_plot())
 
-ggplot(full_pop_data, aes(x = SF_12, colour = is_green)) +
+ggplot(full_pop_data, aes(x = SF_12_MCS, colour = is_green)) +
   geom_density()
-ggsave(here::here("plots","EPCG_SF_12.pdf"), plot=last_plot())
+ggsave(here::here("plots","EPCG_SF_12_MCS.pdf"), plot=last_plot())
 
 ggplot(full_pop_data, aes(x = SF_12_PCS, colour = is_green)) +
   geom_density()
@@ -235,8 +235,8 @@ ggplot(full_pop_data, aes(x=as.factor(number_of_rooms), fill=as.factor(is_green)
 <!-- baseline_2025 <-  baseline_2025[which(baseline_2025$ZoneID %in% gbis_green_lsoas$x), ] -->
 <!-- gbis_2025 <-  gbis_2025[which(gbis_2025$ZoneID %in% gbis_green_lsoas$x), ] -->
 
-<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
-<!-- gbis_2025 <- gbis_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- gbis_2025 <- gbis_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
 
 <!-- baseline_2025$group <- "baseline" -->
 <!-- gbis_2025$group <- "gbis" -->
@@ -248,7 +248,7 @@ ggplot(full_pop_data, aes(x=as.factor(number_of_rooms), fill=as.factor(is_green)
 <!-- ggplot(plot_data, aes(x = hh_income, colour = group)) + -->
 <!--   geom_density() -->
 
-<!-- ggplot(plot_data, aes(x = SF_12, colour = group)) + -->
+<!-- ggplot(plot_data, aes(x = SF_12_MCS, colour = group)) + -->
 <!--   geom_density() -->
 
 <!-- ggplot(plot_data, aes(x = SF_12_PCS, colour = group)) + -->
@@ -277,8 +277,8 @@ ggplot(full_pop_data, aes(x=as.factor(number_of_rooms), fill=as.factor(is_green)
 <!-- baseline_2025 <-  baseline_2025[which(!(baseline_2025$ZoneID %in% gbis_green_lsoas$x)), ] -->
 <!-- gbis_2025 <-  gbis_2025[which(!(gbis_2025$ZoneID %in% gbis_green_lsoas$x)), ] -->
 
-<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
-<!-- gbis_2025 <- gbis_2025[, c("hh_income", "SF_12", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- baseline_2025 <- baseline_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
+<!-- gbis_2025 <- gbis_2025[, c("hh_income", "SF_12_MCS", "SF_12_PCS", "yearly_energy", "heating", "housing_quality", "neighbourhood_safety")] -->
 
 <!-- baseline_2025$group <- "baseline" -->
 <!-- gbis_2025$group <- "gbis" -->
@@ -290,7 +290,7 @@ ggplot(full_pop_data, aes(x=as.factor(number_of_rooms), fill=as.factor(is_green)
 <!-- ggplot(plot_data, aes(x = hh_income, colour = group)) + -->
 <!--   geom_density() -->
 
-<!-- ggplot(plot_data, aes(x = SF_12, colour = group)) + -->
+<!-- ggplot(plot_data, aes(x = SF_12_MCS, colour = group)) + -->
 <!--   geom_density() -->
 
 <!-- ggplot(plot_data, aes(x = SF_12_PCS, colour = group)) + -->
