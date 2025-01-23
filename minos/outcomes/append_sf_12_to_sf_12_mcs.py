@@ -8,10 +8,10 @@ def main():
     # save data.
     interventions = ['baseline', "goodHeatingDummy", 'EPCG', "GBIS"]
     for intervention in interventions:
-        source = "output/energy_manchester_scaled/" + intervention
+        source = "output/energy_manchester_scaled/" + intervention + "/"
         directory = sorted(glob.glob(source + "*"))[-1] # get last file.
         print(source, directory)
-        
+
         files = glob.glob(directory + "/*.csv")
         for i, file in enumerate(files):
             print(f"Appending file {file} with rental sector data. {i}/{len(files)} done.")
