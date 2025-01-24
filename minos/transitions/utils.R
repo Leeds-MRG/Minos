@@ -45,7 +45,7 @@ orange <-rgb(255/256, 91/256, 0, 1.0)
 
 create.if.not.exists <- function(path) {
     if(!file.exists(path)) {
-        dir.create(path = path)
+        dir.create(path = path, recursive = TRUE)
     }
 }
 

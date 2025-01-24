@@ -1,0 +1,336 @@
+---
+title: "GMCA Subgroups Definitions."
+output: html_notebook
+---
+
+# Executive Summary
+
+This document provides a list of the GMCA subgroups for RC's reference. Includes definitions of these subgroups in terms of UKHLS variables and any gaps.
+
+Doing:
+- subgroups 3,4,5,7,8
+
+Next:
+- subgroup 1. how do we define poverty and recepit of other benefits?
+- subgroup 2. how do we define health conditions?
+- subgroup 6. how do we define asset rich?
+- subgroup 8. how do we define lower income?
+
+
+```{r}
+# Preamble. Load in things as necessary. 
+library(here)
+library(dplyr)
+library(ggplot2)
+
+main.data <- read.csv(here::here("data", "scaled_manchester_aligned_US", "2020_US_cohort.csv"))
+relative.poverty.line <- median(main.data$hh_income)
+
+
+main.data$housing_tenure_string <- plyr::mapvalues(main.data$housing_tenure, from = c(1, 2,3,4,5,6,7), to = c("1 Owned \n Outright", "2 Owned \n with \n Mortgage", "3 Local \n Authority \n Rent", "4 Housing\n  Assoc. \n Rented", "5 Rented \n from  \n Employer", "6 Rental \n Private \n Unfurnished", "7 Other"))
+
+continuous_densities <- function(obs, preds, v, subgroup) {
+
+  # plot both in histogram. 
+  quants <-  quantile(obs, c(.001, .999))
+  d1 <- density(obs, from=quants[1], to=max(quants[2]))
+  d2 <- density(preds,  from=quants[1], to=max(quants[2]))
+  height <- max(max(d1$y), max(d2$y))
+  
+  plot(d1, col='red', ylim=c(0, 1.02*height), main='', xlab=v)
+  lines(d2, col='blue', lty=2)
+  legend('topleft', legend=c("1 - General Population", subgroup), col=c("red", "blue"), lty=1:2)
+}
+
+
+discrete_barplot2 <- function(obs, preds, v, subgroup){
+
+  obs <- as.data.frame(table(obs) / length(obs))
+  colnames(obs) <- c("value", "freq")
+  obs$source <- "1 - General Population"
+  preds <-  as.data.frame(table(preds)/ length(preds)) 
+  colnames(preds) <- c("value", "freq")
+  preds$source <- subgroup
+  
+  df <- rbind(obs, preds)
+  
+  clm_plot <- ggplot(data=df, aes(x=value, y=freq, fill=source)) + 
+              geom_bar(stat='identity', position=position_dodge()) +
+              labs(fill='Source.', x = v, y = "Freq.") + 
+              theme(legend.position='top', 
+                    legend.justification='left',
+                    legend.direction='horizontal')
+  print(clm_plot)
+}
+
+
+```
+
+# Subgroups
+
+## Subgroup 1 - People in Poverty
+
+    1. People in poverty;
+        a. Across all tenures.
+        b. In receipt of any benefit. 
+
+This is the vaguest subgroup currently. Not going to write much here for now.
+
+How do we define poverty? Relative absolute persistent etc.
+How do we describe in receipt of any benefit. there are a lot of benefits. narrowing this down e.g. to universal credit initially might be simpler.
+
+```{r}
+
+# using basic relative poverty for now. extend as necessary. 
+poverty.data <- main.data[which(main.data$hh_income < relative.poverty.line), ]
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS, poverty.data$SF_12_MCS, "SF_12_MCS", "2 - Poverty Households")
+continuous_densities(main.data$SF_12_PCS, poverty.data$SF_12_PCS, "SF_12_PCS", "2 - Poverty Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy, poverty.data$yearly_energy, "yearly_energy", "2 - Poverty Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality, poverty.data$housing_quality, "housing_quality", "2 - Poverty Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string, poverty.data$housing_tenure_string, "housing_tenure_string", "2 - Poverty Households")
+
+rm(poverty.data)
+```
+
+## Subgroup 2 - ECO Flex recipients.
+
+    2. Possible recipients of the ECO Flex Grant Scheme (helps those who are not in receipt of any benefits but who are living on a low income and are vulnerable to the effects of living in a cold home). E.g.,
+        a. Have certain health conditions (e.g., cardiovascular conditions, respiratory conditions, limited mobility or immune suppressed conditions).
+        b. Older householders (older adults).
+        c. Household income (low household income but not receiving benefits). 
+
+ECO Flex ((not) to be confused with ECO4? check this.) participation can be difficult due to low uptake. we don't know who in UKHLS data actually has it as of 2024.
+
+Certain health conditions can be done. lots of health variables in UKHLS for specific diseases and the existing chronic disease composite can be used here.
+
+Older households can be done. see elderly definition in subgroup 5.
+
+Low income without benefits can certainly be done. Again depends on what benefits. Will look at solely UC for now. 
+
+```{r}
+
+# looking at those with positive chronic disease indicators. 
+eco.illness.hidps <-  main.data[which(main.data$chron_disease>= 2), "hidp"]
+eco.illness.data <- main.data[which(main.data$hidp %in% eco.illness.hidps), ]
+
+# households with an older adult.
+eco.elderly.data  <- main.data[which(main.data$age > 65), ]
+# low income households not on UC. low income no benefits (LINB)
+eco.linb.data <- main.data[which((main.data$hh_income < relative.poverty.line) & (main.data$universal_credit != 1)), ]
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS, eco.illness.data$SF_12_MCS, "SF_12_MCS", "2 - Chronic Illness Households")
+continuous_densities(main.data$SF_12_PCS, eco.illness.data$SF_12_PCS, "SF_12_PCS", "2 - Chronic Illness Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy, eco.illness.data$yearly_energy, "yearly_energy", "2 - Chronic Illness Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality, eco.illness.data$housing_quality, "housing_quality", "2 - Chronic Illness Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string, eco.illness.data$housing_tenure_string, "housing_tenure_string", "2 - Chronic Illness Households")
+
+
+rm(eco.recepients.data, eco.illness.data, eco.illness.hidps, eco.elderly.data, eco.linb.data)
+```
+
+## Subgroup 3 - PRS and Housing Benefits/UC Housing Benefit
+
+    3. People in receipt of Housing Benefits or Housing Element of UC in the Private Rented Sector (PRS).
+
+Easy to define.
+
+```{r}
+prs.uc.data.hidps <- main.data[which((main.data$housing_tenure %in% c(5, 6)) & (main.data$universal_credit == 1)), "hidp"]
+prs.uc.data <- main.data[which(main.data$hidp %in% prs.uc.data.hidps), ]
+# who in prs on UC.
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS, prs.uc.data$SF_12_MCS, "SF_12_MCS", "2 - PRS and UC Benefits Households")
+continuous_densities(main.data$SF_12_PCS, prs.uc.data$SF_12_PCS, "SF_12_PCS", "2 - PRS and UC Benefits Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy, prs.uc.data$yearly_energy, "yearly_energy", "2 - PRS and UC Benefits Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality, prs.uc.data$housing_quality, "housing_quality", "2 - PRS and UC Benefits Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string, prs.uc.data$housing_tenure_string, "housing_tenure_string", "2 - PRS and UC Benefits Households")
+
+
+rm(prs.uc.data, prs.uc.data.hidps)
+```
+
+get housing_tenure == PRS and those on UC/legacy housing benefits. 
+
+## Subgroup 4 - Disabled and PRS.
+
+    4. People who are disabled and living in the PRS.
+
+'Disabled' is somewhat vague and needs clarifying. For now I'm just using the housing_tenure == PRS and S7_labour_state == "Disabled".
+
+```{r}
+# who prs and household has disabled labour state individual?
+prs.disabled.data.hidps <-  main.data[which((main.data$housing_tenure %in% c(5, 6)) & (main.data$sick_disabled == "True")), "hidp"]
+prs.disabled.data <-  main.data[which(main.data$hidp %in% prs.disabled.data.hidps), ]
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS, prs.disabled.data$SF_12_MCS, "SF_12_MCS", "2 - PRS and Sick/Disabled Households")
+continuous_densities(main.data$SF_12_PCS, prs.disabled.data$SF_12_PCS, "SF_12_PCS", "2 - PRS and Sick/Disabled Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy, prs.disabled.data$yearly_energy, "yearly_energy", "2 - PRS and Sick/Disabled Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality, prs.disabled.data$housing_quality, "housing_quality", "2 - PRS and Sick/Disabled Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string, prs.disabled.data$housing_tenure_string, "housing_tenure_string", "2 - PRS and Sick/Disabled Households")
+
+
+
+rm(prs.disabled.data)
+```
+
+## Subgroup 5 - Elderly and PRS.
+
+    5. Elderly people living in the PRS.
+
+Again 'Elderly' is somewhat vague. For now using individuals who are of state pension age. Easy to calculate based on birth year. Choose housing_tenure == PRS and elderly==true. 
+
+```{r}
+# looking at those with positive chronic disease indicators. 
+# households with an older adult.
+# low income households not on UC.
+prs.elderly.data.hidps <-  main.data[which((main.data$housing_tenure %in% c(5, 6)) & (main.data$age >= 65)), "hidp"]
+prs.elderly.data <-  main.data[which(main.data$hidp %in% prs.elderly.data.hidps), ]
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS, prs.elderly.data$SF_12_MCS, "SF_12_MCS", "2 - PRS and Elderly Households")
+continuous_densities(main.data$SF_12_PCS, prs.elderly.data$SF_12_PCS, "SF_12_PCS", "2 - PRS and Elderly Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy, prs.elderly.data$yearly_energy, "yearly_energy", "2 - PRS and Elderly Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality, prs.elderly.data$housing_quality, "housing_quality", "2 - PRS and Elderly Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string, prs.elderly.data$housing_tenure_string, "housing_tenure_string", "2 - PRS and Elderly Households")
+
+
+
+rm(prs.elderly.data, prs.elderly.data.hidps)
+```
+
+
+## Subgroup 6 - Elderly and homeowners
+
+    6. Elderly people who own their homes;
+      a. Those who are income poor but asset rich (i.e., not working, small pension, but own their home).
+
+Assuming the definition of elderly above. Just choose housing_tenure == owned_outright and elderly==true.
+
+```{r}
+
+# housing_tenure ==1 (owned outright) and elderly. do we differentiate between housing state 2 (mortgaged) here?
+elderly.homeowners.data.hidp <- main.data[which((main.data$housing_tenure == 1) & (main.data$age >= 65)), "hidp"]
+elderly.homeowners.data <- main.data[which(main.data$hidp %in% elderly.homeowners.data.hidp), ]
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS, elderly.homeowners.data$SF_12_MCS, "SF_12_MCS", "2 - Homeowners and Elderly Households")
+continuous_densities(main.data$SF_12_PCS, elderly.homeowners.data$SF_12_PCS, "SF_12_PCS", "2 - Homeowners and Elderly Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy, elderly.homeowners.data$yearly_energy, "yearly_energy", "2 - Homeowners and Elderly Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality, elderly.homeowners.data$housing_quality, "housing_quality", "2 - Homeowners and Elderly Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string, elderly.homeowners.data$housing_tenure_string, "housing_tenure_string", "2 - Homeowners and Elderly Households")
+
+
+rm(elderly.homeowners.data, elderly.homeowners.data.hidp)
+```
+
+
+## Subgroup 7 - People in Social Rented Housing. 
+
+    7. People living in PRS compared with social rented housing (they expect PRS will benefit more from retrofit because it is generally in worse condition and social rented housing receives more funding to address issues).
+      a. Looking at both here would be useful.
+      b. More dimensionality here?
+      
+Two subgroups here for all social housing and all PRS. Simple to directly compared them against each other or national population.
+
+For further dimensionality there is high variance within the PRS. looking at high income to energy expenditure ratios and low income may be a useful start. 
+
+```{r}
+# social rented housing housing_tenure == 5/6??
+social.housing.data.hidps <- main.data[which(main.data$housing_tenure %in% c(3, 4)), "hidp"]
+social.housing.data <- main.data[which(main.data$hidp %in% social.housing.data.hidps), ]
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS,social.housing.data$SF_12_MCS, "SF_12_MCS", "2 - Low Income Households")
+continuous_densities(main.data$SF_12_PCS,social.housing.data$SF_12_PCS, "SF_12_PCS", "2 - Low Income Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy,social.housing.data$yearly_energy, "yearly_energy", "2 - Low Income Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality,social.housing.data$housing_quality, "housing_quality", "2 - Low Income Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string,social.housing.data$housing_tenure_string, "housing_tenure_string", "2 - Low Income Households")
+
+
+rm(social.housing.data, social.housing.data.hidps)
+```
+
+
+
+## Subgroup 8 - Lower Income Households.
+
+    8. Lower income households.
+      a. They also pointed out that the £36k threshold for many grants is too low (because a two-income household both on minimum wage would tip you above this, and that those groups would likely still be in need of retrofit support).
+        i. So maybe a look at where is best for this threshold to sit for a household? At what income does the impact of retrofitting start to level off/decline?
+        
+        ii. Does this threshold vary depending on location in GM?
+
+Can easily implement a subgroup of households with a given income. Will leave it there and let DST team play with this as desired.
+
+
+```{r}
+# arbitrary income threshold for now I think. 
+low.income.households.data <- main.data[which(main.data$hh_income<36000), ]
+
+
+
+# plot SF-12 differences vs full pop.
+continuous_densities(main.data$SF_12_MCS,low.income.households.data $SF_12_MCS, "SF_12_MCS", "2 - Social Rented Housing Households")
+continuous_densities(main.data$SF_12_PCS,low.income.households.data $SF_12_PCS, "SF_12_PCS", "2 - Social Rented Housing Households")
+# yearly energy diff
+continuous_densities(main.data$yearly_energy,low.income.households.data $yearly_energy, "yearly_energy", "2 - Social Rented Housing Households")
+
+
+# housing quality diff. 
+discrete_barplot2(main.data$housing_quality,low.income.households.data $housing_quality, "housing_quality", "2 - Social Rented Housing Households")
+# housing tenure diff.
+discrete_barplot2(main.data$housing_tenure_string,low.income.households.data $housing_tenure_string, "housing_tenure_string", "2 - Social Rented Housing Households")
+
+
+rm(low.income.households.data)
+```
+
+## Refs/Appendices
+

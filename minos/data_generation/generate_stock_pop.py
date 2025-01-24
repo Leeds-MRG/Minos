@@ -198,6 +198,9 @@ def generate_stock(projections, cross_validation):
     data['ncigs'] = data['ncigs'].astype('int64')
     data['neighbourhood_safety'] = data['neighbourhood_safety'].astype('int64')
     data['nutrition_quality'] = data['nutrition_quality'].astype('int64')
+    data['child_ages'] = data['child_ages'].astype('Int64')
+    data['nkids'] = data['nkids'].astype('Int64')
+
     #data['housing_quality'] = data['housing_quality'].astype('int64')
 
     US_utils.save_multiple_files(data, years, "data/final_US/", "")

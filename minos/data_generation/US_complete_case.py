@@ -77,7 +77,10 @@ if __name__ == "__main__":
     # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)
-    data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
+    #. don't think we have any of these anymore as of november 24.
+    data = data.loc[data['child_ages'] != -9, ]  # remove any household with dodgy age chains
+    data = data.loc[~data['nkids'].isna(), ] # removing the ~10 households with missing nkids.
+    data['nkids'] = data['nkids'].astype('int64')
 
     # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data

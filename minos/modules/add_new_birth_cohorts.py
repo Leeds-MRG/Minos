@@ -340,7 +340,6 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
         # 1. Find individuals who have had children by pidp and increment nkids_ind by 1
-        #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nnewborn'] = 1
@@ -356,7 +355,8 @@ class nkidsFertilityAgeSpecificRates(Base):
 
         # 3. Increment hh-level variables
         population.loc[who_had_children_households, 'nkids'] += population['nnewborn_hh']
-        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households].apply(lambda x: self.add_new_child_to_chain(x['child_ages'], x['nnewborn_hh']), axis = 1)  # Add new child to children ages chain.
+        # population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households].apply(lambda x: self.add_new_child_to_chain(x['child_ages'], x['nnewborn_hh']), axis = 1)  # Add new child to children ages chain.
+        population.loc[who_had_children_households, 'child_ages'] += population['nnewborn_hh']  # Add new child to children ages chain.
 
         # 4. Update population + type corrections (grrr)
         population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
