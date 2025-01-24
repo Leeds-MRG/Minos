@@ -322,7 +322,6 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
         # 1. Find individuals who have had children by pidp and increment nkids_ind by 1
-        #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nnewborn'] = 1
@@ -338,6 +337,7 @@ class nkidsFertilityAgeSpecificRates(Base):
 
         # 3. Increment hh-level variables
         population.loc[who_had_children_households, 'nkids'] += population['nnewborn_hh']
+        # population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households].apply(lambda x: self.add_new_child_to_chain(x['child_ages'], x['nnewborn_hh']), axis = 1)  # Add new child to children ages chain.
         population.loc[who_had_children_households, 'child_ages'] += population['nnewborn_hh']  # Add new child to children ages chain.
 
         # 4. Update population + type corrections (grrr)
@@ -345,12 +345,15 @@ class nkidsFertilityAgeSpecificRates(Base):
         population['nnewborn_hh'] = population['nnewborn_hh'].astype(float)
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh']])
 
-    def add_new_child_to_chain(self, age_chain):
+    def add_new_child_to_chain(self, age_chain, nnew=1):
 
+        new_chain = str("_".join('0' for i in range(int(nnew))))
         if age_chain == 'childless':
-            return "0"
+            final_chain = new_chain
         else:
-            return "0_" + age_chain
+            final_chain = new_chain + "_" + str(age_chain)
+
+        return final_chain
 
     @staticmethod
     def load_age_specific_fertility_rate_data(builder):
