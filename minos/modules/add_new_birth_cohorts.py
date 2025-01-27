@@ -364,8 +364,8 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_households, 'child_ages'] += population['nnewborn_hh']  # Add new child to children ages chain.
 
         # 4. Update population + type corrections (grrr)
-        population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
-        population['nnewborn_hh'] = population['nnewborn_hh'].astype(float)
+        # population['nnewborn'] = population['nnewborn'].astype('int64')  # HR 10/12/24 Annoying but this is easiest workaround
+        population['nnewborn_hh'] = population['nnewborn_hh'].astype('int64')
         self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh']])
 
     def add_new_child_to_chain(self, age_chain, nnew=1):
