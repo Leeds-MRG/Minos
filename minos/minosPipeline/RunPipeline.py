@@ -51,7 +51,7 @@ from minos.modules.interventions_child_poverty import hhIncomePovertyLineChildUp
 from minos.modules.interventions_child_poverty import childUplift
 from minos.modules.interventions_living_wage import livingWageIntervention
 from minos.modules.interventions_energy import energyDownlift, energyDownliftNoSupport
-from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme, EPCG, noEnergyPriceIncrease
+from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelReplacementScheme, EPCG, noEnergyPriceIncrease, EPCGandGBIS
 
 from minos.modules.physical_wellbeing import lmmYJPCS
 from minos.modules.physical_activity import PhysicalActivity
@@ -136,6 +136,7 @@ intervention_components_map = {        #Interventions
     "goodHeatingDummy": goodHeatingDummy(),
     "fossilFuelReplacementScheme": fossilFuelReplacementScheme(),
     "EPCG": EPCG(),
+    "EPCGandGBIS": EPCGandGBIS(),
     "noEnergyPriceIncrease": noEnergyPriceIncrease(),
 
     "childUplift()": childUplift(),

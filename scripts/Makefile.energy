@@ -21,6 +21,9 @@ intervention_goodHeatingDummy:
 intervention_GBIS:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
+intervention_EPCG_and_GBIS:
+	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'EPCGandGBIS'
+
 intervention_fossilFuelReplacementScheme:
 	$(PYTHON) scripts/run.py -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
@@ -116,9 +119,15 @@ aire_manchester_GBIS: MODE=energy_manchester_scaled
 aire_manchester_GBIS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'GBIS'
 
+aire_manchester_EPCG_and_GBIS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
+aire_manchester_EPCG_and_GBIS: MODE=energy_manchester_scaled
+aire_manchester_EPCG_and_GBIS:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'EPCGandGBIS'
+
 aire_manchester_FFRS: RUN_CONFIG=$(CONFIG)/energy_manchester_scaled.yaml
 aire_manchester_FFRS: MODE=energy_manchester_scaled
 aire_manchester_FFRS:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'fossilFuelReplacementScheme'
 
-aire_all_manchester: aire_manchester_housing_baseline aire_manchester_goodHeatingDummy aire_manchester_EPCG aire_manchester_GBIS
+aire_all_manchester: aire_manchester_housing_baseline aire_manchester_goodHeatingDummy aire_manchester_EPCG
+aire_all_manchester: aire_manchester_GBIS aire_manchester_EPCG_and_GBIS aire_manchester_noEnergyPriceIncrease
