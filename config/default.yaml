@@ -38,3 +38,7 @@ scale_rates:
         mortality: 1
         fertility: 1
 
+
+save_variables : ["SF_12_MCS", "SF_12_PCS", "QALYs", "boost_amount", "who_boosted"]
+subgroups : ["who_alive", "who_public_housing", "who_first_simd_quintile", "who_second_simd_quintile",
+             "who_third_simd_quintile","who_fourth_simd_quintile","who_fifth_simd_quintile"]
