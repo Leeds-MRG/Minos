@@ -627,21 +627,78 @@ QALY_baseline:
 
 QALY_GHD: INTERVENTION=goodHeatingDummy
 QALY_GHD:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_EPCG: INTERVENTION=EPCG
 QALY_EPCG:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_GBIS: INTERVENTION=GBIS
 QALY_GBIS:
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 all_energy_QALY: MODE=energy_manchester_scaled
 all_energy_QALY: QALY_baseline QALY_GHD QALY_EPCG QALY_GBIS
-all_energy_QALY:
+
+all_energy_QALY_plot:
 	python3 minos/outcomes/QALY_plot.py
 
+QALY_baseline_quintiles: INTERVENTION=baseline
+QALY_baseline_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_simd_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_EPCG_quintiles: INTERVENTION=EPCG
+QALY_EPCG_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_simd_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_GBIS_quintiles: INTERVENTION=GBIS
+QALY_GBIS_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_simd_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_simd_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+all_energy_QALY_quintiles: MODE=energy_manchester_scaled
+all_energy_QALY_quintiles: QALY_baseline_quintiles QALY_EPCG_quintiles QALY_GBIS_quintiles
+
+all_energy_QALY_quintiles_plot:
+	python3 minos/outcomes/QALY_quintiles_plot.py
+
+QALY_baseline_private_and_UC: INTERVENTION=baseline
+QALY_baseline_private_and_UC:
+	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+
+QALY_EPCG_private_and_UC: INTERVENTION=EPCG
+QALY_EPCG_private_and_UC:
+	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+
+QALY_GBIS_private_and_UC: INTERVENTION=GBIS
+QALY_GBIS_private_and_UC:
+	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)  -s who_private_rental_and_UC
+
+all_energy_QALY_private_and_UC: MODE=energy_manchester_scaled
+all_energy_QALY_private_and_UC: QALY_baseline_private_and_UC QALY_EPCG_private_and_UC QALY_GBIS_private_and_UC
+
+all_energy_QALY_private_and_UC_plot:
+	python3 minos/outcomes/QALY_quintiles_private_and_UC_plot.py
 
 
 QALYs_GHB: EXPERIMENT=scotland_scaled

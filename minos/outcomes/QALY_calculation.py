@@ -168,7 +168,7 @@ def main(mode, intervention, subset_func_string=None):
     qaly_df = qaly_df[cols_to_front + [col for col in qaly_df.columns if col not in cols_to_front]]
     # now sort
     qaly_df = qaly_df.sort_values(['run_id', 'year'], ascending=True)
-    out_name = os.path.join(batch_source, 'qalys.csv')
+    out_name = os.path.join(batch_source, subset_func_string + '_qalys.csv')
     #TODO run this for multiple file paths in another script. combine and plot lineplot.
     qaly_df.to_csv(out_name, index=False)
 
