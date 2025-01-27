@@ -21,7 +21,6 @@ render_rmd:
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/modules_intro.md" -o "docsrc/documentation/modules/modules_intro.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/mortality.md" -o "docsrc/documentation/modules/mortality.rst"
-	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/interventions.md" -o "docsrc/documentation/modules/interventions.rst"
 
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
 	# (cd ..; ) makes a new shell that runs at the top level of the repo.
@@ -31,6 +30,9 @@ render_rmd:
 	# Probably a cleaner way to do this..
 
 	bash docsrc/compile_rmd_rst.sh "$(DOCUMENTATIONDIR)data_generation.Rmd" "$(DOCUMENTATIONDIR)data_generation.rst" 0
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)interventions.Rmd" "$(NOTEBOOKOUTPUTDIR)interventions.rst" 0
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)validation.Rmd" "$(NOTEBOOKOUTPUTDIR)validation.rst" 0
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)outcomes.Rmd" "$(NOTEBOOKOUTPUTDIR)outcomes.rst" 0
 
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst" 1
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(NOTEBOOKOUTPUTDIR)housing.rst" 1

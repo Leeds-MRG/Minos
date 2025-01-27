@@ -22,3 +22,7 @@ Neighbourhood
 Replenishment.
 
 
+## Transition Probabilities
+
+Each of these modules utilises a series of transition probability models in order to predict future state for individual households and people within the MINOS population.
+Discussion on each module used within the MINOS model is provided here including justification for included predictor variables and model structure as well as validation and uncertainty quantifiction.

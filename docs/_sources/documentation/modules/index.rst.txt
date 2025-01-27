@@ -15,9 +15,3 @@ Modules
     nutrition
     replenishment
     tobacco
-
-Interventions
-=============
-
-.. toctree::
-    interventions

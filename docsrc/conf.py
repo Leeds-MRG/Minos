@@ -17,7 +17,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'Minos'
-copyright = '2022, Open MIT License'
+copyright = '2025, Open MIT License'
 author = 'Robert Clay, Luke Archer, Hugh Rice, and Nik Lomax'
 
 

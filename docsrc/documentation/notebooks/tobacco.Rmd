@@ -1,11 +1,11 @@
 ---
 title: "Tobacco"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 bibliography: 
   - "`r here::here('docsrc', 'refs.bib')`"
 ---
+
+# Tobacco
 
 ```{r setup, include=FALSE}
 library(here)
@@ -29,7 +29,6 @@ v <- "ncigs"
 
 ```
 
-# Tobacco
 
 ## Introduction
 

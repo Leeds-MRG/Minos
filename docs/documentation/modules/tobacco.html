@@ -60,20 +60,19 @@
 <li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Tobacco</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#data-1">Data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Tobacco</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#interventions">Interventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#child-uplift">Child Uplift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#poverty-percentage-targets">Poverty Percentage Targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#living-wage">Living Wage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#energy-downlift">Energy Downlift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#epcg">EPCG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#gbis">GBIS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outcomes.html">Outcomes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
@@ -109,93 +108,6 @@
              
   <section id="tobacco">
 <h1>Tobacco<a class="headerlink" href="#tobacco" title="Link to this heading"></a></h1>
-<section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
-<p>Number of cigarettes consumed is an indicator of several mental
-illnesses including anxiety (Lawrence et al. 2010).</p>
-</section>
-<section id="data">
-<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
-<p>What variables are included? Why is this output chosen. What explanatory
-variables are used and why are they chosen</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">discrete_barplot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ncigs&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<figure class="align-default" id="id2">
-<img alt="plot of chunk tobacco_data" src="../../_images/tobacco_data-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 13 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-</section>
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
-<p>The number of zero inflated values is higher than expected for a count
-distribution such as a poisson distribution. This inflation occurs
-naturally as a large proportion (over 50%) of the population do not
-smoke. There are two sources of cigarette consumption that can be
-modelled using zero inflated models. In this case a zero-inflated
-poisson (ZIP) is used. Two models are fitted simulatenously. One is a
-logistic regression that estimates whether a person smokes cigarettes or
-not. This provides a simple probability of smoking or not. The second is
-a poisson counts model estimating the number of cigarettes consumed.</p>
-</section>
-<section id="data-1">
-<span id="id1"></span><h2>Data<a class="headerlink" href="#data-1" title="Link to this heading"></a></h2>
-<p>Two set of variables are needed for the logistic and poisson parts of
-the ZIP model respectively.</p>
-<p>Variables that predict how much a person smokes.</p>
-<p>age. persons age. generally older people and very young smoke. SF_12.
-wellbeing estimates number of cigarettes smoked. labour_state. whether a
-person is employed or not. ethnicity. certain ethnicities more likely to
-smoke cigarettes. education_state. highest qualification. job_sec job
-quality hh_income household income ncigs previous number consumed.</p>
-<p>Variables that predict whether a person smokes</p>
-<p>ethnicity. certain ethnicities more likely to smoke cigarettes.
-labour_state. whether a person is employed or not. age SF_12. wellbeing
-estimates number of cigarettes smoked. ncigs previous number consumed.</p>
-</section>
-<section id="results">
-<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
-<p>Almost all coefficients significant. Particularly prevous consumption of
-cigarettes. Good estimation of the number of non-smokers in the
-population at around 55%. Counts of smoking are underdispersed and fail
-to estimate consumption over 20 cigarettes.</p>
-<figure class="align-default" id="id3">
-<img alt="plot of chunk tobacco_output" src="../../_images/tobacco_output-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 14 </span><span class="caption-text">plot of chunk tobacco_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##                           Length Class         Mode</span>
-<span class="c1">## predictions               591620 -none-        numeric</span>
-<span class="c1">## num.trees                      1 -none-        numeric</span>
-<span class="c1">## num.independent.variables      1 -none-        numeric</span>
-<span class="c1">## mtry                           1 -none-        numeric</span>
-<span class="c1">## min.node.size                  1 -none-        numeric</span>
-<span class="c1">## prediction.error               1 -none-        numeric</span>
-<span class="c1">## forest                        10 ranger.forest list</span>
-<span class="c1">## splitrule                      1 -none-        character</span>
-<span class="c1">## treetype                       1 -none-        character</span>
-<span class="c1">## call                           6 -none-        call</span>
-<span class="c1">## importance.mode                1 -none-        character</span>
-<span class="c1">## num.samples                    1 -none-        numeric</span>
-<span class="c1">## replace                        1 -none-        logical</span>
-<span class="c1">## dependent.variable.name        1 -none-        character</span>
-</pre></div>
-</div>
-</section>
-<section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
-<div class="references csl-bib-body hanging-indent docutils container" id="refs">
-<div class="csl-entry docutils container" id="ref-lawrence2010anxiety">
-<p>Lawrence, David, Julie Considine, Francis Mitrou, and Stephen R
-Zubrick. 2010. “Anxiety Disorders and Cigarette Smoking: Results
-from the Australian Survey of Mental Health and Wellbeing.”
-<em>Australian &amp; New Zealand Journal of Psychiatry</em> 44 (6): 520–27.</p>
-</div>
-</div>
-</section>
 </section>
 
 
@@ -209,7 +121,7 @@ from the Australian Survey of Mental Health and Wellbeing.”
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Open MIT License.</p>
+    <p>&#169; Copyright 2025, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
