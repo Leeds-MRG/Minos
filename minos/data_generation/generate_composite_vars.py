@@ -1100,7 +1100,12 @@ def generate_priority_subgroups(data):
     # Ethnicity
     data['priority_ethnicity'] = data['ethnicity'] != 'WBI'
     # Child under one
-    data['priority_child_under_one'] = data['child_ages'].str[0] == '0'
+    # HR 478 Old version (string child ages)
+    # data['priority_child_under_one'] = data['child_ages'].str[0] == '0'
+    # HR 478 New version (integer child ages)
+    mask = (1 << 4) - 1
+    data.loc[data['child_ages'].isna(), 'child_ages'] = 0  # Int64 is nullable; this removed NA values
+    data.loc[((data['child_ages'].astype(int) & mask) > 0), 'priority_child_under_one'] = True
     # Three plus children
     data['priority_three_plus_children'] = data['nkids'] >= 3
 
