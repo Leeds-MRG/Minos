@@ -340,7 +340,6 @@ class nkidsFertilityAgeSpecificRates(Base):
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
         # 1. Find individuals who have had children by pidp and increment nkids_ind by 1
-        #TODO future differentiation within a household of which kids belong to who in child age chains.
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nnewborn'] = 1
@@ -351,29 +350,33 @@ class nkidsFertilityAgeSpecificRates(Base):
         ageout_sample = population.loc[who_had_children_individuals].sample(frac=1).sample(frac=1/16).index  # Shuffle then sample
         population.loc[ageout_sample, 'nresp'] -= 1
 
-        # 2. Find everyone in a household who has had children by hidp and increment nkids by 1
+        # 2. Find everyone in a household who has had children and calculate/add number of newborns per hh
         had_children_hidps = population.loc[had_children, 'hidp'].unique()  # Get all HIDPs of people who've had children
-        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all HIDPs who live in HH that has had a child
-        population.loc[who_had_children_households, 'nkids'] += 1
-        population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households, 'child_ages'].apply(lambda x: self.add_new_child_to_chain(x))  # Add new child to children ages chain.
+        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all individuals who live in HH that has had one or more new children
 
-        # 3. Find number of newborns per household
-        # population.loc[who_had_children_households, 'nnewborn'] = 1  # Old method, doesn't account for multiple newborns per hh
         nnewborn_hh_map = population.loc[who_had_children_households].groupby('hidp')['nnewborn'].sum()
         # population.loc[who_had_children_households, 'nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map)
         population['nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map).fillna(0)
 
-        # population['nnewborn'] = population['nnewborn'].astype(float)
-        population['nnewborn_hh'] = population['nnewborn_hh'].astype(int)
-        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh', 'nresp']])
-        ###
+        # 3. Increment hh-level variables
+        population.loc[who_had_children_households, 'nkids'] += population['nnewborn_hh']
+        # population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households].apply(lambda x: self.add_new_child_to_chain(x['child_ages'], x['nnewborn_hh']), axis = 1)  # Add new child to children ages chain.
+        population.loc[who_had_children_households, 'child_ages'] += population['nnewborn_hh']  # Add new child to children ages chain.
 
-    def add_new_child_to_chain(self, age_chain):
+        # 4. Update population + type corrections (grrr)
+        population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
+        population['nnewborn_hh'] = population['nnewborn_hh'].astype(float)
+        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh']])
 
+    def add_new_child_to_chain(self, age_chain, nnew=1):
+
+        new_chain = str("_".join('0' for i in range(int(nnew))))
         if age_chain == 'childless':
-            return "0"
+            final_chain = new_chain
         else:
-            return "0_" + age_chain
+            final_chain = new_chain + "_" + str(age_chain)
+
+        return final_chain
 
     @staticmethod
     def load_age_specific_fertility_rate_data(builder):

@@ -91,7 +91,7 @@ drop_unnecessary_cols <- function(data, scen) {
 
 create.if.not.exists <- function(path) {
   if(!file.exists(path)) {
-    dir.create(path = path)
+    dir.create(path = path, recursive = TRUE)
   }
 }
 
