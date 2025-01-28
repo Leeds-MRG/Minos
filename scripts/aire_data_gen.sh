@@ -1,3 +1,7 @@
+#!/bin/bash
+################
+# Slurm settings
+################
 #SBATCH --job-name=minos_data_gen                                 # Job name
 #SBATCH --mail-type=FAIL                                          # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=gyrc@leeds.ac.uk                              # Where to send mail
