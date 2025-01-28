@@ -35,6 +35,8 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-glmnet
   - r-ranger
   - r-spatstat
+  - r-mice
+  - r-spatstat
   - pandoc
   - sphinx
   - myst-parser
