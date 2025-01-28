@@ -394,7 +394,7 @@ def RunPipeline(config, intervention=None):
 
     logging.info('Simulation loop start...')
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
-    for year in range(config.time.end.year+1-config.time.start.year):
+    for year in range(1, config.time.end.year+1-config.time.start.year):
 
         logging.info(f'Begin simulation for year {config.time.start.year + year}')
 

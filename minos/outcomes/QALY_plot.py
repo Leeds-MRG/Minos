@@ -75,7 +75,7 @@ def main(mode, interventions):
     # downlaod three qaly datasets
 
     qaly_data = pd.DataFrame()
-    tags = ["Baseline", "Good Heating Dummy", "EPCG", "GBIS"]
+    tags = ["Baseline", "Good Heating Dummy", "EPCG", "GBIS", "EPCG and GBIS"]
     for i, intervention in enumerate(interventions):
         file_dir = os.path.join('output/', mode, intervention)
         runtime_list = os.listdir(os.path.abspath(file_dir))
@@ -97,4 +97,4 @@ if __name__ == '__main__':
 
     #sources to get required data.
     #main("energy_manchester_scaled",["baseline", "goodHeatingDummy", "EPCG", "GBIS"])
-    main("energy_manchester_scaled",["baseline", "goodHeatingDummy", "EPCG", "GBIS"])
+    main("energy_manchester_scaled",["baseline", "goodHeatingDummy", "EPCG", "GBIS", "EPCGandGBIS"])

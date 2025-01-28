@@ -29,3 +29,4 @@ def main(mode, interventions):
 if __name__ == '__main__':
     main("energy_manchester_scaled", ["GBIS"] * 5)
     main("energy_manchester_scaled", ["EPCG"] * 5)
+    main("energy_manchester_scaled", ["EPCGandGBIS"] * 5)

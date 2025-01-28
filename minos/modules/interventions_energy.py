@@ -8,6 +8,14 @@ import logging
 from minos.modules.base_module import Base
 from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 
+
+EPCG_cap_dict = {2020: 1150,
+                 2021: 1138,
+                 2022: 1277,
+                 2023: 4279,
+                 2024: 1928,
+                 2025: 1600,}
+
 class EPCG(Base):
 
     @property
@@ -68,7 +76,7 @@ class EPCG(Base):
         # TODO probably a faster way to do this than resetting the whole column.
         # pop['hh_income'] -= pop['intervention_cost']
         # reset boost amount to 0 before calculating next uplift
-        pop['yearly_energy'] += pop['intervention_cost']
+        #pop['yearly_energy'] += pop['intervention_cost']
         pop['intervention_cost'] = 0.
 
         # TODO some fine tuning around kwh and non-elec/gas use.
@@ -76,11 +84,14 @@ class EPCG(Base):
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
         pop['yearly_energy'] += pop['intervention_cost']
-        energy_mean = np.mean(pop.groupby(by='hidp')['yearly_energy'].mean())
-        if energy_mean > 3000: # energy cap only active when the mean consumption is over 3500.
+        energy_mean = np.median(pop.groupby(by='hidp')['yearly_energy'].median())
+
+        EPCG_market_cap = EPCG_cap_dict[min(event.time.year, 2025)]
+
+        if energy_mean > EPCG_market_cap: # energy cap only active when the mean consumption is over 3500.
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
-            pop['intervention_cost'] = pop['yearly_energy'] * (1- (3000/energy_mean))
+            pop['intervention_cost'] = pop['yearly_energy'] * (1- (EPCG_market_cap/energy_mean))
             pop['income_boosted'] = pop['intervention_cost'] != 0
             pop['boost_amount'] = pop['intervention_cost']
             #pop['intervention_cost'] = (energy_mean-3000)
@@ -1025,7 +1036,7 @@ class EPCGandGBIS(Base):
 
     @property
     def name(self):
-        return "EPCG and GBIS"
+        return "EPCGandGBIS"
 
     def __repr__(self):
         return "EPCGandGBIS"
@@ -1054,10 +1065,18 @@ class EPCGandGBIS(Base):
                         "hidp",
                         "S7_labour_state",
                         'hh_income',
-                        #"universal_income",
-                        #"council_tax",
-                        'heating']
-        columns_created = ["income_boosted", 'boost_cost', 'boost_amount']
+                        'heating',
+                        'housing_quality',
+                        'dwelling_type',
+                        'number_of_rooms',
+                        'number_of_bedrooms',
+                        'council_tax_band',
+                        'yearly_oil',
+                        'universal_credit']
+        columns_created = ["GBIS_income_boosted", "EPCG_income_boosted",
+                           'GBIS_intervention_cost', 'EPCG_intervention_cost',
+                           'GBIS_boost_amount',  'EPCG_boost_amount',
+                           'intervention_cost']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -1072,13 +1091,13 @@ class EPCGandGBIS(Base):
 
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'income_boosted': False,  # who boosted?,
-                                   'GBIS_boost_cost': 0.,
-                                   'GBIS_boost_amount': 0.,  # hh income boosted by how much?
-                                  'EPCG_boost_cost': 0.,
-                                    'EPCG_boost_amount': 0.,
-                                   'boost_cost': 0.,
-                                   'boost_amount': 0.},
+        pop_update = pd.DataFrame({'GBIS_income_boosted': False,  # who boosted?,
+                                   'EPCG_income_boosted': False,  #
+                                   'GBIS_intervention_cost': 0., # intervention costs.
+                                   'EPCG_intervention_cost': 0.,
+                                   'GBIS_boost_amount': 0., # how much do household receive.
+                                   'EPCG_boost_amount': 0.,  #
+                                   'intervention_cost': 0.},
                                     index=pop_data.index)
 
 
@@ -1091,13 +1110,19 @@ class EPCGandGBIS(Base):
         # reduce their energy bills by £3XX per year (plus some heterogeneity?).
 
         pop = self.population_view.get(event.index, query="alive =='alive'")
-
+        self.year = event.time.year
+        self.EPCG_year = min(event.time.year, 2025)
         pop = self.apply_GBIS(pop)
         pop = self.apply_EPCG(pop)
+        pop['intervention_cost'] = pop['EPCG_intervention_cost'] + pop['GBIS_intervention_cost']
+        self.population_view.update(pop[['heating', 'housing_quality', 'hh_income', 'yearly_energy',
+                                         "GBIS_income_boosted", "EPCG_income_boosted",
+                                         'GBIS_intervention_cost', 'EPCG_intervention_cost',
+                                         'GBIS_boost_amount', 'EPCG_boost_amount',
+                                         'intervention_cost']])
+        print("Intervention Done.")
 
-        self.population_view.update(pop)
-
-    def apply_GBIS(self, population):
+    def apply_GBIS(self, pop):
         """
                 1.
                 2.
@@ -1114,12 +1139,8 @@ class EPCGandGBIS(Base):
 
                 """
 
-        if self.start_year:
-            self.start_year = False
-            return
-
         # get the population
-        pop = self.population_view.get(event.index, query="alive =='alive'")
+        #pop = self.population_view.get(event.index, query="alive =='alive'")
 
         # who gets the intervention?
         # get intervened households in right CT bands.
@@ -1129,7 +1150,7 @@ class EPCGandGBIS(Base):
         # bands A-D in england.
         bands_A_D = pop.loc[pop['council_tax_band'].isin([1., 2., 3., 4.]), 'hidp']
         # only intervene on households that have not already received intervention.
-        not_intervened = pop.loc[pop['income_boosted'] == False, 'hidp']
+        not_intervened = pop.loc[pop['GBIS_income_boosted'] == False, 'hidp']
         # get FP10 positive?
         # get low heatng?
         eligible_hidps = set(list(bands_A_D) + list(non_england_band_E)).intersection(not_intervened)
@@ -1149,101 +1170,80 @@ class EPCGandGBIS(Base):
         pop.loc[pop["new_income_boosted"] == True, "heating"] = 1
 
         # TODO heterogeneity/validation in the boost amount.
-        pop['boost_amount'] = pop['new_income_boosted'] * 125.
+        pop['GBIS_boost_amount'] = pop['new_income_boosted'] * 125.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type'] == 1, 'boost_amount'] *= 200 / 125  # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'GBIS_boost_amount'] *= 200 / 125  # adjust to 200 for houses.
         # cant differentiate between house types for now.
         # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type'] == 3, 'boost_amount'] *= 200 / 125  # bungalows
+        pop.loc[pop['dwelling_type'] == 3, 'GBIS_boost_amount'] *= 200 / 125  # bungalows
 
-        pop['boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
+        pop['GBIS_boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
         # best we can do in lieu of square footage.
 
         # subtract insulation savings from energy bills.
         # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
-        pop['yearly_energy'] -= pop['boost_amount']
-        # pop['income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
+        pop['yearly_energy'] -= pop['GBIS_boost_amount']
+        # pop['GBIS_income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
 
         # adjust by rural/urban?
 
         # adjust income variables
-        # pop['yearly_energy'] -= pop['boost_amount']
+        # pop['yearly_energy'] -= pop['GBIS_boost_amount']
 
         # how much does it cost?
-        pop['intervention_cost'] = pop['new_income_boosted'] * 7500.  # get cost. adjust by household etc. as abiove.
+        pop['GBIS_intervention_cost'] = pop['new_income_boosted'] * 7500.  # get cost. adjust by household etc. as abiove.
         # adjust cost by dwelling type.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type'] == 1, 'intervention_cost'] *= 1.5  # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'GBIS_intervention_cost'] *= 1.5  # adjust to 200 for houses.
         # cant differentiate between house types for now.
         # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type'] == 3, 'intervention_cost'] *= 1.5  # bungalows
+        pop.loc[pop['dwelling_type'] == 3, 'GBIS_intervention_cost'] *= 1.5  # bungalows
 
         # pop.loc[pop['number_of_rooms'] < 0, 'number_of_bedrooms'] = 2
         # adjust costs further by number of rooms.
-        pop['intervention_cost'] *= pop['number_of_bedrooms'] * 1.1  # adjust by number of rooms.
+        pop['GBIS_intervention_cost'] *= pop['number_of_bedrooms'] * 1.1  # adjust by number of rooms.
 
         # adjust based on government region? rural/urban?
         # two waves for cavity/solid insulation?
 
         # adding people boosted on this wave to overall population of previously boosted households.
-        pop['income_boosted'] += pop['new_income_boosted']
+        pop['GBIS_boost_amount'] += pop['new_income_boosted']
+        pop['GBIS_income_boosted'] = (pop['GBIS_boost_amount'] > 0)
 
         # update population
-        self.population_view.update(pop[['intervention_cost', 'income_boosted', "boost_amount",
-                                         'heating', 'yearly_energy', 'housing_quality']])
+        #self.population_view.update(pop[['GBIS_intervention_cost', 'GBIS_income_boosted', "boost_amount",
+        #                                 'heating', 'yearly_energy', 'housing_quality']])
 
-    def apply_EPCG(self, population):
-        pop = self.population_view.get(event.index, query="alive =='alive'")
-        self.year = event.time.year
-        # DONT SUBTRACT FROM INCOME AS IT SEEMS TO UNDO ITSELF AAAAAAAAA.
-        # pop['hh_income'] -= pop['boost_amount']
-        # Poverty is defined as having (equivalised) disposable hh income <= 60% of national median.
-        # About £800 as of 2020 + adjustment for inflation.
-        # Subset everyone who is under poverty line.
-        year = min(self.year, 2023)
-        # TODO DOESNT WORK ANYMORE WITH BETTER ENERGY PRICING BY COMMODITY.
-        #pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (
-        #            energy_cap_prices[year] / 1300))  # 80% of monthly fuel bill subtracted from dhi.
-        # pop['boost_amount'] = (-(pop['yearly_energy'] / 12) * (energy_cap_prices[year]/1300 - 1))  # 80% of monthly fuel bill subtracted from dhi.
-        # first term is monthly fuel, second term is percentage increase of energy cap. 80% initially..?
+        return pop
 
-        # Energy Bill Support Schemes (EBSS) interventions
-        # £400 to all households base. £600 in Northern Ireland and Wales.
-        if self.year >= 2022:
-            pop['boost_amount'] += 400
-            pop.loc[pop['region'] == "Northern Ireland", 'boost_amount'] += 200
-            pop.loc[pop['region'] == "Wales", 'boost_amount'] += 200
 
-            # £900 for those on means tested (need benefits variables)
-            # TODO how is this determined? Needs extra variable from US. Work out what 'means tested' is and any US mapping.
-            # £300 for households with pensioners (labour states)
-            pensioner_houses = pop.loc[pop['S7_labour_state'] == "Retired", 'hidp']
-            pop.loc[pop['hidp'].isin(pensioner_houses), 'boost_amount'] += 300
-            # £150 for households with long term sick/disabled individuals.
-            disability_houses = pop.loc[pop['S7_labour_state'] == "Sick/Disabled", 'hidp']
-            pop.loc[pop['hidp'].isin(disability_houses), 'boost_amount'] += 150
-            # £650 for those on universal credit
-            universal_credit_houses = pop.loc[pop['universal_income'] == 1, 'hidp']
-            pop.loc[pop['hidp'].isin(universal_credit_houses), 'boost_amount'] += 650
-            # £150 for council tax bands A-D. Work out who has council_tax value between 1 and 4 in two stages.
-            ct_band_D_houses = pop.loc[pop['council_tax'] <= 4, ['council_tax', 'hidp']]
-            ct_band_A_D_houses = ct_band_D_houses.loc[ct_band_D_houses['council_tax'] >= 1, 'hidp']
-            pop.loc[pop['hidp'].isin(ct_band_A_D_houses), 'boost_amount'] += 150
+    def apply_EPCG(self, pop):
+        # TODO probably a faster way to do this than resetting the whole column.
+        # pop['hh_income'] -= pop['intervention_cost']
+        # reset boost amount to 0 before calculating next uplift
+        pop['yearly_energy'] += pop['EPCG_intervention_cost']
+        pop['EPCG_intervention_cost'] = 0.
 
-        # discounting based on tariff type (prepayment meters/fixed rate tariffs/ all different (cant do this..)
-        # TODO see elecpay/gaspay.
-        # Long term government net zero plans. estimating 15% reduction in household energy bills
-        # for now assume linear reduction in energy costs from 0% to 15% by 2030.
-        # TODO naive?
-        # TODO any other boosts suggested by new gov plans. any specifically by subgroups?
-        pop['boost_amount'] = pop['boost_amount'].clip(upper=0.001)
-        pop['income_boosted'] = pop['boost_amount'] != 0
-        pop['hh_income'] += pop['boost_amount']
+        # TODO some fine tuning around kwh and non-elec/gas use.
+        # TODO check uniform household energy bills and intervention applied.
+        # scale energy bill
+        # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
+        energy_mean = np.mean(pop.groupby(by='hidp')['yearly_energy'].median())
+        EPCG_market_cap = EPCG_cap_dict[self.EPCG_year]
 
-        # print(np.mean(pop['hh_income'])) # for debugging.
-        # TODO assumes no social change. just go very negative which has major detrimental effects.
-        # TODO add in reduction due to energy crisis that varies by year.
+        if energy_mean > EPCG_market_cap:  # energy cap only active when the mean consumption is over 3500.
+            # scale energy spending such that the mean yearly bill is 3000 pounds.
+            # multiplicative scaling was used via capping of energy pricing per kWh.
+            pop['EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
+            pop['EPCG_income_boosted'] = (pop['EPCG_intervention_cost'] != 0)
+            pop['EPCG_boost_amount'] = pop['EPCG_intervention_cost']
+            # pop['intervention_cost'] = (energy_mean-3000)
+            pop['yearly_energy'] -= pop['EPCG_intervention_cost']
+        print(f"Boost amount mean{np.mean(pop['EPCG_intervention_cost'])}")
 
-        self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount']])
+        #self.population_view.update(
+        #    pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
+
+        return pop

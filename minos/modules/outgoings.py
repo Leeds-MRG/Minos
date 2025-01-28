@@ -534,7 +534,7 @@ class energyBills(Base):
         pop['yearly_energy'] = pop.groupby(by=['hidp'])['yearly_energy'].transform("mean")
         pop['yearly_energy'] = pop['yearly_energy'].clip(0, 25000)
         # update yearly energy bill for application in gross hh income. literally just sum the gas, electic, duel and other together.
-        print(f"Yearly energy: {np.mean(pop['yearly_energy'])}")
+        print(f"Yearly energy median: {np.median(pop['yearly_energy'])}")
         print(sum(pop['yearly_energy']))
 
         self.population_view.update(pop['yearly_energy'])
