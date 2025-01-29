@@ -27,6 +27,9 @@ def QALY_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.tile(data.loc[data['tag']==baseline, "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     data['QALYs_cumsum_percentage_diff'] = data['QALYs_cumsum_diff']/data["QALYs_cumsum"]
+
+    print(data)
+    
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
