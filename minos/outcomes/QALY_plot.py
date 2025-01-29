@@ -80,7 +80,7 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     plot_data= pd.DataFrame()
 
     for level in ["first", "second", "third", "fourth", "fifth"]:
-        subset_data = data.loc[data['subset'] == f"who_{level}_quintile"]
+        subset_data = data.loc[data['subset'] == f"who_{level}_simd_quintile"]
         subset_data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(
             lambda x: cumulative_simpson(x, dx=1, initial=0))
         subset_data["total_boost_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["total_boost"].transform(np.cumsum)
@@ -115,8 +115,8 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
 
     for level in ["first", "second", "third", "fourth", "fifth"]:
         # note needs initial 0 in cumulative_simposon at the front to maintain array shape.
-        subset_data = data.loc[data['subset'] == f"who_{level}_quintile"]
-        data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(lambda x: cumulative_simpson(x, dx=1,initial=0))
+        subset_data = data.loc[data['subset'] == f"who_{level}_simd_quintile"]
+        subset_data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(lambda x: cumulative_simpson(x, dx=1,initial=0))
         subset_data["total_boost_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["total_boost"].transform(np.cumsum)
         # cum sum qaly.
         subset_data.reset_index(inplace=True)
