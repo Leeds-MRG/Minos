@@ -5,6 +5,7 @@ missing data (if any) there is.
 
 import US_utils
 from US_utils import missing_types as mt
+from US_format_raw_children_data import age_64bit_integer_stack, integer_child_ages_to_nkids
 import pandas as pd
 import numpy as np
 from collections import Counter
@@ -16,44 +17,31 @@ from os.path import dirname as up
 DATA_PATH = os.path.join(up(up(up(__file__))))
 
 
-def age_64bit_integer_stack(ages):
-    """ convert a list of individual child ages into a 64-bit integer.
-    each n 4 bits indicates the number of children age n in the household.
-    indexed 0. so first four beats are the 'zero years old' children.
-    e.g. bits 9-12 would be the number of children aged (3-1)=2.
-
-    Parameters
-    ----------
-    ages: list
-        list of child ages.
-    Returns
-    -------
-
-    """
-    c = Counter(ages)
-
-    output_age = 0
-    for age in range(15, 0, -1):  # looping through all possible child ages from 15 to 1 years old.
-        output_age += c[age]  # add the age (in binary) and bit shift left four. stacking ages basically.
-        output_age = output_age << 4
-    output_age += c[0]  # final addition of 0 year olds but not bit shifting.
-
-    return output_age
+# HR 29/01/25 Get birth spacing - i.e. years between ages of children - from integer-form child ages
+def get_birth_spacing(ages):
+    spacings = []
+    age_list = integer_child_ages_to_list(ages)
+    spacings = np.diff(age_list)
+    return spacings
 
 
-def integer_child_ages_to_nkids(ages):
+# HR 29/01/25 Get list of child ages from integer-form child ages
+def integer_child_ages_to_list(ages):
 
-    if isnan(ages):
-        return ages
+    # Mask to get last four digits of binary integer
+    # Adapted from here: https://stackoverflow.com/questions/36124773/how-to-get-last-n-bits-by-bit-op
+    mask = (1 << 4) - 1
 
-    mask = (1 << 4) - 1  # get last 4 bits of an integer with this mask. well known bit hack shenanigan.
-    # https://stackoverflow.com/questions/36124773/how-to-get-last-n-bits-by-bit-op
-
-    nkids = 0
+    age_list = []
+    # Get maximum possible age bucket from length of integer
+    max_age = round((len(bin(ages)) - 2)/4)
+    age_bucket = 0
     while ages:
-        nkids += (ages & mask)  # get the last 4 bits. children of certain age bucket.
-        ages = ages >> 4
-    return nkids
+        nkids = (ages & mask)  # Get last four bits, i.e. number of children in age bucket
+        age_list += ([age_bucket] * nkids)  # Add that many kids to list
+        ages = ages >> 4  # Shift child ages by four bits, i.e. by one value of possible child ages
+        age_bucket += 1
+    return age_list
 
 
 def main(adult_data, year):
