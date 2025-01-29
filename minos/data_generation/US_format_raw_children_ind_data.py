@@ -114,17 +114,17 @@ def main(adult_data, year):
 
     # Drop extraneous columns
     cols_to_drop = child_age_cols + ['child_ages_list']
-    adult_data.drop(cols_to_drop, axis=1)
+    adult_data.drop(columns=cols_to_drop, inplace=True)
     return adult_data
 
 
 if __name__ == '__main__':
 
     # HR 29/01/25 All below for testing
-    year = 2019
+    year = 2014
     years = np.arange(2014, year+1)
     # file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     file_names = [os.path.join(DATA_PATH, f"data/raw_US/{item}_US_cohort.csv") for item in years]
     data = US_utils.load_multiple_data(file_names)
     input_data = data.loc[data['time'] == year].copy()
-    child_data, adult_data = main(input_data, year)
+    adult_data = main(input_data, year)
