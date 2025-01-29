@@ -1,5 +1,5 @@
 
-from minos.outcomes.QALY_plot import QALY_lineplot, ICER_lineplot
+from minos.outcomes.QALY_plot import QALY_quintiles_lineplot, ICER_quintiles_lineplot
 from minos import  utils
 import os
 import pandas as pd
@@ -29,10 +29,10 @@ def main(mode, intervention, tag):
     print(qaly_data)
 
     # plot just qalys
-    QALY_lineplot(qaly_data, f"{mode}_{intervention}_energy_combined_QALY_lineplot")
+    QALY_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_energy_combined_QALY_lineplot")
 
     # plot icer ratios.
-    ICER_lineplot(qaly_data, f"{mode}_{intervention}_simd_quintiles_energy_combined_ICR_lineplot")
+    ICER_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_simd_quintiles_energy_combined_ICR_lineplot")
 
 if __name__ == '__main__':
     main("energy_manchester_scaled", "GBIS", "GBIS")
