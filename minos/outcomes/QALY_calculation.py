@@ -79,7 +79,7 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
     elif intervention == "goodHeatingDummy":
         pop_boosted = df['income_boosted'].sum()
         total_boost = None
-    elif intervention == "EPCG_and_GBIS":
+    elif intervention == "EPCGandGBIS":
         # also adjust boost_amount
         df['income_boosted'] = (df['EPCG_income_boosted'] | df["GBIS_income_boosted"])
         #df['boost_amount'] = (df['boost_amount'] * ((1 / df['weight']) / df['weight'].sum()))
