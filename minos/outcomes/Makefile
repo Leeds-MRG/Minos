@@ -522,9 +522,11 @@ aggregate_minos_manchester_combined_public_rental:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_who_public_rental" "SF_12_MCS"
 
 aggregate_minos_manchester_noEnergyPriceIncrease:
-	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "SF_12_MCS"
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "noEnergyPriceIncrease" "SF_12_MCS"
+	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled"  "noEnergyPriceIncrease" "SF_12_MCS"
 
 aggregate_minos_manchester_noEnergyPriceIncrease_yearly_energy:
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "noEnergyPriceIncrease" "yearly_energy"
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "noEnergyPriceIncrease" "yearly_energy"
 
 # MCS QUINTILES
@@ -578,6 +580,7 @@ aggregate_minos_manchester_good_housing_dummy_PCS:
 	python3 minos/outcomes/make_lineplots_macros.py "energy_manchester_scaled" "good_heating_dummy" "SF_12_PCS"
 
 aggregate_minos_manchester_combined_PCS:
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
 
 aggregate_minos_manchester_combined_PCS_private_rental:
@@ -696,23 +699,23 @@ all_energy_QALY_quintiles_plot:
 
 QALY_baseline_private_and_UC: INTERVENTION=baseline
 QALY_baseline_private_and_UC:
-	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
 
 QALY_EPCG_private_and_UC: INTERVENTION=EPCG
 QALY_EPCG_private_and_UC:
-	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
 
 QALY_GBIS_private_and_UC: INTERVENTION=GBIS
 QALY_GBIS_private_and_UC:
-	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)  -s who_private_rental_and_UC
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)  -s who_private_rental_and_UC
 
 QALY_EPCG_AND_GBIS_private_and_UC: INTERVENTION=EPCGandGBIS
 QALY_EPCG_AND_GBIS_private_and_UC:
-	#sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
-	python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
 
 
 all_energy_QALY_private_and_UC: MODE=energy_manchester_scaled
@@ -741,8 +744,8 @@ QALYs_UC_scotland: QALY_vis_SCP_25_UC QALY_vis_SCP_50_UC QALY_vis_SCP_75_UC QALY
 
 # running everything needed for paper 3.
 BIG_DADDY_PAPER_3:
-BIG_DADDY_PAPER_3: all_energy_QALY
-BIG_DADDY_PAPER_3: aggregate_minos_manchester_GBIS_quintiles aggregate_minos_manchester_EPCG_quintiles
+BIG_DADDY_PAPER_3: all_energy_QALY all_energy_QALY_quintiles all_energy_QALY_private_and_UC
+#BIG_DADDY_PAPER_3: aggregate_minos_manchester_GBIS_quintiles aggregate_minos_manchester_EPCG_quintiles
 #BIG_DADDY_PAPER_3: aggregate_minos_manchester_EPCG_quintiles_income aggregate_minos_manchester_GBIS_quintiles_income
 BIG_DADDY_PAPER_3: aggregate_minos_manchester_noEnergyPriceIncrease aggregate_minos_manchester_noEnergyPriceIncrease_yearly_energy
 BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS
