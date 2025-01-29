@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from scipy.integrate import cumulative_simpson, cumulative_trapezoid
 
-def QALY_lineplot(data, prefix, destination="plots/"):
+def QALY_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     #sort by time and run id.
     #data.sort_values(by=['year'], inplace=True)
@@ -24,7 +24,7 @@ def QALY_lineplot(data, prefix, destination="plots/"):
     # cum sum qaly.
     data.reset_index(inplace=True)
     data = data.groupby(by=['tag','run_id', 'year'], as_index=False, sort=False).agg({"QALYs_cumsum": np.mean, "total_boost_cumsum": np.mean})
-    data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.tile(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
+    data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.tile(data.loc[data['tag']==baseline, "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     data['QALYs_cumsum_percentage_diff'] = data['QALYs_cumsum_diff']/data["QALYs_cumsum"]
     # plot.
@@ -38,7 +38,7 @@ def QALY_lineplot(data, prefix, destination="plots/"):
     plt.savefig(file_name)
     print("QALY plot done.")
 
-def ICER_lineplot(data, prefix, destination="plots/"):
+def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     #sort by time and run id.
     #data.sort_values(by=['year'], inplace=True)
@@ -48,12 +48,11 @@ def ICER_lineplot(data, prefix, destination="plots/"):
     data["total_boost_cumsum"] = data.groupby(by=["tag", 'run_id'])["total_boost"].transform(np.cumsum)
     # cum sum qaly.
     data.reset_index(inplace=True)
-    data = data.groupby(by=['tag','run_id', 'year'], as_index=False).agg({"QALYs_cumsum": np.mean, "total_boost_cumsum": np.mean})
-    data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.tile(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
-    #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
+    data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.tile(data.loc[data['tag']==baseline, "QALYs_cumsum"].values, len(data['tag'].value_counts()))
+    #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']==baseline, "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     data['QALYs_cumsum_percentage_diff'] = data['QALYs_cumsum_diff']/data["QALYs_cumsum"]
 
-    data = data.loc[data['tag'].isin(["EPCG", "GBIS"]), ]
+    data = data.loc[data['tag'].isin(["EPCG", "GBIS", "EPCG and GBIS"]), ]
     data.loc[data['QALYs_cumsum_diff']==0, 'QALYs_cumsum_diff'] += 1
     data['ICER'] = data['total_boost_cumsum']/data['QALYs_cumsum_diff']
 
