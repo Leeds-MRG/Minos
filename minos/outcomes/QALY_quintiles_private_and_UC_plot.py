@@ -16,7 +16,7 @@ def main(mode, interventions):
         runtime_list = os.listdir(os.path.abspath(file_dir))
         runtime = utils.get_latest_subdirectory(runtime_list)
         batch_source= os.path.join(file_dir, runtime)
-        qaly_subset = pd.read_csv(batch_source + subset_function_string + '_qalys.csv')
+        qaly_subset = pd.read_csv(batch_source + "/" + subset_function_string + '_qalys.csv')
         qaly_subset['tag'] =tags[i]
         qaly_data = pd.concat([qaly_data, qaly_subset])
 

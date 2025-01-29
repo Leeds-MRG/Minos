@@ -171,7 +171,7 @@ def main(mode, intervention, subset_func_string=None):
     out_name = os.path.join(batch_source, subset_func_string + '_qalys.csv')
     #TODO run this for multiple file paths in another script. combine and plot lineplot.
     qaly_df.to_csv(out_name, index=False)
-
+    print(f"Saved QALY data to {out_name}.")
 
 if __name__ == '__main__':
 
