@@ -21,8 +21,8 @@ def main(mode, intervention, tag):
             tag = "Baseline"
         tags = [tag] * 5
 
-        for i in range(1, 6):
-            qaly_subset = pd.read_csv(batch_source + "/" + subset_function_strings[i] + '_qalys.csv')
+        for i, subset_function_string in enumerate(subset_function_strings):
+            qaly_subset = pd.read_csv(batch_source + "/" + subset_function_string + '_qalys.csv')
             qaly_subset['tag'] =tags[i]
             qaly_data = pd.concat([qaly_data, qaly_subset])
 
