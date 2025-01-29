@@ -12,5 +12,5 @@
 #SBATCH --output=logs/logs/minos_single_qaly_lineplot-%A-%a.out        # Standard output log.
 #SBATCH --error=logs/errors/minos_single_qaly_lineplot-%A-%a.err       # Standard error log.
 
-python3 minos/outcomes/QALY_calculation.py -m $2 -i $4
+python3 minos/outcomes/QALY_calculation.py -m $2 -i $4 -s $6
 
