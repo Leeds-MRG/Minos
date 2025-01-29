@@ -1076,7 +1076,7 @@ class EPCGandGBIS(Base):
         columns_created = ["GBIS_income_boosted", "EPCG_income_boosted",
                            'GBIS_intervention_cost', 'EPCG_intervention_cost',
                            'GBIS_boost_amount',  'EPCG_boost_amount',
-                           'intervention_cost']
+                           'intervention_cost', 'income_boosted']
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)
 
         # Population initialiser. When new individuals are added to the microsimulation a constructer is called for each
@@ -1097,7 +1097,8 @@ class EPCGandGBIS(Base):
                                    'EPCG_intervention_cost': 0.,
                                    'GBIS_boost_amount': 0., # how much do household receive.
                                    'EPCG_boost_amount': 0.,  #
-                                   'intervention_cost': 0.},
+                                   'intervention_cost': 0.,
+                                   'income_boosted': False},
                                     index=pop_data.index)
 
 
@@ -1115,6 +1116,7 @@ class EPCGandGBIS(Base):
         pop = self.apply_GBIS(pop)
         pop = self.apply_EPCG(pop)
         pop['intervention_cost'] = pop['EPCG_intervention_cost'] + pop['GBIS_intervention_cost']
+        pop['income_boosted'] = (pop['EPCG_income_boosted'] | pop['GBIS_income_boosted'])
         self.population_view.update(pop[['heating', 'housing_quality', 'hh_income', 'yearly_energy',
                                          "GBIS_income_boosted", "EPCG_income_boosted",
                                          'GBIS_intervention_cost', 'EPCG_intervention_cost',
