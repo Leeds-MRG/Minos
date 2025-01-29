@@ -79,7 +79,7 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
 
     plot_data= pd.DataFrame()
 
-    for level in ["first", "second", "third", "fourth", "fifth"]:
+    for i, level in enumerate(["first", "second", "third", "fourth", "fifth"]):
         subset_data = data.loc[data['subset'] == f"who_{level}_simd_quintile"]
         subset_data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(
             lambda x: cumulative_simpson(x, dx=1, initial=0))
@@ -92,8 +92,8 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
                                                                    len(subset_data['tag'].value_counts()))
         # subset_data['QALYs_cumsum_diff'] = subset_data['QALYs_cumsum'] - np.repeat(subset_data.loc[subset_data['tag']=="Baseline", "QALYs_cumsum"].values, len(subset_data['tag'].value_counts()))
         subset_data['QALYs_cumsum_percentage_diff'] = subset_data['QALYs_cumsum_diff'] / subset_data["QALYs_cumsum"]
+        subset_data['tag'] = f"Quintile {i+1}"
         plot_data = pd.concat([plot_data, subset_data])
-
 
     # plot.
     f = plt.figure()
@@ -113,7 +113,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
 
     plot_data= pd.DataFrame()
 
-    for level in ["first", "second", "third", "fourth", "fifth"]:
+    for i, level in enumerate(["first", "second", "third", "fourth", "fifth"]):
         # note needs initial 0 in cumulative_simposon at the front to maintain array shape.
         subset_data = data.loc[data['subset'] == f"who_{level}_simd_quintile"]
         subset_data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(lambda x: cumulative_simpson(x, dx=1,initial=0))
@@ -130,6 +130,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
 
         subset_data.loc[subset_data['ICER'].isna(), "ICER"]=0
         subset_data['ICER'] = np.log10(np.abs(subset_data['ICER'])+1)
+        subset_data['tag'] = f"Quintile {i+1}"
         plot_data = pd.concat([plot_data, subset_data])
 
     # plot.
