@@ -26,8 +26,10 @@ def main(mode, intervention, tag):
             qaly_subset['tag'] =tags[i]
             qaly_data = pd.concat([qaly_data, qaly_subset])
 
+    print(qaly_data)
+    
     # plot just qalys
-    QALY_lineplot(qaly_data, f"{mode}_{intervention}_simd_quintiles_energy_combined_QALY_lineplot")
+    QALY_lineplot(qaly_data, f"{mode}_{intervention}_energy_combined_QALY_lineplot")
 
     # plot icer ratios.
     ICER_lineplot(qaly_data, f"{mode}_{intervention}_simd_quintiles_energy_combined_ICR_lineplot")
