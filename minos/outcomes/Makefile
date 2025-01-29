@@ -625,27 +625,27 @@ aggregate_minos_manchester_combined_cost:
 
 QALY_baseline: INTERVENTION=baseline
 QALY_baseline:
-	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)  -s who_alive
 	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_GHD: INTERVENTION=goodHeatingDummy
 QALY_GHD:
-	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_alive
 	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_EPCG: INTERVENTION=EPCG
 QALY_EPCG:
-	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_alive
 	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_GBIS: INTERVENTION=GBIS
 QALY_GBIS:
-	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_alive
 	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 QALY_EPCG_AND_GBIS: INTERVENTION=EPCGandGBIS
 QALY_EPCG_AND_GBIS:
-	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION)
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_alive
 	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
 
 
