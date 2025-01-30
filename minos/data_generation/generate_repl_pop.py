@@ -55,13 +55,20 @@ def expand_repl(US_wave, region):
     # get max hidp value so we can add new households with unique hidp
     max_hidp = US_wave['hidp'].max()
 
-    # Find households with a 16 or 17 year old to add as replenishing
-    repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
-    repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
-    # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
-    repl_hhs['age'][repl_hhs['age'] == 17] = 16
-    # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
-    repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
+    if region != "manchester":
+        # Find households with a 16 or 17 year old to add as replenishing
+        repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
+        repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
+        # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
+        repl_hhs['age'][repl_hhs['age'] == 17] = 16
+        # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
+        repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
+    else:
+        # Find households with a 16 or 17 year old to add as replenishing
+        repl_wave_hidps = US_wave[(US_wave['age'].isin([16]))]['hidp']
+        repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
+        # We can't have 16-year-olds with higher educ than level 2 (these are all from 17 yos) so replace these with 2
+        repl_hhs['education_state'][(repl_hhs['age'] == 16) & (repl_hhs['education_state'] > 2)] = 2
 
     # Final step now we are adding complete households. We need to give the non 16 year olds a flag that distinguishes
     # them from other simulants. We will do this by setting the weight of these individuals to 0.
@@ -241,7 +248,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scotland_scaled'
         source_year = 2020
     elif region == "manchester":
-        data_source = 'scaled_manchester_US'
+        data_source = 'scaled_manchester_aligned_US'
         output_dir = 'data/replenishing/manchester_scaled'
         source_year = 2020
     elif region == 'uk':
