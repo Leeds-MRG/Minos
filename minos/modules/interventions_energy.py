@@ -83,7 +83,6 @@ class EPCG(Base):
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
         pop['yearly_energy'] += pop['intervention_cost']
-        pop['intervention_cost'] = 0.
         energy_mean = np.median(pop.groupby(by='hidp')['yearly_energy'].median())
 
         EPCG_market_cap = EPCG_cap_dict[min(event.time.year, 2025)]
@@ -92,9 +91,8 @@ class EPCG(Base):
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
             pop['intervention_cost'] = pop['yearly_energy'] * (1- (EPCG_market_cap/energy_mean))
-            pop['income_boosted'] = pop['intervention_cost'] != 0
+            pop['income_boosted'] = (pop['intervention_cost'] != 0)
             pop['boost_amount'] = pop['intervention_cost']
-            #pop['intervention_cost'] = (energy_mean-3000)
             pop['yearly_energy'] -= pop['intervention_cost']
         print(f"Boost amount mean{np.mean(pop['intervention_cost'])}")
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
@@ -602,10 +600,6 @@ class GBIS(Base):
 
         """
 
-        if self.start_year:
-            self.start_year = False
-            return
-
         # get the population
         pop = self.population_view.get(event.index, query="alive =='alive'")
 
@@ -635,22 +629,22 @@ class GBIS(Base):
         # assuming all households in rural areas can't get cavity insulation.
         # use solid wall insulation instead? more expensive but larger savings. households before 1990.
 
-        # TODO check households on housing quality as well.
         pop.loc[pop["new_income_boosted"] == True, "heating"] = 1
 
 
         # TODO heterogeneity/validation in the boost amount.
-        pop['boost_amount'] = pop['new_income_boosted'] * 125.
+        pop['new_boost_amount'] = pop['new_income_boosted'] * 125.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type'] == 1, 'boost_amount'] *= 200 / 125  # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'new_boost_amount'] *= 200 / 125  # adjust to 200 for houses.
         # cant differentiate between house types for now.
         # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type'] == 3, 'boost_amount'] *= 200 / 125  # bungalows
+        pop.loc[pop['dwelling_type'] == 3, 'new_boost_amount'] *= 200 / 125  # bungalows
 
-        pop['boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
+        pop['new_boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
         # best we can do in lieu of square footage.
 
+        pop['boost_amount'] += pop['new_boost_amount']
         # subtract insulation savings from energy bills.
         # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
         pop['yearly_energy'] -= pop['boost_amount']
@@ -1172,16 +1166,18 @@ class EPCGandGBIS(Base):
         pop.loc[pop["new_income_boosted"] == True, "heating"] = 1
 
         # TODO heterogeneity/validation in the boost amount.
-        pop['GBIS_boost_amount'] = pop['new_income_boosted'] * 125.
+        pop['new_GBIS_boost_amount'] = pop['new_income_boosted'] * 125.
 
         # adjust by dwelling type. more savings with more rooms.
-        pop.loc[pop['dwelling_type'] == 1, 'GBIS_boost_amount'] *= 200 / 125  # adjust to 200 for houses.
+        pop.loc[pop['dwelling_type'] == 1, 'new_GBIS_boost_amount'] *= 200 / 125  # adjust to 200 for houses.
         # cant differentiate between house types for now.
         # pop.loc[pop['dwelling_type']==2, 'income_boosted'] *= 1 # no savings for apartments
-        pop.loc[pop['dwelling_type'] == 3, 'GBIS_boost_amount'] *= 200 / 125  # bungalows
+        pop.loc[pop['dwelling_type'] == 3, 'new_GBIS_boost_amount'] *= 200 / 125  # bungalows
 
-        pop['GBIS_boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
+        pop['new_GBIS_boost_amount'] *= pop['number_of_bedrooms'] * 1.2  # adjust by number of rooms.
         # best we can do in lieu of square footage.
+
+        pop['GBIS_boost_amount'] += pop['new_GBIS_boost_amount']
 
         # subtract insulation savings from energy bills.
         # NB THIS COST SHOULD ONLY SUBTRACTED ONCE WHEN THE PERSON IS INTERVENED UPON FOR THE FIRST TIME!!!
@@ -1226,13 +1222,11 @@ class EPCGandGBIS(Base):
         # pop['hh_income'] -= pop['intervention_cost']
         # reset boost amount to 0 before calculating next uplift
         pop['yearly_energy'] += pop['EPCG_intervention_cost']
-        pop['EPCG_intervention_cost'] = 0.
-
         # TODO some fine tuning around kwh and non-elec/gas use.
         # TODO check uniform household energy bills and intervention applied.
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
-        energy_mean = np.mean(pop.groupby(by='hidp')['yearly_energy'].median())
+        energy_mean = np.median(pop.groupby(by='hidp')['yearly_energy'].median())
         EPCG_market_cap = EPCG_cap_dict[self.EPCG_year]
 
         if energy_mean > EPCG_market_cap:  # energy cap only active when the mean consumption is over 3500.
