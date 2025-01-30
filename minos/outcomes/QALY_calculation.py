@@ -38,14 +38,16 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
 
     keep_columns = ["SF_12_MCS", "SF_12_PCS", "alive", "weight", "hidp", "pidp", "universal_credit",
                     "housing_sector", "simd_decile"]
-    if intervention != "baseline":
+    if intervention == "baseline":
+    elif intervention:
         keep_columns += ['intervention_cost', "income_boosted"]
-
+    else:
+        keep_columns += ['intervention_cost', "income_boosted"]
     df = pd.read_csv(filename, usecols= keep_columns, low_memory=False)
     if subset_func_string:
         df = dynamic_subset_function(df, subset_func_string, mode)
-        print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
-
+        #print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
+        #debug print checking subset containts any people at all.
     # get the run_id from the filename and attach to the dataset (if batch run)
     filename_nopath = filename.split(sep='/')[-1]
     if filename_nopath.count('_') == 0:
@@ -87,7 +89,8 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
         total_boost = None
     elif intervention == "EPCGandGBIS":
         # also adjust boost_amount
-        df['income_boosted'] = (df['EPCG_income_boosted'] | df["GBIS_income_boosted"])
+        if 'income_boosted' not in df.columns:
+            df['income_boosted'] = (df['EPCG_income_boosted'] | df["GBIS_income_boosted"])
         #df['boost_amount'] = (df['boost_amount'] * ((1 / df['weight']) / df['weight'].sum()))
         pop_boosted = df['income_boosted'].sum()
         total_boost = df.groupby(by=['hidp'])['intervention_cost'].max().sum() # TODO group by households, take max and sum.
