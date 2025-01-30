@@ -44,6 +44,51 @@ def integer_child_ages_to_list(ages):
     return age_list
 
 
+# HR 30/01/25 Add multiple integer-form child ages, e.g. for computing all children in household
+def add_integer_child_ages(ages_raw):
+
+    # Convert integer-form ages back to single list and sort
+    ages_list = []
+    for ages in ages_raw:
+        ages_list += integer_child_ages_to_list(ages)
+    ages_combined = age_64bit_integer_stack(sorted(ages_list))  # Sorting for readability
+
+    return ages_combined
+
+
+# HR 30/01/25 Remove one or multiple integer-form child ages, e.g. for updating household value if child leaves
+def remove_integer_child_ages(ages_all, ages_to_remove):
+
+    # Check whether single subtraction or multiple - not a complete solution!
+    if isinstance(ages_to_remove, int):
+        ages_to_remove = [ages_to_remove]
+
+    # Convert ages from integer to list form
+    ages_all_int = integer_child_ages_to_list(ages_all)
+    ages_to_remove_int = [integer_child_ages_to_list(el) for el in ages_to_remove]
+
+    # Do subtraction via list form and convert back to integer form
+    ages_final_list = remove_list_child_ages(ages_all_int, ages_to_remove_int)
+    ages_final = age_64bit_integer_stack(sorted(ages_final_list))
+
+    return ages_final
+
+
+# HR 30/01/25 Remove one or multiple list-form child ages, e.g. for updating household value if child leaves
+def remove_list_child_ages(ages_all, ages_to_remove):
+
+    # Check whether single subtraction or multiple - not a complete solution!
+    if not all(isinstance(el, list) for el in ages_to_remove):
+        ages_to_remove = [ages_to_remove]
+
+    ages_final = ages_all[:]
+    for ages in ages_to_remove:
+        ac = ages[:]  # Must copy here as "remove", which allows duplicates to be retained, mutates list
+        ages_final = [em for em in ages_final if em not in ac or ac.remove(em)]
+
+    return ages_final
+
+
 def main(adult_data, year):
 
     # Download children datasets in one at a time
