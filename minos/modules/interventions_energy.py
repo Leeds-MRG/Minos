@@ -77,13 +77,13 @@ class EPCG(Base):
         # pop['hh_income'] -= pop['intervention_cost']
         # reset boost amount to 0 before calculating next uplift
         #pop['yearly_energy'] += pop['intervention_cost']
-        pop['intervention_cost'] = 0.
 
         # TODO some fine tuning around kwh and non-elec/gas use.
         # TODO check uniform household energy bills and intervention applied.
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
         pop['yearly_energy'] += pop['intervention_cost']
+        pop['intervention_cost'] = 0.
         energy_mean = np.median(pop.groupby(by='hidp')['yearly_energy'].median())
 
         EPCG_market_cap = EPCG_cap_dict[min(event.time.year, 2025)]

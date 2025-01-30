@@ -149,7 +149,7 @@ def main(mode, intervention, subset_func_string=None):
         config = yaml.safe_load(stream)
         start_year = config['time']['start']['year']
         end_year = config['time']['end']['year']
-        years = np.arange(start_year, end_year)
+        years = np.arange(start_year, end_year+1)
 
     print(f"Starting QALY calculation for {batch_source} runs...")
     combined_output = pd.DataFrame()

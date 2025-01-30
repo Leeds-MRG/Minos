@@ -581,7 +581,7 @@ aggregate_minos_manchester_good_housing_dummy_PCS:
 
 aggregate_minos_manchester_combined_PCS:
 	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
-	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
+	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
 
 aggregate_minos_manchester_combined_PCS_private_rental:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_who_private_rental" "SF_12_PCS"
@@ -650,7 +650,7 @@ QALY_EPCG_AND_GBIS:
 
 
 all_energy_QALY: MODE=energy_manchester_scaled
-all_energy_QALY: QALY_baseline QALY_GHD QALY_EPCG QALY_GBIS QALY_EPCG_AND_GBIS
+all_energy_QALY: QALY_baseline  QALY_EPCG QALY_GBIS QALY_EPCG_AND_GBIS # QALY_GHD
 
 all_energy_QALY_plot:
 	python3 minos/outcomes/QALY_plot.py
