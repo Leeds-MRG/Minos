@@ -205,3 +205,26 @@ find_mode <- function(x) {
   u[tab == max(tab)]
 }
 
+
+bit64_double_child_ages_counter <- function(starting64BitInt)
+{
+  left <- paste0(as.integer(rev(intToBits(starting64BitInt %/% (2**32)))), collapse = "")
+  right <- paste0(as.integer(rev(intToBits(starting64BitInt %% (2**32)))), collapse = "")
+  
+  left <- gsub("(.{4})", "\\1 ", left)
+  right <- gsub("(.{4})", "\\1 ", right)
+  total <- paste0(left, right)
+  total <- strsplit(total, " ")[[1]]
+  
+  output = list()
+  for (i in 1:16) {
+    count <-  as.integer(strtoi(total[i], base=2))
+    if (count > 0){
+      for (j in count){
+        output <- append(output, 16 - i)
+      }
+    }
+  }
+  return(output)
+}
+  

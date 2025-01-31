@@ -268,7 +268,7 @@ def get_required_intervention_variables(subset_function_string):
 
     if "priority_subgroups" in subset_function_string:
         default_variables += ["nkids", "age", "ethnicity", "marital_status", "S7_labour_state", 'simd_decile',
-                              'has_newborn']
+                              'nnewborn_hh']
 
     if "energy" in subset_function_string:
         default_variables += ["yearly_energy"]
@@ -281,7 +281,7 @@ def get_required_intervention_variables(subset_function_string):
     required_variables_dict = {
         # priority subgroups for scotgov. single groups, all groups together, and multiple groups.
         # plus some very custom functions for mapping specific quintiles.
-        "who_newborn": ['nkids', "has_newborn"],
+        "who_newborn": ['nkids', 'nnewborn_hh'],
         "who_young_mothers": ['nkids', "age", "sex"],
         "who_disabled": ['nkids', "S7_labour_state"],
         "who_ethnic_minority": ['nkids', "ethnicity"],
@@ -372,7 +372,7 @@ def who_disabled(df):
 
 
 def who_has_newborn(df):
-    return df.query("`has_newborn` == True")
+    return df.query("`nnewborn_hh` > 0")
 
 
 def who_ethnic_minority(df):
