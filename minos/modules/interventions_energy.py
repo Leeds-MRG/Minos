@@ -94,6 +94,9 @@ class EPCG(Base):
             pop['income_boosted'] = (pop['intervention_cost'] != 0)
             pop['boost_amount'] = pop['intervention_cost']
             pop['yearly_energy'] -= pop['intervention_cost']
+        else:
+            pop['intervention_cost'] = 0
+            pop['boost_amount'] = 0
         print(f"Boost amount mean{np.mean(pop['intervention_cost'])}")
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
 
@@ -1237,6 +1240,10 @@ class EPCGandGBIS(Base):
             pop['EPCG_boost_amount'] = pop['EPCG_intervention_cost']
             # pop['intervention_cost'] = (energy_mean-3000)
             pop['yearly_energy'] -= pop['EPCG_intervention_cost']
+        else:
+            pop['EPCG_intervention_cost'] = 0
+            pop['EPCG_boost_amount'] = 0
+
         print(f"Boost amount mean{np.mean(pop['EPCG_intervention_cost'])}")
 
         #self.population_view.update(
