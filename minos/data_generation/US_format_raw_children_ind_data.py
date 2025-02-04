@@ -130,6 +130,12 @@ def main(adult_data, year):
     # adult_data['nkids_ind_u16'] = adult_data['child_ages_list'].str.len()  # Count U16 children
     adult_data['child_ages_ind'] = adult_data['child_ages_list'].apply(age_64bit_integer_stack)  # Convert to binary format
 
+    # Correct values of children ever had (nkids_ind_raw) here, as count(child_ages_ind) <= nkids_ind_raw
+    # Uncorrected, e.g. for 2019 data, 2.4% of women (268/11367) have count(child_ages_ind) > nkids_ind, which can't be correct
+    # Best to correct here, before nkids_ind_raw is converted to nkids_ind in GCV using monotonic filling
+    adult_data['children_ind'] = adult_data['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
+    adult_data.loc[adult_data['nkids_ind_raw'] < adult_data['children_ind'], 'nkids_ind_raw'] = adult_data['children_ind']
+
     ### BLOCK FOR TESTING
     # # Count unassigned children, i.e. children with no parents given
     # all_children = len(child_data)
@@ -146,7 +152,7 @@ def main(adult_data, year):
     ###
 
     # Drop extraneous columns
-    cols_to_drop = child_age_cols + ['child_ages_list']
+    cols_to_drop = child_age_cols + ['child_ages_list', 'children_ind']
     adult_data.drop(columns=cols_to_drop, inplace=True)
     return adult_data
 
@@ -161,3 +167,12 @@ if __name__ == '__main__':
     data = US_utils.load_multiple_data(file_names)
     input_data = data.loc[data['time'] == year].copy()
     adult_data = main(input_data, year)
+
+    # HR 31/01/25 Testing correction to nkids_ind (1) using child_ages_ind (2), as should have (1) >= (2) everywhere
+    y = 2019
+    pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
+    dy = pd.read_csv(pathy)
+    dy = dy.loc[dy['sex'] == 'Female']
+    dy['children_ind'] = dy['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
+    dy['kids_diff'] = dy['children_ind'] - dy['nkids_ind']
+
