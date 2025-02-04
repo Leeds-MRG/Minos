@@ -153,10 +153,6 @@ ggplot(combined, aes(x = time, y = age_group_counts, group = age_group, colour =
   xlab('Year') +
   ylab('Count')
 
-
-
-
-
 raw.countOldAge <- raw.dat %>%
   filter(age > 75) %>%
   mutate(age_group = cut(age,
@@ -212,13 +208,11 @@ base.oldAgePct[[var]] <- as.factor(base.oldAgePct[[var]])
 merged <- rbind(raw.oldAgePct, base.oldAgePct)
 merged[[var]] <- as.factor(merged[[var]])
 
-
 var.norm <- merged %>%
     group_by(time) %>%
     mutate(total = sum(n)) %>%
     mutate(prct = (n / total) * 100)
 ```
-
 
 ## Population Counts
 
@@ -263,7 +257,6 @@ ggplot(combined, aes(x = time, y = n, group = source, color = source, fill = sou
   geom_line() +
   labs(title = 'Households Count')
 ```
-
 
 ### Households With Children
 
@@ -390,7 +383,6 @@ ggplot(combined, aes(x = time, y = proportion, group = income_group, color = inc
   labs(title = 'Households with Children Count')
 ```
 
-
 ```{r}
 # Step 1: Filter for households with children
 households_with_kids <- raw.dat %>%
@@ -412,7 +404,6 @@ household_count_by_income_quintile <- households_with_kids %>%
 
 household_count_by_income_quintile
 ```
-
 
 # PATHWAYS
 
@@ -457,6 +448,7 @@ rm(raw.inc, base.inc, income.spag)
 ### Poverty Thresholds
 
 #### Relative
+
 ```{r}
 rel.threshold.raw <- raw.dat %>%
   select(time, weight, hh_income) %>%
@@ -482,6 +474,7 @@ ggplot(data = rel.threshold, aes(x = time, y = poverty_threshold)) +
 ```
 
 #### Absolute
+
 ```{r}
 raw.2010 <- raw.dat %>%
   filter(time == 2010)
@@ -493,7 +486,6 @@ abs.threshold <- abs.threshold * 0.6
 
 print(sprintf("The absolute poverty threshold is £%.02f", abs.threshold))
 ```
-
 
 ## SF12
 
@@ -794,7 +786,6 @@ TODO: Drop negative values ONLY from waves with no data i.e. not 7,9,11
 handover_boxplots(raw.dat, base.dat, 'nutrition_quality')
 handover_lineplots(raw.dat, base.dat, 'nutrition_quality')
 
-
 # Try a version where final_US is limited to only those present from wave 1
 # onwards because the sample refreshments are messing with the plot
 # raw.wave1 <- raw.dat$pidp[raw.dat$time == 2009]
@@ -984,11 +975,8 @@ if (shall.we.save) {
          path = save.path)
 }
 
-
 rm(prepped.list, lab.state, lab.state.norm)
 ```
-
-
 
 ```{r}
 pivoted <- combine_and_pivot_long(df1 = base.dat, 
@@ -1036,11 +1024,8 @@ if (shall.we.save) {
          path = save.path)
 }
 
-
 rm(prepped.list, var, norm, tit)
 ```
-
-
 
 ```{r}
 pivoted <- combine_and_pivot_long(df1 = base.dat,
@@ -1086,8 +1071,6 @@ base.financial_situation <- base.dat %>%
   group_by(time, financial_situation) %>%
   count() %>%
   mutate(source = 'baseline_output')
-
-
 
 # merge before plot
 financial_situation <- rbind(raw.financial_situation, base.financial_situation)
@@ -1137,8 +1120,6 @@ base.behind_on_bills <- base.dat %>%
   count() %>%
   mutate(source = 'baseline_output')
 
-
-
 # merge before plot
 behind_on_bills <- rbind(raw.behind_on_bills, base.behind_on_bills)
 behind_on_bills$behind_on_bills <- as.factor(behind_on_bills$behind_on_bills)
@@ -1172,8 +1153,7 @@ if (shall.we.save) {
 rm(raw.behind_on_bills, base.behind_on_bills, behind_on_bills, behind_on_bills.norm)
 ```
 
-
-## nkids Household
+## nkids (Household Level)
 
 ```{r}
 raw.hh_unique <- raw.dat %>%
@@ -1269,7 +1249,6 @@ if (shall.we.save) {
          path = save.path)
 }
 
-
 rm(prepped.list, var, norm, tit)
 ```
 ```{r}
@@ -1284,7 +1263,6 @@ cv_ordinal_plots(pivoted.df = pivoted,
                  save = shall.we.save,
                  save.path = save.path)
 ```
-
 
 ### Spaghetti
 
@@ -1332,7 +1310,7 @@ spaghetti_plot(spag, 'hourly_wage',
 rm(raw.s, base.s, spag)
 ```
 
-## Child Ages
+## Child Ages (Household Level)
 
 ```{r}
 raw.child.ages <- raw.dat %>%
@@ -1342,7 +1320,7 @@ raw.child.ages <- raw.dat %>%
   summarise(child_ages = find_mode(child_ages))
 
 r.s <- lapply(raw.child.ages$child_ages, bit64_double_child_ages_counter)
-#r.s<- strsplit(raw.child.ages$child_ages, "_")
+#r.s <- strsplit(raw.child.ages$child_ages, "_")
 
 raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
 raw.child.ages.expanded <- raw.child.ages.expanded %>%
@@ -1358,7 +1336,7 @@ base.child.ages <- base.dat %>%
   summarise(child_ages = find_mode(child_ages))
 
 b.s <- lapply(base.child.ages$child_ages, bit64_double_child_ages_counter)
-#b.s<- strsplit(base.child.ages$child_ages, "_")
+#b.s <- strsplit(base.child.ages$child_ages, "_")
 
 base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
 base.child.ages.expanded <- base.child.ages.expanded %>%
@@ -1369,12 +1347,12 @@ base.child.ages.expanded <- base.child.ages.expanded %>%
 combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
 
 combined$expanded_child_ages <- factor(combined$expanded_child_ages,
-                                       levels = c('0', '1', '2', '3', '4', '5', 
-                                                  '6', '7', '8', '9', '10', 
-                                                  '11', '12', '13', '14', '15', 
+                                       levels = c('0', '1', '2', '3', '4', '5',
+                                                  '6', '7', '8', '9', '10',
+                                                  '11', '12', '13', '14', '15',
                                                   '16', 'childless'))
-  
-ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
+
+ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour = factor(as.numeric(expanded_child_ages)))) +
   geom_line() +
   geom_vline(xintercept = start.year) +
   labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
@@ -1414,8 +1392,93 @@ ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group =
 
 ```
 
+## Child Ages (Individual Level)
+
+```{r}
+ch.yr.start <- 2009
+
+raw.child.ages.ind <- raw.dat %>%
+  dplyr::select(pidp, hidp, time, "child_ages_ind", "nkids_ind", "sex") %>%
+  filter(time >= ch.yr.start & sex == "Female") %>%
+  group_by(time, hidp) %>%
+  summarise(child_ages_ind = find_mode(child_ages_ind))
+
+r.s <- lapply(raw.child.ages.ind$child_ages_ind, bit64_double_child_ages_counter)
+#r.s <- strsplit(raw.child.ages.ind$child_ages_ind, "_")
+
+raw.child.ages.ind.expanded <- data.frame(time = rep(raw.child.ages.ind$time, sapply(r.s, length)), expanded_child_ages_ind = unlist(r.s))
+raw.child.ages.ind.expanded <- raw.child.ages.ind.expanded %>%
+  group_by(time, expanded_child_ages_ind) %>%
+  summarise(age_counts = n()) %>%
+  mutate(source = 'final_US') #%>%
+  #filter(expanded_child_ages_ind <= 16)
+
+base.child.ages.ind <- base.dat %>%
+  dplyr::select(pidp, hidp, time, "child_ages_ind", "nkids_ind", "sex") %>%
+  filter(time >= ch.yr.start & sex == "Female") %>%
+  group_by(time, hidp) %>%
+  summarise(child_ages_ind = find_mode(child_ages_ind))
+
+b.s <- lapply(base.child.ages.ind$child_ages_ind, bit64_double_child_ages_counter)
+#b.s <- strsplit(base.child.ages.ind$child_ages_ind, "_")
+
+base.child.ages.ind.expanded <- data.frame(time = rep(base.child.ages.ind$time, sapply(b.s, length)), expanded_child_ages_ind = unlist(b.s))
+base.child.ages.ind.expanded <- base.child.ages.ind.expanded %>%
+  group_by(time, expanded_child_ages_ind) %>%
+  summarise(age_counts = n()) %>%
+  mutate(source = 'baseline')
+
+combined.ind <- rbind(raw.child.ages.ind.expanded, base.child.ages.ind.expanded)
+
+combined.ind$expanded_child_ages_ind <- factor(combined.ind$expanded_child_ages_ind,
+                                               levels = c('0', '1', '2', '3', '4', '5',
+                                                          '6', '7', '8', '9', '10',
+                                                          '11', '12', '13', '14', '15',
+                                                          '16', 'childless'))
+
+ggplot(data = combined.ind, mapping = aes(x = time, y = age_counts, group = expanded_child_ages_ind, colour = factor(as.numeric(expanded_child_ages_ind)))) +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+  scale_colour_viridis_d() +
+  xlab('Year') +
+  ylab('Count')
+
+ggplot(data = combined.ind, mapping = aes(x = expanded_child_ages_ind, y = age_counts, group = factor(time), colour = factor(time))) +
+  geom_line() +
+  geom_vline(xintercept = start.year) +
+  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
+  scale_colour_viridis_d() +
+  xlab('Age') +
+  ylab('Count')
+
+base.child.ages.nkids.ind <- base.dat %>%
+  filter(sex == "Female") %>%
+  group_by(time, hidp) %>%
+  summarise(nkids_counts = mean(nkids_ind)) %>%
+  group_by(time) %>%
+  summarise(nkids_by_year = sum(nkids_counts)) %>%
+  mutate(source = 'baseline')
+
+raw.child.ages.nkids.ind <- raw.dat %>%
+  filter(sex == "Female") %>%
+  group_by(time, hidp) %>%
+  summarise(nkids_counts = mean(nkids_ind)) %>%
+  group_by(time) %>%
+  summarise(nkids_by_year = sum(nkids_counts)) %>%
+  mutate(source = 'final_US')
+
+combined.nkids.ind <- rbind(base.child.ages.nkids.ind, raw.child.ages.nkids.ind)
+
+ggplot(data = combined.nkids.ind, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
+  geom_line() +
+  labs(title = "nkids_ind Count Over Time", subtitle = 'Counts by Level') +
+  xlab('Year') +
+  ylab('Count')
+
+```
+
 
 ```{r}
 
 ```
-
