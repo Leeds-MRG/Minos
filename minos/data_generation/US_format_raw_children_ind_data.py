@@ -167,12 +167,11 @@ if __name__ == '__main__':
     data = US_utils.load_multiple_data(file_names)
     input_data = data.loc[data['time'] == year].copy()
     adult_data = main(input_data, year)
-
-    # HR 31/01/25 Testing correction to nkids_ind (1) using child_ages_ind (2), as should have (1) >= (2) everywhere
-    y = 2019
-    pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
-    dy = pd.read_csv(pathy)
-    dy = dy.loc[dy['sex'] == 'Female']
-    dy['children_ind'] = dy['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
-    dy['kids_diff'] = dy['children_ind'] - dy['nkids_ind']
-
+    #
+    # # HR 31/01/25 Testing correction to nkids_ind (1) using child_ages_ind (2), as should have (1) >= (2) everywhere
+    # y = 2019
+    # pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
+    # dy = pd.read_csv(pathy)
+    # dy = dy.loc[dy['sex'] == 'Female']
+    # dy['children_ind'] = dy['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
+    # dy['kids_diff'] = dy['children_ind'] - dy['nkids_ind']
