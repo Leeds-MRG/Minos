@@ -41,13 +41,12 @@ with pensioners
 ```{r}
 
 # load in data
-
-
-#data <- read.csv(here::here("data", "composite_US", "2020_US_cohort.csv"))
-data <- read.csv(here::here("data", "scaled_manchester_US", "2020_US_cohort.csv"))
+# either composite or synthpop data
+data <- read.csv(here::here("data", "composite_US", "2020_US_cohort.csv"))
+#data <- read.csv(here::here("data", "scaled_manchester_US", "2020_US_cohort.csv"))
 data <- data %>% filter(housing_tenure > 0)
 
-#recast housing tenure for a tidy table.
+#recast housing tenure for a tidy table. neat strings rather than int codes. also binning some things per ws7 definition.
 data$housing_tenure_simple <- data$housing_tenure
 # https://www.understandingsociety.ac.uk/documentation/mainstage/variables/tenure_dv/
 data[which(data$housing_tenure_simple == 1), "housing_tenure_simple"] <- "1 - Owned Outright"
@@ -59,67 +58,115 @@ data[which(data$housing_tenure_simple == 6), "housing_tenure_simple"] <- "3 - Pr
 data[which(data$housing_tenure_simple == 7), "housing_tenure_simple"] <- "3 - Private Rental" # binning other into private rental for now. 
 data[which(data$housing_tenure_simple == 8), "housing_tenure_simple"] <- "3 - Private Rental" # binning other into private rental for now. 
 
+# Do same for heating as well.
 data[which(data$heating == 0), "heating"] <- "0 - Not Comfortable"
 data[which(data$heating == 1), "heating"] <- "1 - Comfortable"
 
 
+# functino to process data into rows of final data frame
 tenure_data_table_subgroup <- function(df, pop_size, include_tenure_column, count_type, group_name){
-tenure_table1 <- df %>%
+  "
+  df - data frame
+  pop_size - population size. used to calculate percentages. need to be specific about which population you want here. 
+    typically either the total population or the population in relative poverty.
+  include_tenure_column - 
+  count_type - 
+  group_name - 
+  "
+  
+
+# calculate first set of four rows. percentages of the entire population in
+# all
+# with children
+# without children
+# pensioners
+row_table1 <- df %>%
           count(housing_tenure_simple) %>%
           mutate(prct = 100*n/pop_size) %>%
           mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*n/pop_size, 2)), ")")) %>%
           mutate("Group"= group_name) %>%
-          select("housing_tenure_simple","Group", "n_total")
+          select("housing_tenure_simple","Group", "n", "n_total")
           #rbind(c("Total", nrow(data), 100)) %>%
 
-colnames(tenure_table1) <- c("Housing Tenure", "Group", count_type)
+colnames(row_table1) <- c("Housing Tenure", "Group", "n", count_type)
 
 #print(tenure_table1)
 
 
 # getting the required second column for each housing tenure type. 
-tenure_table2 <- df %>%
+row_table2 <- df %>%
                   group_by(housing_tenure_simple) %>%
                       count(heating) %>%
                         filter(heating == "0 - Not Comfortable") %>%
   # ungrouping here to give percentage of the entire population rather than percentage of each housing tenure. can use either by hashing this column.
                     ungroup() %>% 
-                      mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*n/sum(n), 2)), ")")) %>%
+                      #mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*n/sum(n), 2)), ")")) %>%
+                      mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*n/row_table1$n, 2)), ")")) %>%
           mutate("Group"= "n (% PTC)") %>% #"Number of Poor Thermal Comfort Adults in Subpopulation (% of Subpopulation)"
-          select("housing_tenure_simple","Group", "n_total")
-colnames(tenure_table2) <- c("Housing Tenure", "Group", count_type)
+          select("housing_tenure_simple","Group", "n", "n_total")
+colnames(row_table2) <- c("Housing Tenure", "Group", "n", count_type)
 
 #print(tenure_table2)
 
+row_table <- rbind(row_table1, row_table2)
+row_table <- row_table %>% arrange(`Housing Tenure`)
 
-tenure_table <- rbind(tenure_table1, tenure_table2)
-tenure_table <- tenure_table %>% arrange(`Housing Tenure`)
-
+  
 if(!include_tenure_column){
-  tenure_table <- tenure_table %>% select(count_type)
+  row_table <- row_table %>% select(count_type, "n")
 }
-return(tenure_table)
+return(row_table)
 }
 
 # "Number of Adults (% of Entire Adult Population)"
 tenure_table1 <- tenure_data_table_subgroup(data, nrow(data), T, "All", "n (% total)")
+
+sub_population_sizes1 <- tenure_table1$n
+sub_population_sizes1 <- sub_population_sizes1[seq(1, length(sub_population_sizes1), 2)]
+
 housing_tenure_list <- tenure_table1$`Housing Tenure`
-tenure_table1 <- tenure_table1 %>% select("Group", "All")
-tenure_table2 <- tenure_data_table_subgroup(data %>% filter(nkids>0), nrow(data), F, "With Children", "n (% total)") # children.
-tenure_table3 <- tenure_data_table_subgroup(data %>% filter(nkids<=0), nrow(data), F, "Without Children", "n (% total)") # no children
-tenure_table4 <- tenure_data_table_subgroup(data%>% filter(age>65), nrow(data), F, "Pensioners", "n (% total)") # pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+## tenure_table1 <- tenure_table1 %>% select("Group", "All")
+tenure_table2 <- tenure_data_table_subgroup(data %>% filter(nkids>0), sub_population_sizes1, F, "With Children", "n (% total)") # children.
+tenure_table3 <- tenure_data_table_subgroup(data %>% filter(nkids<=0), sub_population_sizes1, F, "Without Children", "n (% total)") # no children
+tenure_table4 <- tenure_data_table_subgroup(data%>% filter(age>65), sub_population_sizes1, F, "Pensioners", "n (% total)") # pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+
+sub_population_sizes2 <- tenure_table2$n
+sub_population_sizes2 <- sub_population_sizes2[seq(1, length(sub_population_sizes2), 2)]
+
+sub_population_sizes3 <- tenure_table3$n
+sub_population_sizes3 <- sub_population_sizes3[seq(1, length(sub_population_sizes3), 2)]
+
+sub_population_sizes4 <- tenure_table4$n
+sub_population_sizes4 <- sub_population_sizes4[seq(1, length(sub_population_sizes4), 2)]
+
+tenure_table1$n <- NULL
+tenure_table2$n <- NULL
+tenure_table3$n <- NULL
+tenure_table4$n <- NULL
 
 # NOTE THE TOTAL POPULATION CHANGES HERE. LOOKING AT SMALLER POPULATION nrow(poverty_data) RATHER THAN FULL POPULATION nrow(data)
 #"Number of Adults (% of Entire Adult Population in Relative Poverty)" 
 poverty_data<- data %>% filter(hh_income < 0.6*median(hh_income)) # standard relative poverty definition.
-tenure_table5 <- tenure_data_table_subgroup(poverty_data, nrow(poverty_data), T, "All Poverty", "n (% all poverty)")
+tenure_table5 <- tenure_data_table_subgroup(poverty_data, sub_population_sizes1, T, "All Poverty", "n (% all poverty)")
+
+
+sub_population_sizes5 <- tenure_table5$n
+sub_population_sizes5 <- sub_population_sizes5[seq(1, length(sub_population_sizes5), 2)]
+
+
 tenure_table5 <- tenure_table5 %>% select("Group", "All Poverty")
-tenure_table6 <- tenure_data_table_subgroup((poverty_data %>% filter(nkids>0)), nrow(poverty_data), F, "Poverty With Children",  "n (% all poverty)") # children.
-tenure_table7 <- tenure_data_table_subgroup(poverty_data %>% filter(nkids<=0), nrow(poverty_data), F, "Poverty Without Children", "n (% all poverty)") # no children
-tenure_table8 <- tenure_data_table_subgroup(poverty_data%>% filter(age>65), nrow(poverty_data), F, "Poverty With Pensioners", "n (% all poverty)") # pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+tenure_table6 <- tenure_data_table_subgroup((poverty_data %>% filter(nkids>0)), sub_population_sizes5, F, "Poverty With Children",  "n (% all poverty)") # children.
+tenure_table7 <- tenure_data_table_subgroup(poverty_data %>% filter(nkids<=0), sub_population_sizes5, F, "Poverty Without Children", "n (% all poverty)") # no children
+tenure_table8 <- tenure_data_table_subgroup(poverty_data%>% filter(age>65), sub_population_sizes5, F, "Poverty With Pensioners", "n (% all poverty)") # pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
 
-final_tenure_table <- rbind(tenure_table1,tenure_table2,tenure_table3,tenure_table4,tenure_table5,tenure_table6,tenure_table7,tenure_table8)
 
+tenure_table5$n <- NULL
+tenure_table6$n <- NULL
+tenure_table7$n <- NULL
+tenure_table8$n <- NULL
+
+final_tenure_table <- cbind(tenure_table1,tenure_table2,tenure_table3,tenure_table4,tenure_table5,tenure_table6,tenure_table7,tenure_table8)
+#colnames(final_tenure_table)[1] <- "Housing Tenure"
 
 output_table <- xtable(t(final_tenure_table), caption="Testing table 1 for SIPHER flagship paper.", align = "|l|l|l|l|l|l|l|l|l|l|l|")
 
@@ -133,7 +180,7 @@ addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multi
 print(output_table, add.to.row=addtorow, file='test.tex', include.colnames=F, hline.after=c(-1,0,1,5,6,10))
 
 
-final_tenure_table$housing_tenure <- housing_tenure_list
+#final_tenure_table$housing_tenure <- housing_tenure_list
 write.csv(t(final_tenure_table), file="test.csv") # names arg drops column names
 
 
@@ -238,6 +285,30 @@ References NEED data.
 
 https://assets.publishing.service.gov.uk/media/5a82338f40f0b62305b93052/BEIS_Update_of_Domestic_Cost_Assumptions_031017.pdf
 2017 BEIS retrofit costing. 
+
+
+
+
+ ns are right. subgrouping by column or row?  100% population for everyone in all column rather than % of the entire population. e.g. 5613/11322 approx 50%
+ 
+1472 households want this to be the total percentage of total All housholds above. 1472/11322
+
+same for children. want percentage of all households in above column 191/1054.
+
+doing percentages from bottom half of top  half.
+
+for second column want percentage of all households with poor thermal comfort 284/11322.
+
+same through for each row. for pensioners want 112/5613.
+
+same for second set of columns. would then compare these percentages for each row in both cases. e.g. expect higher percentage of pensioner households in fuel poverty than in general population.
+
+
+
+1472 households want this to be the total percentage of total All housholds above. 1472/11322
+same for children. want percentage of all households in above column 191/1054.
+second column first four rows looks right.
+second column bottom four rows looks right.
 
 
 

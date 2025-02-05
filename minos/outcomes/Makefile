@@ -512,6 +512,10 @@ aggregate_minos_manchester_combined:
 	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 
+aggregate_minos_manchester_private_rental_combined:
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_MCS"
+	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_MCS"
+
 aggregate_minos_manchester_combined_private_rental:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_who_private_rental" "SF_12_MCS"
 
@@ -581,6 +585,10 @@ aggregate_minos_manchester_good_housing_dummy_PCS:
 
 aggregate_minos_manchester_combined_PCS:
 	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
+	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
+
+aggregate_minos_manchester_combined_private_rental_PCS:
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_PCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
 
 aggregate_minos_manchester_combined_PCS_private_rental:
@@ -697,6 +705,49 @@ all_energy_QALY_quintiles: QALY_baseline_quintiles QALY_EPCG_quintiles QALY_GBIS
 all_energy_QALY_quintiles_plot:
 	python3 minos/outcomes/QALY_quintiles_plot.py
 
+QALY_baseline_income_quintiles: INTERVENTION=baseline
+QALY_baseline_income_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_income_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_EPCG_income_quintiles: INTERVENTION=EPCG
+QALY_EPCG_income_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_income_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_GBIS_income_quintiles: INTERVENTION=GBIS
+QALY_GBIS_income_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_income_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+QALY_EPCG_AND_GBIS_income_quintiles: INTERVENTION=EPCGandGBIS
+QALY_EPCG_AND_GBIS_income_quintiles:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_first_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_second_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_third_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fourth_income_quintile
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_fifth_income_quintile
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)
+
+all_energy_QALY_income_quintiles: MODE=energy_manchester_scaled
+all_energy_QALY_income_quintiles: QALY_baseline_income_quintiles QALY_EPCG_income_quintiles
+all_energy_QALY_income_quintiles: QALY_GBIS_income_quintiles QALY_EPCG_AND_GBIS_income_quintiles
+
+all_energy_QALY_income_quintiles_plot:
+	python3 minos/outcomes/QALY_income_quintiles_plot.py
+
 QALY_baseline_private_and_UC: INTERVENTION=baseline
 QALY_baseline_private_and_UC:
 	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
@@ -754,6 +805,7 @@ BIG_DADDY_PAPER_3: all_energy_QALY all_energy_QALY_quintiles all_energy_QALY_pri
 #BIG_DADDY_PAPER_3: aggregate_minos_manchester_EPCG_quintiles_income aggregate_minos_manchester_GBIS_quintiles_income
 #BIG_DADDY_PAPER_3: aggregate_minos_manchester_noEnergyPriceIncrease aggregate_minos_manchester_noEnergyPriceIncrease_yearly_energy
 BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS
+BIG_DADDY_PAPER_3: aggregate_minos_manchester_private_rental_combined aggregate_minos_manchester_combined_private_rental_PCS
 #BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined_private_rental aggregate_minos_manchester_combined_PCS_private_rental # ADDING IN private/public rental sector subgruops.
 #BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined_private_rental_and_UC aggregate_minos_manchester_combined_PCS_and_UC # ADDING IN private rental sectors AND UC/disabled.
 #BIG_DADDY_PAPER_3: aggregate_minos_manchester_combined aggregate_minos_manchester_combined_PCS # ADDING IN private rental sectors AND UC/disabled.
