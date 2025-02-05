@@ -1,13 +1,13 @@
-
 from minos.modules.base_module import Base
 import pandas as pd
 import logging
 import numpy as np
 
+
 class Ageing(Base):
 
     def setup(self, builder):
-        """ Method for initialising the depression module.
+        """ Method for initialising the ageing module.
 
         Parameters
         ----------
@@ -20,12 +20,9 @@ class Ageing(Base):
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
-        view_columns = ['pidp',
-                        'hidp',
-                        'age',
-                        'nkids',
-                        'time',
-                        'child_ages']
+        view_columns = ['pidp', 'hidp', 'age', 'time',
+                        'nkids', 'nkids_ind',
+                        'child_ages', 'child_ages_ind']
 
         # Shorthand methods for readability.
         self.population_view = builder.population.get_view(view_columns)  # view simulants
@@ -46,7 +43,6 @@ class Ageing(Base):
         #population['age'] += event.step_size / pd.Timedelta(days=365.25)
         population['age'] += 1
 
-
         # add one to current year
         #population['time'] += int(event.step_size / pd.Timedelta(days=365.25))
         population['time'] += 1
@@ -57,19 +53,13 @@ class Ageing(Base):
         population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
         # update children age chains.
         population = self.update_binary_child_ages(population)
-
-        # When a child reaches 16 years old and is then removed from the child_ages and nkids columns, the
-        # child_ages column is filled with a nan value instead of 'None'
-        # Doing this cleanup here because this is causing a mixed type column (strings for age_chains and float for nan)
-        #population['child_ages'][population['child_ages'].isna()] = None
-
-        population['nkids'] = population['nkids'].astype(float)
-        population['age'] = population['age'].astype('Int64')
+        population = self.update_binary_child_ages_ind(population)
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
-        self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
-
+        self.population_view.update(population[['age', 'time',
+                                                'nkids', 'nkids_ind',
+                                                'child_ages', 'child_ages_ind']])
 
     def update_child_ages(self, pop):
         """ Update age chains for all households with alive individuals.
@@ -85,8 +75,6 @@ class Ageing(Base):
         pop['age_nkids_tuple'] = pop['child_ages'].apply(lambda x: self.increment_age_chains(x))
                                                     #pd.DataFrame(.to_list(), index=pop.index)
 
-
-
         pop[['child_ages', 'nkids']] = pop['age_nkids_tuple'].tolist()
         pop['nkids'] = pop['nkids'].astype(float)
         return pop
@@ -97,7 +85,7 @@ class Ageing(Base):
         Returns
         -------
         age_chain: string
-            List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
+            List of ages of children in the household in descending order separated by dashes -. e.g. 12-4-3-2.
         """
 
         if age_chain is None or age_chain == 'None':
@@ -122,7 +110,6 @@ class Ageing(Base):
 
         return age_chain, new_nkids
 
-
     def update_binary_child_ages(self, pop):
         """ Update age chains for all households with alive individuals.
 
@@ -139,14 +126,33 @@ class Ageing(Base):
         updated_ages = pop['child_ages'].apply(lambda x: self.increment_binary_age_chains(x))
                                                     #pd.DataFrame(.to_list(), index=pop.index)
 
-
-
         pop[['child_ages', 'nkids_delta']] = updated_ages.tolist()
         pop['nkids'] -= pop['nkids_delta']
         pop['child_ages'] = pop['child_ages'].astype('int64')
         pop['nkids'] = pop['nkids'].astype('float64')
         return pop
 
+    def update_binary_child_ages_ind(self, pop):
+        """ Update age chains for all individuals
+
+        Parameters
+        ----------
+        pop: pd.DataFrame
+
+        Returns
+        -------
+        pop: pd.DataFrame
+        """
+
+        pop['child_ages_ind'] = pop['child_ages_ind'].astype('int64')  # Why, Pandas, why?
+
+        updated_ages = pop['child_ages_ind'].apply(lambda x: self.increment_binary_age_chains(x))
+        pop[['child_ages_ind', 'nkids_ind_delta']] = updated_ages.tolist()
+        # pop['nkids_ind'] -= pop['nkids_ind_delta']  # No! nkids_ind is children *ever* had, so must never be decremented
+
+        pop['child_ages_ind'] = pop['child_ages_ind'].astype('int64')
+        # pop['nkids_ind'] = pop['nkids_ind'].astype('float64')
+        return pop
 
     def increment_binary_age_chains(self, age_chain):
         """ update the ages of children in the age chains
@@ -154,7 +160,7 @@ class Ageing(Base):
         Returns
         -------
         age_chain: string
-            List of ages of children in the household in descending order seperated by dashes -. e.g. 12-4-3-2.
+            Integer-form variable of children in household in descending order; four bits per age bucket
         """
 
         if age_chain == 0:
@@ -163,12 +169,12 @@ class Ageing(Base):
         # calculate exiting 16 year olds to calculate nkids change.
         exiting_kids = age_chain >> 60
         # cut 15 year olds off bit shifting left 4.
-        # resetting back to 64 bits. kinda ugly mask. 0xFFFFFFFF is the biggest int64 in hex for readibility. 2**63.
-        #TODO BUG IS HERE SOMEWHERE? not counting vlaues above 8 properly.
+        # resetting back to 64 bits. kinda ugly mask. 0xFFFFFFFF is the biggest int64 in hex for readability. 2**63.
+        #TODO BUG IS HERE SOMEWHERE? not counting values above 8 properly.
 
-        # 0xFFFFFFFF is the biggest number possible for int 64 as a hexidecimal.
+        # 0xFFFFFFFF is the biggest number possible for int 64 as a hexadecimal.
         # This is just a bit mask cutting the first four bits off
-        mask = (1 << 60) - 1
+        mask = (1 << 15*4) - 1
         age_chain = mask & (age_chain) #0xFFFFFFFF &
         age_chain = age_chain << 4
         return age_chain, exiting_kids

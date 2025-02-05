@@ -285,7 +285,10 @@ class nkidsFertilityAgeSpecificRates(Base):
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
-        view_columns = ['sex', 'ethnicity', 'age', 'nkids', 'nkids_ind', 'hidp', 'pidp', "child_ages", 'nnewborn', 'nresp', 'nnewborn_hh']
+        view_columns = ['sex', 'ethnicity', 'age', 'hidp', 'pidp',
+                        'nkids', 'nkids_ind', 'nresp',
+                        'child_ages', 'child_ages_ind',
+                        'nnewborn_hh', 'nnewborn']
         columns_created = []
         builder.population.initializes_simulants(self.on_initialize_simulants,
                                                  creates_columns=columns_created)
@@ -339,11 +342,13 @@ class nkidsFertilityAgeSpecificRates(Base):
         # get women who had children.
         had_children = self.randomness.filter_for_rate(who_women, rate_series).copy()
 
-        # 1. Find individuals who have had children by pidp and increment nkids_ind by 1
+        # 1. Find individuals who have had children by pidp and increment ind-level variables by 1
         who_had_children_individuals = population.loc[had_children, 'pidp'].index
         # print('Number of newborns: {}'.format(len(who_had_children_individuals)))
         population.loc[who_had_children_individuals, 'nnewborn'] = 1
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
+        population.loc[who_had_children_individuals, 'child_ages_ind'] += 1
+
         # HR 12/12/24 Also updating nresp and randomly decrementing 1/16 of individuals by one to account for ageing out of 0-15 age range
         # This is an imperfect solution as it doesn't account for actual child ages explicitly, which are currently constructed by hh, not ind
         population.loc[who_had_children_individuals, 'nresp'] += 1
@@ -366,7 +371,10 @@ class nkidsFertilityAgeSpecificRates(Base):
         # 4. Update population + type corrections (grrr)
         # population['nnewborn'] = population['nnewborn'].astype('int64')  # HR 10/12/24 Annoying but this is easiest workaround
         population['nnewborn_hh'] = population['nnewborn_hh'].astype('int64')
-        self.population_view.update(population[['nkids_ind', 'child_ages', 'nkids', 'nnewborn', 'nnewborn_hh']])
+
+        self.population_view.update(population[['nkids', 'nkids_ind', 'nresp',
+                                                'child_ages', 'child_ages_ind',
+                                                'nnewborn', 'nnewborn_hh']])
 
     def add_new_child_to_chain(self, age_chain, nnew=1):
 
