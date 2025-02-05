@@ -122,7 +122,7 @@ estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend)
 }
 
 estimate_yearly_zip <- function(data, formula, include_weights = FALSE, depend) {
-  browser()
+  
   data <- replace.missing(data)
   if(include_weights) {
     model <- zeroinfl(formula = formula,
@@ -437,7 +437,8 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
     data = data,
     num.trees = 100,
     probability = TRUE,
-    verbose = FALSE
+    verbose = FALSE,
+    importance = "permutation"
   )
   
   return(ranger_model)
