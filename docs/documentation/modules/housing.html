@@ -20,6 +20,8 @@
         <script src="../../_static/doctools.js?v=dcc2bf79"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -54,9 +56,7 @@
 <li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Introduction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Housing Quality</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction.</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transition-model">Transition Model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
@@ -117,25 +117,48 @@
              
   <section id="housing-quality">
 <h1>Housing Quality<a class="headerlink" href="#housing-quality" title="Link to this heading"></a></h1>
-<section id="introduction">
-<h2>Introduction.<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
-<p>Housing Quality.</p>
-</section>
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
-<p>What methods are used? Justification due to output data type.
-explanation of model output.</p>
+<p>Housing Quality is one of the pathways outlined by the SIPHER consortium
+that mediates the impact of changes in household disposable income on
+mental wellbeing.</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk housing_barchart" src="../../_images/housing_barchart-1.png" />
 <figcaption>
 <p><span class="caption-number">Fig. 4 </span><span class="caption-text">plot of chunk housing_barchart</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-</section>
-<section id="data">
-<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
-<p>What variables are included? Why is this output chosen. What explanatory
-variables are used and why are they chosen</p>
+<section id="transition-model">
+<h2>Transition Model<a class="headerlink" href="#transition-model" title="Link to this heading"></a></h2>
+<p>We use a Random Forest Ordinal model from the
+<a class="reference external" href="https://www.rdocumentation.org/packages/ranger/versions/0.16.0">ranger</a>
+package in R to estimate transitions for this variable.</p>
+<p>Formula:</p>
+<div class="math notranslate nohighlight">
+\[housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + housing\_tenure + behind\_on\_bills + financial\_situation\]</div>
+<ul class="simple">
+<li><p>age: Age at time of interview.</p></li>
+<li><p>sex: Individual’s biological sex.</p></li>
+<li><p>ethnicity: Discrete string values White British, Black African, etc.</p></li>
+<li><p>region: Administrative region of the UK. Discrete strings such as
+London, North-East.</p></li>
+<li><p>education_state: Highest attained qualification. Ordinal values based
+on UK government education tiers</p></li>
+<li><p>neighbourhood_safety: Ordinal values based on frequency of 6 factors
+related to safety</p></li>
+<li><p>loneliness: Ordinal variable for frequency of feeling lonely.
+Often/Sometimes/Never</p></li>
+<li><p>nutrition_quality: Household nutrition quality. Continuous variable
+proxied by frequency of consumption of fruit and vegetables.</p></li>
+<li><p>ncigs: Tobacco consumption. Count of cigarettes smoked per week.</p></li>
+<li><p>hh_income: Household Income. Continuous, equivalised household
+disposable income.</p></li>
+<li><p>housing_tenure: Housing Tenure. Ordinal variable for tenure type
+e.g. Owned outright, Local authority rent</p></li>
+<li><p>behind_on_bills: Subjective feeling of struggling to pay bills.</p></li>
+<li><p>financial_situation: Ordinal variable for current subjective
+financial situation.</p></li>
+<li><p>SF_12: Mental well-being. Continuous score indicating overall
+mental-wellbeing.</p></li>
+</ul>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
@@ -148,20 +171,20 @@ goodness of fit.</p>
 </figcaption>
 </figure>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##                           Length Class         Mode</span>
-<span class="c1">## predictions               184521 -none-        numeric</span>
-<span class="c1">## num.trees                      1 -none-        numeric</span>
-<span class="c1">## num.independent.variables      1 -none-        numeric</span>
-<span class="c1">## mtry                           1 -none-        numeric</span>
-<span class="c1">## min.node.size                  1 -none-        numeric</span>
-<span class="c1">## variable.importance           14 -none-        numeric</span>
-<span class="c1">## prediction.error               1 -none-        numeric</span>
-<span class="c1">## forest                        11 ranger.forest list</span>
-<span class="c1">## splitrule                      1 -none-        character</span>
-<span class="c1">## treetype                       1 -none-        character</span>
-<span class="c1">## call                           7 -none-        call</span>
-<span class="c1">## importance.mode                1 -none-        character</span>
-<span class="c1">## num.samples                    1 -none-        numeric</span>
-<span class="c1">## replace                        1 -none-        logical</span>
+<span class="c1">## predictions               57678  -none-        numeric</span>
+<span class="c1">## num.trees                     1  -none-        numeric</span>
+<span class="c1">## num.independent.variables     1  -none-        numeric</span>
+<span class="c1">## mtry                          1  -none-        numeric</span>
+<span class="c1">## min.node.size                 1  -none-        numeric</span>
+<span class="c1">## variable.importance          14  -none-        numeric</span>
+<span class="c1">## prediction.error              1  -none-        numeric</span>
+<span class="c1">## forest                       11  ranger.forest list</span>
+<span class="c1">## splitrule                     1  -none-        character</span>
+<span class="c1">## treetype                      1  -none-        character</span>
+<span class="c1">## call                          7  -none-        call</span>
+<span class="c1">## importance.mode               1  -none-        character</span>
+<span class="c1">## num.samples                   1  -none-        numeric</span>
+<span class="c1">## replace                       1  -none-        logical</span>
 </pre></div>
 </div>
 </section>

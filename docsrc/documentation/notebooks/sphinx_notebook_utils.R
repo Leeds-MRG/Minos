@@ -13,14 +13,14 @@ real_data <- read.csv(here::here("data", "final_US", "2019_US_cohort.csv"))
 
 # Prevent spamming of package load messages when compiling with sphinx.
 # model stuff.
-suppressMessages(require(pscl))
-suppressMessages(require(nnet))
-suppressMessages(require(ordinal))
-suppressMessages(require(tidyverse))
+suppressMessages(library(pscl))
+suppressMessages(library(nnet))
+suppressMessages(library(ordinal))
+suppressMessages(library(tidyverse))
 # plot stuff.
-suppressMessages(require(ggplot2))
-suppressMessages(require(stringr))
-suppressMessages(require(shadowtext))
+suppressMessages(library(ggplot2))
+suppressMessages(library(stringr))
+suppressMessages(library(shadowtext))
 
 
 notebook_setwd<- function(){
@@ -41,7 +41,13 @@ counts_density <- function(path, v){
   plot(density(obs, from=0, to=quants[2]), main='', xlab=v)
 }
 
-discrete_barplot <- function(obs, v){
+discrete_barplot_old <- function(obs, v){
+  counts <- table(obs)
+  barplot(counts, horiz=F, cex.names=.7, las=2)
+}
+
+discrete_barplot <- function(obs, order){
+  obs <- factor(obs, levels = order, ordered = TRUE)
   counts <- table(obs)
   barplot(counts, horiz=F, cex.names=.7, las=2)
 }

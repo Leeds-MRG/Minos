@@ -22,7 +22,7 @@ Household disposable income is a well known indicator of mental well-being [@gra
 
 The output variable is monthly household disposable income. This is calculated as a composite using several variables. Rent, mortgages, and council tax are subtracted from net household income and adjusted by household size. This value is then adjusted for yearly inflation estimates.
 
-$$    hh\_income\_intermediate = ((net\_hh\_income) - (rent + mortgage + council\_tax)) / hh\_size$$
+$$    hh\_income\_intermediate = ((net\_hh\_income) - (rent + mortgage + council\_tax)) / oecd\_equivalence\_factor$$
 $$    hh\_income = hh\_income\_intermediate * inflation\_factor$$
 
 More information on these variables can be found at the following links:
@@ -30,24 +30,21 @@ More information on these variables can be found at the following links:
 - [net_monthly_income](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fihhmnnet1_dv)
 - monthly_outgoings is the sum of [rent](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/rentgrs_dv), [mortgage](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/xpmg_dv), and [council tax](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/ctband_dv/).
 - [oecd_equivalence_scale](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ieqmoecd_dv)
+- See note [below](#Council-Tax) about council tax.
 
-* See note [below](#Council-Tax) about council tax. *
-
-This produces a continuous distribution of pounds per month available for a household to spend as it likes. This is plotted below with a median income of $~£1650$.
+This produces a continuous distribution of pounds per month available for a household to spend as it likes. This is plotted below with a median income of $\sim£1650$.
 
 ```{r, hh_income_data}
 continuous_density(obs)
 ```
 
-## Methods
+## Transition Model
 
 To estimate this variable we use a Generalised Linear Mixed Model (GLMM) using the [lme4](https://www.rdocumentation.org/packages/lme4/versions/1.1-36) package in R.
-
-## Data
   
-The formula for this linear regression is given as
+Formula:
   
-$$  hh\_income\_next \~ hh\_income\_last + age + age\*\*2 +  age\*\*3 + sex + ethnicity + region + education\_state + job\_sec + SF\_12 + _labour\_state + (1\|pidp)$$
+$$  hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + education\_state + job\_sec + SF\_12 + labour\_state + (1\|pidp)$$
 Each variable included is defined as follows. Each variable with discrete values is defined in the data tables section of this documentation [here](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
 
 - sex. Individual's biological sex. [@dilmaghani2018sexual]
@@ -59,7 +56,6 @@ Each variable included is defined as follows. Each variable with discrete values
 - labour state. Is a person employed, unemployed, student etc. Discrete states. [@dilmaghani2018sexual]
 - education state. Highest attained qualification. Ordinal values based on UK government education tiers [@eika2019educational]
 - SF_12. Mental well-being. Continuous score indicating overall mental-wellbeing. [@viswanathan2005nature]
-- housing quality. Ordinal values indicating number of appliances in household. [@brewer2007poverty]
 
 ### Council Tax
 
