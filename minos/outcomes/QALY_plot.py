@@ -62,6 +62,8 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     data = data.loc[data['year'] != 2020, ]
     print(data['ICER'])
+    data.to_csv(f"plots/icer.csv", index=False)
+
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
@@ -138,6 +140,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
 
     plot_data = plot_data.loc[plot_data['year'] != 2020, ]
     print(plot_data['ICER'])
+    plot_data.to_csv(f"plots/{group}_icer.csv", index=False)
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
