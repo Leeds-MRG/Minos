@@ -30,10 +30,10 @@ def main(mode, intervention, tag):
             qaly_data = pd.concat([qaly_data, qaly_subset])
 
     # plot just qalys
-    QALY_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_energy_combined_QALY_lineplot")
+    QALY_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_income_quintiles_combined_QALY_lineplot")
 
     # plot icer ratios.
-    ICER_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_simd_quintiles_energy_combined_ICR_lineplot")
+    ICER_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_income_quintiles_energy_combined_ICR_lineplot")
 
 if __name__ == '__main__':
     main("energy_manchester_scaled", "GBIS", "GBIS")
