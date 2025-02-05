@@ -72,7 +72,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     print("ICER plot done.")
 
 
-def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
+def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline", group='simd'):
     # sort by time and run id.
     # data.sort_values(by=['year'], inplace=True)
     # note needs initial 0 in cumulative_simposon at the front to maintain array shape.
@@ -80,7 +80,7 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     plot_data= pd.DataFrame()
 
     for i, level in enumerate(["first", "second", "third", "fourth", "fifth"]):
-        subset_data = data.loc[data['subset'] == f"who_{level}_simd_quintile"]
+        subset_data = data.loc[data['subset'] == f"who_{level}_{group}_quintile"]
         subset_data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(
             lambda x: cumulative_simpson(x, dx=1, initial=0))
         subset_data["total_boost_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["total_boost"].transform(np.cumsum)
@@ -106,7 +106,7 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     plt.savefig(file_name)
     print("QALY plot done.")
 
-def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
+def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline", group='simd'):
 
     #sort by time and run id.
     #data.sort_values(by=['year'], inplace=True)
@@ -115,7 +115,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
 
     for i, level in enumerate(["first", "second", "third", "fourth", "fifth"]):
         # note needs initial 0 in cumulative_simposon at the front to maintain array shape.
-        subset_data = data.loc[data['subset'] == f"who_{level}_simd_quintile"]
+        subset_data = data.loc[data['subset'] == f"who_{level}_{group}_quintile"]
         subset_data["QALYs_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["QALYs"].transform(lambda x: cumulative_simpson(x, dx=1,initial=0))
         subset_data["total_boost_cumsum"] = subset_data.groupby(by=["tag", 'run_id'])["total_boost"].transform(np.cumsum)
         # cum sum qaly.
