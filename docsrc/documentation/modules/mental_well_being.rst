@@ -44,58 +44,58 @@ goodness of fit.
    ## 
    ## Scaled residuals: 
    ##     Min      1Q  Median      3Q     Max 
-   ## -52.450  -0.247   0.105   0.405   7.284 
+   ## -53.126  -0.250   0.106   0.408   7.420 
    ## 
    ## Random effects:
    ##  Groups   Name        Variance  Std.Dev.
-   ##  pidp     (Intercept) 0.0014178 0.03765 
-   ##  Residual             0.0004727 0.02174 
-   ## Number of obs: 59676, groups:  pidp, 30476
+   ##  pidp     (Intercept) 0.0013139 0.03625 
+   ##  Residual             0.0004477 0.02116 
+   ## Number of obs: 60762, groups:  pidp, 30674
    ## 
    ## Fixed effects:
    ##                                                                     Estimate Std. Error t value
-   ## (Intercept)                                                        3.918e+00  8.278e-01   4.733
-   ## time                                                              -1.945e-05  4.106e-04  -0.047
-   ## scale(SF_12_last)                                                  1.191e-01  1.071e-03 111.194
-   ## scale(age)                                                         2.128e-02  1.128e-03  18.863
-   ## factor(sex)Male                                                    2.104e-02  2.035e-03  10.337
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                        -6.030e-03  1.362e-02  -0.443
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                         3.439e-02  8.473e-03   4.058
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                         1.939e-02  1.134e-02   1.711
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                         1.890e-02  1.439e-02   1.313
-   ## relevel(factor(ethnicity), ref = "WBI")IND                         5.288e-03  6.472e-03   0.817
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                         1.870e-04  8.407e-03   0.022
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -7.198e-03  9.122e-03  -0.789
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                         3.491e-03  3.059e-02   0.114
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -2.640e-02  1.515e-02  -1.743
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                         6.466e-03  7.903e-03   0.818
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                         1.346e-02  4.761e-03   2.826
-   ## relevel(factor(region), ref = "Scotland")East Midlands             9.260e-03  5.140e-03   1.802
-   ## relevel(factor(region), ref = "Scotland")East of England           4.998e-03  4.849e-03   1.031
-   ## relevel(factor(region), ref = "Scotland")London                   -4.358e-03  4.915e-03  -0.887
-   ## relevel(factor(region), ref = "Scotland")North East               -3.665e-03  6.078e-03  -0.603
-   ## relevel(factor(region), ref = "Scotland")North West                1.663e-03  4.752e-03   0.350
-   ## relevel(factor(region), ref = "Scotland")South East                4.518e-04  4.534e-03   0.100
-   ## relevel(factor(region), ref = "Scotland")South West               -2.624e-03  4.972e-03  -0.528
-   ## relevel(factor(region), ref = "Scotland")Wales                    -7.163e-03  6.253e-03  -1.145
-   ## relevel(factor(region), ref = "Scotland")West Midlands            -3.927e-03  5.005e-03  -0.785
-   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  1.097e-03  4.960e-03   0.221
-   ## relevel(factor(education_state), ref = "1")0                      -1.857e-03  7.559e-03  -0.246
-   ## relevel(factor(education_state), ref = "1")2                       4.328e-03  7.580e-03   0.571
-   ## relevel(factor(education_state), ref = "1")3                      -1.710e-03  7.934e-03  -0.215
-   ## relevel(factor(education_state), ref = "1")5                       8.216e-03  7.995e-03   1.028
-   ## relevel(factor(education_state), ref = "1")6                       2.264e-03  7.670e-03   0.295
-   ## relevel(factor(education_state), ref = "1")7                       8.499e-04  7.834e-03   0.108
-   ## scale(hh_income)                                                   7.967e-03  1.033e-03   7.716
-   ## factor(housing_quality)Low                                        -7.089e-03  3.078e-03  -2.304
-   ## factor(housing_quality)Medium                                      5.578e-03  3.648e-03   1.529
-   ## factor(neighbourhood_safety)2                                      4.850e-03  2.389e-03   2.030
-   ## factor(neighbourhood_safety)3                                      1.192e-02  3.196e-03   3.730
-   ## factor(loneliness)2                                               -7.955e-02  2.372e-03 -33.534
-   ## factor(loneliness)3                                               -2.547e-01  4.161e-03 -61.198
-   ## scale(nutrition_quality)                                           7.067e-03  1.019e-03   6.932
-   ## scale(ncigs)                                                      -6.203e-03  1.476e-03  -4.203
-   ## I(factor(ncigs > 0))TRUE                                          -1.435e-02  4.565e-03  -3.144
+   ## (Intercept)                                                        3.746e+00  8.181e-01   4.579
+   ## time                                                               6.504e-05  4.058e-04   0.160
+   ## scale(SF_12_last)                                                  1.208e-01  1.064e-03 113.520
+   ## scale(age)                                                         2.105e-02  1.116e-03  18.867
+   ## factor(sex)Male                                                    1.934e-02  2.009e-03   9.628
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                        -6.375e-03  1.342e-02  -0.475
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                         2.864e-02  8.322e-03   3.441
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                         1.821e-02  1.117e-02   1.630
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                         1.718e-02  1.415e-02   1.215
+   ## relevel(factor(ethnicity), ref = "WBI")IND                         5.724e-03  6.388e-03   0.896
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                         1.531e-03  8.282e-03   0.185
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -9.973e-03  8.981e-03  -1.110
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                        -4.316e-04  2.922e-02  -0.015
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -2.879e-02  1.446e-02  -1.991
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                         8.164e-03  7.769e-03   1.051
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                         1.432e-02  4.686e-03   3.057
+   ## relevel(factor(region), ref = "Scotland")East Midlands             9.789e-03  5.069e-03   1.931
+   ## relevel(factor(region), ref = "Scotland")East of England           5.390e-03  4.781e-03   1.128
+   ## relevel(factor(region), ref = "Scotland")London                   -3.812e-03  4.838e-03  -0.788
+   ## relevel(factor(region), ref = "Scotland")North East               -4.736e-03  5.997e-03  -0.790
+   ## relevel(factor(region), ref = "Scotland")North West                2.759e-03  4.687e-03   0.589
+   ## relevel(factor(region), ref = "Scotland")South East                4.251e-04  4.465e-03   0.095
+   ## relevel(factor(region), ref = "Scotland")South West               -3.047e-03  4.901e-03  -0.622
+   ## relevel(factor(region), ref = "Scotland")Wales                    -4.485e-03  6.160e-03  -0.728
+   ## relevel(factor(region), ref = "Scotland")West Midlands            -3.852e-03  4.927e-03  -0.782
+   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  1.550e-03  4.887e-03   0.317
+   ## relevel(factor(education_state), ref = "1")0                      -6.917e-04  7.484e-03  -0.092
+   ## relevel(factor(education_state), ref = "1")2                       5.044e-03  7.504e-03   0.672
+   ## relevel(factor(education_state), ref = "1")3                      -1.346e-03  7.854e-03  -0.171
+   ## relevel(factor(education_state), ref = "1")5                       8.275e-03  7.913e-03   1.046
+   ## relevel(factor(education_state), ref = "1")6                       3.654e-03  7.591e-03   0.481
+   ## relevel(factor(education_state), ref = "1")7                       2.992e-03  7.752e-03   0.386
+   ## scale(hh_income)                                                   7.890e-03  1.026e-03   7.687
+   ## factor(housing_quality)Low                                        -7.020e-03  3.040e-03  -2.309
+   ## factor(housing_quality)Medium                                      5.693e-03  3.604e-03   1.580
+   ## factor(neighbourhood_safety)2                                      4.983e-03  2.360e-03   2.111
+   ## factor(neighbourhood_safety)3                                      1.132e-02  3.155e-03   3.587
+   ## factor(loneliness)2                                               -7.890e-02  2.342e-03 -33.686
+   ## factor(loneliness)3                                               -2.546e-01  4.101e-03 -62.071
+   ## scale(nutrition_quality)                                           7.079e-03  1.005e-03   7.046
+   ## scale(ncigs)                                                      -5.924e-03  1.458e-03  -4.064
+   ## I(factor(ncigs > 0))TRUE                                          -1.461e-02  4.525e-03  -3.228
 
 ::
 
