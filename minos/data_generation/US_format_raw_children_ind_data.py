@@ -1,6 +1,8 @@
-""" For now this file is simple. Extract from children datasets, get their ages and hidps. See how this lines up with indresp dataset and how much
+""" To match up children to adults and construct child age chains. See how this lines up with indresp dataset and how much
 missing data (if any) there is.
-
+# HR 13/01/25 Update for ind-level parentage, i.e. for tracking how many children individual adults have
+# Previous hh-level version attached nkids per household
+# This new version attaches nkids_ind per individual
 """
 
 import US_utils

@@ -1,4 +1,3 @@
-
 from minos.modules.base_module import Base
 import pandas as pd
 import logging
