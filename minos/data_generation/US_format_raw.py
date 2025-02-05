@@ -8,7 +8,7 @@ import argparse
 
 import US_utils
 
-import US_format_raw_children_data
+import US_format_raw_children_data, US_format_raw_children_ind_data
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -555,8 +555,12 @@ def format_data(year, data, verbose):
     #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
     if year >= 2014:
         data = US_format_raw_children_data.main(data, year)
-    data = format_analysis_weight(data, year)
 
+    # Vars for linking children to adults (pn1pid and pn2pid) available from wave 1 (2009-2011)
+    if year >= 2009:
+        data = US_format_raw_children_ind_data.main(data, year)
+
+    data = format_analysis_weight(data, year)
     return data
 
 
