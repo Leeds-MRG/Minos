@@ -61,6 +61,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     data['ICER'] = np.log10(np.abs(data['ICER'])+1)
 
     data = data.loc[data['year'] != 2020, ]
+    print(data['ICER'])
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
@@ -136,6 +137,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
         plot_data = pd.concat([plot_data, subset_data])
 
     plot_data = plot_data.loc[plot_data['year'] != 2020, ]
+    print(plot_data['ICER'])
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
