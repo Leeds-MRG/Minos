@@ -71,10 +71,10 @@ if __name__ == "__main__":
     file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    complete_case_vars = ["housing_quality", 'marital_status', 'yearly_energy', "job_sec",
+    complete_case_vars = ['marital_status', 'yearly_energy', "job_sec",
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
                           "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
-    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
+    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage', 'housing_quality'
 
     data = complete_case_varlist(data, complete_case_vars)
     data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
@@ -82,16 +82,18 @@ if __name__ == "__main__":
     # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
     # make sure its int not float (need to convert NA to 0 for this to work)
+
+    # Pathways
+    data = complete_case_custom_years(data, 'housing_quality', years=[2009, 2010, 2012, 2014, 2016, 2017,
+                                                                      2018, 2019, 2020])
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020, 2021])
-    # Now do same for neighbourhood_safety
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
+    data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019, 2021])
     # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
     # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
     data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2022, 1)))
-    # Nutrition only present in 2014
-    data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019, 2021])
 
     # Complete case for some vars in 2015 as it was messing up the cross-validation runs
     #data = complete_case_custom_years(data, 'job_sector', years=[2014])
