@@ -725,6 +725,11 @@ all_energy_QALY_private_and_UC: QALY_baseline_private_and_UC QALY_EPCG_private_a
 all_energy_QALY_private_and_UC_plot:
 	python3 minos/outcomes/QALY_quintiles_private_and_UC_plot.py
 
+# run this first. crunches data into small qaly csvs used for plotting. does this in batches on AIRE hpc.
+all_qaly_plots1: all_energy_QALY all_energy_QALY_private_and_UC all_energy_QALY_quintiles
+# run this command second. does all the actual plotting.
+all_qaly_plots2: all_energy_QALY_plot all_energy_QALY_private_and_UC_plot all_energy_QALY_quintiles_plot
+
 
 QALYs_GHB: EXPERIMENT=scotland_scaled
 QALYs_: STARTYEAR=2020
