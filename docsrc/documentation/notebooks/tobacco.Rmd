@@ -32,7 +32,7 @@ v <- "ncigs"
 
 ## Introduction
 
-Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
+Tobacco consumption is measured in the usual number of cigarettes smoked per day, and is taken directly from a US variable ([ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs)). Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
 
 ## Data
   
@@ -40,36 +40,38 @@ Number of cigarettes consumed is an indicator of several mental illnesses includ
 
 ```{r tobacco_data}
 continuous_density(obs)
-
-zip_density(model, 'ncigs')
+obs_no_zero <- obs[obs != 0]  # remove zero values to look at counts only for smokers
+continuous_density(obs_no_zero)
 ```
 
-## Methods
+## Transition Model
 
-The number of zero inflated values is higher than expected for a count distribution such as a poisson distribution. This inflation occurs naturally as a large proportion (over 50\%) of the population do not smoke. There are two sources of cigarette consumption that can be modelled using zero inflated models. In this case a zero-inflated poisson (ZIP) is used. Two models are fitted simulatenously. One is a logistic regression that estimates whether a person smokes cigarettes or not. This provides a simple probability of smoking or not. The second is a poisson counts model estimating the number of cigarettes consumed. 
+The number of zero inflated values is higher than expected for a count distribution such as a poisson distribution. This inflation occurs naturally as a large proportion (over 50\%) of the population do not smoke. There are two sources of cigarette consumption that can be modelled using zero inflated models. In this case a zero-inflated poisson (ZIP) is used. Two models are fitted simultaneously. One is a logistic regression that estimates whether a person smokes cigarettes or not. This provides a simple probability of smoking or not. The second is a poisson counts model estimating the number of cigarettes consumed. This is modelled using the `zeroinfl()` function from the [pscl](https://www.rdocumentation.org/packages/pscl/versions/1.5.9) package in R.
 
-## Data
+Formula:
 
-Two set of variables are needed for the logistic and poisson parts of the ZIP model respectively.
+$$  ncigs ~ ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation | ncigs\_last + I(ncigs_last>0) + ethnicity + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation  $$
 
-Variables that predict how much a person smokes.
+NOTE: The syntax seen above `I(ncigs>0)` represents a binary flag for whether a person smoked previously (`ncigs > 0`).
 
+Two set of variables are needed for the logistic and poisson parts of the ZIP model respectively. These two formula are separated by a '|' symbol. On the right hand side of the '|' is the formula for the logistic regression that determines whether an individual is a smoker or not. On the left side is the formula for the poisson model to predict the counts of cigarettes for smokers.
+
+ncigs_last previous number consumed.
 age. persons age. generally older people and very young smoke. 
-SF_12. wellbeing estimates number of cigarettes smoked.
-labour_state. whether a person is employed or not.
+sex.
 ethnicity. certain ethnicities more likely to smoke cigarettes. 
+region.
 education_state. highest qualification.
-job_sec job quality
+housing quality.
+neighbourhood safety.
+loneliness.
+nutrition quality.
 hh_income household income
-ncigs previous number consumed.
-
-Variables that predict whether a person smokes
-
-ethnicity. certain ethnicities more likely to smoke cigarettes. 
-labour_state. whether a person is employed or not.
-age
 SF_12. wellbeing estimates number of cigarettes smoked.
-ncigs previous number consumed.
+behind on bills.
+financial situation.
+labour_state. whether a person is employed or not.
+job_sec job quality
 
 ## Results
   
@@ -78,7 +80,7 @@ Almost all coefficients significant. Particularly prevous consumption of cigaret
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-#discrete_barplot2(obs, preds, "housing_quality") 
+continuous_densities(obs, preds, "ncigs")
 zip_output(model)
 ```
 
