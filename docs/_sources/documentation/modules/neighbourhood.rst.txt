@@ -64,10 +64,10 @@ Formula:
 Results
 ~~~~~~~
 
-|plot of chunk housing_output|\ |image1|
+|plot of chunk neighbourhood_output|\ |image1|
 
 References
 ~~~~~~~~~~
 
-.. |plot of chunk housing_output| image:: ./figure/housing_output-1.png
-.. |image1| image:: ./figure/housing_output-2.png
+.. |plot of chunk neighbourhood_output| image:: ./figure/neighbourhood_output-1.png
+.. |image1| image:: ./figure/neighbourhood_output-2.png

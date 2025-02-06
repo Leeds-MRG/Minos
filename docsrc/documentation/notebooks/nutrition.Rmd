@@ -65,7 +65,7 @@ $$  nutrition\_quality \sim age + sex + ethnicity + region + education\_state + 
 
 ## Results
 
-```{r income_output, echo=FALSE}
+```{r nutrition_output, echo=FALSE}
 options(width=120)
 continuous_densities(obs, preds, v)
 print(summary(model))

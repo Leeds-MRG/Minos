@@ -77,7 +77,7 @@ $$  neighbourhood\_safety \sim age + sex + ethnicity + region + education\_state
 
 ## Results
 
-```{r housing_output, echo=FALSE}
+```{r neighbourhood_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, "neighbourhood_safety") 
 plot_rfo_importance(model)
