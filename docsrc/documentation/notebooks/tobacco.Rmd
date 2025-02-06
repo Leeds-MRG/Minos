@@ -3,6 +3,7 @@ title: "Tobacco"
 output: html_document
 bibliography: 
   - "`r here::here('docsrc', 'refs.bib')`"
+  
 ---
 
 # Tobacco
@@ -29,14 +30,7 @@ v <- "ncigs"
 
 ```
 
-
-## Introduction
-
 Tobacco consumption is measured in the usual number of cigarettes smoked per day, and is taken directly from a US variable ([ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs)). Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
-
-## Data
-  
-  What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
 ```{r tobacco_data}
 continuous_density(obs)
@@ -85,4 +79,3 @@ zip_output(model)
 ```
 
 ## References
-

@@ -20,6 +20,8 @@
         <script src="../../_static/doctools.js?v=dcc2bf79"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -55,9 +57,7 @@
 <li class="toctree-l3"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
 <li class="toctree-l3"><a class="reference internal" href="housing.html">Housing Quality</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Loneliness</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#methods">Methods</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#data">Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transition-model">Transition Model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
@@ -117,14 +117,20 @@
              
   <section id="loneliness">
 <h1>Loneliness<a class="headerlink" href="#loneliness" title="Link to this heading"></a></h1>
-<section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
-<p>Prediction of ordinal loneliness state.</p>
-</section>
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
-<p>What methods are used? Justification due to output data type.
-explanation of model output.</p>
+<p>A score for loneliness is taken directly from a US variable -
+<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely">sclonely</a>.
+The questions used to output levels of loneliness in Understanding
+Society come from the Government Statistical Service (GSS) harmonised
+principle of loneliness. This means the outputs are comparable with
+other surveys that use this principle. The GSS has a <a class="reference external" href="https://analysisfunction.civilservice.gov.uk/policy-store/loneliness-indicators/">guidance
+page</a>
+which may be useful to understand what other data can and cannot be
+compared with this output.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">sclonely</span></code> variable is only available from wave 9 onwards, and is
+an ordinal variable with 3 levels:</p>
+<p>1 - Hardly ever or never 2 - Some of the time 3 - Often</p>
+<p>This means that lower scores mean “better” subjective scores of
+loneliness.</p>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1">#discrete_barplot(obs, &#39;loneliness&#39;)</span>
 <span class="n">order</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">)</span>
 <span class="nf">discrete_barplot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
@@ -133,34 +139,35 @@ explanation of model output.</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk loneliness_data" src="../../_images/loneliness_data-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 7 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-</section>
-<section id="data">
-<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
-<p>What variables are included? Why is this output chosen. What explanatory
-variables are used and why are they chosen</p>
+<section id="transition-model">
+<h2>Transition Model<a class="headerlink" href="#transition-model" title="Link to this heading"></a></h2>
+<p>To predict the next state of loneliness we use a Random Forest Ordinal
+model from the
+<a class="reference external" href="https://www.rdocumentation.org/packages/ranger/versions/0.16.0">ranger</a>
+package in R.</p>
+<p>Formula:</p>
+<div class="math notranslate nohighlight">
+\[loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + nutrition\_quality + ncigs + job\_sec + hh\_income + marital\_status + behind\_on\_bills + financial\_situation\]</div>
+<p>Loneliness has been <a class="reference external" href="https://www.tandfonline.com/doi/full/10.1080/03601270701569275?casa_token=3vV_r99mb0QAAAAA%3ACK8Wogj5cs5CQm8gZfLKuHJtctkCyGX_i2y4CLyDgAhsReGB1s7QrV1I0qul-6Gw75QBcY93WoWuWA">linked with educational
+attainment</a>.
+Higher educational attainment has been linked with lower levels of
+stress and neuroticism, of which both have been linked with loneliness
+(more neuroticism/stress linked to more loneliness).</p>
+<p>Loneliness has been <a class="reference external" href="https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020-09208-0">linked with
+ethnicity</a>.
+&gt; The association between ethnicity and loneliness was stronger among
+young and early middle-aged adults, compared to late middle-aged adults.</p>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
-<p>What are the results. Coefficients tables. diagnostic plots. measures of
-goodness of fit.</p>
-<figure class="align-default" id="id2">
-<img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 8 </span><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">plot_rfo_importance</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</pre></div>
-</div>
-<figure class="align-default" id="id3">
-<img alt="plot of chunk unnamed-chunk-1" src="../../_images/unnamed-chunk-1-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 9 </span><span class="caption-text">plot of chunk unnamed-chunk-1</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
-</figcaption>
-</figure>
+<p>Random Forest Ordinal models from the ranger package cannot provide a
+summary like some other models can, so instead we will look at plots of
+observed vs predicted values as well as the importance of each variable
+in the resulting model.</p>
+<p><img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" /><img alt="image1" src="../../_images/housing_output-2.png" /></p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>

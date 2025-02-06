@@ -119,22 +119,61 @@
 <h1>Housing Quality<a class="headerlink" href="#housing-quality" title="Link to this heading"></a></h1>
 <p>Housing Quality is one of the pathways outlined by the SIPHER consortium
 that mediates the impact of changes in household disposable income on
-mental wellbeing. It is</p>
-<p>Information on the variables involved: - fridge_freezer
-(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse5/">cduse5</a>)
-- washing_machine
-(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse6/">cduse6</a>)
-- tumble_dryer
-(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse7/">cduse7</a>)
-- dishwasher
-(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse8/">cduse8</a>)
-- microwave
-(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse9/">cduse9</a>)
-- heating
-(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/">hheat</a>)</p>
-<p>Core set: - fridge_freezer - washing_machine - adequate_heating</p>
-<p>The housing_quality composite is defined as: - Missing 1+ core == 1 -
-All core some bonus == 2 - All core all bonus == 3</p>
+mental wellbeing. It is based on the presence of consumer durable items
+in a household, as well as the ability to adequately heat the household.</p>
+<p>Information on the variables involved:</p>
+<ul class="simple">
+<li><p>fridge_freezer
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse5/">cduse5</a>)</p></li>
+<li><p>washing_machine
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse6/">cduse6</a>)</p></li>
+<li><p>tumble_dryer
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse7/">cduse7</a>)</p></li>
+<li><p>dishwasher
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse8/">cduse8</a>)</p></li>
+<li><p>microwave
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse9/">cduse9</a>)</p></li>
+<li><p>heating
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/">hheat</a>)</p></li>
+</ul>
+<p>The housing_quality composite variable is based on the presence of a set
+of factors, separated into a core set and a bonus set. Variables in the
+core set are access to a fridge freezer, a washing machine, and being
+able to adequately heat your home. The bonus set includes access to a
+dishwasher, microwave, and tumble dryer. We chose this distinction for 2
+reasons; firstly the number of households without access to items in the
+core set is much smaller than those without access to the bonus set, and
+secondly because the bonus items can be considered more of a choice, and
+do not necessarily represent lower housing quality if they are not
+present. For example, some households will not have a microwave by
+choice, which does not necessarily indicate poorer housing quality and
+certainly not in the same way that having no access to a fridge freezer
+would indicate lower quality. See table below for the core and bonus
+groupings:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Core</p></th>
+<th class="head"><p>Bonus</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Fridge Freezer</p></td>
+<td><p>Dishwasher</p></td>
+</tr>
+<tr class="row-odd"><td><p>Washing Machines</p></td>
+<td><p>Tumble Dryer</p></td>
+</tr>
+<tr class="row-even"><td><p>Adequate Heating</p></td>
+<td><p>Microwave</p></td>
+</tr>
+</tbody>
+</table>
+<p>The housing_quality composite is defined as:</p>
+<ul class="simple">
+<li><p>Missing 1+ core == 1</p></li>
+<li><p>All core some bonus == 2</p></li>
+<li><p>All core all bonus == 3</p></li>
+</ul>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk housing_barchart" src="../../_images/housing_barchart-1.png" />
 <figcaption>
@@ -177,40 +216,11 @@ mental-wellbeing.</p></li>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
-<p>What are the results. Coefficients tables. diagnostic plots. measures of
-goodness of fit.</p>
-<figure class="align-default" id="id2">
-<img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 5 </span><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##                           Length Class         Mode</span>
-<span class="c1">## predictions               57678  -none-        numeric</span>
-<span class="c1">## num.trees                     1  -none-        numeric</span>
-<span class="c1">## num.independent.variables     1  -none-        numeric</span>
-<span class="c1">## mtry                          1  -none-        numeric</span>
-<span class="c1">## min.node.size                 1  -none-        numeric</span>
-<span class="c1">## variable.importance          14  -none-        numeric</span>
-<span class="c1">## prediction.error              1  -none-        numeric</span>
-<span class="c1">## forest                       11  ranger.forest list</span>
-<span class="c1">## splitrule                     1  -none-        character</span>
-<span class="c1">## treetype                      1  -none-        character</span>
-<span class="c1">## call                          7  -none-        call</span>
-<span class="c1">## importance.mode               1  -none-        character</span>
-<span class="c1">## num.samples                   1  -none-        numeric</span>
-<span class="c1">## replace                       1  -none-        logical</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">plot_rfo_importance</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</pre></div>
-</div>
-<figure class="align-default" id="id3">
-<img alt="plot of chunk unnamed-chunk-1" src="../../_images/unnamed-chunk-1-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">plot of chunk unnamed-chunk-1</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
-</figcaption>
-</figure>
+<p>Random Forest Ordinal models from the ranger package cannot provide a
+summary like some other models can, so instead we will look at plots of
+observed vs predicted values as well as the importance of each variable
+in the resulting model.</p>
+<p><img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" /><img alt="image1" src="../../_images/housing_output-2.png" /></p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>

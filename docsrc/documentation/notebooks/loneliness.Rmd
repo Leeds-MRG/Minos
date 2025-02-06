@@ -5,7 +5,7 @@ bibliography:
   - "`r here::here('docsrc', 'refs.bib')`" # finally figure out how to combine these for debugging and actual 
 ---
 
-# Loneliness
+
 
 ```{r setup, include=FALSE}
 library(here)
@@ -29,7 +29,7 @@ v <- "loneliness"
 ```
 
 
-## Introduction
+# Loneliness
 
 A score for loneliness is taken directly from a US variable - [sclonely](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely). The questions used to output levels of loneliness in Understanding Society come from the Government Statistical Service (GSS) harmonised principle of loneliness. This means the outputs are comparable with other surveys that use this principle. The GSS has a [guidance page](https://analysisfunction.civilservice.gov.uk/policy-store/loneliness-indicators/) which may be useful to understand what other data can and cannot be compared with this output.
 

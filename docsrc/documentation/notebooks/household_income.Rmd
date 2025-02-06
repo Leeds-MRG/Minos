@@ -45,6 +45,7 @@ To estimate this variable we use a Generalised Linear Mixed Model (GLMM) using t
 Formula:
   
 $$  hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + education\_state + job\_sec + SF\_12 + labour\_state + (1\|pidp)$$
+
 Each variable included is defined as follows. Each variable with discrete values is defined in the data tables section of this documentation [here](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
 
 - sex. Individual's biological sex. [@dilmaghani2018sexual]
