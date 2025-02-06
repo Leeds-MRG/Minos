@@ -13,7 +13,7 @@ library(glmnet)
 library(plyr)
 
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
-model_path <- here::here("data", "transitions", "ncigs", "rfo", "ncigs_RFO.rds")
+model_path <- here::here("data", "transitions", "ncigs", "zip", "ncigs_2019_2020.rds")
 model <- readRDS(model_path)
 
 data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
@@ -39,7 +39,9 @@ Number of cigarettes consumed is an indicator of several mental illnesses includ
   What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
 
 ```{r tobacco_data}
-discrete_barplot(obs, "ncigs")
+continuous_density(obs)
+
+zip_density(model, 'ncigs')
 ```
 
 ## Methods
@@ -76,8 +78,8 @@ Almost all coefficients significant. Particularly prevous consumption of cigaret
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-discrete_barplot2(obs, preds, "housing_quality") 
-rfo_output(model)
+#discrete_barplot2(obs, preds, "housing_quality") 
+zip_output(model)
 ```
 
 ## References

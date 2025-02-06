@@ -14,7 +14,9 @@ explanation of model output.
 
 .. code:: r
 
-   discrete_barplot(obs, 'loneliness')
+   #discrete_barplot(obs, 'loneliness')
+   order <- c(1, 2, 3)
+   discrete_barplot(obs, order)
 
 .. figure:: ./figure/loneliness_data-1.png
    :alt: plot of chunk loneliness_data
@@ -38,23 +40,14 @@ goodness of fit.
 
    plot of chunk housing_output
 
-::
+.. code:: r
 
-   ##                           Length Class         Mode     
-   ## predictions               4800   -none-        numeric  
-   ## num.trees                    1   -none-        numeric  
-   ## num.independent.variables    1   -none-        numeric  
-   ## mtry                         1   -none-        numeric  
-   ## min.node.size                1   -none-        numeric  
-   ## variable.importance         15   -none-        numeric  
-   ## prediction.error             1   -none-        numeric  
-   ## forest                      11   ranger.forest list     
-   ## splitrule                    1   -none-        character
-   ## treetype                     1   -none-        character
-   ## call                         7   -none-        call     
-   ## importance.mode              1   -none-        character
-   ## num.samples                  1   -none-        numeric  
-   ## replace                      1   -none-        logical
+   plot_rfo_importance(model)
+
+.. figure:: ./figure/unnamed-chunk-1-1.png
+   :alt: plot of chunk unnamed-chunk-1
+
+   plot of chunk unnamed-chunk-1
 
 References
 ~~~~~~~~~~

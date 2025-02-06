@@ -3,7 +3,25 @@ Housing Quality
 
 Housing Quality is one of the pathways outlined by the SIPHER consortium
 that mediates the impact of changes in household disposable income on
-mental wellbeing.
+mental wellbeing. It is
+
+Information on the variables involved: - fridge_freezer
+(`cduse5 <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse5/>`__)
+- washing_machine
+(`cduse6 <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse6/>`__)
+- tumble_dryer
+(`cduse7 <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse7/>`__)
+- dishwasher
+(`cduse8 <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse8/>`__)
+- microwave
+(`cduse9 <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse9/>`__)
+- heating
+(`hheat <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/>`__)
+
+Core set: - fridge_freezer - washing_machine - adequate_heating
+
+The housing_quality composite is defined as: - Missing 1+ core == 1 -
+All core some bonus == 2 - All core all bonus == 3
 
 .. figure:: ./figure/housing_barchart-1.png
    :alt: plot of chunk housing_barchart
@@ -73,6 +91,15 @@ goodness of fit.
    ## importance.mode               1  -none-        character
    ## num.samples                   1  -none-        numeric  
    ## replace                       1  -none-        logical
+
+.. code:: r
+
+   plot_rfo_importance(model)
+
+.. figure:: ./figure/unnamed-chunk-1-1.png
+   :alt: plot of chunk unnamed-chunk-1
+
+   plot of chunk unnamed-chunk-1
 
 References
 ~~~~~~~~~~

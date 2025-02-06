@@ -29,7 +29,25 @@ v <- "housing_quality"
 
 # Housing Quality
 
-Housing Quality is one of the pathways outlined by the SIPHER consortium that mediates the impact of changes in household disposable income on mental wellbeing. 
+Housing Quality is one of the pathways outlined by the SIPHER consortium that mediates the impact of changes in household disposable income on mental wellbeing. It is 
+
+Information on the variables involved:
+- fridge_freezer    ([cduse5](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse5/))
+- washing_machine   ([cduse6](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse6/))
+- tumble_dryer      ([cduse7](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse7/))
+- dishwasher        ([cduse8](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse8/))
+- microwave         ([cduse9](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse9/))
+- heating           ([hheat](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/))
+
+Core set:
+- fridge_freezer
+- washing_machine
+- adequate_heating
+
+The housing_quality composite is defined as:
+- Missing 1+ core     == 1
+- All core some bonus == 2
+- All core all bonus  == 3
 
   
 ```{r housing_barchart, echo=FALSE}
@@ -69,6 +87,10 @@ $$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + regio
 options(width=120)
 discrete_barplot2(obs, preds, 'housing_quality') 
 rfo_output(model)
+```
+
+```{r}
+plot_rfo_importance(model)
 ```
 
 

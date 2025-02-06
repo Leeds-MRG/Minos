@@ -130,11 +130,6 @@ clm_output <- function(data_path){
   # any diagnostic plots for tobacco.
 }
 
-rfo_output <- function(model){
-  print(summary(model))
-  # any diagnostic plots for tobacco.
-}
-
 
 # glm models ###################################################################
 
@@ -215,7 +210,7 @@ nnet_output <- function(data_path){
 
 # ZIP models #########################################
 
-zip_density <- function (data_path, v){
+zip_density <- function (zip_model, v){
   # Density plot for zip models.
   # zip model outputs two sets of predictors.
   #
@@ -231,7 +226,7 @@ zip_density <- function (data_path, v){
   # If they have an event assign them the corresponding count else 0.
   
   # get obs/preds
-  zip_model <- readRDS(data_path)
+  #zip_model <- readRDS(data_path)
   obs <- zip_model[[v]]
   # predict probability of zero value and counts of non-zero value..
   probs <- predict(zip_model, type='zero')
@@ -244,9 +239,32 @@ zip_density <- function (data_path, v){
   legend('topright', legend=c("Predicted", "Real"), col=c("red", "blue"), lty=1:2)
 }
 
-zip_output <- function(data_path){
-  zip_model <- readRDS(data_path)
+zip_output <- function(zip_model){
+  #zip_model <- readRDS(data_path)
   print(summary(zip_model))
+}
+
+# RFO Models #########################################
+
+rfo_output <- function(model){
+  print(summary(model))
+  # any diagnostic plots for tobacco.
+}
+
+plot_rfo_importance <- function(rfo_model) {
+  library(ggplot2)
+  
+  importance <- rfo_model$variable.importance
+  
+  importance_df <- data.frame(
+    Variable = names(importance),
+    Importance = importance
+  )
+  
+  ggplot(importance_df, aes(x = reorder(Variable, Importance), y = Importance)) +
+    geom_col() +
+    coord_flip() +
+    labs(title = "Variable Importance", x = "Variables", y = "Importance")
 }
 
 #TODO utility functions for education and replenishment. 

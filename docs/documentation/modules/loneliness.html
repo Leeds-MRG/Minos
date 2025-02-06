@@ -125,13 +125,15 @@
 <h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
 <p>What methods are used? Justification due to output data type.
 explanation of model output.</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">discrete_barplot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;loneliness&#39;</span><span class="p">)</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1">#discrete_barplot(obs, &#39;loneliness&#39;)</span>
+<span class="n">order</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">)</span>
+<span class="nf">discrete_barplot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk loneliness_data" src="../../_images/loneliness_data-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -147,26 +149,18 @@ goodness of fit.</p>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 7 </span><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##                           Length Class         Mode</span>
-<span class="c1">## predictions               4800   -none-        numeric</span>
-<span class="c1">## num.trees                    1   -none-        numeric</span>
-<span class="c1">## num.independent.variables    1   -none-        numeric</span>
-<span class="c1">## mtry                         1   -none-        numeric</span>
-<span class="c1">## min.node.size                1   -none-        numeric</span>
-<span class="c1">## variable.importance         15   -none-        numeric</span>
-<span class="c1">## prediction.error             1   -none-        numeric</span>
-<span class="c1">## forest                      11   ranger.forest list</span>
-<span class="c1">## splitrule                    1   -none-        character</span>
-<span class="c1">## treetype                     1   -none-        character</span>
-<span class="c1">## call                         7   -none-        call</span>
-<span class="c1">## importance.mode              1   -none-        character</span>
-<span class="c1">## num.samples                  1   -none-        numeric</span>
-<span class="c1">## replace                      1   -none-        logical</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">plot_rfo_importance</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 </pre></div>
 </div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk unnamed-chunk-1" src="../../_images/unnamed-chunk-1-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">plot of chunk unnamed-chunk-1</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>

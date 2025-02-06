@@ -119,7 +119,22 @@
 <h1>Housing Quality<a class="headerlink" href="#housing-quality" title="Link to this heading"></a></h1>
 <p>Housing Quality is one of the pathways outlined by the SIPHER consortium
 that mediates the impact of changes in household disposable income on
-mental wellbeing.</p>
+mental wellbeing. It is</p>
+<p>Information on the variables involved: - fridge_freezer
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse5/">cduse5</a>)
+- washing_machine
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse6/">cduse6</a>)
+- tumble_dryer
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse7/">cduse7</a>)
+- dishwasher
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse8/">cduse8</a>)
+- microwave
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/cduse9/">cduse9</a>)
+- heating
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/">hheat</a>)</p>
+<p>Core set: - fridge_freezer - washing_machine - adequate_heating</p>
+<p>The housing_quality composite is defined as: - Missing 1+ core == 1 -
+All core some bonus == 2 - All core all bonus == 3</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk housing_barchart" src="../../_images/housing_barchart-1.png" />
 <figcaption>
@@ -187,6 +202,15 @@ goodness of fit.</p>
 <span class="c1">## replace                       1  -none-        logical</span>
 </pre></div>
 </div>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">plot_rfo_importance</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk unnamed-chunk-1" src="../../_images/unnamed-chunk-1-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">plot of chunk unnamed-chunk-1</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>

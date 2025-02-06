@@ -38,7 +38,9 @@ Prediction of ordinal loneliness state.
   What methods are used? Justification due to output data type. explanation of model output.
   
 ```{r loneliness_data}
-discrete_barplot(obs, 'loneliness')
+#discrete_barplot(obs, 'loneliness')
+order <- c(1, 2, 3)
+discrete_barplot(obs, order)
 ```
 
 ## Data
@@ -53,7 +55,11 @@ discrete_barplot(obs, 'loneliness')
 ```{r housing_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, "loneliness") 
-rfo_output(model)
+#rfo_output(model)
+```
+
+```{r}
+plot_rfo_importance(model)
 ```
 
 
