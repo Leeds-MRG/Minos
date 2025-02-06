@@ -161,15 +161,15 @@ def main(adult_data, year):
 
 if __name__ == '__main__':
 
-    # HR 29/01/25 All below for testing
-    year = 2014
-    years = np.arange(2014, year+1)
-    # file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
-    file_names = [os.path.join(DATA_PATH, f"data/raw_US/{item}_US_cohort.csv") for item in years]
-    data = US_utils.load_multiple_data(file_names)
-    input_data = data.loc[data['time'] == year].copy()
-    adult_data = main(input_data, year)
-    #
+    # # HR 29/01/25 All below for testing
+    # year = 2014
+    # years = np.arange(2014, year+1)
+    # # file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    # file_names = [os.path.join(DATA_PATH, f"data/raw_US/{item}_US_cohort.csv") for item in years]
+    # data = US_utils.load_multiple_data(file_names)
+    # input_data = data.loc[data['time'] == year].copy()
+    # adult_data = main(input_data, year)
+
     # # HR 31/01/25 Testing correction to nkids_ind (1) using child_ages_ind (2), as should have (1) >= (2) everywhere
     # y = 2019
     # pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
@@ -177,3 +177,70 @@ if __name__ == '__main__':
     # dy = dy.loc[dy['sex'] == 'Female']
     # dy['children_ind'] = dy['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
     # dy['kids_diff'] = dy['children_ind'] - dy['nkids_ind']
+
+
+    # HR 05/02/25 Testing: birth spacing and age at first birth
+
+    ### 1. PLOT AGE OF MOTHERS AT BIRTH OF FIRST CHILD
+    import matplotlib.pyplot as plt
+
+    def add_birth_data(pop):
+
+        pop['children_ind'] = pop['child_ages_ind'].astype('int64').apply(integer_child_ages_to_list)
+        pop['age_of_first_child'] = pop['children_ind'].str[0]
+        pop['age_zero'] = pop['age'] - dy['age_of_first_child']
+        pop['spacings'] = pop['child_ages_ind'].astype('int64').apply(get_birth_spacing)
+        pop['first_spacing'] = pop['spacings'].str[0]
+
+        return pop
+
+
+    inc = 3
+    years = range(2009, 2021 + 1)[::inc]
+
+    fig, ax = plt.subplots()
+
+    for i, y in enumerate(years):
+        pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
+        dy = pd.read_csv(pathy)
+        dy = dy.loc[dy['sex'] == 'Female']
+
+        dy = add_birth_data(dy)
+
+        # Get normalised plot of ages
+        dp = dy['age_zero'].value_counts(normalize=True).sort_index()
+        ax.plot(dp.index, dp.values, label=y)
+
+        # Add mean values to lower part of plot
+        m = dy['age_zero'].mean()
+        c = plt.gca().lines[-1].get_color()
+        ax.scatter(m, 0, s=50, marker='*', color=c)
+
+
+    plt.xlim(10, 50)
+    plt.legend()
+    plt.show()
+    plt.savefig('age_at_first_birth.png')
+
+
+    ### 2. BIRTH SPACING (1ST-2ND CHILD) VS. AGE FOR LATEST YEAR OF DATA
+    yd = 2021
+    inc = 3
+
+    # Get data and add birth variables
+    pathy = os.path.join(DATA_PATH, f"data/final_US/{yd}_US_cohort.csv")
+    dy = pd.read_csv(pathy)
+    dy = dy.loc[dy['sex'] == 'Female']
+    dy = add_birth_data(dy)
+
+    # Get mean first birth spacing by age bin
+    bins = range(15, 85, 5)
+    groups = dy.groupby(pd.cut(dy['age'], bins))['first_spacing'].mean()
+
+    # Plot
+    plt.clf()
+    pl = groups.plot(kind='bar')
+    for label in pl.get_xticklabels():
+        label.set_rotation(45)
+    plt.show()
+    plt.savefig('mean_first_spacing.png')

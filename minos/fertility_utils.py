@@ -325,24 +325,24 @@ def plot_metrics(data,
 
 if __name__ == '__main__':
 
-    # ref_data = get_fertility_reference_data()
-    #
+    ref_data = get_fertility_reference_data()
+
     ''' Plot up mort and fert metrics with and without synthpop and parity '''
-    # m1 = get_metrics_post(parity=False, synthpop=False)
-    # m2 = get_metrics_post(parity=True, synthpop=False)
-    # m3 = get_metrics_post(parity=False, synthpop=True)
-    # m4 = get_metrics_post(parity=True, synthpop=True)
-    #
-    # data = [m1, m2, m3, m4]
-    #
-    # plot_metrics(data=data,
-    #              ref_data=ref_data,
-    #              outfile='metrics_all.jpg')
-    #
+    m1 = get_metrics_post(parity=False, synthpop=False)
+    m2 = get_metrics_post(parity=True, synthpop=False)
+    m3 = get_metrics_post(parity=False, synthpop=True)
+    m4 = get_metrics_post(parity=True, synthpop=True)
+
+    data = [m1, m2, m3, m4]
+
+    plot_metrics(data=data,
+                 ref_data=ref_data,
+                 outfile='metrics_all.jpg')
+
     # ''' Get latest data '''
     # d1 = get_latest_data(parity=False, synthpop=False)
     # d2 = get_latest_data(parity=True, synthpop=False)
-    d3 = get_latest_data(parity=False, synthpop=True)
+    # d3 = get_latest_data(parity=False, synthpop=True)
     # d4 = get_latest_data(parity=True, synthpop=True)
     #
     # ''' Adding spatial attributes '''
