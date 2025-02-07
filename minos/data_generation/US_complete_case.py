@@ -71,10 +71,10 @@ if __name__ == "__main__":
     file_names = [f"data/composite_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
 
-    complete_case_vars = ['marital_status', 'yearly_energy', "job_sec",
+    complete_case_vars = ['marital_status', 'yearly_energy', "job_sec", 'housing_quality',
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
                           "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
-    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage', 'housing_quality'
+    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage',
 
     data = complete_case_varlist(data, complete_case_vars)
     data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
@@ -84,8 +84,8 @@ if __name__ == "__main__":
     # make sure its int not float (need to convert NA to 0 for this to work)
 
     # Pathways
-    data = complete_case_custom_years(data, 'housing_quality', years=[2009, 2010, 2012, 2014, 2016, 2017,
-                                                                      2018, 2019, 2020])
+    # data = complete_case_custom_years(data, 'housing_quality', years=[2009, 2010, 2012, 2014, 2016, 2017,
+    #                                                                   2018, 2019, 2020])
     data = complete_case_custom_years(data, 'loneliness', years=[2017, 2018, 2019, 2020, 2021])
     data = complete_case_custom_years(data, 'neighbourhood_safety', years=[2011, 2014, 2017, 2020])
     data = complete_case_custom_years(data, 'S7_neighbourhood_safety', years=[2011, 2014, 2017, 2020])
