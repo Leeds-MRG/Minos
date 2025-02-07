@@ -21,10 +21,10 @@ data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
 obs <- data$ncigs
 data$ncigs_last <- data$ncigs
 
-preds <- ranger::predictions(stats::predict(model, data))
-column_names <- colnames(preds)
-preds <-glmnet::rmult(preds) - 1
-preds <- 5 * preds
+#preds <- ranger::predictions(stats::predict(model, data))
+#column_names <- colnames(preds)
+#preds <-glmnet::rmult(preds) - 1
+#preds <- 5 * preds
 
 v <- "ncigs"
 
@@ -74,7 +74,9 @@ Almost all coefficients significant. Particularly prevous consumption of cigaret
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-continuous_densities(obs, preds, "ncigs")
+#continuous_densities(obs, preds, "ncigs")
+zip_output(model)
+#zip_density(model, 'ncigs')
 zip_output(model)
 ```
 

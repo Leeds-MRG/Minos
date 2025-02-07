@@ -64,7 +64,7 @@ Loneliness has been [linked with ethnicity](https://bmcpublichealth.biomedcentra
   
 Random Forest Ordinal models from the ranger package cannot provide a summary like some other models can, so instead we will look at plots of observed vs predicted values as well as the importance of each variable in the resulting model.
 
-```{r housing_output, echo=FALSE}
+```{r loneliness_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, "loneliness") 
 plot_rfo_importance(model)

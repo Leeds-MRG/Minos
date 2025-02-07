@@ -61,10 +61,10 @@ summary like some other models can, so instead we will look at plots of
 observed vs predicted values as well as the importance of each variable
 in the resulting model.
 
-|plot of chunk housing_output|\ |image1|
+|plot of chunk loneliness_output|\ |image1|
 
 References
 ~~~~~~~~~~
 
-.. |plot of chunk housing_output| image:: ./figure/housing_output-1.png
-.. |image1| image:: ./figure/housing_output-2.png
+.. |plot of chunk loneliness_output| image:: ./figure/loneliness_output-1.png
+.. |image1| image:: ./figure/loneliness_output-2.png
