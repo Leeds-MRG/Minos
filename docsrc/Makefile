@@ -9,7 +9,7 @@ SPHINXAPIBUILD   ?= sphinx-apidoc
 SPHINXSOURCEDIR     = docsrc/
 BUILDDIR      = docs
 NOTEBOOKDIR = docsrc/documentation/notebooks/
-DOCSRCDIR=docsrc/
+DOCSRCDIR=docsrc
 NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/
 DOCUMENTATIONDIR=docsrc/documentation/
 
@@ -59,7 +59,7 @@ sphinx_github: render_rmd
 
 clean_docs:
 	# Remove any knitted notebooks leftovers.
-	rm "$(NOTEBOOKDIR)*.pdf"
-	rm "$(NOTEBOOKDIR)*.html"
-	rm "$(NOTEBOOKDIR)*.md"
-	rm -rf ../docs/* !(.nojekyll) # should remove everything in docs but nojekyll.
+	rm -f "$(NOTEBOOKDIR)*.pdf"
+	rm -f "$(NOTEBOOKDIR)*.html"
+	rm -f "$(NOTEBOOKDIR)*.md"
+	find docs -mindepth 1 ! -name ".nojekyll" -exec rm -rf {} +
